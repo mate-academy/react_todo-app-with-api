@@ -18,23 +18,25 @@ export const TodosFilter: React.FC = () => {
 
   const hasCompletedTodo = todos.some(todo => todo.completed);
 
-  const handleClearCompleted = () => {
-    todos.filter(todo => todo.completed).map(
-      todo => deleteTodo(todo.id).then(() => {
-        setTodos(prevTodos => prevTodos.filter(
-          currentTodo => currentTodo.id !== todo.id,
-        ));
-      })
-        .catch(() => setError(Error.DeleteTodo))
-        .finally(() => {
-          setIsClearCompleted(false);
-          if (inputRef.current) {
-            inputRef.current.focus();
-          }
-        }),
-    );
-
+  const handleClearCompleted = async () => {
     setIsClearCompleted(true);
+
+    try {
+      const completedTodos = todos.filter(todo => todo.completed);
+
+      await Promise.all(completedTodos.map(async todo => {
+        await deleteTodo(todo.id);
+        setTodos(prevTodos => prevTodos.filter(currentTodo => currentTodo.id
+          !== todo.id));
+      }));
+    } catch (error) {
+      setError(Error.DeleteTodo);
+    } finally {
+      setIsClearCompleted(false);
+      if (inputRef.current) {
+        inputRef.current.focus();
+      }
+    }
   };
 
   const unCompletedCount = todos.filter(

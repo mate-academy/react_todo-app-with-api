@@ -29,43 +29,45 @@ export const Header: React.FC = () => {
     setIsToggleAll(isEveryTodoCompleted);
   }, [todos, isEveryTodoCompleted]);
 
-  const onToggleAll = useCallback(() => {
+  const onToggleAll = useCallback(async () => {
     setIsToggleAllClicked(true);
 
-    if (isToggleAll) {
-      const notCompletedTodos = todos.filter(todo => todo.completed);
+    try {
+      if (isToggleAll) {
+        const notCompletedTodos = todos.filter(todo => todo.completed);
 
-      notCompletedTodos.forEach(todo => (
-        editTodo(todo.id, { completed: false })
-          .then(() => {
-            setTodos(todos.map(currentTodo => (
-              { ...currentTodo, completed: false })));
-          })
-          .catch(() => setError(Error.UpdateTodo))
-          .finally(() => setIsToggleAllClicked(false))
-      ));
-    } else {
-      const CompletedTodos = todos.filter(todo => !todo.completed);
+        await Promise.all(notCompletedTodos.map(async todo => {
+          await editTodo(todo.id, { completed: false });
+        }));
 
-      CompletedTodos.forEach(todo => {
-        setToggledTodos(todo.id);
+        setTodos(todos.map(currentTodo => ({
+          ...currentTodo,
+          completed: false,
+        })));
+      } else {
+        const completedTodos = todos.filter(todo => !todo.completed);
 
-        editTodo(todo.id, { completed: true })
-          .then(() => {
-            setTodos(todos.map(currentTodo => (
-              { ...currentTodo, completed: true })));
-          })
-          .catch(() => setError(Error.UpdateTodo))
-          .finally(() => setIsToggleAllClicked(false));
-      });
+        await Promise.all(completedTodos.map(async todo => {
+          setToggledTodos(todo.id);
+          await editTodo(todo.id, { completed: true });
+        }));
+
+        setTodos(todos.map(currentTodo => ({
+          ...currentTodo,
+          completed: true,
+        })));
+      }
+    } catch (error) {
+      setError(Error.UpdateTodo);
+    } finally {
+      setIsToggleAllClicked(false);
     }
   }, [isToggleAll,
     setError,
     setIsToggleAllClicked,
     setTodos,
     setToggledTodos,
-    todos,
-  ]);
+    todos]);
 
   useEffect(() => {
     if (inputRef.current) {

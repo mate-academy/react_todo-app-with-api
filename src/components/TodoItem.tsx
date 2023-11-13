@@ -10,7 +10,6 @@ import { Todo } from '../types/Todo';
 import { TodoContext } from '../TodoContext';
 import { Error } from '../types/Error';
 import { deleteTodo, editTodo } from '../api/todos';
-import { Keys } from '../types/Keys';
 
 type Props = {
   todo: Todo
@@ -56,47 +55,43 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
     setUpdatedTitle(todo.title);
   };
 
-  const handleTodoToggle = useCallback(() => {
+  const handleTodoToggle = useCallback(async () => {
     setToggledTodos(todo.id);
     setIsToggled(true);
 
-    editTodo(todo.id, { completed: !todo.completed })
-      .then(() => {
-        const updatedTodos = todos.map((currentTodo) => {
-          if (currentTodo.id === todo.id) {
-            return { ...currentTodo, completed: !currentTodo.completed };
-          }
+    try {
+      await editTodo(todo.id, { completed: !todo.completed });
 
-          return currentTodo;
-        });
+      const updatedTodos = todos.map((currentTodo) => {
+        if (currentTodo.id === todo.id) {
+          return { ...currentTodo, completed: !currentTodo.completed };
+        }
 
-        setToggledTodos(null);
-        setTodos(updatedTodos);
-      })
-      .catch(() => setError(Error.UpdateTodo))
-      .finally(() => setIsToggled(false));
-  }, [setError,
-    setTodos,
-    todo.completed,
-    todo.id,
-    setToggledTodos,
-    todos]);
-
-  const handleDelete = () => {
-    deleteTodo(todo.id)
-      .then(() => {
-        setTodos(todos.filter(currentTodo => currentTodo.id !== todo.id));
-      })
-      .catch(() => setError(Error.DeleteTodo))
-      .finally(() => {
-        setDeletingTodo(undefined);
-        inputRef.current?.focus();
+        return currentTodo;
       });
 
-    setDeletingTodo(todos.find(currentTodo => currentTodo.id === todo.id));
+      setToggledTodos(null);
+      setTodos(updatedTodos);
+    } catch (error) {
+      setError(Error.UpdateTodo);
+    } finally {
+      setIsToggled(false);
+    }
+  }, [setError, setTodos, todo.completed, todo.id, setToggledTodos, todos]);
+
+  const handleDelete = async () => {
+    try {
+      await deleteTodo(todo.id);
+      setTodos(todos.filter(currentTodo => currentTodo.id !== todo.id));
+    } catch (error) {
+      setError(Error.DeleteTodo);
+    } finally {
+      setDeletingTodo(undefined);
+      inputRef.current?.focus();
+    }
   };
 
-  const handleBlur = () => {
+  const handleBlur = async () => {
     if (updatedTitle.trim() === '') {
       handleDelete();
 
@@ -106,21 +101,23 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
     if (!isEqualTitle) {
       setIsUpdating(true);
 
-      editTodo(todo.id, { title: updatedTitle })
-        .then(() => {
-          const updatedTodos = todos.map((currentTodo) => {
-            if (currentTodo.id === todo.id) {
-              return { ...currentTodo, title: updatedTitle.trim() };
-            }
+      try {
+        await editTodo(todo.id, { title: updatedTitle });
+        const updatedTodos = todos.map((currentTodo) => {
+          if (currentTodo.id === todo.id) {
+            return { ...currentTodo, title: updatedTitle.trim() };
+          }
 
-            return currentTodo;
-          });
+          return currentTodo;
+        });
 
-          setUpdatingTodo(null);
-          setTodos(updatedTodos);
-        })
-        .catch(() => setError(Error.UpdateTodo))
-        .finally(() => setIsUpdating(false));
+        setUpdatingTodo(null);
+        setTodos(updatedTodos);
+      } catch (error) {
+        setError(Error.UpdateTodo);
+      } finally {
+        setIsUpdating(false);
+      }
     } else {
       setUpdatingTodo(null);
     }
@@ -129,9 +126,9 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
   const handleKeyUp = (
     event: React.KeyboardEvent<HTMLInputElement>,
   ) => {
-    if (event.key === Keys.Enter) {
+    if (event.key === 'Enter') {
       handleBlur();
-    } else if (event.key === Keys.Escape) {
+    } else if (event.key === 'Escape') {
       setUpdatedTitle(todo.title);
       setUpdatingTodo(null);
       setIsUpdating(false);
