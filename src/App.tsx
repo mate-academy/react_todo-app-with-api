@@ -103,19 +103,21 @@ export const App: React.FC = () => {
   async function deleteTodo(id: number[]) {
     setTodoLoadingId(id);
 
-    try {
-      id.forEach(idCompleted => {
-        todoApi.deleteTodos(idCompleted)
-          .then(() => setTodos(
-            currentList => currentList.filter(
-              todo => todo.id !== idCompleted,
-            ),
-          ));
-      });
-    } catch {
+    await Promise.all(id.map(idCompleted => (
+      todoApi.deleteTodos(idCompleted)
+        .then(() => setTodos(
+          currentList => currentList.filter(
+            todo => todo.id !== idCompleted,
+          ),
+        )).finally(() => setTodoLoadingId(
+          (currentIds) => currentIds.filter(
+            currentId => currentId !== idCompleted,
+          ),
+        ))
+    ))).catch(() => {
       setErrorMessage('Unable to delete a todo');
       errorDeletion();
-    }
+    });
   }
 
   async function updatePost(

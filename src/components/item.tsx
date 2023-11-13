@@ -8,7 +8,7 @@ interface Props {
   todoLoadingId: number[],
   setSelectedTodo: (todo: Todo) => void,
   selectedTodo: Todo | null,
-  onUpdatePost: (todo: Todo) => Promise<{ isError: boolean } | undefined>
+  onUpdatePost: (todo: Todo) => Promise<{ isError: boolean } | undefined>,
 }
 
 export const Item: React.FC<Props> = ({
@@ -35,7 +35,7 @@ export const Item: React.FC<Props> = ({
     if (isEditing && titleField.current) {
       titleField.current.focus();
     }
-  });
+  }, [isEditing]);
 
   const handleSubmit = (event: React.FormEvent) => {
     event.preventDefault();
@@ -53,7 +53,7 @@ export const Item: React.FC<Props> = ({
     if (newTitle.length > 0) {
       onUpdatePost?.({
         ...todo,
-        title: newTitle,
+        title: newTitle.trim(),
       });
     }
 
@@ -68,6 +68,7 @@ export const Item: React.FC<Props> = ({
       })}
       key={todo.id}
     >
+      {/* eslint-disable jsx-a11y/label-has-associated-control */}
       <label className="todo__status-label">
         <input
           data-cy="TodoStatus"

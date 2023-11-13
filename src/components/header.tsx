@@ -31,7 +31,7 @@ export const Header: React.FC<Props> = ({
     if (titleField.current) {
       titleField.current?.focus();
     }
-  }, [todos]);
+  }, [todos, onSubmit]);
 
   const handleTitleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setTitle(event.target.value);
