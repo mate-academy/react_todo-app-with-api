@@ -19,8 +19,8 @@ export const Error: React.FC<Props> = ({
     return () => {
       clearTimeout(timer);
     };
-    // eslint-disable-next-line
-  }, [isHiddenClass]);
+  
+  }, [isHiddenClass, setIsHiddenClass]);
 
   return (
     <div

@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { Todo } from '../../types/Todo';
 import { TodoItem } from '../Todo/Todo';
-// import { Loader } from '../Loader';
 
 type Props = {
   todos: Todo[],
