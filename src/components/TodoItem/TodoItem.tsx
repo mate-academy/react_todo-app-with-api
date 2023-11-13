@@ -1,11 +1,12 @@
 /* eslint-disable no-console */
 import React from 'react';
-import { useDispatch } from 'react-redux';
-import { AppDispatch } from '../../redux/store';
+import { useDispatch, useSelector } from 'react-redux';
+import cn from 'classnames';
+import { AppDispatch, RootState } from '../../redux/store';
 import { Todo } from '../../types/Todo';
 import {
   deleteTodo,
-  // setCompletion,
+  setCompletion,
 } from '../../redux/todoThunks';
 
 type TodoItemProps = {
@@ -22,7 +23,9 @@ export const TodoItem = React.memo<TodoItemProps>(
     console.log('Rendering TodoItem');
 
     const dispatch = useDispatch<AppDispatch>();
-    const itemClasses = `todo ${isTemporary ? 'temp-item' : ''}`;
+    const updatingTodoIds = useSelector(
+      (state: RootState) => state.todos.updatingTodoIds,
+    );
 
     const handleDeleteTodo = () => {
       dispatch(deleteTodo(todo.id))
@@ -31,10 +34,17 @@ export const TodoItem = React.memo<TodoItemProps>(
         });
     };
 
-    // const handleToggleCompletion = () => {
-    //   // Assuming setCompletion is an action that toggles the completion status
-    //   dispatch(setCompletion(todo.id, !todo.completed));
-    // };
+    const handleToggleCompletion = () => {
+      dispatch(setCompletion(
+        { todoId: todo.id, completed: !todo.completed },
+      ));
+    };
+
+    const itemClasses = cn({
+      todo: true,
+      'temp-item': isTemporary,
+      completed: todo.completed,
+    });
 
     return (
       <div data-cy="Todo" className={itemClasses}>
@@ -44,7 +54,7 @@ export const TodoItem = React.memo<TodoItemProps>(
             type="checkbox"
             className="todo__status"
             checked={todo.completed}
-            readOnly // no change handler yet
+            onChange={handleToggleCompletion}
           />
         </label>
 
@@ -60,7 +70,7 @@ export const TodoItem = React.memo<TodoItemProps>(
           ×
         </button>
 
-        {(isTemporary || isDeleting) && (
+        {(isTemporary || isDeleting || updatingTodoIds.includes(todo.id)) && (
           <div data-cy="TodoLoader" className="overlay">
             <div className="modal-background has-background-white-ter" />
             <div className="loader" />

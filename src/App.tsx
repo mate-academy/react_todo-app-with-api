@@ -1,5 +1,4 @@
 /* eslint-disable no-console */
-/* eslint-disable jsx-a11y/control-has-associated-label */
 import React, { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { AppDispatch, RootState } from './redux/store';
@@ -12,23 +11,29 @@ import { UserWarning } from './components/UserWarning/UserWarning';
 import { TodoFilter } from './types/TodoFilter';
 import {
   clearErrorType,
-  // clearTempTodo,
-  // setErrorType,
   setFilter,
-  // setInputValue,
-  // setTempTodo,
 } from './redux/todoSlice';
-// import { ErrorType } from './types/errorType';
 import { selectFilteredTodos } from './redux/selectors';
 import { fetchTodos } from './redux/todoThunks';
 
 export const App: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>();
 
-  const todos = useSelector((state: RootState) => state.todos.todos);
-  const status = useSelector((state: RootState) => state.todos.status);
-  const error = useSelector((state: RootState) => state.todos.error);
-  const errorType = useSelector((state: RootState) => state.todos.errorType);
+  const todos = useSelector(
+    (state: RootState) => state.todos.todos,
+  );
+
+  const status = useSelector(
+    (state: RootState) => state.todos.status,
+  );
+
+  const error = useSelector(
+    (state: RootState) => state.todos.error,
+  );
+
+  const errorType = useSelector(
+    (state: RootState) => state.todos.errorType,
+  );
 
   useEffect(() => {
     dispatch(fetchTodos(USER_ID));
