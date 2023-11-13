@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Todo } from '../../types/Todo';
 import { TodoItem } from '../Todo/Todo';
-import { Loader } from '../Loader';
+// import { Loader } from '../Loader';
 
 type Props = {
   todos: Todo[],
@@ -43,31 +43,10 @@ export const TodoList: React.FC<Props> = ({
         />
       ))}
       {tempTodo && (
-        <div data-cy="Todo" className="todo item-enter-done">
-          <Loader
-            isActive
-          />
-          <label className="todo__status-label">
-            <input
-              data-cy="TodoStatus"
-              type="checkbox"
-              className="todo__status"
-              readOnly
-            />
-          </label>
-
-          <span data-cy="TodoTitle" className="todo__title">
-            {tempTodo.title}
-          </span>
-
-          <button
-            type="button"
-            className="todo__remove"
-            data-cy="TodoDelete"
-          >
-            ×
-          </button>
-        </div>
+        <TodoItem
+          todo={tempTodo}
+          isActive
+        />
       )}
     </section>
   );

@@ -5,30 +5,30 @@ import { Loader } from '../Loader';
 
 type Props = {
   todo: Todo,
-  setError: (value: string) => void,
-  setTodos: React.Dispatch<React.SetStateAction<Todo[]>>,
-  setSelectedTodoId: (value: number) => void,
+  setError?: (value: string) => void,
+  setTodos?: React.Dispatch<React.SetStateAction<Todo[]>>,
+  setSelectedTodoId?: (value: number) => void,
   isActive: boolean;
-  isDobleClick: boolean,
-  isEditing: boolean,
-  setIsEditing: (value: boolean) => void,
-  setInputId: (value: number) => void,
-  setIsHiddenClass: (value: boolean) => void,
-  setIsDisable: (value: boolean) => void,
+  isDobleClick?: boolean,
+  isEditing?: boolean,
+  setIsEditing?: (value: boolean) => void,
+  setInputId?: (value: number) => void,
+  setIsHiddenClass?: (value: boolean) => void,
+  setIsDisable?: (value: boolean) => void,
 };
 
 export const TodoItem: React.FC<Props> = ({
   todo,
-  setError,
-  setTodos,
-  setSelectedTodoId,
+  setError = () => {},
+  setTodos = () => {},
+  setSelectedTodoId = () => {},
   isActive,
   isDobleClick,
   isEditing,
-  setIsEditing,
-  setInputId,
-  setIsHiddenClass,
-  setIsDisable,
+  setIsEditing = () => {},
+  setInputId = () => {},
+  setIsHiddenClass = () => {},
+  setIsDisable = () => {},
 }) => {
   const [editedTitle, setEditedTitle] = useState('');
 
@@ -155,6 +155,12 @@ export const TodoItem: React.FC<Props> = ({
     editTodoOnServer(selectedTodo);
   };
 
+  const handleDoubleClick = (selectedTodo: Todo) => {
+    setIsEditing(true);
+    setInputId(selectedTodo.id);
+    setEditedTitle(selectedTodo.title);
+  };
+
   return (
     isEditing && isDobleClick ? (
       <div data-cy="Todo" className="todo">
@@ -169,7 +175,6 @@ export const TodoItem: React.FC<Props> = ({
           isActive={isActive}
         />
 
-        {/* This form is shown instead of the title and remove button */}
         <form
           onSubmit={(event) => handleEditTodo(event, todo)}
         >
@@ -183,7 +188,6 @@ export const TodoItem: React.FC<Props> = ({
             onChange={event => setEditedTitle(event.target.value)}
             onBlur={() => handleOnBlur(todo)}
             onKeyUp={handleKeyUp}
-            // onKeyUp={handleKeyUp}
           />
         </form>
       </div>
@@ -191,11 +195,7 @@ export const TodoItem: React.FC<Props> = ({
       <div
         data-cy="Todo"
         className={`todo item-enter-done ${todo.completed && 'completed'}`}
-        onDoubleClick={() => {
-          setIsEditing(true);
-          setInputId(todo.id);
-          setEditedTitle(todo.title);
-        }}
+        onDoubleClick={() => handleDoubleClick(todo)}
       >
         <Loader
           isActive={isActive}
