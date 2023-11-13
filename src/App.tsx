@@ -28,6 +28,7 @@ export const App: React.FC = () => {
       setTodos(todosData);
     } catch (error) {
       setErrorMessage('Unable to load todos');
+      throw error;
     }
   };
 
@@ -76,13 +77,9 @@ export const App: React.FC = () => {
     setModifyingTodoIds((prevId) => [...prevId, id]);
 
     try {
-      const isTodoDelete = await deleteTodo(id);
+      await deleteTodo(id);
 
-      if (isTodoDelete) {
-        setTodos((prevTodo) => prevTodo.filter((todo) => todo.id !== id));
-      } else {
-        setErrorMessage('Unable to delete a todo');
-      }
+      setTodos((prevTodo) => prevTodo.filter((todo) => todo.id !== id));
     } catch (error) {
       setErrorMessage('Unable to delete a todo');
       throw error;

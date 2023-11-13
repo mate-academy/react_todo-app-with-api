@@ -36,25 +36,40 @@ export const TodoItem: React.FC<Props> = ({
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
 
-    if (!updatedTitle.length) {
-      await onTodoDelete?.();
-    } else if (updatedTitle !== todo.title) {
-      try {
-        await onTodoUpdate?.({
-          ...todo,
-          title: updatedTitle.trim(),
-        });
+    const trimmedUpdatedTitle = updatedTitle.trim();
 
-        setIsEditing(false);
-      } catch (error) {
-        if (updatedTitleField.current) {
-          updatedTitleField.current.focus();
-        }
+    if (!trimmedUpdatedTitle) {
+      onTodoDelete?.();
 
-        throw new Error('Some error occured');
-      }
-    } else {
+      return;
+    }
+
+    if (todo.title === trimmedUpdatedTitle) {
       setIsEditing(false);
+
+      return;
+    }
+
+    try {
+      await onTodoUpdate?.({
+        ...todo,
+        title: trimmedUpdatedTitle,
+      });
+
+      setIsEditing(false);
+    } catch (error) {
+      if (updatedTitleField.current) {
+        updatedTitleField.current.focus();
+      }
+
+      throw new Error('Some error occured');
+    }
+  };
+
+  const handleEscapeClick = (event: React.KeyboardEvent<HTMLInputElement>) => {
+    if (event.key === 'Escape') {
+      setIsEditing(false);
+      setUpdatedTitle(todo.title);
     }
   };
 
@@ -90,8 +105,9 @@ export const TodoItem: React.FC<Props> = ({
           </button>
         </>
       ) : (
-        <form onSubmit={handleSubmit} onBlur={handleSubmit}>
+        <form onSubmit={handleSubmit}>
           <input
+            onBlur={handleSubmit}
             data-cy="TodoTitleField"
             type="text"
             className="todo__title-field"
@@ -101,12 +117,7 @@ export const TodoItem: React.FC<Props> = ({
             onChange={(event) => {
               setUpdatedTitle(event.target.value);
             }}
-            onKeyUp={(event) => {
-              if (event.key === 'Escape') {
-                setIsEditing(false);
-                setUpdatedTitle(todo.title);
-              }
-            }}
+            onKeyUp={handleEscapeClick}
           />
         </form>
       )}
