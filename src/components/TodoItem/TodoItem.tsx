@@ -1,8 +1,14 @@
-/* eslint-disable no-console */
-import React, { ChangeEvent, KeyboardEvent, useState } from 'react';
+import React, {
+  ChangeEvent,
+  KeyboardEvent,
+  useEffect,
+  useRef,
+  useState,
+} from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import cn from 'classnames';
 import { AppDispatch, RootState } from '../../redux/store';
+import { selectRenamingTodoId } from '../../redux/selectors';
 import { Todo } from '../../types/Todo';
 import {
   deleteTodo,
@@ -20,8 +26,6 @@ export const TodoItem = React.memo<TodoItemProps>(
   ({
     todo, isTemporary, isDeleting,
   }) => {
-    console.log('item is temporary now', isTemporary);
-    console.log('Rendering TodoItem');
     const [isEditing, setIsEditing] = useState(false);
     const [editableTitle, setEditableTitle] = useState(todo.title);
 
@@ -29,10 +33,19 @@ export const TodoItem = React.memo<TodoItemProps>(
     const updatingTodoIds = useSelector(
       (state: RootState) => state.todos.updatingTodoIds,
     );
+    const renamingTodoId = useSelector(selectRenamingTodoId);
+    const inputRef = useRef<HTMLInputElement>(null);
+
+    useEffect(() => {
+      if (isEditing && inputRef.current) {
+        inputRef.current.focus();
+      }
+    }, [isEditing]);
 
     const handleDeleteTodo = () => {
       dispatch(deleteTodo(todo.id))
         .catch((err: string) => {
+          // eslint-disable-next-line no-console
           console.error('Unable to delete todo:', err);
         });
     };
@@ -48,10 +61,10 @@ export const TodoItem = React.memo<TodoItemProps>(
     };
 
     const handleBlur = () => {
-      renameTodo({
+      dispatch(renameTodo({
         todoId: todo.id,
         newName: editableTitle,
-      });
+      }));
       setIsEditing(false);
     };
 
@@ -61,10 +74,10 @@ export const TodoItem = React.memo<TodoItemProps>(
 
     const handleKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
       if (e.key === 'Enter') {
-        renameTodo({
+        dispatch(renameTodo({
           todoId: todo.id,
           newName: editableTitle,
-        });
+        }));
         setIsEditing(false);
       } else if (e.key === 'Escape') {
         setEditableTitle(todo.title);
@@ -91,9 +104,9 @@ export const TodoItem = React.memo<TodoItemProps>(
         </label>
 
         {isEditing ? (
-          // Show the input field when the todo is being edited
           <form>
             <input
+              ref={inputRef}
               data-cy="TodoTitleField"
               type="text"
               className="todo__title-field"
@@ -105,7 +118,6 @@ export const TodoItem = React.memo<TodoItemProps>(
             />
           </form>
         ) : (
-          // Show the todo title and delete button when not editing
           <>
             <span
               className="todo__title"
@@ -125,9 +137,13 @@ export const TodoItem = React.memo<TodoItemProps>(
           </>
         )}
 
-        {(isTemporary || isDeleting || updatingTodoIds.includes(todo.id)) && (
-          // Show loading overlay when the todo is being processed
-          <div data-cy="TodoLoader" className="modal overlay">
+        {(
+          isTemporary
+          || isDeleting
+          || updatingTodoIds.includes(todo.id)
+          || renamingTodoId === todo.id
+        ) && (
+          <div data-cy="TodoLoader" className="overlay">
             <div className="modal-background has-background-white-ter" />
             <div className="loader" />
           </div>

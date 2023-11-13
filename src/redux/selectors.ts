@@ -18,3 +18,6 @@ export const selectFilteredTodos = createSelector(
     }
   },
 );
+
+export const selectRenamingTodoId
+  = (state: RootState) => state.todos.renamingTodoId;
