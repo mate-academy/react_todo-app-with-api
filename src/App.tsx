@@ -1,24 +1,229 @@
-/* eslint-disable max-len */
-/* eslint-disable jsx-a11y/control-has-associated-label */
-import React from 'react';
+/* eslint-disable object-curly-newline */
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { UserWarning } from './UserWarning';
+import * as todosService from './api/todos';
 
-const USER_ID = 0;
+import { Todo } from './types/Todo';
+import { Errors } from './types/Errors';
+import { Status } from './types/Status';
+
+import { TodoHeader } from './components/TodoHeader';
+import { TodoList } from './components/TodoList';
+import { TodoFooter } from './components/TodoFooter';
+import { Notification } from './components/Notification';
+import { TodoItem } from './components/TodoItem';
+
+const USER_ID = 11713;
 
 export const App: React.FC = () => {
+  const [todos, setTodos] = useState<Todo[]>([]);
+  const [tempTodo, setTempTodo] = useState<Todo | null>(null);
+  const [isUpdating, setIsUpdating] = useState<number[]>([]);
+
+  const [title, setTitle] = useState('');
+  const [errorMessage, setErrorMessage] = useState('');
+  const [filterStatus, setFilterStatus] = useState(Status.all);
+
+  const [loader, setLoader] = useState(true);
+  const [statusResponce, setStatusResponce] = useState(false);
+
+  const changeErrorMessage = (message: string) => {
+    setErrorMessage(message);
+
+    setTimeout(() => setErrorMessage(''), 3000);
+  };
+
+  const removeErrorMessage = () => setErrorMessage('');
+
+  useEffect(() => {
+    todosService
+      .getTodos(USER_ID)
+      .then(setTodos)
+      .catch(() => changeErrorMessage(Errors.Load))
+      .finally(() => setLoader(false));
+  }, []);
+
+  const showFooter = useMemo(() => {
+    return !loader && todos.length > 0;
+  }, [loader, todos]);
+
+  const activeTodosLength = useMemo(() => {
+    return [...todos].filter(({ completed }) => !completed).length;
+  }, [todos]);
+
+  const completedTodosLength = useMemo(() => {
+    return [...todos].filter(({ completed }) => completed).length;
+  }, [todos]);
+
+  const filteredTodos = useMemo(() => {
+    switch (filterStatus) {
+      case Status.active:
+        return [...todos].filter(({ completed }) => !completed);
+      case Status.completed:
+        return [...todos].filter(({ completed }) => completed);
+      default:
+        return todos;
+    }
+  }, [todos, filterStatus]);
+
+  const changeTodosStatus = useCallback((status: string) => {
+    switch (status) {
+      case Status.active:
+        return setFilterStatus(Status.active);
+      case Status.completed:
+        return setFilterStatus(Status.completed);
+      default:
+        return setFilterStatus(Status.all);
+    }
+  }, []);
+
+  const addTodo = () => {
+    const trimmedTitle = title.trim();
+
+    if (!trimmedTitle) {
+      changeErrorMessage(Errors.Title);
+
+      return;
+    }
+
+    const newTodo = {
+      userId: USER_ID,
+      title: trimmedTitle,
+      completed: false,
+    };
+
+    setTempTodo({ id: 0, ...newTodo });
+    setStatusResponce(true);
+
+    todosService
+      .createTodo(newTodo)
+      .then((todo) => {
+        setTodos((prevState) => [...prevState, todo]);
+        setTitle('');
+      })
+      .catch(() => changeErrorMessage(Errors.Add))
+      .finally(() => {
+        setStatusResponce(false);
+        setTempTodo(null);
+      });
+  };
+
+  const updateTodo = useCallback((todo: Todo, completedStatus: boolean) => {
+    const { completed } = todo;
+
+    const newTodo = {
+      ...todo,
+      completed: completedStatus ? !completed : false,
+    };
+
+    setIsUpdating((prevState) => [...prevState, todo.id]);
+    setStatusResponce(true);
+
+    return todosService
+      .updateTodo(newTodo)
+      .then((changedTodo) => {
+        setTodos((prevState) => {
+          const newTodos = [...prevState];
+          const index = newTodos.findIndex(({ id }) => id === todo.id);
+
+          newTodos.splice(index, 1, changedTodo);
+
+          return newTodos;
+        });
+      })
+      .catch(() => changeErrorMessage(Errors.Update))
+      .finally(() => {
+        setIsUpdating((prevState) => prevState.filter((id) => id !== todo.id));
+        setStatusResponce(false);
+      });
+  }, []);
+
+  const updateAllTodos = () => {
+    const completedStatus = activeTodosLength > 0;
+
+    todos.forEach((todo) => {
+      if (todo.completed !== completedStatus) {
+        updateTodo(todo, true);
+      }
+    });
+  };
+
+  const removeTodo = useCallback((todoId: number) => {
+    setIsUpdating((prevState) => [...prevState, todoId]);
+    setStatusResponce(true);
+
+    todosService
+      .removeTodo(todoId)
+      .then(() => {
+        setTodos((prevState) => prevState.filter(({ id }) => id !== todoId));
+      })
+      .catch(() => changeErrorMessage(Errors.Delete))
+      .finally(() => {
+        setIsUpdating((prevState) => prevState.filter((id) => id !== todoId));
+        setStatusResponce(false);
+      });
+  }, []);
+
+  const removeAllTodos = () => {
+    const completedTodos = [...todos]
+      .filter(({ completed }) => completed)
+      .map(({ id }) => id);
+
+    completedTodos.forEach((id) => removeTodo(id));
+  };
+
   if (!USER_ID) {
     return <UserWarning />;
   }
 
   return (
-    <section className="section container">
-      <p className="title is-4">
-        Copy all you need from the prev task:
-        <br />
-        <a href="https://github.com/mate-academy/react_todo-app-add-and-delete#react-todo-app-add-and-delete">React Todo App - Add and Delete</a>
-      </p>
+    <div className="todoapp">
+      <h1 className="todoapp__title">todos</h1>
 
-      <p className="subtitle">Styles are already copied</p>
-    </section>
+      <div className="todoapp__content">
+        <TodoHeader
+          statusResponce={statusResponce}
+          title={title}
+          todosLength={todos.length}
+          activeTodosLength={activeTodosLength}
+          setTitle={setTitle}
+          addTodo={addTodo}
+          updateAllTodos={updateAllTodos}
+        />
+
+        {!loader && (
+          <TodoList
+            todos={filteredTodos}
+            isUpdating={isUpdating}
+            updateTodo={updateTodo}
+            removeTodo={removeTodo}
+          />
+        )}
+
+        {!loader && tempTodo && (
+          <TodoItem
+            todo={tempTodo}
+            isUpdating={isUpdating}
+            updateTodo={updateTodo}
+            removeTodo={removeTodo}
+          />
+        )}
+
+        {showFooter && (
+          <TodoFooter
+            activeTodosLength={activeTodosLength}
+            completedTodosLength={completedTodosLength}
+            filterStatus={filterStatus}
+            changeTodosStatus={changeTodosStatus}
+            removeAllTodos={removeAllTodos}
+          />
+        )}
+      </div>
+
+      <Notification
+        errorMessage={errorMessage}
+        removeErrorMessage={removeErrorMessage}
+      />
+    </div>
   );
 };
