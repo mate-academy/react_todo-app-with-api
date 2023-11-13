@@ -40,6 +40,10 @@ export const TodoItem = React.memo<TodoItemProps>(
       ));
     };
 
+    // const handleRename = () => {
+
+    // };
+
     const itemClasses = cn({
       todo: true,
       'temp-item': isTemporary,

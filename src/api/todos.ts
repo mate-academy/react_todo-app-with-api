@@ -20,6 +20,15 @@ export const addTodoApi = async (
   return { data: response as Todo };
 };
 
+export const renameTodoApi = async (
+  todoId: number,
+  newName: string,
+): Promise<Todo> => {
+  const response = await client.patch<Todo>(`/todos/${todoId}`, { title: newName });
+
+  return response;
+};
+
 export const removeTodoApi = (todoId: number) => {
   return client.delete(`/todos/${todoId}`);
 };

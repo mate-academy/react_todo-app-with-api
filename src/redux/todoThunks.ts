@@ -7,6 +7,7 @@ import {
   deleteCompletedTodosForUser,
   getTodos,
   removeTodoApi,
+  renameTodoApi,
   setTodoCompletionApi,
 } from '../api/todos';
 
@@ -67,6 +68,22 @@ export const setCompletion = createAsyncThunk(
       return response;
     } catch (error) {
       return rejectWithValue('Failed to update todo completion status');
+    }
+  },
+);
+
+export const renameTodo = createAsyncThunk(
+  'todos/renameTodo',
+  async (
+    { todoId, newName }: { todoId: number; newName: string },
+    { rejectWithValue },
+  ) => {
+    try {
+      const updatedTodo = await renameTodoApi(todoId, newName);
+
+      return updatedTodo;
+    } catch (error) {
+      return rejectWithValue('Failed to rename todo');
     }
   },
 );

@@ -4,7 +4,6 @@ import { selectFilter } from '../../redux/selectors';
 import { AppDispatch } from '../../redux/store';
 import { Todo } from '../../types/Todo';
 import { TodoFilter } from '../../types/TodoFilter';
-import '../../styles/todoapp__footer.scss';
 import { deleteAllCompletedTodos } from '../../redux/todoThunks';
 import { USER_ID } from '../../_utils/constants';
 

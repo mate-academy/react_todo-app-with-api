@@ -10,6 +10,7 @@ import {
   deleteTodo,
   setCompletion,
   deleteAllCompletedTodos,
+  renameTodo,
 } from './todoThunks';
 import { USER_ID } from '../_utils/constants';
 
@@ -23,6 +24,7 @@ export interface TodoState {
   errorType: ErrorType | null;
   deletingTodoIds: number[];
   updatingTodoIds: number[];
+  renamingTodoId: number | null;
 }
 
 const initialState: TodoState = {
@@ -35,6 +37,7 @@ const initialState: TodoState = {
   errorType: null,
   deletingTodoIds: [],
   updatingTodoIds: [],
+  renamingTodoId: null,
 };
 
 const todoSlice = createSlice({
@@ -112,14 +115,22 @@ const todoSlice = createSlice({
 
         state.errorType = ErrorType.DeleteTodoError;
       })
-      // .addCase(deleteAllCompletedTodos.pending, (state) => {
-      //   // Handle pending state, like setting a loading flag
-      // })
-      .addCase(deleteAllCompletedTodos.fulfilled, (state) => {
-        state.todos = state.todos.filter(todo => !todo.completed);
+      .addCase(renameTodo.pending, (state, action) => {
+        state.renamingTodoId = action.meta.arg.todoId;
       })
-      .addCase(deleteAllCompletedTodos.rejected, (state) => {
-        state.errorType = ErrorType.DeleteTodoError;
+      .addCase(renameTodo.fulfilled, (state, action) => {
+        const index = state.todos
+          .findIndex(todo => todo.id === action.payload.id);
+
+        if (index !== -1) {
+          state.todos[index].title = action.payload.title;
+        }
+
+        state.renamingTodoId = null;
+      })
+      .addCase(renameTodo.rejected, (state) => {
+        state.errorType = ErrorType.UpdateTodoError;
+        state.renamingTodoId = null;
       })
       .addCase(setCompletion.pending, (state, action) => {
         state.updatingTodoIds.push(action.meta.arg.todoId);
@@ -140,6 +151,21 @@ const todoSlice = createSlice({
           .filter(todoId => todoId !== action.meta.arg.todoId);
 
         state.errorType = ErrorType.UpdateTodoError;
+      })
+      .addCase(deleteAllCompletedTodos.pending, (state) => {
+        const completedTodoIds = state.todos
+          .filter(todo => todo.completed)
+          .map(todo => todo.id);
+
+        state.deletingTodoIds.push(...completedTodoIds);
+      })
+      .addCase(deleteAllCompletedTodos.fulfilled, (state) => {
+        state.todos = state.todos.filter(todo => !todo.completed);
+        state.deletingTodoIds = [];
+      })
+      .addCase(deleteAllCompletedTodos.rejected, (state) => {
+        state.errorType = ErrorType.DeleteTodoError;
+        state.deletingTodoIds = [];
       });
   },
 });
