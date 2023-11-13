@@ -21,7 +21,7 @@ export const App: FC = () => {
   const [todos, setTodos] = useState<Todo[]>([]);
   const [title, setTitle] = useState('');
   const [response, setResponse] = useState(false);
-  const [isLoading, setIsLoading] = useState<number[]>([]);
+  const [isLoadingTodos, setIsLoadingTodos] = useState<number[]>([]);
   const [errorMessage, setErrorMessage] = useState('');
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
   const [filterBy, setFilterBy] = useState(Filters.All);
@@ -48,7 +48,7 @@ export const App: FC = () => {
   }, []);
 
   const deleteTodo = async (todoId: number) => {
-    setIsLoading((currentTodos) => [...currentTodos, todoId]);
+    setIsLoadingTodos((currentTodos) => [...currentTodos, todoId]);
     try {
       await todosServices.deleteTodo(todoId);
       setTodos(
@@ -60,7 +60,7 @@ export const App: FC = () => {
     } finally {
       setTempTodo(null);
       setResponse(false);
-      setIsLoading(
+      setIsLoadingTodos(
         (currentTodos) => currentTodos.filter(
           (id: number) => id !== todoId,
         ),
@@ -105,7 +105,7 @@ export const App: FC = () => {
   };
 
   const updateTodo = async (todo: Todo) => {
-    setIsLoading((currentTodo) => [...currentTodo, todo.id]);
+    setIsLoadingTodos((currentTodo) => [...currentTodo, todo.id]);
     try {
       const updatedTodo = await todosServices.updateTodo({
         ...todo,
@@ -123,7 +123,7 @@ export const App: FC = () => {
     } finally {
       setTempTodo(null);
       setResponse(false);
-      setIsLoading(
+      setIsLoadingTodos(
         (currentTodo) => currentTodo.filter(
           (id: number) => id !== todo.id,
         ),
@@ -168,7 +168,7 @@ export const App: FC = () => {
             todos={todos}
             deleteTodo={deleteTodo}
             updateTodo={updateTodo}
-            isLoading={isLoading}
+            isLoadingTodos={isLoadingTodos}
             tempTodo={tempTodo}
             filterBy={filterBy}
             changeErrorMessage={changeErrorMessage}

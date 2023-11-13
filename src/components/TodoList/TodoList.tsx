@@ -8,7 +8,7 @@ type Props = {
   todos: Todo[];
   deleteTodo: (id: number) => void;
   updateTodo: (todo: Todo) => void;
-  isLoading: number[],
+  isLoadingTodos: number[],
   tempTodo: Todo | null,
   filterBy: Filters,
   changeErrorMessage: (value: string) => void,
@@ -18,7 +18,7 @@ export const TodoList: FC<Props> = ({
   todos,
   deleteTodo,
   updateTodo,
-  isLoading,
+  isLoadingTodos,
   tempTodo,
   filterBy,
   changeErrorMessage,
@@ -61,7 +61,7 @@ export const TodoList: FC<Props> = ({
               todo={todo}
               deleteTodo={deleteTodo}
               updateTodo={updateTodo}
-              isLoading={isLoading.includes(todo.id)}
+              isLoading={isLoadingTodos.includes(todo.id)}
               changeErrorMessage={changeErrorMessage}
             />
           </CSSTransition>
@@ -78,7 +78,7 @@ export const TodoList: FC<Props> = ({
               todo={tempTodo}
               deleteTodo={deleteTodo}
               updateTodo={updateTodo}
-              isLoading={isLoading.includes(tempTodo.id)}
+              isLoading={isLoadingTodos.includes(tempTodo.id)}
               changeErrorMessage={changeErrorMessage}
             />
           </CSSTransition>
