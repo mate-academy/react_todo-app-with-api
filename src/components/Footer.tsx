@@ -17,50 +17,33 @@ export const Footer: React.FC<Props> = ({
   setFilterBy,
   handleDeleteCompletedTodos,
 }) => {
+  const filters: FilterBy[] = ['All', 'Active', 'Completed'];
+
   return (
     <footer className="todoapp__footer" data-cy="Footer">
       <span className="todo-count" data-cy="TodosCounter">
         {`${countActiveTodos(todos)} items left`}
       </span>
       <nav className="filter" data-cy="Filter">
-        <a
-          href="#/"
-          className={cn('filter__link', {
-            selected: filterBy === 'All',
-          })}
-          data-cy="FilterLinkAll"
-          onClick={() => setFilterBy('All')}
-        >
-          All
-        </a>
 
-        <a
-          href="#/active"
-          className={cn('filter__link', {
-            selected: filterBy === 'Active',
-          })}
-          data-cy="FilterLinkActive"
-          onClick={() => setFilterBy('Active')}
-        >
-          Active
-        </a>
-
-        <a
-          href="#/completed"
-          className={cn('filter__link', {
-            selected: filterBy === 'Completed',
-          })}
-          data-cy="FilterLinkCompleted"
-          onClick={() => setFilterBy('Completed')}
-        >
-          Completed
-        </a>
+        {filters.map(filter => (
+          <a
+            href={filter === 'All' ? '#/' : `#/${filter}`}
+            className={cn('filter__link', {
+              selected: filterBy === filter,
+            })}
+            data-cy={`FilterLink${filter}`}
+            onClick={() => setFilterBy(filter)}
+          >
+            {filter}
+          </a>
+        ))}
       </nav>
 
       <button
         type="button"
         className={cn('todoapp__clear-completed', {
-          'is-invisible': countCompletedTodos(todos) === 0,
+          'is-invisible': !countCompletedTodos(todos),
         })}
         data-cy="ClearCompletedButton"
         onClick={handleDeleteCompletedTodos}

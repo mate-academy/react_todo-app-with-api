@@ -34,7 +34,7 @@ export const Header: React.FC<Props> = ({
             'todoapp__toggle-all', {
               active: todos.length
               && countCompletedTodos(todos) === todos.length,
-              'is-sr-only': todos.length === 0,
+              'is-sr-only': !todos.length,
             },
           )}
           data-cy="ToggleAllButton"

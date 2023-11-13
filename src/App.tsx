@@ -33,6 +33,7 @@ export const App: React.FC = () => {
   const editedTitleTodoRef = useRef<HTMLInputElement | null>(null);
 
   useEffect(() => {
+    setIsLoading(true);
     getTodos(USER_ID)
       .then(todosFromServer => {
         setTodos(todosFromServer);
@@ -41,7 +42,8 @@ export const App: React.FC = () => {
         setErrorMessage('Unable to load todos');
         setTimeout(() => setErrorMessage(''), 3000);
         throw error;
-      });
+      })
+      .finally(() => setIsLoading(false));
   }, []);
 
   useEffect(() => {
@@ -209,6 +211,7 @@ export const App: React.FC = () => {
     } finally {
       setIsLoading(false);
       setLoadingTodos([]);
+      setFocus(null);
     }
   };
 

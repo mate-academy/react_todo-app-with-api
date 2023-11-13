@@ -45,6 +45,7 @@ export const TodoItem: React.FC<Props> = ({
       })}
     >
       <label className="todo__status-label">
+        {/* eslint-disable-next-line jsx-a11y/control-has-associated-label */}
         <input
           data-cy="TodoStatus"
           type="checkbox"
