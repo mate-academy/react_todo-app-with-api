@@ -9,6 +9,7 @@ import {
   addTodo,
   deleteTodo,
   setCompletion,
+  deleteAllCompletedTodos,
 } from './todoThunks';
 import { USER_ID } from '../_utils/constants';
 
@@ -109,6 +110,15 @@ const todoSlice = createSlice({
         state.deletingTodoIds = state.deletingTodoIds
           .filter(id => id !== action.meta.arg);
 
+        state.errorType = ErrorType.DeleteTodoError;
+      })
+      // .addCase(deleteAllCompletedTodos.pending, (state) => {
+      //   // Handle pending state, like setting a loading flag
+      // })
+      .addCase(deleteAllCompletedTodos.fulfilled, (state) => {
+        state.todos = state.todos.filter(todo => !todo.completed);
+      })
+      .addCase(deleteAllCompletedTodos.rejected, (state) => {
         state.errorType = ErrorType.DeleteTodoError;
       })
       .addCase(setCompletion.pending, (state, action) => {

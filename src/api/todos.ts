@@ -24,6 +24,14 @@ export const removeTodoApi = (todoId: number) => {
   return client.delete(`/todos/${todoId}`);
 };
 
+export const deleteCompletedTodosForUser = (userId: number): Promise<void> => {
+  return getTodos(userId).then(todos => {
+    const completedTodos = todos.filter(todo => todo.completed);
+
+    return Promise.all(completedTodos.map(todo => removeTodoApi(todo.id)));
+  }).then(() => {});
+};
+
 export const setTodoCompletionApi = async (
   todoId: number,
   completed: boolean,

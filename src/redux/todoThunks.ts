@@ -4,6 +4,7 @@ import { Todo } from '../types/Todo';
 import {
   AddTodoResponse,
   addTodoApi,
+  deleteCompletedTodosForUser,
   getTodos,
   removeTodoApi,
   setTodoCompletionApi,
@@ -40,6 +41,17 @@ export const deleteTodo = createAsyncThunk(
     await removeTodoApi(todoId);
 
     return todoId;
+  },
+);
+
+export const deleteAllCompletedTodos = createAsyncThunk(
+  'todos/deleteAllCompleted',
+  async (userId: number, { rejectWithValue }) => {
+    try {
+      await deleteCompletedTodosForUser(userId);
+    } catch (error) {
+      rejectWithValue('Failed to delete completed todos');
+    }
   },
 );
 

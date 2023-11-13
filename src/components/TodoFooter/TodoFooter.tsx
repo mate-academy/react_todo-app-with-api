@@ -1,8 +1,12 @@
 import cn from 'classnames';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { selectFilter } from '../../redux/selectors';
+import { AppDispatch } from '../../redux/store';
 import { Todo } from '../../types/Todo';
 import { TodoFilter } from '../../types/TodoFilter';
+import '../../styles/todoapp__footer.scss';
+import { deleteAllCompletedTodos } from '../../redux/todoThunks';
+import { USER_ID } from '../../_utils/constants';
 
 interface TodoFooterProps {
   todos: Todo[];
@@ -12,7 +16,13 @@ interface TodoFooterProps {
 export const TodoFooter: React.FC<TodoFooterProps> = (
   { todos, filterChange },
 ) => {
+  const dispatch = useDispatch<AppDispatch>();
+  const isCompleted = todos.some(todo => todo.completed === true);
   const currentFilter = useSelector(selectFilter);
+
+  const handleDeleteAllCompleted = () => {
+    dispatch(deleteAllCompletedTodos(USER_ID));
+  };
 
   return (
     <footer className="todoapp__footer" data-cy="Footer">
@@ -62,10 +72,11 @@ export const TodoFooter: React.FC<TodoFooterProps> = (
         type="button"
         className="todoapp__clear-completed"
         data-cy="ClearCompletedButton"
+        style={{ visibility: isCompleted ? 'visible' : 'hidden' }}
+        onClick={handleDeleteAllCompleted}
       >
         Clear completed
       </button>
-
     </footer>
   );
 };
