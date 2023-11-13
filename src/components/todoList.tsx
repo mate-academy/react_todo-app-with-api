@@ -6,7 +6,6 @@ type Props = {
   onDeleteTodo: (id: number[]) => void,
   tempTodo: Todo | null,
   todoDeletingId: number[],
-  // onUpdatePost: (todo: Todo) => void,
   setSelectedTodo: (todo: Todo) => void,
   selectedTodo: Todo | null,
   onUpdatePost: (todo: Todo) => Promise<{ isError: boolean } | undefined>

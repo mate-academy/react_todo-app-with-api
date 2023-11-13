@@ -22,7 +22,6 @@ export const Header: React.FC<Props> = ({
   isDisabledInput,
   errorDeletion,
   onToggleAll,
-  // toggleAll,
 }) => {
   const [title, setTitle] = useState('');
 
