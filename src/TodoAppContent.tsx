@@ -1,6 +1,6 @@
 import React from 'react';
 import { TodoHeader } from './TodoHeader';
-import { TodoList } from './TodoList.1';
+import { TodoList } from './TodoList';
 import { TodoFooter } from './TodoFooter';
 import { TodoAppContentProps } from './types/TodoAppContentProps';
 
@@ -20,10 +20,13 @@ export const TodoAppContent: React.FC<TodoAppContentProps> = ({
   focusRef,
   toggleTodoStatus,
   toggleAllTodos,
+  isUpdatingAll,
 }) => {
   return (
     <div className="todoapp__content">
       <TodoHeader
+        isUpdatingAll={isUpdatingAll}
+        todos={todos}
         isSubmitting={isSubmitting}
         toggleAllTodos={toggleAllTodos}
         todoInput={todoInput}
@@ -33,6 +36,7 @@ export const TodoAppContent: React.FC<TodoAppContentProps> = ({
       />
 
       <TodoList
+        isUpdatingAll={isUpdatingAll}
         filteredTodos={filteredTodos}
         isSubmitting={isSubmitting}
         tempTodo={tempTodo}

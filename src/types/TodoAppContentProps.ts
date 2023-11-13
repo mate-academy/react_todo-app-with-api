@@ -19,4 +19,5 @@ export interface TodoAppContentProps {
   loadingTodo: number | null;
   toggleTodoStatus: (todoId: number) => void;
   toggleAllTodos: () => void;
+  isUpdatingAll: boolean;
 }

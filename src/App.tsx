@@ -21,6 +21,7 @@ export const App: React.FC = () => {
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [loadingTodo, setLoadingTodo] = useState<number | null>(null);
+  const [isUpdatingAll, setIsUpdatingAll] = useState(false);
 
   useEffect(() => {
     TodoService.getTodos(USER_ID)
@@ -98,6 +99,7 @@ export const App: React.FC = () => {
   };
 
   const toggleAllTodos = () => {
+    setIsUpdatingAll(true);
     const allCompleted = todos.every(todo => todo.completed);
     const updatedTodos = todos
       .map(todo => ({ ...todo, completed: !allCompleted }));
@@ -107,6 +109,9 @@ export const App: React.FC = () => {
       .catch(() => {
         setErrorMessage(ErrorMessage.UnableToUpdate);
         setTimeout(() => setErrorMessage(ErrorMessage.None), 3000);
+      })
+      .finally(() => {
+        setIsUpdatingAll(false);
       });
   };
 
@@ -191,6 +196,7 @@ export const App: React.FC = () => {
       <h1 className="todoapp__title">todos</h1>
       <TodoAppContent
         toggleTodoStatus={toggleTodoStatus}
+        isUpdatingAll={isUpdatingAll}
         toggleAllTodos={toggleAllTodos}
         filteredTodos={filteredTodos}
         tempTodo={tempTodo}

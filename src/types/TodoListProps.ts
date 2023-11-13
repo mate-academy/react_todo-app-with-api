@@ -7,4 +7,5 @@ export interface TodoListProps {
   isSubmitting: boolean;
   loadingTodo: number | null;
   toggleTodoStatus: (todoId: number) => void;
+  isUpdatingAll: boolean;
 }

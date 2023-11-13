@@ -1,4 +1,3 @@
-// TodoList.jsx
 import React from 'react';
 import cn from 'classnames';
 import { TodoListProps } from './types/TodoListProps';
@@ -7,7 +6,9 @@ export const TodoList: React.FC<TodoListProps> = ({
   filteredTodos,
   tempTodo,
   deleteTodo,
-  isSubmitting,
+  loadingTodo,
+  toggleTodoStatus,
+  isUpdatingAll,
 }) => {
   return (
     <section className="todoapp__main" data-cy="TodoList">
@@ -22,13 +23,11 @@ export const TodoList: React.FC<TodoListProps> = ({
               data-cy="TodoStatus"
               type="checkbox"
               className="todo__status"
-              defaultChecked={todo.completed}
+              checked={todo.completed}
+              onChange={() => toggleTodoStatus(todo.id)}
             />
           </label>
-          <span
-            data-cy="TodoTitle"
-            className="todo__title"
-          >
+          <span data-cy="TodoTitle" className="todo__title">
             {todo.title}
           </span>
           <button
@@ -36,24 +35,24 @@ export const TodoList: React.FC<TodoListProps> = ({
             className="todo__remove"
             data-cy="TodoDelete"
             onClick={() => deleteTodo(todo.id)}
-            disabled={isSubmitting}
           >
             ×
           </button>
-          {isSubmitting && (
-            <div data-cy="TodoLoader" className="modal overlay is-active">
-              <div className="modal-background has-background-white-ter" />
-              <div className="loader" />
-            </div>
-          )}
+          <div
+            data-cy="TodoLoader"
+            className={cn('modal overlay',
+              { 'is-active': isUpdatingAll || (loadingTodo === todo.id) })}
+          >
+            <div className="modal-background has-background-white-ter" />
+            <div className="loader" />
+          </div>
         </div>
       ))}
       {tempTodo && (
         <div
           key={tempTodo.id}
           data-cy="Todo"
-          className={cn('todo',
-            { completed: tempTodo.completed, 'is-active': tempTodo })}
+          className={cn('todo', { completed: tempTodo.completed })}
         >
           <span
             data-cy="TodoTitle"
@@ -61,12 +60,13 @@ export const TodoList: React.FC<TodoListProps> = ({
           >
             {tempTodo.title}
           </span>
-          {tempTodo && (
-            <div data-cy="TodoLoader" className="modal overlay is-active">
-              <div className="modal-background has-background-white-ter" />
-              <div className="loader" />
-            </div>
-          )}
+          <div
+            data-cy="TodoLoader"
+            className={cn('modal overlay', { 'is-active': tempTodo })}
+          >
+            <div className="modal-background has-background-white-ter" />
+            <div className="loader" />
+          </div>
         </div>
       )}
     </section>
