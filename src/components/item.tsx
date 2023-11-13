@@ -5,7 +5,7 @@ import { Todo } from '../types/Todo';
 interface Props {
   todo: Todo,
   onDeleteTodo: (id: number[]) => void,
-  todoDeletingId: number[],
+  todoLoadingId: number[],
   setSelectedTodo: (todo: Todo) => void,
   selectedTodo: Todo | null,
   onUpdatePost: (todo: Todo) => Promise<{ isError: boolean } | undefined>
@@ -14,7 +14,7 @@ interface Props {
 export const Item: React.FC<Props> = ({
   todo,
   onDeleteTodo,
-  todoDeletingId,
+  todoLoadingId,
   setSelectedTodo,
   selectedTodo,
   onUpdatePost,
@@ -103,7 +103,7 @@ export const Item: React.FC<Props> = ({
           <div
             data-cy="TodoLoader"
             className={cn('modal overlay', {
-              'is-active': todoDeletingId.includes(todo.id),
+              'is-active': todoLoadingId.includes(todo.id),
             })}
           >
             <div className="modal-background has-background-white-ter" />
@@ -141,7 +141,7 @@ export const Item: React.FC<Props> = ({
       <div
         data-cy="TodoLoader"
         className={cn('modal overlay', {
-          'is-active': todoDeletingId.includes(todo.id),
+          'is-active': todoLoadingId.includes(todo.id),
         })}
       >
         <div className="modal-background has-background-white-ter" />

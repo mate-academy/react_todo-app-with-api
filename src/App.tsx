@@ -17,8 +17,10 @@ export const App: React.FC = () => {
   const [errorMessage, setErrorMessage] = useState('');
   const [isDisabledInput, setIsDisabledInput] = useState(false);
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
-  const [todoDeletingId, setTodoDeletingId] = useState<number[]>([]);
+  const [todoLoadingId, setTodoLoadingId] = useState<number[]>([]);
   const [selectedTodo, setSelectedTodo] = useState<Todo | null>(null);
+
+  let isToggleAll = false;
 
   const errorDeletion = useCallback(() => {
     setTimeout(() => {
@@ -99,7 +101,7 @@ export const App: React.FC = () => {
   }
 
   async function deleteTodo(id: number[]) {
-    setTodoDeletingId(id);
+    setTodoLoadingId(id);
 
     try {
       id.forEach(idCompleted => {
@@ -119,7 +121,10 @@ export const App: React.FC = () => {
   async function updatePost(
     updetedPost: Todo,
   ): Promise<{ isError: boolean } | undefined> {
-    setTodoDeletingId([updetedPost.id]);
+    if (!isToggleAll) {
+      setTodoLoadingId([updetedPost.id]);
+    }
+
     setIsDisabledInput(true);
     let isError = false;
 
@@ -141,8 +146,9 @@ export const App: React.FC = () => {
       setErrorMessage('Unable to update a todo');
       errorDeletion();
     } finally {
-      setTodoDeletingId([]);
+      setTodoLoadingId([]);
       setIsDisabledInput(false);
+      isToggleAll = false;
     }
 
     if (isError) {
@@ -160,7 +166,8 @@ export const App: React.FC = () => {
       : !todo.completed
     ));
 
-    // setTodoDeletingId(todosToUpdate.map(todo => todo.id));
+    setTodoLoadingId(todosToUpdate.map(todo => todo.id));
+    isToggleAll = true;
 
     await Promise.all(todosToUpdate.map(todo => (
       updatePost({
@@ -196,7 +203,7 @@ export const App: React.FC = () => {
               // eslint-disable-next-line
               onDeleteTodo={deleteTodo}
               tempTodo={tempTodo}
-              todoDeletingId={todoDeletingId}
+              todoLoadingId={todoLoadingId}
               // eslint-disable-next-line
               onUpdatePost={updatePost}
               setSelectedTodo={setSelectedTodo}
