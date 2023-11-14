@@ -38,7 +38,7 @@ export const deleteCompletedTodosForUser = (userId: number): Promise<void> => {
     const completedTodos = todos.filter(todo => todo.completed);
 
     return Promise.all(completedTodos.map(todo => removeTodoApi(todo.id)));
-  }).then(() => {});
+  }).then(() => { });
 };
 
 export const setTodoCompletionApi = async (
@@ -51,4 +51,10 @@ export const setTodoCompletionApi = async (
   );
 
   return response;
+};
+
+export const completeAllTodosApi = (todos: Todo[]): Promise<Todo[]> => {
+  const updatePromises = todos.map(todo => setTodoCompletionApi(todo.id, true));
+
+  return Promise.all(updatePromises);
 };

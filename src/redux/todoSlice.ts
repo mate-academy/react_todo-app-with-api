@@ -9,6 +9,7 @@ import {
   addTodo,
   deleteTodo,
   setCompletion,
+  completeAllTodos,
   deleteAllCompletedTodos,
   renameTodo,
 } from './todoThunks';
@@ -150,6 +151,19 @@ const todoSlice = createSlice({
         state.updatingTodoIds = state.updatingTodoIds
           .filter(todoId => todoId !== action.meta.arg.todoId);
 
+        state.errorType = ErrorType.UpdateTodoError;
+      })
+      // .addCase(completeAllTodos.pending, (state) => {
+      //   // Handle the pending state if needed
+      // })
+      .addCase(completeAllTodos.fulfilled, (state) => {
+        state.todos.forEach(todo => {
+          if (!todo.completed) {
+            todo.completed = true;
+          }
+        });
+      })
+      .addCase(completeAllTodos.rejected, (state) => {
         state.errorType = ErrorType.UpdateTodoError;
       })
       .addCase(deleteAllCompletedTodos.pending, (state) => {

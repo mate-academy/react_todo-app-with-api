@@ -2,13 +2,14 @@
 
 import { useDispatch, useSelector } from 'react-redux';
 import React, { useEffect, useRef, useState } from 'react';
-import { AppDispatch, RootState } from '../../redux/store';
+import { AppDispatch } from '../../redux/store';
 import {
   clearTempTodo,
   setErrorType,
   setInputValue,
   setTempTodo,
 } from '../../redux/todoSlice';
+import { RootState } from '../../types/rootState';
 import { ErrorType } from '../../types/errorType';
 import { addTodo } from '../../redux/todoThunks';
 

@@ -1,7 +1,14 @@
 /* eslint-disable no-console */
 import React, { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { AppDispatch, RootState } from './redux/store';
+import { AppDispatch } from './redux/store';
+import {
+  clearErrorType,
+  setFilter,
+} from './redux/todoSlice';
+import { selectFilteredTodos } from './redux/selectors';
+import { fetchTodos } from './redux/todoThunks';
+import { RootState } from './redux/rootReducer';
 import { USER_ID } from './_utils/constants';
 import { ErrorNotification } from './components/ErrorNotification';
 import { TodoFooter } from './components/TodoFooter';
@@ -9,12 +16,6 @@ import { TodoHeader } from './components/TodoHeader';
 import { TodoList } from './components/TodoList';
 import { UserWarning } from './components/UserWarning/UserWarning';
 import { TodoFilter } from './types/TodoFilter';
-import {
-  clearErrorType,
-  setFilter,
-} from './redux/todoSlice';
-import { selectFilteredTodos } from './redux/selectors';
-import { fetchTodos } from './redux/todoThunks';
 
 export const App: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>();

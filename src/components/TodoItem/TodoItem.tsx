@@ -5,16 +5,17 @@ import React, {
   useRef,
   useState,
 } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
 import cn from 'classnames';
-import { AppDispatch, RootState } from '../../redux/store';
-import { selectRenamingTodoId } from '../../redux/selectors';
-import { Todo } from '../../types/Todo';
+import { useDispatch, useSelector } from 'react-redux';
 import {
   deleteTodo,
   setCompletion,
   renameTodo,
 } from '../../redux/todoThunks';
+import { RootState } from '../../redux/rootReducer';
+import { AppDispatch } from '../../redux/store';
+import { selectRenamingTodoId } from '../../redux/selectors';
+import { Todo } from '../../types/Todo';
 
 type TodoItemProps = {
   todo: Todo;
@@ -126,6 +127,7 @@ export const TodoItem = React.memo<TodoItemProps>(
             >
               {todo.title}
             </span>
+
             <button
               type="button"
               className="todo__remove"

@@ -9,7 +9,9 @@ import {
   removeTodoApi,
   renameTodoApi,
   setTodoCompletionApi,
+  completeAllTodosApi,
 } from '../api/todos';
+import { RootState } from './store';
 
 export const fetchTodos
   = createAsyncThunk<Todo[], number, { rejectValue: string }>(
@@ -68,6 +70,22 @@ export const setCompletion = createAsyncThunk(
       return response;
     } catch (error) {
       return rejectWithValue('Failed to update todo completion status');
+    }
+  },
+);
+
+export const completeAllTodos = createAsyncThunk(
+  'todos/completeAll',
+  async (_, { getState, rejectWithValue }) => {
+    try {
+      const state: RootState = getState();
+      const activeTodos = state.todos.filter((todo: Todo) => !todo.completed);
+
+      const updatedTodos = await completeAllTodosApi(activeTodos);
+
+      return updatedTodos;
+    } catch (error) {
+      return rejectWithValue('Failed to complete all todos');
     }
   },
 );
