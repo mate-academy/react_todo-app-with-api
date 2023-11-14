@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { ErrorType } from '../../types/errorType';
+import { ErrorType } from '../../types/ErrorType';
 
 interface ErrorNotificationProps {
   errorType: ErrorType | null;

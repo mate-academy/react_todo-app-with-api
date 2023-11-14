@@ -6,7 +6,7 @@ export interface AddTodoResponse {
   data: Todo;
 }
 
-export const getTodos = (userId: number) => {
+export const fetchTodosApi = (userId: number) => {
   return client.get<Todo[]>(`/todos?userId=${userId}`);
 };
 
@@ -29,15 +29,15 @@ export const renameTodoApi = async (
   return response;
 };
 
-export const removeTodoApi = (todoId: number) => {
+export const deleteTodoApi = (todoId: number) => {
   return client.delete(`/todos/${todoId}`);
 };
 
 export const deleteCompletedTodosForUser = (userId: number): Promise<void> => {
-  return getTodos(userId).then(todos => {
+  return fetchTodosApi(userId).then(todos => {
     const completedTodos = todos.filter(todo => todo.completed);
 
-    return Promise.all(completedTodos.map(todo => removeTodoApi(todo.id)));
+    return Promise.all(completedTodos.map(todo => deleteTodoApi(todo.id)));
   }).then(() => { });
 };
 
