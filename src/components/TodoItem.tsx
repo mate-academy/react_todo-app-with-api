@@ -137,7 +137,6 @@ const TodoItem: React.FC<Props> = ({
 
       {isEditable ? (
         <>
-          {/* This form is shown instead of the title and remove button */}
           <form onSubmit={handlerSubmit}>
             <input
               data-cy="TodoTitleField"
@@ -164,7 +163,6 @@ const TodoItem: React.FC<Props> = ({
             {todo.title}
           </span>
 
-          {/* Remove button appears only on hover */}
           <button
             onClick={() => handlerDeleteTodo(todo.id)}
             type="button"
@@ -175,7 +173,7 @@ const TodoItem: React.FC<Props> = ({
           </button>
         </>
       )}
-      {/* overlay will cover the todo while it is being updated */}
+
       <div
         data-cy="TodoLoader"
         className={cn('modal overlay', {

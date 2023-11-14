@@ -69,7 +69,6 @@ const TodoFooter: React.FC<Props> = ({
         {`${countOpenTodo} items left`}
       </span>
 
-      {/* Active filter should have a 'selected' class */}
       <nav className="filter" data-cy="Filter">
         <a
           onClick={() => setViewTodos(FilterType.All)}
@@ -105,7 +104,6 @@ const TodoFooter: React.FC<Props> = ({
         </a>
       </nav>
 
-      {/* don't show this button if there are no completed todos */}
       <button
         type="button"
         className="todoapp__clear-completed"

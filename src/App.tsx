@@ -1,10 +1,9 @@
 /* eslint-disable jsx-a11y/control-has-associated-label */
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import cn from 'classnames';
 import { UserWarning } from './UserWarning';
 import {
   USER_ID,
-  createTodo,
   getTodos, updateTodo,
 } from './api/todos';
 import { Todo } from './types/Todo';
@@ -12,6 +11,7 @@ import TodoList from './components/TodoList';
 import TodoFooter from './components/TodoFooter';
 import { FilterType } from './types/FooterFilter';
 import { ErrorTitle } from './types/TodoErrors';
+import Header from './components/Header';
 
 export const App: React.FC = () => {
   const [todos, setToodos] = useState<Todo[]>([]);
@@ -20,22 +20,14 @@ export const App: React.FC = () => {
   const [errorMessage, setErrorMessage] = useState<string>('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [query, setQuery] = useState<string>('');
-  const refInput = useRef<HTMLInputElement | null>(null);
 
   const [loader, setLoader] = useState<Record<number, boolean>>({});
-  // const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
     getTodos(USER_ID)
       .then((data) => setToodos(data))
       .catch(() => setErrorMessage(ErrorTitle.Load));
   }, []);
-
-  useEffect(() => {
-    if (refInput.current) {
-      refInput.current.focus();
-    }
-  }, [isSubmitting, todos.length]);
 
   useEffect(() => {
     setTimeout(() => {
@@ -58,46 +50,6 @@ export const App: React.FC = () => {
     });
 
     return todosFilter;
-  }
-
-  function handlerAddTodo(event: React.FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-
-    if (!query.trim()) {
-      setErrorMessage(ErrorTitle.Title);
-
-      return;
-    }
-
-    const fakeTodo = {
-      title: query.trim(),
-      completed: false,
-      userId: USER_ID,
-      id: 0,
-    };
-
-    setErrorMessage('');
-    setLoader({ ...loader, [fakeTodo.id]: true });
-    setTempTodo(fakeTodo);
-    setIsSubmitting(true);
-    createTodo({
-      title: query.trim(),
-      completed: false,
-      userId: USER_ID,
-    })
-      .then((newPost) => {
-        setToodos((currentPost) => [...currentPost, newPost]);
-        setQuery('');
-      })
-      .catch((err) => {
-        setErrorMessage(ErrorTitle.Add);
-        throw Error(err);
-      })
-      .finally(() => {
-        setTempTodo(null);
-        setIsSubmitting(false);
-        setLoader({ ...loader, [fakeTodo.id]: false });
-      });
   }
 
   const handlerUpdateTodo = (todo: Todo) => {
@@ -147,33 +99,19 @@ export const App: React.FC = () => {
       <h1 className="todoapp__title">todos</h1>
 
       <div className="todoapp__content">
-        <header className="todoapp__header">
-          {/* this buttons is active only if there are some active todos */}
-
-          {todos.length > 0 && (
-            <button
-              type="button"
-              className={cn('todoapp__toggle-all', {
-                active: todos.every((todo) => todo.completed),
-              })}
-              data-cy="ToggleAllButton"
-              onClick={togleAllComplited}
-            />
-          )}
-          {/* Add a todo on form submit */}
-          <form onSubmit={handlerAddTodo}>
-            <input
-              disabled={isSubmitting}
-              ref={refInput}
-              value={query}
-              onChange={(event) => setQuery(event.target.value)}
-              data-cy="NewTodoField"
-              type="text"
-              className="todoapp__new-todo"
-              placeholder="What needs to be done?"
-            />
-          </form>
-        </header>
+        <Header
+          todos={todos}
+          setToodos={setToodos}
+          query={query}
+          setQuery={setQuery}
+          isSubmitting={isSubmitting}
+          togleAllComplited={togleAllComplited}
+          loader={loader}
+          setLoader={setLoader}
+          setErrorMessage={setErrorMessage}
+          setTempTodo={setTempTodo}
+          setIsSubmitting={setIsSubmitting}
+        />
 
         <TodoList
           todos={filterTodo()}
@@ -186,7 +124,6 @@ export const App: React.FC = () => {
           handlerUpdateTodo={handlerUpdateTodo}
         />
 
-        {/* Hide the footer if there are no todos */}
         {todos.length > 0 && (
           <TodoFooter
             todos={todos}
@@ -198,9 +135,6 @@ export const App: React.FC = () => {
           />
         )}
       </div>
-
-      {/* Notification is shown in case of any error */}
-      {/* Add the 'hidden' class to hide the message smoothly */}
 
       <div
         data-cy="ErrorNotification"
@@ -219,7 +153,7 @@ export const App: React.FC = () => {
           className="delete"
           onClick={() => setErrorMessage('')}
         />
-        {/* show only one message at a time */}
+
         {errorMessage}
       </div>
     </div>
