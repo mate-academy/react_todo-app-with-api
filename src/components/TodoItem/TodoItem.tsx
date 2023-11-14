@@ -33,6 +33,9 @@ export const TodoItem = React.memo<TodoItemProps>(
     const updatingTodoIds = useSelector(
       (state: RootState) => state.todos.updatingTodoIds,
     );
+    const completingTodoIds = useSelector(
+      (state: RootState) => state.todos.completingTodoIds,
+    );
     const renamingTodoId = useSelector(selectRenamingTodoId);
     const inputRef = useRef<HTMLInputElement>(null);
 
@@ -43,11 +46,7 @@ export const TodoItem = React.memo<TodoItemProps>(
     }, [isEditing]);
 
     const handleDeleteTodo = () => {
-      dispatch(deleteTodo(todo.id))
-        .catch((err: string) => {
-          // eslint-disable-next-line no-console
-          console.error('Unable to delete todo:', err);
-        });
+      dispatch(deleteTodo(todo.id));
     };
 
     const handleToggleCompletion = () => {
@@ -143,6 +142,7 @@ export const TodoItem = React.memo<TodoItemProps>(
           || isDeleting
           || updatingTodoIds.includes(todo.id)
           || renamingTodoId === todo.id
+          || completingTodoIds.includes(todo.id)
         ) && (
           <div data-cy="TodoLoader" className="overlay">
             <div className="modal-background has-background-white-ter" />

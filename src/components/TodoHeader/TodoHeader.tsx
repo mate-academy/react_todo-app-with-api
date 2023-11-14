@@ -1,5 +1,4 @@
-/* eslint-disable no-console */
-
+import cn from 'classnames';
 import { useDispatch, useSelector } from 'react-redux';
 import React, { useEffect, useRef, useState } from 'react';
 import { AppDispatch, RootState } from '../../redux/store';
@@ -10,7 +9,7 @@ import {
   setTempTodo,
 } from '../../redux/todoSlice';
 import { ErrorType } from '../../types/ErrorType';
-import { addTodo } from '../../redux/todoThunks';
+import { addTodo, completeAllTodos } from '../../redux/todoThunks';
 
 export const TodoHeader: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>();
@@ -19,6 +18,8 @@ export const TodoHeader: React.FC = () => {
   const inputRef = useRef<HTMLInputElement>(null);
   const inputValue = useSelector((state: RootState) => state.todos.inputValue);
   const errorType = useSelector((state: RootState) => state.todos.errorType);
+  const todos = useSelector((state: RootState) => state.todos.todos);
+  const hasActiveTodos = todos.some(todo => !todo.completed);
 
   useEffect(() => {
     if (inputValue === '' && !isSubmitting) {
@@ -26,7 +27,9 @@ export const TodoHeader: React.FC = () => {
     }
   }, [inputValue, isSubmitting]);
 
-  const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleInputChange = (
+    event: React.ChangeEvent<HTMLInputElement>,
+  ) => {
     dispatch(setInputValue(event.target.value));
   };
 
@@ -52,7 +55,6 @@ export const TodoHeader: React.FC = () => {
         dispatch(clearTempTodo());
       })
       .catch((err: Error) => {
-        console.error('Unable to add todo:', err);
         dispatch(clearTempTodo());
         throw new Error(err.message);
       })
@@ -61,7 +63,9 @@ export const TodoHeader: React.FC = () => {
       });
   };
 
-  const handleFormSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+  const handleFormSubmit = (
+    event: React.FormEvent<HTMLFormElement>,
+  ) => {
     event.preventDefault();
     handleAddTodo(inputValue);
 
@@ -70,17 +74,21 @@ export const TodoHeader: React.FC = () => {
     }
   };
 
+  const handleCompleteAll = () => {
+    const shouldComplete = todos.some(todo => !todo.completed);
+
+    dispatch(completeAllTodos({ todos, shouldComplete }));
+  };
+
   return (
     <header className="todoapp__header">
-      {/*
-       this buttons is active only if there are some active todos
-       still needs implementation
-        */}
+
       <button
         type="button"
-        className="todoapp__toggle-all active"
+        className={cn('todoapp__toggle-all', { active: hasActiveTodos })}
         data-cy="ToggleAllButton"
         aria-label="Toggle All"
+        onClick={handleCompleteAll}
       />
 
       <form onSubmit={handleFormSubmit}>

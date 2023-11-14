@@ -53,8 +53,17 @@ export const setTodoCompletionApi = async (
   return response;
 };
 
-export const completeAllTodosApi = (todos: Todo[]): Promise<Todo[]> => {
-  const updatePromises = todos.map(todo => setTodoCompletionApi(todo.id, true));
+// export const completeAllTodosApi = (todos: Todo[]): Promise<Todo[]> => {
+//   const updatePromises = todos.map(todo => setTodoCompletionApi(todo.id, true));
+
+//   return Promise.all(updatePromises);
+// };
+
+export const completeAllTodosApi = (
+  todos: Todo[], shouldComplete: boolean,
+): Promise<Todo[]> => {
+  const updatePromises
+    = todos.map(todo => setTodoCompletionApi(todo.id, shouldComplete));
 
   return Promise.all(updatePromises);
 };
