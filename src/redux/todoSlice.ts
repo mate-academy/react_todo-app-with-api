@@ -1,4 +1,3 @@
-/* eslint-disable no-console */
 /* eslint-disable no-param-reassign */
 import { createAction, createSlice, PayloadAction } from '@reduxjs/toolkit';
 
@@ -6,7 +5,7 @@ import {
   Todo,
   TodoFilter,
   ErrorType,
-  DeleteTodoRejectedPayload,
+  TodoActionErrorPayload,
 } from '../types';
 
 import { USER_ID } from '../_utils/constants';
@@ -17,7 +16,7 @@ export interface TodoState {
   inputValue: string,
   status: 'idle' | 'loading' | 'failed';
   error: string | null;
-  filter: TodoFilter;
+  currentFilter: TodoFilter;
   errorType: ErrorType | null;
   deletingTodoIds: number[];
   updatingTodoIds: number[];
@@ -30,7 +29,7 @@ const initialState: TodoState = {
   inputValue: '',
   status: 'idle',
   error: null,
-  filter: TodoFilter.All,
+  currentFilter: TodoFilter.All,
   errorType: null,
   deletingTodoIds: [],
   updatingTodoIds: [],
@@ -56,14 +55,50 @@ export const deleteTodoPending
 export const deleteTodoFulfilled
   = createAction<number>('todos/deleteTodoFulfilled');
 export const deleteTodoRejected
-  = createAction<DeleteTodoRejectedPayload>('todos/deleteTodoRejected');
+  = createAction<TodoActionErrorPayload>('todos/deleteTodoRejected');
+
+export const renameTodoPending
+  = createAction<number>('todos/renameTodoPending');
+export const renameTodoFulfilled
+  = createAction<Todo>('todos/renameTodoFulfilled');
+export const renameTodoRejected
+  = createAction<string>('todos/renameTodoRejected');
+
+export const setCompletionPending
+  = createAction<number>(
+    'todos/setCompletionPending',
+  );
+export const setCompletionFulfilled
+  = createAction<{ id: number; completed: boolean }>(
+    'todos/setCompletionFulfilled',
+  );
+export const setCompletionRejected
+  = createAction<TodoActionErrorPayload>(
+    'todos/setCompletionRejected',
+  );
+
+export const deleteAllCompletedTodosPending
+  = createAction('todos/deleteAllCompletedTodosPending');
+export const deleteAllCompletedTodosFulfilled
+  = createAction('todos/deleteAllCompletedTodosFulfilled');
+export const deleteAllCompletedTodosRejected
+  = createAction<string>('todos/deleteAllCompletedTodosRejected');
+
+export const triggerCompleteAllTodos
+  = createAction('todos/triggerCompleteAllTodos');
+export const completeAllTodosPending
+  = createAction('todos/completeAllTodosPending');
+export const completeAllTodosFulfilled
+  = createAction('todos/completeAllTodosFulfilled');
+export const completeAllTodosRejected
+  = createAction<string>('todos/completeAllTodosRejected');
 
 const todoSlice = createSlice({
   name: 'todos',
   initialState,
   reducers: {
     setFilter: (state, action: PayloadAction<TodoFilter>) => {
-      state.filter = action.payload;
+      state.currentFilter = action.payload;
     },
     setTempTodo(state, action) {
       state.tempTodo = action.payload;
@@ -97,106 +132,126 @@ const todoSlice = createSlice({
         state.errorType = ErrorType.LoadError;
       })
       .addCase(addTodoPending, (state, action) => {
+        state.status = 'loading';
         state.tempTodo = {
           title: action.payload.title,
           id: 0,
           completed: false,
           userId: USER_ID,
         };
-        state.status = 'loading';
       })
       .addCase(addTodoFulfilled, (state, action: PayloadAction<Todo>) => {
-        console.log(action.payload, 'api request to add todo fulfilled');
+        state.status = 'idle';
         state.todos.push(action.payload);
       })
       .addCase(addTodoRejected, (
         state, action: PayloadAction<string | undefined>,
       ) => {
+        state.status = 'failed';
         state.errorType = ErrorType.AddTodoError;
         state.error = action.payload ?? null;
       })
       .addCase(deleteTodoPending, (state, action: PayloadAction<number>) => {
+        state.status = 'loading';
         state.deletingTodoIds.push(action.payload);
       })
       .addCase(deleteTodoFulfilled, (state, action: PayloadAction<number>) => {
+        state.status = 'idle';
         state.deletingTodoIds
           = state.deletingTodoIds.filter(id => id !== action.payload);
 
         state.todos = state.todos.filter(todo => todo.id !== action.payload);
       })
       .addCase(deleteTodoRejected, (
-        state, action: PayloadAction<DeleteTodoRejectedPayload>,
+        state, action: PayloadAction<TodoActionErrorPayload>,
       ) => {
+        state.status = 'failed';
         state.deletingTodoIds
           = state.deletingTodoIds.filter(id => id !== action.payload.todoId);
         state.errorType = ErrorType.DeleteTodoError;
         state.error = action.payload.errorMessage; // Set the error message
-      });
-    // .addCase(renameTodo.pending, (state, action) => {
-    //   state.renamingTodoId = action.meta.arg.todoId;
-    // })
-    // .addCase(renameTodo.fulfilled, (state, action) => {
-    //   const index = state.todos
-    //     .findIndex(todo => todo.id === action.payload.id);
+      })
+      .addCase(renameTodoPending, (state, action: PayloadAction<number>) => {
+        state.status = 'loading';
+        state.renamingTodoId = action.payload;
+      })
+      .addCase(renameTodoFulfilled, (state, action: PayloadAction<Todo>) => {
+        state.status = 'idle';
+        const index
+          = state.todos.findIndex(todo => todo.id === action.payload.id);
 
-    //   if (index !== -1) {
-    //     state.todos[index].title = action.payload.title;
-    //   }
+        if (index !== -1) {
+          state.todos[index] = action.payload; // Update the todo with the new data
+        }
 
-    //   state.renamingTodoId = null;
-    // })
-    // .addCase(renameTodo.rejected, (state) => {
-    //   state.errorType = ErrorType.UpdateTodoError;
-    //   state.renamingTodoId = null;
-    // })
-    // .addCase(setCompletion.pending, (state, action) => {
-    //   state.updatingTodoIds.push(action.meta.arg.todoId);
-    // })
-    // .addCase(setCompletion.fulfilled, (state, action) => {
-    //   const { id, completed } = action.payload;
-    //   const existingTodo = state.todos.find(todo => todo.id === id);
+        state.renamingTodoId = null;
+      })
+      .addCase(renameTodoRejected, (state, action: PayloadAction<string>) => {
+        state.status = 'failed';
+        state.errorType = ErrorType.UpdateTodoError;
+        state.renamingTodoId = null;
+        state.error = action.payload;
+      })
+      .addCase(setCompletionPending, (state, action: PayloadAction<number>) => {
+        state.updatingTodoIds.push(action.payload);
+      })
+      .addCase(setCompletionFulfilled,
+        (state, action: PayloadAction<{ id: number; completed: boolean }>) => {
+          state.status = 'idle';
+          const { id, completed } = action.payload;
+          const existingTodo = state.todos.find(todo => todo.id === id);
 
-    //   if (existingTodo) {
-    //     existingTodo.completed = completed;
-    //   }
+          if (existingTodo) {
+            existingTodo.completed = completed;
+          }
 
-    //   state.updatingTodoIds = state.updatingTodoIds
-    //     .filter(todoId => todoId !== id);
-    // })
-    // .addCase(setCompletion.rejected, (state, action) => {
-    //   state.updatingTodoIds = state.updatingTodoIds
-    //     .filter(todoId => todoId !== action.meta.arg.todoId);
+          state.updatingTodoIds
+            = state.updatingTodoIds.filter(todoId => todoId !== id);
+        })
+      .addCase(setCompletionRejected,
+        (state, action: PayloadAction<TodoActionErrorPayload>) => {
+          state.status = 'failed';
+          const { todoId, errorMessage } = action.payload;
 
-    //   state.errorType = ErrorType.UpdateTodoError;
-    // })
-    // // .addCase(completeAllTodos.pending, (state) => {
-    // //   // Handle the pending state if needed
-    // // })
-    // .addCase(completeAllTodos.fulfilled, (state) => {
-    //   state.todos.forEach(todo => {
-    //     if (!todo.completed) {
-    //       todo.completed = true;
-    //     }
-    //   });
-    // })
-    // .addCase(completeAllTodos.rejected, (state) => {
-    //   state.errorType = ErrorType.UpdateTodoError;
-    // })
-    // .addCase(deleteAllCompletedTodos.pending, (state) => {
-    //   const completedTodoIds = state.todos
-    //     .filter(todo => todo.completed)
-    //     .map(todo => todo.id);
+          state.updatingTodoIds
+            = state.updatingTodoIds.filter(id => id !== todoId);
+          state.error = errorMessage;
+          state.errorType = ErrorType.UpdateTodoError;
+        })
+      .addCase(deleteAllCompletedTodosPending, (state) => {
+        state.status = 'loading';
+        const completedTodoIds
+          = state.todos
+            .filter(todo => todo.completed).map(todo => todo.id);
 
-    //   state.deletingTodoIds.push(...completedTodoIds);
-    // })
-    // .addCase(deleteAllCompletedTodos.fulfilled, (state) => {
-    //   state.todos = state.todos.filter(todo => !todo.completed);
-    //   state.deletingTodoIds = [];
-    // })
-    // .addCase(deleteAllCompletedTodos.rejected, (state) => {
-    //   state.errorType = ErrorType.DeleteTodoError;
-    //   state.deletingTodoIds = [];
-    // });
+        state.deletingTodoIds.push(...completedTodoIds);
+      })
+      .addCase(deleteAllCompletedTodosFulfilled, (state) => {
+        state.status = 'idle';
+        state.todos = state.todos.filter(todo => !todo.completed);
+        state.deletingTodoIds = [];
+      })
+      .addCase(deleteAllCompletedTodosRejected, (state) => {
+        state.status = 'failed';
+        state.errorType = ErrorType.DeleteTodoError;
+        state.deletingTodoIds = [];
+      })
+      .addCase(completeAllTodosPending, (state) => {
+        state.status = 'loading';
+      })
+      .addCase(completeAllTodosFulfilled, (state) => {
+        state.status = 'idle';
+        state.todos.forEach(todo => {
+          if (!todo.completed) {
+            todo.completed = true;
+          }
+        });
+      })
+      .addCase(completeAllTodosRejected,
+        (state, action: PayloadAction<string>) => {
+          state.errorType = ErrorType.UpdateTodoError;
+          state.error = action.payload;
+        });
   },
 });
 
@@ -210,41 +265,3 @@ export const {
 } = todoSlice.actions;
 
 export default todoSlice.reducer;
-
-// import { createAction, createSlice, PayloadAction } from '@reduxjs/toolkit';
-
-// // Define custom actions
-// export const setTodosCompletedPending = createAction('todos/setTodosCompletedPending');
-// export const setTodosCompletedSuccess = createAction<Todo[]>('todos/setTodosCompletedSuccess');
-// export const setTodosCompletedFailure = createAction<string>('todos/setTodosCompletedFailure');
-
-// // Define your initialState, reducers, and extraReducers...
-// const todoSlice = createSlice({
-//   name: 'todos',
-//   initialState,
-//   reducers: {
-//     // Reducers...
-//   },
-//   extraReducers: (builder) => {
-//     builder
-//       .addCase(setTodosCompletedPending, (state) => {
-//         // Update state for pending
-//       })
-//       .addCase(setTodosCompletedSuccess, (state, action: PayloadAction<Todo[]>) => {
-//         // Update state for success, mark todos as completed
-//         action.payload.forEach(todo => {
-//           const index = state.todos.findIndex(t => t.id === todo.id);
-//           if (index !== -1) {
-//             state.todos[index].completed = true;
-//           }
-//         });
-//       })
-//       .addCase(setTodosCompletedFailure, (state, action: PayloadAction<string>) => {
-//         // Update state for failure
-//         state.error = action.payload;
-//       });
-//     // Handle other actions...
-//   },
-// });
-
-// export default todoSlice.reducer;

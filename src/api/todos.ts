@@ -33,7 +33,7 @@ export const deleteTodoApi = (todoId: number) => {
   return client.delete(`/todos/${todoId}`);
 };
 
-export const deleteCompletedTodosForUser = (userId: number): Promise<void> => {
+export const deleteCompletedTodosApi = (userId: number): Promise<void> => {
   return fetchTodosApi(userId).then(todos => {
     const completedTodos = todos.filter(todo => todo.completed);
 

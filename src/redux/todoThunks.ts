@@ -1,14 +1,12 @@
-/* eslint-disable no-console */
 import { createAsyncThunk } from '@reduxjs/toolkit';
-// import { Todo } from '../types/Todo';
 import {
   addTodoApi,
-  deleteCompletedTodosForUser,
+  deleteCompletedTodosApi,
   fetchTodosApi,
   deleteTodoApi,
   renameTodoApi,
   setTodoCompletionApi,
-  // completeAllTodosApi,
+  completeAllTodosApi,
 } from '../api/todos';
 
 import {
@@ -21,7 +19,21 @@ import {
   deleteTodoPending,
   deleteTodoFulfilled,
   deleteTodoRejected,
+  renameTodoPending,
+  renameTodoFulfilled,
+  renameTodoRejected,
+  setCompletionPending,
+  setCompletionFulfilled,
+  setCompletionRejected,
+  deleteAllCompletedTodosPending,
+  deleteAllCompletedTodosFulfilled,
+  deleteAllCompletedTodosRejected,
+  completeAllTodosPending,
+  completeAllTodosFulfilled,
+  completeAllTodosRejected,
 } from './todoSlice';
+import { RootState } from './store';
+import { Todo } from '../types';
 
 export const fetchTodos = createAsyncThunk(
   'todos/fetchTodos',
@@ -81,12 +93,42 @@ export const deleteTodo = createAsyncThunk(
 );
 
 export const deleteAllCompletedTodos = createAsyncThunk(
-  'todos/deleteAllCompleted',
-  async (userId: number, { rejectWithValue }) => {
+  'todos/deleteAllCompletedTodos',
+  async (userId: number, { dispatch }) => {
+    dispatch(deleteAllCompletedTodosPending());
+
     try {
-      await deleteCompletedTodosForUser(userId);
+      await deleteCompletedTodosApi(userId);
+      dispatch(deleteAllCompletedTodosFulfilled());
     } catch (error) {
-      rejectWithValue('Failed to delete completed todos');
+      const errorMessage
+        = error instanceof Error
+          ? error.message
+          : 'Failed to delete completed todos';
+
+      dispatch(deleteAllCompletedTodosRejected(errorMessage));
+    }
+  },
+);
+
+export const renameTodo = createAsyncThunk(
+  'todos/renameTodo',
+  async (
+    { todoId, newName }: { todoId: number; newName: string },
+    { dispatch },
+  ) => {
+    dispatch(renameTodoPending(todoId));
+
+    try {
+      const updatedTodo = await renameTodoApi(todoId, newName);
+
+      dispatch(renameTodoFulfilled(updatedTodo));
+    } catch (error) {
+      const errorMessage = error instanceof Error
+        ? error.message
+        : 'Failed to rename todo';
+
+      dispatch(renameTodoRejected(errorMessage));
     }
   },
 );
@@ -95,46 +137,48 @@ export const setCompletion = createAsyncThunk(
   'todos/setCompletion',
   async (
     { todoId, completed }: { todoId: number; completed: boolean },
-    { rejectWithValue },
+    { dispatch },
   ) => {
-    try {
-      const response = await setTodoCompletionApi(todoId, completed);
+    dispatch(setCompletionPending(todoId));
 
-      return response;
+    try {
+      await setTodoCompletionApi(todoId, completed);
+      dispatch(setCompletionFulfilled({ id: todoId, completed }));
     } catch (error) {
-      return rejectWithValue('Failed to update todo completion status');
+      const errorMessage = error instanceof Error
+        ? error.message
+        : 'Failed to set completion';
+
+      dispatch(setCompletionRejected({ todoId, errorMessage }));
     }
   },
 );
 
-// export const completeAllTodos = createAsyncThunk(
-//   'todos/completeAll',
-//   async (_, { getState, rejectWithValue }) => {
-//     try {
-//       const state: RootState = getState();
-//       const activeTodos = state.todos.filter((todo: Todo) => !todo.completed);
+function getCurrentState(getState: () => RootState): RootState {
+  return getState() as RootState;
+}
 
-//       const updatedTodos = await completeAllTodosApi(activeTodos);
+export const completeAllTodos = createAsyncThunk(
+  'todos/completeAllTodos',
+  async (_, { dispatch, getState }) => {
+    dispatch(completeAllTodosPending());
 
-//       return updatedTodos;
-//     } catch (error) {
-//       return rejectWithValue('Failed to complete all todos');
-//     }
-//   },
-// );
-
-export const renameTodo = createAsyncThunk(
-  'todos/renameTodo',
-  async (
-    { todoId, newName }: { todoId: number; newName: string },
-    { rejectWithValue },
-  ) => {
     try {
-      const updatedTodo = await renameTodoApi(todoId, newName);
+      const state: RootState = getState();
+      const activeTodos
+        = Array.prototype.filter.call(
+          state.todos, (todo: Todo) => !todo.completed,
+        );
 
-      return updatedTodo;
+      await completeAllTodosApi(activeTodos);
+
+      dispatch(completeAllTodosFulfilled());
     } catch (error) {
-      return rejectWithValue('Failed to rename todo');
+      const errorMessage = error instanceof Error
+        ? error.message
+        : 'Failed to complete all todos';
+
+      dispatch(completeAllTodosRejected(errorMessage));
     }
   },
 );

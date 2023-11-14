@@ -12,8 +12,7 @@ import {
   setCompletion,
   renameTodo,
 } from '../../redux/todoThunks';
-import { RootState } from '../../redux/rootReducer';
-import { AppDispatch } from '../../redux/store';
+import { AppDispatch, RootState } from '../../redux/store';
 import { selectRenamingTodoId } from '../../redux/selectors';
 import { Todo } from '../../types/Todo';
 

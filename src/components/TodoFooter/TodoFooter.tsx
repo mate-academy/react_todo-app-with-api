@@ -9,7 +9,7 @@ import { USER_ID } from '../../_utils/constants';
 
 interface TodoFooterProps {
   todos: Todo[];
-  filterChange: (filter: TodoFilter) => void;
+  filterChange: (currentFilter: TodoFilter) => void;
 }
 
 export const TodoFooter: React.FC<TodoFooterProps> = (
