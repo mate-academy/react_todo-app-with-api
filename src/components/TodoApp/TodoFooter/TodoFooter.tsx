@@ -2,7 +2,8 @@ import React, { useCallback, useContext } from 'react';
 
 import * as todoService from '../../../api/todos';
 
-import { DispatchContext, StateContext, actionCreator } from '../../TodoStore';
+import { DispatchContext, StateContext } from '../../../TodoStore';
+import { actionCreator } from '../../../reducer';
 import { FilterTodo } from './FilterTodo';
 import { TodoError } from '../../../types/TodoError';
 

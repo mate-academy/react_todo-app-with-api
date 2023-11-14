@@ -6,8 +6,8 @@ import './FilterTodo.scss';
 import {
   DispatchContext,
   StateContext,
-  actionCreator,
-} from '../../../TodoStore';
+} from '../../../../TodoStore';
+import { actionCreator } from '../../../../reducer';
 import { Filter } from '../../../../types/Filter';
 
 export const FilterTodo: React.FC = () => {

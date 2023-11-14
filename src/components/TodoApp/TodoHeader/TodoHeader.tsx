@@ -14,8 +14,8 @@ import {
   DispatchContext,
   StateContext,
   USER_ID,
-  actionCreator,
-} from '../../TodoStore';
+} from '../../../TodoStore';
+import { actionCreator } from '../../../reducer';
 import { TodoError } from '../../../types/TodoError';
 
 export const TodoHeader: React.FC = () => {

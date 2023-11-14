@@ -4,4 +4,5 @@ export enum TodoError {
   ErrorUpdate = 'Unable to update a todo',
   ErrorDelete = 'Unable to delete a todo',
   ErrorTodo = 'Title should not be empty',
+  NoProblem = '',
 }

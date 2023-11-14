@@ -11,9 +11,13 @@ import './TodoItem.scss';
 
 import * as todoService from '../../../api/todos';
 
-import { DispatchContext, StateContext, actionCreator } from '../../TodoStore';
-import { TodoError } from '../../../types/TodoError';
+import {
+  DispatchContext,
+  StateContext,
+} from '../../../TodoStore';
 import { Todo } from '../../../types/Todo';
+import { actionCreator } from '../../../reducer';
+import { TodoError } from '../../../types/TodoError';
 
 type Props = {
   todo: Todo,

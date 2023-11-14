@@ -2,7 +2,7 @@ import React, { useContext } from 'react';
 
 import './TodoApp.scss';
 
-import { StateContext } from '../TodoStore';
+import { StateContext } from '../../TodoStore';
 import { TodoHeader } from './TodoHeader';
 import { TodoList } from './TodoList';
 import { TodoFooter } from './TodoFooter';

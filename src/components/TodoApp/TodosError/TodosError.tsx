@@ -2,7 +2,11 @@
 import React, { useContext, useEffect } from 'react';
 import cn from 'classnames';
 
-import { DispatchContext, StateContext, actionCreator } from '../../TodoStore';
+import {
+  DispatchContext,
+  StateContext,
+} from '../../../TodoStore';
+import { actionCreator } from '../../../reducer';
 
 export const TodosError: React.FC = () => {
   const { todoError } = useContext(StateContext);
@@ -18,7 +22,7 @@ export const TodosError: React.FC = () => {
     }
 
     return () => clearTimeout(timer);
-  }, [todoError]);
+  }, [dispatch, todoError]);
 
   return (
     <div

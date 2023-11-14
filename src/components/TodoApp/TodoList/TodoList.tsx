@@ -1,7 +1,7 @@
 import React, { useContext, useMemo } from 'react';
 import { CSSTransition, TransitionGroup } from 'react-transition-group';
 
-import { StateContext } from '../../TodoStore';
+import { StateContext } from '../../../TodoStore';
 import { TodoItem } from '../TodoItem';
 import { Filter } from '../../../types/Filter';
 import { Todo } from '../../../types/Todo';

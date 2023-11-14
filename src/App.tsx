@@ -2,7 +2,7 @@
 import React from 'react';
 import { UserWarning } from './UserWarning';
 import { TodoApp } from './components/TodoApp';
-import { TodoAppContext } from './components/TodoStore';
+import { TodoAppContext } from './TodoStore';
 
 const USER_ID = 11722;
 
