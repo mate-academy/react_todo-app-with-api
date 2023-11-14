@@ -6,7 +6,9 @@ import {
   useRef,
   useEffect,
   useCallback,
+  useMemo,
 } from 'react';
+import cn from 'classnames';
 
 import { TodosContext } from '../TodoContext/TodoContext';
 import { ErrorMessage } from '../../types/Error';
@@ -24,6 +26,9 @@ export const TodoHeader = () => {
   } = useContext(TodosContext);
 
   const titleFocus = useRef<HTMLInputElement>(null);
+  const isEveryCompleted = useMemo(() => {
+    return todos.every(todo => todo.completed);
+  }, [todos]);
 
   useEffect(() => {
     if (titleFocus.current && !isLoading) {
@@ -54,18 +59,18 @@ export const TodoHeader = () => {
   };
 
   const toggleAllTodos = useCallback(() => {
-    const isEveryCompleted = todos.every(todo => todo.completed);
-
-    todos.forEach(todo => updateCurrentTodo(
+    const togglePromises = todos.map(todo => updateCurrentTodo(
       { ...todo, completed: !isEveryCompleted },
     ));
-  }, [todos]);
+
+    Promise.all(togglePromises);
+  }, [todos, updateCurrentTodo, isEveryCompleted]);
 
   return (
     <header className="todoapp__header">
       <button
         type="button"
-        className="todoapp__toggle-all active"
+        className={cn('todoapp__toggle-all', { active: !isEveryCompleted })}
         data-cy="ToggleAllButton"
         onClick={toggleAllTodos}
       />

@@ -4,11 +4,15 @@ import { TodoItem } from '../TodoItem/TodoItem';
 import { TodosContext } from '../TodoContext/TodoContext';
 
 export const TodoList = () => {
-  const { filterTodos, tempTodo, processingIds } = useContext(TodosContext);
+  const {
+    getFilteredTodos,
+    tempTodo,
+    processingIds,
+  } = useContext(TodosContext);
 
   return (
     <section className="todoapp__main">
-      {filterTodos().map(todo => (
+      {getFilteredTodos().map(todo => (
         <TodoItem
           key={todo.id}
           todo={todo}

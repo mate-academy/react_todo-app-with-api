@@ -37,7 +37,7 @@ export const TodoItem: React.FC<Props> = ({ todo, isProcessed }) => {
     event: React.ChangeEvent<HTMLInputElement>,
   ) => {
     updateCurrentTodo({ ...todo, completed: event.target.checked });
-  }, []);
+  }, [todo, updateCurrentTodo]);
 
   const handleTitleDoubleClick = useCallback(() => {
     setIsEdited(true);
@@ -52,7 +52,7 @@ export const TodoItem: React.FC<Props> = ({ todo, isProcessed }) => {
       updateCurrentTodo({ ...todo, title: editTitle });
       setIsEdited(false);
     }
-  }, [editTitle]);
+  }, [editTitle, removeTodo, todo, updateCurrentTodo]);
 
   const handleEditBlur = () => {
     handleSavingTitle();

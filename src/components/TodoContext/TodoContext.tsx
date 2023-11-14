@@ -13,7 +13,7 @@ type TodoContext = {
   setTodos: React.Dispatch<React.SetStateAction<Todo[]>>,
   filter: FilterStatus,
   setFilter: (status: FilterStatus) => void,
-  filterTodos: () => Todo[],
+  getFilteredTodos: () => Todo[],
   errorMessage: ErrorMessage,
   setErrorMessage: (message: ErrorMessage) => void,
   tempTodo: Todo | null,
@@ -36,7 +36,7 @@ export const TodosContext = React.createContext<TodoContext>({
   setTodos: () => {},
   filter: FilterStatus.ALL,
   setFilter: () => {},
-  filterTodos: () => [],
+  getFilteredTodos: () => [],
   errorMessage: ErrorMessage.None,
   setErrorMessage: () => {},
   tempTodo: null,
@@ -116,7 +116,7 @@ export const TodosProvider: React.FC<Props> = ({ children }) => {
       });
   }, []);
 
-  const filterTodos = () => {
+  const getFilteredTodos = useCallback(() => {
     switch (filter) {
       case FilterStatus.ACTIVE:
         return todos.filter(todo => !todo.completed);
@@ -125,7 +125,7 @@ export const TodosProvider: React.FC<Props> = ({ children }) => {
       default:
         return todos;
     }
-  };
+  }, [filter, todos]);
 
   const updateCurrentTodo = useCallback((updatedTodo: Todo) => {
     setProcessingIds(prev => [...prev, updatedTodo.id]);
@@ -134,10 +134,8 @@ export const TodosProvider: React.FC<Props> = ({ children }) => {
     return todoService.updateTodo(updatedTodo)
       .then((todo) => {
         setTodos(prevTodos => {
-          const newTodos = [...prevTodos];
-          const index = newTodos.findIndex(el => el.id === updatedTodo.id);
-
-          newTodos.splice(index, 1, todo);
+          const newTodos = prevTodos.map(el => (el.id === updatedTodo.id
+            ? todo : el));
 
           return newTodos;
         });
@@ -152,7 +150,7 @@ export const TodosProvider: React.FC<Props> = ({ children }) => {
   const todoState = useMemo(() => ({
     todos,
     setTodos,
-    filterTodos,
+    getFilteredTodos,
     filter,
     setFilter,
     errorMessage,
@@ -173,6 +171,10 @@ export const TodosProvider: React.FC<Props> = ({ children }) => {
     isLoading,
     filter,
     errorMessage,
+    addCurrentTodo,
+    getFilteredTodos,
+    removeTodo,
+    updateCurrentTodo,
   ]);
 
   return (

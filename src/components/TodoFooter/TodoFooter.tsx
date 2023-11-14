@@ -1,4 +1,4 @@
-import { useContext } from 'react';
+import { useContext, useMemo } from 'react';
 import cn from 'classnames';
 
 import { TodosContext } from '../TodoContext/TodoContext';
@@ -12,7 +12,9 @@ export const TodoFooter = () => {
     removeTodo,
   } = useContext(TodosContext);
 
-  const todosLeft = todos.filter(todo => !todo.completed).length;
+  const todosLeft = useMemo(() => {
+    return todos.filter(todo => !todo.completed).length;
+  }, [todos]);
 
   const handleClearCompleted = () => {
     const removePromises = todos
