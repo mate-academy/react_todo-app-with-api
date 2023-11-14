@@ -24,7 +24,7 @@ export const TodoApp: React.FC = () => {
   const { todos, setTodos } = useContext(TodosContext);
   const { tempTodo, setTempTodo } = useContext(TempTodoContext);
   const [todoTitle, setTodoTitle] = useState('');
-  const [status, setStatus] = useState('all');
+  const [status, setStatus] = useState(Filter.All);
   const { errorMessage, setErrorMessage } = useContext(ErrorContext);
   const [loadingIds, setLoadingIds] = useState<number[]>([]);
   const refInput = useRef<HTMLInputElement>(null);
@@ -64,14 +64,12 @@ export const TodoApp: React.FC = () => {
       .then(newTodo => {
         setTodos([...todos, newTodo]);
         setTodoTitle('');
-        setTempTodo(null);
       })
-      .catch((error) => {
+      .catch(() => {
         setErrorMessage(Error.ADD_TODO);
-        setTempTodo(null);
         setTimeout(() => setErrorMessage(''), ERROR_DELAY);
-        throw error;
-      });
+      })
+      .finally(() => setTempTodo(null));
   };
 
   const handleOnSubmit = (event: React.FormEvent<HTMLFormElement>) => {
@@ -119,35 +117,32 @@ export const TodoApp: React.FC = () => {
       todoService.updateTodo(todo)
         .then(() => {
           setTodos(updateTodos);
-          setLoadingIds([]);
         })
         .catch(() => {
           setErrorMessage(Error.UPDATE_TODO);
-          setLoadingIds([]);
 
           setTimeout(() => setErrorMessage(''), ERROR_DELAY);
-        });
+        })
+        .finally(() => setLoadingIds([]));
     });
   };
 
   const clearAllCompleted = () => {
     const updatedTodos = todos.filter(t => !t.completed);
-    const Ids = todos.filter(t => t.completed).map(t => t.id);
+    const todoIds = todos.filter(t => t.completed).map(t => t.id);
 
-    setLoadingIds(Ids);
+    setLoadingIds(todoIds);
 
-    Ids.forEach(id => {
+    todoIds.forEach(id => {
       todoService.deleteTodo(id)
         .then(() => {
           setTodos(updatedTodos);
-          setLoadingIds([]);
         })
-        .catch((error) => {
+        .catch(() => {
           setErrorMessage(Error.DELETE);
-          setLoadingIds([]);
           setTimeout(() => setErrorMessage(''), ERROR_DELAY);
-          throw error;
-        });
+        })
+        .finally(() => setLoadingIds([]));
     });
   };
 

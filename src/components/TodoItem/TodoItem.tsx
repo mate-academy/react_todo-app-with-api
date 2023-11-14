@@ -54,7 +54,6 @@ export const TodoItem: React.FC<Props> = ({
 
         currentTodos.splice(index, 1, updatedTodo);
         setTodos(currentTodos);
-        setIsLoading(false);
       })
       .catch((error) => {
         setIsLoading(false);
@@ -62,7 +61,8 @@ export const TodoItem: React.FC<Props> = ({
 
         setTimeout(() => setErrorMessage(''), ERROR_DELAY);
         throw error;
-      });
+      })
+      .finally(() => setIsLoading(false));
   };
 
   const handleCompleteTodo = (uTodo: Todo) => {
@@ -79,12 +79,7 @@ export const TodoItem: React.FC<Props> = ({
 
     if (editedTitle.trim()) {
       updateTodo({ ...uTodo, title: editedTitle.trim(), completed: false })
-        .then(() => {
-          setIsEditing(false);
-        })
-        .catch(() => {
-          setIsEditing(true);
-        });
+        .then(() => setIsEditing(false));
     } else {
       deleteTodo(uTodo.id);
     }

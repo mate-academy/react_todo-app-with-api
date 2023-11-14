@@ -2,8 +2,8 @@ import classNames from 'classnames';
 import { Filter } from '../../types/Filter';
 
 type Props = {
-  status: string;
-  setStatus: (st: string) => void;
+  status: Filter;
+  setStatus: (st: Filter) => void;
 };
 
 export const TodosFilter: React.FC<Props> = ({
