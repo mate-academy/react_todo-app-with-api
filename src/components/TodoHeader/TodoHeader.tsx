@@ -35,23 +35,24 @@ export const TodoHeader: React.FC = () => {
     return todos.every(todo => todo.completed);
   };
 
+  const changeCompleted = (item: Todo, value: boolean) => {
+    updateTodo({
+      ...item,
+      completed: value,
+    });
+  };
+
   const toggleCompleted = () => {
     let updateTodos: Todo[];
     let updatedPromises;
 
     if (isAllCompleted()) {
       updateTodos = [...todos];
-      updatedPromises = updateTodos.map(todo => updateTodo({
-        ...todo,
-        completed: false,
-      }));
+      updatedPromises = updateTodos.map(todo => changeCompleted(todo, false));
     } else {
       updateTodos = todos.filter(todo => !todo.completed);
       updatedPromises = updateTodos
-        .map(todo => updateTodo({
-          ...todo,
-          completed: true,
-        }));
+        .map(todo => changeCompleted(todo, true));
     }
 
     Promise.all(updatedPromises)

@@ -43,9 +43,19 @@ export const TodoFooter: React.FC<Props> = ({
         {`${countLeft} items left`}
       </span>
 
-      {/* Active filter should have a 'selected' class */}
       <nav className="filter" data-cy="Filter">
-        <a
+        {Object.values(Filter).map(value => (
+          <a
+            href={`#/${value.toLowerCase()}`}
+            className={cn('filter__link',
+              { selected: filter === value })}
+            data-cy={`FilterLink${value}`}
+            onClick={() => setFilter(value)}
+          >
+            {value}
+          </a>
+        ))}
+        {/* <a
           href="#/"
           className={cn('filter__link',
             { selected: filter === Filter.All })}
@@ -73,7 +83,7 @@ export const TodoFooter: React.FC<Props> = ({
           onClick={() => setFilter(Filter.Completed)}
         >
           Completed
-        </a>
+        </a> */}
       </nav>
 
       <button
