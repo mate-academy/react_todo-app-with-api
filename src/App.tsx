@@ -57,14 +57,14 @@ export const App: React.FC = () => {
       });
   }
 
-  function updateTodoData(id: number, updatedTodo: Todo) {
-    setLoadingTodosIds(current => [...current, id]);
-    updateTodo(id, updatedTodo)
+  function updateTodoData(updatedTodo: Todo) {
+    setLoadingTodosIds(current => [...current, updatedTodo.id]);
+    updateTodo(updatedTodo)
       .then((newTodo) => setTodos(current => current
         .map(todo => (todo.id === newTodo.id ? newTodo : todo))))
       .catch(() => setErrorMessage('Unable to update a todo'))
       .finally(() => setLoadingTodosIds(current => current
-        .filter(todoId => todoId !== id)));
+        .filter(todoId => todoId !== updatedTodo.id)));
   }
 
   function toggleTodoStatus(id: number) {
@@ -76,7 +76,7 @@ export const App: React.FC = () => {
         completed: !foundTodo.completed,
       };
 
-      updateTodoData(id, updatedTodo);
+      updateTodoData(updatedTodo);
     } else {
       setErrorMessage('Unable to update a todo');
     }
@@ -104,7 +104,7 @@ export const App: React.FC = () => {
               handleDeleteButtonClick={id => onDelete(id)}
               loadingTodosIds={loadingTodosIds}
               toggleTodoStatus={(id) => toggleTodoStatus(id)}
-              updateTodoTitle={(id, todo) => updateTodoData(id, todo)}
+              updateTodoTitle={todo => updateTodoData(todo)}
             />
             {tempTodo && (
               <TodoItem
@@ -114,7 +114,7 @@ export const App: React.FC = () => {
                 onDelete={id => onDelete(id)}
                 loadingTodosIds={loadingTodosIds}
                 toggleTodoStatus={(id) => toggleTodoStatus(id)}
-                updateTodoTitle={(id, todo) => updateTodoData(id, todo)}
+                updateTodoTitle={todo => updateTodoData(todo)}
               />
             )}
 

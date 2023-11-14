@@ -9,7 +9,7 @@ type Props = {
   onDelete: (id: number) => void;
   loadingTodosIds: number [];
   toggleTodoStatus: (id: number) => void;
-  updateTodoTitle: (id: number, todo: Todo) => void;
+  updateTodoTitle: (todo: Todo) => void;
 };
 
 export const TodoItem: React.FC<Props> = ({
@@ -42,7 +42,7 @@ export const TodoItem: React.FC<Props> = ({
       if (!newTitle.trim()) {
         onDelete(id);
       } else {
-        updateTodoTitle(id, {
+        updateTodoTitle({
           id,
           title: newTitle.trim(),
           completed,

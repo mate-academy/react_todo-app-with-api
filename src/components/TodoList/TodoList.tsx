@@ -9,7 +9,7 @@ type Props = {
   handleDeleteButtonClick: (id: number) => void;
   loadingTodosIds: number[];
   toggleTodoStatus: (id: number) => void;
-  updateTodoTitle: (id: number, todo: Todo) => void;
+  updateTodoTitle: (todo: Todo) => void;
 };
 
 export const TodoList: React.FC<Props> = ({
