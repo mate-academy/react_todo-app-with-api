@@ -25,6 +25,7 @@ export const TodoList: React.FC<Props> = ({ userId }) => {
   const [todos, setTodos] = useState<Todo[]>([]);
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
   const [filteredTodo, setFilteredTodo] = useState<FilterType>(FilterType.ALL);
+  const [updatedTodos, setUpdatedTodos] = useState<Todo[]>([]);
   const [processingTodoIds, setProcessingTodoIds] = useState<number[]>([]);
   const [focusToHeaderInput, setFocusToHeaderInput] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
@@ -43,22 +44,22 @@ export const TodoList: React.FC<Props> = ({ userId }) => {
       });
   }, [userId]);
 
-  let updatedTodos = [...todos];
+  useEffect(() => {
+    switch (filteredTodo) {
+      case FilterType.ALL:
+        setUpdatedTodos(todos.filter(todo => todo));
+        break;
+      case FilterType.ACTIVE:
+        setUpdatedTodos(todos.filter(todo => !todo.completed));
+        break;
+      case FilterType.COMPLETED:
+        setUpdatedTodos(todos.filter(todo => todo.completed));
+        break;
+      default: setUpdatedTodos(todos);
+    }
+  }, [filteredTodo, todos]);
 
-  switch (filteredTodo) {
-    case FilterType.ALL:
-      updatedTodos = todos.filter(todo => todo);
-      break;
-    case FilterType.ACTIVE:
-      updatedTodos = todos.filter(todo => !todo.completed);
-      break;
-    case FilterType.COMPLETED:
-      updatedTodos = todos.filter(todo => todo.completed);
-      break;
-    default: updatedTodos = todos;
-  }
-
-  const todosQty = todos.filter(todo => todo.completed !== true).length;
+  const todosQty = todos.filter(todo => !todo.completed).length;
 
   const errorTimerId = useRef(0);
 
@@ -189,7 +190,7 @@ export const TodoList: React.FC<Props> = ({ userId }) => {
       });
     } else {
       todos.forEach(todo => {
-        if (todo.completed === false) {
+        if (!todo.completed) {
           handleCompleteTodo(todo.id, true);
         }
       });
