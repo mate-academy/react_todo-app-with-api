@@ -17,8 +17,9 @@ const initialState: TodoState = {
   inputValue: '',
   status: 'idle',
   error: null,
-  currentFilter: TodoFilter.All,
   errorType: null,
+  isErrorVisible: false,
+  currentFilter: TodoFilter.All,
   deletingTodoIds: [],
   updatingTodoIds: [],
   completingTodoIds: [],
@@ -32,13 +33,13 @@ const todoSlice = createSlice({
     setFilter: (state, action: PayloadAction<TodoFilter>) => {
       state.currentFilter = action.payload;
     },
-    setTempTodo(state, action) {
+    setTempTodo(state, action: PayloadAction<Todo | null>) {
       state.tempTodo = action.payload;
     },
     clearTempTodo(state) {
       state.tempTodo = null;
     },
-    setInputValue: (state, action) => {
+    setInputValue: (state, action) => { // input value will be needed locally only?
       state.inputValue = action.payload;
     },
     setErrorType: (state, action: PayloadAction<ErrorType>) => {
@@ -46,6 +47,12 @@ const todoSlice = createSlice({
     },
     clearErrorType: (state) => {
       state.errorType = null;
+    },
+    showError: (state) => {
+      state.isErrorVisible = true;
+    },
+    hideError: (state) => {
+      state.isErrorVisible = false;
     },
   },
   extraReducers: (builder) => {
@@ -210,6 +217,8 @@ export const {
   clearTempTodo,
   setFilter,
   setErrorType,
+  showError,
+  hideError,
   clearErrorType,
 } = todoSlice.actions;
 

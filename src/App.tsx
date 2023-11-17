@@ -3,7 +3,7 @@ import React, { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { AppDispatch, RootState } from './redux/store';
 import {
-  clearErrorType,
+  // clearErrorType,
   setFilter,
 } from './redux/todoSlice';
 import { selectFilteredTodos } from './redux/selectors';
@@ -23,50 +23,31 @@ export const App: React.FC = () => {
     (state: RootState) => state.todos.todos,
   );
 
-  const status = useSelector(
-    (state: RootState) => state.todos.status,
-  );
-
-  const error = useSelector(
-    (state: RootState) => state.todos.error,
-  );
-
-  const errorType = useSelector(
-    (state: RootState) => state.todos.errorType,
-  );
+  // const errorType = useSelector(
+  //   (state: RootState) => state.todos.errorType,
+  // );
 
   useEffect(() => {
     dispatch(fetchTodos(USER_ID));
   }, [dispatch]);
 
-  // load error
-  useEffect(() => {
-    if (status === 'failed') {
-      console.error('Error fetching todos:', error);
-    }
-  }, [status, error]);
-
   const filteredTodos = useSelector(selectFilteredTodos);
-
-  useEffect(() => {
-    console.log(filteredTodos);
-  }, [filteredTodos]);
 
   const handleFilterChange = (filter: TodoFilter) => {
     dispatch(setFilter(filter));
   };
 
-  useEffect(() => {
-    if (errorType) {
-      const timer = setTimeout(() => {
-        dispatch(clearErrorType());
-      }, 3000);
+  // useEffect(() => {
+  //   if (errorType) {
+  //     const timer = setTimeout(() => {
+  //       dispatch(clearErrorType());
+  //     }, 3000);
 
-      return () => clearTimeout(timer);
-    }
+  //     return () => clearTimeout(timer);
+  //   }
 
-    return undefined;
-  }, [errorType, dispatch]);
+  //   return undefined;
+  // }, [errorType, dispatch]);
 
   if (!USER_ID) {
     return <UserWarning />;
@@ -82,7 +63,7 @@ export const App: React.FC = () => {
 
         <TodoList todos={filteredTodos} />
 
-        {todos && todos.length > 0 && (
+        {!!todos?.length && (
           <TodoFooter
             todos={filteredTodos}
             filterChange={handleFilterChange}
@@ -90,9 +71,7 @@ export const App: React.FC = () => {
         )}
       </div>
 
-      <ErrorNotification
-        errorType={errorType}
-      />
+      <ErrorNotification />
     </div>
   );
 };

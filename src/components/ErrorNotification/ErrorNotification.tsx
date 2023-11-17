@@ -1,31 +1,28 @@
-import { useEffect, useState } from 'react';
+import {
+  useEffect,
+  // useState
+} from 'react';
+import { useDispatch, useSelector } from 'react-redux';
 import { ErrorType } from '../../types/ErrorType';
+import { AppDispatch, RootState } from '../../redux/store';
+import { clearErrorType } from '../../redux/todoSlice';
+import { showErrorWithTimeout } from '../../redux/showErrorThunk';
 
-interface ErrorNotificationProps {
-  errorType: ErrorType | null;
-}
-
-export const ErrorNotification: React.FC<ErrorNotificationProps> = (
-  { errorType },
-) => {
-  const [visible, setVisible] = useState(true);
+export const ErrorNotification: React.FC = () => {
+  const dispatch = useDispatch<AppDispatch>();
+  const errorType = useSelector((state: RootState) => state.todos.errorType);
+  const isErrorVisible = useSelector(
+    (state: RootState) => state.todos.isErrorVisible,
+  );
 
   useEffect(() => {
-    setVisible(true);
-
     if (errorType) {
-      const timerId = setTimeout(() => {
-        setVisible(false);
-      }, 3000);
-
-      return () => clearTimeout(timerId);
+      dispatch(showErrorWithTimeout());
     }
-
-    return () => { };
-  }, [errorType]);
+  }, [errorType, dispatch]);
 
   const handleHideError = () => {
-    setVisible(false);
+    clearErrorType();
   };
 
   const getErrorMessage = () => {
@@ -46,7 +43,7 @@ export const ErrorNotification: React.FC<ErrorNotificationProps> = (
   };
 
   return (
-    visible && errorType ? (
+    isErrorVisible ? (
       <div
         data-cy="ErrorNotification"
         className="notification is-danger is-light has-text-weight-normal"

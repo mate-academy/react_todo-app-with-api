@@ -8,8 +8,9 @@ export interface TodoState {
   inputValue: string,
   status: 'idle' | 'loading' | 'failed';
   error: string | null;
-  currentFilter: TodoFilter;
   errorType: ErrorType | null;
+  isErrorVisible: boolean;
+  currentFilter: TodoFilter;
   deletingTodoIds: number[];
   updatingTodoIds: number[];
   completingTodoIds: number[],
