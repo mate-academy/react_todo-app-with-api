@@ -19,7 +19,7 @@ import { UserWarning } from './UserWarning';
 import { TodoError } from './components/TodoError/TodoError';
 import { TodoLoadingItem } from './components/TodoLoadingItem/TodoLoadingItem';
 import {
-  filterTodos,
+  getFilteredTodos,
   getItemsLeftCountMessage,
   getUpdatedTodos,
 } from './utils/functions';
@@ -68,7 +68,7 @@ export const App: React.FC = () => {
     }
   }, [wasEdited]);
 
-  const visibleTodos = filterTodos(todos, status);
+  const visibleTodos = getFilteredTodos(todos, status);
 
   const activeTodosCount = todos.filter(todo => !todo.completed);
   const completedTodosCount = todos.filter(todo => todo.completed);

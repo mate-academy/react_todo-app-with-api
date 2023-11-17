@@ -1,19 +1,20 @@
 import { Status } from '../types/Status';
 import { Todo } from '../types/Todo';
 
-export const filterTodos = (todos: Todo[], filterStatus: Status): Todo[] => {
+export const getFilteredTodos = (
+  todos: Todo[],
+  filterStatus: Status,
+): Todo[] => {
   let filteredTodos: Todo[] = [];
 
   switch (filterStatus) {
     case Status.Active: {
-      filteredTodos = todos.filter(todo => todo.completed === false);
-
+      filteredTodos = todos.filter(({ completed }) => !completed);
       break;
     }
 
     case Status.Completed: {
-      filteredTodos = todos.filter(todo => todo.completed === true);
-
+      filteredTodos = todos.filter(({ completed }) => completed);
       break;
     }
 
