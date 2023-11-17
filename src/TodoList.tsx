@@ -33,7 +33,6 @@ export const TodoList: React.FC<TodoListProps> = ({
           handleEdit={handleEdit}
         />
       ))}
-
       {tempTodo && <TempTodoItem tempTodo={tempTodo} />}
     </section>
   );

@@ -31,7 +31,6 @@ export const App: React.FC = () => {
         const todosFromServer = await TodoService.getTodos(USER_ID);
 
         setTodos(todosFromServer);
-        setFilteredTodos(todosFromServer);
       } catch (error) {
         setErrorMessage(ErrorMessage.UnableToLoad);
         setTimeout(() => setErrorMessage(ErrorMessage.None), 3000);
