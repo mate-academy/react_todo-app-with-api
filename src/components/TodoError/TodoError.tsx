@@ -1,4 +1,3 @@
-/* eslint-disable jsx-a11y/control-has-associated-label */
 import React from 'react';
 import classNames from 'classnames';
 import { Error } from '../../types/Error';
@@ -27,6 +26,7 @@ export const TodoError: React.FC<Props> = ({ errorMessage, onErrorChange }) => {
         type="button"
         className="delete"
         onClick={onErrorChange}
+        aria-label="Hide Error"
       />
       {errorMessage}
     </div>

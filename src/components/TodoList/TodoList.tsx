@@ -12,7 +12,7 @@ type Props = {
   togglingId: number | null,
   onUpdate: (todoId: number, data: Todo) => void,
   isSubmitted: boolean,
-  areSubmiting: boolean,
+  isSubmiting: boolean,
 };
 
 export const TodoList: React.FC<Props> = ({
@@ -22,7 +22,7 @@ export const TodoList: React.FC<Props> = ({
   onToggle,
   togglingId,
   onUpdate,
-  areSubmiting,
+  isSubmiting,
 }) => (
   <section className="todoapp__main" data-cy="TodoList">
     {todos.map((todo) => (
@@ -34,7 +34,7 @@ export const TodoList: React.FC<Props> = ({
         onToggle={onToggle}
         togglingId={togglingId}
         onUpdate={onUpdate}
-        areSubmiting={areSubmiting}
+        isSubmiting={isSubmiting}
       />
     ))}
   </section>

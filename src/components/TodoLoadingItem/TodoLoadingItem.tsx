@@ -17,24 +17,12 @@ export const TodoLoadingItem: React.FC<Props> = ({ tempTodo, isSubmitted }) => {
             checked
           />
         </label>
-        <span
-          data-cy="TodoTitle"
-          className="todo__title"
-        >
+        <span data-cy="TodoTitle" className="todo__title">
           {tempTodo?.title}
         </span>
-
-        {/* <button
-          type="button"
-          className="todo__remove"
-          data-cy="TodoDelete"
-        >
-          ×
-        </button> */}
-
         <div
           data-cy="TodoLoader"
-          className={className('modal overlay', {
+          className={className('modal', 'overlay', {
             'is-active': isSubmitted,
           })}
         >

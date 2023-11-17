@@ -5,11 +5,6 @@ export const filterTodos = (todos: Todo[], filterStatus: Status): Todo[] => {
   let filteredTodos: Todo[] = [];
 
   switch (filterStatus) {
-    case Status.All: {
-      filteredTodos = todos;
-      break;
-    }
-
     case Status.Active: {
       filteredTodos = todos.filter(todo => todo.completed === false);
 
@@ -22,7 +17,9 @@ export const filterTodos = (todos: Todo[], filterStatus: Status): Todo[] => {
       break;
     }
 
-    default: filteredTodos = todos;
+    case Status.All:
+    default:
+      filteredTodos = todos;
   }
 
   return filteredTodos;
@@ -31,7 +28,7 @@ export const filterTodos = (todos: Todo[], filterStatus: Status): Todo[] => {
 export function getItemsLeftCountMessage(activeTodos: Todo[]) {
   switch (activeTodos.length) {
     case 1:
-      return '1 items left';
+      return '1 item left';
 
     case 0:
       return 'Everything is done';
@@ -39,4 +36,21 @@ export function getItemsLeftCountMessage(activeTodos: Todo[]) {
     default:
       return `${activeTodos.length} items left`;
   }
+}
+
+export function getUpdatedTodos(
+  todos: Todo[],
+  updatedTodo: Todo,
+  updatedField: keyof Todo,
+) {
+  return todos.map(todo => {
+    if (todo.id === updatedTodo.id) {
+      return {
+        ...todo,
+        [updatedField]: updatedTodo[updatedField],
+      };
+    }
+
+    return todo;
+  });
 }
