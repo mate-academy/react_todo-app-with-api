@@ -3,7 +3,6 @@ import React, { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { AppDispatch, RootState } from './redux/store';
 import {
-  // clearErrorType,
   setFilter,
 } from './redux/todoSlice';
 import { selectFilteredTodos } from './redux/selectors';
@@ -23,10 +22,6 @@ export const App: React.FC = () => {
     (state: RootState) => state.todos.todos,
   );
 
-  // const errorType = useSelector(
-  //   (state: RootState) => state.todos.errorType,
-  // );
-
   useEffect(() => {
     dispatch(fetchTodos(USER_ID));
   }, [dispatch]);
@@ -36,18 +31,6 @@ export const App: React.FC = () => {
   const handleFilterChange = (filter: TodoFilter) => {
     dispatch(setFilter(filter));
   };
-
-  // useEffect(() => {
-  //   if (errorType) {
-  //     const timer = setTimeout(() => {
-  //       dispatch(clearErrorType());
-  //     }, 3000);
-
-  //     return () => clearTimeout(timer);
-  //   }
-
-  //   return undefined;
-  // }, [errorType, dispatch]);
 
   if (!USER_ID) {
     return <UserWarning />;

@@ -5,7 +5,6 @@ import { TodoFilter } from './TodoFilter';
 export interface TodoState {
   todos: Todo[];
   tempTodo: Todo | null;
-  inputValue: string,
   status: 'idle' | 'loading' | 'failed';
   error: string | null;
   errorType: ErrorType | null;

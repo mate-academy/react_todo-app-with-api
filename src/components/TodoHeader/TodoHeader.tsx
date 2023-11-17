@@ -3,9 +3,10 @@ import { useDispatch, useSelector } from 'react-redux';
 import React, { useEffect, useRef, useState } from 'react';
 import { AppDispatch, RootState } from '../../redux/store';
 import {
+  clearErrorType,
   clearTempTodo,
+  hideError,
   setErrorType,
-  setInputValue,
   setTempTodo,
 } from '../../redux/todoSlice';
 import { ErrorType } from '../../types/ErrorType';
@@ -14,9 +15,9 @@ import { addTodo, completeAllTodos } from '../../redux/todoThunks';
 export const TodoHeader: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>();
 
+  const [inputValue, setInputValue] = useState<string>('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
-  const inputValue = useSelector((state: RootState) => state.todos.inputValue);
   const errorType = useSelector((state: RootState) => state.todos.errorType);
   const todos = useSelector((state: RootState) => state.todos.todos);
   const hasActiveTodos = todos.some(todo => !todo.completed);
@@ -30,14 +31,14 @@ export const TodoHeader: React.FC = () => {
   const handleInputChange = (
     event: React.ChangeEvent<HTMLInputElement>,
   ) => {
-    dispatch(setInputValue(event.target.value));
+    setInputValue(event.target.value);
   };
 
   const handleAddTodo = (title: string) => {
     if (!title) {
       dispatch(setErrorType(ErrorType.EmptyTitle));
 
-      return Promise.resolve();
+      return;
     }
 
     setIsSubmitting(true);
@@ -50,13 +51,12 @@ export const TodoHeader: React.FC = () => {
 
     dispatch(setTempTodo(newTempTodo));
 
-    return dispatch(addTodo({ title }))
+    dispatch(addTodo({ title }))
       .then(() => {
         dispatch(clearTempTodo());
       })
-      .catch((err: Error) => {
+      .catch(() => {
         dispatch(clearTempTodo());
-        throw new Error(err.message);
       })
       .finally(() => {
         setIsSubmitting(false);
@@ -69,8 +69,14 @@ export const TodoHeader: React.FC = () => {
     event.preventDefault();
     handleAddTodo(inputValue);
 
+    if (errorType === ErrorType.EmptyTitle && inputValue) {
+      setInputValue('');
+      dispatch(hideError());
+      dispatch(clearErrorType());
+    }
+
     if (!errorType) {
-      dispatch(setInputValue(''));
+      setInputValue('');
     }
   };
 
@@ -82,7 +88,6 @@ export const TodoHeader: React.FC = () => {
 
   return (
     <header className="todoapp__header">
-
       <button
         type="button"
         className={cn('todoapp__toggle-all', { active: hasActiveTodos })}

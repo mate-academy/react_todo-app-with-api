@@ -5,7 +5,7 @@ import {
 import { useDispatch, useSelector } from 'react-redux';
 import { ErrorType } from '../../types/ErrorType';
 import { AppDispatch, RootState } from '../../redux/store';
-import { clearErrorType } from '../../redux/todoSlice';
+import { clearErrorType, hideError } from '../../redux/todoSlice';
 import { showErrorWithTimeout } from '../../redux/showErrorThunk';
 
 export const ErrorNotification: React.FC = () => {
@@ -22,7 +22,8 @@ export const ErrorNotification: React.FC = () => {
   }, [errorType, dispatch]);
 
   const handleHideError = () => {
-    clearErrorType();
+    dispatch(hideError());
+    dispatch(clearErrorType());
   };
 
   const getErrorMessage = () => {

@@ -14,7 +14,6 @@ import { USER_ID } from '../_utils/constants';
 const initialState: TodoState = {
   todos: [],
   tempTodo: null,
-  inputValue: '',
   status: 'idle',
   error: null,
   errorType: null,
@@ -33,14 +32,11 @@ const todoSlice = createSlice({
     setFilter: (state, action: PayloadAction<TodoFilter>) => {
       state.currentFilter = action.payload;
     },
-    setTempTodo(state, action: PayloadAction<Todo | null>) {
+    setTempTodo(state, action) {
       state.tempTodo = action.payload;
     },
     clearTempTodo(state) {
       state.tempTodo = null;
-    },
-    setInputValue: (state, action) => { // input value will be needed locally only?
-      state.inputValue = action.payload;
     },
     setErrorType: (state, action: PayloadAction<ErrorType>) => {
       state.errorType = action.payload;
@@ -102,15 +98,18 @@ const todoSlice = createSlice({
         (state, action: PayloadAction<number>) => {
           state.status = 'idle';
           state.deletingTodoIds
-            = state.deletingTodoIds.filter(id => id !== action.payload);
-
-          state.todos = state.todos.filter(todo => todo.id !== action.payload);
+            = state.deletingTodoIds
+              .filter(id => id !== action.payload);
+          state.todos
+            = state.todos
+              .filter(todo => todo.id !== action.payload);
         })
       .addCase(actions.deleteTodoRejected,
         (state, action: PayloadAction<TodoActionErrorPayload>) => {
           state.status = 'failed';
           state.deletingTodoIds
-            = state.deletingTodoIds.filter(id => id !== action.payload.todoId);
+            = state.deletingTodoIds
+              .filter(id => id !== action.payload.todoId);
           state.errorType = ErrorType.DeleteTodoError;
           state.error = action.payload.errorMessage;
         })
@@ -123,7 +122,8 @@ const todoSlice = createSlice({
         (state, action: PayloadAction<Todo>) => {
           state.status = 'idle';
           const index
-            = state.todos.findIndex(todo => todo.id === action.payload.id);
+            = state.todos
+              .findIndex(todo => todo.id === action.payload.id);
 
           if (index !== -1) {
             state.todos[index] = action.payload;
@@ -213,7 +213,6 @@ const todoSlice = createSlice({
 
 export const {
   setTempTodo,
-  setInputValue,
   clearTempTodo,
   setFilter,
   setErrorType,
