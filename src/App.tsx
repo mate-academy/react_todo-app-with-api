@@ -15,7 +15,6 @@ export const App: React.FC = () => {
   const [todos, setTodos] = useState<Todo[]>([]);
   const [filteredTodos, setFilteredTodos] = useState<Todo[]>([]);
   const [errorMessage, setErrorMessage] = useState('');
-  const [isError, setIsError] = useState(false);
   const [isLoading, setIsLoading] = useState<number[]>([]);
   const [todoTitle, setTodoTitle] = useState('');
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
@@ -26,13 +25,11 @@ export const App: React.FC = () => {
       .then(setTodos)
       .catch(() => {
         setErrorMessage('Unable to load todos');
-        setIsError(true);
       });
   }, []);
 
   const addTodo = ({ userId, title, completed }: Todo) => {
     if (!todoTitle.trim()) {
-      setIsError(true);
       setErrorMessage('Title should not be empty');
 
       return;
@@ -53,7 +50,6 @@ export const App: React.FC = () => {
         setTodos(currentTodos => [...currentTodos, newTodo]);
       })
       .catch(error => {
-        setIsError(true);
         setErrorMessage('Unable to add a todo');
         throw error;
       })
@@ -71,7 +67,6 @@ export const App: React.FC = () => {
         setTodos(currentTodos => currentTodos.filter(todo => todo.id !== id));
       })
       .catch(error => {
-        setIsError(true);
         setErrorMessage('Unable to delete a todo');
         throw error;
       })
@@ -93,7 +88,6 @@ export const App: React.FC = () => {
         ))
       )))
       .catch(error => {
-        setIsError(true);
         setErrorMessage('Unable to update a todo');
         throw error;
       })
@@ -135,7 +129,7 @@ export const App: React.FC = () => {
           setTodoTitle={setTodoTitle}
           onSubmit={addTodo}
           response={response}
-          setIsError={setIsError}
+          setErrorMessage={setErrorMessage}
           onToggleAll={toggleAll}
         />
 
@@ -161,8 +155,7 @@ export const App: React.FC = () => {
 
       <ErrorMessages
         errorMessage={errorMessage}
-        isError={isError}
-        setIsError={setIsError}
+        setErrorMessage={setErrorMessage}
       />
     </div>
   );

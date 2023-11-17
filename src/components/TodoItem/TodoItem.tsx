@@ -31,6 +31,8 @@ export const TodoItem: React.FC<Props> = ({
 
     if (!newTitle.length) {
       onDelete(todo.id);
+
+      return;
     }
 
     if (todo.title === newTitle) {
@@ -39,17 +41,12 @@ export const TodoItem: React.FC<Props> = ({
       return;
     }
 
-    try {
-      await onUpdate({
-        ...todo,
-        title: newTitle.trim(),
-      });
+    await onUpdate({
+      ...todo,
+      title: newTitle.trim(),
+    });
 
-      setIsEditing(false);
-    } catch (error) {
-      // eslint-disable-next-line no-console
-      console.warn('Some error has occured');
-    }
+    setIsEditing(false);
   };
 
   const inputRef = useRef<HTMLInputElement | null>(null);

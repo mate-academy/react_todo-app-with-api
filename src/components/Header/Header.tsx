@@ -11,7 +11,7 @@ type Props = {
   onSubmit: ({ userId, title, completed }: Todo) => void,
   onToggleAll: () => void,
   response: boolean,
-  setIsError: (value: boolean) => void,
+  setErrorMessage: (value: string) => void,
 };
 
 export const Header: React.FC<Props> = ({
@@ -21,7 +21,7 @@ export const Header: React.FC<Props> = ({
   todoTitle,
   setTodoTitle,
   response,
-  setIsError,
+  setErrorMessage,
 }) => {
   const inputRef = useRef<HTMLInputElement | null>(null);
 
@@ -34,7 +34,7 @@ export const Header: React.FC<Props> = ({
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
-    setIsError(false);
+    setErrorMessage('');
 
     onSubmit({
       id: 0,
