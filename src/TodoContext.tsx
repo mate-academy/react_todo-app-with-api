@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Todo } from './types/Todo';
 import {
-  addTodo, completeTodo, deleteTodo, getTodos,
+  completeTodo, deleteTodo, getTodos,
 } from './api/todos';
 
 export enum Key {
@@ -9,7 +9,7 @@ export enum Key {
   Escape = 'Escape',
 }
 
-type PartialTodo = Omit<Todo, 'id'>;
+export type PartialTodo = Omit<Todo, 'id'>;
 
 const USER_ID = 11880;
 
@@ -39,17 +39,12 @@ type Props = {
 interface Context {
   allTodos: Todo[],
   setError: React.Dispatch<React.SetStateAction<string>>
-  filteredTodos: Todo[],
   error: string,
   completedTodos: Todo[],
   activeTodos: Todo[],
   filterBy: FilterBy,
-  newTodoTitle: string,
   tempTodo: Todo | null,
-  isBlured: number | null,
-  allBlured: boolean,
-  isRendering: boolean,
-  onSubmit: (e: React.FormEvent) => void
+  titleDisabled: boolean,
   onDelete: (todoId: number) => void
   clearCompleted: () => void
   onCompleteChange: (e: React.ChangeEvent<HTMLInputElement>,
@@ -58,23 +53,21 @@ interface Context {
   handleFilterClick: (filterType: FilterBy) => (
     event: React.MouseEvent,
   ) => void
-  setIsBlured: React.Dispatch<React.SetStateAction<number | null>>
-  handleTitleChange: (e: React.ChangeEvent<HTMLInputElement>) => void,
   setAllTodos: React.Dispatch<React.SetStateAction<Todo[]>>,
+  renderingTodos: Todo[] | null,
+  setRenderingTodos: React.Dispatch<React.SetStateAction<Todo[] | null>>
+  setTitleDisabled: React.Dispatch<React.SetStateAction<boolean>>
+  setTempTodo: React.Dispatch<React.SetStateAction<Todo | null>>
+  newTimeout: number
+  filterTodos: (todos: Todo[], filter: FilterBy) => Todo[]
 }
 
 export const TodosContext = React.createContext<Context>({
   allTodos: [],
-  filteredTodos: [],
   error: '',
   filterBy: FilterBy.All,
-  newTodoTitle: '',
   tempTodo: null,
-  isBlured: null,
-  allBlured: false,
-  isRendering: false,
-  handleTitleChange: () => {},
-  onSubmit: () => {},
+  titleDisabled: false,
   onDelete: () => {},
   clearCompleted: () => {},
   onCompleteChange: () => {},
@@ -84,24 +77,22 @@ export const TodosContext = React.createContext<Context>({
   activeTodos: [],
   setError: () => {},
   setAllTodos: () => {},
-  setIsBlured: () => {},
+  renderingTodos: null,
+  setRenderingTodos: () => {},
+  setTitleDisabled: () => {},
+  setTempTodo: () => {},
+  newTimeout: 3000,
+  filterTodos: () => [],
 });
 
 export const TodosProvider: React.FC<Props> = ({ children }) => {
   const [allTodos, setAllTodos] = useState<Todo[]>([]);
-  const [filteredTodos, setFilteredTodos] = useState<Todo[]>([]);
   const [error, setError] = useState('');
   const [filterBy, setFilterBy] = useState<FilterBy>(FilterBy.All);
-  const [newTodoTitle, setNewTodoTitle] = useState('');
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
-  const [isBlured, setIsBlured] = useState<number | null>(null);
-  const [allBlured, setAllBlured] = useState(false);
-  const [isRendering, setIsRendering] = useState(false);
+  const [titleDisabled, setTitleDisabled] = useState(false);
+  const [renderingTodos, setRenderingTodos] = useState<Todo[] | null>(null);
   const newTimeout = 3000;
-
-  const handleTitleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setNewTodoTitle(e.target.value);
-  };
 
   useEffect(() => {
     getTodos(USER_ID)
@@ -117,64 +108,8 @@ export const TodosProvider: React.FC<Props> = ({ children }) => {
       });
   }, []);
 
-  const todoData: PartialTodo = {
-    userId: USER_ID,
-    completed: false,
-    title: newTodoTitle,
-  };
-
-  const onSubmit = (e: React.FormEvent) => {
-    setError('');
-    setIsRendering(true);
-    e.preventDefault();
-    todoData.title = newTodoTitle;
-
-    if (todoData.title.trim() === '') {
-      setError('Title should not be empty');
-
-      todoData.title = '';
-      setTimeout(() => {
-        setError('');
-      }, 3000);
-
-      setIsRendering(false);
-
-      return;
-    }
-
-    setTempTodo({
-      completed: false,
-      title: newTodoTitle.trim(),
-      id: 0,
-      userId: USER_ID,
-    });
-
-    addTodo({
-      userId: USER_ID,
-      completed: false,
-      title: newTodoTitle.trim(),
-    })
-      .then((data) => {
-        setNewTodoTitle('');
-        setAllTodos([...allTodos, data]);
-      })
-      .catch(() => {
-        setError('Unable to add a todo');
-
-        setTimeout(() => {
-          setError('');
-        }, newTimeout);
-
-        setTempTodo(null);
-      })
-      .finally(() => {
-        setTempTodo(null);
-        setIsRendering(false);
-      });
-  };
-
   const onDelete = (postId: number) => {
-    setIsBlured(postId);
+    setRenderingTodos(allTodos.filter(todo => todo.id === postId));
 
     deleteTodo(postId)
       .then(() => {
@@ -188,12 +123,13 @@ export const TodosProvider: React.FC<Props> = ({ children }) => {
         }, newTimeout);
       })
       .finally(() => {
-        setIsBlured(null);
+        setRenderingTodos(null);
       });
   };
 
   const clearCompleted = () => {
-    setAllBlured(true);
+    setRenderingTodos(allTodos.filter(todo => todo.completed === true));
+
     allTodos.filter(todo => {
       deleteTodo(todo.completed ? todo.id : 0)
         .then(() => {
@@ -207,7 +143,7 @@ export const TodosProvider: React.FC<Props> = ({ children }) => {
           }, newTimeout);
         })
         .finally(() => {
-          setAllBlured(false);
+          setRenderingTodos(null);
         });
 
       return setAllTodos;
@@ -216,7 +152,7 @@ export const TodosProvider: React.FC<Props> = ({ children }) => {
 
   const onCompleteChange = (e: React.ChangeEvent<HTMLInputElement>,
     postId: number) => {
-    setIsBlured(postId);
+    setRenderingTodos(allTodos.filter(todo => todo.id === postId));
 
     completeTodo({
       id: postId,
@@ -239,14 +175,14 @@ export const TodosProvider: React.FC<Props> = ({ children }) => {
         }, newTimeout);
       })
       .finally(() => {
-        setIsBlured(null);
+        setRenderingTodos(null);
       });
   };
 
   const setAllCompleted = () => {
     const allCompleted = allTodos.every(t => t.completed);
 
-    setAllBlured(true);
+    setRenderingTodos(allTodos.filter(todo => todo.completed !== allCompleted));
 
     allTodos.map(todo => {
       completeTodo({
@@ -266,7 +202,7 @@ export const TodosProvider: React.FC<Props> = ({ children }) => {
           }, newTimeout);
         })
         .finally(() => {
-          setAllBlured(false);
+          setRenderingTodos(null);
         });
 
       return setAllTodos;
@@ -274,7 +210,7 @@ export const TodosProvider: React.FC<Props> = ({ children }) => {
   };
 
   useEffect(() => {
-    setFilteredTodos(filterTodos(allTodos, filterBy));
+    filterTodos(allTodos, filterBy);
   }, [filterBy, allTodos]);
 
   const handleFilterClick = (filterType: FilterBy) => (
@@ -291,16 +227,10 @@ export const TodosProvider: React.FC<Props> = ({ children }) => {
     <TodosContext.Provider
       value={{
         allTodos,
-        filteredTodos,
         error,
         filterBy,
-        newTodoTitle,
         tempTodo,
-        isBlured,
-        allBlured,
-        isRendering,
-        handleTitleChange,
-        onSubmit,
+        titleDisabled,
         onDelete,
         clearCompleted,
         setAllCompleted,
@@ -310,7 +240,12 @@ export const TodosProvider: React.FC<Props> = ({ children }) => {
         activeTodos,
         setError,
         setAllTodos,
-        setIsBlured,
+        renderingTodos,
+        setRenderingTodos,
+        setTempTodo,
+        setTitleDisabled,
+        newTimeout,
+        filterTodos,
       }}
     >
       {children}

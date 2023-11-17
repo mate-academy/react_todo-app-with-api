@@ -8,6 +8,8 @@ import { App } from './App';
 import { TodosProvider } from './TodoContext';
 
 createRoot(document.getElementById('root') as HTMLDivElement)
-  .render(<TodosProvider>
-    <App />
-  </TodosProvider>);
+  .render(
+    <TodosProvider>
+      <App />
+    </TodosProvider>,
+  );

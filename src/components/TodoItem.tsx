@@ -14,12 +14,12 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
   const {
     onCompleteChange,
     onDelete,
-    isBlured,
     allTodos,
     setAllTodos,
-    allBlured,
-    setIsBlured,
     setError,
+    renderingTodos,
+    setRenderingTodos,
+    tempTodo,
   } = useContext(TodosContext);
 
   const [tempTitle, setTempTitle]
@@ -46,7 +46,7 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
       return;
     }
 
-    setIsBlured(todoId);
+    setRenderingTodos(allTodos.filter(t => t.id === todo.id));
 
     setTempTitle({ title: editedTitle, id: todoId });
 
@@ -70,8 +70,8 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
         }, 3000);
       })
       .finally(() => {
-        setIsBlured(null);
         setTempTitle(null);
+        setRenderingTodos(null);
       });
 
     setIsEditing(false);
@@ -113,7 +113,8 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
           className="todo__title"
           onDoubleClick={handleDoubleClick}
         >
-          {isBlured && tempTitle?.id === todo.id
+          {(renderingTodos?.every(t => t.id === todo.id))
+          && tempTitle?.id === todo.id
             ? tempTitle?.title
             : todo.title}
         </label>
@@ -144,13 +145,11 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
         data-cy="TodoLoader"
         className={classNames('modal overlay',
           {
-            'is-active': (isBlured === todo.id)
-          || (todo.completed ? allBlured : false),
+            'is-active': (renderingTodos?.every(t => t.id === todo.id)
+            || tempTodo?.id === todo.id),
           })}
       >
-        <div className="modal-background
-                    has-background-white-ter"
-        />
+        <div className="modal-background has-background-white-ter" />
         <div className="loader" />
       </div>
     </div>
