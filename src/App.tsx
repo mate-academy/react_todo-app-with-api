@@ -30,7 +30,6 @@ export const App: React.FC = () => {
       const todosData = await getTodos(USER_ID);
 
       setTodos(todosData);
-      setFilTodos(todosData);
     } catch (error) {
       setTimeout(() => {
         setTodosError(ErrorMessage.UnableToLoadTodos);
