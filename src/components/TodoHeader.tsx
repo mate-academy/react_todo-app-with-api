@@ -5,9 +5,11 @@ import cn from 'classnames';
 import { Todo } from '../types/Todo';
 import { addTodos } from '../api/todos';
 import { ErrorMessage } from '../types/ErrorMessage';
+import { USER_ID } from '../utils/userId';
 
 type Props = {
   todos: Todo[],
+  todo: Todo[],
   setTodos: (todos: Todo[]) => void;
   setTodosError: (error: ErrorMessage) => void;
   tempTodos: Todo | null;
@@ -15,10 +17,12 @@ type Props = {
   setIsLoading: (value: boolean | number) => void;
   onTodoToggle: (value: Todo | null) => void;
   setNewTodoLoad: (value: number) => void;
+  updatedTodos: boolean;
 };
 
 export const TodoHeader: React.FC<Props> = ({
   todos,
+  todo,
   setTodos,
   setTodosError,
   tempTodos,
@@ -26,19 +30,14 @@ export const TodoHeader: React.FC<Props> = ({
   setIsLoading,
   onTodoToggle,
   setNewTodoLoad,
+  updatedTodos,
 }) => {
   const [todoTitle, setTodoTitle] = useState('');
   const focusedInput = useRef<HTMLInputElement>(null);
 
-  useEffect(() => {
-    if (focusedInput.current) {
-      focusedInput.current.focus();
-    }
-  }, [tempTodos, todos.length]);
+  const isActiveButton = todo.every(t => t.completed);
 
-  const isActiveButton = todos.every(todo => todo.completed);
-
-  const addTodoHandler = async (event: React.FormEvent) => {
+  const handlerSubmitData = async (event: React.FormEvent) => {
     event.preventDefault();
 
     if (!todoTitle.trim()) {
@@ -50,11 +49,17 @@ export const TodoHeader: React.FC<Props> = ({
     }
 
     setIsLoading(true);
-    const id = todos[todos.length - 1].id + 1;
+    let id;
+
+    if (todos.length === 0) {
+      id = 1;
+    } else {
+      id = todos[todos.length - 1].id + 1;
+    }
 
     const tempTodo = {
       id,
-      userId: 11859,
+      userId: USER_ID,
       title: todoTitle.trim(),
       completed: false,
     };
@@ -80,29 +85,30 @@ export const TodoHeader: React.FC<Props> = ({
     }
   };
 
-  const onTodoToggleHandler = (event: React.MouseEvent<HTMLButtonElement>) => {
-    event.preventDefault();
-    onTodoToggle(null);
-  };
+  useEffect(() => {
+    if (focusedInput.current) {
+      focusedInput.current.focus();
+    }
+  }, [updatedTodos, todo.length]);
 
   return (
     <header className="todoapp__header">
 
       {/* eslint-disable jsx-a11y/control-has-associated-label  */}
-      {todos.length > 0 && (
+      {todo.length > 0 && (
         <button
           type="button"
           className={cn(
             'todoapp__toggle-all',
             { active: isActiveButton },
           )}
-          onClick={onTodoToggleHandler}
+          onClick={() => onTodoToggle(null)}
           data-cy="ToggleAllButton"
         />
       )}
 
       <form
-        onSubmit={addTodoHandler}
+        onSubmit={handlerSubmitData}
       >
         <input
           data-cy="NewTodoField"

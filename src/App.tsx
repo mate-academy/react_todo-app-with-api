@@ -9,8 +9,7 @@ import { getTodos, updateTodo } from './api/todos';
 import { TodoHeader } from './components/TodoHeader';
 import { TodoItem } from './components/TodoItem';
 import { TodoFooter } from './components/TodoFooter';
-
-const USER_ID = 11859;
+import { USER_ID } from './utils/userId';
 
 export const App: React.FC = () => {
   const [todos, setTodos] = useState<Todo[]>([]);
@@ -23,6 +22,7 @@ export const App: React.FC = () => {
   const [filteredTodos, setFilTodos] = useState<Todo[]>([]);
   const [newTodoLoad, setNewTodoLoad] = useState(-1);
   const [processDelete, setProcDelete] = useState(false);
+  const [updatedTodos, setUpdatedTodos] = useState(false);
 
   const loadTodos = async () => {
     setIsLoading(true);
@@ -125,6 +125,7 @@ export const App: React.FC = () => {
       <div className="todoapp__content">
         <TodoHeader
           todos={filteredTodos}
+          todo={todos}
           setTodos={setTodos}
           setTodosError={setTodosError}
           tempTodos={tempTodos}
@@ -132,6 +133,7 @@ export const App: React.FC = () => {
           onTodoToggle={toggleAll}
           setIsLoading={setIsLoading}
           setNewTodoLoad={setNewTodoLoad}
+          updatedTodos={updatedTodos}
         />
 
         <section className="todoapp__main" data-cy="TodoList">
@@ -149,6 +151,7 @@ export const App: React.FC = () => {
                 isNew={(todo.id === newTodoLoad) && true}
                 isDeleting={(todo.completed && processDelete) && true}
                 processingTodoId={processingTodoId}
+                setUpdatedTodos={setUpdatedTodos}
               />
             ))
           }
@@ -164,6 +167,7 @@ export const App: React.FC = () => {
               isNew={(tempTodos.id === newTodoLoad) && true}
               isDeleting={(tempTodos.completed && processDelete) && true}
               processingTodoId={processingTodoId}
+              setUpdatedTodos={setUpdatedTodos}
             />
           )}
 

@@ -17,6 +17,7 @@ type Props = {
   isNew: boolean;
   isDeleting: boolean;
   processingTodoId: number[];
+  setUpdatedTodos: (value: boolean) => void;
 };
 
 export const TodoItem: React.FC<Props> = ({
@@ -30,6 +31,7 @@ export const TodoItem: React.FC<Props> = ({
   isNew,
   isDeleting,
   processingTodoId,
+  setUpdatedTodos,
 }) => {
   const [tempId, setTempId] = useState(-1);
   const [isEditing, setIsEditing] = useState(false);
@@ -68,6 +70,8 @@ export const TodoItem: React.FC<Props> = ({
   };
 
   const handleSubmit = async (event: React.FormEvent) => {
+    setUpdatedTodos(true);
+
     event.preventDefault();
 
     if (!newTitle.length) {
@@ -83,13 +87,14 @@ export const TodoItem: React.FC<Props> = ({
     try {
       await onTodoUpdate?.({
         ...todo,
-        title: newTitle,
+        title: newTitle.trim(),
       });
 
       setIsEditing(false);
     } catch {
-      // eslint-disable-next-line no-console
-      console.warn('Some error');
+      setTimeout(() => {
+        setTodosError(ErrorMessage.UnableToUpdateTodo);
+      }, 3000);
     }
   };
 
@@ -98,6 +103,7 @@ export const TodoItem: React.FC<Props> = ({
   ) => {
     if (event.key === 'Escape') {
       setIsEditing(false);
+
       setNewTitle(todo.title);
 
       return;
