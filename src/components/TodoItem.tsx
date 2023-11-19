@@ -62,8 +62,8 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
 
     updateTodo(todo.id, { completed: !todo.completed })
       .then(() => {
-        setTodos((currentTodos) => {
-          return currentTodos.map((currentTodo) => {
+        setTodos((prevTodos) => {
+          return prevTodos.map((currentTodo) => {
             if (currentTodo.id === todo.id) {
               return { ...currentTodo, completed: !currentTodo.completed };
             }
