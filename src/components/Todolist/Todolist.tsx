@@ -10,7 +10,7 @@ interface Props {
   todos: Todo[],
   setError: (value: string) => void
   cleared: boolean
-  toggled:string
+  toggled: string
   titleField: React.MutableRefObject<HTMLInputElement | null>;
 }
 
@@ -24,8 +24,6 @@ export const Todolist: React.FC<Props> = ({
   toggled,
   titleField,
 }) => {
-  // const [loader, setloader] = useState<boolean | number>(false);
-
   return (
 
     <section className="todoapp__main" data-cy="TodoList">
@@ -33,6 +31,7 @@ export const Todolist: React.FC<Props> = ({
         return (
 
           <Todoitem
+            key={todo.id}
             todo={todo}
             todos={todos}
             setTodos={setTodos}
@@ -56,7 +55,7 @@ export const Todolist: React.FC<Props> = ({
               data-cy="TodoStatus"
               type="checkbox"
               className="todo__status"
-              checked={temptodo?.completed}
+              checked={Boolean(temptodo?.completed)}
             />
           </label>
 

@@ -45,31 +45,39 @@ export const App: React.FC = () => {
       .catch(() => setError(Errors.unableLoad));
   }, []);
 
-  if (error) {
-    setTimeout(() => {
-      setError('');
-    }, 3000);
-  }
+  useEffect(() => {
+    if (error) {
+      setTimeout(() => {
+        setError('');
+      }, 3000);
+    }
+  }, [error]);
+
+  // if (error) {
+  //   setTimeout(() => {
+  //     setError('');
+  //   }, 3000);
+  // }
 
   if (!USER_ID) {
     return <UserWarning />;
   }
 
   const displayfiltered = () => {
-    let filteredtodos = [...todos];
+    let filteredTodos = [...todos];
 
     switch (filterBy) {
       case Filter.active:
-        filteredtodos = filteredtodos.filter(todo => !todo.completed);
+        filteredTodos = filteredTodos.filter(todo => !todo.completed);
         break;
       case Filter.completed:
-        filteredtodos = filteredtodos.filter(todo => todo.completed);
+        filteredTodos = filteredTodos.filter(todo => todo.completed);
         break;
       default:
         break;
     }
 
-    return filteredtodos;
+    return filteredTodos;
   };
 
   const displayTodos = [...displayfiltered()];
@@ -100,7 +108,6 @@ export const App: React.FC = () => {
           titleField={titleField}
         />
 
-        {/* Hide the footer if there are no todos */}
         {todos.length !== 0
           && (
             <Footer
@@ -116,8 +123,6 @@ export const App: React.FC = () => {
           )}
       </div>
 
-      {/* Notification is shown in case of any error */}
-      {/* Add the 'hidden' class to hide the message smoothly */}
       <div
         data-cy="ErrorNotification"
         className={cn('notification', 'is-danger', 'is-light', 'has-text-weight-normal', { hidden: !error })}
@@ -128,20 +133,7 @@ export const App: React.FC = () => {
           className="delete"
           onClick={() => setError('')}
         />
-        {/* show only one message at a time */}
-        {error === Errors.unableLoad && ('Unable to load todos')}
-        {error === Errors.title && ('Title should not be empty')}
-        {error === Errors.unableAdd && ('Unable to add a todo')}
-        {error === Errors.unableDelete && ('Unable to delete a todo')}
-        {error === Errors.unablechange && ('Unable to update a todo')}
-        {/* <br />
-        Title should not be empty
-        <br />
-        Unable to add a todo
-        <br />
-        Unable to delete a todo
-        <br />
-        Unable to update a todo */}
+        {error && (`${error}`)}
       </div>
     </div>
   );

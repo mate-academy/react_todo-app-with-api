@@ -2,7 +2,7 @@ import cn from 'classnames';
 /* eslint-disable max-len */
 import { Filter } from '../../types/Filter';
 import { Todo } from '../../types/Todo';
-import { deleteTodos } from '../../api/todos';
+import { deleteTodo } from '../../api/todos';
 import { Errors } from '../../types/Error';
 
 interface Props {
@@ -26,7 +26,7 @@ export const Footer: React.FC<Props> = ({
   titleField,
 
 }) => {
-  const amount = displayTodos.filter(todo => !todo.completed).length;
+  const incompletedAmount = displayTodos.filter(todo => !todo.completed).length;
   const completed = displayTodos.filter(todo => todo.completed).length;
 
   const clearCompleted = () => {
@@ -35,9 +35,9 @@ export const Footer: React.FC<Props> = ({
     toClear.forEach(todo => {
       if (todo.id) {
         setcleared(true);
-        deleteTodos(todo.id)
+        deleteTodo(todo.id)
           .then(() => {
-            setTodos((prevtodos:Todo[]) => prevtodos.filter((todoo: Todo) => todoo.id !== todo.id) as Todo[]);
+            setTodos((prevtodos:Todo[]) => prevtodos.filter((todoo: Todo) => todoo.id !== todo.id));
             if (titleField.current) {
               titleField.current.focus();
             }
@@ -51,10 +51,9 @@ export const Footer: React.FC<Props> = ({
   return (
     <footer className="todoapp__footer" data-cy="Footer">
       <span className="todo-count" data-cy="TodosCounter">
-        {`${amount} items left`}
+        {`${incompletedAmount} items left`}
       </span>
 
-      {/* Active filter should have a 'selected' class */}
       <nav className="filter" data-cy="Filter">
         <a
           onClick={() => clickHandler(Filter.all)}
@@ -102,8 +101,6 @@ export const Footer: React.FC<Props> = ({
         </a>
       </nav>
 
-      {/* don't show this button if there are no completed todos */}
-
       <button
         onClick={clearCompleted}
         type="button"
@@ -113,14 +110,6 @@ export const Footer: React.FC<Props> = ({
       >
         Clear completed
       </button>
-
-      {/* <button
-        type="button"
-        className="todoapp__clear-completed"
-        data-cy="ClearCompletedButton"
-      >
-        Clear completed
-      </button> */}
     </footer>
   );
 };

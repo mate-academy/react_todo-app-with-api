@@ -4,7 +4,7 @@ import React, {
   FormEvent, useEffect, useState,
 } from 'react';
 import cn from 'classnames';
-import { addTodos, updateTodo } from '../../api/todos';
+import { addTodo, updateTodo } from '../../api/todos';
 import { Todo } from '../../types/Todo';
 import { Errors } from '../../types/Error';
 import { Toggler } from '../../types/toggle';
@@ -28,7 +28,6 @@ export const Header: React.FC<Props> = ({
   setToggled,
   titleField,
 }) => {
-  // const titleField = useRef<HTMLInputElement>(null);
   const [title, setTitle] = useState('');
 
   useEffect(() => {
@@ -53,7 +52,7 @@ export const Header: React.FC<Props> = ({
       completed: false,
     });
 
-    addTodos({
+    addTodo({
       userId: 11843,
       title: title.trim(),
       completed: false,
@@ -72,11 +71,11 @@ export const Header: React.FC<Props> = ({
   const toggle = () => {
     const toggled = [...todos];
 
-    if (inactive) {
-      setToggled(Toggler.completed);
-      toggled.forEach(todo => {
-        if (!todo.completed && todo.id) {
-          updateTodo(todo.id, { completed: true })
+    setToggled(inactive ? Toggler.completed : Toggler.incompleted);
+    toggled.forEach(todo => {
+      if (todo.id) {
+        if (!inactive || !todo.completed) {
+          updateTodo(todo.id, { completed: inactive })
             .then(ftodo => {
               const index = toggled.findIndex(itodo => itodo.id === todo.id);
 
@@ -84,23 +83,8 @@ export const Header: React.FC<Props> = ({
               setTodos([...toggled]);
             }).finally(() => setToggled(''));
         }
-      });
-    }
-
-    if (!inactive) {
-      setToggled(Toggler.incompleted);
-      toggled.forEach(todo => {
-        if (todo.completed && todo.id) {
-          updateTodo(todo.id, { completed: false })
-            .then(ftodo => {
-              const index = toggled.findIndex(itodo => itodo.id === todo.id);
-
-              toggled.splice(index, 1, ftodo);
-              setTodos([...toggled]);
-            }).finally(() => setToggled(''));
-        }
-      });
-    }
+      }
+    });
   };
 
   return (

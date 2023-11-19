@@ -1,7 +1,7 @@
 import cn from 'classnames';
 import { useEffect, useRef, useState } from 'react';
 import { Todo } from '../../types/Todo';
-import { deleteTodos, updateTodo, updateTodoTitle } from '../../api/todos';
+import { deleteTodo, updateTodo, updateTodoTitle } from '../../api/todos';
 import { Errors } from '../../types/Error';
 import { Toggler } from '../../types/toggle';
 /* eslint-disable max-len */
@@ -21,18 +21,18 @@ interface Props {
 export const Todoitem: React.FC<Props> = ({
   todo, todos, setTodos, setError, cleared, toggled, titleField,
 }) => {
-  const titleField2 = useRef<HTMLInputElement>(null);
+  const titleFieldRef = useRef<HTMLInputElement>(null);
   const [loader, setloader] = useState(false);
   const [editing, setEditing] = useState(false);
   const [title, setTitle] = useState(todo.title);
 
   let editError = false;
-  let editUerror = false;
+  let editUpdateError = false;
 
   const handleDelete = (id: number | undefined) => {
     if (id) {
       setloader(true);
-      deleteTodos(id)
+      deleteTodo(id)
         .then(() => {
           setTodos(todos.filter(stodo => stodo.id !== id));
           if (titleField.current) {
@@ -45,8 +45,8 @@ export const Todoitem: React.FC<Props> = ({
   };
 
   useEffect(() => {
-    if (titleField2.current) {
-      titleField2.current.focus();
+    if (titleFieldRef.current) {
+      titleFieldRef.current.focus();
     }
   }, [editing]);
 
@@ -57,7 +57,7 @@ export const Todoitem: React.FC<Props> = ({
     if (todo.id && check.trim() === '') {
       setloader(true);
 
-      deleteTodos(todo.id)
+      deleteTodo(todo.id)
         .then(() => {
           setTodos((prevtodos) => prevtodos.filter(stodo => stodo.id !== todo.id));
           editError = false;
@@ -73,8 +73,8 @@ export const Todoitem: React.FC<Props> = ({
             setEditing(false);
           }
 
-          if (titleField2.current) {
-            titleField2.current.focus();
+          if (titleFieldRef.current) {
+            titleFieldRef.current.focus();
           }
 
           if (editError === true) {
@@ -86,29 +86,30 @@ export const Todoitem: React.FC<Props> = ({
     if (todo.id && todo.title !== title.trim() && title.trim() !== '') {
       setloader(true);
       updateTodoTitle(todo.id, { userId: 11843, completed: todo.completed, title: title.trim() }).then(
-        (ttodo) => {
-          const tTodos = [...todos];
-          const index = tTodos.findIndex(tTodo => tTodo.id === todo.id);
+        (titletodo) => {
+          setTodos(prevTodos => prevTodos.map(currTodo => {
+            if (currTodo.id === titletodo.id) {
+              return { ...currTodo, title: titletodo.title };
+            }
 
-          tTodos.splice(index, 1, ttodo);
-          setTodos([...tTodos]);
-          editUerror = false;
+            return currTodo;
+          }));
         },
       ).catch(() => {
         setError(Errors.unablechange);
-        editUerror = true;
+        editUpdateError = true;
       }).finally(() => {
         setloader(false);
 
-        if (editUerror === false) {
+        if (editUpdateError === false) {
           setEditing(false);
         }
 
-        if (titleField2.current) {
-          titleField2.current.focus();
+        if (titleFieldRef.current) {
+          titleFieldRef.current.focus();
         }
 
-        if (editUerror === true) {
+        if (editUpdateError === true) {
           setEditing(true);
         }
       });
@@ -119,18 +120,22 @@ export const Todoitem: React.FC<Props> = ({
     }
   };
 
-  const handleCheck = (id: number | undefined, htodo: Todo) => {
+  const handleCheck = (id: number | undefined) => {
     if (id) {
       setloader(true);
 
       updateTodo(id, { completed: !todo.completed })
         .then(
-          (rtodo) => {
-            const uTodos = [...todos];
-            const index = uTodos.findIndex(uTodo => uTodo.id === htodo.id);
+          (todoUpdate) => {
+            setTodos((prevs) => {
+              return prevs.map(prev => {
+                if (prev.id === todoUpdate.id) {
+                  return { ...prev, completed: !prev.completed };
+                }
 
-            uTodos.splice(index, 1, rtodo);
-            setTodos([...uTodos]);
+                return prev;
+              });
+            });
           },
         ).catch(() => setError(Errors.unablechange)).finally(() => setloader(false));
     }
@@ -151,7 +156,7 @@ export const Todoitem: React.FC<Props> = ({
     >
       <label className="todo__status-label">
         <input
-          onChange={() => handleCheck(todo.id, todo)}
+          onChange={() => handleCheck(todo.id)}
           data-cy="TodoStatus"
           type="checkbox"
           className="todo__status"
@@ -193,9 +198,8 @@ export const Todoitem: React.FC<Props> = ({
               className="todo__title-field"
               placeholder="Empty todo will be deleted"
               value={title}
-              ref={titleField2}
+              ref={titleFieldRef}
               onChange={(event) => setTitle(event.target.value)}
-              // onKeyUp={handleKeyUp}
               onBlur={(event) => {
                 hadleSubmit(event);
               }}
