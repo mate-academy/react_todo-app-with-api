@@ -43,7 +43,9 @@ export const TodoItem: React.FC<Props> = (
     editRef.current?.focus();
   }, [todoEditId]);
 
-  const handleDoubleClick = (id: number, title: string) => {
+  const handleDoubleClick = () => {
+    const { id, title } = todo;
+
     setTodoEditId(id);
     setTodoEdit(title);
   };
@@ -121,7 +123,7 @@ export const TodoItem: React.FC<Props> = (
         <span
           data-cy="TodoTitle"
           className="todo__title"
-          onDoubleClick={() => handleDoubleClick(todo.id, todo.title)}
+          onDoubleClick={handleDoubleClick}
         >
           {todo.title}
         </span>

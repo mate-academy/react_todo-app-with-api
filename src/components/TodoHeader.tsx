@@ -3,7 +3,6 @@ import React, {
 } from 'react';
 import { Todo } from '../types/Todo';
 import { ErrorType } from '../types/ErrorType';
-// import * as TodoServices from '../api/todos';
 
 type Props = {
   onSubmit: (todo: Todo) => void;
@@ -79,7 +78,7 @@ export const TodoHeader: React.FC<Props> = (
           value={query}
           onChange={handleQueryChange}
           ref={inputRef}
-          disabled={tempTodo !== null}
+          disabled={!!tempTodo}
         />
       </form>
     </header>

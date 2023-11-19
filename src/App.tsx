@@ -10,14 +10,9 @@ import { TodoList } from './components/TodoList';
 import { TodoFooter } from './components/TodoFooter';
 import { TodoErrors } from './components/TodoErrors';
 import { ErrorType } from './types/ErrorType';
+import { FilterValue } from './types/FilterValue';
 
 const USER_ID = 11682;
-
-enum FilterValue {
-  All = 'all',
-  Completed = 'completed',
-  Active = 'active',
-}
 
 export const App: React.FC = () => {
   const [todos, setTodos] = useState<Todo[]>([]);
