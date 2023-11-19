@@ -12,7 +12,7 @@ export const TodoFilter: React.FC<TodoFilterProps> = ({
       {Object.values(FilterBy).map(filterType => (
         <a
           key={filterType}
-          href={`#/${filterType === FilterBy.All && filterType}`}
+          href={`#/${filterType}`}
           onClick={handleFilterClick(filterType)}
           className={cn('filter__link', { selected: filterBy === filterType })}
           data-cy={`FilterLink${filterType}`}
