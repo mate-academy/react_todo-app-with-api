@@ -62,16 +62,17 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
 
     updateTodo(todo.id, { completed: !todo.completed })
       .then(() => {
-        const updatedTodos = todos.map((currentTodo) => {
-          if (currentTodo.id === todo.id) {
-            return { ...currentTodo, completed: !currentTodo.completed };
-          }
+        setTodos((currentTodos) => {
+          return currentTodos.map((currentTodo) => {
+            if (currentTodo.id === todo.id) {
+              return { ...currentTodo, completed: !currentTodo.completed };
+            }
 
-          return currentTodo;
+            return currentTodo;
+          });
         });
 
         setToggledTodos(null);
-        setTodos(updatedTodos);
       })
       .catch(() => setError(ErrorMessage.UpdateTodo))
       .finally(() => setIsToggled(false));
@@ -80,7 +81,7 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
     todo.completed,
     todo.id,
     setToggledTodos,
-    todos]);
+  ]);
 
   const handleDelete = () => {
     removeTodo(todo.id)
