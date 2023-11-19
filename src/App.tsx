@@ -1,6 +1,8 @@
 /* eslint-disable jsx-a11y/control-has-associated-label */
 import React, {
-  useEffect, useMemo, useState,
+  useEffect,
+  useMemo,
+  useState,
 } from 'react';
 import { UserWarning } from './UserWarning';
 import { Todo } from './types/Todo';
@@ -58,8 +60,10 @@ export const App: React.FC = () => {
     switch (filterValue) {
       case FilterValue.Active:
         return todos.filter(todo => !todo.completed);
+
       case FilterValue.Completed:
         return todos.filter(todo => todo.completed);
+
       default:
         return todos;
     }
@@ -92,15 +96,16 @@ export const App: React.FC = () => {
 
   const handleToggleAll = async () => {
     try {
-      const updatePromises = todos.map(async (todo) => {
-        const updatedTodo = { ...todo, completed: !todo.completed };
+      const allCompleted = todos.every(todo => todo.completed);
 
-        await TodoServices.updateTodos(updatedTodo);
+      const updatedTodos = todos.map(todo => ({
+        ...todo,
+        completed: !allCompleted,
+      }));
 
-        return updatedTodo;
-      });
-
-      const updatedTodos = await Promise.all(updatePromises);
+      await Promise.all(updatedTodos.map(
+        todo => TodoServices.updateTodos(todo),
+      ));
 
       setTodos(updatedTodos);
     } catch (errorR) {
@@ -130,7 +135,6 @@ export const App: React.FC = () => {
           setError={setError}
         />
 
-        {/* Hide the footer if there are no todos */}
         {todos.length !== 0 && (
           <TodoFooter
             todos={filteredTodos}

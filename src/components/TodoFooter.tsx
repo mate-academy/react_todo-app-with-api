@@ -22,11 +22,12 @@ export const TodoFooter: React.FC<Props> = ({
   setError,
 }) => {
   const completedTodos = todos.filter((todo) => todo.completed);
-  const [clearingCompleted, setClearingCompleted] = useState(false);
+  const activeTodos = todos.filter((todo) => !todo.completed);
+  const [isClearingCompleted, setIsClearingCompleted] = useState(false);
 
   const handleClearCompleted = async () => {
     try {
-      setClearingCompleted(true);
+      setIsClearingCompleted(true);
       const deletedTodoId = await clearCompleted();
 
       if (deletedTodoId !== undefined) {
@@ -36,17 +37,16 @@ export const TodoFooter: React.FC<Props> = ({
     } catch (error) {
       setError(ErrorType.DeleteTodoError);
     } finally {
-      setClearingCompleted(false);
+      setIsClearingCompleted(false);
     }
   };
 
   return (
     <footer className="todoapp__footer" data-cy="Footer">
       <span className="todo-count" data-cy="TodosCounter">
-        {`${todos.length} items left`}
+        {`${activeTodos.length} items left`}
       </span>
 
-      {/* Active filter should have a 'selected' class */}
       <nav className="filter" data-cy="Filter">
         <a
           href="#/"
@@ -82,17 +82,16 @@ export const TodoFooter: React.FC<Props> = ({
         </a>
       </nav>
 
-      {/* Enable the button only if there are completed todos */}
       {completedTodos.length > 0 && (
         <button
           type="button"
           className={classNames('todoapp__clear-completed', {
-            'clearing-completed': clearingCompleted,
+            'clearing-completed': isClearingCompleted,
           })}
           data-cy="ClearCompletedButton"
           onClick={handleClearCompleted}
         >
-          {clearingCompleted ? 'Clearing...' : 'Clear completed'}
+          {isClearingCompleted ? 'Clearing...' : 'Clear completed'}
         </button>
       )}
     </footer>

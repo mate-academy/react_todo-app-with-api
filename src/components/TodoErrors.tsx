@@ -6,12 +6,12 @@ type Props = {
 };
 
 export const TodoErrors: React.FC<Props> = ({ error }) => {
-  const [visible, setVisible] = useState(true);
+  const [isVisible, setIsVisible] = useState(true);
 
   useEffect(() => {
     if (error) {
       const timerId = setTimeout(() => {
-        setVisible(false);
+        setIsVisible(false);
       }, 3000);
 
       return () => clearTimeout(timerId);
@@ -21,7 +21,7 @@ export const TodoErrors: React.FC<Props> = ({ error }) => {
   }, [error]);
 
   const handleHideError = () => {
-    setVisible(false);
+    setIsVisible(false);
   };
 
   const getErrorMessage = () => {
@@ -42,7 +42,7 @@ export const TodoErrors: React.FC<Props> = ({ error }) => {
   };
 
   return (
-    visible && error ? (
+    isVisible && error ? (
       <div
         data-cy="ErrorNotification"
         className="notification is-danger is-light has-text-weight-normal"

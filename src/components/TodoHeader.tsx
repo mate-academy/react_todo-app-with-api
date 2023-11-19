@@ -59,7 +59,6 @@ export const TodoHeader: React.FC<Props> = (
 
   return (
     <header className="todoapp__header">
-      {/* this buttons is active only if there are some active todos */}
       <button
         type="button"
         className="todoapp__toggle-all active"
@@ -68,7 +67,6 @@ export const TodoHeader: React.FC<Props> = (
         onClick={handleToogleAll}
       />
 
-      {/* Add a todo on form submit */}
       <form onSubmit={handleFormSubmit}>
         <input
           data-cy="NewTodoField"
