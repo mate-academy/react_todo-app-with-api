@@ -1,5 +1,5 @@
 import cn from 'classnames';
-import { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Todo } from '../../types/Todo';
 import { deleteTodo, updateTodo, updateTodoTitle } from '../../api/todos';
 import { Errors } from '../../types/Error';
@@ -15,7 +15,6 @@ interface Props {
   cleared: boolean
   toggled: string
   titleField: React.MutableRefObject<HTMLInputElement | null>;
-
 }
 
 export const Todoitem: React.FC<Props> = ({
