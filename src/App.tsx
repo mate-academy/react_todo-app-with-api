@@ -47,14 +47,15 @@ export const App: React.FC = () => {
     setIsLoading(currTodo => [...currTodo, updatedTodo.id]);
 
     todoService.updateTodo(updatedTodo)
-      .then(() => setTodos(curTodo => (
+      .then((newTodo) => setTodos(curTodo => (
         curTodo.map(el => (
-          el.id === updatedTodo.id
-            ? updatedTodo
+          el.id === newTodo.id
+            ? newTodo
             : el
         ))
       )))
       .catch(() => {
+        setTodos(todos);
         setIsShowError(true);
         setErrorMessage(TodoError.ErrorOfUpdate);
       })

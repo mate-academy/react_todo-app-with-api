@@ -41,6 +41,15 @@ export const TodoItem: React.FC<Props> = ({
     });
   };
 
+  // const handleToggle = () => {
+  //   const newTodo = {
+  //     ...todo,
+  //     completed: !completed,
+  //   };
+
+  //   handleUpdateTodo(newTodo);
+  // };
+
   const handleOnBlur = () => {
     setIsEditStatus(false);
 
@@ -133,7 +142,7 @@ export const TodoItem: React.FC<Props> = ({
       <div
         data-cy="TodoLoader"
         className={classNames('modal overlay', {
-          'is-active': isLoading,
+          'is-active': isLoading || id === 0,
         })}
       >
         <div className="modal-background has-background-white-ter" />

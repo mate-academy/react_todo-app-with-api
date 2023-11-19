@@ -26,6 +26,7 @@ export const List: React.FC<Props> = ({
         todos={todos}
         handleUpdateTodo={handleUpdateTodo}
         isLoading={isLoading.includes(todo.id)}
+        // isLoading={isLoading}
       />
     ))}
 
@@ -36,7 +37,8 @@ export const List: React.FC<Props> = ({
         key={tempTodo.id}
         todos={todos}
         handleUpdateTodo={handleUpdateTodo}
-        isLoading={isLoading.includes(tempTodo.id)}
+        isLoading={isLoading.includes(tempTodo.userId)}
+        // isLoading={isLoading}
       />
     )}
   </section>
