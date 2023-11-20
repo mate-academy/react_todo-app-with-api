@@ -16,11 +16,11 @@ function filterTodos(
   let filteredTodos = [...todos];
 
   switch (filterBy) {
-    case 'Active':
+    case Filter.Active:
       filteredTodos = todos.filter(todo => !todo.completed);
       break;
 
-    case 'Completed':
+    case Filter.Completed:
       filteredTodos = todos.filter(todo => todo.completed);
       break;
 
@@ -60,6 +60,8 @@ export const Footer: React.FC<Props> = ({
     )));
   };
 
+  const noCompleted = !todos.some(todo => todo.completed);
+
   return (
     <footer className="todoapp__footer" data-cy="Footer">
       <span className="todo-count" data-cy="TodosCounter">
@@ -85,10 +87,10 @@ export const Footer: React.FC<Props> = ({
       <button
         type="button"
         className={cn('todoapp__clear-completed', {
-          hidden: !todos.some(todo => todo.completed),
+          hidden: noCompleted,
         })}
         data-cy="ClearCompletedButton"
-        disabled={!todos.some(todo => todo.completed)}
+        disabled={noCompleted}
         onClick={deleteAllCompleted}
       >
         Clear completed
