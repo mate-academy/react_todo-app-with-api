@@ -1,5 +1,6 @@
 /* eslint-disable max-len */
 /* eslint-disable jsx-a11y/control-has-associated-label */
+
 import React, {
   useEffect,
   useMemo,
@@ -52,7 +53,7 @@ export const App: React.FC = () => {
 
     deleteTodos(todoId)
       .then(() => {
-        setTodos(todos.filter(t => t.id !== todoId));
+        setTodos(todos.filter(tds => tds.id !== todoId));
       })
       .catch(() => {
         setErrorMessage(Errors.UnableDelete);
@@ -72,7 +73,8 @@ export const App: React.FC = () => {
 
     clearCompleted.forEach(todo => (
       deleteTodos(todo.id)
-        .then(() => setTodos(prevtodos => prevtodos.filter(item => item.id !== todo.id)))
+        .then(() => setTodos(previoustodos => previoustodos
+          .filter(item => item.id !== todo.id)))
         .catch(() => {
           setErrorMessage(Errors.UnableDelete);
         })
@@ -90,12 +92,15 @@ export const App: React.FC = () => {
       .then(setTodos)
       .catch(() => {
         setErrorMessage(Errors.UnableLoad);
-        setTimeout(() => setErrorMessage(Errors.Empty), 3000);
       });
   }, [filterBy]);
 
   if (!USER_ID) {
     return <UserWarning />;
+  }
+
+  if (errorMessage) {
+    setTimeout(() => setErrorMessage(Errors.Empty), 2000);
   }
 
   return (
@@ -145,7 +150,6 @@ export const App: React.FC = () => {
                 {tempTodo.title}
               </span>
 
-              {/* Remove button appears only on hover */}
               <button
                 type="button"
                 className="todo__remove"
@@ -154,7 +158,6 @@ export const App: React.FC = () => {
                 ×
               </button>
 
-              {/* overlay will cover the todo while it is being updated */}
               <div
                 data-cy="TodoLoader"
                 className={cn('modal overlay is-active')}
@@ -166,7 +169,6 @@ export const App: React.FC = () => {
           )}
         </section>
 
-        {/* Hide the footer if there are no todos */}
         {todos.length > 0 && (
           <Footer
             todosCounter={todosCounter}
@@ -199,21 +201,8 @@ export const App: React.FC = () => {
             onClick={() => setErrorMessage(Errors.Empty)}
           />
         )}
-        {/* show only one message at a time */}
         {errorMessage}
-        {/* <br />
-        Title should not be empty
-        <br />
-        Unable to add a todo
-        <br />
-        Unable to delete a todo
-        <br />
-        Unable to update a todo */}
       </div>
-
-      {/* Notification is shown in case of any error */}
-      {/* Add the 'hidden' class to hide the message smoothly */}
-
     </div>
   );
 };

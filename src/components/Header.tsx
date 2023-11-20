@@ -44,6 +44,9 @@ export const Header: React.FC<Props> = ({
 
     if (!trimedTitle) {
       setErrorMessage(Errors.EmptyTitle);
+      setTimeout(() => {
+        setErrorMessage(Errors.EmptyTitle);
+      }, 1000);
 
       return;
     }
@@ -85,8 +88,8 @@ export const Header: React.FC<Props> = ({
           title: todo.title,
           completed: true,
         })
-          .then(() => setTodos(todos.map(t => (
-            { ...t, completed: true }
+          .then(() => setTodos(todos.map(tds => (
+            { ...tds, completed: true }
           ))))
           .catch(() => setErrorMessage(Errors.UnableUpdate))
           .finally(() => setLoadingIds(null));
@@ -101,8 +104,8 @@ export const Header: React.FC<Props> = ({
           title: todo.title,
           completed: false,
         })
-          .then(() => setTodos(todos.map(t => (
-            { ...t, completed: false }
+          .then(() => setTodos(todos.map(tds => (
+            { ...tds, completed: false }
           ))))
           .catch(() => setErrorMessage(Errors.UnableUpdate))
           .finally(() => setLoadingIds(null));
@@ -112,7 +115,6 @@ export const Header: React.FC<Props> = ({
 
   return (
     <header className="todoapp__header">
-      {/* this buttons is active only if there are some active todos */}
       {todos.length > 0 && (
         <button
           type="button"
@@ -123,7 +125,6 @@ export const Header: React.FC<Props> = ({
         />
       )}
 
-      {/* Add a todo on form submit */}
       <form onSubmit={handleSubmit}>
         <input
           disabled={tempTodo !== null}

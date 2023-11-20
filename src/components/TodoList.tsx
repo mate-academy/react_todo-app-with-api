@@ -61,19 +61,19 @@ export const TodoList: React.FC<Props> = ({
       setLoadingId(todo.id);
 
       updateTodos(todo.id, {
-        userId: 11914,
+        userId: 11901,
         title: trimNewTitle,
         completed: todo.completed,
       })
         .then(() => {
-          const currentTodo: Todo[] = todos.map(ctodo => {
-            if (todo.id === ctodo.id) {
-              return { ...ctodo, title: trimNewTitle };
+          const currentTodo: Todo[] = todos.map(currentTd => {
+            if (todo.id === currentTd.id) {
+              return { ...currentTd, title: trimNewTitle };
             }
 
             setIsEditing(false);
 
-            return ctodo;
+            return currentTd;
           });
 
           setTodos(currentTodo);
@@ -89,17 +89,17 @@ export const TodoList: React.FC<Props> = ({
     setLoadingId(todoId);
 
     updateTodos(todoId, {
-      userId: 11914,
+      userId: 11901,
       title: todo.title,
       completed: !todo.completed,
     })
       .then(() => {
-        const currentTodo: Todo[] = todos.map(ctodo => {
-          if (todo.id === ctodo.id) {
-            return { ...ctodo, completed: !ctodo.completed };
+        const currentTodo: Todo[] = todos.map(currentTd => {
+          if (todo.id === currentTd.id) {
+            return { ...currentTd, completed: !currentTd.completed };
           }
 
-          return ctodo;
+          return currentTd;
         });
 
         setTodos(currentTodo);
@@ -166,7 +166,6 @@ export const TodoList: React.FC<Props> = ({
           </>
         )}
 
-      {/* overlay will cover the todo while it is being updated */}
       <div
         data-cy="TodoLoader"
         className={cn('modal overlay', {
