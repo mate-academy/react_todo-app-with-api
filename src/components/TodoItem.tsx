@@ -3,7 +3,6 @@ import classNames from 'classnames';
 import { Todo } from '../types/Todo';
 
 type Props = {
-  todos: Todo[];
   todo: Todo;
   handleDeleteTodo: (value: number) => void;
   handleUpdateTodo: (value: Todo) => void;
@@ -13,7 +12,6 @@ type Props = {
 export const TodoItem: React.FC<Props> = ({
   todo,
   handleDeleteTodo,
-  todos,
   handleUpdateTodo,
   isLoading,
 }) => {
@@ -35,20 +33,13 @@ export const TodoItem: React.FC<Props> = ({
   };
 
   const handleToggle = () => {
-    handleUpdateTodo?.({
+    const newTodo = {
       ...todo,
-      completed: !todo.completed,
-    });
+      completed: !completed,
+    };
+
+    handleUpdateTodo(newTodo);
   };
-
-  // const handleToggle = () => {
-  //   const newTodo = {
-  //     ...todo,
-  //     completed: !completed,
-  //   };
-
-  //   handleUpdateTodo(newTodo);
-  // };
 
   const handleOnBlur = () => {
     setIsEditStatus(false);
@@ -59,13 +50,7 @@ export const TodoItem: React.FC<Props> = ({
       return;
     }
 
-    todos.map(el => (
-      handleUpdateTodo(
-        el !== todo
-          ? el
-          : { ...todo, title: editInput.trim() },
-      )
-    ));
+    handleUpdateTodo({ ...todo, title: editInput.trim() });
 
     setEditInput(editInput.trim());
   };

@@ -23,10 +23,8 @@ export const List: React.FC<Props> = ({
         handleDeleteTodo={handleDeleteTodo}
         todo={todo}
         key={todo.id}
-        todos={todos}
         handleUpdateTodo={handleUpdateTodo}
         isLoading={isLoading.includes(todo.id)}
-        // isLoading={isLoading}
       />
     ))}
 
@@ -35,10 +33,8 @@ export const List: React.FC<Props> = ({
         handleDeleteTodo={handleDeleteTodo}
         todo={tempTodo}
         key={tempTodo.id}
-        todos={todos}
         handleUpdateTodo={handleUpdateTodo}
-        isLoading={isLoading.includes(tempTodo.userId)}
-        // isLoading={isLoading}
+        isLoading={isLoading.includes(tempTodo.id)}
       />
     )}
   </section>
