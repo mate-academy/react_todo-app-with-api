@@ -36,6 +36,7 @@ export const TodoItem: React.FC<Props> = (
 
   const [todoEditId, setTodoEditId] = useState(0);
   const [todoEdit, setTodoEdit] = useState('');
+  const { id, title, completed } = todo;
 
   const editRef = useRef<HTMLInputElement>(null);
 
@@ -44,8 +45,6 @@ export const TodoItem: React.FC<Props> = (
   }, [todoEditId]);
 
   const handleDoubleClick = () => {
-    const { id, title } = todo;
-
     setTodoEditId(id);
     setTodoEdit(title);
   };
@@ -83,9 +82,11 @@ export const TodoItem: React.FC<Props> = (
       case 'Escape':
         resetChange();
         break;
+
       case 'Enter':
         saveChange();
         break;
+
       default:
         break;
     }
@@ -102,13 +103,13 @@ export const TodoItem: React.FC<Props> = (
           data-cy="TodoStatus"
           type="checkbox"
           className="todo__status"
-          checked={todo.completed}
+          checked={completed}
           onChange={handleCheckbox}
-          aria-label={`Mark todo "${todo.title}" as completed`}
+          aria-label={`Mark todo "${title}" as completed`}
         />
       </label>
 
-      {todoEditId === todo.id ? (
+      {todoEditId === id ? (
         <input
           data-cy="TodoEditInput"
           type="text"
@@ -125,7 +126,7 @@ export const TodoItem: React.FC<Props> = (
           className="todo__title"
           onDoubleClick={handleDoubleClick}
         >
-          {todo.title}
+          {title}
         </span>
       )}
 
@@ -133,7 +134,7 @@ export const TodoItem: React.FC<Props> = (
         type="button"
         className="todo__remove"
         data-cy="TodoDelete"
-        onClick={() => deletePost(todo.id)}
+        onClick={() => deletePost(id)}
       >
         ×
       </button>

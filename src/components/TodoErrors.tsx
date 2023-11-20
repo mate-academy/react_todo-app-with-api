@@ -28,14 +28,19 @@ export const TodoErrors: React.FC<Props> = ({ error }) => {
     switch (error) {
       case ErrorType.LoadError:
         return 'Unable to load todos';
+
       case ErrorType.EmptyTitle:
         return 'Title should not be empty';
+
       case ErrorType.AddTodoError:
         return 'Unable to add a todo';
+
       case ErrorType.DeleteTodoError:
         return 'Unable to delete a todo';
+
       case ErrorType.UpdateTodoError:
         return 'Unable to update a todo';
+
       default:
         return null;
     }
