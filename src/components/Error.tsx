@@ -15,6 +15,11 @@ export const Error: React.FC = () => {
     }, 3000);
   }
 
+  const handleDeleteButton = () => {
+    setErrorMessage('');
+    isErrorHidden = true;
+  };
+
   return (
     <div
       data-cy="ErrorNotification"
@@ -28,10 +33,7 @@ export const Error: React.FC = () => {
         data-cy="HideErrorButton"
         type="button"
         className="delete"
-        onClick={() => {
-          setErrorMessage('');
-          isErrorHidden = true;
-        }}
+        onClick={() => handleDeleteButton}
       />
       {errorMessage}
     </div>

@@ -15,6 +15,8 @@ export const Header: React.FC = () => {
     USER_ID,
   } = useContext(TodosContext);
 
+  const isActive = todos.every(todo => todo.completed);
+
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setInputValue(event.target.value);
   };
@@ -77,7 +79,7 @@ export const Header: React.FC = () => {
           className={cn(
             'todoapp__toggle-all',
             {
-              active: todos.every(todo => todo.completed),
+              active: isActive,
             },
           )}
           data-cy="ToggleAllButton"

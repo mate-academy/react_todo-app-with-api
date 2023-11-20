@@ -4,6 +4,7 @@ import { FilterOption } from '../types/FilterOption';
 import { getTodos } from '../api/todos';
 
 const initiatTodos: Todo[] = [];
+const USER_ID_INITAT = 11930;
 
 interface TodosContextType {
   todos: Todo[],
@@ -20,7 +21,7 @@ export const TodosContext = React.createContext<TodosContextType>({
   setTodos: () => { },
   filterOption: FilterOption.Active,
   setFilterOption: () => { },
-  USER_ID: 11930,
+  USER_ID: USER_ID_INITAT,
   errorMessage: '',
   setErrorMessage: () => { },
 });
@@ -33,7 +34,7 @@ export const TodosProvider: React.FC<Props> = ({ children }) => {
   const [todos, setTodos] = useState(initiatTodos);
   const [filterOption, setFilterOption]
     = useState<FilterOption>(FilterOption.All);
-  const USER_ID = 11930;
+  const USER_ID = USER_ID_INITAT;
   const [errorMessage, setErrorMessage] = useState('');
 
   useEffect(() => {
