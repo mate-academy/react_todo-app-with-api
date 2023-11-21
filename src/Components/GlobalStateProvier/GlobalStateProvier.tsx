@@ -20,6 +20,8 @@ export const TodosContext = React.createContext<TodoContext>({
   setTempTodo: () => { },
   deletionId: null,
   setDeletionId: () => { },
+  updatedId: null,
+  setUpdatedId: () => {},
 });
 
 type Props = {
@@ -33,6 +35,7 @@ export const GlobalStateProvier: React.FC<Props> = ({ children }) => {
   const [filterStatus, setFilterStatus] = useState<Status>(Status.All);
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
   const [deletionId, setDeletionId] = useState<number | null>(null);
+  const [updatedId, setUpdatedId] = useState<number | null>(null);
 
   useEffect(() => {
     getTodos(USER_ID)
@@ -67,6 +70,8 @@ export const GlobalStateProvier: React.FC<Props> = ({ children }) => {
     setTempTodo,
     deletionId,
     setDeletionId,
+    updatedId,
+    setUpdatedId,
   };
 
   return (

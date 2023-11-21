@@ -1,8 +1,10 @@
 import './style.scss';
 import cn from 'classnames';
-import { useContext } from 'react';
+import {
+  useContext, useEffect, useRef, useState,
+} from 'react';
 import { Todo } from '../../types/Todo';
-import { deleteTodo } from '../../api/todos';
+import { deleteTodo, updateTodoStatus, updateTodoTitle } from '../../api/todos';
 import { Errors } from '../../types/Errors';
 import { TodosContext } from '../GlobalStateProvier';
 
@@ -16,9 +18,25 @@ export const TodoItem: React.FC<Props> = ({
   isTemp,
 }) => {
   const {
-    editedTodo, setTodos, todos, setError, deletionId, setDeletionId,
+    setEditedTodo,
+    editedTodo,
+    setTodos,
+    todos,
+    setError,
+    deletionId,
+    setDeletionId,
+    setUpdatedId,
+    updatedId,
   } = useContext(TodosContext);
   const isCurrentEdited = editedTodo?.id === todo.id;
+  const [titleInput, setTitleInput] = useState('');
+  const titleInputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    if (isCurrentEdited && titleInputRef.current) {
+      titleInputRef.current.focus();
+    }
+  }, [isCurrentEdited]);
 
   const handleDelete = (id: number) => {
     deleteTodo(id)
@@ -39,6 +57,68 @@ export const TodoItem: React.FC<Props> = ({
       .finally(() => setDeletionId(null));
   };
 
+  const handleCheck = (todoItem: Todo) => {
+    updateTodoStatus(todoItem.id, !todoItem.completed)
+      .then(() => {
+        setUpdatedId(todoItem.id);
+        const todosCopy = [...todos];
+        const index = todos.findIndex(item => item.id === todoItem.id);
+        const updated = { ...todos[index] };
+
+        updated.completed = !updated.completed;
+        todosCopy.splice(index, 1, updated);
+
+        setTodos(() => todosCopy);
+      })
+      .catch(() => setError(Errors.UpdateError))
+      .finally(() => setUpdatedId(null));
+  };
+
+  const handleDoubleClick = (todoItem: Todo) => {
+    setEditedTodo(todoItem);
+    setTitleInput(todoItem.title);
+  };
+
+  const handleSubmit = (event: React.FormEvent) => {
+    event.preventDefault();
+
+    if (titleInput.trim() === editedTodo?.title) {
+      setEditedTodo(null);
+
+      return;
+    }
+
+    if (!titleInput.trim()) {
+      handleDelete(editedTodo?.id as number);
+
+      return;
+    }
+
+    setUpdatedId(editedTodo?.id as number);
+    updateTodoTitle(editedTodo?.id as number, titleInput)
+      .then(() => {
+        const updated = { ...editedTodo };
+        const todosCopy = [...todos];
+        const index = todos.findIndex(item => item.id === editedTodo?.id);
+
+        updated.title = titleInput;
+        todosCopy.splice(index, 1, updated as Todo);
+
+        setTodos(todosCopy);
+      })
+      .catch(() => setError(Errors.UpdateError))
+      .finally(() => {
+        setEditedTodo(null);
+        setUpdatedId(null);
+      });
+  };
+
+  const handleKeyUp = (event: React.KeyboardEvent<HTMLInputElement>) => {
+    if (event.key === 'Escape') {
+      setEditedTodo(null);
+    }
+  };
+
   return (
     <div
       data-cy="Todo"
@@ -52,24 +132,31 @@ export const TodoItem: React.FC<Props> = ({
           data-cy="TodoStatus"
           type="checkbox"
           className="todo__status"
-          checked={todo.completed}
+          onChange={() => handleCheck(todo)}
         />
       </label>
 
       {isCurrentEdited ? (
-        <form>
+        <form onSubmit={handleSubmit}>
           <input
             data-cy="TodoTitleField"
             type="text"
             className="todo__title-field"
-            placeholder="Empty todo will be deleted"
-            value="Todo is being edited now"
+            value={titleInput}
+            onChange={(e) => setTitleInput(e.target.value)}
+            onBlur={handleSubmit}
+            ref={titleInputRef}
+            onKeyUp={handleKeyUp}
           />
         </form>
       )
         : (
           <>
-            <span data-cy="TodoTitle" className="todo__title">
+            <span
+              data-cy="TodoTitle"
+              className="todo__title"
+              onDoubleClick={() => handleDoubleClick(todo)}
+            >
               {todo.title}
             </span>
             <button
@@ -88,7 +175,7 @@ export const TodoItem: React.FC<Props> = ({
         className={cn({
           modal: true,
           overlay: true,
-          isActive: isTemp || deletionId === todo.id,
+          isActive: isTemp || deletionId === todo.id || updatedId === todo.id,
         })}
       >
         <div className="modal-background has-background-white-ter" />

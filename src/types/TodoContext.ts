@@ -16,4 +16,6 @@ export type TodoContext = {
   setTempTodo: React.Dispatch<React.SetStateAction<Todo | null>>,
   deletionId: number | null,
   setDeletionId: React.Dispatch<React.SetStateAction<number | null>>,
+  updatedId: number | null,
+  setUpdatedId: React.Dispatch<React.SetStateAction<number | null>>,
 };

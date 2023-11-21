@@ -1,8 +1,9 @@
 import {
   useContext, useEffect, useRef, useState,
 } from 'react';
+import cn from 'classnames';
 import { Todo } from '../../types/Todo';
-import { postTodo } from '../../api/todos';
+import { postTodo, updateTodoStatus } from '../../api/todos';
 import { Errors } from '../../types/Errors';
 import { USER_ID } from '../../utils/userId';
 import { TodosContext } from '../GlobalStateProvier';
@@ -15,7 +16,6 @@ export const Header: React.FC = () => {
   const newTodoInput = useRef<HTMLInputElement>(null);
   const [newTodoTitle, setNewTodoTitle] = useState('');
   const [inputDisabled, setInputDisabled] = useState(false);
-  const active = todos.filter(todo => !todo.completed);
 
   useEffect(() => {
     if (newTodoInput.current) {
@@ -56,13 +56,32 @@ export const Header: React.FC = () => {
       });
   };
 
+  const handleClick = () => {
+    const appliedStatus = !!todos.find(todo => !todo.completed);
+
+    todos.forEach(todo => updateTodoStatus(todo.id, appliedStatus)
+      .then(() => {
+        const todosCopy = [...todos];
+
+        // eslint-disable-next-line no-return-assign, no-param-reassign
+        todosCopy.forEach(item => item.completed = appliedStatus);
+
+        setTodos(todosCopy);
+      })
+      .catch(() => setError(Errors.UpdateError)));
+  };
+
   return (
     <header className="todoapp__header">
-      {active.length > 0 && (
+      {todos.length > 0 && (
         /* eslint-disable-next-line jsx-a11y/control-has-associated-label */
         <button
           type="button"
-          className="todoapp__toggle-all active"
+          className={cn({
+            'todoapp__toggle-all': true,
+            active: todos.every(todo => todo.completed),
+          })}
+          onClick={handleClick}
           data-cy="ToggleAllButton"
         />
       )}
