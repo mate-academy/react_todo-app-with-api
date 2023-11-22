@@ -19,10 +19,6 @@ export const TodoList: React.FC<Props> = ({
 
   useEffect(() => {
     switch (status) {
-      case Status.all:
-        setVisibleTodos(todos);
-        break;
-
       case Status.active:
         setVisibleTodos(todos.filter(todo => !todo.completed));
         break;

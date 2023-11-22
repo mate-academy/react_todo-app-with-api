@@ -1,7 +1,9 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, {
+  useEffect, useMemo, useRef, useState,
+} from 'react';
 import classNames from 'classnames';
 import { UserWarning } from './UserWarning';
-import { createTodo, getTodos } from './api/todos';
+import { createTodo, getTodos, updateTodo } from './api/todos';
 import { Todo } from './types/Todo';
 import { Status } from './types/Status';
 import { TodoList } from './components/TodoList/TodoList';
@@ -17,6 +19,11 @@ export const App: React.FC = () => {
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
 
   const inputRef = useRef<HTMLInputElement | null>(null);
+
+  const allTodosCompleted = useMemo(
+    () => todos.every((todo: Todo) => todo.completed),
+    [todos],
+  );
 
   useEffect(() => {
     inputRef.current?.focus();
@@ -70,6 +77,22 @@ export const App: React.FC = () => {
     }
   };
 
+  const handleToggleAll = () => {
+    const promiseArray = todos.map(
+      todo => updateTodo(todo.id, { completed: !allTodosCompleted }),
+    );
+
+    Promise.all(promiseArray)
+      .then(() => {
+        setTodos(prevTodos => prevTodos.map(
+          item => ({ ...item, completed: !allTodosCompleted }),
+        ));
+      })
+      .catch(() => {
+        setErrorMessage('Unable to change status, refresh page');
+      });
+  };
+
   return (
     <div className="todoapp">
       <h1 className="todoapp__title">todos</h1>
@@ -78,9 +101,15 @@ export const App: React.FC = () => {
         <header className="todoapp__header">
           <button
             type="button"
-            className="todoapp__toggle-all active"
+            className={classNames(
+              'todoapp__toggle-all',
+              {
+                active: allTodosCompleted,
+              },
+            )}
             data-cy="ToggleAllButton"
             aria-label="toggle all"
+            onClick={handleToggleAll}
           />
 
           <form onSubmit={handleSubmit}>

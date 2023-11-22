@@ -5,7 +5,9 @@ import {
 } from 'react';
 import classNames from 'classnames';
 import { Todo } from '../../types/Todo';
-import { deleteTodos } from '../../api/todos';
+import {
+  deleteTodo, updateTodo as updateTodoAPI,
+} from '../../api/todos';
 
 type Props = {
   todo: Todo,
@@ -24,33 +26,40 @@ export const TodoItem: React.FC<Props> = ({
   const inputRef = useRef<HTMLInputElement | null>(null);
 
   const handleCheckbox = () => {
-    const setTodosArgs = (prevTodos: Todo[]) => {
-      return prevTodos.map((prevTodo) => {
-        if (prevTodo.id === todo.id) {
-          return { ...prevTodo, completed: !prevTodo.completed };
-        }
+    updateTodoAPI(todo.id, { completed: !todo.completed })
+      .then(() => {
+        const reverseStatus = (prevTodos: Todo[]) => {
+          return prevTodos.map((prevTodo) => {
+            if (prevTodo.id === todo.id) {
+              return { ...prevTodo, completed: !prevTodo.completed };
+            }
 
-        return prevTodo;
+            return prevTodo;
+          });
+        };
+
+        setTodos(reverseStatus(todos));
+      })
+      .catch(() => {
+        setErrorMessage('Unable to update a todo status');
       });
-    };
-
-    setTodos(setTodosArgs(todos));
   };
 
   const removeTodo = (id: number) => {
-    deleteTodos(id)
+    deleteTodo(id)
+      .then(() => {
+        const indexToDelete = todos.findIndex(elem => elem.id === id);
+
+        if (indexToDelete !== -1) {
+          const newTodos = [...todos];
+
+          newTodos.splice(indexToDelete, 1);
+          setTodos(newTodos);
+        }
+      })
       .catch(() => {
         setErrorMessage('Unable to delete a todo');
       });
-
-    const index = todos.findIndex(elem => elem.id === id);
-
-    if (index !== -1) {
-      const newTodos = [...todos];
-
-      newTodos.splice(index, 1);
-      setTodos(newTodos);
-    }
   };
 
   useEffect(() => {
@@ -68,24 +77,24 @@ export const TodoItem: React.FC<Props> = ({
   };
 
   const handleLabelChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const newValue = event.target.value.trim();
-
-    setTodoValue(newValue === '' ? '' : event.target.value);
+    setTodoValue(event.target.value.trim() === '' ? '' : event.target.value);
   };
 
   function updateTodo() {
-    const newTodoTitle = todoValue;
+    updateTodoAPI(todo.id, { title: todoValue })
+      .then(() => {
+        const updatedTodos = todos.map((prevTodo) => {
+          if (prevTodo.id === todo.id) {
+            return { ...prevTodo, title: todoValue };
+          }
 
-    const updatedTodos = todos.map((prevTodo) => {
-      if (prevTodo.id === todo.id) {
-        return { ...prevTodo, title: newTodoTitle };
-      }
+          return prevTodo;
+        });
 
-      return prevTodo;
-    });
-
-    setTodos(updatedTodos);
-    setIsEdit(false);
+        setTodos(updatedTodos);
+      })
+      .catch(() => setErrorMessage('Unable to update title'))
+      .finally(() => setIsEdit(false));
   }
 
   const handleLabelKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {

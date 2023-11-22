@@ -2,7 +2,7 @@ import classNames from 'classnames';
 import { Dispatch, SetStateAction } from 'react';
 import { Todo } from '../../types/Todo';
 import { Status } from '../../types/Status';
-import { deleteTodos } from '../../api/todos';
+import { deleteTodo } from '../../api/todos';
 
 type Props = {
   todos: Todo[],
@@ -19,21 +19,19 @@ export const TodosFilter: React.FC<Props> = ({
   setStatus,
   setErrorMessage,
 }) => {
-  const todosNotCompleted = todos.filter(todo => !todo.completed);
+  const notCompletedTodos = todos.filter(todo => !todo.completed).length;
 
   const hasCompleted = todos.some(todo => todo.completed);
 
   const clearCompleted = () => {
-    const todosCompleted = todos.filter(todo => todo.completed);
-
-    const todosIdCompleted = todosCompleted.map(todo => todo.id);
-
-    todosIdCompleted.forEach(item => {
-      deleteTodos(item)
-        .catch(() => {
-          setErrorMessage('Unable to delete a todo');
-        });
-    });
+    todos.filter(todo => todo.completed)
+      .map(todo => todo.id)
+      .forEach(item => {
+        deleteTodo(item)
+          .catch(() => {
+            setErrorMessage('Unable to delete a todo');
+          });
+      });
 
     const newTodos = todos.filter(todo => !todo.completed);
 
@@ -46,7 +44,7 @@ export const TodosFilter: React.FC<Props> = ({
       data-cy="Footer"
     >
       <span className="todo-count" data-cy="TodosCounter">
-        {todosNotCompleted.length}
+        {notCompletedTodos}
         {' '}
         items left
       </span>
