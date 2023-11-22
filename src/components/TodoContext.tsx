@@ -110,7 +110,7 @@ export const TodoProvider: React.FC<Props> = ({ children }) => {
           return newTodos;
         });
       })
-      .catch(() => setError(ErrorType.AddTodoError))
+      .catch(() => setError(ErrorType.UpdateTodoError))
       .finally(() => {
         setTimeout(() => {
           setError(ErrorType.None);
