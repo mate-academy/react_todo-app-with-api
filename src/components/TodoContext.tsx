@@ -1,4 +1,7 @@
-import React, { useEffect, useState } from 'react';
+import React, {
+  useEffect,
+  useState,
+} from 'react';
 import { Todo } from '../types/Todo';
 import { Context } from '../types/Context';
 import { Status } from '../types/Status';
@@ -107,7 +110,7 @@ export const TodoProvider: React.FC<Props> = ({ children }) => {
           return newTodos;
         });
       })
-      .catch(() => setError(ErrorType.UpdateTodoError))
+      .catch(() => setError(ErrorType.AddTodoError))
       .finally(() => {
         setTimeout(() => {
           setError(ErrorType.None);

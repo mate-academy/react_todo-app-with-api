@@ -15,14 +15,11 @@ export const TodoFooter: React.FC = () => {
   const hasCompletedTodos = todos.some(todo => todo.completed);
 
   const handleClearCompleted = () => {
-    // setIsLoading(true);
-
     const completedTodos = todos.filter(todo => todo.completed);
 
     const promises = completedTodos.map(todo => deleteTodo(todo.id));
 
     Promise.allSettled(promises);
-    // .then(() => setIsLoading(false));
   };
 
   if (!todos.length) {

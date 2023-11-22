@@ -1,6 +1,9 @@
 /* eslint-disable jsx-a11y/control-has-associated-label */
 import cn from 'classnames';
-import { useContext, useMemo } from 'react';
+import {
+  useContext,
+  useMemo,
+} from 'react';
 import { ErrorType } from '../types/ErrorType';
 import { TodoContext } from './TodoContext';
 

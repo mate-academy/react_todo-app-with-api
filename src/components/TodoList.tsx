@@ -21,24 +21,28 @@ export const TodoList: React.FC = () => {
   }, [filter, todos]);
 
   return (
-    <section className="todoapp__main" data-cy="TodoList">
+    <ul className="todoapp__main" data-cy="TodoList">
 
       {filteredTodos.map(todo => (
-        <TodoItem
-          todo={todo}
-          key={todo.id}
-          isLoading={todoIdsWithLoader.includes(todo.id)}
-        />
+        <li>
+          <TodoItem
+            todo={todo}
+            key={todo.id}
+            isLoading={todoIdsWithLoader.includes(todo.id)}
+          />
+        </li>
       ))}
 
       { tempTodo && (
-        <TodoItem
-          todo={tempTodo}
-          key={tempTodo.id}
-          isLoading={todoIdsWithLoader.includes(tempTodo.id)}
-        />
+        <li>
+          <TodoItem
+            todo={tempTodo}
+            key={tempTodo.id}
+            isLoading={todoIdsWithLoader.includes(tempTodo.id)}
+          />
+        </li>
       )}
 
-    </section>
+    </ul>
   );
 };
