@@ -32,12 +32,23 @@ export const TodoItem: React.FC<Props> = ({
   const isCurrentEdited = editedTodo?.id === todo.id;
   const [titleInput, setTitleInput] = useState('');
   const titleInputRef = useRef<HTMLInputElement>(null);
+  const [placeholderText, setPlaceholderText] = useState('');
 
   useEffect(() => {
     if (isCurrentEdited && titleInputRef.current) {
       titleInputRef.current.focus();
     }
   }, [isCurrentEdited]);
+
+  const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setTitleInput(event.target.value);
+
+    if (!event.target.value) {
+      setPlaceholderText('Empty todo will be deleted');
+    } else {
+      setPlaceholderText('');
+    }
+  };
 
   const handleDelete = (todoId: number) => {
     deleteTodo(todoId)
@@ -144,10 +155,11 @@ export const TodoItem: React.FC<Props> = ({
             type="text"
             className="todo__title-field"
             value={titleInput}
-            onChange={(e) => setTitleInput(e.target.value)}
+            onChange={handleChange}
             onBlur={handleSubmit}
             ref={titleInputRef}
             onKeyUp={handleKeyUp}
+            placeholder={placeholderText}
           />
         </form>
       )
