@@ -5,7 +5,10 @@ import { Status } from '../types/Status';
 
 export const TodoList: React.FC = () => {
   const {
-    todos, tempTodo, filter, todoIdsWithLoader,
+    todos,
+    tempTodo,
+    filter,
+    todoIdsWithLoader,
   } = useContext(TodoContext);
 
   const filteredTodos = useMemo(() => {

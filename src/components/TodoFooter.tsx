@@ -5,7 +5,10 @@ import { TodoContext } from './TodoContext';
 
 export const TodoFooter: React.FC = () => {
   const {
-    todos, filter, setFilter, deleteTodo,
+    todos,
+    filter,
+    setFilter,
+    deleteTodo,
   } = useContext(TodoContext);
 
   const activeTodoCount = todos.filter(todo => !todo.completed).length;

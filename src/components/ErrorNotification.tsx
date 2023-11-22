@@ -8,7 +8,10 @@ import { ErrorType } from '../types/ErrorType';
 import { TodoContext } from './TodoContext';
 
 export const ErrorNotification: React.FC = () => {
-  const { error, setError } = useContext(TodoContext);
+  const {
+    error,
+    setError
+  } = useContext(TodoContext);
 
   const errorMsg = useMemo(() => {
     switch (error) {

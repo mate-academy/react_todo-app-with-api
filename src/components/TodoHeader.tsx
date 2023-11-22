@@ -13,7 +13,10 @@ import { USER_ID } from '../utils/UserId';
 export const TodoHeader: React.FC = () => {
   const [title, setTitle] = useState('');
   const {
-    todos, addTodo, updateTodo, setError,
+    todos,
+    addTodo,
+    updateTodo,
+    setError,
   } = useContext(TodoContext);
   const [isLoading, setIsLoading] = useState(false);
 

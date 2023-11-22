@@ -16,7 +16,8 @@ type Props = {
 export const TodoItem: React.FC<Props> = ({ todo, isLoading }) => {
   const { title, completed, id } = todo;
   const {
-    deleteTodo, updateTodo,
+    deleteTodo,
+    updateTodo,
   } = useContext(TodoContext);
   const [newTitle, setNewTitle] = useState(title);
   const [isEditing, setIsEditing] = useState(false);
