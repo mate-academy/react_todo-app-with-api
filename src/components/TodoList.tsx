@@ -8,7 +8,7 @@ import { FilterOption } from '../types/FilterOption';
 export const TodoList: React.FC = () => {
   const { todos, filterOption, setErrorMessage } = useContext(TodosContext);
 
-  const visibleTodo = todos.filter(todo => {
+  const visibleTodos = todos.filter(todo => {
     switch (filterOption) {
       case FilterOption.Active:
         return !todo.completed;
@@ -22,9 +22,8 @@ export const TodoList: React.FC = () => {
 
   const deleteTodo = (id: number) => {
     return todoService.deleteTodo(id)
-      .catch((error) => {
+      .catch(() => {
         setErrorMessage('Unable to delete a todo');
-        throw error;
       });
   };
 
@@ -38,11 +37,11 @@ export const TodoList: React.FC = () => {
 
   return (
     <ul className="todo-list" data-cy="todosList">
-      {visibleTodo.map((todo) => (
+      {visibleTodos.map((todo) => (
         <TodoItem
           todo={todo}
           key={todo.id}
-          updatedTodo={updatedTodo}
+          updateTodo={updatedTodo}
           deleteTodo={deleteTodo}
         />
       ))}

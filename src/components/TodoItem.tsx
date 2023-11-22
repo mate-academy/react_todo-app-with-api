@@ -1,38 +1,36 @@
 /* eslint-disable jsx-a11y/label-has-associated-control */
 import React, {
-  useContext,
-  useEffect,
-  useRef,
-  useState,
+  useContext, useEffect, useRef, useState,
 } from 'react';
 import classNames from 'classnames';
 import { Todo } from '../types/Todo';
 import { TodosContext } from './TodosContext';
 
 type Props = {
-  todo: Todo,
-  deleteTodo: (id: number) => Promise<unknown>,
-  updatedTodo: (newTodo: Todo) => Promise<unknown>,
+  todo: Todo;
+  deleteTodo: (id: number) => Promise<unknown>;
+  updateTodo: (newTodo: Todo) => Promise<Todo>;
 };
 
 export const TodoItem: React.FC<Props> = ({
-  todo,
-  deleteTodo,
-  updatedTodo,
+  todo, deleteTodo, updateTodo,
 }) => {
   const [editValue, setEditValue] = useState(todo.title);
-  const [editTodosId, setEditTodosId] = useState(0);
+  const [editingTodoId, setEditingTodoId] = useState(0);
+  const [loading, setLoading] = useState(false); // Track loading state
   const inputRef = useRef<HTMLInputElement>(null);
 
   const { todos, setTodos, USER_ID } = useContext(TodosContext);
 
   useEffect(() => {
-    if (editTodosId === todo.id) {
+    if (editingTodoId === todo.id) {
       inputRef.current?.focus();
     }
-  }, [editTodosId, todo.id]);
+  }, [editingTodoId, todo.id]);
 
   const updateTitle = (newTitle: string) => {
+    setLoading(true);
+
     const trimmedTitle = newTitle.trim();
 
     if (!trimmedTitle) {
@@ -41,7 +39,8 @@ export const TodoItem: React.FC<Props> = ({
           const newTodos = todos.filter((t) => t.id !== todo.id);
 
           setTodos(newTodos);
-          setEditTodosId(0);
+          setEditingTodoId(0);
+          setLoading(false);
         });
     } else {
       const newTodo: Todo = {
@@ -57,14 +56,17 @@ export const TodoItem: React.FC<Props> = ({
       );
 
       newTodos.splice(index, 1, newTodo);
-      updatedTodo(newTodo).then(() => {
+      updateTodo(newTodo).then(() => {
         setTodos(newTodos);
-        setEditTodosId(0);
+        setEditingTodoId(0);
+        setLoading(false);
       });
     }
   };
 
   const updatedComplete = () => {
+    setLoading(true);
+
     const newTodo: Todo = {
       id: todo.id,
       title: todo.title,
@@ -79,8 +81,9 @@ export const TodoItem: React.FC<Props> = ({
 
     newTodos.splice(index, 1, newTodo);
 
-    updatedTodo(newTodo)
-      .then(() => setTodos(newTodos));
+    updateTodo(newTodo)
+      .then(() => setTodos(newTodos))
+      .finally(() => setLoading(false));
   };
 
   const handlePressKey = (
@@ -90,12 +93,19 @@ export const TodoItem: React.FC<Props> = ({
       updateTitle(editValue.trim());
     } else if (event.key === 'Escape') {
       setEditValue(todo.title.trim());
-      setEditTodosId(0);
+      setEditingTodoId(0);
     }
   };
 
   const handleOnBlueEditValue = () => {
-    updateTitle(editValue.trim());
+    const trimmedTitle = editValue.trim();
+
+    if (trimmedTitle !== todo.title) {
+      updateTitle(trimmedTitle);
+    } else {
+      setEditValue(todo.title.trim());
+      setEditingTodoId(0);
+    }
   };
 
   const handleChangeEditValue = (
@@ -115,7 +125,7 @@ export const TodoItem: React.FC<Props> = ({
   };
 
   const handleDoubleClick = () => {
-    setEditTodosId(todo.id);
+    setEditingTodoId(todo.id);
     setEditValue(todo.title.trim());
   };
 
@@ -124,7 +134,7 @@ export const TodoItem: React.FC<Props> = ({
       data-cy="Todo"
       className={classNames('todo',
         { completed: todo.completed },
-        { editind: editTodosId === todo.id })}
+        { editind: editingTodoId === todo.id })}
       onDoubleClick={handleDoubleClick}
     >
       <label className="todo__status-label">
@@ -138,7 +148,7 @@ export const TodoItem: React.FC<Props> = ({
         />
       </label>
 
-      {editTodosId !== todo.id ? (
+      {editingTodoId !== todo.id ? (
         <>
           <label data-cy="TodoTitle" className="todo__title">
             {todo.title}
@@ -169,7 +179,12 @@ export const TodoItem: React.FC<Props> = ({
         </form>
       )}
 
-      <div data-cy="TodoLoader" className="modal overlay">
+      <div
+        data-cy="TodoLoader"
+        className={
+          classNames('modal overlay', { active: loading })
+        }
+      >
         <div className="modal-background has-background-white-ter" />
         <div className="loader" />
       </div>

@@ -31,6 +31,8 @@ export const Header = () => {
 
   const handlePressEnter = (event: React.KeyboardEvent<HTMLInputElement>) => {
     if (event.key === 'Enter') {
+      event.preventDefault(); // Prevent the default form submission
+
       if (inputValue.trim() === '') {
         setErrorMessage('Title should not be empty');
       } else {
@@ -50,19 +52,17 @@ export const Header = () => {
   const handleChangeToggle = () => {
     const completedValue = todos.some(todo => !todo.completed);
 
-    const updatedTodos = todos.map(todo => {
-      return ({
-        ...todo,
-        completed: completedValue,
-      });
-    });
+    const updatedTodos = todos.map(todo => ({
+      ...todo,
+      completed: completedValue,
+    }));
 
     setTodos(updatedTodos);
   };
 
   return (
     <header className="todoapp__header">
-      <form onSubmit={(event) => event.preventDefault()}>
+      <form>
         {todos.length > 0 && (
           <button
             type="button"
@@ -82,7 +82,7 @@ export const Header = () => {
           placeholder="What needs to be done?"
           value={inputValue}
           onChange={handleChange}
-          onKeyPress={handlePressEnter}
+          onKeyDown={handlePressEnter}
           ref={inputRef}
         />
       </form>
