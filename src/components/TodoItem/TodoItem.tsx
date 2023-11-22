@@ -68,12 +68,10 @@ export const TodoItem: React.FC<Props> = (
     >
       <label
         className="todo__status-label"
-        htmlFor={`toggle-view-${id}`}
       >
         <input
           type="checkbox"
           className="todo__status"
-          id={`toggle-view-${id}`}
           onClick={() => handleChecked(todo)}
         />
       </label>
