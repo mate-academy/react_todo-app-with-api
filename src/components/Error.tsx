@@ -7,7 +7,7 @@ export const Error: React.FC = () => {
   const { errorMessage, setErrorMessage } = useContext(TodosContext);
 
   useEffect(() => {
-    if (errorMessage !== '') {
+    if (errorMessage) {
       const timeoutId = setTimeout(() => {
         setErrorMessage('');
       }, 3000);

@@ -17,10 +17,10 @@ export const TodoItem: React.FC<Props> = ({
 }) => {
   const [editValue, setEditValue] = useState(todo.title);
   const [editingTodoId, setEditingTodoId] = useState(0);
-  const [loading, setLoading] = useState(false); // Track loading state
+  const [loading, setLoading] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
 
-  const { todos, setTodos, USER_ID } = useContext(TodosContext);
+  const { todos, setTodos, userId } = useContext(TodosContext);
 
   useEffect(() => {
     if (editingTodoId === todo.id) {
@@ -36,9 +36,8 @@ export const TodoItem: React.FC<Props> = ({
     if (!trimmedTitle) {
       deleteTodo(todo.id)
         .then(() => {
-          const newTodos = todos.filter((t) => t.id !== todo.id);
-
-          setTodos(newTodos);
+          setTodos(currentTodos => currentTodos
+            .filter((t) => t.id !== todo.id));
           setEditingTodoId(0);
           setLoading(false);
         });
@@ -46,7 +45,7 @@ export const TodoItem: React.FC<Props> = ({
       const newTodo: Todo = {
         id: todo.id,
         title: trimmedTitle,
-        userId: USER_ID,
+        userId,
         completed: todo.completed,
       };
 
@@ -57,7 +56,8 @@ export const TodoItem: React.FC<Props> = ({
 
       newTodos.splice(index, 1, newTodo);
       updateTodo(newTodo).then(() => {
-        setTodos(newTodos);
+        setTodos(currentTodos => currentTodos
+          .filter((t) => t.id !== todo.id));
         setEditingTodoId(0);
         setLoading(false);
       });
@@ -70,7 +70,7 @@ export const TodoItem: React.FC<Props> = ({
     const newTodo: Todo = {
       id: todo.id,
       title: todo.title,
-      userId: USER_ID,
+      userId,
       completed: !todo.completed,
     };
 

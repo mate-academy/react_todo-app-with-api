@@ -22,16 +22,19 @@ export const TodoList: React.FC = () => {
 
   const deleteTodo = (id: number) => {
     return todoService.deleteTodo(id)
-      .catch(() => {
+      .catch((error) => {
         setErrorMessage('Unable to delete a todo');
+
+        return error;
       });
   };
 
   const updatedTodo = (newTodo: Todo) => {
-    return todoService.updatedTodo(newTodo)
+    return todoService.updateTodo(newTodo)
       .catch((error) => {
-        setErrorMessage('Unable to update a todo');
-        throw error;
+        setErrorMessage('Unable to delete a todo');
+
+        return error;
       });
   };
 

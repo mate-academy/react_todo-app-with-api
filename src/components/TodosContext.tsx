@@ -10,7 +10,7 @@ interface TodosContextType {
   setTodos: React.Dispatch<React.SetStateAction<Todo[]>>,
   filterOption: FilterOption,
   setFilterOption: (filterOption: FilterOption) => void,
-  USER_ID: number,
+  userId: number,
   errorMessage: string,
   setErrorMessage: (errorMessage: string) => void,
 }
@@ -20,7 +20,7 @@ export const TodosContext = React.createContext<TodosContextType>({
   setTodos: () => { },
   filterOption: FilterOption.Active,
   setFilterOption: () => {},
-  USER_ID: 11945,
+  userId: 11945,
   errorMessage: '',
   setErrorMessage: () => { },
 });
@@ -48,7 +48,7 @@ export const TodosProvider: React.FC<Props> = ({ children }) => {
     setTodos,
     filterOption,
     setFilterOption,
-    USER_ID,
+    userId: USER_ID,
     errorMessage,
     setErrorMessage,
   }), [todos, filterOption, errorMessage]);

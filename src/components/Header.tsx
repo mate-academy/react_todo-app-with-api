@@ -16,7 +16,7 @@ export const Header = () => {
     todos,
     setTodos,
     setErrorMessage,
-    USER_ID,
+    userId: USER_ID,
   } = useContext(TodosContext);
 
   useEffect(() => {
@@ -29,9 +29,10 @@ export const Header = () => {
     setInputValue(event.target.value);
   };
 
-  const handlePressEnter = (event: React.KeyboardEvent<HTMLInputElement>) => {
-    if (event.key === 'Enter') {
-      event.preventDefault(); // Prevent the default form submission
+  const handlePressEnter = (event: React.FormEvent<HTMLFormElement>
+  | React.KeyboardEvent<HTMLInputElement>) => {
+    if ((event as React.KeyboardEvent<HTMLInputElement>).key === 'Enter') {
+      event.preventDefault();
 
       if (inputValue.trim() === '') {
         setErrorMessage('Title should not be empty');
@@ -62,7 +63,7 @@ export const Header = () => {
 
   return (
     <header className="todoapp__header">
-      <form>
+      <form onSubmit={handlePressEnter}>
         {todos.length > 0 && (
           <button
             type="button"
