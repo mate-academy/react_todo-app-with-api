@@ -53,9 +53,8 @@ export const TodoProvider: React.FC<Props> = ({ children }) => {
       .then(() => setTodos(
         prevTodos => prevTodos.filter(todo => todo.id !== todoId),
       ))
-      .catch((err) => {
+      .catch(() => {
         setError(ErrorType.DeleteTodoError);
-        throw err;
       })
       .finally(() => {
         setTimeout(() => {
@@ -108,10 +107,7 @@ export const TodoProvider: React.FC<Props> = ({ children }) => {
           return newTodos;
         });
       })
-      .catch((err) => {
-        setError(ErrorType.UpdateTodoError);
-        throw err;
-      })
+      .catch(() => setError(ErrorType.UpdateTodoError))
       .finally(() => {
         setTimeout(() => {
           setError(ErrorType.None);

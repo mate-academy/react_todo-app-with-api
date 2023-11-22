@@ -20,7 +20,7 @@ export const TodoHeader: React.FC = () => {
     if (inputRef.current && !isLoading) {
       inputRef.current.focus();
     }
-  }, [isLoading]);
+  }, [isLoading, todos.length]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -44,15 +44,11 @@ export const TodoHeader: React.FC = () => {
   const allActive = todos.every(todo => !todo.completed);
 
   const handleToggleAll = () => {
-    // setIsLoading(true);
-
     if (allCompleted || allActive) {
       todos.map(todo => updateTodo(({ ...todo, completed: !todo.completed })));
-      // .finally(() => setIsLoading(false)));
     } else {
       todos.filter(todo => !todo.completed)
         .map(todo => updateTodo(({ ...todo, completed: true })));
-      // .finally(() => setIsLoading(false)));
     }
   };
 
