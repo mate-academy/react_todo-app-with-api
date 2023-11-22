@@ -78,7 +78,6 @@ export const TodoItem: React.FC<Props> = ({
         completed,
       })}
       onDoubleClick={() => setIsEditStatus(true)}
-      onBlur={handleOnBlur}
     >
       <label className="todo__status-label">
         <input
@@ -103,6 +102,7 @@ export const TodoItem: React.FC<Props> = ({
             onChange={(event) => setEditInput(event.target.value)}
             onKeyUp={handleKey}
             ref={editFocus}
+            onBlur={handleOnBlur}
           />
         </form>
       ) : (
