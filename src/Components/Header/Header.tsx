@@ -38,7 +38,7 @@ export const Header: React.FC = () => {
     const newTempTodo: Todo = {
       id: 0,
       userId: USER_ID,
-      title: newTodoTitle,
+      title: newTodoTitle.trim(),
       completed: false,
     };
 

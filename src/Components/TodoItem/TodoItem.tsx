@@ -28,6 +28,7 @@ export const TodoItem: React.FC<Props> = ({
     setUpdatedId,
     updatedId,
   } = useContext(TodosContext);
+  const { id, title, completed } = todo;
   const isCurrentEdited = editedTodo?.id === todo.id;
   const [titleInput, setTitleInput] = useState('');
   const titleInputRef = useRef<HTMLInputElement>(null);
@@ -38,10 +39,10 @@ export const TodoItem: React.FC<Props> = ({
     }
   }, [isCurrentEdited]);
 
-  const handleDelete = (id: number) => {
-    deleteTodo(id)
+  const handleDelete = (todoId: number) => {
+    deleteTodo(todoId)
       .then(() => {
-        const index = todos.findIndex(item => item.id === id);
+        const index = todos.findIndex(item => item.id === todoId);
 
         setDeletionId(todos[index].id);
 
@@ -124,7 +125,7 @@ export const TodoItem: React.FC<Props> = ({
       data-cy="Todo"
       className={cn({
         todo: true,
-        completed: todo.completed,
+        completed,
       })}
     >
       <label className="todo__status-label">
@@ -157,13 +158,13 @@ export const TodoItem: React.FC<Props> = ({
               className="todo__title"
               onDoubleClick={() => handleDoubleClick(todo)}
             >
-              {todo.title}
+              {title}
             </span>
             <button
               type="button"
               className="todo__remove"
               data-cy="TodoDelete"
-              onClick={() => handleDelete(todo.id)}
+              onClick={() => handleDelete(id)}
             >
               ×
             </button>
@@ -175,7 +176,7 @@ export const TodoItem: React.FC<Props> = ({
         className={cn({
           modal: true,
           overlay: true,
-          isActive: isTemp || deletionId === todo.id || updatedId === todo.id,
+          isActive: isTemp || deletionId === id || updatedId === id,
         })}
       >
         <div className="modal-background has-background-white-ter" />
