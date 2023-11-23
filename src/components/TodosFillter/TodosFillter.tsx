@@ -10,7 +10,7 @@ type Props = {
   clearCompleted: () => void
 };
 
-export const TodosFilter: React.FC<Props> = (
+export const TodosFooter: React.FC<Props> = (
   {
     todos,
     filterBy,

@@ -1,3 +1,4 @@
+/* eslint-disable max-len */
 import React, { useEffect, useMemo, useState } from 'react';
 import cn from 'classnames';
 import { UserWarning } from './UserWarning';
@@ -11,7 +12,7 @@ import {
   updateTodo,
 } from './api/todos';
 import { Filter } from './types/Fillter';
-import { TodosFilter } from './components/TodosFillter';
+import { TodosFooter } from './components/TodosFillter';
 
 const USER_ID = 11926;
 
@@ -70,21 +71,21 @@ export const App: React.FC = () => {
 
   const handleUpdateTodo = (todo: Todo) => {
     setProcessingIds(current => [...current, todo.id]);
-    const currentTodo = todos.filter(toDo => toDo.id === todo.id)[0];
-    const indexOfTodo = todos.indexOf(currentTodo);
+
+    const indexOfTodo = todos.findIndex(toDo => toDo.id === todo.id);
 
     updateTodo(todo)
-      .then(() => setTodos(
-        currentTodos => [
-          ...currentTodos.slice(0, indexOfTodo),
-          todo,
-          ...currentTodos.slice(indexOfTodo + 1),
-        ],
-      ))
       .catch(() => {
         showError(ErrorMessage.updateError);
       })
-      .finally(() => setProcessingIds([]));
+      .finally(() => {
+        setTodos(currentTodos => [
+          ...currentTodos.slice(0, indexOfTodo),
+          todo,
+          ...currentTodos.slice(indexOfTodo + 1),
+        ]);
+        setProcessingIds([]);
+      });
   };
 
   const clearCompleted = () => {
@@ -151,9 +152,7 @@ export const App: React.FC = () => {
   useEffect(() => {
     getTodos(USER_ID)
       .then(data => {
-        const todosData = data as Todo[];
-
-        setTodos(todosData);
+        setTodos(data as Todo[]);
       })
       .catch(() => {
         showError(ErrorMessage.loadError);
@@ -207,7 +206,7 @@ export const App: React.FC = () => {
 
         {
           todos.length > 0 && (
-            <TodosFilter
+            <TodosFooter
               todos={todos}
               filterBy={filterBy}
               setFilterBy={setFilterBy}
