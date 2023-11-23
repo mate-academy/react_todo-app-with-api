@@ -17,6 +17,7 @@ export const App: React.FC = () => {
   const [errorMessage, setErrorMessage] = useState('');
   const [filter, setFilter] = useState<Filter>(Filter.All);
   const [isDisable, setIsDisable] = useState(false);
+  const [updatingTodo, setUpdatingTodo] = useState<Todo | undefined>(undefined);
 
   useEffect(() => {
     todoService.getTodos(USER_ID)
@@ -70,6 +71,32 @@ export const App: React.FC = () => {
       });
   };
 
+  const updateTodo = (updatedTodo: Todo) => {
+    setUpdatingTodo(todos.find(todo => todo.id === updatedTodo.id));
+
+    todoService.updateTodo(updatedTodo)
+      .then((newTodo) => {
+        setTodos(currentTodos => {
+          const newTodos = [...currentTodos];
+          const index = newTodos.findIndex(todo => todo.id === updatedTodo.id);
+
+          newTodos.splice(index, 1, newTodo);
+
+          return newTodos;
+        });
+      })
+      .catch((error) => {
+        setErrorMessage(Error.Update);
+        setTimeout(() => {
+          setErrorMessage('');
+        }, 3000);
+        throw error;
+      })
+      .finally(() => {
+        setUpdatingTodo(undefined);
+      });
+  };
+
   const filterTodos = (query: string) => {
     switch (query) {
       case Filter.Active:
@@ -92,6 +119,7 @@ export const App: React.FC = () => {
 
       <div className="todoapp__content">
         <Header
+          todos={todos}
           title={title}
           setTitle={setTitle}
           addTodo={addTodo}
@@ -103,6 +131,8 @@ export const App: React.FC = () => {
           todos={visibleTodos}
           tempTodo={tempTodo}
           onDelete={deleteTodo}
+          updateTodo={updateTodo}
+          updatingTodo={updatingTodo}
         />
 
         {todos.length > 0 && (

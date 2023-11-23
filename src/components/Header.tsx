@@ -1,8 +1,11 @@
 import { useEffect, useRef } from 'react';
+import cn from 'classnames';
 import { Error } from '../types/Error';
+import { Todo } from '../types/Todo';
 
 /* eslint-disable jsx-a11y/control-has-associated-label */
 interface Props {
+  todos: Todo[],
   title: string,
   isDisable: boolean,
   setTitle: (value: string) => void,
@@ -11,6 +14,7 @@ interface Props {
 }
 
 export const Header: React.FC<Props> = ({
+  todos,
   title,
   isDisable,
   setTitle,
@@ -18,12 +22,17 @@ export const Header: React.FC<Props> = ({
   addTodo,
 }) => {
   const field = useRef<HTMLInputElement>(null);
+  const isToggleAll = todos.every(todo => todo.completed)
 
   useEffect(() => {
     if (field.current) {
       field.current.focus();
     }
   }, [isDisable]);
+
+  const toggleAll = () => {
+
+  }
 
   const handleSubmitTodo = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -45,8 +54,11 @@ export const Header: React.FC<Props> = ({
     <header className="todoapp__header">
       <button
         type="button"
-        className="todoapp__toggle-all active"
+        className={cn('todoapp__toggle-all', {
+          'active': isToggleAll,
+        })}
         data-cy="ToggleAllButton"
+        onClick={toggleAll}
       />
 
       <form

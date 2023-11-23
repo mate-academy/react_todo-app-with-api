@@ -5,16 +5,19 @@ import { Todo } from '../types/Todo';
 interface Props {
   todo: Todo,
   onDelete: (id: number) => void,
+  updateTodo: (todo: Todo) => void,
+  updatingTodo: Todo | undefined,
 }
 
 export const TodoItem: React.FC<Props> = ({
-  todo: {
-    id,
-    title,
-    completed,
-  },
+  todo,
   onDelete,
+  updateTodo,
+  updatingTodo,
 }) => {
+  const { id, title, completed } = todo;
+  const isLoading = todo.id === 0 || updatingTodo?.id === todo.id;
+
   return (
     <div
       data-cy="Todo"
@@ -25,6 +28,7 @@ export const TodoItem: React.FC<Props> = ({
           data-cy="TodoStatus"
           type="checkbox"
           className="todo__status"
+          onChange={() => updateTodo({ ...todo, completed: !completed })}
           checked={completed}
         />
       </label>
@@ -44,7 +48,7 @@ export const TodoItem: React.FC<Props> = ({
 
       <div
         data-cy="TodoLoader"
-        className={cn('modal overlay', { 'is-active': id === 0 })}
+        className={cn('modal overlay', { 'is-active': isLoading })}
       >
         <div className="modal-background has-background-white-ter" />
         <div className="loader" />
