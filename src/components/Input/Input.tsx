@@ -35,7 +35,7 @@ export const Input: React.FC<Props> = ({
         type="button"
         className={cn('todoapp__toggle-all', { active: activeTodo })}
         data-cy="ToggleAllButton"
-        onClick={() => switchStatusAll()}
+        onClick={switchStatusAll}
       />
 
       {/* Add a todo on form submit */}

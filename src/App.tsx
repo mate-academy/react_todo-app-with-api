@@ -4,9 +4,16 @@ import { Todo } from './types/Todo';
 import { Input } from './components/Input/Input';
 import { TodoList } from './components/TodoList/TodoList';
 import { ErrorField } from './components/ErrorField/ErrorField';
-import { getTodos, createTodo, deleteTodos, updateTodos } from './api/todos';
+import {
+  getTodos, createTodo, deleteTodos, updateTodos,
+} from './api/todos';
 
 const USER_ID = 11893;
+
+enum Filter {
+  Active = 'Active',
+  Completed = 'Completed',
+}
 
 export const App: React.FC = () => {
   const [todos, setTodos] = useState<Todo[]>([]);
@@ -20,10 +27,10 @@ export const App: React.FC = () => {
     let filteredList = todos;
 
     switch (filter) {
-      case 'Active':
+      case Filter.Active:
         filteredList = todos.filter(todo => !todo.completed);
         break;
-      case 'Completed':
+      case Filter.Completed:
         filteredList = todos.filter(todo => todo.completed);
         break;
       default:
@@ -85,22 +92,22 @@ export const App: React.FC = () => {
   // toggle todo completion
   const switchTodoStatus = (todo: Todo) => {
     setUpdateOverlay(todo.id);
-    const changedTodo = {...todo, completed: !todo.completed};
+    const changedTodo = { ...todo, completed: !todo.completed };
 
-      updateTodos(changedTodo)
+    updateTodos(changedTodo)
       .then(() => setTodos((currentTodos) => currentTodos
-        .map(todo => {
-          if (todo.id === changedTodo.id) {
+        .map(mapTodo => {
+          if (mapTodo.id === changedTodo.id) {
             return changedTodo;
           }
 
-          return todo;
+          return mapTodo;
         })))
       .catch(() => {
         displayError('Unable to update a todo');
       })
       .finally(() => setUpdateOverlay(0));
-  }
+  };
 
   // toggle all todos completion
   const switchStatusAll = () => {
@@ -108,7 +115,7 @@ export const App: React.FC = () => {
       todos.forEach((todo) => switchTodoStatus(todo));
     } else {
       todos
-        .filter((todo) => todo.completed === false)
+        .filter((todo) => !todo.completed)
         .forEach((todo) => switchTodoStatus(todo));
     }
   };
@@ -117,19 +124,17 @@ export const App: React.FC = () => {
   const changeTitle = (todo: Todo, editedTitle: string) => {
     setUpdateOverlay(todo.id);
 
-    const changedTodo = {...todo, title: editedTitle};
+    const changedTodo = { ...todo, title: editedTitle };
 
-      updateTodos(changedTodo)
-      .then((updatedTodo) =>
-      setTodos((currentTodos) => currentTodos
-        .map(todo => {
-          if (todo.id === updatedTodo.id) {
+    updateTodos(changedTodo)
+      .then((updatedTodo) => setTodos((currentTodos) => currentTodos
+        .map(mappedTodo => {
+          if (mappedTodo.id === updatedTodo.id) {
             return updatedTodo;
           }
 
-          return todo;
-        }))
-        )
+          return mappedTodo;
+        })))
       .catch(() => {
         displayError('Unable to update a todo');
       })
