@@ -89,14 +89,8 @@ export const TodoItem: React.FC<Props> = ({ todo, loading = false }) => {
   };
 
   const editBlurHandler = () => {
-    if (newTodoTitle === '') {
+    if (newTodoTitle.trim() === '') {
       deleteButtonClickHandler();
-
-      return;
-    }
-
-    if (newTodoTitle === todo.title) {
-      setIsUpdating(false);
 
       return;
     }
@@ -163,7 +157,7 @@ export const TodoItem: React.FC<Props> = ({ todo, loading = false }) => {
               placeholder="Empty todo will be deleted"
               value={newTodoTitle}
               onChange={(event) => setNewTodoTitle(event.target.value)}
-              onKeyUp={editKeyDownHandler}
+              onKeyDown={editKeyDownHandler}
               onBlur={editBlurHandler}
             />
           </form>
