@@ -103,6 +103,8 @@
 
 .item-enter {
   max-height: 0;
+  opacity: 0;
+  transform: translateY(-20px);
 }
 
 .item-enter-active {
@@ -113,6 +115,8 @@
 
 .item-exit {
   max-height: 58px;
+  opacity: 1;
+  transform: translateY(0);
 }
 
 .item-exit-active {
@@ -146,4 +150,8 @@
 .has-error .temp-item-exit-active {
   transform: translateY(0);
   overflow: hidden;
+}
+
+.hidden {
+  display: none;
 }
