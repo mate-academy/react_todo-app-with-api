@@ -1,87 +1,132 @@
-import React, { useEffect, useState } from 'react';
+/* eslint-disable jsx-a11y/control-has-associated-label */
+import React, { useState, useEffect } from 'react';
 import { UserWarning } from './UserWarning';
-import { getTodos, updateTodo } from './api/todos';
-import { Header } from './Components/Header/Header';
+import { Form } from './Components/Form';
 import { Todo } from './types/Todo';
-import { FilterBy } from './types/FilterBy';
-import { TodoList } from './Components/TodoList/TodoList';
-import { Footer } from './Components/Footer/Footer';
+import { TodoList } from './Components/TodoList';
+import { Footer } from './Components/Footer';
+import { Status } from './types/Status';
+import { getTodos, updateTodo, deleteTodo } from './api/todos';
 
-const USER_ID = 11856;
+const USER_ID = 11948;
 
 export const App: React.FC = () => {
   const [todos, setTodos] = useState<Todo[]>([]);
-  const [filteredBy, setFilteredBy] = useState(FilterBy.all);
-  const [toggleAll, setToggleAll] = useState<boolean>(false);
-  const numberOfNotCompleted = todos.filter(item => !item.completed).length;
-  const [errorMessage, setErrorMessage] = useState('');
+  const [filtredByStatus, setFiltredByStatus] = useState<Status>(Status.all);
+  const [errorNotification, setErrorNotification] = useState<string | null>(
+    null,
+  );
+  const [errorVisible, setErrorVisible] = useState(false);
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
-  const [focusedInput, setFocusedInput] = useState(false);
+  const [procesingTodoIds, setProcesingTodoIds] = useState<number[]>([]);
 
-  const filteredTodos
-    = (filteredBy === FilterBy.all) ? todos : todos.filter((todo) => {
-      switch (filteredBy) {
-        case FilterBy.active:
-          return !todo.completed;
-        case FilterBy.completed:
-          return todo.completed;
-        default:
-          return true;
-      }
-    });
+  const showErrorNotification = (message: string) => {
+    setErrorNotification(message);
+    setErrorVisible(true);
 
-  useEffect(() => {
-    getTodos(USER_ID)
-      .then(setTodos)
-      .catch(() => setErrorMessage('Unable to load todos'));
-  }, []);
-
-  useEffect(() => {
-    setToggleAll(!numberOfNotCompleted && !!todos.length);
-  }, [numberOfNotCompleted, todos.length]);
-
-  const handleToggleAll = () => {
-    const targetStatus = !toggleAll;
-    const todosToBeUpdated
-      = todos.filter(todo => todo.completed !== targetStatus);
-
-    const updatePromises = todosToBeUpdated.map(todo => {
-      return updateTodo({
-        ...todo,
-        completed: targetStatus,
-      })
-        .then(updated => updated)
-        .catch(error => {
-          setErrorMessage('Unable to update a todo');
-          throw error;
-        });
-    });
-
-    Promise.all(updatePromises)
-      .then(updatedTodosList => {
-        const newTodos = todos.map(todo => {
-          const updatedTodo = updatedTodosList.find(ut => ut.id === todo.id);
-
-          return updatedTodo || todo;
-        });
-
-        setTodos(newTodos);
-      });
+    setTimeout(() => {
+      setErrorVisible(false);
+      setErrorNotification(null);
+    }, 3000);
   };
 
   useEffect(() => {
-    if (errorMessage) {
-      const timeoutId = setTimeout(() => {
-        setErrorMessage('');
-      }, 3000);
+    getTodos(USER_ID)
+      .then((data) => {
+        setTodos(data);
+      })
+      .catch(() => {
+        showErrorNotification('Unable to load todos');
+      });
+  }, []);
 
-      return () => {
-        clearTimeout(timeoutId);
-      };
+  const addNewTodo = (newTodo: Todo) => {
+    setTodos([...todos, newTodo]);
+  };
+
+  const handleUpdate = (updatedtodo: Todo) => {
+    setProcesingTodoIds(prev => [...prev, updatedtodo.id]);
+
+    updateTodo(updatedtodo)
+      .then((todoFromserver) => {
+        setTodos((corentTodos) => {
+          const newTodos = [...corentTodos];
+          const index = newTodos.findIndex(
+            (todo) => todo.id === updatedtodo.id,
+          );
+
+          newTodos.splice(index, 1, todoFromserver);
+
+          return newTodos;
+        });
+      })
+      .catch(() => {
+        showErrorNotification('Unable to update a todo');
+      })
+      .finally(() => {
+        setProcesingTodoIds(prev => prev
+          .filter(id => id !== updatedtodo.id));
+      });
+  };
+
+  const togleCheck = (todo: Todo) => {
+    const chekedtodo = { ...todo, completed: !todo.completed };
+
+    handleUpdate(chekedtodo);
+  };
+
+  const isAllCompleted = todos.every((todo) => todo.completed); //
+
+  const toggleAll = () => {
+    const todosToUpdate = todos.filter((todo) => (isAllCompleted
+      ? todo.completed
+      : !todo.completed));
+
+    const updatePromises = todosToUpdate.map((todo) => (
+      handleUpdate({
+        ...todo,
+        completed: !isAllCompleted,
+      })));
+
+    return Promise.all(updatePromises);
+  };
+
+  //
+
+  const toDelete = (id: number) => {
+    const afterDeleteTodo = todos.filter((todo) => todo.id !== id);
+
+    setTodos(afterDeleteTodo);
+  };
+
+  const handleDeletedTodo = (id: number) => {
+    setProcesingTodoIds((prev) => [...prev, id]);
+
+    deleteTodo(id)
+      .then(() => {
+        toDelete(id);
+      })
+      .catch(() => {
+        showErrorNotification('Unable to delete a todo');
+      })
+      .finally(() => {
+        setProcesingTodoIds((prev) => prev
+          .filter((processingId) => processingId !== id));
+      });
+  };
+  //
+
+  const filtredTodo = todos.filter((todo) => {
+    switch (filtredByStatus) {
+      case Status.active:
+        return !todo.completed;
+      case Status.completed:
+        return todo.completed;
+      default:
+        return true;
     }
+  });
 
-    return () => { };
-  }, [errorMessage]);
   if (!USER_ID) {
     return <UserWarning />;
   }
@@ -91,38 +136,46 @@ export const App: React.FC = () => {
       <h1 className="todoapp__title">todos</h1>
 
       <div className="todoapp__content">
-        <Header
-          todos={todos}
-          setTodos={setTodos}
-          USER_ID={USER_ID}
-          toggleAll={toggleAll}
-          handleToggleAll={handleToggleAll}
-          setErrorMessage={setErrorMessage}
-          tempTodo={tempTodo}
-          setTempTodo={setTempTodo}
-          focusedInput={focusedInput}
-        />
+        <header className="todoapp__header">
+          {todos.length > 0 && (
+            <button
+              type="button"
+              className={
+                isAllCompleted
+                  ? 'todoapp__toggle-all active'
+                  : 'todoapp__toggle-all'
+              }
+              data-cy="ToggleAllButton"
+              onClick={toggleAll}
+            />
+          )}
+          <Form
+            USER_ID={USER_ID}
+            addNewTodo={addNewTodo}
+            showErrorNotification={showErrorNotification}
+            setTempTodo={setTempTodo}
+            todos={filtredTodo}
+          />
+        </header>
 
-        {!!todos.length && (
+        {todos.length > 0 && (
           <>
             <TodoList
-              filteredTodos={filteredTodos}
+              handleDeletedTodo={handleDeletedTodo} //
+              todos={filtredTodo}
+              togleCheck={togleCheck}
               tempTodo={tempTodo}
-              setFocusedInput={setFocusedInput}
-              todos={todos}
-              setTodos={setTodos}
-              setErrorMessage={setErrorMessage}
-              USER_ID={USER_ID}
+              handleUpdate={handleUpdate}
+              processingTodosIds={procesingTodoIds}
             />
 
             <Footer
-              numberOfNotCompleted={numberOfNotCompleted}
-              filteredBy={filteredBy}
-              setFilteredBy={setFilteredBy}
-              todos={todos}
               setTodos={setTodos}
-              setErrorMessage={setErrorMessage}
-              setFocusedInput={setFocusedInput}
+              todos={todos}
+              setFiltredByStatus={setFiltredByStatus}
+              filtredByStatus={filtredByStatus}
+              showErrorNotification={showErrorNotification}
+              setProcesingTodoIds={setProcesingTodoIds}
             />
           </>
         )}
@@ -130,17 +183,17 @@ export const App: React.FC = () => {
 
       <div
         data-cy="ErrorNotification"
-        className={`notification is-danger is-light has-text-weight-normal ${!errorMessage && 'hidden'}`}
+        className={`notification is-danger is-light has-text-weight-normal ${
+          errorVisible ? '' : 'hidden'
+        }`}
       >
         <button
           data-cy="HideErrorButton"
           type="button"
-          aria-label="button"
           className="delete"
-          onClick={() => setErrorMessage('')}
-
+          onClick={() => setErrorVisible(false)}
         />
-        {errorMessage}
+        {errorNotification}
       </div>
     </div>
   );
