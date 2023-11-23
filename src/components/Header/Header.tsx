@@ -20,7 +20,7 @@ export const Header: React.FC = () => {
     setProcessingTodos,
     setTempTodo,
   } = useContext(TodosContext);
-  const [inputValue, setInputValue] = useState<string>('');
+  const [inputValue, setInputValue] = useState('');
   const [isDisabled, setIsDisabled] = useState(false);
 
   const inputField = useRef<HTMLInputElement>(null);

@@ -28,13 +28,7 @@ export const Footer: React.FC = () => {
 
     Promise.all(deletePromises)
       .then(() => {
-        const newTodos = [...todos];
-
-        for (let i = 0; i < completedTodos.length; i += 1) {
-          newTodos.splice(newTodos.indexOf(completedTodos[i]), 1);
-        }
-
-        setTodos(newTodos);
+        setTodos([...todos].filter((todo) => !completedTodos.includes(todo)));
       })
       .catch(() => {
         setError({ message: 'Failed delete completed todos', isError: true });
