@@ -63,38 +63,19 @@ export const TodoFooter: React.FC<Props> = ({
         className="filter"
         data-cy="Filter"
       >
-        <a
-          href="#/"
-          className={cn(
-            'filter__link', { selected: filter === Filter.All },
-          )}
-          data-cy="FilterLinkAll"
-          onClick={() => setFilter(Filter.All)}
-        >
-          All
-        </a>
-
-        <a
-          href="#/active"
-          className={cn(
-            'filter__link', { selected: filter === Filter.Active },
-          )}
-          data-cy="FilterLinkActive"
-          onClick={() => setFilter(Filter.Active)}
-        >
-          Active
-        </a>
-
-        <a
-          href="#/completed"
-          className={cn(
-            'filter__link', { selected: filter === Filter.Completed },
-          )}
-          data-cy="FilterLinkCompleted"
-          onClick={() => setFilter(Filter.Completed)}
-        >
-          Completed
-        </a>
+        {Object.values(Filter).map((value) => (
+          <a
+            key={value}
+            href={`#/${value.toLowerCase()}`}
+            className={cn(
+              'filter__link', { selected: filter === value },
+            )}
+            data-cy={`FilterLink${value}`}
+            onClick={() => setFilter(value)}
+          >
+            {value}
+          </a>
+        ))}
       </nav>
 
       <button

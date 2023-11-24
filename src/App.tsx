@@ -147,7 +147,7 @@ export const App: React.FC = () => {
                 setIsLoading={setIsLoading}
                 setTodosError={setTodosError}
                 onTodoUpdate={handleUpdate}
-                isNew={(todo.id === newTodoLoad) && true}
+                isNew={todo.id === newTodoLoad}
                 isDeleting={(todo.completed && processDelete) && true}
                 processingTodoId={processingTodoId}
                 setUpdatedTodos={setUpdatedTodos}

@@ -49,10 +49,11 @@ export const TodoHeader: React.FC<Props> = ({
     }
 
     setIsLoading(true);
+
     let id;
 
-    if (todos.length === 0) {
-      id = 1;
+    if (!todos.length) {
+      id = 4;
     } else {
       id = todos[todos.length - 1].id + 1;
     }
