@@ -9,15 +9,24 @@ body {
 }
 
 .notification {
-  transition-property: opacity, min-height;
-  transition-duration: 1s;
-  min-height: 36px;
-}
+  &-enter {
+    opacity: 0;
+  }
 
-.notification.hidden {
-  min-height: 0;
-  opacity: 0;
-  pointer-events: none;
+  &-enter-active {
+    opacity: 1;
+    transition: opacity 300ms ease-in;
+  }
+
+  &-exit {
+    opacity: 1;
+    transition: opacity 300ms ease-in;
+  }
+
+  &-exit-active {
+    opacity: 0;
+    transition: opacity 300ms ease-in;
+  }
 }
 
 @import "./todoapp";

@@ -23,7 +23,7 @@ export const TodoHeader: React.FC = () => {
   const hasActiveTodos = todos.some(todo => !todo.completed);
 
   useEffect(() => {
-    if (inputValue === '' && !isSubmitting) {
+    if (!inputValue && !isSubmitting) {
       inputRef.current?.focus();
     }
   }, [inputValue, isSubmitting]);

@@ -2,6 +2,7 @@ import {
   useEffect,
 } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
+import { CSSTransition } from 'react-transition-group';
 import { ErrorType } from '../../types/ErrorType';
 import { AppDispatch, RootState } from '../../redux/store';
 import { clearErrorType, hideError } from '../../redux/todoSlice';
@@ -25,28 +26,20 @@ export const ErrorNotification: React.FC = () => {
     dispatch(clearErrorType());
   };
 
-  const getErrorMessage = () => {
-    switch (errorType) {
-      case ErrorType.LoadError:
-        return 'Unable to load todos';
-      case ErrorType.EmptyTitle:
-        return 'Title should not be empty';
-      case ErrorType.AddTodoError:
-        return 'Unable to add a todo';
-      case ErrorType.DeleteTodoError:
-        return 'Unable to delete a todo';
-      case ErrorType.UpdateTodoError:
-        return 'Unable to update a todo';
-      default:
-        return null;
-    }
+  const getErrorMessage = (error: ErrorType | null): string | null => {
+    return error;
   };
 
   return (
-    isErrorVisible ? (
+    <CSSTransition
+      in={isErrorVisible}
+      timeout={300}
+      classNames="notification"
+      unmountOnExit
+    >
       <div
         data-cy="ErrorNotification"
-        className="notification is-danger is-light has-text-weight-normal"
+        className={`notification is-danger is-light has-text-weight-normal ${!isErrorVisible ? 'hidden' : ''}`}
       >
         <button
           data-cy="HideErrorButton"
@@ -55,9 +48,9 @@ export const ErrorNotification: React.FC = () => {
           aria-label="Hide error"
           onClick={handleHideError}
         />
-        {getErrorMessage()}
+        {getErrorMessage(errorType)}
         <br />
       </div>
-    ) : null
+    </CSSTransition>
   );
 };
