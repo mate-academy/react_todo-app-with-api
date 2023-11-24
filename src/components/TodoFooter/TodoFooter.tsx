@@ -8,7 +8,6 @@ import { TodoFilter } from '../../types/TodoFilter';
 import { deleteAllCompletedTodos } from '../../redux/todoThunks';
 import { USER_ID } from '../../_utils/constants';
 import { setFilter } from '../../redux/todoSlice';
-import '../../styles/footer.scss';
 
 export const TodoFooter: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>();
