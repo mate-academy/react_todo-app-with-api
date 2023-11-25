@@ -22,7 +22,6 @@ export const App: React.FC = () => {
   const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    // Функция для загрузки данных с сервера
     if (inputRef.current) {
       inputRef.current.focus();
     }
@@ -48,9 +47,8 @@ export const App: React.FC = () => {
       }
     };
 
-    // Вызываем функцию загрузки при открытии страницы (монтировании компонента)
     fetchTodos();
-  }, []); // Пустой массив зависимостей гарантирует, что useEffect сработает только при монтировании
+  }, []);
 
   if (!USER_ID) {
     return <UserWarning />;
@@ -69,7 +67,7 @@ export const App: React.FC = () => {
     setTempTodo(obj);
 
     try {
-      if (inputValue.trim().length === 0) {
+      if (!inputValue.trim()) {
         throw new Error(EnumErrors.EMPTY);
       }
 
@@ -170,7 +168,6 @@ export const App: React.FC = () => {
 
       <div className="todoapp__content">
         <header className="todoapp__header">
-          {/* this buttons is active only if there are some active todos + */}
           <button
             type="button"
             className={classNames('todoapp__toggle-all',
@@ -179,7 +176,6 @@ export const App: React.FC = () => {
             onClick={() => handleInputChange()}
           />
 
-          {/* Add a todo on form submit + */}
           <form onSubmit={handleSubmit}>
             <input
               ref={inputRef}
@@ -204,7 +200,6 @@ export const App: React.FC = () => {
           setTypeError={setTypeError}
         />
 
-        {/* Hide the footer if there are no todos + */}
         {todos.length !== 0 && (
           <TodosFooter
             todos={todos}
@@ -217,9 +212,6 @@ export const App: React.FC = () => {
           />
         )}
       </div>
-
-      {/* Notification is shown in case of any error */}
-      {/* Add the 'hidden' class to hide the message smoothly */}
 
       {isError && (
         <div
