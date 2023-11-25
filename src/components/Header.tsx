@@ -11,6 +11,7 @@ interface Props {
   setTitle: (value: string) => void,
   setErrorMessage: (message: Error | '') => void,
   addTodo: (v: string) => void,
+  updateTodo: (todo: Todo) => void,
 }
 
 export const Header: React.FC<Props> = ({
@@ -20,19 +21,24 @@ export const Header: React.FC<Props> = ({
   setTitle,
   setErrorMessage,
   addTodo,
+  updateTodo,
 }) => {
-  const field = useRef<HTMLInputElement>(null);
-  const isToggleAll = todos.every(todo => todo.completed)
+  const field = useRef<HTMLInputElement | null>(null);
+  const isToggleAll = todos.every(todo => todo.completed);
 
   useEffect(() => {
     if (field.current) {
       field.current.focus();
     }
-  }, [isDisable]);
+  }, [isDisable, todos.length]);
 
   const toggleAll = () => {
-
-  }
+    // eslint-disable-next-line @typescript-eslint/no-unused-expressions
+    isToggleAll
+      ? todos.forEach(todo => updateTodo({ ...todo, completed: false }))
+      : todos.forEach(todo => !todo.completed
+          && updateTodo({ ...todo, completed: true }));
+  };
 
   const handleSubmitTodo = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -52,14 +58,17 @@ export const Header: React.FC<Props> = ({
 
   return (
     <header className="todoapp__header">
-      <button
-        type="button"
-        className={cn('todoapp__toggle-all', {
-          'active': isToggleAll,
-        })}
-        data-cy="ToggleAllButton"
-        onClick={toggleAll}
-      />
+      {todos.length > 0 && (
+        <button
+          type="button"
+          className={cn('todoapp__toggle-all', {
+            active: isToggleAll,
+          })}
+          data-cy="ToggleAllButton"
+          aria-label="ToggleAll"
+          onClick={toggleAll}
+        />
+      )}
 
       <form
         onSubmit={handleSubmitTodo}

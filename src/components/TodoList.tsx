@@ -5,17 +5,19 @@ import { TodoItem } from './TodoItem';
 interface Props {
   todos: Todo[],
   tempTodo: Todo | null,
-  onDelete: (id: number) => void,
+  deleteTodo: (id: number) => void,
   updateTodo: (todo: Todo) => void,
   updatingTodo: Todo | undefined,
+  deletingTodo: Todo | undefined,
 }
 
 export const TodoList: React.FC<Props> = React.memo(({
   todos,
   tempTodo,
-  onDelete,
+  deleteTodo,
   updateTodo,
   updatingTodo,
+  deletingTodo,
 }) => {
   return (
     <section className="todoapp__main" data-cy="TodoList">
@@ -24,9 +26,10 @@ export const TodoList: React.FC<Props> = React.memo(({
         <TodoItem
           key={todo.id}
           todo={todo}
-          onDelete={onDelete}
+          deleteTodo={deleteTodo}
           updateTodo={updateTodo}
           updatingTodo={updatingTodo}
+          deletingTodo={deletingTodo}
         />
       ))}
 
@@ -34,9 +37,10 @@ export const TodoList: React.FC<Props> = React.memo(({
         <TodoItem
           key={tempTodo.id}
           todo={tempTodo}
-          onDelete={onDelete}
+          deleteTodo={deleteTodo}
           updateTodo={updateTodo}
           updatingTodo={updatingTodo}
+          deletingTodo={deletingTodo}
         />
       )}
     </section>

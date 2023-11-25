@@ -18,11 +18,17 @@ export const App: React.FC = () => {
   const [filter, setFilter] = useState<Filter>(Filter.All);
   const [isDisable, setIsDisable] = useState(false);
   const [updatingTodo, setUpdatingTodo] = useState<Todo | undefined>(undefined);
+  const [deletingTodo, setDeletingTodo] = useState<Todo | undefined>(undefined);
 
   useEffect(() => {
     todoService.getTodos(USER_ID)
       .then(setTodos)
-      .catch(() => setErrorMessage(Error.LoadTodos));
+      .catch(() => {
+        setErrorMessage(Error.LoadTodos);
+        setTimeout(() => {
+          setErrorMessage('');
+        }, 3000);
+      });
   }, []);
 
   // eslint-disable-next-line @typescript-eslint/no-shadow
@@ -33,7 +39,6 @@ export const App: React.FC = () => {
       completed: false,
     };
 
-    setErrorMessage('');
     setIsDisable(true);
     setTempTodo({ id: 0, ...newTodo });
 
@@ -56,18 +61,23 @@ export const App: React.FC = () => {
   };
 
   const deleteTodo = (todoId: number) => {
-    setTodos(currentTodos => currentTodos.filter(todo => todo.id !== todoId));
+    setDeletingTodo(todos.find(todo => todo.id === todoId));
 
     todoService.deleteTodo(todoId)
       .then(() => {
-
+        setTodos(currentTodos => (
+          currentTodos.filter(todo => todo.id !== todoId)
+        ));
       })
-      .catch(() => {
-        setTodos(todos);
+      .catch((error) => {
         setErrorMessage(Error.Delete);
         setTimeout(() => {
           setErrorMessage('');
         }, 3000);
+        throw error;
+      })
+      .finally(() => {
+        setDeletingTodo(undefined);
       });
   };
 
@@ -97,7 +107,7 @@ export const App: React.FC = () => {
       });
   };
 
-  const filterTodos = (query: string) => {
+  const filterTodos = (query: Filter) => {
     switch (query) {
       case Filter.Active:
         return todos.filter(todo => !todo.completed);
@@ -123,26 +133,30 @@ export const App: React.FC = () => {
           title={title}
           setTitle={setTitle}
           addTodo={addTodo}
+          updateTodo={updateTodo}
           isDisable={isDisable}
           setErrorMessage={setErrorMessage}
         />
 
-        <TodoList
-          todos={visibleTodos}
-          tempTodo={tempTodo}
-          onDelete={deleteTodo}
-          updateTodo={updateTodo}
-          updatingTodo={updatingTodo}
-        />
-
         {todos.length > 0 && (
-          <Footer
-            todos={todos}
-            setTodos={setTodos}
-            filter={filter}
-            setFilter={setFilter}
-            deleteTodo={deleteTodo}
-          />
+          <>
+            <TodoList
+              todos={visibleTodos}
+              tempTodo={tempTodo}
+              deleteTodo={deleteTodo}
+              updateTodo={updateTodo}
+              updatingTodo={updatingTodo}
+              deletingTodo={deletingTodo}
+            />
+
+            <Footer
+              todos={todos}
+              // setTodos={setTodos}
+              filter={filter}
+              setFilter={setFilter}
+              deleteTodo={deleteTodo}
+            />
+          </>
         )}
       </div>
 
