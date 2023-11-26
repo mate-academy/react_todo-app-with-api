@@ -38,9 +38,9 @@ export const Footer: React.FC<Props> = ({
         deleteTodo(todo.id)
           .then(() => {
             setTodos((prevtodos:Todo[]) => prevtodos.filter((todoo: Todo) => todoo.id !== todo.id));
-            if (titleField.current) {
-              titleField.current.focus();
-            }
+            
+              titleField?.current?.focus();
+            
           })
           .catch(() => setError(Errors.unableDelete))
           .finally(() => setcleared(false));
@@ -48,12 +48,18 @@ export const Footer: React.FC<Props> = ({
     });
   };
 
+  
+
+  
   return (
     <footer className="todoapp__footer" data-cy="Footer">
       <span className="todo-count" data-cy="TodosCounter">
         {`${incompletedAmount} items left`}
       </span>
 
+      
+      
+      
       <nav className="filter" data-cy="Filter">
         <a
           onClick={() => clickHandler(Filter.all)}
