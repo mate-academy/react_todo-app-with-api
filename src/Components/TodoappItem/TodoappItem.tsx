@@ -5,7 +5,7 @@ import { Todo } from '../../types/Todo';
 
 type Props = {
   todo: Todo;
-  onDelete: (id: number) => void;
+  onDelete?: (id: number) => void;
   isLoading: boolean;
   setTodosError: (error: string) => void;
   onTodoUpdate: (todo: Todo) => Promise<void>
@@ -19,7 +19,7 @@ export const TodoappItem: React.FC<Props> = ({
   onTodoUpdate,
 }) => {
   const [isEditing, setIsEditing] = useState(false);
-  const [newTitle, setnewTitle] = useState(todo.title);
+  const [newTitle, setNewTitle] = useState(todo.title);
 
   const newTitleField = useRef<HTMLInputElement | null>(null);
 
@@ -31,22 +31,20 @@ export const TodoappItem: React.FC<Props> = ({
 
   const handleDeleteClick = async () => {
     try {
-      await onDelete(todo.id);
+      if (onDelete) {
+        await onDelete(todo.id);
+      }
     } catch (error) {
       setTodosError('Unable to delete a todo');
     }
   };
 
-  const handleToggle = () => {
+  const handleToggleStatus = () => {
     onTodoUpdate?.({
       ...todo,
       completed: !todo.completed,
     });
   };
-
-  // useEffect(() => {
-  //   newTitleField.focus();
-  // });
 
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
@@ -87,7 +85,7 @@ export const TodoappItem: React.FC<Props> = ({
           type="checkbox"
           className="todo__status"
           checked={todo.completed}
-          onChange={handleToggle}
+          onChange={handleToggleStatus}
         />
       </label>
 
@@ -116,12 +114,12 @@ export const TodoappItem: React.FC<Props> = ({
             ref={newTitleField}
             value={newTitle}
             onChange={(event) => {
-              setnewTitle(event.target.value);
+              setNewTitle(event.target.value);
             }}
             onKeyUp={(event) => {
               if (event.key === 'Escape') {
                 setIsEditing(false);
-                setnewTitle(todo.title);
+                setNewTitle(todo.title);
               }
             }}
           />

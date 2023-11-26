@@ -36,9 +36,8 @@ export const TodoappList: React.FC<Props> = ({
       {temporaryTodo && (
         <TodoappItem
           todo={temporaryTodo}
-          onDelete={() => {}}
           setTodosError={setTodosError}
-          isLoading
+          isLoading={processingTodoIds.includes(0)}
           onTodoUpdate={onTodoUpdate}
         />
       )}
