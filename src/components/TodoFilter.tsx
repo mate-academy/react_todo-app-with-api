@@ -43,6 +43,24 @@ export const TodosFilter: React.FC = () => {
     todo => todo.completed === false,
   ).length;
 
+  const filterLinks = [
+    {
+      type: TodoStatus.All,
+      label: 'All',
+      dataCy: 'FilterLinkAll',
+    },
+    {
+      type: TodoStatus.Active,
+      label: 'Active',
+      dataCy: 'FilterLinkActive',
+    },
+    {
+      type: TodoStatus.Completed,
+      label: 'Completed',
+      dataCy: 'FilterLinkCompleted',
+    },
+  ];
+
   return (
     <footer className="todoapp__footer" data-cy="Footer">
       <span className="todo-count" data-cy="TodosCounter">
@@ -50,38 +68,19 @@ export const TodosFilter: React.FC = () => {
       </span>
 
       <nav className="filter" data-cy="Filter">
-        <a
-          href="#/"
-          className={cn(
-            'filter__link', { selected: selectedType === TodoStatus.All },
-          )}
-          data-cy="FilterLinkAll"
-          onClick={() => setSelectedType(TodoStatus.All)}
-        >
-          All
-        </a>
-
-        <a
-          href="#/active"
-          className={cn(
-            'filter__link', { selected: selectedType === TodoStatus.Active },
-          )}
-          data-cy="FilterLinkActive"
-          onClick={() => setSelectedType(TodoStatus.Active)}
-        >
-          Active
-        </a>
-
-        <a
-          href="#/completed"
-          className={cn(
-            'filter__link', { selected: selectedType === TodoStatus.Completed },
-          )}
-          data-cy="FilterLinkCompleted"
-          onClick={() => setSelectedType(TodoStatus.Completed)}
-        >
-          Completed
-        </a>
+        {filterLinks.map(link => (
+          <a
+            key={link.type}
+            href={`#/${link.type.toLowerCase()}`}
+            className={cn(
+              'filter__link', { selected: selectedType === link.type },
+            )}
+            data-cy={link.dataCy}
+            onClick={() => setSelectedType(link.type)}
+          >
+            {link.label}
+          </a>
+        ))}
       </nav>
 
       <button
@@ -93,7 +92,6 @@ export const TodosFilter: React.FC = () => {
       >
         Clear completed
       </button>
-
     </footer>
   );
 };

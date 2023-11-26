@@ -58,12 +58,7 @@ export const TodoApp: React.FC = () => {
           aria-label="hide error"
           onClick={closeNotification}
         />
-        {error && (
-          <>
-            { error }
-          </>
-        )}
-
+        {error || ''}
       </div>
     </div>
   );

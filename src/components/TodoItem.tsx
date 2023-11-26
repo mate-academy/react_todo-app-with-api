@@ -34,7 +34,7 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
   const [
     deletingTodo,
     setDeletingTodo,
-  ] = useState<Todo | undefined>(undefined);
+  ] = useState<Todo | null>(null);
 
   const [updatingTodo, setUpdatingTodo] = useState<number | null>(null);
   const [updatedTitle, setUpdatedTitle] = useState(todo.title);
@@ -86,7 +86,7 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
     } catch (error) {
       setError(Error.DeleteTodo);
     } finally {
-      setDeletingTodo(undefined);
+      setDeletingTodo(null);
       inputRef.current?.focus();
     }
   };
