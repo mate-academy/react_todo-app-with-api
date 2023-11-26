@@ -40,6 +40,7 @@ export const App: React.FC = () => {
     };
 
     setIsDisable(true);
+    setErrorMessage('');
     setTempTodo({ id: 0, ...newTodo });
 
     todoService.createTodo(newTodo)
