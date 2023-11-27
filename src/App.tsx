@@ -101,6 +101,7 @@ export const App: React.FC = () => {
         setTimeout(() => {
           setErrorMessage('');
         }, 3000);
+        // setIsEdit(false);
         throw error;
       })
       .finally(() => {
@@ -139,10 +140,12 @@ export const App: React.FC = () => {
           setErrorMessage={setErrorMessage}
         />
 
-        {todos.length > 0 && (
+        {!!todos.length && (
           <>
             <TodoList
               todos={visibleTodos}
+              // isEdit={isEdit}
+              // setIsEdit={setIsEdit}
               tempTodo={tempTodo}
               deleteTodo={deleteTodo}
               updateTodo={updateTodo}
@@ -152,7 +155,6 @@ export const App: React.FC = () => {
 
             <Footer
               todos={todos}
-              // setTodos={setTodos}
               filter={filter}
               setFilter={setFilter}
               deleteTodo={deleteTodo}

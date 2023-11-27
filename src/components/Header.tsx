@@ -37,7 +37,7 @@ export const Header: React.FC<Props> = ({
     isToggleAll
       ? todos.forEach(todo => updateTodo({ ...todo, completed: false }))
       : todos.forEach(todo => !todo.completed
-          && updateTodo({ ...todo, completed: true }));
+        && updateTodo({ ...todo, completed: true }));
   };
 
   const handleSubmitTodo = (e: React.FormEvent<HTMLFormElement>) => {
@@ -58,7 +58,7 @@ export const Header: React.FC<Props> = ({
 
   return (
     <header className="todoapp__header">
-      {todos.length > 0 && (
+      {!!todos.length && (
         <button
           type="button"
           className={cn('todoapp__toggle-all', {
