@@ -1,24 +1,62 @@
-/* eslint-disable max-len */
-/* eslint-disable jsx-a11y/control-has-associated-label */
-import React from 'react';
+import { useContext, useEffect } from 'react';
+
 import { UserWarning } from './UserWarning';
+import { Footer } from './components/Footer';
+import { Header } from './components/Header';
+import { ErrorNotification } from './components/ErrorNotification';
 
-const USER_ID = 0;
+import { getTodos } from './api/todos';
+import { USER_ID } from './utils/variables';
+import { TodoList } from './components/TodoList';
+import { TodosContext } from './components/TodosContext';
+import { ErrorMessage } from './types/ErrorMessage';
 
-export const App: React.FC = () => {
+export const App = () => {
+  const {
+    todos,
+    setTodos,
+    setFilteredTodos,
+    setAlarm,
+  } = useContext(TodosContext);
+
+  useEffect(() => {
+    if (USER_ID) {
+      getTodos(USER_ID)
+        .then(todosFromServer => {
+          setTodos(todosFromServer);
+          setFilteredTodos(todosFromServer);
+          setAlarm(ErrorMessage.Default);
+        })
+        .catch(errorMessage => {
+          // eslint-disable-next-line no-console
+          console.log(errorMessage);
+          setAlarm(ErrorMessage.isLoadTodoError);
+          setTodos([]);
+        });
+    }
+  }, [USER_ID]);
+
   if (!USER_ID) {
     return <UserWarning />;
   }
 
   return (
-    <section className="section container">
-      <p className="title is-4">
-        Copy all you need from the prev task:
-        <br />
-        <a href="https://github.com/mate-academy/react_todo-app-add-and-delete#react-todo-app-add-and-delete">React Todo App - Add and Delete</a>
-      </p>
+    <div className="todoapp">
+      <h1 className="todoapp__title">todos</h1>
 
-      <p className="subtitle">Styles are already copied</p>
-    </section>
+      <div className="todoapp__content">
+        <Header />
+
+        {!!todos.length && (
+          <>
+            <TodoList />
+
+            <Footer />
+          </>
+        )}
+      </div>
+
+      <ErrorNotification />
+    </div>
   );
 };
