@@ -17,7 +17,6 @@ export const App: React.FC = () => {
   const [todosError, setTodosError] = useState(ErrorMessage.Default);
   const [filter, setFilter] = useState(Filter.All);
   const [tempTodos, setTempTodos] = useState<Todo | null>(null);
-  const [isHidden, setIsHidden] = useState(false);
   const [processingTodoId, setProcessingTodoId] = useState<Array<number>>([]);
   const [filteredTodos, setFilTodos] = useState<Todo[]>([]);
   const [newTodoLoad, setNewTodoLoad] = useState(-1);
@@ -31,9 +30,7 @@ export const App: React.FC = () => {
 
       setTodos(todosData);
     } catch (error) {
-      setTimeout(() => {
-        setTodosError(ErrorMessage.UnableToLoadTodos);
-      }, 3000);
+      setTodosError(ErrorMessage.UnableToLoadTodos);
     } finally {
       setIsLoading(false);
     }
@@ -41,13 +38,13 @@ export const App: React.FC = () => {
 
   useEffect(() => {
     const timer = setTimeout(() => {
-      setIsHidden(true);
+      setTodosError(ErrorMessage.Default);
     }, 3000);
 
     return () => {
       clearTimeout(timer);
     };
-  }, [setIsHidden]);
+  }, [todosError, setTodosError]);
 
   useEffect(() => {
     loadTodos();
@@ -189,7 +186,7 @@ export const App: React.FC = () => {
         data-cy="ErrorNotification"
         className={cn(
           'notification is-danger is-light has-text-weight-normal',
-          { hidden: isHidden },
+          { hidden: !todosError },
         )}
       >
         {/* eslint-disable jsx-a11y/control-has-associated-label  */}
@@ -198,7 +195,7 @@ export const App: React.FC = () => {
           type="button"
           className="delete"
           onClick={() => {
-            setIsHidden(true);
+            setTodosError(ErrorMessage.Default);
           }}
         />
         {todosError}

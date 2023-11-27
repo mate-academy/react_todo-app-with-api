@@ -41,25 +41,15 @@ export const TodoHeader: React.FC<Props> = ({
     event.preventDefault();
 
     if (!todoTitle.trim()) {
-      setTimeout(() => {
-        setTodosError(ErrorMessage.TitleShouldNotBeEmpty);
-      }, 3000);
+      setTodosError(ErrorMessage.TitleShouldNotBeEmpty);
 
       return;
     }
 
     setIsLoading(true);
 
-    let id;
-
-    if (!todos.length) {
-      id = 4;
-    } else {
-      id = todos[todos.length - 1].id + 1;
-    }
-
     const tempTodo = {
-      id,
+      id: 0,
       userId: USER_ID,
       title: todoTitle.trim(),
       completed: false,
@@ -68,17 +58,16 @@ export const TodoHeader: React.FC<Props> = ({
     setTempTodos(tempTodo);
 
     try {
-      await addTodos(tempTodo);
-      setNewTodoLoad(id);
-      setTodos([...todos, tempTodo]);
+      const temp = await addTodos(tempTodo) as Todo;
+
+      setNewTodoLoad(temp.id);
+      setTodos([...todos, temp]);
       setTempTodos(null);
       setTodoTitle('');
     } catch (error) {
       setTempTodos(null);
 
-      setTimeout(() => {
-        setTodosError(ErrorMessage.UnableToAddTodo);
-      }, 3000);
+      setTodosError(ErrorMessage.UnableToAddTodo);
 
       throw new Error('Some error');
     } finally {

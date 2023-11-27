@@ -53,9 +53,7 @@ export const TodoItem: React.FC<Props> = ({
       await deleteTodos(todoId);
       setTodos(todos.filter(t => t.id !== todoId));
     } catch (error) {
-      setTimeout(() => {
-        setTodosError(ErrorMessage.UnableToDeleteTodo);
-      }, 3000);
+      setTodosError(ErrorMessage.UnableToDeleteTodo);
     } finally {
       setIsLoading(false);
       setTempId(-1);
@@ -92,9 +90,7 @@ export const TodoItem: React.FC<Props> = ({
 
       setIsEditing(false);
     } catch {
-      setTimeout(() => {
-        setTodosError(ErrorMessage.UnableToUpdateTodo);
-      }, 3000);
+      setTodosError(ErrorMessage.UnableToUpdateTodo);
     }
   };
 

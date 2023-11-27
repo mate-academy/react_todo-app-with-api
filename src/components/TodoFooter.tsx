@@ -47,9 +47,7 @@ export const TodoFooter: React.FC<Props> = ({
         setTodos(prevTodos => prevTodos.filter(todo => !todo.completed));
       }, 3000);
     } catch (error) {
-      setTimeout(() => {
-        setTodosError(ErrorMessage.UnableToDeleteTodo);
-      }, 3000);
+      setTodosError(ErrorMessage.UnableToDeleteTodo);
     }
   };
 
