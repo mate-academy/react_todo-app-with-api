@@ -69,7 +69,7 @@ export const TodoItem: React.FC<Props> = ({
         editing: isEditing,
       })}
     >
-      {/* eslint-disable jsx-a11y/control-has-associated-label */}
+      {/* eslint-disable jsx-a11y/label-has-associated-control */}
       <label
         className="todo__status-label"
         htmlFor={`toggle-view-${id}`}
