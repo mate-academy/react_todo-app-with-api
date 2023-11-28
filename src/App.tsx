@@ -22,7 +22,6 @@ export const App: React.FC = () => {
   const [errorMessage, setErrorMessage] = useState<ErrorMessage | null>(null);
   const [hasErrorMessage, setHasErrorMessage] = useState<boolean>(false);
   const [loading, setLoading] = useState<number[]>([]);
-  const [isInputDisabled, setIsInputDisabled] = useState<boolean>(false);
 
   const isShownError = (errorType: ErrorMessage) => {
     setHasErrorMessage(true);
@@ -135,8 +134,6 @@ export const App: React.FC = () => {
   const handleAddTodo = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
-    setIsInputDisabled(true);
-
     if (!value.trim()) {
       isShownError(ErrorMessage.emptyTitle);
 
@@ -195,7 +192,6 @@ export const App: React.FC = () => {
               placeholder="What needs to be done?"
               value={value}
               onChange={handleSetTitle}
-              disabled={isInputDisabled}
             />
           </form>
         </header>
