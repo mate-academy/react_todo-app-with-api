@@ -9,35 +9,41 @@ import { TodoContext } from './TodoContext';
 
 export const ErrorNotification: React.FC = () => {
   const {
-    ErrorType,
+    errorType,
     setErrorType,
   } = useContext(TodoContext);
 
   const ErrorTypeMsg = useMemo(() => {
-    switch (ErrorType) {
+    switch (errorType) {
       case ErrorTypes.LoadError:
         return 'Unable to load todos';
+
       case ErrorTypes.EmptyTitle:
         return 'Title should not be empty';
+
       case ErrorTypes.AddTodoError:
         return 'Unable to add a todo';
+
       case ErrorTypes.DeleteTodoError:
         return 'Unable to delete a todo';
+
       case ErrorTypes.UpdateTodoError:
         return 'Unable to update a todo';
+
       case ErrorTypes.DuplicateTodoError:
         return 'This todo is already exists';
+
       default:
         return ErrorTypes.None;
     }
-  }, [ErrorType]);
+  }, [errorType]);
 
   return (
     <div
       data-cy="ErrorNotification"
       className={cn(
         'notification is-danger is-light has-text-weight-normal',
-        { hidden: ErrorType === ErrorTypes.None },
+        { hidden: errorType === ErrorTypes.None },
       )}
     >
       <button

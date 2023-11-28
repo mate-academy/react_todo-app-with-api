@@ -8,7 +8,7 @@ export const TodoList: React.FC = () => {
     todos,
     tempTodo,
     filter,
-    todoWithLoader,
+    loadingTodoIds,
   } = useContext(TodoContext);
 
   const filteredTodos = useMemo(() => {
@@ -27,11 +27,10 @@ export const TodoList: React.FC = () => {
     <ul className="todoapp__main" data-cy="TodoList">
 
       {filteredTodos.map(todo => (
-        <li>
+        <li key={todo.id}>
           <TodoItem
-            key={todo.id}
             todo={todo}
-            isLoading={todoWithLoader.includes(todo.id)}
+            isLoading={loadingTodoIds.includes(todo.id)}
           />
         </li>
       ))}
@@ -40,7 +39,7 @@ export const TodoList: React.FC = () => {
         <li>
           <TodoItem
             todo={tempTodo}
-            isLoading={todoWithLoader.includes(tempTodo.id)}
+            isLoading={loadingTodoIds.includes(tempTodo.id)}
           />
         </li>
       )}

@@ -8,7 +8,8 @@ import React, {
 } from 'react';
 import { ErrorTypes } from '../types/ErrorTypes';
 import { TodoContext } from './TodoContext';
-import { USER_ID } from '../utils/userId';
+
+const USER_ID = 11959;
 
 export const TodoHeader: React.FC = () => {
   const [title, setTitle] = useState('');

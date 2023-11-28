@@ -4,7 +4,8 @@ import { Context } from '../types/Context';
 import { Filter } from '../types/Filter';
 import { ErrorTypes } from '../types/ErrorTypes';
 import * as todosService from '../api/todos';
-import { USER_ID } from '../utils/userId';
+
+const USER_ID = 11959;
 
 const State: Context = {
   tempTodo: null,
@@ -13,10 +14,10 @@ const State: Context = {
   setTodos: () => {},
   filter: Filter.ALL,
   setFilter: () => {},
-  ErrorType: ErrorTypes.None,
+  errorType: ErrorTypes.None,
   setErrorType: () => {},
-  todoWithLoader: [],
-  setTodoWithLoader: () => {},
+  loadingTodoIds: [],
+  setLoadingTodoIds: () => {},
   addTodo: async () => {},
   deleteTodo: async () => {},
   updateTodo: async () => {},
@@ -32,8 +33,8 @@ export const GlobalProvider: React.FC<Props> = ({ children }) => {
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
   const [todos, setTodos] = useState<Todo[]>([]);
   const [filter, setFilter] = useState(Filter.ALL);
-  const [ErrorType, setErrorType] = useState<ErrorTypes>(ErrorTypes.None);
-  const [todoWithLoader, setTodoWithLoader] = useState<number[]>([]);
+  const [errorType, setErrorType] = useState<ErrorTypes>(ErrorTypes.None);
+  const [loadingTodoIds, setLoadingTodoIds] = useState<number[]>([]);
 
   useEffect(() => {
     todosService.getTodos(USER_ID)
@@ -48,7 +49,7 @@ export const GlobalProvider: React.FC<Props> = ({ children }) => {
   }, []);
 
   const deleteTodo = (todoId: number) => {
-    setTodoWithLoader(currentTodoIds => [...currentTodoIds, todoId]);
+    setLoadingTodoIds(currentTodoIds => [...currentTodoIds, todoId]);
 
     return todosService.deleteTodo(todoId)
       .then(() => setTodos(
@@ -62,7 +63,7 @@ export const GlobalProvider: React.FC<Props> = ({ children }) => {
         throw err;
       })
       .finally(() => {
-        setTodoWithLoader(
+        setLoadingTodoIds(
           prevTodoIds => prevTodoIds.filter(id => id !== todoId),
         );
       });
@@ -90,7 +91,7 @@ export const GlobalProvider: React.FC<Props> = ({ children }) => {
   };
 
   const updateTodo = (updatedTodo: Todo) => {
-    setTodoWithLoader(
+    setLoadingTodoIds(
       currentTodoIds => [...currentTodoIds, updatedTodo.id],
     );
 
@@ -114,7 +115,7 @@ export const GlobalProvider: React.FC<Props> = ({ children }) => {
         throw err;
       })
       .finally(() => {
-        setTodoWithLoader(
+        setLoadingTodoIds(
           prevTodoIds => prevTodoIds.filter(id => id !== updatedTodo.id),
         );
       });
@@ -127,10 +128,10 @@ export const GlobalProvider: React.FC<Props> = ({ children }) => {
     setTodos,
     filter,
     setFilter,
-    ErrorType,
+    errorType,
     setErrorType,
-    todoWithLoader,
-    setTodoWithLoader,
+    loadingTodoIds,
+    setLoadingTodoIds,
     addTodo,
     deleteTodo,
     updateTodo,

@@ -12,8 +12,8 @@ export interface Context {
   updateTodo: (todo: Todo) => Promise<void>;
   filter: Filter;
   setFilter: (filterBy: Filter) => void;
-  ErrorType: ErrorTypes;
+  errorType: ErrorTypes;
   setErrorType: (err: ErrorTypes) => void;
-  todoWithLoader: number[];
-  setTodoWithLoader: (v: number[]) => void;
+  loadingTodoIds: number[];
+  setLoadingTodoIds: (v: number[]) => void;
 }
