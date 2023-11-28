@@ -91,8 +91,6 @@ export const App: React.FC = () => {
     return Promise.all(updatePromises);
   };
 
-  //
-
   const toDelete = (id: number) => {
     const afterDeleteTodo = todos.filter((todo) => todo.id !== id);
 
@@ -114,7 +112,6 @@ export const App: React.FC = () => {
           .filter((processingId) => processingId !== id));
       });
   };
-  //
 
   const filtredTodo = todos.filter((todo) => {
     switch (filtredByStatus) {
@@ -140,11 +137,9 @@ export const App: React.FC = () => {
           {todos.length > 0 && (
             <button
               type="button"
-              className={
-                isAllCompleted
-                  ? 'todoapp__toggle-all active'
-                  : 'todoapp__toggle-all'
-              }
+              className={`todoapp__toggle-all
+                ${isAllCompleted ? 'active' : ''}
+              `}
               data-cy="ToggleAllButton"
               onClick={toggleAll}
             />

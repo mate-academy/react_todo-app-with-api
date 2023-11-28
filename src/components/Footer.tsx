@@ -54,51 +54,48 @@ export const Footer: React.FC<Props> = ({
       });
   };
 
-  //
+  const filters = [
+    {
+      label: 'All',
+      status: Status.all,
+      dataCy: 'FilterLinkAll',
+      href: '#/',
+    },
+    {
+      label: 'Active',
+      status: Status.active,
+      dataCy: 'FilterLinkActive',
+      href: '#/active',
+    },
+    {
+      label: 'Completed',
+      status: Status.completed,
+      dataCy: 'FilterLinkCompleted',
+      href: '#/completed',
+    },
+  ];
+
   return (
     <footer className="todoapp__footer" data-cy="Footer">
       <span className="todo-count" data-cy="TodosCounter">
         {`${itemsLeft} items left`}
       </span>
       <nav className="filter" data-cy="Filter">
-        <a
-          href="#/"
-          className={
-            filtredByStatus === Status.all
-              ? 'filter__link selected'
-              : 'filter__link'
-          }
-          data-cy="FilterLinkAll"
-          onClick={() => setFiltredByStatus(Status.all)}
-        >
-          All
-        </a>
-
-        <a
-          href="#/active"
-          className={
-            filtredByStatus === Status.active
-              ? 'filter__link selected'
-              : 'filter__link'
-          }
-          data-cy="FilterLinkActive"
-          onClick={() => setFiltredByStatus(Status.active)}
-        >
-          Active
-        </a>
-
-        <a
-          href="#/completed"
-          className={
-            filtredByStatus === Status.completed
-              ? 'filter__link selected'
-              : 'filter__link'
-          }
-          data-cy="FilterLinkCompleted"
-          onClick={() => setFiltredByStatus(Status.completed)}
-        >
-          Completed
-        </a>
+        {filters.map((filter) => (
+          <a
+            key={filter.status}
+            href={`${filter.href}${filter.status}`}
+            className={
+              filtredByStatus === filter.status
+                ? 'filter__link selected'
+                : 'filter__link'
+            }
+            data-cy={filter.dataCy}
+            onClick={() => setFiltredByStatus(filter.status)}
+          >
+            {filter.label}
+          </a>
+        ))}
       </nav>
 
       <button
