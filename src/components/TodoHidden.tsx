@@ -41,16 +41,6 @@ export const Hidden: React.FC<Props> = ({ errorNotification }) => {
           { /* button */ }
         </button>
         {errorNotification}
-        {/* show only one message at a time
-        Unable to load todos
-        <br />
-        Title should not be empty
-        <br />
-        Unable to add a todo
-        <br />
-        Unable to delete a todo
-        <br />
-        Unable to update a todo */}
       </div>
     </>
   );

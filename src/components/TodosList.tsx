@@ -74,12 +74,13 @@ export const TodoList: React.FC<Props> = ({
       {filteredTodos().map((todo) => (
         <div
           onClick={() => handleUpdateTodo(todo)}
+          key={todo.id}
         >
           <TodoItem
           todo={todo}
           handleDeleteCurrentTodo={handleDeleteCurrentTodo}
           deletingTodoId={deletingTodoId}
-        />
+          />
         </div>
       ))}
       {updatingTodo && (
