@@ -8,7 +8,7 @@ import { Todo } from '../types/Todo';
 
 export const Header: React.FC = () => {
   const {
-    todos, setTodos, userId, setErrorMassage, setTempTodo,
+    todos, setTodos, userId, setErrorMessage, setTempTodo,
   } = useContext(TodosContext);
   const [title, setTitile] = useState('');
   const [isPosting, setIsPosting] = useState(false);
@@ -26,17 +26,17 @@ export const Header: React.FC = () => {
       id: 0, userId, title, completed: false,
     });
     if (title.trim().length === 0) {
-      setErrorMassage(ErrorType.EMPTY_TITLE);
-      setTimeout(() => setErrorMassage(ErrorType.NO_ERROR), 3000);
+      setErrorMessage(ErrorType.emptyTitleError);
+      setTimeout(() => setErrorMessage(ErrorType.noError), 3000);
     } else {
       postTodo({ userId, title, completed: false })
         .then(newTodo => {
           setTodos(currentTodos => [...currentTodos, newTodo]);
           setTitile('');
         })
-        .catch(() => setErrorMassage(ErrorType.ADD_ERROR))
+        .catch(() => setErrorMessage(ErrorType.addError))
         .finally(() => {
-          setTimeout(() => setErrorMassage(ErrorType.NO_ERROR), 3000);
+          setTimeout(() => setErrorMessage(ErrorType.noError), 3000);
           setIsPosting(false);
           setTempTodo(null);
         });
@@ -52,9 +52,9 @@ export const Header: React.FC = () => {
       }),
     )
       .then((value) => setTodos(value))
-      .catch(() => setErrorMassage(ErrorType.UPDATE_ERROR))
+      .catch(() => setErrorMessage(ErrorType.updateError))
       .finally(() => {
-        setTimeout(() => setErrorMassage(ErrorType.NO_ERROR), 3000);
+        setTimeout(() => setErrorMessage(ErrorType.noError), 3000);
       });
   };
 

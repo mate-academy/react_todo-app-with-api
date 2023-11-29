@@ -12,8 +12,8 @@ export const TodoApp: React.FC = () => {
     userId,
     tempTodo,
     todos,
-    errorMassage,
-    setErrorMassage,
+    errorMessage,
+    setErrorMessage,
   } = useContext(TodosContext);
 
   return userId ? (
@@ -35,7 +35,7 @@ export const TodoApp: React.FC = () => {
         )}
       </div>
 
-      <Error errorMassage={errorMassage} setError={setErrorMassage} />
+      <Error errorMessage={errorMessage} setError={setErrorMessage} />
     </div>
   ) : (
     <UserWarning />

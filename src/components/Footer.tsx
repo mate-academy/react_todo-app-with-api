@@ -11,22 +11,22 @@ export const Footer: React.FC = () => {
     setFilter,
     todos,
     setTodos,
-    setIsDeleting,
-    setErrorMassage,
+    setIsLoader,
+    setErrorMessage,
   } = useContext(TodosContext);
   const hasCompletedTodos = todos.some(todo => todo.completed === true);
   const uncompletedTodos = todos.filter(todo => todo.completed === false);
   const completedTodos = todos.filter(todo => todo.completed === true);
 
   const deleteAllCompleteTodo = () => {
-    setIsDeleting(true);
+    setIsLoader(true);
     completedTodos.map(todo => (
       removeTodo(todo.id)
         .then(() => setTodos(uncompletedTodos))
-        .catch(() => setErrorMassage(ErrorType.DELETE_ERROR))
+        .catch(() => setErrorMessage(ErrorType.deleteError))
         .finally(() => {
-          setTimeout(() => setErrorMassage(ErrorType.NO_ERROR), 3000);
-          setIsDeleting(false);
+          setTimeout(() => setErrorMessage(ErrorType.noError), 3000);
+          setIsLoader(false);
         })
     ));
   };
@@ -63,12 +63,12 @@ export const Footer: React.FC = () => {
         <a
           href="#/completed"
           className={cn('filter__link ', {
-            selected: filter === FilterType.COMLETED,
+            selected: filter === FilterType.COMPLETED,
           })}
           data-cy="FilterLinkCompleted"
-          onClick={() => setFilter(FilterType.COMLETED)}
+          onClick={() => setFilter(FilterType.COMPLETED)}
         >
-          {FilterType.COMLETED}
+          {FilterType.COMPLETED}
         </a>
       </nav>
 

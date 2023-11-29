@@ -19,28 +19,28 @@ type TodosContextType = {
   userId: number;
   todos: Todo[];
   filter: FilterType;
-  errorMassage: ErrorType;
+  errorMessage: ErrorType;
   tempTodo: Todo | null;
-  isDeleting: boolean;
+  isLoader: boolean;
   setTodos: Dispatch<SetStateAction<Todo[]>>;
   setFilter: React.Dispatch<React.SetStateAction<FilterType>>;
-  setErrorMassage: React.Dispatch<React.SetStateAction<ErrorType>>;
+  setErrorMessage: React.Dispatch<React.SetStateAction<ErrorType>>;
   setTempTodo: React.Dispatch<React.SetStateAction<Todo | null>>;
-  setIsDeleting: React.Dispatch<React.SetStateAction<boolean>>;
+  setIsLoader: React.Dispatch<React.SetStateAction<boolean>>;
 };
 
 export const TodosContext = React.createContext<TodosContextType>({
   userId,
   todos: initialTodos,
   filter: FilterType.ALL,
-  errorMassage: ErrorType.NO_ERROR,
+  errorMessage: ErrorType.noError,
   tempTodo: null,
-  isDeleting: false,
-  setTodos: () => { },
-  setFilter: () => { },
-  setErrorMassage: () => { },
-  setTempTodo: () => { },
-  setIsDeleting: () => { },
+  isLoader: false,
+  setTodos: () => {},
+  setFilter: () => {},
+  setErrorMessage: () => {},
+  setTempTodo: () => {},
+  setIsLoader: () => {},
 });
 
 type Props = {
@@ -50,16 +50,16 @@ type Props = {
 export const TodosProvider: React.FC<Props> = ({ children }) => {
   const [todos, setTodos] = useState<Todo[]>([]);
   const [filter, setFilter] = useState(FilterType.ALL);
-  const [errorMassage, setErrorMassage] = useState(ErrorType.NO_ERROR);
+  const [errorMessage, setErrorMessage] = useState(ErrorType.noError);
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
-  const [isDeleting, setIsDeleting] = useState(false);
+  const [isLoader, setIsLoader] = useState(false);
 
   function loadTodos() {
     getTodos(userId)
       .then(setTodos)
-      .catch(() => setErrorMassage(ErrorType.LOAD_ERROR))
+      .catch(() => setErrorMessage(ErrorType.loadError))
       .finally(() => {
-        setTimeout(() => setErrorMassage(ErrorType.NO_ERROR), 3000);
+        setTimeout(() => setErrorMessage(ErrorType.noError), 3000);
       });
   }
 
@@ -71,28 +71,13 @@ export const TodosProvider: React.FC<Props> = ({ children }) => {
     setTodos,
     filter,
     setFilter,
-    errorMassage,
-    setErrorMassage,
+    errorMessage,
+    setErrorMessage,
     tempTodo,
     setTempTodo,
-    isDeleting,
-    setIsDeleting,
-  }), [todos, filter, errorMassage, tempTodo, isDeleting]);
-
-  // const value = {
-  //   userId,
-  //   todos,
-  //   setTodos,
-  //   visibleTodos,
-  //   filter,
-  //   setFilter,
-  //   errorMassage,
-  //   setErrorMassage,
-  //   tempTodo,
-  //   setTempTodo,
-  //   isDeleting,
-  //   setIsDeleting,
-  // };
+    isLoader,
+    setIsLoader,
+  }), [todos, filter, errorMessage, tempTodo, isLoader]);
 
   return (
     <TodosContext.Provider value={value}>

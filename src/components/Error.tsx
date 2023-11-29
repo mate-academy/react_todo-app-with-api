@@ -3,16 +3,16 @@ import cn from 'classnames';
 import { ErrorType } from '../types/ErrorType';
 
 type Props = {
-  errorMassage: string,
+  errorMessage: string,
   setError: (value: React.SetStateAction<ErrorType>) => void,
 };
 
-export const Error: React.FC<Props> = ({ errorMassage, setError }) => {
+export const Error: React.FC<Props> = ({ errorMessage, setError }) => {
   return (
     <div
       data-cy="ErrorNotification"
       className={cn('notification is-danger is-light has-text-weight-normal', {
-        hidden: errorMassage.length === 0,
+        hidden: errorMessage.length === 0,
       })}
     >
       <button
@@ -20,9 +20,9 @@ export const Error: React.FC<Props> = ({ errorMassage, setError }) => {
         aria-label="button"
         type="button"
         className="delete"
-        onClick={() => setError(ErrorType.NO_ERROR)}
+        onClick={() => setError(ErrorType.noError)}
       />
-      {errorMassage}
+      {errorMessage}
     </div>
   );
 };

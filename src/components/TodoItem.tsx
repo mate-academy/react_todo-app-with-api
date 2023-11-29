@@ -15,13 +15,13 @@ type Props = {
 export const TodoItem: React.FC<Props> = ({ todo }) => {
   const {
     setTodos,
-    setErrorMassage,
-    setIsDeleting,
-    isDeleting,
+    setErrorMessage,
+    setIsLoader,
   } = useContext(TodosContext);
   const { id, title, completed } = todo;
   const [newTitle, setNewTitle] = useState(title);
   const [isEditin, setIsEditing] = useState(false);
+  const [selectedTodo, setSelectedTodo] = useState<Todo | null>(null);
 
   const titleField = useRef<HTMLInputElement>(null);
 
@@ -32,15 +32,17 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
   });
 
   const deleteTodo = () => {
-    setIsDeleting(true);
+    setSelectedTodo(todo);
+    setIsLoader(true);
     removeTodo(id)
       .then(() => {
         setTodos(currTodos => currTodos.filter(td => td.id !== id));
       })
-      .catch(() => setErrorMassage(ErrorType.DELETE_ERROR))
+      .catch(() => setErrorMessage(ErrorType.deleteError))
       .finally(() => {
-        setTimeout(() => setErrorMassage(ErrorType.NO_ERROR), 3000);
-        setIsDeleting(false);
+        setTimeout(() => setErrorMessage(ErrorType.noError), 3000);
+        setIsLoader(false);
+        setSelectedTodo(null);
       });
   };
 
@@ -52,13 +54,14 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
 
   const submit = () => {
     setIsEditing(false);
+    setSelectedTodo(todo);
 
     if (newTitle.trim().length === 0) {
       deleteTodo();
     } else if (todo.title === newTitle) {
       setIsEditing(false);
     } else {
-      setIsDeleting(true);
+      setIsLoader(true);
       updateTodo({ ...todo, title: newTitle })
         .then((newTodo) => {
           setTodos(curTodos => {
@@ -70,10 +73,11 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
             return newTodos;
           });
         })
-        .catch(() => setErrorMassage(ErrorType.UPDATE_ERROR))
+        .catch(() => setErrorMessage(ErrorType.updateError))
         .finally(() => {
-          setIsDeleting(false);
-          setTimeout(() => setErrorMassage(ErrorType.NO_ERROR), 3000);
+          setIsLoader(false);
+          setSelectedTodo(null);
+          setTimeout(() => setErrorMessage(ErrorType.noError), 3000);
         });
     }
   };
@@ -90,10 +94,17 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
           return newTodos;
         });
       })
-      .catch(() => setErrorMassage(ErrorType.UPDATE_ERROR))
+      .catch(() => setErrorMessage(ErrorType.updateError))
       .finally(() => {
-        setTimeout(() => setErrorMassage(ErrorType.NO_ERROR), 3000);
+        setTimeout(() => setErrorMessage(ErrorType.noError), 3000);
       });
+  };
+
+  const handleKeyUp = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Escape') {
+      setIsEditing(false);
+      setNewTitle(todo.title);
+    }
   };
 
   return (
@@ -112,7 +123,6 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
           data-cy="TodoStatus"
           type="checkbox"
           className="todo__status"
-          // checked={completed}
           onClick={() => handleComplete(todo)}
         />
       </label>
@@ -126,6 +136,7 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
             placeholder="Empty todo will be deleted"
             value={newTitle}
             onChange={edit}
+            onKeyUp={handleKeyUp}
             onBlur={submit}
             ref={titleField}
           />
@@ -149,7 +160,7 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
       )}
 
       {/* overlay will cover the todo while it is being updated */}
-      {(id === 0 || isDeleting) && (
+      {(selectedTodo?.id === todo.id || id === 0) && (
         <TodoLoader />
       )}
     </div>
