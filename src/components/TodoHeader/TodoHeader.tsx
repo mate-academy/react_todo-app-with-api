@@ -86,9 +86,7 @@ export const TodoHeader: React.FC = () => {
       return;
     }
 
-    if (shouldComplete) {
-      dispatch(completeAllTodos({ todos, shouldComplete }));
-    }
+    dispatch(completeAllTodos({ todos, shouldComplete }));
   };
 
   return (
