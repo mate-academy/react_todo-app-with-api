@@ -23,11 +23,11 @@ export const TodoApp: React.FC = () => {
       <div className="todoapp__content">
         <Header />
 
-        {todos.length !== 0 && (
+        {(todos.length !== 0 || tempTodo !== null) && (
           <>
             <Todolist />
 
-            {tempTodo && (
+            {(tempTodo) && (
               <TodoItem todo={tempTodo} />
             )}
             <Footer />

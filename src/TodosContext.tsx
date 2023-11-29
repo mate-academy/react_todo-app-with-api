@@ -21,12 +21,12 @@ type TodosContextType = {
   filter: FilterType;
   errorMessage: ErrorType;
   tempTodo: Todo | null;
-  isLoader: boolean;
+  loadingTodoId: number[];
   setTodos: Dispatch<SetStateAction<Todo[]>>;
   setFilter: React.Dispatch<React.SetStateAction<FilterType>>;
   setErrorMessage: React.Dispatch<React.SetStateAction<ErrorType>>;
   setTempTodo: React.Dispatch<React.SetStateAction<Todo | null>>;
-  setIsLoader: React.Dispatch<React.SetStateAction<boolean>>;
+  setLoadingTodoId: React.Dispatch<React.SetStateAction<number[]>>;
 };
 
 export const TodosContext = React.createContext<TodosContextType>({
@@ -35,12 +35,12 @@ export const TodosContext = React.createContext<TodosContextType>({
   filter: FilterType.ALL,
   errorMessage: ErrorType.noError,
   tempTodo: null,
-  isLoader: false,
-  setTodos: () => {},
-  setFilter: () => {},
-  setErrorMessage: () => {},
-  setTempTodo: () => {},
-  setIsLoader: () => {},
+  loadingTodoId: [],
+  setTodos: () => { },
+  setFilter: () => { },
+  setErrorMessage: () => { },
+  setTempTodo: () => { },
+  setLoadingTodoId: () => { },
 });
 
 type Props = {
@@ -52,7 +52,7 @@ export const TodosProvider: React.FC<Props> = ({ children }) => {
   const [filter, setFilter] = useState(FilterType.ALL);
   const [errorMessage, setErrorMessage] = useState(ErrorType.noError);
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
-  const [isLoader, setIsLoader] = useState(false);
+  const [loadingTodoId, setLoadingTodoId] = useState<number[]>([]);
 
   function loadTodos() {
     getTodos(userId)
@@ -75,9 +75,9 @@ export const TodosProvider: React.FC<Props> = ({ children }) => {
     setErrorMessage,
     tempTodo,
     setTempTodo,
-    isLoader,
-    setIsLoader,
-  }), [todos, filter, errorMessage, tempTodo, isLoader]);
+    loadingTodoId,
+    setLoadingTodoId,
+  }), [todos, filter, errorMessage, tempTodo, loadingTodoId]);
 
   return (
     <TodosContext.Provider value={value}>

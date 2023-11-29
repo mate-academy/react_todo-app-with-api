@@ -8,7 +8,7 @@ import { Todo } from '../types/Todo';
 
 export const Header: React.FC = () => {
   const {
-    todos, setTodos, userId, setErrorMessage, setTempTodo,
+    todos, setTodos, userId, setErrorMessage, setTempTodo, setLoadingTodoId,
   } = useContext(TodosContext);
   const [title, setTitile] = useState('');
   const [isPosting, setIsPosting] = useState(false);
@@ -22,6 +22,7 @@ export const Header: React.FC = () => {
   });
 
   function addTodo() {
+    setLoadingTodoId([0]);
     setTempTodo({
       id: 0, userId, title, completed: false,
     });
@@ -38,6 +39,7 @@ export const Header: React.FC = () => {
         .finally(() => {
           setTimeout(() => setErrorMessage(ErrorType.noError), 3000);
           setIsPosting(false);
+          setLoadingTodoId([]);
           setTempTodo(null);
         });
     }

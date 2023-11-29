@@ -11,30 +11,35 @@ export const Footer: React.FC = () => {
     setFilter,
     todos,
     setTodos,
-    setIsLoader,
+    setLoadingTodoId,
     setErrorMessage,
   } = useContext(TodosContext);
   const hasCompletedTodos = todos.some(todo => todo.completed === true);
   const uncompletedTodos = todos.filter(todo => todo.completed === false);
   const completedTodos = todos.filter(todo => todo.completed === true);
 
-  const deleteAllCompleteTodo = () => {
-    setIsLoader(true);
-    completedTodos.map(todo => (
-      removeTodo(todo.id)
+  const deleteComplited = () => {
+    completedTodos.map(todo => {
+      setLoadingTodoId(currIds => [...currIds, todo.id]);
+
+      return removeTodo(todo.id)
         .then(() => setTodos(uncompletedTodos))
         .catch(() => setErrorMessage(ErrorType.deleteError))
         .finally(() => {
           setTimeout(() => setErrorMessage(ErrorType.noError), 3000);
-          setIsLoader(false);
-        })
-    ));
+          setLoadingTodoId([]);
+        });
+    });
   };
 
   return (
     <footer className="todoapp__footer" data-cy="Footer">
       <span className="todo-count" data-cy="TodosCounter">
-        {`${uncompletedTodos.length} items left`}
+        {uncompletedTodos.length === 1 ? (
+          `${uncompletedTodos.length} item left`
+        ) : (
+          `${uncompletedTodos.length} items left`
+        )}
       </span>
 
       <nav className="filter" data-cy="Filter">
@@ -77,7 +82,7 @@ export const Footer: React.FC = () => {
           type="button"
           className="todoapp__clear-completed"
           data-cy="ClearCompletedButton"
-          onClick={deleteAllCompleteTodo}
+          onClick={deleteComplited}
         >
           Clear completed
         </button>

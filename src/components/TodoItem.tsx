@@ -16,12 +16,12 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
   const {
     setTodos,
     setErrorMessage,
-    setIsLoader,
+    setLoadingTodoId,
+    loadingTodoId,
   } = useContext(TodosContext);
   const { id, title, completed } = todo;
   const [newTitle, setNewTitle] = useState(title);
   const [isEditin, setIsEditing] = useState(false);
-  const [selectedTodo, setSelectedTodo] = useState<Todo | null>(null);
 
   const titleField = useRef<HTMLInputElement>(null);
 
@@ -32,8 +32,7 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
   });
 
   const deleteTodo = () => {
-    setSelectedTodo(todo);
-    setIsLoader(true);
+    setLoadingTodoId([todo.id]);
     removeTodo(id)
       .then(() => {
         setTodos(currTodos => currTodos.filter(td => td.id !== id));
@@ -41,8 +40,7 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
       .catch(() => setErrorMessage(ErrorType.deleteError))
       .finally(() => {
         setTimeout(() => setErrorMessage(ErrorType.noError), 3000);
-        setIsLoader(false);
-        setSelectedTodo(null);
+        setLoadingTodoId([]);
       });
   };
 
@@ -54,14 +52,13 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
 
   const submit = () => {
     setIsEditing(false);
-    setSelectedTodo(todo);
 
     if (newTitle.trim().length === 0) {
       deleteTodo();
     } else if (todo.title === newTitle) {
       setIsEditing(false);
     } else {
-      setIsLoader(true);
+      setLoadingTodoId([todo.id]);
       updateTodo({ ...todo, title: newTitle })
         .then((newTodo) => {
           setTodos(curTodos => {
@@ -75,8 +72,8 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
         })
         .catch(() => setErrorMessage(ErrorType.updateError))
         .finally(() => {
-          setIsLoader(false);
-          setSelectedTodo(null);
+          setLoadingTodoId([]);
+
           setTimeout(() => setErrorMessage(ErrorType.noError), 3000);
         });
     }
@@ -160,7 +157,7 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
       )}
 
       {/* overlay will cover the todo while it is being updated */}
-      {(selectedTodo?.id === todo.id || id === 0) && (
+      {(loadingTodoId.includes(todo.id)) && (
         <TodoLoader />
       )}
     </div>
