@@ -14,7 +14,9 @@ export const TodoFooter: React.FC = () => {
   const todos = useSelector(
     (state: RootState) => state.todos.todos,
   );
+  const remainingTodosList = todos.filter(todo => !todo.completed);
   const isCompleted = todos.some(todo => todo.completed === true);
+
   const currentFilter = useSelector(selectFilter);
   const [showFooter, setShowFooter] = useState(todos.length > 0);
 
@@ -24,7 +26,7 @@ export const TodoFooter: React.FC = () => {
     if (todos.length) {
       setShowFooter(true);
     } else {
-      timeout = setTimeout(() => setShowFooter(false), 200);
+      timeout = setTimeout(() => setShowFooter(false), 500);
     }
 
     return () => {
@@ -47,8 +49,8 @@ export const TodoFooter: React.FC = () => {
       {showFooter && (
         <CSSTransition
           in={showFooter}
-          timeout={300}
-          classNames="todo__app__footer-transition"
+          timeout={500}
+          classNames="todoapp__footer todoapp__footer-transition"
           unmountOnExit
         >
           <footer
@@ -56,7 +58,7 @@ export const TodoFooter: React.FC = () => {
             data-cy="Footer"
           >
             <span className="todo-count" data-cy="TodosCounter">
-              {`${todos.length} items left`}
+              {`${remainingTodosList.length} items left`}
             </span>
 
             <nav className="filter" data-cy="Filter">

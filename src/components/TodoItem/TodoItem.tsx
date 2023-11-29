@@ -39,6 +39,13 @@ export const TodoItem = React.memo<TodoItemProps>(
     const renamingTodoId = useSelector(selectRenamingTodoId);
     const inputRef = useRef<HTMLInputElement>(null);
 
+    const isProcessing
+      = isTemporary
+      || isDeleting
+      || updatingTodoIds.includes(todo.id)
+      || renamingTodoId === todo.id
+      || completingTodoIds.includes(todo.id);
+
     useEffect(() => {
       if (isEditing && inputRef.current) {
         inputRef.current.focus();
@@ -60,9 +67,15 @@ export const TodoItem = React.memo<TodoItemProps>(
     };
 
     const handleBlur = () => {
+      if (!editableTitle) {
+        dispatch(deleteTodo(todo.id));
+
+        return;
+      }
+
       dispatch(renameTodo({
         todoId: todo.id,
-        newName: editableTitle,
+        newTitle: editableTitle,
       }));
       setIsEditing(false);
     };
@@ -73,9 +86,16 @@ export const TodoItem = React.memo<TodoItemProps>(
 
     const handleKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
       if (e.key === 'Enter') {
+        e.preventDefault();
+        if (!editableTitle) {
+          dispatch(deleteTodo(todo.id));
+
+          return;
+        }
+
         dispatch(renameTodo({
           todoId: todo.id,
-          newName: editableTitle,
+          newTitle: editableTitle,
         }));
         setIsEditing(false);
       } else if (e.key === 'Escape') {
@@ -137,13 +157,7 @@ export const TodoItem = React.memo<TodoItemProps>(
           </>
         )}
 
-        {(
-          isTemporary
-          || isDeleting
-          || updatingTodoIds.includes(todo.id)
-          || renamingTodoId === todo.id
-          || completingTodoIds.includes(todo.id)
-        ) && (
+        {isProcessing && (
           <div data-cy="TodoLoader" className="overlay">
             <div className="modal-background has-background-white-ter" />
             <div className="loader" />

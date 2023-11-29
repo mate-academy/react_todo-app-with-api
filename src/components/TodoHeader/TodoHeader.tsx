@@ -54,6 +54,7 @@ export const TodoHeader: React.FC = () => {
     dispatch(addTodo({ title }))
       .then(() => {
         dispatch(clearTempTodo());
+        setInputValue('');
       })
       .catch(() => {
         dispatch(clearTempTodo());
@@ -74,16 +75,20 @@ export const TodoHeader: React.FC = () => {
       dispatch(hideError());
       dispatch(clearErrorType());
     }
-
-    if (!errorType) {
-      setInputValue('');
-    }
   };
 
   const handleCompleteAll = () => {
     const shouldComplete = todos.some(todo => !todo.completed);
 
-    dispatch(completeAllTodos({ todos, shouldComplete }));
+    if (!todos.length) {
+      dispatch(setErrorType(ErrorType.CompleteAllTodosError));
+
+      return;
+    }
+
+    if (shouldComplete) {
+      dispatch(completeAllTodos({ todos, shouldComplete }));
+    }
   };
 
   return (

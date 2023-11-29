@@ -91,13 +91,13 @@ export const deleteAllCompletedTodos = createAsyncThunk(
 export const renameTodo = createAsyncThunk(
   'todos/renameTodo',
   async (
-    { todoId, newName }: { todoId: number; newName: string },
+    { todoId, newTitle }: { todoId: number; newTitle: string },
     { dispatch },
   ) => {
     dispatch(todoActions.renameTodoPending(todoId));
 
     try {
-      const updatedTodo = await renameTodoApi(todoId, newName);
+      const updatedTodo = await renameTodoApi(todoId, newTitle);
 
       dispatch(todoActions.renameTodoFulfilled(updatedTodo));
     } catch (error) {

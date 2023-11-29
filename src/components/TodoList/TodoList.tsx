@@ -8,7 +8,11 @@ import { selectFilteredTodos } from '../../redux/selectors';
 export const TodoList: React.FC = React.memo(() => {
   const filteredTodos = useSelector(selectFilteredTodos);
   const tempTodo = useSelector((state: RootState) => state.todos.tempTodo);
-  const combinedTodos = tempTodo ? [...filteredTodos, tempTodo] : filteredTodos;
+
+  const combinedTodos = tempTodo
+    ? [...filteredTodos, tempTodo]
+    : filteredTodos;
+
   const deletingTodoIds = useSelector(
     (state: RootState) => state.todos.deletingTodoIds,
   );
