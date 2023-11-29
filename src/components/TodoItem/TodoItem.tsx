@@ -4,29 +4,22 @@ import { Todo } from '../../types/Todo';
 
 type Props = {
   todo: Todo,
-  clearingCompleted: boolean,
-  deletingTodo: Todo | undefined,
   deleteTodo: (n: number) => void,
   updateTodo: (t: Todo) => void,
-  updatingTodo: Todo | undefined,
+  todosIdsAreLoading: number[],
 };
 
 export const TodoItem: React.FC<Props> = ({
   todo,
-  clearingCompleted,
-  deletingTodo,
   deleteTodo,
   updateTodo,
-  updatingTodo,
+  todosIdsAreLoading,
 }) => {
   const { id, completed, title } = todo;
   const [isEditing, setIsEditing] = useState(false);
   const [newTitle, setNewTitle] = useState(title);
   const editindField = useRef<HTMLInputElement | null>(null);
-  const isLoading = id === 0
-  || deletingTodo?.id === id
-  || (clearingCompleted && completed)
-  || updatingTodo?.id === id;
+  const isLoading = todosIdsAreLoading.includes(todo.id);
 
   useEffect(() => {
     if (isEditing && editindField.current) {

@@ -5,7 +5,6 @@ import { Todo } from '../../types/Todo';
 type Props = {
   todos: Todo[],
   setTodos: (t: Todo[]) => void,
-  setClearingCompleted: (c: boolean) => void,
   filter: Filter,
   setFilter: (f: Filter) => void,
   deleteTodo: (n: number) => void,
@@ -14,7 +13,6 @@ type Props = {
 export const TodoFooter: React.FC<Props> = ({
   todos,
   setTodos,
-  setClearingCompleted,
   filter,
   setFilter,
   deleteTodo,
@@ -23,14 +21,10 @@ export const TodoFooter: React.FC<Props> = ({
   const hasCompletedTodos = todos.some(todo => todo.completed === true);
 
   const handleClearCompletedTodos = () => {
-    setClearingCompleted(true);
-
     setTodos(todos.filter(todo => {
       if (todo.completed) {
         deleteTodo(todo.id);
       }
-
-      setClearingCompleted(false);
 
       return todo;
     }));
@@ -39,9 +33,7 @@ export const TodoFooter: React.FC<Props> = ({
   return (
     <footer className="todoapp__footer" data-cy="Footer">
       <span className="todo-count" data-cy="TodosCounter">
-        {activeTodos === 1
-          ? '1 items left'
-          : `${activeTodos} items left`}
+        {`${activeTodos} item${activeTodos > 1 ? 's' : ''} left`}
       </span>
 
       <nav className="filter" data-cy="Filter">

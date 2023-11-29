@@ -5,21 +5,17 @@ import { TodoItem } from '../TodoItem/TodoItem';
 type Props = {
   visibleTodos: Todo[],
   tempTodo: Todo | null,
-  clearingCompleted: boolean,
-  deletingTodo: Todo | undefined,
   deleteTodo: (n: number) => void,
   updateTodo: (t: Todo) => void,
-  updatingTodo: Todo | undefined,
+  todosIdsAreLoading: number[],
 };
 
 export const TodoList: React.FC<Props> = ({
   visibleTodos,
   tempTodo,
-  clearingCompleted,
-  deletingTodo,
   deleteTodo,
   updateTodo,
-  updatingTodo,
+  todosIdsAreLoading,
 }) => {
   return (
     <section className="todoapp__main" data-cy="TodoList">
@@ -33,11 +29,9 @@ export const TodoList: React.FC<Props> = ({
             <TodoItem
               todo={todo}
               key={todo.id}
-              clearingCompleted={clearingCompleted}
-              deletingTodo={deletingTodo}
               deleteTodo={deleteTodo}
               updateTodo={updateTodo}
-              updatingTodo={updatingTodo}
+              todosIdsAreLoading={todosIdsAreLoading}
             />
           </CSSTransition>
         ))}
@@ -50,11 +44,9 @@ export const TodoList: React.FC<Props> = ({
           >
             <TodoItem
               todo={tempTodo}
-              clearingCompleted={clearingCompleted}
-              deletingTodo={deletingTodo}
               deleteTodo={deleteTodo}
               updateTodo={updateTodo}
-              updatingTodo={updatingTodo}
+              todosIdsAreLoading={todosIdsAreLoading}
             />
           </CSSTransition>
         )}

@@ -5,7 +5,7 @@ import {
 import { Todo } from '../../types/Todo';
 
 type Props = {
-  setErrorMessage: (m: string) => void,
+  errorNotification: (m: string) => void,
   isDisable: boolean,
   addTodo: (t: string, st: (t: string) => void) => void,
   todos: Todo[],
@@ -13,7 +13,7 @@ type Props = {
 };
 
 export const TodoHeader: React.FC<Props> = ({
-  setErrorMessage,
+  errorNotification,
   isDisable,
   addTodo,
   todos,
@@ -33,11 +33,7 @@ export const TodoHeader: React.FC<Props> = ({
     ev.preventDefault();
 
     if (!todoTitle.trim()) {
-      setErrorMessage('Title should not be empty');
-
-      setTimeout(() => {
-        setErrorMessage('');
-      }, 3000);
+      errorNotification('Title should not be empty');
 
       return;
     }
@@ -46,13 +42,8 @@ export const TodoHeader: React.FC<Props> = ({
   };
 
   const handleToggleAll = () => {
-    if (!isActiveToggleAll) {
-      todos.forEach(todo => !todo.completed
-        && updateTodo({ ...todo, completed: true }));
-    } else {
-      todos.forEach(todo => todo.completed
-        && updateTodo({ ...todo, completed: false }));
-    }
+    todos.forEach(todo => todo.completed === isActiveToggleAll
+      && updateTodo({ ...todo, completed: !isActiveToggleAll }));
   };
 
   return (

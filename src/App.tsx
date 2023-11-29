@@ -16,19 +16,21 @@ export const App: React.FC = () => {
   const [errorMessage, setErrorMessage] = useState('');
   const [filter, setFilter] = useState(Filter.All);
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
-  const [clearingCompleted, setClearingCompleted] = useState(false);
   const [isDisable, setIsDisable] = useState(false);
-  const [deletingTodo, setDeletingTodo] = useState<Todo | undefined>(undefined);
-  const [updatingTodo, setUpdatingTodo] = useState<Todo | undefined>(undefined);
+  const [todosIdsAreLoading, setTodosIdsAreLoading] = useState<number[]>([0]);
+
+  const errorNotification = (message: string) => {
+    setErrorMessage(message);
+    setTimeout(() => {
+      setErrorMessage('');
+    }, 3000);
+  };
 
   useEffect(() => {
     TodoService.getTodos(USER_ID)
       .then(setTodos)
       .catch(() => {
-        setErrorMessage('Unable to load todos');
-        setTimeout(() => {
-          setErrorMessage('');
-        }, 3000);
+        errorNotification('Unable to load todos');
       });
   }, []);
 
@@ -64,10 +66,7 @@ export const App: React.FC = () => {
         setTodoTitle('');
       })
       .catch(() => {
-        setErrorMessage('Unable to add a todo');
-        setTimeout(() => {
-          setErrorMessage('');
-        }, 3000);
+        errorNotification('Unable to add a todo');
       })
       .finally(() => {
         setTempTodo(null);
@@ -76,30 +75,29 @@ export const App: React.FC = () => {
   };
 
   const updateTodo = (updatedTodo: Todo) => {
-    setUpdatingTodo(todos.find(t => t.id === updatedTodo.id));
+    setTodosIdsAreLoading(currentIds => [...currentIds, updatedTodo.id]);
+
+    setTodos(currentTodos => {
+      const newTodos = [...currentTodos];
+      const index = newTodos.findIndex(t => t.id === updatedTodo.id);
+
+      newTodos.splice(index, 1, updatedTodo);
+
+      return newTodos;
+    });
 
     TodoService.updateTodo(updatedTodo)
-      .then(todo => {
-        setTodos(currentTodos => {
-          const newTodos = [...currentTodos];
-          const index = newTodos.findIndex(t => t.id === updatedTodo.id);
-
-          newTodos.splice(index, 1, todo);
-
-          return newTodos;
-        });
-      })
+      .then()
       .catch(() => {
-        setErrorMessage('Unable to update a todo');
-        setTimeout(() => {
-          setErrorMessage('');
-        }, 3000);
+        errorNotification('Unable to update a todo');
       })
-      .finally(() => setUpdatingTodo(undefined));
+      .finally(() => {
+        setTodosIdsAreLoading(ids => ids.filter(id => id !== updatedTodo.id));
+      });
   };
 
   const deleteTodo = (id: number) => {
-    setDeletingTodo(todos.find(t => t.id === id));
+    setTodosIdsAreLoading(currentIds => [...currentIds, id]);
 
     TodoService.deleteTodo(id)
       .then(() => {
@@ -107,12 +105,11 @@ export const App: React.FC = () => {
           .filter(t => t.id !== id));
       })
       .catch(() => {
-        setErrorMessage('Unable to delete a todo');
-        setTimeout(() => {
-          setErrorMessage('');
-        }, 3000);
+        errorNotification('Unable to delete a todo');
       })
-      .finally(() => setDeletingTodo(undefined));
+      .finally(() => {
+        setTodosIdsAreLoading(ids => ids.filter(todoId => todoId !== id));
+      });
   };
 
   if (!USER_ID) {
@@ -125,7 +122,7 @@ export const App: React.FC = () => {
 
       <div className="todoapp__content">
         <TodoHeader
-          setErrorMessage={setErrorMessage}
+          errorNotification={errorNotification}
           isDisable={isDisable}
           addTodo={addTodo}
           todos={todos}
@@ -135,18 +132,15 @@ export const App: React.FC = () => {
         <TodoList
           visibleTodos={visibleTodos}
           tempTodo={tempTodo}
-          clearingCompleted={clearingCompleted}
-          deletingTodo={deletingTodo}
           deleteTodo={deleteTodo}
           updateTodo={updateTodo}
-          updatingTodo={updatingTodo}
+          todosIdsAreLoading={todosIdsAreLoading}
         />
 
         {todos.length > 0 && (
           <TodoFooter
             todos={todos}
             setTodos={setTodos}
-            setClearingCompleted={setClearingCompleted}
             filter={filter}
             setFilter={setFilter}
             deleteTodo={deleteTodo}
