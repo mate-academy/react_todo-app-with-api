@@ -1,7 +1,7 @@
 # React Todo App with API
 [DEMO LINK](https://polinavafik.github.io/react_todo-app-with-api/)
 
-Todo App is a simple tool made with React for managing your to-do list. It's built with reusable components, making it highly modular and maintainable. It uses useContext for state management and adds a touch of elegance with smooth animations via <TransitionGroup>
+Todo App is a simple tool made with React for managing your to-do list. It's built with reusable components, making it highly modular and maintainable. It uses useContext for state management and adds a touch of elegance with smooth animations via TransitionGroup
 
 Key Features:
 ✧ API Integration: Load, update, delete, and add todos seamlessly from an external API, ensuring your task list is always up-to-date.
