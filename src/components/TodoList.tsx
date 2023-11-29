@@ -45,7 +45,7 @@ export const TodoList: React.FC<Props> = ({
   const handleSubmit = (event: React.FormEvent) => {
     event.preventDefault();
 
-    if (trimNewTitle === '') {
+    if (!trimNewTitle) {
       onDelete(todo.id);
 
       return;

@@ -38,7 +38,7 @@ export const App: React.FC = () => {
       switch (filterBy) {
         case FilterBy.Active:
           return !todo.completed;
-        case FilterBy.Complited:
+        case FilterBy.Completed:
           return todo.completed;
         default:
           return todos;

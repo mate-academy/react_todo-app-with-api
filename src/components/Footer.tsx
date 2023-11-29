@@ -1,6 +1,36 @@
-import cn from 'classnames';
 import { FilterBy } from '../types/FilterBy';
 import { Props } from '../types/Props';
+
+interface FilterOption {
+  label: string;
+  value: FilterBy;
+  dataCy: string;
+}
+
+interface FilterLinkProps {
+  label: string;
+  value: FilterBy;
+  dataCy: string;
+  onClick: (filter: FilterBy) => void;
+  isSelected: boolean;
+}
+
+const FilterLink: React.FC<FilterLinkProps> = ({
+  label,
+  value,
+  dataCy,
+  onClick,
+  isSelected,
+}) => (
+  <a
+    href={`#/${value.toLowerCase()}`}
+    className={`filter__link ${isSelected ? 'selected' : ''}`}
+    data-cy={dataCy}
+    onClick={() => onClick(value)}
+  >
+    {label}
+  </a>
+);
 
 export const Footer: React.FC<Props> = ({
   todosCounter,
@@ -11,6 +41,12 @@ export const Footer: React.FC<Props> = ({
 }) => {
   const activeTodos = todos.filter(todo => todo.completed);
 
+  const filterOptions: FilterOption[] = [
+    { label: 'All', value: FilterBy.All, dataCy: 'FilterLinkAll' },
+    { label: 'Active', value: FilterBy.Active, dataCy: 'FilterLinkActive' },
+    { label: 'Completed', value: FilterBy.Completed, dataCy: 'FilterLinkCompleted' },
+  ];
+
   return (
     <footer className="todoapp__footer" data-cy="Footer">
       <span className="todo-count" data-cy="TodosCounter">
@@ -18,38 +54,16 @@ export const Footer: React.FC<Props> = ({
       </span>
 
       <nav className="filter" data-cy="Filter">
-        <a
-          href="#/"
-          className={cn('filter__link', {
-            selected: filterBy === FilterBy.All,
-          })}
-          data-cy="FilterLinkAll"
-          onClick={() => setFilterBy(FilterBy.All)}
-        >
-          All
-        </a>
-
-        <a
-          href="#/active"
-          className={cn('filter__link', {
-            selected: filterBy === FilterBy.Active,
-          })}
-          data-cy="FilterLinkActive"
-          onClick={() => setFilterBy(FilterBy.Active)}
-        >
-          Active
-        </a>
-
-        <a
-          href="#/completed"
-          className={cn('filter__link', {
-            selected: filterBy === FilterBy.Complited,
-          })}
-          data-cy="FilterLinkCompleted"
-          onClick={() => setFilterBy(FilterBy.Complited)}
-        >
-          Completed
-        </a>
+      {filterOptions.map((option) => (
+        <FilterLink
+          key={option.value}
+          label={option.label}
+          value={option.value}
+          dataCy={option.dataCy}
+          onClick={setFilterBy}
+          isSelected={filterBy === option.value}
+          />
+        ))}
       </nav>
 
       <button
@@ -57,7 +71,7 @@ export const Footer: React.FC<Props> = ({
         className="todoapp__clear-completed"
         data-cy="ClearCompletedButton"
         onClick={onCompletedDelete}
-        disabled={!(activeTodos.length > 0)}
+        disabled={!activeTodos.length}
       >
         Clear completed
       </button>
