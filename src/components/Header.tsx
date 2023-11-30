@@ -26,8 +26,8 @@ export const Header: React.FC = () => {
       setErrorMessage(ErrorType.emptyTitleError);
       setTimeout(() => {
         setErrorMessage(ErrorType.noError);
-        setIsPosting(false);
       }, 3000);
+      setIsPosting(false);
     } else {
       setLoadingTodoId([0]);
       setTempTodo({
