@@ -22,14 +22,17 @@ export const Header: React.FC = () => {
   });
 
   function addTodo() {
-    setLoadingTodoId([0]);
-    setTempTodo({
-      id: 0, userId, title, completed: false,
-    });
     if (title.trim().length === 0) {
       setErrorMessage(ErrorType.emptyTitleError);
-      setTimeout(() => setErrorMessage(ErrorType.noError), 3000);
+      setTimeout(() => {
+        setErrorMessage(ErrorType.noError);
+        setIsPosting(false);
+      }, 3000);
     } else {
+      setLoadingTodoId([0]);
+      setTempTodo({
+        id: 0, userId, title, completed: false,
+      });
       postTodo({ userId, title, completed: false })
         .then(newTodo => {
           setTodos(currentTodos => [...currentTodos, newTodo]);
