@@ -111,7 +111,7 @@ Cypress.on('fail', (e) => {
   throw e;
 });
 
-describe.skip('', () => {
+describe('', () => {
   beforeEach(() => {
     // if (failed) Cypress.runner.stop();
   });
@@ -688,7 +688,7 @@ describe.skip('', () => {
     });
 
     it('should show todosCounter', () => {
-      page.todosCounter().should('have.text', '1 items left');
+      page.todosCounter().should('have.text', '1 item left');
     });
   });
 
@@ -766,7 +766,7 @@ describe.skip('', () => {
         todos.deleteButton(4).click();
         cy.wait('@deleteRequest');
 
-        page.todosCounter().should('have.text', '1 items left');
+        page.todosCounter().should('have.text', '1 item left');
       });
 
       it('should not adjust the active todo count after failed deletion', () => {
