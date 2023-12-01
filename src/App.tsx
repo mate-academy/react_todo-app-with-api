@@ -1,9 +1,13 @@
-/* eslint-disable max-len */
 /* eslint-disable jsx-a11y/control-has-associated-label */
 import React from 'react';
 import { UserWarning } from './UserWarning';
+import { GlobalProvider } from './components/TodoContext';
+import { TodoHeader } from './components/TodoHeader';
+import { TodoFooter } from './components/TodoFooter';
+import { TodoList } from './components/TodoList';
+import { ErrorNotification } from './components/ErrorNotification';
 
-const USER_ID = 0;
+const USER_ID = 11959;
 
 export const App: React.FC = () => {
   if (!USER_ID) {
@@ -11,14 +15,16 @@ export const App: React.FC = () => {
   }
 
   return (
-    <section className="section container">
-      <p className="title is-4">
-        Copy all you need from the prev task:
-        <br />
-        <a href="https://github.com/mate-academy/react_todo-app-add-and-delete#react-todo-app-add-and-delete">React Todo App - Add and Delete</a>
-      </p>
-
-      <p className="subtitle">Styles are already copied</p>
-    </section>
+    <GlobalProvider>
+      <div className="todoapp">
+        <h1 className="todoapp__title">todos</h1>
+        <div className="todoapp__content">
+          <TodoHeader />
+          <TodoList />
+          <TodoFooter />
+        </div>
+        <ErrorNotification />
+      </div>
+    </GlobalProvider>
   );
 };
