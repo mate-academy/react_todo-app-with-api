@@ -19,8 +19,6 @@ export const TodoItem: React.FC<Props> = React.memo(({
   const { id, title, completed } = todo;
 
   const [isEditing, setIsEditing] = useState(false);
-  const [isDeleting, setIsDeleting] = useState(false);
-  const [isUpdating, setIsUpdating] = useState(false);
   const [newTitle, setNewTitle] = useState(title);
 
   const titleField = useRef<HTMLInputElement>(null);
@@ -32,52 +30,69 @@ export const TodoItem: React.FC<Props> = React.memo(({
   }, [isEditing]);
 
   const handleDeleteTodo = () => {
-    setIsDeleting(true);
-    onDeleteTodo(id);
+    onDeleteTodo(id)
+      .then(() => setIsEditing(false))
+      .catch(() => titleField.current?.focus());
   };
 
-  const handleSubmit = () => {
-    const trimedTitle = newTitle.trim();
-    switch (trimedTitle) {
+  const handleSubmit = (event: React.FormEvent) => {
+    event.preventDefault();
+    if (isProcessed) {
+      return;
+    }
+
+    const trimmedTitle = newTitle.trim();
+
+    switch (trimmedTitle) {
       case '':
         handleDeleteTodo();
-        return;
+
+        break;
 
       case title:
         setIsEditing(false);
-        return;
+
+        break;
 
       default:
-        setIsEditing(false);
-        setIsUpdating(true);
-        onUpdateTodo({ ...todo, title: trimedTitle })
-          .finally(() => {
-            setIsUpdating(false);
-          });
+        if (titleField.current) {
+          titleField.current.disabled = true;
+        }
+
+        onUpdateTodo({ ...todo, title: trimmedTitle })
+          .then(() => {
+            setIsEditing(false);
+            if (titleField.current) {
+              titleField.current.disabled = false;
+            }
+          })
+          .catch(() => titleField.current?.focus());
+
+        break;
     }
   };
 
   const handleKeyUp = (event: TyKeybrEvtInputElmt) => {
+    // eslint-disable-next-line
+    console.info(event.key);
+
     switch (event.key) {
       case 'Escape':
         setIsEditing(false);
         setNewTitle(title);
-        return;
 
-      case 'Enter':
-        handleSubmit();
-        return;
+        break;
 
       default:
+
+        break;
     }
   };
 
   const handleTodoChecked = (
     event: TyChangeEvtInputElmt,
   ) => {
-    setIsUpdating(true);
-    onUpdateTodo({ ...todo, completed: event.target.checked, })
-      .finally(() => setIsUpdating(false));
+    onUpdateTodo({ ...todo, completed: event.target.checked });
   };
 
   return (
@@ -143,7 +158,7 @@ export const TodoItem: React.FC<Props> = React.memo(({
       <div
         data-cy="TodoLoader"
         className={cn('modal overlay', {
-          'is-active': isProcessed || isDeleting || isUpdating,
+          'is-active': isProcessed,
         })}
       >
         <div className="modal-background has-background-white-ter" />

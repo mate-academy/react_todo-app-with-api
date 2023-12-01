@@ -1,6 +1,8 @@
 /* eslint-disable max-len */
 /* eslint-disable jsx-a11y/control-has-associated-label */
-import React, { useEffect, useState, useMemo } from 'react';
+import React, {
+  useEffect, useState, useMemo, useCallback,
+} from 'react';
 import { TodoHeader } from './components/TodoHeader';
 import { TodoFooter } from './components/TodoFooter';
 import { ErrorNotification } from './components/ErrorNotification';
@@ -9,7 +11,7 @@ import { TodoError } from './types/TodoError';
 import * as todoServices from './api/todos';
 import { Filter } from './types/Filter';
 import { getPraperedTodos } from './services/todos';
-import { TodoList } from './components/TodoList';
+import { TodoItem } from './components/TodoItem';
 
 const USER_ID = 11968;
 
@@ -20,23 +22,38 @@ export const App: React.FC = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState<TodoError>(TodoError.NONE);
   const [filter, setFilter] = useState<Filter>(Filter.ALL);
+  const [processings, setProcessings] = useState<number[]>([]);
   // #endregion
 
   const visibleTodos = useMemo(() => getPraperedTodos(todos, filter), [todos, filter]);
   const activeTodos = useMemo(() => getPraperedTodos(todos, Filter.ACTIVE), [todos]);
-
+  const isAnyTodo = !!todos.length;
+  const isEachTodoComplete
+    = isAnyTodo && todos.every(todo => todo.completed);
   // #region HANDLER
   const handleFilterChange = (v: Filter) => setFilter(v);
 
-  const handleErrorMsg = (er: TodoError) => (() => setErrorMsg(er));
+  const handleErrorMsg = (todoErr: TodoError) => (
+    (err: any) => {
+      setErrorMsg(todoErr);
+      throw err;
+    });
   // #endregion
 
-  // #region load, add, update, delete
-  const loadTodos = (userId: Todo['id']) => {
+  // #region load, add, update, delete, addProcessing, removeProcessing
+  const addProcessing = (id: number) => {
+    setProcessings(crntIds => [...crntIds, id]);
+  };
+
+  const removeProcessing = (id: number) => {
+    setProcessings(crntIds => crntIds.filter(crntId => crntId !== id));
+  };
+
+  const loadTodos = useCallback((userId: Todo['id']) => {
     return todoServices.getTodos(userId)
       .then(setTodos)
       .catch(handleErrorMsg(TodoError.LOAD));
-  };
+  }, []);
 
   const addTodo = (todo: Omit<Todo, 'id' | 'userId'>): Promise<Todo | void> => {
     setIsLoading(true);
@@ -54,22 +71,39 @@ export const App: React.FC = () => {
   };
 
   const deleteTodo = (todoId: number) => {
+    addProcessing(todoId);
+
     return todoServices.deleteTodo(todoId)
       .then(() => {
         setTodos(crntTodos => crntTodos.filter(todo => todo.id !== todoId));
       })
-      .catch(handleErrorMsg(TodoError.UNABLE_DELETE));
+      .catch(handleErrorMsg(TodoError.UNABLE_DELETE))
+      .finally(() => removeProcessing(todoId));
   };
 
   const updateTodo = (updatedTodo: Todo) => {
     const { id: todoId, ...rest } = updatedTodo;
+
+    addProcessing(todoId);
+
     return todoServices.updateTodo(todoId, rest)
       .then((todoFromServer: Todo) => {
         setTodos(crntTodos => crntTodos.map((todo) => {
           return todo.id !== todoFromServer.id ? todo : todoFromServer;
         }));
       })
-      .catch(handleErrorMsg(TodoError.UNABLE_UPDATE));
+      .catch(handleErrorMsg(TodoError.UNABLE_UPDATE))
+      .finally(() => removeProcessing(todoId));
+  };
+
+  const toggleAll = () => {
+    const todosToToggle: Todo[] = isEachTodoComplete
+      ? todos
+      : activeTodos;
+
+    todosToToggle.forEach(todo => {
+      updateTodo({ ...todo, completed: !isEachTodoComplete });
+    });
   };
   // #endregion
 
@@ -79,7 +113,7 @@ export const App: React.FC = () => {
 
     loadTodos(USER_ID)
       .finally(() => setIsLoading(false));
-  }, []);
+  }, [loadTodos]);
   // #endregion
 
   return (
@@ -89,17 +123,32 @@ export const App: React.FC = () => {
       <div className="todoapp__content">
         <TodoHeader
           onAddTodo={addTodo}
+          onToggleAll={toggleAll}
           onErrorCreate={(errMsg: TodoError) => setErrorMsg(errMsg)}
+          isEachTodoComplete={isEachTodoComplete}
         />
 
-        {!!todos.length && (
+        {isAnyTodo && (
           <>
-            <TodoList
-              todos={visibleTodos}
-              tempTodo={tempTodo}
-              onDeleteTodo={deleteTodo}
-              onUpdateTodo={updateTodo}
-            />
+            <section className="todoapp__main" data-cy="TodoList">
+              {visibleTodos.map(todo => (
+                <TodoItem
+                  key={todo.id}
+                  todo={todo}
+                  onDeleteTodo={deleteTodo}
+                  onUpdateTodo={updateTodo}
+                  isProcessed={processings.includes(todo.id)}
+                />
+              ))}
+
+              {tempTodo && (
+                <TodoItem
+                  key={tempTodo.id}
+                  todo={tempTodo}
+                  isProcessed
+                />
+              )}
+            </section>
 
             <TodoFooter
               filter={filter}

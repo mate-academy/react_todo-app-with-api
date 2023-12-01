@@ -1,16 +1,22 @@
 import { useState, useRef, useEffect } from 'react';
+import cn from 'classnames';
+
 import { TyChangeEvtInputElmt } from '../types/General';
 import { Todo } from '../types/Todo';
 import { TodoError } from '../types/TodoError';
 
 type Props = {
   onAddTodo: (todo: Omit<Todo, 'id' | 'userId'>) => Promise<Todo | void>;
+  onToggleAll?: () => void;
   onErrorCreate?: (errMsg: TodoError) => void;
+  isEachTodoComplete?: boolean;
 };
 
 export const TodoHeader: React.FC<Props> = ({
   onAddTodo,
+  onToggleAll = () => { },
   onErrorCreate = () => { },
+  isEachTodoComplete = false,
 }) => {
   const [title, setTitle] = useState('');
   const titleInput = useRef<HTMLInputElement>(null);
@@ -65,9 +71,12 @@ export const TodoHeader: React.FC<Props> = ({
       {/* this buttons is active only if there are some active todos */}
       <button
         type="button"
-        className="todoapp__toggle-all active"
+        className={cn('todoapp__toggle-all', {
+          active: isEachTodoComplete,
+        })}
         data-cy="ToggleAllButton"
         aria-label="ToggleAllButton"
+        onClick={onToggleAll}
       />
 
       {/* Add a todo on form submit */}
