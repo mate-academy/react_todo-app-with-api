@@ -1,139 +1,197 @@
-import cn from 'classnames';
-import React, {
-  useCallback,
-  useEffect,
-  useRef,
-  useState,
+import {
+  Dispatch,
+  SetStateAction,
+  useEffect, useRef, useState,
 } from 'react';
+import classNames from 'classnames';
 import { Todo } from '../types/Todo';
-import { updateTodo } from '../api/todos';
+import {
+  deleteTodo, updateTodo as updateTodoAPI,
+} from '../api/todos';
 
 type Props = {
-  todo: Todo;
-  isLoading: boolean;
-  handleTodoDelete?: () => Promise<void>;
+  todo: Todo,
+  todos: Todo[],
+  setTodos: Dispatch<SetStateAction<Todo[]>>,
+  setErrorMessage: Dispatch<SetStateAction<string>>,
 };
 
-// eslint-disable-next-line @typescript-eslint/ban-types
-function debounce(callback: Function, delay: number) {
-  let timerId = 0;
-
-  return (...args: any) => {
-    window.clearTimeout(timerId);
-
-    timerId = window.setTimeout(() => {
-      callback(...args);
-    }, delay);
-  };
-}
-
 export const TodoItem: React.FC<Props> = ({
-  todo,
-  isLoading = true,
-  handleTodoDelete,
+  todo, todos, setTodos, setErrorMessage,
 }) => {
-  const [isEditing, setIsEditing] = useState(false);
-  const [newTitle, setNewTitle] = useState('');
-
-  const [newCompleted, setNewCompleted] = useState(todo.completed);
+  const [isEdit, setIsEdit] = useState(false);
+  const [todoValue, setTodoValue] = useState(todo.title);
+  const [shouldHandleBlur, setShouldHandleBlur] = useState(true);
 
   const inputRef = useRef<HTMLInputElement | null>(null);
 
-  const debouncedUpdateTodo = useCallback(
-    debounce(updateTodo, 100),
-    [],
-  );
+  const handleCheckbox = () => {
+    updateTodoAPI(todo.id, { completed: !todo.completed })
+      .then(() => {
+        const reverseStatus = (prevTodos: Todo[]) => {
+          return prevTodos.map((prevTodo) => {
+            if (prevTodo.id === todo.id) {
+              return { ...prevTodo, completed: !prevTodo.completed };
+            }
+
+            return prevTodo;
+          });
+        };
+
+        setTodos(reverseStatus(todos));
+      })
+      .catch(() => {
+        setErrorMessage('Unable to update a todo status');
+      });
+  };
+
+  const removeTodo = (id: number) => {
+    deleteTodo(id)
+      .then(() => {
+        const indexToDelete = todos.findIndex(elem => elem.id === id);
+
+        if (indexToDelete !== -1) {
+          const newTodos = [...todos];
+
+          newTodos.splice(indexToDelete, 1);
+          setTodos(newTodos);
+        }
+      })
+      .catch(() => {
+        setErrorMessage('Unable to delete a todo');
+      });
+  };
 
   useEffect(() => {
-    if (isEditing && inputRef.current) {
+    if (isEdit && inputRef.current) {
       inputRef.current.focus();
     }
-  }, [isEditing]);
+  }, [isEdit]);
 
-  useEffect(() => {
-    if (!newTitle) {
-      return;
+  const handleDoubleClick = () => {
+    setShouldHandleBlur(true);
+    setIsEdit(true);
+    if (inputRef.current) {
+      inputRef.current.focus();
+    }
+  };
+
+  const handleLabelChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setTodoValue(event.target.value.trim() === '' ? '' : event.target.value);
+  };
+
+  function updateTodo() {
+    updateTodoAPI(todo.id, { title: todoValue })
+      .then(() => {
+        const updatedTodos = todos.map((prevTodo) => {
+          if (prevTodo.id === todo.id) {
+            return { ...prevTodo, title: todoValue };
+          }
+
+          return prevTodo;
+        });
+
+        setTodos(updatedTodos);
+      })
+      .catch(() => setErrorMessage('Unable to update title'))
+      .finally(() => setIsEdit(false));
+  }
+
+  const handleLabelKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
+    if (!todoValue.length && event.key === 'Enter') {
+      removeTodo(todo.id);
     }
 
-    const newTitleUpdate = {
-      id: todo.id,
-      userId: todo.userId,
-      title: newTitle,
-      completed: todo.completed,
-    };
+    if (todoValue.length && event.key === 'Enter') {
+      event.preventDefault();
+      updateTodo();
+    }
+  };
 
-    debouncedUpdateTodo(newTitleUpdate);
-  }, [newTitle, todo, debouncedUpdateTodo]);
+  const handleLabelKeyUp = (event: React.KeyboardEvent<HTMLInputElement>) => {
+    if (event.key === 'Escape') {
+      setTodoValue(todo.title);
+      setIsEdit(false);
+      setShouldHandleBlur(false);
+    }
+  };
+
+  const handleLabelBlur = () => {
+    if (shouldHandleBlur) {
+      if (!todoValue.length) {
+        removeTodo(todo.id);
+      } else {
+        updateTodo();
+      }
+    }
+  };
 
   return (
     <div
       data-cy="Todo"
-      className={cn({
+      className={classNames('todo', {
         completed: todo.completed,
-      }, 'todo')}
-      key={todo.id}
-      onDoubleClick={() => setIsEditing(true)}
+      })}
     >
-      <label className="todo__status-label">
+      <label
+        className="todo__status-label"
+      >
         <input
           data-cy="TodoStatus"
           type="checkbox"
           className="todo__status"
-          checked={newCompleted}
-          onChange={() => {
-            setNewCompleted(!newCompleted);
-            updateTodo({ ...todo, completed: newCompleted });
-          }}
+          checked={todo.completed}
+          onChange={handleCheckbox}
         />
       </label>
-      {!isEditing
-        ? (
-          <>
-            <span data-cy="TodoTitle" className="todo__title">
-              {todo.title}
-            </span>
 
-            {/* Remove button appears only on hover */}
-            <button
-              type="button"
-              className="todo__remove"
-              data-cy="TodoDelete"
-              onClick={handleTodoDelete}
-            >
-              ×
-            </button>
-          </>
-        ) : (
-          <form>
-            <input
-              ref={inputRef}
-              data-cy="TodoTitleField"
-              type="text"
-              className="todo__title-field"
-              placeholder="Empty todo will be deleted"
-              value={newTitle}
-              onChange={event => setNewTitle(event.target.value)}
-              onKeyUp={(event) => {
-                if (event.key === 'Escape') {
-                  setIsEditing(false);
-                  setNewTitle(todo.title);
-                }
+      {!isEdit && (
+        <span
+          data-cy="TodoTitle"
+          className="todo__title"
+          onDoubleClick={handleDoubleClick}
+        >
+          {todo.title}
+        </span>
+      )}
 
-                if (event.key === 'Enter') {
-                  setIsEditing(false);
-                  setNewTitle(newTitle);
-                }
-              }}
-            />
-          </form>
-        )}
+      {!isEdit && (
+        <button
+          type="button"
+          className="todo__remove"
+          data-cy="TodoDelete"
+          onClick={() => removeTodo(todo.id)}
+          aria-label="Delete"
+        >
+          ×
+        </button>
+      )}
+
+      {isEdit && (
+        <form>
+          <input
+            data-cy="TodoTitleField"
+            type="text"
+            className="todo__title-field"
+            placeholder="Empty todo will be deleted"
+            value={todoValue}
+            onChange={handleLabelChange}
+            onKeyDown={handleLabelKeyDown}
+            onKeyUp={handleLabelKeyUp}
+            onBlur={handleLabelBlur}
+            ref={inputRef}
+          />
+        </form>
+      )}
+
       <div
         data-cy="TodoLoader"
-        className={cn('modal overlay', { 'is-active': isLoading })}
+        className="modal overlay"
       >
         <div className="modal-background has-background-white-ter" />
         <div className="loader" />
       </div>
+
     </div>
   );
 };
