@@ -30,6 +30,7 @@ export const App: React.FC = () => {
   const isAnyTodo = !!todos.length;
   const isEachTodoComplete
     = isAnyTodo && todos.every(todo => todo.completed);
+
   // #region HANDLER
   const handleFilterChange = (v: Filter) => setFilter(v);
 
@@ -97,13 +98,14 @@ export const App: React.FC = () => {
   };
 
   const toggleAll = () => {
-    const todosToToggle: Todo[] = isEachTodoComplete
-      ? todos
-      : activeTodos;
-
-    todosToToggle.forEach(todo => {
+    (isEachTodoComplete ? todos : activeTodos).forEach(todo => {
       updateTodo({ ...todo, completed: !isEachTodoComplete });
     });
+  };
+
+  const deleteCompletedTodos = () => {
+    getPraperedTodos(todos, Filter.COMPLETED)
+      .forEach(todo => deleteTodo(todo.id));
   };
   // #endregion
 
@@ -153,6 +155,7 @@ export const App: React.FC = () => {
             <TodoFooter
               filter={filter}
               onFilterChange={handleFilterChange}
+              onClearCompleted={deleteCompletedTodos}
               quantityActiveTodos={activeTodos.length}
               isAnyTodoComplete={todos.some(todo => todo.completed)}
             />

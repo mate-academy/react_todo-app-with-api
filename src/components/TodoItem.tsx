@@ -73,9 +73,6 @@ export const TodoItem: React.FC<Props> = React.memo(({
   };
 
   const handleKeyUp = (event: TyKeybrEvtInputElmt) => {
-    // eslint-disable-next-line
-    console.info(event.key);
-
     switch (event.key) {
       case 'Escape':
         setIsEditing(false);

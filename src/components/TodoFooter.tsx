@@ -4,6 +4,7 @@ import { Filter } from '../types/Filter';
 type Props = {
   filter: Filter;
   onFilterChange?: (v: Filter) => void;
+  onClearCompleted?: () => void;
   quantityActiveTodos: number;
   isAnyTodoComplete: boolean;
 };
@@ -11,6 +12,7 @@ type Props = {
 export const TodoFooter: React.FC<Props> = ({
   filter,
   onFilterChange = () => { },
+  onClearCompleted = () => { },
   quantityActiveTodos,
   isAnyTodoComplete,
 }) => {
@@ -64,6 +66,7 @@ export const TodoFooter: React.FC<Props> = ({
           type="button"
           className="todoapp__clear-completed"
           data-cy="ClearCompletedButton"
+          onClick={onClearCompleted}
         >
           Clear completed
         </button>
