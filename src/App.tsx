@@ -16,22 +16,20 @@ import { TodoItem } from './components/TodoItem';
 const USER_ID = 11968;
 
 export const App: React.FC = () => {
-  // #region STATE
   const [todos, setTodos] = useState<Todo[]>([]);
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState<TodoError>(TodoError.NONE);
   const [filter, setFilter] = useState<Filter>(Filter.ALL);
   const [processings, setProcessings] = useState<number[]>([]);
-  // #endregion
 
   const visibleTodos = useMemo(() => getPraperedTodos(todos, filter), [todos, filter]);
   const activeTodos = useMemo(() => getPraperedTodos(todos, Filter.ACTIVE), [todos]);
+  const isAnyTodoComplete = (): boolean => todos.some(todo => todo.completed);
   const isAnyTodo = !!todos.length;
   const isEachTodoComplete
     = isAnyTodo && todos.every(todo => todo.completed);
 
-  // #region HANDLER
   const handleFilterChange = (v: Filter) => setFilter(v);
 
   const handleErrorMsg = (todoErr: TodoError) => (
@@ -39,9 +37,7 @@ export const App: React.FC = () => {
       setErrorMsg(todoErr);
       throw err;
     });
-  // #endregion
 
-  // #region load, add, update, delete, addProcessing, removeProcessing
   const addProcessing = (id: number) => {
     setProcessings(crntIds => [...crntIds, id]);
   };
@@ -107,16 +103,13 @@ export const App: React.FC = () => {
     getPraperedTodos(todos, Filter.COMPLETED)
       .forEach(todo => deleteTodo(todo.id));
   };
-  // #endregion
 
-  // #region EFFECT
   useEffect(() => {
     setIsLoading(true);
 
     loadTodos(USER_ID)
       .finally(() => setIsLoading(false));
   }, [loadTodos]);
-  // #endregion
 
   return (
     <div className="todoapp">
@@ -157,7 +150,7 @@ export const App: React.FC = () => {
               onFilterChange={handleFilterChange}
               onClearCompleted={deleteCompletedTodos}
               quantityActiveTodos={activeTodos.length}
-              isAnyTodoComplete={todos.some(todo => todo.completed)}
+              isAnyTodoComplete={isAnyTodoComplete()}
             />
           </>
         )}
