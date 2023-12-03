@@ -21,7 +21,6 @@ export const TodoHeader: React.FC<Props> = ({
   const [title, setTitle] = useState('');
   const titleInput = useRef<HTMLInputElement>(null);
 
-  // #region HANDLER
   const handleInputChange = (event: TyChangeEvtInputElmt) => {
     setTitle(event.target.value);
   };
@@ -36,11 +35,11 @@ export const TodoHeader: React.FC<Props> = ({
       return;
     }
 
-    if (titleInput.current?.disabled) { // prevent double submit
+    if (titleInput.current?.disabled) {
       return;
     }
 
-    if (titleInput.current) { // disable input on loading time
+    if (titleInput.current) {
       titleInput.current.disabled = true;
     }
 
@@ -56,15 +55,12 @@ export const TodoHeader: React.FC<Props> = ({
       setTitle('');
     });
   };
-  // #endregion
 
-  // #region EFFECT
   useEffect(() => {
     if (titleInput.current) {
       titleInput.current.focus();
     }
   }, [titleInput]);
-  // #endregion
 
   return (
     <header className="todoapp__header">
