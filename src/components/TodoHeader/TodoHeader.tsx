@@ -10,7 +10,9 @@ import {
   setTempTodo,
 } from '../../redux/todoSlice';
 import { ErrorType } from '../../types/ErrorType';
-import { addTodo, completeAllTodos } from '../../redux/todoThunks';
+import {
+  addTodo, completeUncompletedTodos, toggleAllTodos,
+} from '../../redux/todoThunks';
 
 export const TodoHeader: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>();
@@ -77,16 +79,19 @@ export const TodoHeader: React.FC = () => {
     }
   };
 
-  const handleCompleteAll = () => {
-    const shouldComplete = todos.some(todo => !todo.completed);
-
+  const handleToggleOrCompleteAll = () => {
     if (!todos.length) {
       dispatch(setErrorType(ErrorType.CompleteAllTodosError));
 
       return;
     }
 
-    dispatch(completeAllTodos({ todos, shouldComplete }));
+    const allCompleted = todos.every(todo => todo.completed);
+    const actionToDispatch = allCompleted
+      ? toggleAllTodos(todos)
+      : completeUncompletedTodos(todos.filter(todo => !todo.completed));
+
+    dispatch(actionToDispatch);
   };
 
   return (
@@ -96,7 +101,7 @@ export const TodoHeader: React.FC = () => {
         className={cn('todoapp__toggle-all', { active: hasActiveTodos })}
         data-cy="ToggleAllButton"
         aria-label="Toggle All"
-        onClick={handleCompleteAll}
+        onClick={handleToggleOrCompleteAll}
       />
 
       <form onSubmit={handleFormSubmit}>

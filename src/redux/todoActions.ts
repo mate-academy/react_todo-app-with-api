@@ -79,15 +79,26 @@ export const deleteAllCompletedTodosRejected
     'todos/deleteAllCompletedTodosRejected',
   );
 
-export const completeAllTodosPending
-  = createAction(
-    'todos/completeAllTodosPending',
-  );
-export const completeAllTodosFulfilled
-  = createAction<boolean>(
-    'todos/completeAllTodosFulfilled',
-  );
-export const completeAllTodosRejected
-  = createAction<string>(
-    'todos/completeAllTodosRejected',
-  );
+export const completeUncompletedTodosPending = createAction(
+  'todos/completeUncompletedTodosPending',
+);
+
+export const completeUncompletedTodosFulfilled = createAction<Todo[]>(
+  'todos/completeUncompletedTodosFulfilled',
+);
+
+export const completeUncompletedTodosRejected = createAction<string>(
+  'todos/completeUncompletedTodosRejected',
+);
+
+export const toggleAllTodosPending = createAction(
+  'todos/toggleAllTodosPending',
+);
+
+export const toggleAllTodosFulfilled = createAction<Todo[]>(
+  'todos/toggleAllTodosFulfilled',
+);
+
+export const toggleAllTodosRejected = createAction<string>(
+  'todos/toggleAllTodosRejected',
+);

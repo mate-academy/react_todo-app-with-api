@@ -131,26 +131,45 @@ export const setCompletion = createAsyncThunk(
   },
 );
 
-export const completeAllTodos = createAsyncThunk(
-  'todos/completeAllTodos',
-  async ({ todos, shouldComplete }: { todos: Todo[], shouldComplete: boolean },
-    { dispatch }) => {
-    dispatch(todoActions.completeAllTodosPending());
+export const completeUncompletedTodos = createAsyncThunk(
+  'todos/completeUncompletedTodos',
+  async (uncompletedTodos: Todo[], { dispatch }) => {
+    dispatch(todoActions.completeUncompletedTodosPending());
 
     try {
-      const updatedTodos = todos.map(todo => ({
-        ...todo,
-        completed: shouldComplete,
-      }));
+      const updatedTodos
+        = uncompletedTodos.map(todo => ({ ...todo, completed: true }));
 
-      await completeAllTodosApi(updatedTodos, shouldComplete);
-      dispatch(todoActions.completeAllTodosFulfilled(shouldComplete));
+      await completeAllTodosApi(updatedTodos);
+      dispatch(todoActions.completeUncompletedTodosFulfilled(updatedTodos));
     } catch (error) {
       const errorMessage = error instanceof Error
         ? error.message
-        : 'Failed to complete all todos';
+        : 'Failed to complete uncompleted todos';
 
-      dispatch(todoActions.completeAllTodosRejected(errorMessage));
+      dispatch(todoActions.completeUncompletedTodosRejected(errorMessage));
+    }
+  },
+);
+
+export const toggleAllTodos = createAsyncThunk(
+  'todos/toggleAllTodos',
+  async (todos: Todo[], { dispatch }) => {
+    dispatch(todoActions.toggleAllTodosPending());
+
+    try {
+      const togglePromises
+        = todos.map(todo => setTodoCompletionApi(todo.id, !todo.completed));
+
+      const updatedTodos = await Promise.all(togglePromises);
+
+      dispatch(todoActions.toggleAllTodosFulfilled(updatedTodos));
+    } catch (error) {
+      const errorMessage = error instanceof Error
+        ? error.message
+        : 'Failed to toggle todos';
+
+      dispatch(todoActions.toggleAllTodosRejected(errorMessage));
     }
   },
 );

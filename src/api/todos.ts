@@ -54,10 +54,10 @@ export const setTodoCompletionApi = async (
 };
 
 export const completeAllTodosApi = (
-  todos: Todo[], shouldComplete: boolean,
+  todos: Todo[],
 ): Promise<Todo[]> => {
   const updatePromises
-    = todos.map(todo => setTodoCompletionApi(todo.id, shouldComplete));
+    = todos.map(todo => setTodoCompletionApi(todo.id, true));
 
   return Promise.all(updatePromises);
 };

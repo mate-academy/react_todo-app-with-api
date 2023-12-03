@@ -186,29 +186,64 @@ const todoSlice = createSlice({
           state.errorType = ErrorType.DeleteTodoError;
           state.deletingTodoIds = [];
         })
-      .addCase(actions.completeAllTodosPending,
-        (state) => {
-          state.status = 'loading';
-          state.completingTodoIds = state.todos.map(todo => todo.id);
-        })
-      .addCase(actions.completeAllTodosFulfilled,
-        (state, action: PayloadAction<boolean>) => {
-          const shouldComplete = action.payload;
+      .addCase(actions.completeUncompletedTodosPending, (state) => {
+        state.status = 'loading';
 
+        const uncompletedTodoIds
+          = state.todos.filter(todo => !todo.completed).map(todo => todo.id);
+
+        state.completingTodoIds.push(...uncompletedTodoIds);
+      })
+      .addCase(actions.completeUncompletedTodosFulfilled,
+        (state, action: PayloadAction<Todo[]>) => {
           state.status = 'idle';
-          state.todos.forEach(todo => {
-            todo.completed = shouldComplete;
+          const updatedTodos = action.payload;
+
+          updatedTodos.forEach((updatedTodo) => {
+            const todoIndex
+              = state.todos.findIndex((todo) => todo.id === updatedTodo.id);
+
+            if (todoIndex !== -1) {
+              state.todos[todoIndex] = updatedTodo;
+            }
           });
           state.completingTodoIds = [];
         })
-      .addCase(actions.completeAllTodosRejected,
+      .addCase(actions.completeUncompletedTodosRejected,
         (state, action: PayloadAction<string>) => {
           state.status = 'failed';
-          state.errorType = ErrorType.UpdateTodoError;
           state.error = action.payload;
+          state.errorType = ErrorType.DeleteTodoError;
           state.completingTodoIds = [];
+        })
+      .addCase(actions.toggleAllTodosPending, (state) => {
+        state.status = 'loading';
+        state.updatingTodoIds = state.todos.map(todo => todo.id);
+      })
+      .addCase(actions.toggleAllTodosFulfilled,
+        (state, action: PayloadAction<Todo[]>) => {
+          state.status = 'idle';
+          const updatedTodos = action.payload;
+
+          updatedTodos.forEach(updatedTodo => {
+            const todoIndex
+              = state.todos.findIndex(todo => todo.id === updatedTodo.id);
+
+            if (todoIndex !== -1) {
+              state.todos[todoIndex] = updatedTodo;
+            }
+          });
+          state.updatingTodoIds = [];
+        })
+      .addCase(actions.toggleAllTodosRejected,
+        (state, action: PayloadAction<string>) => {
+          state.status = 'failed';
+          state.error = action.payload;
+          state.errorType = ErrorType.UpdateTodoError;
+          state.updatingTodoIds = [];
         });
   },
+
 });
 
 export const {
