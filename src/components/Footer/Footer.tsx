@@ -1,19 +1,20 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import cn from 'classnames';
 import { Filter } from '../../types/Filter';
-import { Todo } from '../../types/Todo';
 import { pluralize } from '../../utils/pluralize';
+import { TodosContext } from '../../TodosContext';
 
 interface Props {
-  setFilter: (q: Filter) => void;
-  filterOption: Filter;
-  todos: Todo[];
   deleteCompleted: () => void;
 }
 
 export const Footer: React.FC<Props> = ({
-  setFilter, filterOption, todos, deleteCompleted,
+  deleteCompleted,
 }) => {
+  const context = useContext(TodosContext);
+
+  const { todos, filter, setFilter } = context;
+
   const completedTodo = todos.some(todo => todo.completed);
   const todosLeft = todos.filter(todo => !todo.completed).length;
 
@@ -28,7 +29,7 @@ export const Footer: React.FC<Props> = ({
           href="#/"
           className={cn(
             'filter__link',
-            { selected: filterOption === Filter.All },
+            { selected: filter === Filter.All },
           )}
           data-cy="FilterLinkAll"
           onClick={() => setFilter(Filter.All)}
@@ -41,7 +42,7 @@ export const Footer: React.FC<Props> = ({
           className={
             cn(
               'filter__link',
-              { selected: filterOption === Filter.Active },
+              { selected: filter === Filter.Active },
             )
           }
           data-cy="FilterLinkActive"
@@ -55,7 +56,7 @@ export const Footer: React.FC<Props> = ({
           className={
             cn(
               'filter__link',
-              { selected: filterOption === Filter.Completed },
+              { selected: filter === Filter.Completed },
             )
           }
           data-cy="FilterLinkCompleted"

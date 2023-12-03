@@ -1,22 +1,27 @@
-import { useRef, useEffect } from 'react';
+import { useRef, useEffect, useContext } from 'react';
 import { Todo } from '../../types/Todo';
 import { ErrorNotification } from '../../types/ErrorNotification';
+import { TodosContext } from '../../TodosContext';
 
 /* eslint-disable jsx-a11y/control-has-associated-label */
 interface Props {
-  todos: Todo[],
-  setErrorMessage: (q: ErrorNotification) => void;
   onAdd: (todo: Omit<Todo, 'id'>) => void;
-  title: string;
-  setTitle: (q: string) => void;
   userId: number;
-  isInputDisabled: boolean;
 }
 
 export const Header: React.FC<Props> = ({
-  onAdd, setErrorMessage, todos, title, setTitle, userId, isInputDisabled,
+  onAdd, userId,
 }) => {
   const inputRef = useRef<HTMLInputElement>(null);
+  const context = useContext(TodosContext);
+
+  const {
+    todos,
+    title,
+    setTitle,
+    isInputDisabled,
+    setErrorMessage,
+  } = context;
 
   useEffect(() => {
     if (inputRef.current) {

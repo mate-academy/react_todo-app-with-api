@@ -1,17 +1,22 @@
 import cn from 'classnames';
+import { useContext } from 'react';
 import { Todo } from '../../types/Todo';
+import { TodosContext } from '../../TodosContext';
 
 interface Props {
   todo: Todo;
   removeTodo: (todo: Todo) => void;
   isTempTodo: boolean;
-  isLoader: number | null;
 }
 
 export const TodoItem: React.FC<Props> = ({
-  todo, isTempTodo, removeTodo, isLoader,
+  todo, isTempTodo, removeTodo,
 }) => {
   const { title, completed } = todo;
+
+  const context = useContext(TodosContext);
+
+  const { isLoader } = context;
 
   return (
     <div

@@ -1,14 +1,14 @@
 /* eslint-disable jsx-a11y/control-has-associated-label */
-import React, { useEffect, useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
 
 import { ErrorNotification } from '../../types/ErrorNotification';
+import { TodosContext } from '../../TodosContext';
 
-interface Props {
-  errorMessage: ErrorNotification;
-  setErrorMessage: (q: ErrorNotification) => void;
-}
+export const Error = () => {
+  const context = useContext(TodosContext);
 
-export const Error: React.FC<Props> = ({ errorMessage, setErrorMessage }) => {
+  const { errorMessage, setErrorMessage } = context;
+
   const [isHidden, setIsHidden] = useState(true);
 
   useEffect(() => {
