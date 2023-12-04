@@ -1,5 +1,10 @@
 /* eslint-disable jsx-a11y/control-has-associated-label */
-import React, { useEffect, useContext } from 'react';
+import React, {
+  useEffect,
+  useContext,
+  useState,
+  useMemo,
+} from 'react';
 import { Header } from './components/Header';
 import { TodoList } from './components/TodoList';
 import { Footer } from './components/Footer';
@@ -9,46 +14,60 @@ import { ErrorNotification } from './types/ErrorNotification';
 import { Error } from './components/Error';
 import { TodoItem } from './components/TodoItem';
 import { TodosContext } from './TodosContext';
+import { Filter } from './types/Filter';
 
 const USER_ID = 11988;
 
 export const App: React.FC = () => {
-  const context = useContext(TodosContext);
-
   const {
     todos,
     setTodos,
-    setErrorMessage,
     setTitle,
     tempTodo,
     setTempTodo,
     setIsInputDisabled,
     setIsLoader,
-  } = context;
+  } = useContext(TodosContext);
+
+  const [filter, setFilter] = useState<Filter>(Filter.All);
+  const [errorMessage, setErrorMessage]
+    = useState<ErrorNotification>(ErrorNotification.Default);
 
   useEffect(() => {
     setErrorMessage(ErrorNotification.Default);
     getTodos(USER_ID)
       .then(setTodos)
       .catch(() => setErrorMessage(ErrorNotification.LoadError));
-  }, []);
+  }, [setErrorMessage, setTodos]);
 
-  const createTodo = async (newTodo: Omit<Todo, 'id'>) => {
+  const filteredTodos = useMemo(() => {
+    switch (filter) {
+      case Filter.Active:
+        return todos.filter(todo => !todo.completed);
+      case Filter.Completed:
+        return todos.filter(todo => todo.completed);
+      default:
+        return todos;
+    }
+  }, [todos, filter]);
+
+  const createTodo = (newTodo: Omit<Todo, 'id'>) => {
     setErrorMessage(ErrorNotification.Default);
 
-    try {
-      setIsInputDisabled(true);
-      setTempTodo({ id: 0, ...newTodo });
-      const todo = await addTodo(newTodo);
-
-      setTodos([...todos, todo]);
-    } catch (error) {
-      setErrorMessage(ErrorNotification.AddError);
-      throw error;
-    } finally {
-      setTempTodo(null);
-      setIsInputDisabled(false);
-    }
+    addTodo(newTodo)
+      .then((todo) => {
+        setIsInputDisabled(true);
+        setTempTodo({ id: 0, ...newTodo });
+        setTodos([...todos, todo]);
+      })
+      .catch((error) => {
+        setErrorMessage(ErrorNotification.AddError);
+        throw error;
+      })
+      .finally(() => {
+        setTempTodo(null);
+        setIsInputDisabled(false);
+      });
 
     setTitle('');
   };
@@ -56,35 +75,32 @@ export const App: React.FC = () => {
   const removeTodo = async (todo: Todo) => {
     setErrorMessage(ErrorNotification.Default);
 
-    try {
-      setIsLoader(todo.id);
-      await deleteTodo(todo.id);
-    } catch (error) {
-      setErrorMessage(ErrorNotification.DeleteError);
-      setIsLoader(null);
-      throw error;
-    } finally {
-      setTempTodo(null);
-    }
+    deleteTodo(todo.id)
+      .then(() => setIsLoader(todo.id))
+      .catch(() => {
+        setErrorMessage(ErrorNotification.DeleteError);
+        setIsLoader(null);
+      })
+      .finally(() => setTempTodo(null));
 
     setTodos(todos.filter(item => item.id !== todo.id));
   };
 
   const deleteSeveral = async () => {
-    try {
-      const deletePromises = todos
-        .filter(todo => todo.completed)
-        .map(todo => deleteTodo(todo.id));
+    const deletePromises = todos
+      .filter(todo => todo.completed)
+      .map(todo => deleteTodo(todo.id));
 
-      await Promise.allSettled(deletePromises);
-    } catch (error) {
-      setErrorMessage(ErrorNotification.DeleteError);
-      throw error;
-    } finally {
-      const newTodos = todos.filter(todo => !todo.completed);
+    Promise.allSettled(deletePromises)
+      .catch((error) => {
+        setErrorMessage(ErrorNotification.DeleteError);
+        throw error;
+      })
+      .finally(() => {
+        const newTodos = todos.filter(todo => !todo.completed);
 
-      setTodos(newTodos);
-    }
+        setTodos(newTodos);
+      });
   };
 
   return (
@@ -95,10 +111,13 @@ export const App: React.FC = () => {
         <Header
           onAdd={createTodo}
           userId={USER_ID}
+          setErrorMessage={setErrorMessage}
         />
         {todos.length !== 0 && (
           <TodoList
+            filteredTodos={filteredTodos}
             removeTodo={removeTodo}
+            setErrorMessage={setErrorMessage}
           />
         )}
 
@@ -106,18 +125,24 @@ export const App: React.FC = () => {
           <TodoItem
             todo={tempTodo}
             removeTodo={removeTodo}
+            setErrorMessage={setErrorMessage}
             isTempTodo
           />
         )}
 
         {todos.length !== 0 && (
           <Footer
+            filter={filter}
+            setFilter={setFilter}
             deleteCompleted={deleteSeveral}
           />
         )}
       </div>
 
-      <Error />
+      <Error
+        errorMessage={errorMessage}
+        setErrorMessage={setErrorMessage}
+      />
     </div>
   );
 };

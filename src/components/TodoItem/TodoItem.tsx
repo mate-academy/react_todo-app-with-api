@@ -14,14 +14,13 @@ interface Props {
   todo: Todo;
   removeTodo: (todo: Todo) => void;
   isTempTodo: boolean;
+  setErrorMessage: (q: ErrorNotification) => void;
 }
 
 export const TodoItem: React.FC<Props> = ({
-  todo, isTempTodo, removeTodo,
+  todo, isTempTodo, removeTodo, setErrorMessage,
 }) => {
   const { title, completed, id } = todo;
-
-  const context = useContext(TodosContext);
 
   const [editedTitle, setEditedTitle] = useState(title);
   const [editingTodoId, setEditingTodoId] = useState<number | null>(null);
@@ -39,8 +38,7 @@ export const TodoItem: React.FC<Props> = ({
     setIsLoader,
     todos,
     setTodos,
-    setErrorMessage,
-  } = context;
+  } = useContext(TodosContext);
 
   const handleCheckboxUpdate = () => {
     setIsLoader(id);
@@ -128,15 +126,22 @@ export const TodoItem: React.FC<Props> = ({
   const handleKeyDown = (
     event: React.KeyboardEvent<HTMLInputElement>,
   ) => {
-    if (event.key === 'Enter') {
-      if (editedTitle.trim() === title) {
+    switch (event.key) {
+      case 'Enter':
+        if (editedTitle.trim() === title) {
+          setEditingTodoId(null);
+        } else {
+          updateTodoTitle(editedTitle.trim());
+        }
+
+        break;
+
+      case 'Escape':
+        setEditedTitle(title);
         setEditingTodoId(null);
-      } else {
-        updateTodoTitle(editedTitle.trim());
-      }
-    } else if (event.key === 'Escape') {
-      setEditedTitle(title);
-      setEditingTodoId(null);
+        break;
+
+      default:
     }
   };
 
@@ -162,7 +167,7 @@ export const TodoItem: React.FC<Props> = ({
 
       {
         editingTodoId === id && (
-          <form onSubmit={event => event.preventDefault}>
+          <form onSubmit={event => event.preventDefault()}>
             <input
               data-cy="TodoTitleField"
               type="text"

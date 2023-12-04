@@ -9,13 +9,13 @@ import { updateTodo } from '../../api/todos';
 interface Props {
   onAdd: (todo: Omit<Todo, 'id'>) => void;
   userId: number;
+  setErrorMessage: (q: ErrorNotification) => void;
 }
 
 export const Header: React.FC<Props> = ({
-  onAdd, userId,
+  onAdd, userId, setErrorMessage,
 }) => {
   const inputRef = useRef<HTMLInputElement>(null);
-  const context = useContext(TodosContext);
 
   const {
     todos,
@@ -23,8 +23,7 @@ export const Header: React.FC<Props> = ({
     title,
     setTitle,
     isInputDisabled,
-    setErrorMessage,
-  } = context;
+  } = useContext(TodosContext);
 
   useEffect(() => {
     if (inputRef.current) {

@@ -5,15 +5,15 @@ import { pluralize } from '../../utils/pluralize';
 import { TodosContext } from '../../TodosContext';
 
 interface Props {
+  filter: Filter;
+  setFilter: (q: Filter) => void;
   deleteCompleted: () => void;
 }
 
 export const Footer: React.FC<Props> = ({
-  deleteCompleted,
+  deleteCompleted, filter, setFilter,
 }) => {
-  const context = useContext(TodosContext);
-
-  const { todos, filter, setFilter } = context;
+  const { todos } = useContext(TodosContext);
 
   const completedTodo = todos.some(todo => todo.completed);
   const todosLeft = todos.filter(todo => !todo.completed).length;
@@ -66,16 +66,15 @@ export const Footer: React.FC<Props> = ({
         </a>
       </nav>
 
-      {completedTodo && (
-        <button
-          type="button"
-          className="todoapp__clear-completed"
-          data-cy="ClearCompletedButton"
-          onClick={deleteCompleted}
-        >
-          {completedTodo && 'Clear completed'}
-        </button>
-      )}
+      <button
+        type="button"
+        className="todoapp__clear-completed"
+        data-cy="ClearCompletedButton"
+        onClick={deleteCompleted}
+        disabled={!completedTodo}
+      >
+        Clear completed
+      </button>
     </footer>
   );
 };

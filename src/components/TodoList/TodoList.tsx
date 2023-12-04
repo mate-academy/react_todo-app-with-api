@@ -1,17 +1,18 @@
-import { useContext } from 'react';
+import { ErrorNotification } from '../../types/ErrorNotification';
 import { Todo } from '../../types/Todo';
 import { TodoItem } from '../TodoItem';
-import { TodosContext } from '../../TodosContext';
 
 interface Props {
   removeTodo: (todo: Todo) => void;
+  filteredTodos: Todo[];
+  setErrorMessage: (q: ErrorNotification) => void;
 }
 
-export const TodoList: React.FC<Props> = ({ removeTodo }) => {
-  const context = useContext(TodosContext);
-
-  const { filteredTodos } = context;
-
+export const TodoList: React.FC<Props> = ({
+  removeTodo,
+  filteredTodos,
+  setErrorMessage,
+}) => {
   return (
     <section className="todoapp__main" data-cy="TodoList">
       {filteredTodos.map(todo => (
@@ -20,6 +21,7 @@ export const TodoList: React.FC<Props> = ({ removeTodo }) => {
           key={todo.id}
           removeTodo={removeTodo}
           isTempTodo={false}
+          setErrorMessage={setErrorMessage}
         />
       ))}
     </section>
