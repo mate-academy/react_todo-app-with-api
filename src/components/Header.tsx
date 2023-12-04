@@ -75,6 +75,10 @@ export const Header: React.FC<Props> = ({
     setTitle('');
   };
 
+  const handleCheckedAllButton = () => {
+    setIsCheckedAll(!isCheckedAll);
+  };
+
   return (
     <header className="todoapp__header">
       {todos[0] && (
@@ -85,7 +89,7 @@ export const Header: React.FC<Props> = ({
           })}
           data-cy="ToggleAllButton"
           defaultChecked={isCheckedAll}
-          onClick={() => setIsCheckedAll(!isCheckedAll)}
+          onClick={handleCheckedAllButton}
         />
       )}
 

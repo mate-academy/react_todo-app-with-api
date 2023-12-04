@@ -13,14 +13,19 @@ export const ErrorNotification: React.FC<Props> = ({ error, setError }) => {
     switch (error) {
       case Errors.LoadError:
         return Errors.LoadError;
+
       case Errors.EmptyTitle:
         return Errors.EmptyTitle;
+
       case Errors.AddTodoError:
         return Errors.AddTodoError;
+
       case Errors.DeleteTodoError:
         return Errors.DeleteTodoError;
+
       case Errors.UpdateTodoError:
         return Errors.UpdateTodoError;
+
       default:
         return '';
     }
@@ -34,6 +39,10 @@ export const ErrorNotification: React.FC<Props> = ({ error, setError }) => {
     return () => clearTimeout(timeoutId);
   }, [error, setError]);
 
+  const handleError = () => {
+    setError('');
+  };
+
   return (
     <div
       data-cy="ErrorNotification"
@@ -46,7 +55,7 @@ export const ErrorNotification: React.FC<Props> = ({ error, setError }) => {
         data-cy="HideErrorButton"
         type="button"
         className="delete"
-        onClick={() => setError('')}
+        onClick={handleError}
       />
       {errorMessage}
     </div>
