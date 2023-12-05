@@ -1,38 +1,31 @@
-/* eslint-disable @typescript-eslint/no-use-before-define */
 import React, {
-  useState, useRef, useContext,
+  useContext, useEffect, useRef, useState,
 } from 'react';
-import cn from 'classnames';
+import classNames from 'classnames';
 import { Todo } from '../types/Todo';
 import { TodoContext } from './TodoContex';
-import classNames from 'classnames';
 
 type Props = {
   todo: Todo;
   deleteTodo: (id: number) => Promise<unknown>;
-  updateTodo: (newTodo: Todo) => Promise<unknown>;
+  updateTodo: (newTodo: Todo) => Promise<Todo>;
 };
 
-const TodoItem: React.FC<Props> = ({ todo, deleteTodo, updateTodo }) => {
+const TodoItem: React.FC<Props> = ({
+  todo, deleteTodo, updateTodo,
+}) => {
   const [editValue, setEditValue] = useState(todo.title);
-  const [editTodosId, setEditTodosId] = useState<number | null>(null);
+  const [editingTodoId, setEditingTodoId] = useState(0);
+  const [loading, setLoading] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
+
   const { todos, setTodos, userId } = useContext(TodoContext);
 
-  const updateTitle = (newTitle: string) => {
-    const trimmedTitle = newTitle.trim();
-
-    if (!trimmedTitle) {
-      handleDeleteTodo();
-    } else {
-      handleUpdateTodo({
-        id: todo.id,
-        title: trimmedTitle,
-        userId: userId,
-        completed: todo.completed,
-      });
+  useEffect(() => {
+    if (editingTodoId === todo.id) {
+      inputRef.current?.focus();
     }
-  };
+  }, [editingTodoId, todo.id]);
 
   const handleDeleteTodo = () => {
     const newTodos = todos.filter(currentTodo => currentTodo.id !== todo.id);
@@ -40,36 +33,81 @@ const TodoItem: React.FC<Props> = ({ todo, deleteTodo, updateTodo }) => {
     deleteTodo(todo.id).then(() => setTodos(newTodos));
   };
 
-  const handleUpdateTodo = (newTodo: Todo) => {
-    const newTodos = todos.map(currentTodo => (
-      currentTodo.id === newTodo.id ? newTodo : currentTodo
-    ));
+  const updateTitle = (newTitle: string) => {
+    setLoading(true);
 
-    updateTodo(newTodo).then(() => setTodos(newTodos));
-    setEditTodosId(null);
-  };
+    const trimmedTitle = newTitle.trim();
 
-  const handleToggleEdit = () => {
-    setEditTodosId(todo.id);
-  };
+    if (!trimmedTitle) {
+      handleDeleteTodo();
+    } else {
+      const newTodo: Todo = {
+        id: todo.id,
+        title: trimmedTitle,
+        userId,
+        completed: todo.completed,
+      };
 
-  const handleToggleComplete = () => {
-    const newTodo: Todo = {
-      ...todo,
-      completed: !todo.completed,
-    };
+      updateTodo(newTodo)
+        .then(() => {
+          setTodos(() => {
+            const newTodos = [...todos];
+            const index = newTodos.findIndex(
+              currentTodo => currentTodo.id === newTodo.id,
+            );
 
-    handleUpdateTodo(newTodo);
-  };
+            newTodos.splice(index, 1, newTodo);
 
-  const handleKeyPressEdit = (event: React.KeyboardEvent<HTMLInputElement>) => {
-    if (event.key === 'Enter') {
-      updateTitle(editValue);
+            return newTodos;
+          });
+          setEditingTodoId(0);
+          setLoading(false);
+        });
     }
   };
 
-  const handleBlurEdit = () => {
-    updateTitle(editValue);
+  const updatedComplete = () => {
+    setLoading(true);
+
+    const newTodo: Todo = {
+      id: todo.id,
+      title: todo.title,
+      userId,
+      completed: !todo.completed,
+    };
+
+    const newTodos = [...todos];
+    const index = newTodos.findIndex(currentTodo => (
+      currentTodo.id === newTodo.id
+    ));
+
+    newTodos.splice(index, 1, newTodo);
+
+    updateTodo(newTodo)
+      .then(() => setTodos(newTodos))
+      .finally(() => setLoading(false));
+  };
+
+  const handlePressKey = (
+    event: React.KeyboardEvent<HTMLInputElement>,
+  ) => {
+    if (event.key === 'Enter') {
+      updateTitle(editValue.trim());
+    } else if (event.key === 'Escape') {
+      setEditValue(todo.title.trim());
+      setEditingTodoId(0);
+    }
+  };
+
+  const handleOnBlueEditValue = () => {
+    const trimmedTitle = editValue.trim();
+
+    if (trimmedTitle !== todo.title) {
+      updateTitle(trimmedTitle);
+    } else {
+      setEditValue(todo.title.trim());
+      setEditingTodoId(0);
+    }
   };
 
   const handleChangeEditValue = (
@@ -78,17 +116,28 @@ const TodoItem: React.FC<Props> = ({ todo, deleteTodo, updateTodo }) => {
     setEditValue(event.target.value);
   };
 
+  const handleDeleteValue = () => {
+    const newTodos = [...todos];
+    const index = newTodos.findIndex(currentTodo => currentTodo.id === todo.id);
+
+    newTodos.splice(index, 1);
+
+    deleteTodo(todo.id)
+      .then(() => setTodos(newTodos));
+  };
+
+  const handleDoubleClick = () => {
+    setEditingTodoId((prevId) => (prevId === todo.id ? 0 : todo.id));
+    setEditValue(todo.title.trim());
+  };
+
   return (
     <div
-      className={
-        cn(
-          'todo',
-          { completed: todo.completed },
-          { editing: editTodosId === todo.id },
-        )
-      }
-      onDoubleClick={handleToggleEdit}
       data-cy="Todo"
+      className={classNames('todo',
+        { completed: todo.completed },
+        { editind: editingTodoId === todo.id })}
+      onDoubleClick={handleDoubleClick}
     >
       <label className="todo__status-label">
         <input
@@ -96,12 +145,12 @@ const TodoItem: React.FC<Props> = ({ todo, deleteTodo, updateTodo }) => {
           type="checkbox"
           className="todo__status"
           id={`toggle-view-${todo.id}`}
-          onChange={handleToggleComplete}
+          onChange={updatedComplete}
           checked={todo.completed}
         />
       </label>
 
-      {editTodosId !== todo.id ? (
+      {editingTodoId !== todo.id ? (
         <>
           <label data-cy="TodoTitle" className="todo__title">
             {todo.title}
@@ -111,7 +160,7 @@ const TodoItem: React.FC<Props> = ({ todo, deleteTodo, updateTodo }) => {
             type="button"
             className="todo__remove"
             data-cy="TodoDelete"
-            onClick={handleDeleteTodo}
+            onClick={handleDeleteValue}
           >
             ×
           </button>
@@ -125,14 +174,18 @@ const TodoItem: React.FC<Props> = ({ todo, deleteTodo, updateTodo }) => {
             placeholder="Empty todo will be deleted"
             value={editValue}
             onChange={handleChangeEditValue}
-            onBlur={handleBlurEdit}
+            onBlur={handleOnBlueEditValue}
             ref={inputRef}
-            onKeyPress={handleKeyPressEdit}
+            onKeyDown={handlePressKey}
           />
         </form>
       )}
 
-      <div data-cy="TodoLoader" className='modal overlay'
+      <div
+        data-cy="TodoLoader"
+        className={
+          classNames('modal overlay', { active: loading })
+        }
       >
         <div className="modal-background has-background-white-ter" />
         <div className="loader" />

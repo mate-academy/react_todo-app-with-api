@@ -23,32 +23,24 @@ const TodoHeader: React.FC = () => {
     setInputValue(event.target.value);
   };
 
-  const handlePressEnter = async (
-    event: React.KeyboardEvent<HTMLInputElement>,
-  ) => {
-    if (event.key !== 'Enter') {
-      return;
-    }
+  const handlePressEnter = (event: React.FormEvent<HTMLFormElement>
+  | React.KeyboardEvent<HTMLInputElement>) => {
+    if ((event as React.KeyboardEvent<HTMLInputElement>).key === 'Enter') {
+      event.preventDefault();
 
-    const trimmedValue = inputValue.trim();
+      if (inputValue.trim() === '') {
+        setErrorMessage('Title should not be empty');
+      } else {
+        addTodo({
+          title: inputValue,
+          completed: false,
+          userId,
+        }).then(newTodo => {
+          setTodos([...todos, newTodo]);
+        }).catch(() => setErrorMessage('Unable to add a todo'));
 
-    if (!trimmedValue) {
-      setErrorMessage('Title should not be empty');
-
-      return;
-    }
-
-    try {
-      const newTodo = await addTodo({
-        title: trimmedValue,
-        completed: false,
-        userId: userId,
-      });
-
-      setTodos([...todos, newTodo]);
-      setInputValue('');
-    } catch (error) {
-      setErrorMessage('Unable to add a todo');
+        setInputValue('');
+      }
     }
   };
 
@@ -89,7 +81,7 @@ const TodoHeader: React.FC = () => {
           value={inputValue}
           placeholder="What needs to be done?"
           onChange={handleChange}
-          onKeyPress={handlePressEnter}
+          onKeyDown={handlePressEnter}
           ref={inputRef}
         />
       </form>
