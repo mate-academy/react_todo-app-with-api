@@ -48,14 +48,7 @@ export const TodoItem: React.FC<Props> = ({
   const removeTodo = (id: number) => {
     deleteTodo(id)
       .then(() => {
-        const indexToDelete = todos.findIndex(elem => elem.id === id);
-
-        if (indexToDelete !== -1) {
-          const newTodos = [...todos];
-
-          newTodos.splice(indexToDelete, 1);
-          setTodos(newTodos);
-        }
+        setTodos((prevTodos) => prevTodos.filter(t => t.id !== id));
       })
       .catch(() => {
         setErrorMessage('Unable to delete a todo');
