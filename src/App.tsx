@@ -58,21 +58,26 @@ export const App: React.FC = () => {
       const result = await updateTodo(updatedTodo);
 
       setTodos((currentTodos) => {
-        const newTodos = [...currentTodos];
-        const index = newTodos.findIndex((item) => item.id === result.id);
-
-        newTodos.splice(index, 1, result);
+        const newTodos = currentTodos.map((item) => (
+          item.id === result.id ? result : item
+        ));
 
         return newTodos;
       });
 
-      setTempTodo((prevTempTodo) => ({
-        ...(prevTempTodo || {}),
-        title: result.title,
-        id: result.id,
-        userId: result.userId,
-        completed: result.completed,
-      }));
+      setTempTodo((prevTempTodo) => {
+        if (!prevTempTodo) {
+          return null;
+        }
+
+        return {
+          ...prevTempTodo,
+          title: result.title,
+          id: result.id,
+          userId: result.userId,
+          completed: result.completed,
+        };
+      });
 
       if (title.trim() !== '' && title.trim() !== result.title) {
         setErrorMessage(Errors.UpdateTodoError);
@@ -126,10 +131,16 @@ export const App: React.FC = () => {
     }
   };
 
-  const clearCompleted = () => {
+  const clearCompleted = async () => {
     const completedTodos = todos.filter(todo => todo.completed);
 
-    completedTodos.map(todo => handleDeleteTodo(todo));
+    try {
+      await Promise.all(completedTodos.map((todo) => handleDeleteTodo(todo)));
+
+      setTodos((current) => current.filter((item) => !item.completed));
+    } catch (error) {
+      setErrorMessage(Errors.DeleteTodoError);
+    }
   };
 
   return (
@@ -172,12 +183,13 @@ export const App: React.FC = () => {
           />
         )}
 
-        {todos[0] && (
+        {!!todos.length && (
           <TodoFooter
             todos={todos}
             filter={filter}
             setFilter={setFilter}
             clearCompleted={clearCompleted}
+            setErrorMessage={setErrorMessage}
           />
         )}
       </div>

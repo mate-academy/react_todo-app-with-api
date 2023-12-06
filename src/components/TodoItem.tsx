@@ -129,7 +129,7 @@ export const TodoItem: React.FC<Props> = ({
           type="checkbox"
           className="todo__status"
           checked={completed}
-          onClick={() => handleUpdateTodo({ ...todo, completed: !completed })}
+          onChange={() => handleUpdateTodo({ ...todo, completed: !completed })}
           onBlur={handleBlur}
         />
       </label>

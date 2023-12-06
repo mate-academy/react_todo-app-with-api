@@ -2,12 +2,14 @@ import React from 'react';
 import classNames from 'classnames';
 import { Status } from '../types/Statuses';
 import { Todo } from '../types/Todo';
+import { Errors } from '../types/Errors';
 
 interface Props {
   todos: Todo[],
   filter: Status,
   setFilter: (value: Status) => void,
   clearCompleted: () => void,
+  setErrorMessage: (message: Errors | '') => void,
 }
 
 export const TodoFooter: React.FC<Props> = ({
@@ -15,9 +17,18 @@ export const TodoFooter: React.FC<Props> = ({
   filter,
   setFilter,
   clearCompleted,
+  setErrorMessage,
 }) => {
   const leftTodos = todos.filter(todo => !todo.completed).length;
   const hasCompletedTodos = todos.some(todo => todo.completed);
+
+  const handleClearCompleted = async () => {
+    try {
+      await clearCompleted();
+    } catch (error) {
+      setErrorMessage(Errors.DeleteTodoError);
+    }
+  };
 
   return (
     <footer className="todoapp__footer" data-cy="Footer">
@@ -65,7 +76,7 @@ export const TodoFooter: React.FC<Props> = ({
         className="todoapp__clear-completed"
         disabled={!hasCompletedTodos}
         data-cy="ClearCompletedButton"
-        onClick={clearCompleted}
+        onClick={handleClearCompleted}
       >
         {hasCompletedTodos && 'Clear completed'}
       </button>
