@@ -1,7 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import cn from 'classnames';
 import { Todo } from '../types/Todo';
-import { updateTodoItems } from '../api/todos';
 
 type Props = {
   todo: Todo;
@@ -64,14 +63,14 @@ export const TodoCard: React.FC<Props> = ({
       userId: USER_ID,
       completed: !todo.completed,
     };
-    const newTodos = [...todos];
-    const index = newTodos.findIndex(currentTodo => (
-      currentTodo.id === newTodo.id));
 
-    newTodos.splice(index, 1, newTodo);
+    const updatedTodos = todos.map(item => {
+      return item.id === newTodo.id
+        ? { ...item, completed: !item.completed }
+        : item;
+    });
 
-    updateTodoItems(newTodo)
-      .then(() => setTodos(newTodos));
+    setTodos(updatedTodos);
   };
 
   return (
