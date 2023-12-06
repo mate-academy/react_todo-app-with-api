@@ -63,10 +63,6 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
 
   const handleDoubleClick = () => {
     setIsEdit(true);
-
-    setTimeout(() => {
-      titleField.current?.focus();
-    }, 1);
   };
 
   return (
