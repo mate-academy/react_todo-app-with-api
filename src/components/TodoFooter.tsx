@@ -22,8 +22,7 @@ export const TodoFooter: React.FC<Props> = ({
   return (
     <footer className="todoapp__footer" data-cy="Footer">
       <span className="todo-count" data-cy="TodosCounter">
-        { /* eslint-disable-next-line */ }
-        {leftTodos} items left
+        {`${leftTodos} items left`}
       </span>
 
       <nav className="filter" data-cy="Filter">
