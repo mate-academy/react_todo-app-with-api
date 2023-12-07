@@ -65,20 +65,6 @@ export const App: React.FC = () => {
         return newTodos;
       });
 
-      setTempTodo((prevTempTodo) => {
-        if (!prevTempTodo) {
-          return null;
-        }
-
-        return {
-          ...prevTempTodo,
-          title: result.title,
-          id: result.id,
-          userId: result.userId,
-          completed: result.completed,
-        };
-      });
-
       if (title.trim() !== '' && title.trim() !== result.title) {
         setErrorMessage(Errors.UpdateTodoError);
       } else {

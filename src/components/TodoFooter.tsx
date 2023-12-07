@@ -32,44 +32,52 @@ export const TodoFooter: React.FC<Props> = ({
 
   return (
     <footer className="todoapp__footer" data-cy="Footer">
-      <span className="todo-count" data-cy="TodosCounter">
-        {`${leftTodos} items left`}
-      </span>
+      <div style={{
+        display: 'flex',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        gap: '70px',
+      }}
+      >
+        <span className="todo-count" data-cy="TodosCounter">
+          {`${leftTodos} items left`}
+        </span>
 
-      <nav className="filter" data-cy="Filter">
-        <a
-          href="#/"
-          className={classNames('filter__link', {
-            selected: filter === Status.All,
-          })}
-          data-cy="FilterLinkAll"
-          onClick={() => setFilter(Status.All)}
-        >
-          All
-        </a>
+        <nav className="filter" data-cy="Filter">
+          <a
+            href="#/"
+            className={classNames('filter__link', {
+              selected: filter === Status.All,
+            })}
+            data-cy="FilterLinkAll"
+            onClick={() => setFilter(Status.All)}
+          >
+            All
+          </a>
 
-        <a
-          href="#/active"
-          className={classNames('filter__link', {
-            selected: filter === Status.Active,
-          })}
-          data-cy="FilterLinkActive"
-          onClick={() => setFilter(Status.Active)}
-        >
-          Active
-        </a>
+          <a
+            href="#/active"
+            className={classNames('filter__link', {
+              selected: filter === Status.Active,
+            })}
+            data-cy="FilterLinkActive"
+            onClick={() => setFilter(Status.Active)}
+          >
+            Active
+          </a>
 
-        <a
-          href="#/completed"
-          className={classNames('filter__link', {
-            selected: filter === Status.Completed,
-          })}
-          data-cy="FilterLinkCompleted"
-          onClick={() => setFilter(Status.Completed)}
-        >
-          Completed
-        </a>
-      </nav>
+          <a
+            href="#/completed"
+            className={classNames('filter__link', {
+              selected: filter === Status.Completed,
+            })}
+            data-cy="FilterLinkCompleted"
+            onClick={() => setFilter(Status.Completed)}
+          >
+            Completed
+          </a>
+        </nav>
+      </div>
 
       <button
         type="button"

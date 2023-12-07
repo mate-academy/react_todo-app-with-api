@@ -40,8 +40,6 @@ export const TodoItem: React.FC<Props> = ({
 
     try {
       await handleDeleteTodo(todo);
-    } catch {
-      setErrorMessage(Errors.DeleteTodoError);
     } finally {
       setIsDeleting(false);
     }
@@ -67,20 +65,13 @@ export const TodoItem: React.FC<Props> = ({
         const updatedTodo = await handleUpdateTodo({
           ...todo,
           title: trimmedTitle,
-          completed: !completed,
         });
 
         if (updatedTodo !== undefined) {
           setTodos((currentTodos: Todo[]) => {
-            const newTodos = [...currentTodos];
-            const index = newTodos.findIndex((item) => (
-              item.id === updatedTodo.id));
-
-            if (index !== -1) {
-              newTodos.splice(index, 1, updatedTodo);
-            }
-
-            return newTodos;
+            return currentTodos.map((item) => (
+              item.id === updatedTodo.id ? updatedTodo : item
+            ));
           });
 
           setTempTodo((prevTempTodo: Todo | null) => ({
