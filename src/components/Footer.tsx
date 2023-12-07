@@ -12,7 +12,7 @@ export const Footer: React.FC = () => {
     setTodoList,
     setError,
     setIsLoading,
-    inLoadingTodos: DeletedTodos,
+    inLoadingTodos,
     filterStatus,
     setFilterStatus,
   } = useContext(PageContext);
@@ -35,32 +35,27 @@ export const Footer: React.FC = () => {
   const finalDelete = () => {
     todoList.filter(todo => todo.completed)
       .forEach(item => {
-        DeletedTodos.push(item.id);
+        inLoadingTodos.push(item.id);
         setIsLoading(true);
         deleteTodo(item.id)
           .then(() => setTodoList(todoList.filter(todo => !todo.completed)))
           .catch(() => setError('Unable to delete todo'))
           .finally(() => {
-            DeletedTodos.splice(0);
+            inLoadingTodos.splice(0);
             setIsLoading(false);
           });
       });
   };
 
-  const todoLeft = () => {
-    if (todoList) {
-      return todoList.filter((todo: Todo) => !todo.completed).length;
-    }
-
-    return [];
-  };
+  const todoLeft = todoList
+    .filter((todo: Todo) => !todo.completed).length || 0;
 
   const completedTodo = todoList.find((todo: Todo) => todo.completed);
 
   return (
     <footer className="todoapp__footer" data-cy="Footer">
       <span className="todo-count" data-cy="TodosCounter">
-        {`${todoLeft()} items left`}
+        {`${todoLeft} items left`}
       </span>
 
       <nav className="filter" data-cy="Filter">

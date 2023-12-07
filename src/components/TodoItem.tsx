@@ -144,6 +144,10 @@ export const TodoItem: React.FC<Props> = ({
       });
   };
 
+  const handlerIsEditing = () => {
+    setEditing(true);
+  };
+
   return (
     <div
       data-cy="Todo"
@@ -182,7 +186,7 @@ export const TodoItem: React.FC<Props> = ({
             <span
               data-cy="TodoTitle"
               className="todo__title"
-              onDoubleClick={() => setEditing(true)}
+              onDoubleClick={handlerIsEditing}
             >
               {title}
             </span>

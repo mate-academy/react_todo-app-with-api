@@ -1,4 +1,3 @@
-import classNames from 'classnames';
 import { Todo } from '../types/Todo';
 import { TodoItem } from './TodoItem';
 
@@ -19,9 +18,7 @@ export const Main: React.FC<Props> = ({ todos, tempTodo }) => {
         && (
           <div
             data-cy="Todo"
-            className={classNames(
-              'todo',
-            )}
+            className="todo"
           >
             <label className="todo__status-label">
               <input
@@ -48,14 +45,7 @@ export const Main: React.FC<Props> = ({ todos, tempTodo }) => {
             </button>
             <div
               data-cy="TodoLoader"
-              className={
-                classNames(
-                  'is-active',
-                  'modal',
-                  'overlay',
-                )
-              }
-
+              className="is-active modal overlay"
             >
               <div className="modal-background has-background-white-ter" />
               <div className="loader" />

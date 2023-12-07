@@ -63,8 +63,9 @@ export const Header: React.FC<Props> = ({ todos, setTempTodo }) => {
           setError('Unable to add a todo');
           throw error;
         });
-      setIsLoading(false);
     }
+
+    setIsLoading(false);
 
     addTodoRef.current?.focus();
   };
