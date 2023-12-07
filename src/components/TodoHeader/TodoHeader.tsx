@@ -1,4 +1,5 @@
 import React, { useRef, useEffect } from 'react';
+import cn from 'classnames';
 import { Errors } from '../../types/Errors';
 import { Todo } from '../../types/Todo';
 
@@ -9,6 +10,7 @@ type Props = {
   isLoading: boolean,
   todoTitle: string,
   setTodoTitle: (title: string) => void,
+  onToggleAll: () => void,
 };
 
 export const TodoHeader: React.FC<Props> = ({
@@ -18,6 +20,7 @@ export const TodoHeader: React.FC<Props> = ({
   todos,
   todoTitle,
   setTodoTitle,
+  onToggleAll,
 }) => {
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -35,7 +38,7 @@ export const TodoHeader: React.FC<Props> = ({
     if (inputRef.current && !inputRef.current.disabled) {
       inputRef.current.focus();
     }
-  }, [todos]);
+  }, [todos.length]);
 
   return (
     <header className="todoapp__header">
@@ -43,8 +46,10 @@ export const TodoHeader: React.FC<Props> = ({
       {/* eslint-disable-next-line jsx-a11y/control-has-associated-label */}
       <button
         type="button"
-        className="todoapp__toggle-all active"
+        className={cn('todoapp__toggle-all',
+          { active: todos.every(todo => todo.completed) })}
         data-cy="ToggleAllButton"
+        onClick={onToggleAll}
       />
 
       {/* Add a todo on form submit */}
