@@ -1,5 +1,10 @@
 /* eslint-disable jsx-a11y/control-has-associated-label */
-import React, { useState, useEffect, useContext } from 'react';
+import React, {
+  useState,
+  useEffect,
+  useContext,
+  useMemo,
+} from 'react';
 import classNames from 'classnames';
 
 import { UserWarning } from './components/UserWarning';
@@ -10,6 +15,7 @@ import { Footer } from './components/Footer';
 import { Todo } from './types/Todo';
 import { getTodos } from './api/todos';
 import { PageContext } from './utils/GlobalContext';
+import { Status } from './types/Status';
 
 export const App: React.FC = () => {
   const {
@@ -18,9 +24,21 @@ export const App: React.FC = () => {
     todoList,
     setTodoList,
     USER_ID,
+    filterStatus,
   } = useContext(PageContext);
-  const [filteredTodos, setFilteredTodos] = useState<Todo[]>(todoList);
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
+  const filteredTodos = useMemo(() => {
+    switch (filterStatus) {
+      case Status.active:
+        return todoList.filter(todo => !todo.completed);
+
+      case Status.completed:
+        return todoList.filter(todo => todo.completed);
+
+      default:
+        return todoList;
+    }
+  }, [filterStatus, todoList]);
 
   useEffect(() => {
     getTodos(USER_ID)
@@ -29,10 +47,6 @@ export const App: React.FC = () => {
         setError('Unable to load todos');
       });
   }, [setError, setTodoList, USER_ID]);
-
-  useEffect(() => {
-    setFilteredTodos(todoList);
-  }, [todoList]);
 
   const hideError = () => {
     setError('');
@@ -49,7 +63,7 @@ export const App: React.FC = () => {
       <div className="todoapp__content">
 
         <Header
-          todos={filteredTodos}
+          todos={todoList}
           setTempTodo={setTempTodo}
         />
 
@@ -61,9 +75,7 @@ export const App: React.FC = () => {
                 tempTodo={tempTodo}
               />
 
-              <Footer
-                setFilteredTodos={setFilteredTodos}
-              />
+              <Footer />
             </>
           )}
       </div>

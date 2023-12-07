@@ -1,9 +1,4 @@
-import React, {
-  Dispatch,
-  SetStateAction,
-  useContext,
-  useState,
-} from 'react';
+import React, { useContext } from 'react';
 import classNames from 'classnames';
 
 import { Status } from '../types/Status';
@@ -11,42 +6,30 @@ import { Todo } from '../types/Todo';
 import { PageContext } from '../utils/GlobalContext';
 import { deleteTodo } from '../api/todos';
 
-type Props = {
-  setFilteredTodos: Dispatch<SetStateAction<Todo[]>>,
-};
-
-export const Footer: React.FC<Props> = ({
-  setFilteredTodos,
-}) => {
-  const [filterStatus, setFilterStatus] = useState(Status.all);
+export const Footer: React.FC = () => {
   const {
     todoList,
     setTodoList,
     setError,
     setIsLoading,
     inLoadingTodos: DeletedTodos,
+    filterStatus,
+    setFilterStatus,
   } = useContext(PageContext);
 
   const chooseStatus = (status: Status) => {
-    let filteredTodos = todoList;
-
     switch (status) {
       case Status.active:
-        filteredTodos = todoList.filter(todo => !todo.completed);
         setFilterStatus(Status.active);
         break;
 
       case Status.completed:
-        filteredTodos = todoList.filter(todo => todo.completed);
         setFilterStatus(Status.completed);
         break;
 
       default:
-        filteredTodos = todoList;
         setFilterStatus(Status.all);
     }
-
-    setFilteredTodos(filteredTodos);
   };
 
   const finalDelete = () => {

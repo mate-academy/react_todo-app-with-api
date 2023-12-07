@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import debounce from 'lodash.debounce';
 import { Todo } from '../types/Todo';
+import { Status } from '../types/Status';
 
 const inLoadingTodos: number[] = [];
 const USER_ID = 11993;
@@ -14,6 +15,8 @@ type ContextValue = {
   setIsLoading: (value: boolean) => void,
   USER_ID: number,
   inLoadingTodos: number[],
+  filterStatus: Status,
+  setFilterStatus: (value: Status) => void,
 };
 
 export const PageContext = React.createContext<ContextValue>({
@@ -25,6 +28,8 @@ export const PageContext = React.createContext<ContextValue>({
   setIsLoading: () => {},
   USER_ID,
   inLoadingTodos: [],
+  filterStatus: Status.all,
+  setFilterStatus: () => {},
 });
 
 type Props = {
@@ -35,6 +40,7 @@ export const GlobalProvider: React.FC<Props> = ({ children }) => {
   const [error, setError] = useState('');
   const [todoList, setTodoList] = useState<Todo[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [filterStatus, setFilterStatus] = useState(Status.all);
 
   useEffect(() => debounce(() => setError(''), 3000), [setError, error]);
 
@@ -47,6 +53,8 @@ export const GlobalProvider: React.FC<Props> = ({ children }) => {
     setIsLoading,
     USER_ID,
     inLoadingTodos,
+    filterStatus,
+    setFilterStatus,
   };
 
   return (
