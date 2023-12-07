@@ -67,10 +67,12 @@ export const TodoItem: React.FC<Props> = ({
       return;
     }
 
-    await onUpdateTodo({
-      ...todo,
-      title: newTitle.trim(),
-    });
+    if (onUpdateTodo) {
+      await onUpdateTodo({
+        ...todo,
+        title: newTitle.trim(),
+      });
+    }
 
     setIsEditing(false);
   };
