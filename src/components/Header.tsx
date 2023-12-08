@@ -4,9 +4,10 @@ import { useRef, useEffect } from 'react';
 import classNames from 'classnames';
 import { createTodo } from '../api/todos';
 import { Todo } from '../types/Todo';
+import { ErrorType } from '../types/ErrorType';
 
 export type HeaderProps = {
-  setErrorText: (error: string) => void
+  setErrorText: (error: ErrorType) => void
   saveResponse: (response: Todo) => void
   setTempTodo: (todo: Todo | null) => void
   leftItems: () => number
@@ -49,7 +50,7 @@ export const Header = ({
           inputRef.current.value = '';
         }
       }).catch(() => {
-        setErrorText('Unable to add a todo');
+        setErrorText(ErrorType.Add);
       }).finally(() => {
         setTempTodo(null);
         if (inputRef.current) {
@@ -60,7 +61,7 @@ export const Header = ({
 
       inputRef.current?.focus();
     } else {
-      setErrorText('Title should not be empty');
+      setErrorText(ErrorType.Title);
     }
   };
 

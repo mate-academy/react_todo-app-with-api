@@ -2,19 +2,21 @@
 import React, { useState, useEffect } from 'react';
 import { Header } from './components/Header';
 import { TodoList } from './components/TodoList';
-import { FilterType, Footer } from './components/Footer';
+import { Footer } from './components/Footer';
 import { ErrorMessage } from './components/ErrorMessage';
 import { Todo } from './types/Todo';
 import { getTodos, removeTodo, updateTodo } from './api/todos';
 import { TodoItem } from './components/TodoItem';
+import { FilterType } from './types/FilterType';
+import { ErrorType } from './types/ErrorType';
 
 const USER_ID = 12004;
 
 export const App: React.FC = () => {
   const [todos, setTodos] = useState<Todo[] | null>(null);
   const [filteredTodos, setFilteredTodos] = useState<Todo[] | null>(null);
-  const [query, setQuery] = useState<FilterType>('all');
-  const [errorText, setErrorText] = useState<string>('');
+  const [query, setQuery] = useState<FilterType>(FilterType.All);
+  const [errorText, setErrorText] = useState<ErrorType | null>(null);
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
   const [listToOperation, setListToOperation] = useState<number[]>([]);
   const [delited, setDelited] = useState<number>(0);
@@ -26,7 +28,7 @@ export const App: React.FC = () => {
       setTodos(tmp);
       setFilteredTodos(tmp);
     } catch (error) {
-      setErrorText('Unable to load todos');
+      setErrorText(ErrorType.Load);
     }
   };
 
@@ -36,17 +38,17 @@ export const App: React.FC = () => {
 
   useEffect(() => {
     setTimeout(() => {
-      setErrorText('');
+      setErrorText(null);
     }, 3000);
   }, [errorText]);
 
   useEffect(() => {
     if (todos) {
       switch (query) {
-        case 'active':
+        case FilterType.Active:
           setFilteredTodos(todos.filter((el) => !el.completed));
           break;
-        case 'completed':
+        case FilterType.Completed:
           setFilteredTodos(todos.filter((el) => el.completed));
           break;
         default:
@@ -106,7 +108,7 @@ export const App: React.FC = () => {
         .map((el) => removeTodo(el)
           .then(() => el)
           .catch(() => {
-            setErrorText('Unable to delete a todo');
+            setErrorText(ErrorType.Delete);
 
             return null;
           }));
@@ -139,7 +141,7 @@ export const App: React.FC = () => {
         .map((el) => updateTodo(el)
           .then(() => el)
           .catch(() => {
-            setErrorText('Unable to delete a todo');
+            setErrorText(ErrorType.Delete);
 
             return null;
           }));

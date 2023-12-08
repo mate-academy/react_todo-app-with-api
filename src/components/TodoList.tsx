@@ -2,10 +2,11 @@ import classNames from 'classnames';
 import { useEffect, useRef, useState } from 'react';
 import { Todo } from '../types/Todo';
 import { removeTodo, updateTodo } from '../api/todos';
+import { ErrorType } from '../types/ErrorType';
 
 export type TodoListProps = {
   todos: Todo[]
-  setErrorText: (error: string) => void
+  setErrorText: (error: ErrorType) => void
   removeOnResponse:(id:number) => void
   listToOperation: number[]
   setDelited: React.Dispatch<React.SetStateAction<number>>;
@@ -25,7 +26,7 @@ export const TodoList = ({
     removeTodo(id)
       .then(() => removeOnResponse(id))
       .catch(() => {
-        setErrorText('Unable to delete a todo');
+        setErrorText(ErrorType.Delete);
       })
       .finally(() => {
         setActionId(-1);
@@ -43,7 +44,7 @@ export const TodoList = ({
       updateTodo(item)
         .then((response) => updateOnResponse(response))
         .catch(() => {
-          setErrorText('Unable to update a todo');
+          setErrorText(ErrorType.Update);
         })
         .finally(() => {
           setActionId(-1);
@@ -68,7 +69,7 @@ export const TodoList = ({
               setTitleToUpdateId(-1);
             })
             .catch(() => {
-              setErrorText('Unable to update a todo');
+              setErrorText(ErrorType.Update);
               titleRef.current?.focus();
             })
             .finally(() => {
