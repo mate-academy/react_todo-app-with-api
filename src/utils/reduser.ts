@@ -1,4 +1,5 @@
 import { Action } from '../types/Action';
+import { LoadingStatus } from '../types/LoadingStatus';
 import { State } from '../types/State';
 
 export const reduser = (state: State, action: Action): State => {
@@ -13,6 +14,7 @@ export const reduser = (state: State, action: Action): State => {
       return {
         ...state,
         errorMessage: action.payload,
+        shouldLoading: LoadingStatus.None,
       };
 
     case 'filter':
@@ -38,6 +40,7 @@ export const reduser = (state: State, action: Action): State => {
         return {
           ...state,
           todos: [...todos],
+          shouldLoading: LoadingStatus.None,
         };
       }
 
@@ -69,17 +72,10 @@ export const reduser = (state: State, action: Action): State => {
       };
     }
 
-    case 'shoulDeleteCompleted': {
+    case 'shouldLoading': {
       return {
         ...state,
-        shouldDeleteCompleted: !state.shouldDeleteCompleted,
-      };
-    }
-
-    case 'shouldAllLoading': {
-      return {
-        ...state,
-        shouldAllLoading: action.payload,
+        shouldLoading: action.payload,
       };
     }
 

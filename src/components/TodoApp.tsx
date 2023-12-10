@@ -12,6 +12,8 @@ import { ErrorMessage } from '../types/ErrorMessage';
 import { USER_ID } from '../constants/userId';
 import { createTodo, updateTodo } from '../api/todos';
 import { TodoItem } from './TodoItem';
+import { LoadingStatus } from '../types/LoadingStatus';
+import { TEMP_TODO_ID } from '../constants/tempTodoId';
 
 export const TodoApp = () => {
   const {
@@ -22,7 +24,9 @@ export const TodoApp = () => {
   const dispatch = useContext(DispatchContext);
 
   const titleRef = useRef<HTMLInputElement | null>(null);
-  const completedTodosCount = todos.filter(todo => todo.completed).length;
+  const completedTodosCount = todos.filter(
+    todo => todo.completed,
+  ).length;
 
   const [title, setTitle] = useState('');
   let isCompletedAll = completedTodosCount === todos.length;
@@ -33,18 +37,25 @@ export const TodoApp = () => {
 
   const toggleAll = () => {
     isCompletedAll = !isCompletedAll;
+
     dispatch({
-      type: 'shouldAllLoading',
-      payload: true,
+      type: 'shouldLoading',
+      payload: LoadingStatus.All,
     });
 
-    todos.forEach(async todo => {
-      try {
-        const updatedTodo = {
-          ...todo,
-          completed: isCompletedAll,
-        };
+    const todosForToggle = isCompletedAll
+      ? todos.filter(t => !t.completed)
+      : todos.filter(t => t.completed);
 
+    todosForToggle.forEach(async todo => {
+      let updatedTodo = todo;
+
+      updatedTodo = {
+        ...todo,
+        completed: isCompletedAll,
+      };
+
+      try {
         await updateTodo(updatedTodo);
 
         dispatch({
@@ -52,18 +63,20 @@ export const TodoApp = () => {
           payload: updatedTodo,
         });
         dispatch({
-          type: 'shouldAllLoading',
-          payload: false,
+          type: 'shouldLoading',
+          payload: LoadingStatus.None,
         });
       } catch (error) {
+        isCompletedAll = !isCompletedAll;
+
         dispatch({
           type: 'error',
           payload: ErrorMessage.Updating,
         });
-        isCompletedAll = !isCompletedAll;
+
         dispatch({
-          type: 'shouldAllLoading',
-          payload: false,
+          type: 'shouldLoading',
+          payload: LoadingStatus.None,
         });
       }
     });
@@ -81,7 +94,12 @@ export const TodoApp = () => {
 
       dispatch({
         type: 'createTempTodo',
-        payload: { ...newTodo, id: 0 },
+        payload: { ...newTodo, id: TEMP_TODO_ID },
+      });
+
+      dispatch({
+        type: 'shouldLoading',
+        payload: LoadingStatus.Current,
       });
 
       try {
@@ -99,6 +117,7 @@ export const TodoApp = () => {
           payload: ErrorMessage.Creating,
         });
       } finally {
+        titleRef.current?.focus();
         dispatch({
           type: 'createTempTodo',
           payload: null,
@@ -109,6 +128,7 @@ export const TodoApp = () => {
         type: 'error',
         payload: ErrorMessage.EmptyTitle,
       });
+      titleRef.current?.focus();
     }
   };
 
@@ -121,12 +141,15 @@ export const TodoApp = () => {
       setTimeout(() => dispatch(
         { type: 'error', payload: ErrorMessage.None },
       ), 3000);
+      titleRef.current?.focus();
     }
   }, [errorMessage, dispatch]);
 
   useEffect(() => {
-    titleRef.current?.focus();
-  });
+    if (titleRef.current) {
+      titleRef.current.focus();
+    }
+  }, []);
 
   return (
     <div className="todoapp">
@@ -134,15 +157,17 @@ export const TodoApp = () => {
 
       <div className="todoapp__content">
         <header className="todoapp__header">
-          <button
-            type="button"
-            className={cn(
-              'todoapp__toggle-all',
-              { active: isCompletedAll },
-            )}
-            data-cy="ToggleAllButton"
-            onClick={toggleAll}
-          />
+          {!!todos.length && (
+            <button
+              type="button"
+              className={cn(
+                'todoapp__toggle-all',
+                { active: isCompletedAll },
+              )}
+              data-cy="ToggleAllButton"
+              onClick={toggleAll}
+            />
+          )}
 
           <form
             onSubmit={createNewTodo}
@@ -158,6 +183,7 @@ export const TodoApp = () => {
               disabled={!!tempTodo}
             />
           </form>
+
         </header>
 
         {!!todos.length && (
@@ -184,6 +210,16 @@ export const TodoApp = () => {
         />
         {errorMessage}
       </div>
+      <button
+        type="button"
+        onClick={() => {
+          titleRef.current?.focus();
+        }}
+      >
+        Button
+        {' '}
+
+      </button>
     </div>
   );
 };

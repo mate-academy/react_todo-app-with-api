@@ -1,12 +1,12 @@
 import { ErrorMessage } from '../types/ErrorMessage';
 import { FilterStatus } from '../types/FilterStatus';
+import { LoadingStatus } from '../types/LoadingStatus';
 import { State } from '../types/State';
 
-export const initialState: State = {
+export const INITIAL_STATE: State = {
   todos: [],
   errorMessage: ErrorMessage.None,
   filteredBy: FilterStatus.All,
   tempTodo: null,
-  shouldDeleteCompleted: false,
-  shouldAllLoading: false,
+  shouldLoading: LoadingStatus.None,
 };

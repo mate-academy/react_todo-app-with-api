@@ -1,12 +1,12 @@
 import React, { useEffect, useReducer } from 'react';
 import { getTodos } from '../api/todos';
-import { initialState } from '../constants/initialState';
+import { INITIAL_STATE } from '../constants/initialState';
 import { Action } from '../types/Action';
 import { reduser } from '../utils/reduser';
 import { ErrorMessage } from '../types/ErrorMessage';
 import { USER_ID } from '../constants/userId';
 
-export const StateContext = React.createContext(initialState);
+export const StateContext = React.createContext(INITIAL_STATE);
 export const DispatchContext
   = React.createContext<(action: Action) => void>(() => {});
 
@@ -15,7 +15,7 @@ type Props = {
 };
 
 export const TodosProvider: React.FC<Props> = ({ children }) => {
-  const [state, dispatch] = useReducer(reduser, initialState);
+  const [state, dispatch] = useReducer(reduser, INITIAL_STATE);
 
   useEffect(() => {
     dispatch(

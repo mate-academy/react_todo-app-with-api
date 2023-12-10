@@ -5,6 +5,7 @@ import { FilterStatus } from '../types/FilterStatus';
 import { DispatchContext, StateContext } from './TodosProvider';
 import { deleteTodo } from '../api/todos';
 import { ErrorMessage } from '../types/ErrorMessage';
+import { LoadingStatus } from '../types/LoadingStatus';
 
 export const Footer = () => {
   const { filteredBy, todos } = useContext(StateContext);
@@ -20,7 +21,10 @@ export const Footer = () => {
   const unCompletedTodosCount = todos.length - completedTodosCount;
 
   const clearCompletedTodos = async () => {
-    dispatch({ type: 'shoulDeleteCompleted' });
+    dispatch({
+      type: 'shouldLoading',
+      payload: LoadingStatus.Completed,
+    });
 
     todos.forEach(async todo => {
       if (todo.completed) {
@@ -36,10 +40,14 @@ export const Footer = () => {
             type: 'error',
             payload: ErrorMessage.Deleting,
           });
+        } finally {
+          dispatch({
+            type: 'shouldLoading',
+            payload: LoadingStatus.None,
+          });
         }
       }
     });
-    dispatch({ type: 'shoulDeleteCompleted' });
   };
 
   const filterTodos = (item: FilterStatus) => {

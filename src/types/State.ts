@@ -1,5 +1,6 @@
 import { ErrorMessage } from './ErrorMessage';
 import { FilterStatus } from './FilterStatus';
+import { LoadingStatus } from './LoadingStatus';
 import { Todo } from './Todo';
 
 export interface State {
@@ -7,6 +8,5 @@ export interface State {
   errorMessage: ErrorMessage,
   filteredBy: FilterStatus,
   tempTodo: Todo | null,
-  shouldDeleteCompleted: boolean,
-  shouldAllLoading: boolean,
+  shouldLoading: LoadingStatus,
 }
