@@ -129,8 +129,6 @@ export const App: React.FC = () => {
     return <UserWarning />;
   }
 
-  const isThereCompleted = todos.some(todo => todo.completed);
-
   const filteredTodos = preparedTodos(todos, filterStatus);
 
   return (
@@ -148,22 +146,22 @@ export const App: React.FC = () => {
           onToggleAll={toggleAll}
         />
 
-        <TodoList
-          todos={filteredTodos}
-          tempTodo={tempTodo}
-          onDeleteTodo={handleDelete}
-          processingTodoIds={processingTodoIds}
-          onUpdateTodo={updateTodo}
-        />
-
         {todos.length !== 0 && (
-          <TodoFooter
-            todos={todos}
-            filterStatus={filterStatus}
-            onSetFilter={setFilterStatus}
-            isCompleted={isThereCompleted}
-            onDeleteTodo={handleDelete}
-          />
+          <>
+            <TodoList
+              todos={filteredTodos}
+              tempTodo={tempTodo}
+              onDeleteTodo={handleDelete}
+              processingTodoIds={processingTodoIds}
+              onUpdateTodo={updateTodo}
+            />
+            <TodoFooter
+              todos={todos}
+              filterStatus={filterStatus}
+              onSetFilter={setFilterStatus}
+              onDeleteTodo={handleDelete}
+            />
+          </>
         )}
       </div>
 

@@ -26,7 +26,7 @@ export const TodoHeader: React.FC<Props> = ({
 
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event?.preventDefault();
-    if (!todoTitle || todoTitle.trim().length === 0) {
+    if (!todoTitle || !todoTitle.trim().length) {
       setError(ErrorType.EmptyTitle);
       throw new Error(ErrorType.EmptyTitle);
     }
@@ -42,8 +42,8 @@ export const TodoHeader: React.FC<Props> = ({
 
   return (
     <header className="todoapp__header">
-      {/* eslint-disable-next-line jsx-a11y/control-has-associated-label */}
       <button
+        aria-label="none"
         type="button"
         className={cn('todoapp__toggle-all',
           { active: todos.every(todo => todo.completed) })}

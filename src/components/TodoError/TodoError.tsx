@@ -23,8 +23,8 @@ export const TodoError: React.FC<Props> = ({
       className={cn('notification is-danger is-light has-text-weight-normal',
         { hidden: errorType === null })}
     >
-      {/* eslint-disable-next-line jsx-a11y/control-has-associated-label */}
       <button
+        aria-label="none"
         data-cy="HideErrorButton"
         type="button"
         className="delete"

@@ -6,7 +6,6 @@ import { Filter } from '../../types/Filter';
 type Props = {
   todos: Todo[],
   onSetFilter: (filter: Filter) => void,
-  isCompleted: boolean,
   filterStatus: Filter,
   onDeleteTodo: (id: number) => void,
 };
@@ -14,18 +13,18 @@ type Props = {
 export const TodoFooter: React.FC<Props> = ({
   todos,
   onSetFilter,
-  isCompleted,
   filterStatus,
   onDeleteTodo,
 }) => {
+  const isThereCompleted = todos.some(todo => todo.completed);
   const activeTodos = todos.filter(todo => !todo.completed);
 
   const chooseFilter = (status: Filter) => {
     switch (status) {
-      case 'Active':
+      case Filter.Active:
         onSetFilter(Filter.Active);
         break;
-      case 'Completed':
+      case Filter.Completed:
         onSetFilter(Filter.Completed);
         break;
       default:
@@ -52,7 +51,7 @@ export const TodoFooter: React.FC<Props> = ({
         <a
           href="#/"
           className={cn('filter__link', {
-            selected: filterStatus === 'All',
+            selected: filterStatus === Filter.All,
           })}
           data-cy="FilterLinkAll"
           onClick={() => chooseFilter(Filter.All)}
@@ -63,7 +62,7 @@ export const TodoFooter: React.FC<Props> = ({
         <a
           href="#/active"
           className={cn('filter__link', {
-            selected: filterStatus === 'Active',
+            selected: filterStatus === Filter.Active,
           })}
           data-cy="FilterLinkActive"
           onClick={() => chooseFilter(Filter.Active)}
@@ -74,7 +73,7 @@ export const TodoFooter: React.FC<Props> = ({
         <a
           href="#/completed"
           className={cn('filter__link', {
-            selected: filterStatus === 'Completed',
+            selected: filterStatus === Filter.Completed,
           })}
           data-cy="FilterLinkCompleted"
           onClick={() => chooseFilter(Filter.Completed)}
@@ -83,8 +82,7 @@ export const TodoFooter: React.FC<Props> = ({
         </a>
       </nav>
 
-      {/* don't show this button if there are no completed todos */}
-      {isCompleted && (
+      {isThereCompleted && (
         <button
           type="button"
           className="todoapp__clear-completed"
