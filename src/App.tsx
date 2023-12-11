@@ -126,7 +126,15 @@ export const App: React.FC = () => {
 
       setTodos(prevTodos => prevTodos.map(todo => {
         if (todo.id === id) {
-          return { ...todo, ...data };
+          const updatedTodo = 'completed' in data ? {
+            ...todo,
+            completed: data.completed,
+          } : {
+            ...todo,
+            title: data.title,
+          };
+
+          return updatedTodo;
         }
 
         return todo;
