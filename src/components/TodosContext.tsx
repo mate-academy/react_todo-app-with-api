@@ -22,8 +22,8 @@ interface TodosContextType {
   updateTodo: (updatedTodo: Todo) => void | Promise<Todo> | Promise<void>,
   isAdding: boolean,
   setIsAdding: (value: boolean) => void,
-  idsToDelete: number[],
-  setIdsToDelete: (value: number[]) => void,
+  idsToLoading: number[],
+  setIdsToLoading: (value: number[]) => void,
   todoFilter: Status,
   setTodoFilter: (todoFilter: Status) => void,
   filteredTodos: Todo[],
@@ -43,8 +43,8 @@ const initialTodosContext: TodosContextType = {
   updateTodo: async () => { },
   isAdding: false,
   setIsAdding: () => { },
-  idsToDelete: [],
-  setIdsToDelete: () => { },
+  idsToLoading: [],
+  setIdsToLoading: () => { },
   todoFilter: Status.All,
   setTodoFilter: () => { },
   filteredTodos: [],
@@ -69,7 +69,7 @@ export const TodosProvider: React.FC<Props> = ({ children }) => {
   const [todoFilter, setTodoFilter] = useState<Status>(Status.All);
   const [todoError, setTodoError] = useState<Error | null>(null);
   const [isAdding, setIsAdding] = useState(false);
-  const [idsToDelete, setIdsToDelete] = useState<number[]>([]);
+  const [idsToLoading, setIdsToLoading] = useState<number[]>([]);
 
   const addTodo = useCallback(
     ({ title, userId, completed }: Omit<Todo, 'id'>) => {
@@ -101,7 +101,7 @@ export const TodosProvider: React.FC<Props> = ({ children }) => {
 
   const deleteTodo = useCallback((todoId: number) => {
     setTodoError(null);
-    setIdsToDelete(prevIds => [...prevIds, todoId]);
+    setIdsToLoading(prevIds => [...prevIds, todoId]);
 
     setTimeout(() => {
       setTodos(currentTodos => (
@@ -111,12 +111,12 @@ export const TodosProvider: React.FC<Props> = ({ children }) => {
       return (
         todoService.deleteTodo(todoId))
         .then(() => {
-          setIdsToDelete([]);
+          setIdsToLoading([]);
         })
         .catch((error) => {
           setTodos(todos);
           setTodoError(Error.DeleteTodo);
-          setIdsToDelete(prevIds => [...prevIds]
+          setIdsToLoading(prevIds => [...prevIds]
             .filter(prevId => prevId !== todoId));
 
           throw error;
@@ -127,7 +127,7 @@ export const TodosProvider: React.FC<Props> = ({ children }) => {
   const updateTodo = useCallback(
     (updatedTodo: Todo) => {
       setTodoError(null);
-      setIdsToDelete(prevIds => [...prevIds, updatedTodo.id]);
+      setIdsToLoading(prevIds => [...prevIds, updatedTodo.id]);
 
       setTimeout(() => {
         setTodos(currentTodos => (
@@ -144,7 +144,7 @@ export const TodosProvider: React.FC<Props> = ({ children }) => {
             throw error;
           })
           .finally(() => {
-            setIdsToDelete(prevIds => [...prevIds]
+            setIdsToLoading(prevIds => [...prevIds]
               .filter(prevId => prevId !== updatedTodo.id));
           });
       }, 300);
@@ -160,7 +160,7 @@ export const TodosProvider: React.FC<Props> = ({ children }) => {
     ));
 
     todosToUpdate.forEach((todo): void => {
-      setIdsToDelete(prevIds => [...prevIds, todo.id]);
+      setIdsToLoading(prevIds => [...prevIds, todo.id]);
 
       updateTodo({ ...todo, completed: !isEveryTodoCompleted });
     });
@@ -200,8 +200,8 @@ export const TodosProvider: React.FC<Props> = ({ children }) => {
     updateTodo,
     isAdding,
     setIsAdding,
-    idsToDelete,
-    setIdsToDelete,
+    idsToLoading,
+    setIdsToLoading,
     todoFilter,
     setTodoFilter,
     filteredTodos,
@@ -210,7 +210,7 @@ export const TodosProvider: React.FC<Props> = ({ children }) => {
     handleToggleAll,
   }), [
     addTodo, deleteTodo, updateTodo, filteredTodos, isAdding,
-    tempTodo, todoError, todoFilter, todos, idsToDelete, handleToggleAll,
+    tempTodo, todoError, todoFilter, todos, idsToLoading, handleToggleAll,
   ]);
 
   return (

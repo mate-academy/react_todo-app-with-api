@@ -24,7 +24,7 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
     deleteTodo,
     updateTodo,
     isAdding,
-    idsToDelete,
+    idsToLoading,
   } = useContext(TodosContext);
 
   const [titleValue, setTitleValue] = useState(title);
@@ -36,7 +36,7 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
   }, [isEdited]);
 
   const handleLoaderIsActive = () => {
-    return (isAdding && !id) || idsToDelete.includes(id);
+    return (isAdding && !id) || idsToLoading.includes(id);
   };
 
   const handleComplete = () => {
