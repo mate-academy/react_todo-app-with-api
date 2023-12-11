@@ -22,7 +22,7 @@ export const Header: React.FC<Props> = ({
   toggleAll,
 }) => {
   const [title, setTitle] = useState('');
-  const todoInput = useRef<HTMLInputElement>(null);
+  const todoInput = useRef<HTMLInputElement | null>(null);
 
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();

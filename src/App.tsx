@@ -23,7 +23,7 @@ export const App: React.FC = () => {
   const [isActiveInput, setIsActiveInput] = useState(true);
 
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
-  const [idUpdating, setIdUpdating] = useState<number[]>([0]);
+  const [idUpdating, setIdUpdating] = useState([0]);
 
   useEffect(() => {
     (async () => {
@@ -49,10 +49,8 @@ export const App: React.FC = () => {
     switch (filterBy) {
       case FilterTodos.ACTIVE:
         return todos.filter(todo => !todo.completed);
-
-      case FilterTodos.COMPLETED:
+      case FilterTodos.COMPLTED:
         return todos.filter(todo => todo.completed);
-
       default:
         return todos;
     }
@@ -94,7 +92,7 @@ export const App: React.FC = () => {
 
       await deleteTodo(USER_ID, id);
 
-      setTodos(prevTodos => prevTodos.filter(todo => todo.id !== id));
+      setTodos(todos.filter(todo => todo.id !== id));
     } catch (error) {
       setErrorMessage(Error.DELETE);
     } finally {
@@ -102,16 +100,12 @@ export const App: React.FC = () => {
     }
   };
 
-  const removeCompletedTodos = async () => {
-    const completedTodos = todos.filter(todo => todo.completed);
-    const todoPromises = completedTodos.map(todo => {
-      return new Promise(() => removeTodo(todo.id));
+  const removeCompletedTodos = () => {
+    todos.forEach(async (todo) => {
+      if (todo.completed) {
+        await removeTodo(todo.id);
+      }
     });
-
-    await Promise.all(todoPromises);
-    const filteredTodos = todos.filter(todo => !todo.completed);
-
-    setTodos(filteredTodos);
   };
 
   const handleUpdate = async (

@@ -46,7 +46,7 @@ export const Footer: React.FC<Props> = ({
         type="button"
         className="todoapp__clear-completed"
         style={{
-          opacity: +!!completedTodos,
+          opacity: +Boolean(completedTodos),
           cursor: completedTodos ? 'pointer' : 'auto',
         }}
         disabled={!completedTodos}
