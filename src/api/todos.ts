@@ -12,7 +12,7 @@ export const createTodo = (userId: number, data: Omit<Todo, 'id'>) => {
 export const updateTodo = (
   userId: number,
   id: number,
-  data: Partial<Todo>,
+  data: object,
 ) => {
   return client.patch(`/todos/${id}?userId=${userId}`, data);
 };

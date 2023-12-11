@@ -8,10 +8,7 @@ type Props = {
   tempTodo: Todo | null;
   removeTodo: (id: number) => void;
   idUpdating: number[];
-  handleUpdate: (
-    id: number,
-    data: { completed?: boolean, title?: string },
-  ) => void;
+  handleUpdate: (id: number, data: boolean | string) => void;
 };
 
 export const TodoList: React.FC<Props> = ({
