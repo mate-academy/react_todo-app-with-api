@@ -1,10 +1,5 @@
 import classNames from 'classnames';
-import React, {
-  useCallback,
-  useEffect,
-  useRef,
-  useState,
-} from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 
 type Props = {
   addTodo: (title: string) => void;
@@ -37,11 +32,9 @@ export const Header: React.FC<Props> = ({
     }
   }, [isInputActive]);
 
-  const handleChangeTitle = useCallback(
-    (event: React.ChangeEvent<HTMLInputElement>) => {
-      setTitle(event.target.value);
-    }, [title],
-  );
+  const handleChangeTitle = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setTitle(event.target.value);
+  };
 
   return (
     <header className="todoapp__header">

@@ -31,15 +31,13 @@ export const TodoInfo: React.FC<Props> = ({
     }
   }, [isTodoUpdating]);
 
-  const changeTitle = (str?: string) => {
-    if (str === '') {
-      removeTodo(id);
+  const changeTitle = (str: string | undefined) => {
+    if (str === undefined || str === title) {
+      return;
     }
 
-    if (!str || str === title || !str.trim()) {
-      setNewTitle(title);
-
-      return;
+    if (!str.trim()) {
+      removeTodo(id);
     }
 
     handleUpdate(id, { title: str });

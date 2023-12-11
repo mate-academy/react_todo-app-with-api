@@ -22,6 +22,7 @@ export const TodoList: React.FC<Props> = ({
   handleUpdate,
 }) => {
   return (
+
     <section className="todoapp__main">
       <TransitionGroup>
         {todos.map(todo => (

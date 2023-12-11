@@ -20,13 +20,13 @@ export const App: React.FC = () => {
   const [todos, setTodos] = useState<Todo[]>([]);
   const [errorMessage, setErrorMessage] = useState(Error.NONE);
   const [filterBy, setFilterBy] = useState(FilterTodos.ALL);
-  const [isActiveInput, setIsActiveInput] = useState(true);
+  const [activeInput, setActiveInput] = useState(true);
 
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
   const [idUpdating, setIdUpdating] = useState([0]);
 
   useEffect(() => {
-    (async () => {
+    const getTodosFromServer = async () => {
       try {
         setErrorMessage(Error.NONE);
         const todosFromServer = await getTodos(USER_ID);
@@ -35,17 +35,19 @@ export const App: React.FC = () => {
       } catch (error) {
         setErrorMessage(Error.LOAD);
       }
-    })();
+    };
+
+    getTodosFromServer();
   }, []);
 
   const countTodos = todos.length;
 
-  const activeTodosLength = useMemo(
+  const activeTodos = useMemo(
     () => todos.filter(todo => !todo.completed).length,
     [todos],
   );
 
-  const visibleTodos = useMemo(() => {
+  const visibleTodos: Todo[] = useMemo(() => {
     switch (filterBy) {
       case FilterTodos.ACTIVE:
         return todos.filter(todo => !todo.completed);
@@ -72,7 +74,7 @@ export const App: React.FC = () => {
         completed: false,
       };
 
-      setIsActiveInput(false);
+      setActiveInput(false);
       setTempTodo({ ...newTodo, id: 0 });
       const createdTodo = await createTodo(USER_ID, newTodo);
 
@@ -81,7 +83,7 @@ export const App: React.FC = () => {
       setErrorMessage(Error.ADD);
     } finally {
       setTempTodo(null);
-      setIsActiveInput(true);
+      setActiveInput(true);
     }
   };
 
@@ -143,7 +145,7 @@ export const App: React.FC = () => {
   const toggleAll = () => {
     let toggleAllTodos = todos;
 
-    if (activeTodosLength) {
+    if (activeTodos) {
       toggleAllTodos = toggleAllTodos.filter(todo => !todo.completed);
     }
 
@@ -163,8 +165,8 @@ export const App: React.FC = () => {
       <div className="todoapp__content">
         <Header
           addTodo={addTodo}
-          isInputActive={isActiveInput}
-          hasActive={!!activeTodosLength}
+          isInputActive={activeInput}
+          hasActive={!!activeTodos}
           hasTodos={!!countTodos}
           toggleAll={toggleAll}
         />
@@ -181,7 +183,7 @@ export const App: React.FC = () => {
 
             <Footer
               allTodos={countTodos}
-              activeTodos={activeTodosLength}
+              activeTodos={activeTodos}
               filterBy={filterBy}
               onFilterTodos={setFilterBy}
               onRemoveCompletedTodos={removeCompletedTodos}
