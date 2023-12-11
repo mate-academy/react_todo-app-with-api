@@ -23,17 +23,14 @@ export const TodoApp = () => {
   } = useContext(StateContext);
   const dispatch = useContext(DispatchContext);
 
-  const titleRef = useRef<HTMLInputElement | null>(null);
+  const inputRef = useRef<HTMLInputElement | null>(null);
   const completedTodosCount = todos.filter(
     todo => todo.completed,
   ).length;
 
   const [title, setTitle] = useState('');
+  const [isFocus, setIsFocus] = useState(false);
   let isCompletedAll = completedTodosCount === todos.length;
-
-  const createTitle = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setTitle(e.target.value);
-  };
 
   const toggleAll = () => {
     isCompletedAll = !isCompletedAll;
@@ -48,35 +45,31 @@ export const TodoApp = () => {
       : todos.filter(t => t.completed);
 
     todosForToggle.forEach(async todo => {
-      let updatedTodo = todo;
-
-      updatedTodo = {
-        ...todo,
-        completed: isCompletedAll,
-      };
-
       try {
+        let updatedTodo = todo;
+
+        updatedTodo = {
+          ...todo,
+          completed: isCompletedAll,
+        };
         await updateTodo(updatedTodo);
 
         dispatch({
           type: 'updateTodo',
-          payload: updatedTodo,
-        });
-        dispatch({
-          type: 'shouldLoading',
-          payload: LoadingStatus.None,
+          payload: {
+            todo: updatedTodo,
+            loadingType: LoadingStatus.None,
+          },
         });
       } catch (error) {
         isCompletedAll = !isCompletedAll;
 
         dispatch({
           type: 'error',
-          payload: ErrorMessage.Updating,
-        });
-
-        dispatch({
-          type: 'shouldLoading',
-          payload: LoadingStatus.None,
+          payload: {
+            error: ErrorMessage.Updating,
+            loadingType: LoadingStatus.None,
+          },
         });
       }
     });
@@ -85,7 +78,17 @@ export const TodoApp = () => {
   const createNewTodo = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
-    if (title.trim()) {
+    if (!title.trim()) {
+      dispatch({
+        type: 'error',
+        payload: { error: ErrorMessage.EmptyTitle },
+      });
+      setIsFocus(true);
+
+      return;
+    }
+
+    try {
       const newTodo = {
         title: title.trim(),
         userId: USER_ID,
@@ -94,62 +97,67 @@ export const TodoApp = () => {
 
       dispatch({
         type: 'createTempTodo',
-        payload: { ...newTodo, id: TEMP_TODO_ID },
+        payload: {
+          todo: { ...newTodo, id: TEMP_TODO_ID },
+          loadingType: LoadingStatus.Current,
+        },
       });
+
+      const responseNewTodo = await createTodo(newTodo);
 
       dispatch({
-        type: 'shouldLoading',
-        payload: LoadingStatus.Current,
+        type: 'createTodo',
+        payload: {
+          todo: responseNewTodo,
+          loadingType: LoadingStatus.None,
+        },
       });
 
-      try {
-        const responseNewTodo = await createTodo(newTodo);
-
-        dispatch({
-          type: 'createTodo',
-          payload: responseNewTodo,
-        });
-
-        setTitle('');
-      } catch (error) {
-        dispatch({
-          type: 'error',
-          payload: ErrorMessage.Creating,
-        });
-      } finally {
-        titleRef.current?.focus();
-        dispatch({
-          type: 'createTempTodo',
-          payload: null,
-        });
-      }
-    } else {
+      setTitle('');
+    } catch (error) {
       dispatch({
         type: 'error',
-        payload: ErrorMessage.EmptyTitle,
+        payload: {
+          error: ErrorMessage.Creating,
+          loadingType: LoadingStatus.None,
+        },
       });
-      titleRef.current?.focus();
+    } finally {
+      dispatch({
+        type: 'createTempTodo',
+        payload: {
+          todo: null,
+          loadingType: LoadingStatus.None,
+        },
+      });
+      setIsFocus(true);
     }
   };
 
   const closeErrorMessage = () => {
-    dispatch({ type: 'error', payload: ErrorMessage.None });
+    dispatch({ type: 'error', payload: { error: ErrorMessage.None } });
   };
 
   useEffect(() => {
     if (errorMessage) {
       setTimeout(() => dispatch(
-        { type: 'error', payload: ErrorMessage.None },
+        { type: 'error', payload: { error: ErrorMessage.None } },
       ), 3000);
-      titleRef.current?.focus();
     }
   }, [errorMessage, dispatch]);
 
   useEffect(() => {
-    if (titleRef.current) {
-      titleRef.current.focus();
+    inputRef.current?.focus();
+  }, [isFocus]);
+
+  useEffect(() => {
+    if (inputRef.current) {
+      dispatch({
+        type: 'setRef',
+        payload: inputRef.current,
+      });
     }
-  }, []);
+  }, [dispatch]);
 
   return (
     <div className="todoapp">
@@ -178,8 +186,8 @@ export const TodoApp = () => {
               className="todoapp__new-todo"
               placeholder="What needs to be done?"
               value={title}
-              onChange={createTitle}
-              ref={titleRef}
+              onChange={e => setTitle(e.target.value)}
+              ref={inputRef}
               disabled={!!tempTodo}
             />
           </form>
@@ -210,16 +218,6 @@ export const TodoApp = () => {
         />
         {errorMessage}
       </div>
-      <button
-        type="button"
-        onClick={() => {
-          titleRef.current?.focus();
-        }}
-      >
-        Button
-        {' '}
-
-      </button>
     </div>
   );
 };

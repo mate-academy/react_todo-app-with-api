@@ -19,7 +19,7 @@ export const TodosProvider: React.FC<Props> = ({ children }) => {
 
   useEffect(() => {
     dispatch(
-      { type: 'error', payload: ErrorMessage.None },
+      { type: 'error', payload: { error: ErrorMessage.None } },
     );
 
     (async () => {
@@ -28,7 +28,7 @@ export const TodosProvider: React.FC<Props> = ({ children }) => {
 
         dispatch({ type: 'loadingTodos', payload: todosFromServer });
       } catch (error) {
-        dispatch({ type: 'error', payload: ErrorMessage.Loading });
+        dispatch({ type: 'error', payload: { error: ErrorMessage.Loading } });
       }
     })();
   }, []);

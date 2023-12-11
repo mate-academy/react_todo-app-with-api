@@ -8,7 +8,7 @@ import { ErrorMessage } from '../types/ErrorMessage';
 import { LoadingStatus } from '../types/LoadingStatus';
 
 export const Footer = () => {
-  const { filteredBy, todos } = useContext(StateContext);
+  const { filteredBy, todos, newTodoInputRef } = useContext(StateContext);
   const dispatch = useContext(DispatchContext);
 
   const filteredStatus = Object.values(FilterStatus);
@@ -33,18 +33,19 @@ export const Footer = () => {
 
           dispatch({
             type: 'deleteTodo',
-            payload: todo.id,
+            payload: { id: todo.id },
           });
         } catch (error) {
           dispatch({
             type: 'error',
-            payload: ErrorMessage.Deleting,
+            payload: { error: ErrorMessage.Deleting },
           });
         } finally {
           dispatch({
             type: 'shouldLoading',
             payload: LoadingStatus.None,
           });
+          newTodoInputRef?.focus();
         }
       }
     });

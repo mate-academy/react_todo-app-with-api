@@ -5,6 +5,7 @@ import { Todo } from './Todo';
 
 export interface State {
   todos: Todo[],
+  newTodoInputRef: HTMLInputElement | null,
   errorMessage: ErrorMessage,
   filteredBy: FilterStatus,
   tempTodo: Todo | null,

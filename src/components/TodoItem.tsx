@@ -25,16 +25,17 @@ export const TodoItem:React.FC<Props> = ({ todo }) => {
   const {
     todos,
     shouldLoading,
+    newTodoInputRef,
   } = useContext(StateContext);
   const dispatch = useContext(DispatchContext);
   const [isLoading, setIsLoading] = useState(!todos.find(t => t.id === id));
   const [isUpdatingTitle, setIsUpdatingTitle] = useState(false);
   const [newTitle, setNewTitle] = useState(title);
-  const inputRef = useRef<HTMLInputElement | null>(null);
+  const updateTitleRef = useRef<HTMLInputElement | null>(null);
 
   const toggleChecked = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    setIsLoading(true);
     try {
+      setIsLoading(true);
       const updatedTodo = await updateTodo({
         id,
         title,
@@ -44,117 +45,98 @@ export const TodoItem:React.FC<Props> = ({ todo }) => {
 
       dispatch({
         type: 'updateTodo',
-        payload: updatedTodo,
+        payload: { todo: updatedTodo },
       });
-
-      setIsLoading(false);
     } catch (error) {
       dispatch({
         type: 'error',
-        payload: ErrorMessage.Updating,
+        payload: { error: ErrorMessage.Updating },
       });
+    } finally {
       setIsLoading(false);
     }
   };
 
   const deleteCurrentTodo = async () => {
-    setIsLoading(true);
     try {
+      setIsLoading(true);
       await deleteTodo(id);
 
       dispatch({
         type: 'deleteTodo',
-        payload: id,
+        payload: { id },
       });
-      setIsUpdatingTitle(false);
     } catch (error) {
       dispatch({
         type: 'error',
-        payload: ErrorMessage.Deleting,
+        payload: { error: ErrorMessage.Deleting },
       });
-      setIsUpdatingTitle(false);
       setNewTitle(title);
+    } finally {
+      setIsUpdatingTitle(false);
+      setIsLoading(false);
+      newTodoInputRef?.focus();
     }
   };
 
-  const handleNewTitleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-
-    if (newTitle.trim() === title) {
-      setIsUpdatingTitle(false);
-
-      return;
-    }
-
-    if (!newTitle.trim()) {
-      deleteCurrentTodo();
-
-      return;
-    }
-
-    setIsLoading(true);
-
-    const updatedTodo = {
-      ...todo,
-      title: newTitle.trim(),
-    };
-
+  const handleNewTitleSubmit = async () => {
     try {
-      await updateTodo(updatedTodo);
-      dispatch({
-        type: 'updateTodo',
-        payload: updatedTodo,
-      });
-      setIsLoading(false);
-      setIsUpdatingTitle(false);
-    } catch (error) {
-      setIsLoading(false);
+      setIsLoading(true);
 
-      if (isUpdatingTitle && inputRef.current) {
-        inputRef.current.focus();
+      if (newTitle.trim() === title) {
+        setIsUpdatingTitle(false);
+        setIsLoading(false);
+
+        return;
       }
 
-      dispatch({
-        type: 'error',
-        payload: ErrorMessage.Updating,
-      });
-    }
-  };
-
-  const changeTitleOnBlur = async () => {
-    setIsLoading(true);
-
-    if (!newTitle.trim()) {
-      deleteCurrentTodo();
-
-      return;
-    }
-
-    try {
       const updatedTodo = {
         ...todo,
         title: newTitle.trim(),
       };
 
+      if (!newTitle.trim()) {
+        try {
+          await deleteTodo(id);
+
+          dispatch({
+            type: 'deleteTodo',
+            payload: { id },
+          });
+        } catch (error) {
+          if (isUpdatingTitle && updateTitleRef.current) {
+            updateTitleRef.current.focus();
+          }
+
+          dispatch({
+            type: 'error',
+            payload: { error: ErrorMessage.Deleting },
+          });
+        } finally {
+          setIsLoading(false);
+        }
+
+        return;
+      }
+
       await updateTodo(updatedTodo);
+
       dispatch({
         type: 'updateTodo',
-        payload: updatedTodo,
+        payload: { todo: updatedTodo },
       });
-
-      setIsLoading(false);
       setIsUpdatingTitle(false);
     } catch (error) {
-      setIsLoading(false);
-
-      if (isUpdatingTitle && inputRef.current) {
-        inputRef.current.focus();
+      if (isUpdatingTitle && updateTitleRef.current) {
+        updateTitleRef.current.focus();
       }
 
       dispatch({
         type: 'error',
-        payload: ErrorMessage.Updating,
+        payload: { error: ErrorMessage.Updating },
       });
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -193,8 +175,8 @@ export const TodoItem:React.FC<Props> = ({ todo }) => {
   }, [id, completed, shouldLoading]);
 
   useEffect(() => {
-    if (isUpdatingTitle && inputRef.current) {
-      inputRef.current.focus();
+    if (isUpdatingTitle) {
+      updateTitleRef.current?.focus();
     }
   }, [isUpdatingTitle]);
 
@@ -224,7 +206,9 @@ export const TodoItem:React.FC<Props> = ({ todo }) => {
               <span
                 data-cy="TodoTitle"
                 className="todo__title"
-                onDoubleClick={() => setIsUpdatingTitle(true)}
+                onDoubleClick={() => {
+                  setIsUpdatingTitle(true);
+                }}
               >
                 {todo.title}
               </span>
@@ -241,7 +225,10 @@ export const TodoItem:React.FC<Props> = ({ todo }) => {
           )
           : (
             <form
-              onSubmit={handleNewTitleSubmit}
+              onSubmit={e => {
+                e.preventDefault();
+                handleNewTitleSubmit();
+              }}
             >
               <input
                 data-cy="TodoTitleField"
@@ -250,9 +237,9 @@ export const TodoItem:React.FC<Props> = ({ todo }) => {
                 placeholder="Empty todo will be deleted"
                 value={newTitle}
                 onChange={e => setNewTitle(e.target.value)}
-                onBlur={changeTitleOnBlur}
+                onBlur={handleNewTitleSubmit}
                 onKeyUp={handleKeyUp}
-                ref={inputRef}
+                ref={updateTitleRef}
               />
             </form>
           )

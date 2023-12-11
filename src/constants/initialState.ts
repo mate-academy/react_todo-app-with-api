@@ -5,6 +5,7 @@ import { State } from '../types/State';
 
 export const INITIAL_STATE: State = {
   todos: [],
+  newTodoInputRef: null,
   errorMessage: ErrorMessage.None,
   filteredBy: FilterStatus.All,
   tempTodo: null,
