@@ -1,12 +1,11 @@
 import React, {
-  useContext,
   useEffect,
   useRef,
   useState,
 } from 'react';
 import cn from 'classnames';
 
-import { TodosContext } from '../TodosContext';
+import { useTodosContext } from '../TodosContext';
 
 import { Error } from '../../types/Error';
 
@@ -19,7 +18,7 @@ export const TodoHeader: React.FC = () => {
     setTodoError,
     isAdding,
     setIsAdding,
-  } = useContext(TodosContext);
+  } = useTodosContext();
   const [inputQuery, setInputQuery] = useState('');
   const inputRef = useRef<null | HTMLInputElement>(null);
 

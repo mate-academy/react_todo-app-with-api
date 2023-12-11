@@ -1,10 +1,10 @@
-import React, { useEffect, useContext } from 'react';
+import React, { useEffect } from 'react';
 import cn from 'classnames';
 
-import { TodosContext } from '../TodosContext';
+import { useTodosContext } from '../TodosContext';
 
 export const TodoError: React.FC = () => {
-  const { todoError, setTodoError } = useContext(TodosContext);
+  const { todoError, setTodoError } = useTodosContext();
 
   useEffect(() => {
     setTimeout(() => {

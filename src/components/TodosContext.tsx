@@ -3,6 +3,7 @@ import React, {
   useState,
   useMemo,
   useCallback,
+  useContext,
 } from 'react';
 
 import * as todoService from '../api/todos';
@@ -62,6 +63,8 @@ type Props = {
 };
 
 const USER_ID = 12002;
+
+export const useTodosContext = () => useContext(TodosContext);
 
 export const TodosProvider: React.FC<Props> = ({ children }) => {
   const [todos, setTodos] = useState<Todo[]>([]);

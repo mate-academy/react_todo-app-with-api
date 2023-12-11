@@ -1,6 +1,6 @@
-import React, { useContext } from 'react';
+import React from 'react';
 
-import { TodosContext } from '../TodosContext';
+import { useTodosContext } from '../TodosContext';
 
 import { TodoItem } from './TodoItem';
 
@@ -8,7 +8,7 @@ export const TodoList: React.FC = () => {
   const {
     filteredTodos,
     tempTodo,
-  } = useContext(TodosContext);
+  } = useTodosContext();
 
   return (
     <section

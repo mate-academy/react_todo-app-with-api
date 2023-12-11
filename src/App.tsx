@@ -1,6 +1,6 @@
-import React, { useContext } from 'react';
+import React from 'react';
 
-import { TodosContext } from './components/TodosContext';
+import { useTodosContext } from './components/TodosContext';
 import { UserWarning } from './UserWarning';
 
 import { TodoHeader } from './components/TodoHeader/TodoHeader';
@@ -9,7 +9,7 @@ import { TodoFooter } from './components/TodoFooter/TodoFooter';
 import { TodoError } from './components/TodoError/TodoError';
 
 export const App: React.FC = () => {
-  const { todos, USER_ID } = useContext(TodosContext);
+  const { todos, USER_ID } = useTodosContext();
 
   if (!USER_ID) {
     return <UserWarning />;

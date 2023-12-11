@@ -1,5 +1,4 @@
 import React, {
-  useContext,
   useEffect,
   useRef,
   useState,
@@ -7,7 +6,7 @@ import React, {
 import cn from 'classnames';
 
 import { Todo } from '../../types/Todo';
-import { TodosContext } from '../TodosContext';
+import { useTodosContext } from '../TodosContext';
 
 type Props = {
   todo: Todo,
@@ -25,7 +24,7 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
     updateTodo,
     isAdding,
     idsToLoading,
-  } = useContext(TodosContext);
+  } = useTodosContext();
 
   const [titleValue, setTitleValue] = useState(title);
   const [isEdited, setIsEdited] = useState(false);
