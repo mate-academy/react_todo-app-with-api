@@ -1,7 +1,7 @@
 /// <reference types='cypress' />
 /// <reference types='../support' />
 
-//#region Page Objects
+// #region Page Objects
 const page = {
   toggleAllButton: () => cy.byDataCy('ToggleAllButton'),
   newTodoField: () => cy.byDataCy('NewTodoField'),
@@ -111,7 +111,7 @@ Cypress.on('fail', (e) => {
   throw e;
 });
 
-describe.skip('', () => {
+describe('', () => {
   beforeEach(() => {
     // if (failed) Cypress.runner.stop();
   });
