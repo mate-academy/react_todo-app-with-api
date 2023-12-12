@@ -9,6 +9,11 @@ import classNames from 'classnames';
 import { Todo } from '../../types/Todo';
 import { TodosContext } from '../TodosContext/TodosContext';
 
+enum Key {
+  Enter = 'Enter',
+  Escape = 'Escape',
+}
+
 type Props = {
   todo: Todo,
   deleteTodo: (id: number) => Promise<unknown>,
@@ -86,9 +91,9 @@ export const TodoItem: React.FC<Props> = ({
   const handlePressKey = (
     event: React.KeyboardEvent<HTMLInputElement>,
   ) => {
-    if (event.key === 'Enter') {
+    if (event.key === Key.Enter) {
       updateTitle(editValue.trim());
-    } else if (event.key === 'Escape') {
+    } else if (event.key === Key.Escape) {
       setEditValue(todo.title.trim());
       setEditTodosId(0);
     }
