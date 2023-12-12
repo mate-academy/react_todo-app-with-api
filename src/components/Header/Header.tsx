@@ -8,6 +8,7 @@ import React, {
 import cn from 'classnames';
 import { TodosContext } from '../TodosContext/TodosContext';
 import * as todoService from '../../api/todos';
+import { Todo } from '../../types/Todo';
 
 export const Header = () => {
   const [inputValue, setInputValue] = useState('');
@@ -31,14 +32,14 @@ export const Header = () => {
 
   const handlePressEnter = (event: React.KeyboardEvent<HTMLInputElement>) => {
     if (event.key === 'Enter') {
-      if (inputValue.trim() === '') {
+      if (!inputValue.trim()) {
         setErrorMessage('Title should not be empty');
       } else {
         todoService.addTodo({
           title: inputValue,
           completed: false,
           userId: USER_ID,
-        }).then(newTodo => {
+        }).then((newTodo: Todo) => {
           setTodos([...todos, newTodo]);
         }).catch(() => setErrorMessage('Unable to add a todo'));
 

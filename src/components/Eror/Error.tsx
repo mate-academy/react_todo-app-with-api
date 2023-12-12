@@ -2,18 +2,18 @@
 import React, { useContext, useEffect, useState } from 'react';
 import cn from 'classnames';
 import { TodosContext } from '../TodosContext/TodosContext';
+import hideErrorMessage from './hideErrorMessage';
 
 export const Error: React.FC = () => {
   const { errorMessage, setErrorMessage } = useContext(TodosContext);
   const [isErrorHidden, setIsErrorHidden] = useState(true);
 
   useEffect(() => {
-    if (errorMessage !== '') {
+    if (errorMessage) {
       setIsErrorHidden(false);
 
       const timeoutId = setTimeout(() => {
-        setErrorMessage('');
-        setIsErrorHidden(true);
+        hideErrorMessage(setErrorMessage, setIsErrorHidden);
       }, 3000);
 
       return () => {
@@ -38,10 +38,7 @@ export const Error: React.FC = () => {
         data-cy="HideErrorButton"
         type="button"
         className="delete"
-        onClick={() => {
-          setErrorMessage('');
-          setIsErrorHidden(true);
-        }}
+        onClick={() => hideErrorMessage(setErrorMessage, setIsErrorHidden)}
       />
       {errorMessage}
     </div>

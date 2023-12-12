@@ -14,7 +14,10 @@ export const deleteTodo = (todoId: number) => {
 };
 
 export const updatedTodo = ({
-  id, title, completed, userId,
+  id,
+  title,
+  completed,
+  userId,
 }: Todo) => {
   const trimmedTitle = title.trim();
 
