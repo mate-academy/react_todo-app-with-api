@@ -17,9 +17,16 @@ export const deleteTodo = (id: number) => {
   return client.delete(`/todos/${id}`);
 };
 
-export const upDateTodo = (id: number, completed: boolean) => {
+export const upDateTodoStatus = (id: number, completed: boolean) => {
   return client.patch(
     `/todos/${id}`,
     { completed },
+  );
+};
+
+export const upDateTodoTitle = (id: number, title: string) => {
+  return client.patch(
+    `/todos/${id}`,
+    { title },
   );
 };

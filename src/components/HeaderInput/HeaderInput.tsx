@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import classNames from 'classnames';
 import { USER_ID, useAppState } from '../AppState/AppState';
 import { handleErrorMessage } from '../function/handleErrorMessage';
-import { newPost, upDateTodo } from '../../api/todos';
+import { newPost, upDateTodoStatus } from '../../api/todos';
 import { Todo } from '../../types/Todo';
 import { getIncompleteTodosCount } from '../function/getIncompleteTodosCount';
 
@@ -29,7 +29,7 @@ export const HeaderInput: React.FC = () => {
     if (newTodoFieldRef.current) {
       newTodoFieldRef.current.focus();
     }
-  }, [todos]);
+  }, [loading]);
 
   const handleSaveTodo = async () => {
     if (!newTodo.trim()) {
@@ -132,7 +132,7 @@ export const HeaderInput: React.FC = () => {
               }
 
               if (id) {
-                await upDateTodo(id, completed);
+                await upDateTodoStatus(id, completed);
               }
 
               return updatedTodo;
