@@ -1,7 +1,7 @@
 /* eslint-disable jsx-a11y/control-has-associated-label */
 
 import React, {
-  useContext, useEffect, useRef, useState,
+  useContext, useEffect, useMemo, useRef, useState,
 } from 'react';
 import cn from 'classnames';
 
@@ -24,9 +24,11 @@ export const TodoApp = () => {
   const dispatch = useContext(DispatchContext);
 
   const inputRef = useRef<HTMLInputElement | null>(null);
-  const completedTodosCount = todos.filter(
-    todo => todo.completed,
-  ).length;
+  const completedTodosCount = useMemo(() => (
+    todos.filter(
+      todo => todo.completed,
+    ).length
+  ), [todos]);
 
   const [title, setTitle] = useState('');
   const [isFocus, setIsFocus] = useState(false);
@@ -97,20 +99,14 @@ export const TodoApp = () => {
 
       dispatch({
         type: 'createTempTodo',
-        payload: {
-          todo: { ...newTodo, id: TEMP_TODO_ID },
-          loadingType: LoadingStatus.Current,
-        },
+        payload: { ...newTodo, id: TEMP_TODO_ID },
       });
 
       const responseNewTodo = await createTodo(newTodo);
 
       dispatch({
         type: 'createTodo',
-        payload: {
-          todo: responseNewTodo,
-          loadingType: LoadingStatus.None,
-        },
+        payload: responseNewTodo,
       });
 
       setTitle('');
@@ -119,16 +115,12 @@ export const TodoApp = () => {
         type: 'error',
         payload: {
           error: ErrorMessage.Creating,
-          loadingType: LoadingStatus.None,
         },
       });
     } finally {
       dispatch({
         type: 'createTempTodo',
-        payload: {
-          todo: null,
-          loadingType: LoadingStatus.None,
-        },
+        payload: null,
       });
       setIsFocus(true);
     }
@@ -139,11 +131,17 @@ export const TodoApp = () => {
   };
 
   useEffect(() => {
+    let timerId = 0;
+
     if (errorMessage) {
-      setTimeout(() => dispatch(
+      timerId = +setTimeout(() => dispatch(
         { type: 'error', payload: { error: ErrorMessage.None } },
       ), 3000);
     }
+
+    return () => {
+      clearTimeout(timerId);
+    };
   }, [errorMessage, dispatch]);
 
   useEffect(() => {

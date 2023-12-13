@@ -30,13 +30,13 @@ export type Action =
 }
 | {
   type: 'createTempTodo',
-  payload: { todo: Todo | null, loadingType?: LoadingStatus }
+  payload: Todo | null
 }
 | {
   type: 'createTodo',
-  payload: { todo: Todo, loadingType?: LoadingStatus }
+  payload: Todo,
 }
 | {
   type: 'deleteTodo',
-  payload: { id: number, loadingType?: LoadingStatus }
+  payload: number
 };

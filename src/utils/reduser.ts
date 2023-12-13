@@ -56,36 +56,27 @@ export const reduser = (state: State, action: Action): State => {
     }
 
     case 'createTempTodo': {
-      const { todo, loadingType } = action.payload;
-
       return {
         ...state,
-        tempTodo: todo,
-        shouldLoading: loadingType ?? state.shouldLoading,
+        tempTodo: action.payload,
       };
     }
 
     case 'createTodo': {
-      const { todo, loadingType } = action.payload;
-
       return {
         ...state,
-        todos: [...state.todos, todo],
-        shouldLoading: loadingType ?? state.shouldLoading,
+        todos: [...state.todos, action.payload],
       };
     }
 
     case 'deleteTodo': {
-      const { id, loadingType } = action.payload;
-
       const updatedTodos = state.todos.filter(
-        todo => todo.id !== id,
+        todo => todo.id !== action.payload,
       );
 
       return {
         ...state,
         todos: updatedTodos,
-        shouldLoading: loadingType ?? state.shouldLoading,
       };
     }
 

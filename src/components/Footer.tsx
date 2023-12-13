@@ -1,11 +1,10 @@
 import cn from 'classnames';
-import { useContext } from 'react';
+import { useContext, useMemo } from 'react';
 
 import { FilterStatus } from '../types/FilterStatus';
 import { DispatchContext, StateContext } from './TodosProvider';
 import { deleteTodo } from '../api/todos';
 import { ErrorMessage } from '../types/ErrorMessage';
-import { LoadingStatus } from '../types/LoadingStatus';
 
 export const Footer = () => {
   const { filteredBy, todos, newTodoInputRef } = useContext(StateContext);
@@ -13,19 +12,16 @@ export const Footer = () => {
 
   const filteredStatus = Object.values(FilterStatus);
 
-  const completedTodosCount = todos.filter(
-    todo => todo.completed,
-  )
-    .length || 0;
+  const completedTodosCount = useMemo(() => (
+    todos.filter(
+      todo => todo.completed,
+    )
+      .length || 0
+  ), [todos]);
 
   const unCompletedTodosCount = todos.length - completedTodosCount;
 
   const clearCompletedTodos = async () => {
-    dispatch({
-      type: 'shouldLoading',
-      payload: LoadingStatus.Completed,
-    });
-
     todos.forEach(async todo => {
       if (todo.completed) {
         try {
@@ -33,7 +29,7 @@ export const Footer = () => {
 
           dispatch({
             type: 'deleteTodo',
-            payload: { id: todo.id },
+            payload: todo.id,
           });
         } catch (error) {
           dispatch({
@@ -41,10 +37,6 @@ export const Footer = () => {
             payload: { error: ErrorMessage.Deleting },
           });
         } finally {
-          dispatch({
-            type: 'shouldLoading',
-            payload: LoadingStatus.None,
-          });
           newTodoInputRef?.focus();
         }
       }

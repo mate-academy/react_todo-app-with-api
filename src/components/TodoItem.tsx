@@ -64,14 +64,13 @@ export const TodoItem:React.FC<Props> = ({ todo }) => {
 
       dispatch({
         type: 'deleteTodo',
-        payload: { id },
+        payload: id,
       });
     } catch (error) {
       dispatch({
         type: 'error',
         payload: { error: ErrorMessage.Deleting },
       });
-      setNewTitle(title);
     } finally {
       setIsUpdatingTitle(false);
       setIsLoading(false);
@@ -79,7 +78,7 @@ export const TodoItem:React.FC<Props> = ({ todo }) => {
     }
   };
 
-  const handleNewTitleSubmit = async () => {
+  const updateNewTitle = async () => {
     try {
       setIsLoading(true);
 
@@ -90,18 +89,13 @@ export const TodoItem:React.FC<Props> = ({ todo }) => {
         return;
       }
 
-      const updatedTodo = {
-        ...todo,
-        title: newTitle.trim(),
-      };
-
       if (!newTitle.trim()) {
         try {
           await deleteTodo(id);
 
           dispatch({
             type: 'deleteTodo',
-            payload: { id },
+            payload: id,
           });
         } catch (error) {
           if (isUpdatingTitle && updateTitleRef.current) {
@@ -118,6 +112,11 @@ export const TodoItem:React.FC<Props> = ({ todo }) => {
 
         return;
       }
+
+      const updatedTodo = {
+        ...todo,
+        title: newTitle.trim(),
+      };
 
       await updateTodo(updatedTodo);
 
@@ -140,6 +139,11 @@ export const TodoItem:React.FC<Props> = ({ todo }) => {
     }
   };
 
+  const handleNewTitleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    updateNewTitle();
+  };
+
   const handleKeyUp = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Escape') {
       setIsUpdatingTitle(false);
@@ -149,17 +153,12 @@ export const TodoItem:React.FC<Props> = ({ todo }) => {
 
   useEffect(() => {
     switch (true) {
-      case shouldLoading === LoadingStatus.Completed && completed:
+      case id === TEMP_TODO_ID:
         setIsLoading(true);
 
         break;
 
       case shouldLoading === LoadingStatus.All:
-        setIsLoading(true);
-
-        break;
-
-      case shouldLoading === LoadingStatus.Current && id === TEMP_TODO_ID:
         setIsLoading(true);
 
         break;
@@ -172,7 +171,7 @@ export const TodoItem:React.FC<Props> = ({ todo }) => {
       default:
         break;
     }
-  }, [id, completed, shouldLoading]);
+  }, [id, shouldLoading]);
 
   useEffect(() => {
     if (isUpdatingTitle) {
@@ -225,10 +224,7 @@ export const TodoItem:React.FC<Props> = ({ todo }) => {
           )
           : (
             <form
-              onSubmit={e => {
-                e.preventDefault();
-                handleNewTitleSubmit();
-              }}
+              onSubmit={handleNewTitleSubmit}
             >
               <input
                 data-cy="TodoTitleField"
@@ -237,7 +233,7 @@ export const TodoItem:React.FC<Props> = ({ todo }) => {
                 placeholder="Empty todo will be deleted"
                 value={newTitle}
                 onChange={e => setNewTitle(e.target.value)}
-                onBlur={handleNewTitleSubmit}
+                onBlur={updateNewTitle}
                 onKeyUp={handleKeyUp}
                 ref={updateTitleRef}
               />
