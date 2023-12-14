@@ -10,6 +10,10 @@ import { TodosContext } from '../TodosContext/TodosContext';
 import * as todoService from '../../api/todos';
 import { Todo } from '../../types/Todo';
 
+enum Key {
+  Enter = 'Enter',
+}
+
 export const Header = () => {
   const [inputValue, setInputValue] = useState('');
   const inputRef = useRef<HTMLInputElement | null>(null);
@@ -31,7 +35,7 @@ export const Header = () => {
   };
 
   const handlePressEnter = (event: React.KeyboardEvent<HTMLInputElement>) => {
-    if (event.key === 'Enter') {
+    if (event.key === Key.Enter) {
       if (!inputValue.trim()) {
         setErrorMessage('Title should not be empty');
       } else {

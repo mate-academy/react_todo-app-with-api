@@ -58,7 +58,7 @@ export const TodoItem: React.FC<Props> = ({
 
       const newTodos = [...todos];
       const index = newTodos.findIndex(
-        currentTodo => currentTodo.id === newTodo.id,
+        ({ id }) => id === newTodo.id,
       );
 
       newTodos.splice(index, 1, newTodo);

@@ -12,10 +12,13 @@ export const TodoList: React.FC = () => {
     switch (filterOption) {
       case FilterOption.Active:
         return !todo.completed;
+
       case FilterOption.Completed:
         return todo.completed;
+
       case FilterOption.All:
       default:
+
         return true;
     }
   });
