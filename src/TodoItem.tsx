@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useState } from 'react';
 import classNames from 'classnames';
 import { Todo } from './types/Todo';
 import { updatedTodo } from './api/todos';
@@ -27,15 +27,15 @@ export const TodoItem: React.FC<TodoItemProps> = ({
   const [editableTitle, setEditableTitle] = useState(todo.title);
   const { id, completed, title } = todo;
   const [isEditing, setIsEditing] = useState(false);
-  const inputRef = useRef<HTMLInputElement>(null);
+  // const inputRef = useRef<HTMLInputElement>(null);
   const [isUpdatingTitle, setIsUpdatingTitle] = useState(false);
   const showLoader = isUpdatingTitle || (isDeleting && isLoading);
 
-  useEffect(() => {
-    if (isEditing) {
-      inputRef.current?.focus();
-    }
-  }, [isEditing]);
+  // useEffect(() => {
+  //   if (isEditing) {
+  //     inputRef.current?.focus();
+  //   }
+  // }, [isEditing]);
 
   const updateTodoTitle = async (
     todoId: number, newTitle: string,
@@ -83,7 +83,6 @@ export const TodoItem: React.FC<TodoItemProps> = ({
 
   const handleBlur = () => {
     if (!editableTitle.trim()) {
-      // Delete the todo if the new title is empty
       deleteTodo(id);
       setIsEditing(false);
     } else if (editableTitle !== title) {
@@ -124,20 +123,22 @@ export const TodoItem: React.FC<TodoItemProps> = ({
         <form onSubmit={handleSubmit}>
           <input
             type="text"
+            data-cy="NewTodoField"
             value={editableTitle}
-            // className="todo__title"
             className="todoapp__new-todo"
             onChange={handleChange}
             onBlur={handleBlur}
             onKeyUp={handleKeyUp}
+            // eslint-disable-next-line
+            autoFocus
+            style={{ paddingLeft: '16px' }}
           />
         </form>
       ) : (
         <>
           <span
             data-cy="TodoTitle"
-            // className="todo__title"
-            className="todoapp__new-todo"
+            className="todo__title"
             onDoubleClick={() => setIsEditing(true)}
           >
             {title}

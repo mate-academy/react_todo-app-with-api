@@ -20,9 +20,6 @@ export const Error: React.FC<Props> = ({
         aria-label="Close error message"
       />
       {errorMessage}
-      {/* show only one message at a time */}
-      {/*
-      Unable to update a todo */}
     </div>
   );
 };
