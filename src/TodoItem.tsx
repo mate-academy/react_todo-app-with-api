@@ -10,10 +10,8 @@ type TodoItemProps = {
   isLoading: boolean;
   setIsLoading: React.Dispatch<React.SetStateAction<boolean>>;
   toggleTodo: (todoId: number) => void
-  todoTitle: string;
-  setTodoTitle: (title: string) => void;
-  // isEditing: boolean;
-  // setIsEditing: React.Dispatch<React.SetStateAction<boolean>>;
+  updateTodoList: (updatedTodoItem: Todo) => void
+  setErrorMessage: (newMessage: string) => void;
 };
 
 export const TodoItem: React.FC<TodoItemProps> = ({
@@ -23,15 +21,15 @@ export const TodoItem: React.FC<TodoItemProps> = ({
   isLoading,
   setIsLoading,
   toggleTodo,
-  setTodoTitle,
-  // isEditing,
-  // setIsEditing,
+  updateTodoList,
+  setErrorMessage,
 }) => {
-  const showLoader = (todo.id === 0 && isLoading) || (isDeleting && isLoading);
   const [editableTitle, setEditableTitle] = useState(todo.title);
   const { id, completed, title } = todo;
   const [isEditing, setIsEditing] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
+  const [isUpdatingTitle, setIsUpdatingTitle] = useState(false);
+  const showLoader = isUpdatingTitle || (isDeleting && isLoading);
 
   useEffect(() => {
     if (isEditing) {
@@ -42,41 +40,56 @@ export const TodoItem: React.FC<TodoItemProps> = ({
   const updateTodoTitle = async (
     todoId: number, newTitle: string,
   ) => {
+    setIsUpdatingTitle(true);
     setIsLoading(true);
-    try {
-      const updatedData = { ...todo, title: newTitle };
 
-      await updatedTodo(todoId, updatedData);
+    const updatedData = { ...todo, title: newTitle };
+    const result = await updatedTodo(todoId, updatedData);
 
-      setIsLoading(false);
-      setTodoTitle(newTitle); // Update the title state in the component
-      setIsEditing(false); // Exit edit mode
-    } catch (error) {
-      setIsLoading(false);
-      // Handle error, display message
-      alert('Unable to update a todo');
+    if (result) {
+      updateTodoList(updatedData);
     }
+
+    setIsUpdatingTitle(false);
+    setIsEditing(false);
+  };
+
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    if (!editableTitle.trim()) {
+      deleteTodo(id);
+      setIsEditing(false);
+
+      return;
+    }
+
+    if (editableTitle !== title) {
+      try {
+        await updateTodoTitle(id, editableTitle);
+      } catch (error) {
+        setErrorMessage('Unable to update a todo');
+        setEditableTitle(title);
+      }
+    } else {
+      setEditableTitle(title);
+    }
+
+    setIsEditing(false);
   };
 
   const handleToggle = () => {
     toggleTodo(id);
   };
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    if (editableTitle === title) {
-      setIsEditing(false);
-    } else if (!editableTitle.trim()) {
-      deleteTodo(id);
-    } else {
-      updateTodoTitle(id, editableTitle); // implement this function for API call
-    }
-  };
-
   const handleBlur = () => {
-    setIsEditing(false);
-    if (editableTitle !== title && editableTitle.trim()) {
-      updateTodoTitle(id, editableTitle); // implement this function for API call
+    if (!editableTitle.trim()) {
+      // Delete the todo if the new title is empty
+      deleteTodo(id);
+      setIsEditing(false);
+    } else if (editableTitle !== title) {
+      updateTodoTitle(id, editableTitle);
+    } else {
+      setIsEditing(false);
     }
   };
 

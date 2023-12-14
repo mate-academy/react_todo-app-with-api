@@ -11,8 +11,8 @@ type Props = {
   isLoading: boolean;
   setIsLoading: React.Dispatch<React.SetStateAction<boolean>>;
   toggleTodo: (todoId: number) => void
-  todoTitle: string;
-  setTodoTitle: (title: string) => void;
+  updateTodoList: (updatedTodoItem: Todo) => void
+  setErrorMessage: (newMessage: string) => void;
 };
 
 export const TodoList: React.FC<Props> = ({
@@ -23,18 +23,9 @@ export const TodoList: React.FC<Props> = ({
   setIsLoading,
   tempTodo,
   toggleTodo,
-  todoTitle,
-  setTodoTitle,
+  updateTodoList,
+  setErrorMessage,
 }) => {
-  // const [isEditing, setIsEditing] = useState(false);
-  // const inputRef = useRef<HTMLInputElement>(null);
-
-  // useEffect(() => {
-  //   if (isEditing) {
-  //     inputRef.current?.focus();
-  //   }
-  // }, [isEditing]);
-
   return (
     <section className="todoapp__main" data-cy="TodoList">
       {visibleTodos.map((todo) => (
@@ -46,24 +37,20 @@ export const TodoList: React.FC<Props> = ({
           isLoading={isLoading}
           setIsLoading={setIsLoading}
           toggleTodo={toggleTodo}
-          todoTitle={todoTitle}
-          setTodoTitle={setTodoTitle}
-          // setIsEditing={setIsEditing}
-          // isEditing={isEditing}
+          updateTodoList={updateTodoList}
+          setErrorMessage={setErrorMessage}
         />
       ))}
       {tempTodo && (
         <TodoItem
           key={tempTodo.id}
           todo={tempTodo}
-          todoTitle={todoTitle}
-          setTodoTitle={setTodoTitle}
           deleteTodo={deleteTodo}
           isLoading={isLoading}
           setIsLoading={setIsLoading}
           toggleTodo={toggleTodo}
-          // setIsEditing={setIsEditing}
-          // isEditing={isEditing}
+          updateTodoList={updateTodoList}
+          setErrorMessage={setErrorMessage}
         />
       )}
     </section>

@@ -169,6 +169,12 @@ export const App: React.FC = () => {
     return <UserWarning />;
   }
 
+  const updateTodoList = (updatedTodoItem: Todo) => {
+    setTodos(todos.map(todo => {
+      return todo.id === updatedTodoItem.id ? updatedTodoItem : todo;
+    }));
+  };
+
   return (
     <div className="todoapp">
       <h1 className="todoapp__title">todos</h1>
@@ -196,8 +202,8 @@ export const App: React.FC = () => {
             deleteTodo={deleteTodo}
             deletingTodoId={deletingTodoId}
             toggleTodo={toggleTodo}
-            todoTitle={todoTitle}
-            setTodoTitle={setTodoTitle}
+            updateTodoList={updateTodoList}
+            setErrorMessage={setErrorMessage}
           />
         )}
 
