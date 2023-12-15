@@ -1,8 +1,6 @@
 import { Todo } from '../types/Todo';
 import { client } from '../utils/fetchClient';
 
-// patch: <T>(url: string, data: any) => request<T>(url, 'PATCH', data),
-
 export const getTodos = (userId: number) => {
   return client.get<Todo[]>(`/todos?userId=${userId}`);
 };

@@ -88,6 +88,20 @@ export const TodoItem: React.FC<TodoItemProps> = ({
     handleSaveChanges();
   };
 
+  const handleCheckboxClick = () => {
+    handleUpdateTodo(
+      todo.id,
+      todo.userId,
+      todo.title,
+      !todo.completed,
+    );
+  };
+
+  const handleInputBlur = () => {
+    setCurrentEditing(null);
+    handleSaveChanges();
+  };
+
   return (
     <div
       data-cy="Todo"
@@ -101,12 +115,7 @@ export const TodoItem: React.FC<TodoItemProps> = ({
           type="checkbox"
           className="todo__status"
           defaultChecked={todo.completed}
-          onClick={() => handleUpdateTodo(
-            todo.id,
-            todo.userId,
-            todo.title,
-            !todo.completed,
-          )}
+          onClick={handleCheckboxClick}
         />
       </label>
 
@@ -123,10 +132,7 @@ export const TodoItem: React.FC<TodoItemProps> = ({
               ref={inputRef}
               value={value}
               onChange={handleInputChange}
-              onBlur={() => {
-                setCurrentEditing(null);
-                handleSaveChanges();
-              }}
+              onBlur={handleInputBlur}
               onKeyUp={handleKeyUp}
             />
           </form>
