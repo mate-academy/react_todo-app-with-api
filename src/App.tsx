@@ -52,10 +52,10 @@ export const App: React.FC = () => {
   const todoListToShow: Todo[] | null = useMemo(() => {
     switch (filter) {
       case TodoListState.Completed:
-        return todoList.filter(todo => !todo.completed);
+        return todoList.filter(todo => todo.completed);
 
       case TodoListState.Active:
-        return todoList.filter(todo => todo.completed);
+        return todoList.filter(todo => !todo.completed);
 
       default:
         return todoList;
