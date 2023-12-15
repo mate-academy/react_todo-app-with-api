@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 import { createContext, useEffect, useState } from 'react';
 import { Context, ContextKey, ContextState } from './types/Context';
 import { FilterType } from './types/FilterType';
@@ -23,8 +22,8 @@ export const AppContext = createContext<Context>({
   state: initialState,
   todosFromServer: [],
   toggleAllActive: false,
-  changeState<T>(field: ContextKey, value: T) {},
-  errorFound: (error: ErrorType) => {},
+  changeState: () => {},
+  errorFound: () => {},
   setTodosFromServer: () => {},
 });
 
