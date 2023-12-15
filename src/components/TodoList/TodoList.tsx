@@ -6,10 +6,12 @@ import { Error } from '../../types/Error';
 
 interface Props {
   todos: Todo[];
+  loaderTodoId: number[] | null;
   deleteTodo: (todoId: number) => void;
   tempTodo: Todo | null;
   TodoUpdate: (todo: Todo) => void;
   setErrorText: (error: Error) => void;
+  setLoaderTodoId: (todosId: number[] | null) => void;
 }
 
 export const TodoList: React.FC<Props> = ({
@@ -18,6 +20,8 @@ export const TodoList: React.FC<Props> = ({
   tempTodo,
   TodoUpdate,
   setErrorText,
+  loaderTodoId,
+  setLoaderTodoId,
 }) => {
   return (
     <section className="todoapp__main" data-cy="TodoList">
@@ -26,8 +30,10 @@ export const TodoList: React.FC<Props> = ({
           <CSSTransition key={todo.id} timeout={250} classNames="item">
             <TodoItem
               todo={todo}
+              loaderTodoId={loaderTodoId}
               TodoUpdate={TodoUpdate}
               setErrorText={setErrorText}
+              setLoaderTodoId={setLoaderTodoId}
               deleteTodo={deleteTodo}
             />
           </CSSTransition>
@@ -36,7 +42,9 @@ export const TodoList: React.FC<Props> = ({
           <CSSTransition key={tempTodo.id} timeout={250} classNames="item">
             <TodoItem
               todo={tempTodo}
+              loaderTodoId={[tempTodo.id]}
               TodoUpdate={TodoUpdate}
+              setLoaderTodoId={setLoaderTodoId}
               setErrorText={setErrorText}
               deleteTodo={deleteTodo}
             />

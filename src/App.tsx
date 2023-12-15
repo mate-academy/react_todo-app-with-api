@@ -22,6 +22,7 @@ export const App: React.FC = () => {
     = useState<TodoFilter>(TodoFilter.All);
   const [errorText, setErrorText] = useState<Error>(Error.Default);
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
+  const [loaderTodoId, setLoaderTodoId] = useState<number[] | null>(null);
 
   useEffect(() => {
     getTodos(USER_ID)
@@ -49,11 +50,13 @@ export const App: React.FC = () => {
   };
 
   const handleDeleteTodo = (todoId: number) => {
+    setLoaderTodoId([todoId]);
     deleteTodo(todoId)
       .then(() => {
         setTodos(current => current.filter(todo => todo.id !== todoId));
       })
-      .catch(() => setErrorText(Error.Delete));
+      .catch(() => setErrorText(Error.Delete))
+      .finally(() => setLoaderTodoId(null));
   };
 
   const toggleAllStatus = () => {
@@ -68,12 +71,14 @@ export const App: React.FC = () => {
 
   const handleDeleteCompleted = async (todosId: number[]) => {
     try {
+      setLoaderTodoId(todosId);
       for (let i = 0; i < todosId.length; i += 1) {
         deleteTodo(todosId[i]);
       }
     } catch (error) {
       setErrorText(Error.Delete);
     } finally {
+      setLoaderTodoId(null);
       setTodos(current => current.filter(todo => !todosId.includes(todo.id)));
     }
   };
@@ -83,28 +88,33 @@ export const App: React.FC = () => {
 
     const currentTodos = [...todos];
 
+    setLoaderTodoId(
+      currentTodos
+        .filter((todo) => todo.completed !== status)
+        .map((todo) => todo.id),
+    );
+
     for (let i = 0; i < currentTodos.length; i += 1) {
       if (currentTodos[i].completed !== status) {
         currentTodos[i].completed = status;
 
         updateTodo(currentTodos[i])
           .then(() => {
-            setTodos((current) => {
-              const newTodos = [...current];
-              const index = newTodos.findIndex(
-                (item) => item.id === currentTodos[i].id,
-              );
+            setTodos(current => current.map(todo => {
+              if (todo.id === currentTodos[i].id) {
+                return currentTodos[i];
+              }
 
-              newTodos.splice(index, 1, currentTodos[i]);
-
-              return newTodos;
-            });
+              return todo;
+            }));
           })
           .catch(() => {
             setErrorText(Error.Update);
           });
       }
     }
+
+    setLoaderTodoId(null);
   };
 
   const handleUpdateTodo = (todo: Todo) => {
@@ -116,6 +126,8 @@ export const App: React.FC = () => {
 
       return newTodos;
     });
+
+    setLoaderTodoId(null);
   };
 
   return (
@@ -137,6 +149,8 @@ export const App: React.FC = () => {
             <TodoList
               todos={filteredTodos}
               deleteTodo={handleDeleteTodo}
+              loaderTodoId={loaderTodoId}
+              setLoaderTodoId={setLoaderTodoId}
               tempTodo={tempTodo}
               setErrorText={setErrorText}
               TodoUpdate={handleUpdateTodo}

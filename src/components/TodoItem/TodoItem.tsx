@@ -10,6 +10,8 @@ interface Props {
   deleteTodo: (todoid: number) => void;
   TodoUpdate: (todo: Todo) => void;
   setErrorText: (error: Error) => void;
+  loaderTodoId: number[] | null;
+  setLoaderTodoId: (todosId: number[] | null) => void;
 }
 
 export const TodoItem: React.FC<Props> = ({
@@ -17,6 +19,8 @@ export const TodoItem: React.FC<Props> = ({
   deleteTodo,
   TodoUpdate,
   setErrorText,
+  loaderTodoId,
+  setLoaderTodoId,
 }) => {
   const [selectedTodoId, setSelectedTodoId] = useState<number | null>(null);
   const [inputValue, setinputValue] = useState('');
@@ -54,6 +58,7 @@ export const TodoItem: React.FC<Props> = ({
     const upTodo = { ...todo };
 
     upTodo.title = inputValue;
+    setLoaderTodoId([todo.id]);
 
     updateTodo(upTodo)
       .then(() => {
@@ -63,7 +68,7 @@ export const TodoItem: React.FC<Props> = ({
         setErrorText(Error.Update);
       })
       .finally(() => {
-        setSelectedTodoId(null);
+        setLoaderTodoId(null);
         setinputValue('');
       });
   };
@@ -111,45 +116,53 @@ export const TodoItem: React.FC<Props> = ({
         />
       </label>
 
-      {selectedTodoId === todo.id
-        ? (
-          <form
-            onSubmit={(event) => {
-              event.preventDefault();
-              handleOnBlueInput();
-            }}
+      {selectedTodoId === todo.id ? (
+        <form
+          onSubmit={(event) => {
+            event.preventDefault();
+            handleOnBlueInput();
+          }}
+        >
+          <input
+            data-cy="TodoTitleField"
+            type="text"
+            className="todo__title-field"
+            placeholder="Empty todo will be deleted"
+            value={inputValue}
+            onChange={(event) => setinputValue(event.target.value)}
+            onBlur={handleOnBlueInput}
+            onKeyDown={handlePressKey}
+            ref={inputRef}
+          />
+        </form>
+      ) : (
+        <>
+          <span
+            data-cy="TodoTitle"
+            className="todo__title"
+            onDoubleClick={() => handleDoubleClick()}
           >
-            <input
-              data-cy="TodoTitleField"
-              type="text"
-              className="todo__title-field"
-              placeholder="Empty todo will be deleted"
-              value={inputValue}
-              onChange={(event) => setinputValue(event.target.value)}
-              onBlur={handleOnBlueInput}
-              onKeyDown={handlePressKey}
-              ref={inputRef}
-            />
-          </form>
-        ) : (
-          <>
-            <span
-              data-cy="TodoTitle"
-              className="todo__title"
-              onDoubleClick={() => handleDoubleClick()}
-            >
-              {todo.title}
-            </span>
-            <button
-              type="button"
-              className="todo__remove"
-              data-cy="TodoDelete"
-              onClick={() => deleteTodo(todo.id)}
-            >
-              ×
-            </button>
-          </>
-        )}
+            {todo.title}
+          </span>
+          <button
+            type="button"
+            className="todo__remove"
+            data-cy="TodoDelete"
+            onClick={() => deleteTodo(todo.id)}
+          >
+            ×
+          </button>
+          <div
+            data-cy="TodoLoader"
+            className={classNames('modal', 'overlay', {
+              'is-active': loaderTodoId?.includes(todo.id),
+            })}
+          >
+            <div className="modal-background has-background-white-ter" />
+            <div className="loader" />
+          </div>
+        </>
+      )}
 
       <div data-cy="TodoLoader" className="modal overlay">
         <div className="modal-background has-background-white-ter" />

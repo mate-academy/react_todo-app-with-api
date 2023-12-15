@@ -17,8 +17,8 @@ export const Footer: React.FC<Props> = ({
   filterType,
   cleanComplitedTodo,
 }) => {
-  const complitedTodo = todos.filter(todo => todo.completed).length;
-  const incompleteTodo = todos.length - complitedTodo;
+  const completedTodo = todos.filter(todo => todo.completed).length;
+  const incompleteTodo = todos.length - completedTodo;
 
   const handleCleanComplited = () => {
     cleanComplitedTodo(
@@ -83,7 +83,7 @@ export const Footer: React.FC<Props> = ({
         data-cy="ClearCompletedButton"
         onClick={() => handleCleanComplited()}
       >
-        {complitedTodo > 0 && 'Clear completed'}
+        {completedTodo > 0 && 'Clear completed'}
       </button>
     </footer>
   );
