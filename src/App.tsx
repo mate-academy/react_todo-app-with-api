@@ -34,8 +34,10 @@ export const App: React.FC = () => {
     switch (currentFilter) {
       case TodoFilter.Active:
         return todos.filter(todo => !todo.completed);
+
       case TodoFilter.Completed:
         return todos.filter(todo => todo.completed);
+
       default:
         return todos;
     }
@@ -144,7 +146,7 @@ export const App: React.FC = () => {
           UpdateAll={handleUpdateAll}
         />
 
-        {todos.length > 0 && (
+        {!!todos.length && (
           <>
             <TodoList
               todos={filteredTodos}
