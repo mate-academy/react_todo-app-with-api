@@ -69,6 +69,7 @@ export const TodoItem: React.FC<Props> = ({
       })
       .finally(() => {
         setLoaderTodoId(null);
+        setSelectedTodoId(null);
         setinputValue('');
       });
   };
