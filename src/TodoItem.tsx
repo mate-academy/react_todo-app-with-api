@@ -102,7 +102,6 @@ export const TodoItem: React.FC<TodoItemProps> = ({
       className={classNames(
         'todo', { completed, active: !completed },
       )}
-      // className={`todo ${completed ? 'completed' : 'active'}`}
       key={id}
     >
       <label className="todo__status-label">
