@@ -1,7 +1,10 @@
 /* eslint-disable max-len */
 /* eslint-disable jsx-a11y/control-has-associated-label */
 import React, {
-  useCallback, useEffect, useMemo, useState,
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
 } from 'react';
 import { UserWarning } from './UserWarning';
 import { Error } from './Error';
@@ -19,8 +22,10 @@ function getVisibleTodos(todos: Todo[], newStatus: Status) {
     switch (newStatus) {
       case Status.ACTIVE:
         return !completed;
+
       case Status.COMPLETED:
         return completed;
+
       default:
         return true;
     }
@@ -217,9 +222,6 @@ export const App: React.FC = () => {
         )}
 
       </div>
-
-      {/* Notification is shown in case of any error */}
-      {/* Add the 'hidden' class to hide the message smoothly */}
       <Error errorMessage={errorMessage} setErrorMessage={setErrorMessage} />
     </div>
   );

@@ -1,5 +1,4 @@
 /* eslint-disable no-lone-blocks */
-// import { useEffect, useRef, useState } from 'react';
 import { Todo } from './types/Todo';
 import { TodoItem } from './TodoItem';
 
@@ -28,31 +27,35 @@ export const TodoList: React.FC<Props> = ({
 }) => {
   return (
     <section className="todoapp__main" data-cy="TodoList">
-      {visibleTodos.map((todo) => (
-        <TodoItem
-          key={todo.id}
-          todo={todo}
-          deleteTodo={deleteTodo}
-          isDeleting={deletingTodoId === todo.id && isLoading}
-          isLoading={isLoading}
-          setIsLoading={setIsLoading}
-          toggleTodo={toggleTodo}
-          updateTodoList={updateTodoList}
-          setErrorMessage={setErrorMessage}
-        />
-      ))}
-      {tempTodo && (
-        <TodoItem
-          key={tempTodo.id}
-          todo={tempTodo}
-          deleteTodo={deleteTodo}
-          isLoading={isLoading}
-          setIsLoading={setIsLoading}
-          toggleTodo={toggleTodo}
-          updateTodoList={updateTodoList}
-          setErrorMessage={setErrorMessage}
-        />
-      )}
+      <ul>
+        {visibleTodos.map((todo) => (
+          <li key={todo.id}>
+            <TodoItem
+              todo={todo}
+              deleteTodo={deleteTodo}
+              isDeleting={deletingTodoId === todo.id && isLoading}
+              isLoading={isLoading}
+              setIsLoading={setIsLoading}
+              toggleTodo={toggleTodo}
+              updateTodoList={updateTodoList}
+              setErrorMessage={setErrorMessage}
+            />
+          </li>
+        ))}
+        {tempTodo && (
+          <li key={tempTodo.id}>
+            <TodoItem
+              todo={tempTodo}
+              deleteTodo={deleteTodo}
+              isLoading={isLoading}
+              setIsLoading={setIsLoading}
+              toggleTodo={toggleTodo}
+              updateTodoList={updateTodoList}
+              setErrorMessage={setErrorMessage}
+            />
+          </li>
+        )}
+      </ul>
     </section>
   );
 };

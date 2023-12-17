@@ -1,4 +1,5 @@
 import { useEffect, useRef } from 'react';
+import classNames from 'classnames';
 import { Todo } from './types/Todo';
 
 type Props = {
@@ -58,20 +59,17 @@ export const Header: React.FC<Props> = ({
 
   return (
     <header className="todoapp__header">
-      {/* this buttons is active only if there are some active todos */}
       {!!todos.length && (
         <button
           type="button"
-          className={`todoapp__toggle-all ${
-            areAllTodosCompleted ? 'active' : ''
-          }`}
+          className={classNames(
+            'todoapp__toggle-all', { active: areAllTodosCompleted },
+          )}
           onClick={toggleAll}
           data-cy="ToggleAllButton"
           aria-label="Toggle button message"
         />
       )}
-
-      {/* Add a todo on form submit */}
       <form onSubmit={handleSubmit}>
         <input
           disabled={isLoading}

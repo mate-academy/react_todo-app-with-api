@@ -27,15 +27,8 @@ export const TodoItem: React.FC<TodoItemProps> = ({
   const [editableTitle, setEditableTitle] = useState(todo.title);
   const { id, completed, title } = todo;
   const [isEditing, setIsEditing] = useState(false);
-  // const inputRef = useRef<HTMLInputElement>(null);
   const [isUpdatingTitle, setIsUpdatingTitle] = useState(false);
   const showLoader = isUpdatingTitle || (isDeleting && isLoading);
-
-  // useEffect(() => {
-  //   if (isEditing) {
-  //     inputRef.current?.focus();
-  //   }
-  // }, [isEditing]);
 
   const updateTodoTitle = async (
     todoId: number, newTitle: string,
@@ -106,7 +99,10 @@ export const TodoItem: React.FC<TodoItemProps> = ({
   return (
     <div
       data-cy="Todo"
-      className={`todo ${completed ? 'completed' : 'active'}`}
+      className={classNames(
+        'todo', { completed, active: !completed },
+      )}
+      // className={`todo ${completed ? 'completed' : 'active'}`}
       key={id}
     >
       <label className="todo__status-label">
