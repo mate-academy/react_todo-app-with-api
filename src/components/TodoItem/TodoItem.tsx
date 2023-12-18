@@ -6,7 +6,6 @@ import {
 import { Todo } from '../../types/Todo';
 import { AppContext } from '../TodoContext/TodoContext';
 import * as todoService from '../../api/todos';
-import { ErrorType } from '../../types/ErrorType';
 
 type Props = {
   todo: Todo;
@@ -16,7 +15,7 @@ const ENTER = 'Enter';
 const ESC = 'Escape';
 
 export const TodoItem: React.FC<Props> = ({ todo }) => {
-  const { todos, setTodos, setError } = useContext(AppContext);
+  const { todos, setTodos, updateTodoItem } = useContext(AppContext);
   const { id, title: initialTitle, completed } = todo;
 
   const [editTitle, setEditTitle] = useState(initialTitle);
@@ -51,41 +50,17 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
   const saveTitle = (value: string) => {
     if (!value.trim()) {
       handleDeleteClick(); // Delete the todo if the title is empty
-
-      return;
     }
 
     if (value.trim() === initialTitle) {
       // Cancel editing if the new title is the same as the old one
       setIsEdit(false);
-
-      return;
     }
 
     setIsSaving(true);
     const updatedTodo = { ...todo, title: value.trim() };
 
-    todoService
-      .updateTodo(updatedTodo)
-      .then((updated) => {
-        setTodos(
-          todos.map((todoItem) => (todoItem.id === updated.id
-            ? updated : todoItem)),
-        );
-      })
-      .catch(() => {
-        if (value.trim() !== initialTitle) {
-          setError(ErrorType.cantUpdateTodo);
-        } else {
-          setError(ErrorType.cantDeleteTodo);
-        }
-
-        setTimeout(() => setError(null), 2000);
-      })
-      .finally(() => {
-        setIsSaving(false);
-        setIsEdit(false);
-      });
+    updateTodoItem(updatedTodo);
   };
 
   const handleTodoTitleBlur = () => {
@@ -93,21 +68,22 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
   };
 
   const handleTodoTitleKeyUp = (event: React.KeyboardEvent) => {
+    event.preventDefault();
+
     if (event.key === ENTER) {
-      if (editNameRef.current) {
-        saveTitle(editNameRef.current.value);
-      }
+      saveTitle(editTitle);
     }
 
     if (event.key === ESC) {
       setEditTitle(initialTitle);
       setIsEdit(false);
     }
+  };
 
-    if (event.key === ESC) {
-      setEditTitle(initialTitle);
-      setIsEdit(false);
-    }
+  const handleFormSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault(); // Prevent the default form submission behavior
+    saveTitle(editTitle);
+    setIsEdit(false);
   };
 
   return (
@@ -139,7 +115,7 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
         </span>
       ) : (
         <>
-          <form>
+          <form onSubmit={handleFormSubmit}>
             <input
               type="text"
               data-cy="TodoTitleField"

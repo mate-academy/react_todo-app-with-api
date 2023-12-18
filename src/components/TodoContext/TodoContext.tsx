@@ -27,6 +27,7 @@ interface AppContextType {
   setError: (arg: ErrorType | null) => void;
   loading: boolean;
   setLoading: (arg: boolean) => void;
+  updateTodoItem: (arg: Todo) => void;
 }
 
 export const AppContext = createContext<AppContextType>({
@@ -48,6 +49,7 @@ export const AppContext = createContext<AppContextType>({
   setError: () => {},
   loading: false,
   setLoading: () => {},
+  updateTodoItem: () => {},
 });
 
 type Props = {
@@ -226,7 +228,6 @@ export const AppProvider: React.FC<Props> = ({ children }) => {
       tempTodo,
       error,
       loading,
-      updateTodoItem,
     ],
   );
 
