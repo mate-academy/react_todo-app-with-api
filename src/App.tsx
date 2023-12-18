@@ -37,6 +37,7 @@ export const App: React.FC = () => {
   const [errorMessage, setErrorMessage] = useState('');
   const [todoTitle, setTodoTitle] = useState('');
   const [deletingTodoId, setDeletingTodoId] = useState<number | null>(null);
+  const [deletingTodoIds, setDeletingTodoIds] = useState<number[]>([]);
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [filter, setFilter] = useState<Status>(Status.ALL);
@@ -99,10 +100,26 @@ export const App: React.FC = () => {
       });
   };
 
-  const clearCompletedTodos = () => {
-    const updatedTodos = todos.filter(todo => !todo.completed);
+  const clearCompletedTodos = async () => {
+    const completedTodoIds = todos.filter(todo => todo.completed).map(todo => todo.id);
 
-    setTodos(updatedTodos);
+    if (completedTodoIds.length === 0) {
+      return;
+    }
+
+    setDeletingTodoIds(completedTodoIds);
+    setIsLoading(true);
+
+    try {
+      await Promise.all(completedTodoIds.map(todoId => postService.deleteTodo(todoId)));
+      setTodos(currentTodos => currentTodos.filter(todo => !todo.completed));
+    } catch (error) {
+      setErrorMessage('Error deleting todos');
+      clearError();
+    } finally {
+      setDeletingTodoIds([]);
+      setIsLoading(false);
+    }
   };
 
   const loadTodos = () => {
@@ -206,6 +223,7 @@ export const App: React.FC = () => {
             visibleTodos={visibleTodos}
             deleteTodo={deleteTodo}
             deletingTodoId={deletingTodoId}
+            deletingTodoIds={deletingTodoIds}
             toggleTodo={toggleTodo}
             updateTodoList={updateTodoList}
             setErrorMessage={setErrorMessage}
