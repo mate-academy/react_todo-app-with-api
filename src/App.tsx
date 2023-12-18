@@ -33,19 +33,21 @@ function getPreparedTodos(todos: TodoInterface[],
   return preparedTodos;
 }
 
-function todosCounter(todos: Todo[]) {
+function todosCounter(todos: TodoInterface[]) {
   return todos.filter(todo => !todo.completed).length;
 }
 
 export const App: React.FC = () => {
   const [isloading, setIsloading] = useState(false);
-  const [todos, setTodos] = useState<Todo[]>([]);
+  const [todos, setTodos] = useState<TodoInterface[]>([]);
   const [errorMessage, setErrorMessage] = useState('');
-  const [newTodoodoTitle, setNewTodoTitle] = useState('');
+  const [newTodoTitle, setNewTodoTitle] = useState('');
   const [filter, setFilter] = useState('all');
   const [inputDisabled, setInputDisabled] = useState(false);
-  const [tempTodo, setTempTodo] = useState<Todo | null>(null);
-  const [deletedPostsIds, setdeletedPostsIds] = useState<number[]>([]);
+  const [tempTodo, setTempTodo] = useState<TodoInterface | null>(null);
+  const [loadTodosIds, setLoadTodosIds] = useState<number[]>([]);
+  const [editTodoId, setEditTodoId] = useState<number | null>(null);
+  const [editTitle, setEditTitle] = useState('');
 
   function loadTodos() {
     setIsloading(true);
@@ -61,10 +63,6 @@ export const App: React.FC = () => {
 
   const inputField = useRef<HTMLInputElement>(null);
 
-  if (inputField.current) {
-    inputField.current.focus();
-  }
-
   useEffect(() => {
     loadTodos();
     if (inputField.current) {
@@ -77,7 +75,7 @@ export const App: React.FC = () => {
   }
 
   const deleteTodo = (postId: number) => {
-    setdeletedPostsIds(curId => [...curId, postId]);
+    setLoadTodosIds(curId => [...curId, postId]);
     postServices.deleteTodo(postId)
       .then(() => {
         setTodos(curTodos => curTodos.filter(t => t.id !== postId));
@@ -85,7 +83,7 @@ export const App: React.FC = () => {
       .catch(() => {
         setErrorMessage('Unable to delete a todo');
         setTimeout(() => setErrorMessage(''), 3000);
-        setTimeout(() => setdeletedPostsIds([]), 3000);
+        setTimeout(() => setLoadTodosIds([]), 3000);
       });
   };
 
@@ -94,7 +92,7 @@ export const App: React.FC = () => {
       .map((todo) => deleteTodo(todo.id));
   };
 
-  function addTodos({ userId, title, completed }: Todo) {
+  function addTodos({ userId, title, completed }: TodoInterface) {
     if (!title.length) {
       setErrorMessage('Title should not be empty');
       setTimeout(() => setErrorMessage(''), 3000);
@@ -105,8 +103,8 @@ export const App: React.FC = () => {
     setInputDisabled(true);
 
     postServices.addTodo({ userId, title, completed })
-      .then(nTodo => {
-        setTodos((curTodos) => [...curTodos, nTodo]);
+      .then(newTodo => {
+        setTodos((curTodos) => [...curTodos, newTodo]);
         setNewTodoTitle('');
       })
       .catch(() => {
@@ -125,7 +123,7 @@ export const App: React.FC = () => {
     const newTodo = {
       id: 0,
       userId: USER_ID,
-      title: newTodoodoTitle.trim(),
+      title: newTodoTitle.trim(),
       completed: false,
     };
 
@@ -142,6 +140,84 @@ export const App: React.FC = () => {
     setErrorMessage(e);
   };
 
+  const onComplete = (todo: TodoInterface) => {
+    setLoadTodosIds(curId => [...curId, todo.id]);
+
+    postServices.updateTodo({ ...todo, completed: !todo.completed })
+      .then(newTodo => {
+        setTodos((currentTodos) => {
+          const newTodos = [...currentTodos];
+          const index = newTodos.findIndex(t => t.id === todo.id);
+
+          newTodos.splice(index, 1, newTodo);
+
+          return newTodos;
+        });
+      })
+      .catch(() => {
+        setErrorMessage('Unable to update a todo');
+        setTimeout(() => setErrorMessage(''), 3000);
+      })
+      .finally(() => {
+        setLoadTodosIds([]);
+      });
+  };
+
+  const onCompleteAll = () => {
+    if (todos.some(t => !t.completed)) {
+      todos.filter(t => !t.completed)
+        .map((todo) => onComplete(todo));
+    } else {
+      todos.map((todo) => onComplete(todo));
+    }
+  };
+
+  const onEdit = (id: number) => {
+    setEditTodoId(id);
+  };
+
+  const update = (todo: TodoInterface) => {
+    if (editTitle === todo.title) {
+      setEditTodoId(null);
+
+      return;
+    }
+
+    if (!editTitle) {
+      deleteTodo(todo.id);
+
+      return;
+    }
+
+    setLoadTodosIds(curId => [...curId, todo.id]);
+
+    postServices.updateTodo({ ...todo, title: editTitle })
+      .then(newTodo => {
+        setTodos((currentTodos) => {
+          const newTodos = [...currentTodos];
+          const index = newTodos.findIndex(t => t.id === todo.id);
+
+          newTodos.splice(index, 1, newTodo);
+
+          return newTodos;
+        });
+      })
+      .catch(() => {
+        setErrorMessage('Unable to update a todo');
+        setTimeout(() => setErrorMessage(''), 3000);
+      })
+      .finally(() => {
+        setEditTodoId(null);
+        setLoadTodosIds([]);
+      });
+  };
+
+  document.addEventListener('keyup', (event: KeyboardEvent) => {
+    if (event.key === 'Escape' && editTodoId) {
+      setEditTodoId(null);
+    }
+  });
+
   return (
     <div className="todoapp">
       <h1 className="todoapp__title">todos</h1>
@@ -155,17 +231,18 @@ export const App: React.FC = () => {
               active: visibleTodos.some(t => !t.completed),
             }, 'todoapp__toggle-all')}
             data-cy="ToggleAllButton"
+            onClick={() => onCompleteAll()}
           />
 
           <form
             onSubmit={handleSubmit}
           >
             <input
-              data-cy="newTodoodoTitleField"
+              data-cy="newTodoTitleField"
               type="text"
               className="todoapp__new-todo"
               placeholder="What needs to be done?"
-              value={newTodoodoTitle}
+              value={newTodoTitle}
               onChange={(event) => setNewTodoTitle(event.target.value)}
               ref={inputField}
               disabled={inputDisabled}
@@ -189,7 +266,13 @@ export const App: React.FC = () => {
                   todo={todo}
                   key={todo.id}
                   onDelete={deleteTodo}
-                  deletedPostsIds={deletedPostsIds}
+                  deletedPostsIds={loadTodosIds}
+                  onComplete={onComplete}
+                  editTodoId={editTodoId}
+                  editTitle={editTitle}
+                  setEditTitle={setEditTitle}
+                  onEdit={onEdit}
+                  update={update}
                 />
               </CSSTransition>
             ))}

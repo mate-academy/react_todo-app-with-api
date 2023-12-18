@@ -14,3 +14,9 @@ export const addTodo = (
 export const deleteTodo = (postId: number) => {
   return client.delete(`/todos/${postId}`);
 };
+
+export const updateTodo = ({
+  id, userId, title, completed,
+}: TodoInterface) => {
+  return client.patch<TodoInterface>(`/todos/${id}`, { userId, title, completed });
+};
