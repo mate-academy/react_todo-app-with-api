@@ -9,6 +9,7 @@ import { UserWarning } from './UserWarning';
 import { TodoInterface } from './types/TodoInterface';
 import * as postServices from './api/todos';
 import { Todo } from './api/components/todo';
+import { Filter } from './types/Filter';
 import { Footer } from './api/components/footer';
 import { Error } from './api/components/error';
 import { Loader } from './api/components/loader';
@@ -16,13 +17,17 @@ import { Loader } from './api/components/loader';
 const USER_ID = 12030;
 
 function getPreparedTodos(todos: TodoInterface[],
-  filter: string): TodoInterface[] {
+  filter: Filter): TodoInterface[] {
+  if (filter === Filter.all) {
+    return todos;
+  }
+
   const preparedTodos = todos.filter(todo => {
     switch (filter) {
-      case 'completed':
+      case Filter.completed:
         return todo.completed;
 
-      case 'active':
+      case Filter.active:
         return !todo.completed;
 
       default:
@@ -42,7 +47,7 @@ export const App: React.FC = () => {
   const [todos, setTodos] = useState<TodoInterface[]>([]);
   const [errorMessage, setErrorMessage] = useState('');
   const [newTodoTitle, setNewTodoTitle] = useState('');
-  const [filter, setFilter] = useState('all');
+  const [filter, setFilter] = useState(Filter.all);
   const [inputDisabled, setInputDisabled] = useState(false);
   const [tempTodo, setTempTodo] = useState<TodoInterface | null>(null);
   const [loadTodosIds, setLoadTodosIds] = useState<number[]>([]);
@@ -65,6 +70,9 @@ export const App: React.FC = () => {
 
   useEffect(() => {
     loadTodos();
+  }, []);
+
+  useEffect(() => {
     if (inputField.current) {
       inputField.current.focus();
     }
@@ -103,7 +111,7 @@ export const App: React.FC = () => {
     setInputDisabled(true);
 
     postServices.addTodo({ userId, title, completed })
-      .then(newTodo => {
+      .then((newTodo) => {
         setTodos((curTodos) => [...curTodos, newTodo]);
         setNewTodoTitle('');
       })
@@ -132,7 +140,7 @@ export const App: React.FC = () => {
   };
 
   const visibleTodos = getPreparedTodos(todos, filter);
-  const onFilter = (f: string) => {
+  const onFilter = (f: Filter) => {
     setFilter(f);
   };
 
@@ -231,7 +239,7 @@ export const App: React.FC = () => {
               active: visibleTodos.some(t => !t.completed),
             }, 'todoapp__toggle-all')}
             data-cy="ToggleAllButton"
-            onClick={() => onCompleteAll()}
+            onClick={onCompleteAll}
           />
 
           <form

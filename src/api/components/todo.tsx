@@ -31,6 +31,11 @@ export const Todo: React.FC<Props> = ({
     update(todo);
   };
 
+  const onDoubleClick = () => {
+    onEdit(todo.id);
+    setEditTitle(todo.title);
+  };
+
   return (
     <div
       data-cy="Todo"
@@ -67,10 +72,7 @@ export const Todo: React.FC<Props> = ({
             className="todo__title"
             role="textbox"
             tabIndex={0}
-            onDoubleClick={() => {
-              onEdit(todo.id);
-              setEditTitle(todo.title);
-            }}
+            onDoubleClick={onDoubleClick}
           >
             {todo.title}
           </span>
