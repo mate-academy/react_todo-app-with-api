@@ -15,10 +15,10 @@ import { Footer } from './components/Footer';
 import { Header } from './components/Header';
 import { TodoList } from './components/TodoList';
 import { ErrorType } from './types/ErrorType';
-import { FilterType } from './types/FilterType';
 import { NoIdTodo, Todo } from './types/Todo';
 import { AppContext, USER_ID } from './AppContext';
 import { ContextKey } from './types/Context';
+import { filterTodos } from './helper';
 
 export const App: React.FC = () => {
   const {
@@ -93,28 +93,14 @@ export const App: React.FC = () => {
     });
   };
 
-  const filterTodos = useCallback(
-    (todos: Todo[]) => {
-      switch (state.selectedFilter) {
-        case FilterType.All:
-          return todos;
-
-        case FilterType.Active:
-          return todos.filter(todo => !todo.completed);
-
-        case FilterType.Completed:
-          return todos.filter(todo => todo.completed);
-
-        default:
-          return todos;
-      }
-    },
+  const filteredTodos = useCallback(
+    filterTodos,
     [state.selectedFilter],
   );
 
   const todosToView = useMemo(
-    () => filterTodos(todosFromServer),
-    [filterTodos, todosFromServer],
+    () => filteredTodos(todosFromServer, state.selectedFilter),
+    [filteredTodos, todosFromServer, state.selectedFilter],
   );
 
   if (!USER_ID) {

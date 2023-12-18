@@ -1,5 +1,3 @@
-/* eslint-disable jsx-a11y/no-static-element-interactions */
-/* eslint-disable jsx-a11y/click-events-have-key-events */
 import cn from 'classnames';
 import {
   useContext,
@@ -128,6 +126,7 @@ export const TodoItem = ({
       ) : (
         <>
           <span
+            role="presentation"
             data-cy="TodoTitle"
             className="todo__title"
             onClick={handleTitleClick}
@@ -139,7 +138,7 @@ export const TodoItem = ({
             type="button"
             className="todo__remove"
             data-cy="TodoDelete"
-            onClick={() => handleDeleteTodo()}
+            onClick={handleDeleteTodo}
           >
             ×
           </button>
