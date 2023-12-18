@@ -21,6 +21,8 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
   const [editTitle, setEditTitle] = useState(initialTitle);
   const [isEdit, setIsEdit] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false); // Track delete loader separately
+
   const editNameRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -43,7 +45,12 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
   };
 
   const handleDeleteClick = () => {
-    todoService.deleteTodo(id);
+    setIsDeleting(true);
+    todoService.deleteTodo(id).then(() => {
+      setTodos(todos.filter((todoItem) => todoItem.id !== id));
+    }).finally(() => {
+      setIsDeleting(false);
+    });
     setTodos(todos.filter((todoItem) => todoItem.id !== id));
   };
 
@@ -148,10 +155,12 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
         ×
       </button>
 
-      <div data-cy="TodoLoader" className="modal overlay">
-        <div className="modal-background has-background-white-ter" />
-        <div className="loader" />
-      </div>
+      {isDeleting && (
+        <div data-cy="TodoLoader" className="modal overlay">
+          <div className="modal-background has-background-white-ter" />
+          <div className="loader" />
+        </div>
+      )}
     </div>
   );
 };
