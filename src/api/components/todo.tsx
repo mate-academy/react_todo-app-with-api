@@ -1,4 +1,5 @@
 import cn from 'classnames';
+import { useEffect, useRef } from 'react';
 import { TodoInterface } from '../../types/TodoInterface';
 import { Loader } from './loader';
 
@@ -30,6 +31,14 @@ export const Todo: React.FC<Props> = ({
 
     update(todo);
   };
+
+  const input = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    if (input.current) {
+      input.current.focus();
+    }
+  }, [editTitle]);
 
   const onDoubleClick = () => {
     onEdit(todo.id);
@@ -63,6 +72,7 @@ export const Todo: React.FC<Props> = ({
               value={editTitle}
               onChange={(event) => setEditTitle(event.target.value)}
               onBlur={() => update(todo)}
+              ref={input}
             />
           </form>
         )
