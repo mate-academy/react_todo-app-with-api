@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import classNames from 'classnames';
 import { Todo } from './types/Todo';
 import { updatedTodo } from './api/todos';
@@ -28,7 +28,12 @@ export const TodoItem: React.FC<TodoItemProps> = ({
   const { id, completed, title } = todo;
   const [isEditing, setIsEditing] = useState(false);
   const [isUpdatingTitle, setIsUpdatingTitle] = useState(false);
-  const showLoader = isUpdatingTitle || (isDeleting && isLoading);
+  const [isPendingDeletion, setIsPendingDeletion] = useState(false);
+
+  const showLoader
+  = (id === 0 && isLoading)
+  || isUpdatingTitle
+  || (isDeleting && isLoading);
 
   const updateTodoTitle = async (
     todoId: number, newTitle: string,
@@ -43,14 +48,16 @@ export const TodoItem: React.FC<TodoItemProps> = ({
       updateTodoList(updatedData);
     }
 
-    setIsUpdatingTitle(false);
-    setIsEditing(false);
+    setTimeout(() => {
+      setIsUpdatingTitle(false);
+      setIsLoading(false);
+    }, 500);
   };
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (!editableTitle.trim()) {
-      deleteTodo(id);
+      setIsPendingDeletion(true);
       setIsEditing(false);
 
       return;
@@ -69,6 +76,12 @@ export const TodoItem: React.FC<TodoItemProps> = ({
 
     setIsEditing(false);
   };
+
+  useEffect(() => {
+    if (isPendingDeletion) {
+      deleteTodo(id);
+    }
+  }, [isPendingDeletion, deleteTodo, id]);
 
   const handleToggle = () => {
     toggleTodo(id);
@@ -124,6 +137,7 @@ export const TodoItem: React.FC<TodoItemProps> = ({
             onChange={handleChange}
             onBlur={handleBlur}
             onKeyUp={handleKeyUp}
+            placeholder="Empty todo will be deleted"
             // eslint-disable-next-line
             autoFocus
             style={{ paddingLeft: '16px' }}
@@ -136,7 +150,7 @@ export const TodoItem: React.FC<TodoItemProps> = ({
             className="todo__title"
             onDoubleClick={() => setIsEditing(true)}
           >
-            {title}
+            {!isPendingDeletion ? title : ''}
           </span>
 
           <button
