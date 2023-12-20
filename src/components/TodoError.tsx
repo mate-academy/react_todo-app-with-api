@@ -30,9 +30,7 @@ const TodoError: React.FC = () => {
         data-cy="HideErrorButton"
         type="button"
         className="delete"
-        onClick={() => {
-          setErrorMessage('');
-        }}
+        onClick={() => setErrorMessage('')}
       />
       {errorMessage}
     </div>

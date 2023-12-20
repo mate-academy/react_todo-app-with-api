@@ -4,8 +4,9 @@ import React, {
 } from 'react';
 import cn from 'classnames';
 
-import { addTodo } from '../api/todos';
+import { addTodo, updateTodo } from '../api/todos';
 import { TodoContext } from './TodoContex';
+import { Todo } from '../types/Todo';
 
 const TodoHeader: React.FC = () => {
   const [inputValue, setInputValue] = useState('');
@@ -17,18 +18,17 @@ const TodoHeader: React.FC = () => {
     userId,
   } = useContext(TodoContext);
 
-  const inputRef = useRef<HTMLInputElement | null>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
 
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setInputValue(event.target.value);
   };
 
-  const handlePressEnter = (event: React.FormEvent<HTMLFormElement>
-  | React.KeyboardEvent<HTMLInputElement>) => {
-    if ((event as React.KeyboardEvent<HTMLInputElement>).key === 'Enter') {
+  const handlePressEnter = (event: React.KeyboardEvent<HTMLInputElement>) => {
+    if (event.key === 'Enter') {
       event.preventDefault();
 
-      if (inputValue.trim() === '') {
+      if (!inputValue.trim()) {
         setErrorMessage('Title should not be empty');
       } else {
         addTodo({
@@ -47,12 +47,15 @@ const TodoHeader: React.FC = () => {
   const handleChangeToggle = () => {
     const completedValue = !todos.every(todo => todo.completed);
 
-    const updatedTodos = todos.map(todo => ({
+    const updatedTodos : Todo[] = todos.map(todo => ({
       ...todo,
       completed: completedValue,
     }));
 
     setTodos(updatedTodos);
+    updatedTodos.forEach(element => {
+      updateTodo(element);
+    });
   };
 
   useEffect(() => {

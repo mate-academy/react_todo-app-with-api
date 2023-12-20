@@ -1,4 +1,3 @@
-/* eslint-disable max-len */
 import React, { useContext } from 'react';
 import cn from 'classnames';
 
@@ -10,13 +9,22 @@ const TodoFilter: React.FC = () => {
 
   const filters = [
     {
-      name: 'All', value: Filter.All, link: '#/', dataCy: 'FilterLinkAll',
+      name: 'All',
+      value: Filter.All,
+      link: '#/',
+      dataCy: 'FilterLinkAll',
     },
     {
-      name: 'Active', value: Filter.Active, link: '#/active', dataCy: 'FilterLinkActive',
+      name: 'Active',
+      value: Filter.Active,
+      link: '#/active',
+      dataCy: 'FilterLinkActive',
     },
     {
-      name: 'Completed', value: Filter.Completed, link: '#/completed', dataCy: 'FilterLinkCompleted',
+      name: 'Completed',
+      value: Filter.Completed,
+      link: '#/completed',
+      dataCy: 'FilterLinkCompleted',
     },
   ];
 
