@@ -90,22 +90,26 @@ export const Header: React.FC = () => {
     setTodos(todos.map(todo => {
       setIsAllUpdating(true);
 
-      updateTodoItem(todo.id, { completed: isToggleAll })
-        .catch((err) => {
-          setError(TodoErrors.Update);
-          throw err;
-        })
-        .finally(() => setIsAllUpdating(false));
+      if (todo.completed === isToggleAll) {
+        updateTodoItem(todo.id, { completed: !isToggleAll })
+          .catch((err) => {
+            setError(TodoErrors.Update);
+            throw err;
+          })
+          .finally(() => setIsAllUpdating(false));
 
-      return { ...todo, completed: isToggleAll };
+        return { ...todo, completed: !isToggleAll };
+      }
+
+      return todo;
     }));
   };
 
   useEffect(() => {
     if (todos.every(todo => todo.completed)) {
-      setIsToggleAll(false);
-    } else {
       setIsToggleAll(true);
+    } else {
+      setIsToggleAll(false);
     }
   }, [todos]);
 

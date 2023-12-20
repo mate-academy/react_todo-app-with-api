@@ -69,8 +69,10 @@ export const TodoItem: React.FC<TodoItemProps> = ({ todo }) => {
     setIsTitleOnFocus(false);
 
     deleteTodoItem(id)
-      .then(() => {
-        setTodos(todos.filter(todoItem => todoItem.id !== id));
+      .then(res => {
+        if (res) {
+          setTodos(todos.filter(todoItem => todoItem.id !== id));
+        }
       })
       .catch(() => setError(TodoErrors.Delete))
       .finally(() => {
@@ -97,6 +99,8 @@ export const TodoItem: React.FC<TodoItemProps> = ({ todo }) => {
 
               return todoItem;
             }));
+
+          setIsEditFormVisible(false);
         })
         .catch(() => setError(TodoErrors.Update))
         .finally(() => {
@@ -109,15 +113,16 @@ export const TodoItem: React.FC<TodoItemProps> = ({ todo }) => {
       setIsRemoving(true);
 
       deleteTodoItem(id)
-        .then(() => setTodos(todos.filter(todoItem => todoItem.id !== id)))
+        .then(() => {
+          setTodos(todos.filter(todoItem => todoItem.id !== id));
+          setIsEditFormVisible(false);
+        })
         .catch(() => setError(TodoErrors.Delete))
         .finally(() => {
           setIsRemoving(false);
           setIsTitleOnFocus(true);
         });
     }
-
-    setIsEditFormVisible(false);
   };
 
   const handleTodoTitleBlur = () => {

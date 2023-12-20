@@ -1,8 +1,9 @@
 import classNames from 'classnames';
-import React, { useContext } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { GlobalContex } from '../TodoContext';
 import { Filter } from '../types/Filter';
 import { TodoErrors } from '../types/TodoErrors';
+import { Todo } from '../types/Todo';
 
 export const Footer: React.FC = () => {
   const {
@@ -16,6 +17,14 @@ export const Footer: React.FC = () => {
     setIsTitleOnFocus,
   } = useContext(GlobalContex);
 
+  const [deletedTodos, setDeletedTodos] = useState<Todo[]>([]);
+
+  useEffect(() => {
+    setIsCompletedRemoving(false);
+    setIsTitleOnFocus(true);
+    setTodos(todos.filter(todo => !deletedTodos.includes(todo)));
+  }, [deletedTodos]);
+
   const handleFilterClick = (selectedFilter: Filter) => {
     setFilter(selectedFilter);
   };
@@ -24,18 +33,16 @@ export const Footer: React.FC = () => {
     setIsCompletedRemoving(true);
     setIsTitleOnFocus(false);
 
-    const deletingTodos = todos
+    todos
       .filter(todo => todo.completed)
-      .map(todo => deleteTodoItem(todo.id));
+      .forEach(async (todo) => {
+        const res = await deleteTodoItem(todo.id);
 
-    Promise.all(deletingTodos)
-      .then(() => {
-        setTodos(todos.filter(todo => !todo.completed));
-      })
-      .catch(() => setError(TodoErrors.Delete))
-      .finally(() => {
-        setIsCompletedRemoving(false);
-        setIsTitleOnFocus(true);
+        if (res) {
+          setDeletedTodos((previousItems: Todo[]) => [...previousItems, todo]);
+        } else {
+          setError(TodoErrors.Delete);
+        }
       });
   };
 
@@ -80,16 +87,15 @@ export const Footer: React.FC = () => {
         </a>
       </nav>
 
-      {todos.some(todo => todo.completed) && (
-        <button
-          type="button"
-          className="todoapp__clear-completed"
-          data-cy="ClearCompletedButton"
-          onClick={handleClearTodosClick}
-        >
-          Clear completed
-        </button>
-      )}
+      <button
+        type="button"
+        className="todoapp__clear-completed"
+        data-cy="ClearCompletedButton"
+        onClick={handleClearTodosClick}
+        disabled={todos.every(todo => !todo.completed)}
+      >
+        Clear completed
+      </button>
     </footer>
   );
 };
