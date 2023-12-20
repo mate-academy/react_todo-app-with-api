@@ -154,13 +154,27 @@ export const AppProvider: React.FC<Props> = ({ children }) => {
 
   const handleToggleCompletedAll = useCallback(
     () => {
-      const allCompleted = todos.map(todo => {
-        handleToggleCompleted(todo);
+      const notCompleted = todos.every(todo => todo.completed);
 
-        return todo;
-      });
+      if (!notCompleted) {
+        const allCompleted = todos.map(todo => {
+          if (!todo.completed) {
+            handleToggleCompleted(todo);
+          }
 
-      setTodos(allCompleted);
+          return todo;
+        });
+
+        setTodos(allCompleted);
+      } else {
+        const allNotCompleted = todos.map(todo => {
+          handleToggleCompleted(todo);
+
+          return todo;
+        });
+
+        setTodos(allNotCompleted);
+      }
     }, [todos, handleToggleCompleted],
   );
 
