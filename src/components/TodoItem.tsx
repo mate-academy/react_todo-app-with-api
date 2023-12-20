@@ -16,10 +16,15 @@ const TodoItem: React.FC<Props> = ({
 }) => {
   const [editValue, setEditValue] = useState(todo.title);
   const [editingTodoId, setEditingTodoId] = useState(0);
-  const [loading, setLoading] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
 
-  const { todos, setTodos, userId } = useContext(TodoContext);
+  const {
+    todos,
+    setTodos,
+    userId,
+    loading,
+    setLoading,
+  } = useContext(TodoContext);
 
   useEffect(() => {
     if (editingTodoId === todo.id) {
@@ -31,6 +36,12 @@ const TodoItem: React.FC<Props> = ({
     const newTodos = todos.filter(currentTodo => currentTodo.id !== todo.id);
 
     deleteTodo(todo.id).then(() => setTodos(newTodos));
+  };
+
+  const index = (newTodos: Todo[], newTodo: Todo): number => {
+    return newTodos.findIndex(
+      currentTodo => currentTodo.id === newTodo.id,
+    );
   };
 
   const updateTitle = (newTitle: string) => {
@@ -52,11 +63,10 @@ const TodoItem: React.FC<Props> = ({
         .then(() => {
           setTodos(() => {
             const newTodos = [...todos];
-            const index = newTodos.findIndex(
-              currentTodo => currentTodo.id === newTodo.id,
-            );
 
-            newTodos.splice(index, 1, newTodo);
+            const updateIndex = index(newTodos, newTodo);
+
+            newTodos.splice(updateIndex, 1, newTodo);
 
             return newTodos;
           });
@@ -75,13 +85,10 @@ const TodoItem: React.FC<Props> = ({
       userId,
       completed: !todo.completed,
     };
-
     const newTodos = [...todos];
-    const index = newTodos.findIndex(currentTodo => (
-      currentTodo.id === newTodo.id
-    ));
+    const updateIndex = index(newTodos, newTodo);
 
-    newTodos.splice(index, 1, newTodo);
+    newTodos.splice(updateIndex, 1, newTodo);
 
     updateTodo(newTodo)
       .then(() => setTodos(newTodos))
@@ -118,9 +125,9 @@ const TodoItem: React.FC<Props> = ({
 
   const handleDeleteValue = () => {
     const newTodos = [...todos];
-    const index = newTodos.findIndex(currentTodo => currentTodo.id === todo.id);
+    const deleteIndex = index(newTodos, todo);
 
-    newTodos.splice(index, 1);
+    newTodos.splice(deleteIndex, 1);
 
     deleteTodo(todo.id)
       .then(() => setTodos(newTodos));
@@ -181,15 +188,17 @@ const TodoItem: React.FC<Props> = ({
         </form>
       )}
 
-      <div
-        data-cy="TodoLoader"
-        className={
-          classNames('modal overlay', { active: loading })
-        }
-      >
-        <div className="modal-background has-background-white-ter" />
-        <div className="loader" />
-      </div>
+      {loading && (
+        <div
+          data-cy="TodoLoader"
+          className={
+            classNames('modal overlay', { active: loading })
+          }
+        >
+          <div className="modal-background has-background-white-ter" />
+          <div className="loader" />
+        </div>
+      )}
     </div>
   );
 };

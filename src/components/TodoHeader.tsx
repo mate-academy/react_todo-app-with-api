@@ -47,7 +47,7 @@ const TodoHeader: React.FC = () => {
   const handleChangeToggle = () => {
     const completedValue = !todos.every(todo => todo.completed);
 
-    const updatedTodos : Todo[] = todos.map(todo => ({
+    const updatedTodos: Todo[] = todos.map(todo => ({
       ...todo,
       completed: completedValue,
     }));

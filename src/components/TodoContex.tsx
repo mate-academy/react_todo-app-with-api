@@ -13,6 +13,8 @@ interface TodosContext {
   errorMessage: string;
   setErrorMessage: (errorMessage: string) => void;
   userId: number;
+  loading: boolean;
+  setLoading: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
 export const TodoContext = React.createContext<TodosContext>({
@@ -23,6 +25,8 @@ export const TodoContext = React.createContext<TodosContext>({
   errorMessage: '',
   setErrorMessage: () => { },
   userId: 11947,
+  loading: false,
+  setLoading: () => { },
 });
 
 interface Props {
@@ -34,6 +38,7 @@ export const TodoProvider: React.FC<Props> = ({ children }) => {
   const [todos, setTodos] = useState(initiatTodos);
   const [filter, setFilter] = useState<Filter>(Filter.All);
   const [errorMessage, setErrorMessage] = useState('');
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     getTodos(USER_ID).then(setTodos)
@@ -50,7 +55,9 @@ export const TodoProvider: React.FC<Props> = ({ children }) => {
     errorMessage,
     setErrorMessage,
     userId: USER_ID,
-  }), [todos, filter, errorMessage]);
+    loading,
+    setLoading,
+  }), [todos, filter, errorMessage, loading]);
 
   return (
     <TodoContext.Provider value={value}>
