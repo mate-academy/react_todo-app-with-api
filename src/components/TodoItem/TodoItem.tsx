@@ -1,12 +1,11 @@
 import cn from 'classnames';
 import React, {
-  useContext,
   useEffect,
   useRef,
   useState,
 } from 'react';
 import { Todo as TodoType } from '../../types/Todo';
-import { AppContext } from '../../AppContext';
+import { useAppContext } from '../../AppContext';
 
 type Props = {
   todo: TodoType
@@ -19,9 +18,11 @@ export const TodoItem: React.FC<Props> = React.memo(
       selectedTodoIds,
       handleToggleCompleted,
       updateTodo,
-    } = useContext(AppContext);
+      loadind,
+      error,
+    } = useAppContext();
 
-    const [editing, setEditing] = useState(false);
+    const [isEditing, setIsEditing] = useState(false);
     const [newTitle, setNewTitle] = useState(todo.title);
 
     const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
@@ -34,7 +35,7 @@ export const TodoItem: React.FC<Props> = React.memo(
       }
 
       if (newTitle.trim() === todo.title.trim()) {
-        setEditing(false);
+        setIsEditing(false);
 
         return;
       }
@@ -44,16 +45,23 @@ export const TodoItem: React.FC<Props> = React.memo(
         title: newTitle.trim(),
       });
 
-      setEditing(false);
+      setIsEditing(false);
+    };
+
+    const handleKeyUp = (event: React.KeyboardEvent<HTMLInputElement>) => {
+      if (event.key === 'Escape') {
+        setIsEditing(false);
+        setNewTitle(todo.title);
+      }
     };
 
     const inputRef = useRef<HTMLInputElement>(null);
 
     useEffect(() => {
-      if (editing && inputRef.current) {
+      if (isEditing && inputRef.current) {
         inputRef.current.focus();
       }
-    }, [editing]);
+    }, [isEditing, error]);
 
     return (
       <div
@@ -61,7 +69,7 @@ export const TodoItem: React.FC<Props> = React.memo(
         className={cn('todo', {
           completed: todo.completed,
         })}
-        onDoubleClick={() => setEditing(true)}
+        onDoubleClick={() => setIsEditing(true)}
       >
         <label className="todo__status-label">
           <input
@@ -73,7 +81,7 @@ export const TodoItem: React.FC<Props> = React.memo(
           />
         </label>
 
-        {editing ? (
+        {isEditing ? (
           <form
             onSubmit={handleSubmit}
             onBlur={handleSubmit}
@@ -85,18 +93,13 @@ export const TodoItem: React.FC<Props> = React.memo(
               ref={inputRef}
               value={newTitle}
               onChange={(e) => setNewTitle(e.target.value)}
-              onKeyUp={(e) => {
-                if (e.key === 'Escape') {
-                  setEditing(false);
-                  setNewTitle(todo.title);
-                }
-              }}
+              onKeyUp={(e) => handleKeyUp(e)}
             />
           </form>
         ) : (
           <>
             <span data-cy="TodoTitle" className="todo__title">
-              {newTitle}
+              {loadind ? newTitle : todo.title}
             </span>
 
             <button

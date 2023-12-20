@@ -1,9 +1,8 @@
-import { useContext } from 'react';
 import cn from 'classnames';
-import { AppContext } from '../../AppContext';
+import { useAppContext } from '../../AppContext';
 
 export const ErrorNotification: React.FC = () => {
-  const { error, setError } = useContext(AppContext);
+  const { error, setError } = useAppContext();
 
   return (
     <div

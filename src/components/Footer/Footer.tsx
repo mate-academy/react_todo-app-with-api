@@ -1,7 +1,6 @@
-import React, { useContext } from 'react';
 import cn from 'classnames';
 import { Status } from '../../types/Status';
-import { AppContext } from '../../AppContext';
+import { useAppContext } from '../../AppContext';
 
 type Props = {
   uncompletedTodosCount: number
@@ -16,7 +15,7 @@ export const Footer: React.FC<Props> = ({
   setStatus,
   isSomeTodosCompleted,
 }) => {
-  const { clearCompleted } = useContext(AppContext);
+  const { clearCompleted } = useAppContext();
 
   return (
     <footer className="todoapp__footer" data-cy="Footer">

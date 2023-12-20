@@ -1,6 +1,7 @@
 import React, {
   createContext,
   useCallback,
+  useContext,
   useMemo,
   useState,
 } from 'react';
@@ -31,6 +32,7 @@ interface AppContextType {
   setLoading: (arg: boolean) => void,
   updateTodo: (arg: Todo) => void,
   handleToggleCompletedAll: () => void,
+  handleError: (errorMessage: ErrorType) => void,
 }
 
 export const AppContext = createContext<AppContextType>({
@@ -54,6 +56,7 @@ export const AppContext = createContext<AppContextType>({
   setLoading: () => { },
   updateTodo: () => { },
   handleToggleCompletedAll: () => { },
+  handleError: () => { },
 });
 
 type Props = {
@@ -69,6 +72,13 @@ export const AppProvider: React.FC<Props> = ({ children }) => {
   const [error, setError] = useState<ErrorType | null>(null);
   const [loadind, setLoading] = useState(false);
 
+  const handleError = useCallback(
+    (errorMessage: ErrorType) => {
+      setError(errorMessage);
+      setTimeout(() => setError(null), 2000);
+    }, [],
+  );
+
   const deleteTodo = useCallback(
     (todoId: number) => {
       setSelectedTodoIds(currentIds => [...currentIds, todoId]);
@@ -80,19 +90,13 @@ export const AppProvider: React.FC<Props> = ({ children }) => {
           }, 500);
         })
         .catch(() => {
-          setSelectedTodoIds(ids => {
-            ids.splice(ids.indexOf(todoId), 1);
-
-            return ids;
-          });
-          setError(ErrorType.cantDeleteTodo);
-          setTimeout(() => setError(null), 2000);
+          handleError(ErrorType.cantDeleteTodo);
         })
         .finally(() => setTimeout(
-          () => setSelectedTodoIds(ids => ids.splice(ids.indexOf(todoId), 1)),
+          () => setSelectedTodoIds(ids => ids.filter(id => id !== todoId)),
           500,
         ));
-    }, [],
+    }, [handleError],
   );
 
   const clearCompleted = useCallback(
@@ -107,16 +111,23 @@ export const AppProvider: React.FC<Props> = ({ children }) => {
         ]
       ));
 
-      completedTodos.map(
-        completedTodo => todoService.deleteTodo(completedTodo.id),
-      );
+      const deletePromises = completedTodos.map(completedTodo => (
+        todoService.deleteTodo(completedTodo.id)
+      ));
 
-      setTimeout(() => {
-        setTodos(currentTodos => currentTodos.filter(
-          todoToFilter => !todoToFilter.completed,
+      Promise.all(deletePromises)
+        .then(() => {
+          setTodos(currentTodos => currentTodos.filter(
+            todoToFilter => !todoToFilter.completed,
+          ));
+        })
+        .catch(() => handleError(ErrorType.cantDeleteTodo))
+        .finally(() => completedTodos.map(
+          completedTodo => setSelectedTodoIds(ids => ids.filter(
+            id => id !== completedTodo.id,
+          )),
         ));
-      }, 500);
-    }, [todos],
+    }, [todos, handleError],
   );
 
   const handleToggleCompleted = useCallback(
@@ -135,21 +146,18 @@ export const AppProvider: React.FC<Props> = ({ children }) => {
               newTodo.id === updatedTodo.id
             ));
 
-            newTodos.splice(index, 1, todo);
+            newTodos[index] = todo;
 
             return newTodos;
           });
         })
+        .catch(() => handleError(ErrorType.cantUpdateTodo))
         .finally(() => setTimeout(
-          () => setSelectedTodoIds(ids => {
-            const newIds = [...ids];
-
-            newIds.splice(ids.indexOf(todoToChange.id), 1);
-
-            return newIds;
-          }),
+          () => setSelectedTodoIds(ids => ids.filter(
+            (id => id !== todoToChange.id),
+          )),
         ));
-    }, [],
+    }, [handleError],
   );
 
   const handleToggleCompletedAll = useCallback(
@@ -178,42 +186,40 @@ export const AppProvider: React.FC<Props> = ({ children }) => {
     }, [todos, handleToggleCompleted],
   );
 
-  const addTodo = (title: string) => {
-    setLoading(true);
-    setSelectedTodoIds(ids => [...ids, 0]);
-    setTempTodo({
-      id: 0,
-      userId: USER_ID,
-      title,
-      completed: false,
-    });
-
-    todoService.createTodo({
-      userId: USER_ID,
-      title,
-      completed: false,
-    })
-      .then(newTodo => {
-        setTodoTitle('');
-        setTimeout(() => {
-          setTodos(currentTodos => [...currentTodos, newTodo]);
-        }, 500);
-      })
-      .catch(() => {
-        setSelectedTodoIds(ids => ids.filter(
-          id => id !== 0,
-        ));
-        setError(ErrorType.cantAddTodo);
-        setTimeout(() => setError(null), 2000);
-      })
-      .finally(() => {
-        setLoading(false);
-        setSelectedTodoIds(ids => ids.filter(
-          id => id !== 0,
-        ));
-        setTimeout(() => setTempTodo(null), 500);
+  const addTodo = useCallback(
+    (title: string) => {
+      setLoading(true);
+      setSelectedTodoIds(ids => [...ids, 0]);
+      setTempTodo({
+        id: 0,
+        userId: USER_ID,
+        title,
+        completed: false,
       });
-  };
+
+      todoService.createTodo({
+        userId: USER_ID,
+        title,
+        completed: false,
+      })
+        .then(newTodo => {
+          setTodoTitle('');
+          setTimeout(() => {
+            setTodos(currentTodos => [...currentTodos, newTodo]);
+          }, 500);
+        })
+        .catch(() => {
+          handleError(ErrorType.cantAddTodo);
+        })
+        .finally(() => {
+          setLoading(false);
+          setSelectedTodoIds(ids => ids.filter(
+            id => id !== 0,
+          ));
+          setTimeout(() => setTempTodo(null), 500);
+        });
+    }, [handleError],
+  );
 
   const updateTodo = useCallback(
     (updatedTodo: Todo) => {
@@ -231,13 +237,7 @@ export const AppProvider: React.FC<Props> = ({ children }) => {
           ));
         })
         .catch(() => {
-          setSelectedTodoIds(ids => {
-            ids.splice(ids.indexOf(updatedTodo.id), 1);
-
-            return ids;
-          });
-          setError(ErrorType.cantUpdateTodo);
-          setTimeout(() => setError(null), 2000);
+          handleError(ErrorType.cantUpdateTodo);
         })
         .finally(() => {
           setSelectedTodoIds(ids => ids.filter(
@@ -245,7 +245,7 @@ export const AppProvider: React.FC<Props> = ({ children }) => {
           ));
           setLoading(false);
         });
-    }, [],
+    }, [handleError],
   );
 
   const value = useMemo(() => ({
@@ -269,6 +269,7 @@ export const AppProvider: React.FC<Props> = ({ children }) => {
     setLoading,
     updateTodo,
     handleToggleCompletedAll,
+    handleError,
   }), [
     todos,
     status,
@@ -282,6 +283,8 @@ export const AppProvider: React.FC<Props> = ({ children }) => {
     loadind,
     updateTodo,
     handleToggleCompletedAll,
+    addTodo,
+    handleError,
   ]);
 
   return (
@@ -290,3 +293,5 @@ export const AppProvider: React.FC<Props> = ({ children }) => {
     </AppContext.Provider>
   );
 };
+
+export const useAppContext = () => useContext(AppContext);

@@ -1,6 +1,6 @@
 import cn from 'classnames';
-import { useContext, useEffect, useRef } from 'react';
-import { AppContext } from '../../AppContext';
+import { useEffect, useRef } from 'react';
+import { useAppContext } from '../../AppContext';
 import { ErrorType } from '../../types/ErrorType';
 
 type Props = {
@@ -15,7 +15,7 @@ export const Header: React.FC<Props> = ({ isEveryTodosCompleted }) => {
     setError,
     loadind,
     handleToggleCompletedAll,
-  } = useContext(AppContext);
+  } = useAppContext();
 
   const fieldRender = useRef<HTMLInputElement>(null);
 

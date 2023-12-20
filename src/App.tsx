@@ -1,6 +1,4 @@
 import React, {
-  useCallback,
-  useContext,
   useEffect,
   useMemo,
 } from 'react';
@@ -12,7 +10,7 @@ import { Header } from './components/Header';
 import { ErrorType } from './types/ErrorType';
 import { ErrorNotification } from './components/ErrorNotification';
 import { TodoList } from './components/TodoList';
-import { AppContext } from './AppContext';
+import { useAppContext } from './AppContext';
 import { USER_ID } from './userId/userId';
 
 export const App: React.FC = () => {
@@ -22,24 +20,19 @@ export const App: React.FC = () => {
     status,
     setStatus,
     error,
-    setError,
-  } = useContext(AppContext);
+    handleError,
+  } = useAppContext();
 
   useEffect(() => {
     getTodos(USER_ID)
       .then(setTodos)
-      .catch(() => setError(ErrorType.cantLoadTodos));
-  }, [setTodos, setError]);
+      .catch(() => handleError(ErrorType.cantLoadTodos));
+  }, [setTodos, handleError]);
 
-  const filterTodos = useCallback(() => {
-    return prepareTodos({
-      todos,
-      status,
-    });
-  }, [todos, status]);
-
-  const todosOnPage = useMemo(() => filterTodos(),
-    [filterTodos]);
+  const todosOnPage = useMemo(() => prepareTodos({
+    todos,
+    status,
+  }), [status, todos]);
 
   const uncompletedTodosCount = todos.filter(todo => (
     !todo.completed
@@ -79,7 +72,7 @@ export const App: React.FC = () => {
           />
         )}
 
-        {error && todos.length > 0 && (
+        {error && (
           <ErrorNotification />
         )}
       </div>
