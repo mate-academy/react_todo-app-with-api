@@ -21,27 +21,9 @@ import {
   patchTodo,
 } from './api/todos';
 import { ErrorType } from './types/ErrorType';
+import { filterTodos } from './utils/filterTodos';
 
 const USER_ID = 12031;
-
-const filterTodos = (sourceTodos: Todo[], filterBy: FilterType) => {
-  let filteredTodos: Todo[];
-
-  switch (filterBy) {
-    case FilterType.Active:
-      filteredTodos = sourceTodos.filter(todo => !todo.completed);
-      break;
-
-    case FilterType.Completed:
-      filteredTodos = sourceTodos.filter(todo => todo.completed);
-      break;
-
-    default:
-      filteredTodos = [...sourceTodos];
-  }
-
-  return filteredTodos;
-};
 
 export const App: React.FC = () => {
   const [
