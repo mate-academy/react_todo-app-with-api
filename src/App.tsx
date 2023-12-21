@@ -28,8 +28,8 @@ export const App: React.FC = () => {
   );
 
   const uncompletedTodosCount = useMemo(() => {
-    return todos.filter(todo => !todo.completed).length;
-  }, [todos]);
+    return filteredTodos.filter(todo => !todo.completed).length;
+  }, [filteredTodos]);
 
   const areAllCompleted = uncompletedTodosCount === 0;
 
@@ -79,7 +79,6 @@ export const App: React.FC = () => {
       })
       .catch(() => {
         setError(ErrorSpec.NOT_ADDED);
-        setIsInputDisabled(false);
       })
       .finally(() => {
         setIsInputDisabled(false);
@@ -98,7 +97,6 @@ export const App: React.FC = () => {
       })
       .catch(() => {
         setError(ErrorSpec.NOT_DELETED);
-        setIsInputDisabled(false);
       })
       .finally(() => {
         setIsInputDisabled(false);
@@ -122,17 +120,17 @@ export const App: React.FC = () => {
     TodoService.updateTodo(todo)
       .then(() => {
         setLoadingTodo(todo);
+        const todosAfterUpdate = filteredTodos.map(
+          todoFromPrev => (todoFromPrev.id === todo.id ? todo : todoFromPrev),
+        );
+
+        setTodos(todosAfterUpdate);
       })
       .catch(() => {
         setError(ErrorSpec.NOT_UPDATED);
         setLoadingTodo(null);
       })
       .finally(() => {
-        const todosAfterUpdate = filteredTodos.map(
-          todoFromPrev => (todoFromPrev.id === todo.id ? todo : todoFromPrev),
-        );
-
-        setTodos(todosAfterUpdate);
         setLoadingTodo(null);
       });
   };
