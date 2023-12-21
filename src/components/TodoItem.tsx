@@ -1,7 +1,7 @@
 import React, {
   useContext, useEffect, useRef, useState,
 } from 'react';
-import classNames from 'classnames';
+import cn from 'classnames';
 import { Todo } from '../types/Todo';
 import { TodoContext } from './TodoContex';
 
@@ -33,9 +33,13 @@ const TodoItem: React.FC<Props> = ({
   }, [editingTodoId, todo.id]);
 
   const handleDeleteTodo = () => {
+    setLoading(true);
+
     const newTodos = todos.filter(currentTodo => currentTodo.id !== todo.id);
 
-    deleteTodo(todo.id).then(() => setTodos(newTodos));
+    deleteTodo(todo.id)
+      .then(() => setTodos(newTodos))
+      .finally(() => setLoading(false));
   };
 
   const index = (newTodos: Todo[], newTodo: Todo): number => {
@@ -141,7 +145,7 @@ const TodoItem: React.FC<Props> = ({
   return (
     <div
       data-cy="Todo"
-      className={classNames('todo',
+      className={cn('todo',
         { completed: todo.completed },
         { editind: editingTodoId === todo.id })}
       onDoubleClick={handleDoubleClick}
@@ -188,17 +192,18 @@ const TodoItem: React.FC<Props> = ({
         </form>
       )}
 
-      {loading && (
-        <div
-          data-cy="TodoLoader"
-          className={
-            classNames('modal overlay', { active: loading })
-          }
-        >
-          <div className="modal-background has-background-white-ter" />
-          <div className="loader" />
-        </div>
-      )}
+      <div
+        data-cy="TodoLoader"
+        className={cn(
+          'modal',
+          'overlay',
+          { 'is-active': loading },
+        )}
+      >
+        <div className="modal-background has-background-white-ter" />
+        <div className="loader" />
+      </div>
+
     </div>
   );
 };
