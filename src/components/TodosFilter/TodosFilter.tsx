@@ -1,5 +1,5 @@
 import cn from 'classnames';
-import { FC } from 'react';
+import { FC, memo } from 'react';
 import { Status } from '../../types/Status';
 
 type Props = {
@@ -7,7 +7,7 @@ type Props = {
   handleSelectFilter: (status: Status) => void,
 };
 
-export const TodosFilter: FC<Props> = ({
+export const TodosFilter: FC<Props> = memo(({
   selectedFilter,
   handleSelectFilter,
 }) => {
@@ -47,4 +47,4 @@ export const TodosFilter: FC<Props> = ({
       </a>
     </nav>
   );
-};
+});

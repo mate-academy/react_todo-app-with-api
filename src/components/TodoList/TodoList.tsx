@@ -1,4 +1,4 @@
-import { FC } from 'react';
+import { FC, memo } from 'react';
 import { Todo } from '../../types/Todo';
 import { TodoItem } from '../TodoItem';
 
@@ -11,7 +11,7 @@ type Props = {
   titleRef: React.RefObject<HTMLInputElement>,
 };
 
-export const TodoList: FC<Props> = ({
+export const TodoList: FC<Props> = memo(({
   todos,
   removeTodo,
   tempTodo,
@@ -41,4 +41,4 @@ export const TodoList: FC<Props> = ({
       )}
     </section>
   );
-};
+});

@@ -1,5 +1,8 @@
+/* eslint-disable jsx-a11y/click-events-have-key-events */
+/* eslint-disable jsx-a11y/no-static-element-interactions */
 import {
   FC,
+  memo,
   useEffect,
   useRef,
   useState,
@@ -15,7 +18,7 @@ type Props = {
   titleRef: React.RefObject<HTMLInputElement>,
 };
 
-export const TodoItem: FC<Props> = ({
+export const TodoItem: FC<Props> = memo(({
   todo,
   removeTodo,
   isLoading,
@@ -61,7 +64,7 @@ export const TodoItem: FC<Props> = ({
   const handleKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
     if (event.key === 'Escape') {
       setIsEditing(false);
-      titleRef.current?.focus();
+      setEditedTodoTitle(todo.title);
     }
   };
 
@@ -91,11 +94,14 @@ export const TodoItem: FC<Props> = ({
     setLoadingStatus(true);
 
     updateTodo(editedTodo)
-      .finally(() => {
+      .then(() => {
         setIsEditing(false);
         setLoadingStatus(false);
         titleRef.current?.focus();
-      });
+      })
+      .finally(() => setLoadingStatus(false));
+
+    editTitleRef.current?.focus();
   };
 
   return (
@@ -163,4 +169,4 @@ export const TodoItem: FC<Props> = ({
       </div>
     </div>
   );
-};
+});

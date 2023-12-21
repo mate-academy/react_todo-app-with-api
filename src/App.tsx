@@ -33,7 +33,7 @@ export const App: React.FC = () => {
 
   const hasCompletedTodos = todos.some(todo => todo.completed);
   const uncompletedTodos = todos.filter(todo => !todo.completed).length;
-  let areAllTodosCompleted = todos.every(todo => todo.completed);
+  const areAllTodosCompleted = todos.every(todo => todo.completed);
 
   const showError = useCallback((error: ErrorType) => {
     setErrorMessage(error);
@@ -75,7 +75,7 @@ export const App: React.FC = () => {
       .finally(() => setTempTodo(null));
   }, [showError]);
 
-  const addTodo = (event: React.FormEvent<HTMLFormElement>) => {
+  const addTodo = useCallback((event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
     setErrorMessage(null);
@@ -93,7 +93,7 @@ export const App: React.FC = () => {
       .finally(() => {
         setIsLoading(false);
       });
-  };
+  }, [createTodo, showError, todoTitle]);
 
   const removeTodo = useCallback((id: number): Promise<void> => {
     return todoService.deleteTodo(id)
@@ -123,27 +123,28 @@ export const App: React.FC = () => {
       });
   }, [showError]);
 
-  const handleSelectFilter = (status: Status) => {
+  const handleSelectFilter = useCallback((status: Status) => {
     setSelectedFilter(status);
-  };
+  }, []);
 
-  const handleClearCompleted = () => {
+  const handleClearCompleted = useCallback(() => {
     const completedTodo = todos.filter(todo => todo.completed);
 
     completedTodo.forEach(todo => {
-      removeTodo(todo.id);
+      removeTodo(todo.id)
+        .finally(() => titleRef.current?.focus());
     });
-  };
+  }, [removeTodo, todos]);
 
-  const handleToggleAll = () => {
-    areAllTodosCompleted = !areAllTodosCompleted;
+  const handleToggleAll = useCallback(() => {
+    const newStatus = !areAllTodosCompleted;
 
     todos.forEach(todo => {
-      if (todo.completed !== areAllTodosCompleted) {
-        updateTodo({ ...todo, completed: areAllTodosCompleted });
+      if (todo.completed !== newStatus) {
+        updateTodo({ ...todo, completed: newStatus });
       }
     });
-  };
+  }, [areAllTodosCompleted, todos, updateTodo]);
 
   if (!USER_ID) {
     return <UserWarning />;
@@ -155,16 +156,18 @@ export const App: React.FC = () => {
 
       <div className="todoapp__content">
         <header className="todoapp__header">
-          <button
-            type="button"
-            className={cn(
-              'todoapp__toggle-all',
-              { active: areAllTodosCompleted },
-            )}
-            data-cy="ToggleAllButton"
-            aria-label="add-all"
-            onClick={handleToggleAll}
-          />
+          {todos.length > 0 && (
+            <button
+              type="button"
+              className={cn(
+                'todoapp__toggle-all',
+                { active: areAllTodosCompleted },
+              )}
+              data-cy="ToggleAllButton"
+              aria-label="add-all"
+              onClick={handleToggleAll}
+            />
+          )}
 
           <form onSubmit={event => addTodo(event)}>
             <input
@@ -180,36 +183,37 @@ export const App: React.FC = () => {
           </form>
         </header>
 
-        <TodoList
-          todos={visibleTodos}
-          removeTodo={removeTodo}
-          tempTodo={tempTodo}
-          isLoading={isLoading}
-          updateTodo={updateTodo}
-          titleRef={titleRef}
-        />
-
         {todos.length > 0 && (
-          <footer className="todoapp__footer" data-cy="Footer">
-            <span className="todo-count" data-cy="TodosCounter">
-              {`${uncompletedTodos} items left`}
-            </span>
-
-            <TodosFilter
-              selectedFilter={selectedFilter}
-              handleSelectFilter={handleSelectFilter}
+          <>
+            <TodoList
+              todos={visibleTodos}
+              removeTodo={removeTodo}
+              tempTodo={tempTodo}
+              isLoading={isLoading}
+              updateTodo={updateTodo}
+              titleRef={titleRef}
             />
+            <footer className="todoapp__footer" data-cy="Footer">
+              <span className="todo-count" data-cy="TodosCounter">
+                {`${uncompletedTodos} items left`}
+              </span>
 
-            <button
-              type="button"
-              className="todoapp__clear-completed"
-              data-cy="ClearCompletedButton"
-              disabled={!hasCompletedTodos}
-              onClick={handleClearCompleted}
-            >
-              Clear completed
-            </button>
-          </footer>
+              <TodosFilter
+                selectedFilter={selectedFilter}
+                handleSelectFilter={handleSelectFilter}
+              />
+
+              <button
+                type="button"
+                className="todoapp__clear-completed"
+                data-cy="ClearCompletedButton"
+                disabled={!hasCompletedTodos}
+                onClick={handleClearCompleted}
+              >
+                Clear completed
+              </button>
+            </footer>
+          </>
         )}
       </div>
 
