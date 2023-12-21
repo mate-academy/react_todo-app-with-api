@@ -1,14 +1,12 @@
 import React from 'react';
 import { Todo } from '../../types/Todo';
 import { TodoItem } from './TodoItem';
-import { ErrorType } from '../../types/ErrorType';
 
 type Props = {
   todos: Todo[],
   tempTodo: Todo | null,
   selectedTodoIds: number[],
   onDelete: (todoId: number) => void,
-  onError: (error: ErrorType) => void,
   updateTodo: (updatedTodo: Todo) => Promise<void>,
 };
 
@@ -17,7 +15,6 @@ export const TodoMain: React.FC<Props> = ({
   tempTodo,
   selectedTodoIds,
   onDelete,
-  onError,
   updateTodo,
 }) => {
   return (
@@ -28,7 +25,6 @@ export const TodoMain: React.FC<Props> = ({
             todo={todo}
             selectedTodoIds={selectedTodoIds}
             onDelete={onDelete}
-            onError={onError}
             updateTodo={updateTodo}
             key={todo.id}
           />
@@ -40,7 +36,6 @@ export const TodoMain: React.FC<Props> = ({
           todo={tempTodo}
           selectedTodoIds={selectedTodoIds}
           onDelete={() => {}}
-          onError={() => {}}
           updateTodo={async () => {}}
           key={tempTodo.id}
         />

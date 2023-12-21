@@ -77,7 +77,7 @@ export const App: React.FC = () => {
     };
 
     try {
-      setTempTodo(() => newTodo);
+      setTempTodo(newTodo);
       const todo = await addTodo(newTodo);
 
       setTodosFromServer(
@@ -88,7 +88,7 @@ export const App: React.FC = () => {
     } catch {
       onError(ErrorType.UnableToAdd);
     } finally {
-      setTempTodo(() => null);
+      setTempTodo(null);
 
       setTimeout(() => {
         if (inputRef.current) {
@@ -130,30 +130,24 @@ export const App: React.FC = () => {
     .map(todo => todo.id);
 
   const handleCompletedTodosDelition = async () => {
-    const processedIds: number[] = [];
-
     try {
       setSelectedTodoIds(ids => [...ids, ...completedTodoIds]);
 
       completedTodoIds.forEach(async (todoId) => {
         try {
           await deleteTodo(todoId);
-          processedIds.push(todoId);
+          setTodosFromServer(
+            todos => todos.filter(todo => !(todo.id === todoId)),
+          );
         } catch {
           onError(ErrorType.UnableToDelete);
         }
       });
-    } catch {
-      onError(ErrorType.UnableToDelete);
     } finally {
       setTimeout(
         () => {
           setSelectedTodoIds(
             ids => ids.filter(id => !completedTodoIds.includes(id)),
-          );
-
-          setTodosFromServer(
-            todos => todos.filter(todo => !processedIds.includes(todo.id)),
           );
 
           if (inputRef.current) {
@@ -182,7 +176,7 @@ export const App: React.FC = () => {
       );
     } catch {
       onError(ErrorType.UnableToUpdate);
-      throw new Error(ErrorType.UnableToUpdate);
+      throw new Error();
     } finally {
       setSelectedTodoIds(
         ids => ids.filter(id => !(id === updatedTodo.id)),
@@ -255,7 +249,6 @@ export const App: React.FC = () => {
         />
 
         <TodoMain
-          onError={onError}
           todos={filteredTodos}
           tempTodo={tempTodo}
           selectedTodoIds={selectedTodoIds}

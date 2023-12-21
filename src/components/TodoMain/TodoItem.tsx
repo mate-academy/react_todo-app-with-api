@@ -1,14 +1,12 @@
 import React, { useEffect, useRef, useState } from 'react';
 import cn from 'classnames';
 import { Todo } from '../../types/Todo';
-import { ErrorType } from '../../types/ErrorType';
 
 type Props = {
   todo: Todo,
   selectedTodoIds: number[],
   onDelete: (todoId: number) => void,
   updateTodo: (updatedTodo: Todo) => Promise<void>,
-  onError: (error: ErrorType) => void,
 };
 
 export const TodoItem: React.FC<Props> = ({
@@ -16,7 +14,6 @@ export const TodoItem: React.FC<Props> = ({
   selectedTodoIds,
   onDelete,
   updateTodo,
-  onError,
 }) => {
   const isLoading = selectedTodoIds.includes(todo.id) || todo.id === 0;
   const [isBeingEdited, setIsBeingEdited] = useState(false);
@@ -34,11 +31,7 @@ export const TodoItem: React.FC<Props> = ({
       completed: !todoToUpdate.completed,
     };
 
-    try {
-      updateTodo(updatedTodo);
-    } catch {
-      onError(ErrorType.UnableToUpdate);
-    }
+    await updateTodo(updatedTodo);
   };
 
   const onEscKeyUp = (event: React.KeyboardEvent<HTMLInputElement>) => {
@@ -51,28 +44,28 @@ export const TodoItem: React.FC<Props> = ({
   const onSubmitTitle = async (event: React.FormEvent) => {
     event.preventDefault();
 
-    if (titleOnEdit === todo.title) {
-      setIsBeingEdited(false);
-
-      return;
-    }
-
-    const updatedTodo: Todo = {
-      ...todo,
-      title: titleOnEdit.trim(),
-    };
-
-    if (!updatedTodo.title) {
-      onDelete(todo.id);
-
-      return;
-    }
-
     try {
+      if (titleOnEdit === todo.title) {
+        setIsBeingEdited(false);
+
+        return;
+      }
+
+      const updatedTodo: Todo = {
+        ...todo,
+        title: titleOnEdit.trim(),
+      };
+
+      if (!updatedTodo.title) {
+        onDelete(todo.id);
+
+        return;
+      }
+
       await updateTodo(updatedTodo);
       setIsBeingEdited(false);
     } catch {
-      onError(ErrorType.UnableToUpdate);
+      setIsBeingEdited(true);
     }
   };
 
