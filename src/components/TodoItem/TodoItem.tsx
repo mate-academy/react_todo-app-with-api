@@ -6,26 +6,19 @@ import { Todo } from '../../types/Todo';
 type Props = {
   todo: Todo;
   onDelete: (todoID: number) => void;
-  isProcessing: Todo | null;
-  onProcessing: (todo: Todo | null) => void;
   onUpdate: (id: number, todo: Todo) => void;
-  isEdited: number | null;
-  onEdit: (todoId: number | null) => void;
-  isLoading: boolean;
+  hasLoader: number[];
 };
 
 export const TodoItem: React.FC<Props> = ({
   todo,
   onDelete,
-  isProcessing,
   onUpdate,
-  isEdited,
-  onEdit,
-  isLoading,
-  onProcessing,
+  hasLoader,
 }) => {
   const [updateTitle, setUpdateTitle] = useState<string>('');
   const [isHidenButton, setIsHidenButton] = useState(false);
+  const [isEdited, setIsEdited] = useState<number | null>(null);
 
   const inputRef = useRef<HTMLInputElement | null>(null);
 
@@ -34,33 +27,27 @@ export const TodoItem: React.FC<Props> = ({
   };
 
   const handleUpdateTodoStatus = async () => {
-    try {
-      onProcessing(todo);
-
-      await onUpdate(todo.id, {
-        ...todo,
-        completed: !todo.completed,
-      });
-    } finally {
-      onProcessing(null);
-    }
+    onUpdate(todo.id, {
+      ...todo,
+      completed: !todo.completed,
+    });
   };
 
   const updateTodoTitle = () => {
-    if (updateTitle.trim() !== '' && updateTitle !== todo.title) {
+    if (updateTitle.trim() && updateTitle !== todo.title) {
       onUpdate(todo.id, {
         ...todo,
         title: updateTitle,
       });
-
-      onEdit(null);
+      setIsEdited(null);
       setIsHidenButton(false);
       setUpdateTitle('');
-    } else if (!updateTitle) {
-      onDelete(todo.id);
-      onEdit(null);
     } else {
-      onEdit(null);
+      if (!updateTitle) {
+        onDelete(todo.id);
+      }
+
+      setIsEdited(null);
     }
   };
 
@@ -84,7 +71,7 @@ export const TodoItem: React.FC<Props> = ({
 
   const handleKeyUp = (event: React.KeyboardEvent<HTMLInputElement>) => {
     if (event.key === 'Escape') {
-      onEdit(null);
+      setIsEdited(null);
     }
   };
 
@@ -101,7 +88,6 @@ export const TodoItem: React.FC<Props> = ({
           className="todo__status"
           checked={todo.completed}
           onChange={() => handleUpdateTodoStatus()}
-          onClick={() => onProcessing(todo)}
         />
       </label>
 
@@ -126,7 +112,7 @@ export const TodoItem: React.FC<Props> = ({
           <span
             data-cy="TodoTitle"
             className="todo__title"
-            onDoubleClick={() => onEdit(todo.id)}
+            onDoubleClick={() => setIsEdited(todo.id)}
           >
             {todo.title}
           </span>
@@ -142,28 +128,15 @@ export const TodoItem: React.FC<Props> = ({
         ×
       </button>
 
-      {isProcessing
-        ? (
-          <div
-            data-cy="TodoLoader"
-            className={cn('modal overlay', {
-              'is-active': isProcessing.id === todo.id,
-            })}
-          >
-            <div className="modal-background has-background-white-ter" />
-            <div className="loader" />
-          </div>
-        ) : (
-          <div
-            data-cy="TodoLoader"
-            className={cn('modal overlay', {
-              'is-active': isLoading,
-            })}
-          >
-            <div className="modal-background has-background-white-ter" />
-            <div className="loader" />
-          </div>
-        )}
+      <div
+        data-cy="TodoLoader"
+        className={cn('modal overlay', {
+          'is-active': hasLoader.includes(todo.id),
+        })}
+      >
+        <div className="modal-background has-background-white-ter" />
+        <div className="loader" />
+      </div>
     </div>
   );
 };

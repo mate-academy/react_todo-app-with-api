@@ -1,7 +1,7 @@
 export enum ErrorType {
-  LoadError = 'LoadError',
-  TitleError = 'TitleError',
-  AddError = 'AddError',
-  DeleteError = 'DeleteError',
-  UpdateError = 'UpdateError',
+  LoadError = 'Unable to load todos',
+  TitleError = 'Title should not be empty',
+  AddError = 'Unable to add a todo',
+  DeleteError = 'Unable to delete a todo',
+  UpdateError = 'Unable to update a todo',
 }

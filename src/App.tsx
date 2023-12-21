@@ -18,12 +18,11 @@ const USER_ID = 12036;
 
 export const App: React.FC = () => {
   const [todos, setTodos] = useState<Todo[]>([]);
-  const [filterBy, setFilterBy] = useState<FilteredBy>(FilteredBy.DefaultType);
+  const [filterBy, setFilterBy] = useState<FilteredBy>(FilteredBy.All);
   const [errorType, setErorType] = useState<ErrorType | null>(null);
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
   const [newTodoTitle, setNewTodoTitle] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
-  const [isLoadingTodo, setIsLoadingTodo] = useState<Todo | null>(null);
+  const [processingTodoIds, setProcessingTodoIds] = useState<number[]>([]);
 
   const todosToView = useMemo(
     () => filteredTodoList(todos, filterBy),
@@ -33,9 +32,7 @@ export const App: React.FC = () => {
   const deleteTodo = useCallback(
     async (todoId: number) => {
       try {
-        const todoToRemove = todos.find((todo) => todo.id === todoId) || null;
-
-        setIsLoadingTodo(todoToRemove);
+        setProcessingTodoIds(prevIds => [...prevIds, todoId]);
 
         await todoService.removeTodo(todoId);
 
@@ -44,15 +41,20 @@ export const App: React.FC = () => {
         ));
       } catch (error) {
         setErorType(ErrorType.DeleteError);
+      } finally {
+        setProcessingTodoIds(
+          currentIds => currentIds.filter(proccesingId => proccesingId !== todoId),
+        );
       }
     },
-    [todos, setIsLoadingTodo, setTodos, setErorType],
+    [setTodos, setErorType],
   );
 
   const addTodo = useCallback(
     async (todoTitle: string) => {
       try {
-        setIsLoading(true);
+        setProcessingTodoIds(prevIds => [...prevIds, 0]);
+
         const newTempTodo: Todo = {
           id: 0,
           userId: USER_ID,
@@ -60,61 +62,61 @@ export const App: React.FC = () => {
           completed: false,
         };
 
+        setTempTodo(newTempTodo);
+
         const addedTodo = await todoService.addTodo({
           title: todoTitle,
           completed: false,
           userId: USER_ID,
         });
 
-        setTempTodo(newTempTodo);
-
         setTodos((currentTodos) => [...currentTodos, addedTodo]);
-
-        setIsLoading(false);
       } catch (error) {
         setErorType(ErrorType.AddError);
       } finally {
         setTempTodo(null);
         setNewTodoTitle('');
-        setIsLoading(false);
+        setProcessingTodoIds(
+          currentIds => currentIds.filter(proccesingId => proccesingId !== 0),
+        );
       }
     },
-    [setIsLoading, setTempTodo, setTodos, setErorType, setNewTodoTitle],
+    [setTempTodo, setTodos, setErorType, setNewTodoTitle],
   );
 
   const updateTodo = useCallback(
     async (id: number, todo: Todo) => {
       try {
-        setIsLoading(true);
+        setProcessingTodoIds((currentIds) => [...currentIds, id]);
 
-        await todoService.updateTodo(id, { ...todo });
+        const updatedTodo = await todoService.updateTodo(id, { ...todo });
 
-        setTodos((currentTodos) => {
-          const localUpdatedTodo = [...currentTodos];
-          const index = localUpdatedTodo.findIndex((t) => t.id === id);
-
-          localUpdatedTodo.splice(index, 1, todo);
-
-          return localUpdatedTodo;
-        });
+        setTodos((currentTodos) => currentTodos.map(
+          (t) => (t.id === id ? updatedTodo : t),
+        ));
       } catch (error) {
         setErorType(ErrorType.UpdateError);
       } finally {
-        setIsLoading(false);
+        setProcessingTodoIds((currentIds) => currentIds
+          .filter((proccesingId) => proccesingId !== id));
       }
     },
-    [setIsLoading, setTodos, setErorType],
+    [setTodos, setErorType, setProcessingTodoIds],
   );
 
-  const clearCompleted = () => {
-    todosToView.forEach(todo => {
-      if (todo.completed) {
-        deleteTodo(todo.id);
-      }
-    });
+  const clearCompleted = useCallback(async () => {
+    try {
+      const deletePromises = todosToView
+        .filter(todo => todo.completed)
+        .map(todo => deleteTodo(todo.id));
 
-    setErorType(null);
-  };
+      await Promise.all(deletePromises);
+
+      setErorType(null);
+    } catch (error) {
+      setErorType(ErrorType.DeleteError);
+    }
+  }, [todosToView, deleteTodo]);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -149,7 +151,6 @@ export const App: React.FC = () => {
           onError={setErorType}
           onNewTodoTitle={setNewTodoTitle}
           newTodoTitle={newTodoTitle}
-          isLoading={isLoading}
           onUpdate={updateTodo}
           todos={todosToView}
         />
@@ -159,10 +160,8 @@ export const App: React.FC = () => {
             todos={todosToView}
             onDelete={deleteTodo}
             todoTemp={tempTodo}
-            isProcessing={isLoadingTodo}
             onUpdate={updateTodo}
-            isLoading={isLoading}
-            onProcessing={setIsLoadingTodo}
+            processingTodoIds={processingTodoIds}
           />
         )}
         {todos.length > 0 && (

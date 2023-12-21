@@ -10,7 +10,6 @@ type Props = {
   onError: (error: ErrorType) => void;
   onNewTodoTitle: (title: string) => void,
   newTodoTitle: string
-  isLoading: boolean,
   onUpdate: (id: number, todo: Todo) => void;
   todos: Todo[]
 };
@@ -21,7 +20,6 @@ export const Header: React.FC<Props> = ({
   onError,
   onNewTodoTitle,
   newTodoTitle,
-  isLoading,
   onUpdate,
   todos,
 }) => {
@@ -79,7 +77,6 @@ export const Header: React.FC<Props> = ({
           placeholder="What needs to be done?"
           value={newTodoTitle}
           onChange={(event) => onNewTodoTitle(event.target.value)}
-          disabled={isLoading}
         />
       </form>
     </header>

@@ -17,7 +17,7 @@ export const Footer: React.FC<Props> = ({
 }) => {
   const handleFilterChange = (filterType: FilteredBy) => {
     const updatedFilter: FilteredBy
-      = filterBy === filterType ? FilteredBy.DefaultType : filterType;
+      = filterBy === filterType ? FilteredBy.All : filterType;
 
     onFilter(updatedFilter);
   };

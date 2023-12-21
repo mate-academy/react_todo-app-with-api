@@ -1,5 +1,4 @@
 import { useEffect, useRef } from 'react';
-import { getErrorMessage } from '../../helpers';
 import { ErrorType } from '../../types/ErorTypes';
 
 type Props = {
@@ -8,8 +7,6 @@ type Props = {
 };
 
 export const Errors: React.FC<Props> = ({ error, onClose }) => {
-  const errorMessage = getErrorMessage(error);
-
   const timerRef = useRef<number | null>(null);
 
   useEffect(() => {
@@ -43,7 +40,7 @@ export const Errors: React.FC<Props> = ({ error, onClose }) => {
         onClick={onClose}
         aria-label="Close message"
       />
-      {errorMessage}
+      {error}
     </div>
   );
 };
