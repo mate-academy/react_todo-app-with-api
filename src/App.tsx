@@ -96,13 +96,13 @@ export const App: React.FC = () => {
 
     try {
       setTempTodo(() => newTodo);
-      await addTodo(newTodo)
-        .then((todo) => setTodosFromServer(
-          prevTodos => ([...prevTodos, todo]),
-        ))
-        .then(() => {
-          setNewTodoText('');
-        });
+      const todo = await addTodo(newTodo);
+
+      setTodosFromServer(
+        todos => ([...todos, todo]),
+      );
+
+      setNewTodoText('');
     } catch {
       onError(ErrorType.UnableToAdd);
     } finally {
@@ -118,25 +118,21 @@ export const App: React.FC = () => {
 
   const handleSingleTodoDelition = async (todoId: number) => {
     try {
-      setSelectedTodoIds(prevIds => [...prevIds, todoId]);
+      setSelectedTodoIds(ids => [...ids, todoId]);
 
-      await deleteTodo(todoId).then(() => {
-        setTodosFromServer(
-          prevTodos => prevTodos.filter(todo => todo.id !== todoId),
-        );
-      });
+      await deleteTodo(todoId);
+
+      setTodosFromServer(
+        todos => todos.filter(todo => todo.id !== todoId),
+      );
     } catch {
       onError(ErrorType.UnableToDelete);
     } finally {
       setTimeout(
         () => {
-          setSelectedTodoIds(ids => {
-            const idsCopy = [...ids];
-
-            idsCopy.splice(ids.indexOf(todoId), 1);
-
-            return idsCopy;
-          });
+          setSelectedTodoIds(
+            ids => ids.filter(id => !(id === todoId)),
+          );
 
           if (inputRef.current) {
             inputRef.current.focus();
@@ -155,13 +151,15 @@ export const App: React.FC = () => {
     const processedIds: number[] = [];
 
     try {
-      setSelectedTodoIds(prev => [...prev, ...completedTodoIds]);
+      setSelectedTodoIds(ids => [...ids, ...completedTodoIds]);
 
       completedTodoIds.forEach(async (todoId) => {
-        await deleteTodo(todoId).catch(() => onError(ErrorType.UnableToDelete))
-          .then(() => {
-            processedIds.push(todoId);
-          });
+        try {
+          await deleteTodo(todoId);
+          processedIds.push(todoId);
+        } catch {
+          onError(ErrorType.UnableToDelete);
+        }
       });
     } catch {
       onError(ErrorType.UnableToDelete);
@@ -187,31 +185,25 @@ export const App: React.FC = () => {
 
   const updateTodo = async (updatedTodo: Todo) => {
     try {
-      setSelectedTodoIds(prevIds => [...prevIds, updatedTodo.id]);
+      setSelectedTodoIds(ids => [...ids, updatedTodo.id]);
 
-      await patchTodo(updatedTodo)
-        .then((todoFromResponse: Todo) => {
-          const todos = todosFromServer;
-          const indexOfTodo = todos.findIndex(
-            todo => todo.id === todoFromResponse.id,
-          );
+      const todoFromResponse = await patchTodo(updatedTodo);
 
-          todos[indexOfTodo] = todoFromResponse;
+      setTodosFromServer(
+        todos => todos.map(td => {
+          if (td.id === todoFromResponse.id) {
+            return todoFromResponse;
+          }
 
-          setTodosFromServer([...todos]);
-        })
-        .catch(() => onError(ErrorType.UnableToUpdate));
+          return td;
+        }),
+      );
     } catch {
       onError(ErrorType.UnableToUpdate);
+      throw new Error(ErrorType.UnableToUpdate);
     } finally {
       setSelectedTodoIds(
-        ids => {
-          const idsCopy = [...ids];
-
-          idsCopy.splice(idsCopy.indexOf(updatedTodo.id), 1);
-
-          return idsCopy;
-        },
+        ids => ids.filter(id => !(id === updatedTodo.id)),
       );
     }
   };
@@ -232,73 +224,37 @@ export const App: React.FC = () => {
   const activeTodoIds = activeTodos.map(todo => todo.id);
   const activeTodosCount = activeTodos.length;
 
-  const handleToggleAll = async () => {
-    const todos = todosFromServer;
-
+  const handleToggleAll = () => {
     if (activeTodosCount) {
-      setSelectedTodoIds(prev => [...prev, ...activeTodoIds]);
+      setSelectedTodoIds(ids => [...ids, ...activeTodoIds]);
 
-      try {
-        activeTodos.forEach(async todo => {
+      activeTodos.forEach(async (todo) => {
+        try {
           const updatedTodo = {
             ...todo,
             completed: true,
           };
 
-          await patchTodo(updatedTodo).then((todoFromResponse: Todo) => {
-            const indexOfTodo = todos.findIndex(
-              td => td.id === todoFromResponse.id,
-            );
-
-            todos[indexOfTodo] = todoFromResponse;
-          });
-        });
-      } catch {
-        onError(ErrorType.UnableToUpdate);
-      } finally {
-        setTimeout(
-          () => {
-            setSelectedTodoIds(
-              ids => ids.filter(id => !activeTodoIds.includes(id)),
-            );
-
-            setTodosFromServer([...todos]);
-          },
-          300,
-        );
-      }
+          await updateTodo(updatedTodo);
+        } catch {
+          onError(ErrorType.UnableToUpdate);
+        }
+      });
     } else {
-      setSelectedTodoIds(prev => [...prev, ...completedTodoIds]);
+      setSelectedTodoIds(ids => [...ids, ...completedTodoIds]);
 
-      try {
-        todosFromServer.forEach(async todo => {
+      todosFromServer.forEach(async (todo) => {
+        try {
           const updatedTodo = {
             ...todo,
             completed: false,
           };
 
-          await patchTodo(updatedTodo).then((todoFromResponse: Todo) => {
-            const indexOfTodo = todos.findIndex(
-              td => td.id === todoFromResponse.id,
-            );
-
-            todos[indexOfTodo] = todoFromResponse;
-          });
-        });
-      } catch {
-        onError(ErrorType.UnableToUpdate);
-      } finally {
-        setTimeout(
-          () => {
-            setSelectedTodoIds(
-              ids => ids.filter(id => !completedTodoIds.includes(id)),
-            );
-
-            setTodosFromServer([...todos]);
-          },
-          300,
-        );
-      }
+          await updateTodo(updatedTodo);
+        } catch {
+          onError(ErrorType.UnableToUpdate);
+        }
+      });
     }
   };
 

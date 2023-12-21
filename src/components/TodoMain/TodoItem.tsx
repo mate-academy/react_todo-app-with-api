@@ -7,7 +7,7 @@ type Props = {
   todo: Todo,
   selectedTodoIds: number[],
   onDelete: (todoId: number) => void,
-  updateTodo: (updatedTodo: Todo) => void,
+  updateTodo: (updatedTodo: Todo) => Promise<void>,
   onError: (error: ErrorType) => void,
 };
 
@@ -34,7 +34,11 @@ export const TodoItem: React.FC<Props> = ({
       completed: !todoToUpdate.completed,
     };
 
-    updateTodo(updatedTodo);
+    try {
+      updateTodo(updatedTodo);
+    } catch {
+      onError(ErrorType.UnableToUpdate);
+    }
   };
 
   const onEscKeyUp = (event: React.KeyboardEvent<HTMLInputElement>) => {
@@ -65,11 +69,10 @@ export const TodoItem: React.FC<Props> = ({
     }
 
     try {
-      updateTodo(updatedTodo);
+      await updateTodo(updatedTodo);
       setIsBeingEdited(false);
     } catch {
       onError(ErrorType.UnableToUpdate);
-      setIsBeingEdited(true);
     }
   };
 

@@ -9,7 +9,7 @@ type Props = {
   selectedTodoIds: number[],
   onDelete: (todoId: number) => void,
   onError: (error: ErrorType) => void,
-  updateTodo: (updatedTodo: Todo) => void,
+  updateTodo: (updatedTodo: Todo) => Promise<void>,
 };
 
 export const TodoMain: React.FC<Props> = ({
@@ -41,7 +41,7 @@ export const TodoMain: React.FC<Props> = ({
           selectedTodoIds={selectedTodoIds}
           onDelete={() => {}}
           onError={() => {}}
-          updateTodo={() => {}}
+          updateTodo={async () => {}}
           key={tempTodo.id}
         />
       )}
