@@ -5,16 +5,16 @@ type Props = {
   onSubmit: (title: string) => void;
   onInput: () => void;
   inputDisabled: boolean;
-  hasErrors: boolean;
   isAllCompleted: boolean;
   onToggleAll: () => void;
+  hasError: boolean;
 };
 
 export const Header: React.FC<Props> = ({
   onSubmit,
   onInput,
   inputDisabled,
-  hasErrors,
+  hasError,
   isAllCompleted,
   onToggleAll,
 }) => {
@@ -30,7 +30,7 @@ export const Header: React.FC<Props> = ({
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     onSubmit(title);
-    if (!hasErrors) {
+    if (!hasError) {
       setTitle('');
     }
   };
@@ -48,7 +48,7 @@ export const Header: React.FC<Props> = ({
           active: isAllCompleted,
         })}
         data-cy="ToggleAllButton"
-        aria-label="none"
+        aria-label="Toggle All"
         onClick={onToggleAll}
       />
 

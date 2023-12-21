@@ -1,64 +1,57 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { UserWarning } from './components/UserWarning/UserWarning';
 import { client } from './utils/fetchClient';
 import { Todo } from './types/Todo';
 import { TodoList } from './components/TodoList/TodoList';
 import { Header } from './components/Header/Header';
 import { Footer } from './components/Footer/Footer';
-import { Errors } from './components/Errors/Errors';
+import { Errors } from './components/Error/Error';
 import { Status } from './types/Status';
 import { ErrorSpec } from './types/ErrorSpec';
 import { filterTodos } from './helpers/filterTodos';
-import * as TodoService from './services/todo';
+import * as TodoService from './api/todos';
 
 const USER_ID = 12021;
 const ADDED_URL = `/todos?userId=${USER_ID}`;
 
 export const App: React.FC = () => {
-  const [todosFromServer, setTodosFromServer] = useState<Todo[]>([]);
-  const [hasErrors, setHasErrors] = useState(false);
+  const [todos, setTodos] = useState<Todo[]>([]);
   const [error, setError] = useState<ErrorSpec | null>(null);
   const [status, setStatus] = useState<Status>(Status.ALL);
-  const [uncompletedTodosCount, setUncompletedTodosCount] = useState<number>(0);
   const [isInputDisabled, setIsInputDisabled] = useState(false);
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
   const [loadingTodo, setLoadingTodo] = useState<Todo | null>(null);
   const [editingTodo, setEditingTodo] = useState<Todo | null>(null);
 
-  const areAllCompleted = uncompletedTodosCount === 0;
-
   const filteredTodos = useMemo(
-    () => filterTodos(todosFromServer, status),
-    [status, todosFromServer],
+    () => filterTodos(todos, status),
+    [status, todos],
   );
+
+  const uncompletedTodosCount = useMemo(() => {
+    return todos.filter(todo => !todo.completed).length;
+  }, [todos]);
+
+  const areAllCompleted = uncompletedTodosCount === 0;
 
   useEffect(() => {
     client
       .get<Todo[]>(ADDED_URL)
-      .then((todos) => {
-        setTodosFromServer(todos);
+      .then((todosFromServer) => {
+        setTodos(todosFromServer);
 
-        if (todos.length === 0) {
+        if (!todos) {
           setError(ErrorSpec.EMPTY_TITLE);
         }
       })
       .catch(() => setError(ErrorSpec.NOT_LOADED));
-  }, []);
-
-  useEffect(() => {
-    const completedCount = todosFromServer.filter(
-      (todo) => !todo.completed,
-    ).length;
-
-    setUncompletedTodosCount(completedCount);
-  }, [todosFromServer, status, filteredTodos]);
+  }, [todos]);
 
   const handleStatus = (newStatus: Status) => {
     setStatus(newStatus);
   };
 
   const cleanErrors = () => {
-    setHasErrors(false);
+    setError(null);
   };
 
   const addTodo = (title: string) => {
@@ -67,7 +60,6 @@ export const App: React.FC = () => {
 
     if (!preparedTitle) {
       setError(ErrorSpec.EMPTY_TITLE);
-      setHasErrors(true);
       setIsInputDisabled(false);
 
       return;
@@ -81,9 +73,9 @@ export const App: React.FC = () => {
     };
 
     TodoService.createTodo(newTodo)
-      .then((responce) => {
-        setTempTodo(responce);
-        setTodosFromServer([...todosFromServer, responce]);
+      .then((response) => {
+        setTempTodo(response);
+        setTodos([...todos, response]);
       })
       .catch(() => {
         setError(ErrorSpec.NOT_ADDED);
@@ -100,13 +92,15 @@ export const App: React.FC = () => {
     setLoadingTodo(filteredTodos.find((todo) => todo.id === id) || null);
 
     TodoService.deleteTodo(id)
-      .then(() => setLoadingTodo(null))
+      .then(() => {
+        setLoadingTodo(null);
+        setTodos((prev) => prev.filter((todo) => todo.id !== id));
+      })
       .catch(() => {
         setError(ErrorSpec.NOT_DELETED);
         setIsInputDisabled(false);
       })
       .finally(() => {
-        setTodosFromServer((prev) => prev.filter((todo) => todo.id !== id));
         setIsInputDisabled(false);
       });
   };
@@ -117,8 +111,7 @@ export const App: React.FC = () => {
         removeTodo(element.id);
       }
     });
-    setUncompletedTodosCount(0);
-    setHasErrors(false);
+    setError(null);
   };
 
   const updateTodo = (todo: Todo) => {
@@ -139,7 +132,7 @@ export const App: React.FC = () => {
           todoFromPrev => (todoFromPrev.id === todo.id ? todo : todoFromPrev),
         );
 
-        setTodosFromServer(todosAfterUpdate);
+        setTodos(todosAfterUpdate);
         setLoadingTodo(null);
       });
   };
@@ -151,15 +144,8 @@ export const App: React.FC = () => {
   };
 
   const onToggleAll = () => {
-    const toggledTodos = todosFromServer.map((todo) => (areAllCompleted
-      ? {
-        ...todo,
-        completed: !todo.completed,
-      }
-      : {
-        ...todo,
-        completed: true,
-      }));
+    const toggledTodos = todos.map((todo) => (
+      { ...todo, completed: areAllCompleted ? !todo.completed : false }));
 
     const updatePromises = toggledTodos.map(
       updatedTodo => TodoService.updateTodo(updatedTodo),
@@ -167,11 +153,10 @@ export const App: React.FC = () => {
 
     Promise.all(updatePromises)
       .then(() => {
-        setTodosFromServer(toggledTodos);
+        setTodos(toggledTodos);
       })
       .catch(() => {
         setError(ErrorSpec.NOT_UPDATED);
-        setHasErrors(true);
       });
   };
 
@@ -197,12 +182,6 @@ export const App: React.FC = () => {
     );
   }, [filteredTodos, loadingTodo]);
 
-  if (!USER_ID) {
-    setHasErrors(true);
-
-    return <UserWarning />;
-  }
-
   return (
     <div className="todoapp">
       <h1 className="todoapp__title">todos</h1>
@@ -211,13 +190,13 @@ export const App: React.FC = () => {
         <Header
           onSubmit={addTodo}
           onInput={cleanErrors}
+          hasError={Boolean(error)}
           inputDisabled={isInputDisabled}
-          hasErrors={hasErrors}
           isAllCompleted={areAllCompleted}
           onToggleAll={onToggleAll}
         />
 
-        {todosFromServer.length > 0 && (
+        {todos.length > 0 && (
           <>
             <TodoList
               todos={filteredTodos}
@@ -227,20 +206,20 @@ export const App: React.FC = () => {
               onToggleCompleted={onToggleCompleted}
               isEditing={editingTodo}
               onEditTodo={onEditTodo}
-              handleSaveTodo={handleTitleUpdate}
+              onSaveTodo={handleTitleUpdate}
             />
             <Footer
-              onStatus={handleStatus}
+              onChangeStatus={handleStatus}
               status={status}
               completedCount={uncompletedTodosCount}
-              handleClear={clearCompleted}
+              onClearCompleted={clearCompleted}
               isClearNeeded={uncompletedTodosCount === filteredTodos.length}
             />
           </>
         )}
       </div>
 
-      {hasErrors && <Errors error={error} closeError={cleanErrors} />}
+      {error && <Errors error={error} onHideError={cleanErrors} />}
     </div>
   );
 };

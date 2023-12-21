@@ -1,12 +1,11 @@
 import { ErrorSpec } from '../../types/ErrorSpec';
-import { ErrorMessage } from '../ErrorMessage/ErrorMessage';
 
 type Props = {
   error: ErrorSpec | null;
-  closeError: () => void;
+  onHideError: () => void;
 };
 
-export const Errors: React.FC<Props> = ({ error, closeError }) => {
+export const Errors: React.FC<Props> = ({ error, onHideError: closeError }) => {
   return (
     <div
       data-cy="ErrorNotification"
@@ -16,11 +15,11 @@ export const Errors: React.FC<Props> = ({ error, closeError }) => {
         data-cy="HideErrorButton"
         type="button"
         className="delete"
-        aria-label="none"
+        aria-label="Hide error"
         onClick={closeError}
       />
 
-      {error && (<ErrorMessage error={error} />)}
+      {error && <span>{error}</span>}
     </div>
   );
 };

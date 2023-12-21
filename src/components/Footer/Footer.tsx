@@ -3,18 +3,18 @@ import React from 'react';
 import { Status } from '../../types/Status';
 
 type Props = {
-  onStatus: (status: Status) => void;
+  onChangeStatus: (status: Status) => void;
   status: Status;
   completedCount: number;
   isClearNeeded: boolean;
-  handleClear: () => void;
+  onClearCompleted: () => void;
 };
 
 export const Footer: React.FC<Props> = ({
-  onStatus,
+  onChangeStatus,
   status,
   completedCount,
-  handleClear,
+  onClearCompleted,
   isClearNeeded,
 }) => {
   return (
@@ -30,7 +30,7 @@ export const Footer: React.FC<Props> = ({
             selected: status === Status.ALL,
           })}
           data-cy="FilterLinkAll"
-          onClick={() => onStatus(Status.ALL)}
+          onClick={() => onChangeStatus(Status.ALL)}
         >
           All
         </a>
@@ -41,7 +41,7 @@ export const Footer: React.FC<Props> = ({
             selected: status === Status.ACTIVE,
           })}
           data-cy="FilterLinkActive"
-          onClick={() => onStatus(Status.ACTIVE)}
+          onClick={() => onChangeStatus(Status.ACTIVE)}
         >
           Active
         </a>
@@ -52,7 +52,7 @@ export const Footer: React.FC<Props> = ({
             selected: status === Status.COMPLETED,
           })}
           data-cy="FilterLinkCompleted"
-          onClick={() => onStatus(Status.COMPLETED)}
+          onClick={() => onChangeStatus(Status.COMPLETED)}
         >
           Completed
         </a>
@@ -62,7 +62,7 @@ export const Footer: React.FC<Props> = ({
         type="button"
         className="todoapp__clear-completed"
         data-cy="ClearCompletedButton"
-        onClick={handleClear}
+        onClick={onClearCompleted}
         disabled={isClearNeeded}
       >
         Clear completed

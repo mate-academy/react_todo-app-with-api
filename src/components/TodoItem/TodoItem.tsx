@@ -4,22 +4,22 @@ import { Todo } from '../../types/Todo';
 
 type TodoItemProps = {
   todo: Todo;
-  deleteTodo: (id: number) => void;
+  onDeleteTodo?: (id: number) => void;
   isProcessing: Todo | null;
   onToggleCompleted: (todo: Todo) => void;
   isEditing: Todo | null;
   onEditTodo: (todo: Todo | null) => void;
-  handleSaveTodo: (titleUpdated: string, todo: Todo) => void;
+  onSaveTodo: (titleUpdated: string, todo: Todo) => void;
 };
 
 export const TodoItem: React.FC<TodoItemProps> = ({
   todo,
-  deleteTodo,
+  onDeleteTodo,
   isProcessing,
   onToggleCompleted,
   isEditing,
   onEditTodo,
-  handleSaveTodo,
+  onSaveTodo,
 }) => {
   const [editedTitle, setEditedTitle] = useState(todo.title);
   const titleField = useRef<HTMLInputElement>(null);
@@ -28,11 +28,11 @@ export const TodoItem: React.FC<TodoItemProps> = ({
     if (titleField.current) {
       titleField.current.focus();
     }
-  }, [isEditing, handleSaveTodo]);
+  }, [isEditing, onSaveTodo]);
 
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    handleSaveTodo(editedTitle, todo);
+    onSaveTodo(editedTitle, todo);
   };
 
   const handleKeyup = (event: React.KeyboardEvent<HTMLInputElement>) => {
@@ -68,7 +68,7 @@ export const TodoItem: React.FC<TodoItemProps> = ({
             value={editedTitle}
             ref={titleField}
             onChange={(event) => setEditedTitle(event.target.value)}
-            onBlur={() => handleSaveTodo(editedTitle, todo)}
+            onBlur={() => onSaveTodo(editedTitle, todo)}
             onKeyUp={(key) => handleKeyup(key)}
           />
         </form>
@@ -87,7 +87,7 @@ export const TodoItem: React.FC<TodoItemProps> = ({
         type="button"
         className="todo__remove"
         data-cy="TodoDelete"
-        onClick={() => deleteTodo(todo.id)}
+        onClick={() => onDeleteTodo && onDeleteTodo(todo.id)}
       >
         ×
       </button>
