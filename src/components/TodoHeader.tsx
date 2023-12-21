@@ -8,7 +8,7 @@ import { addTodo, updateTodo } from '../api/todos';
 import { TodoContext } from './TodoContex';
 import { Todo } from '../types/Todo';
 
-const TodoHeader: React.FC = () => {
+const TodoHeader : React.FC = () => {
   const [inputValue, setInputValue] = useState('');
 
   const {

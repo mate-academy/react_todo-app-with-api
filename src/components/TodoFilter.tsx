@@ -4,7 +4,7 @@ import cn from 'classnames';
 import { Filter } from '../types/Filter';
 import { TodoContext } from './TodoContex';
 
-const TodoFilter: React.FC = () => {
+const TodoFilter : React.FC = () => {
   const { filter, setFilter } = useContext(TodoContext);
 
   const filters = [

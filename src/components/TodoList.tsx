@@ -5,7 +5,7 @@ import { deleteTodo, updateTodo } from '../api/todos';
 import { Todo } from '../types/Todo';
 import TodoItem from './TodoItem';
 
-const TodoList: React.FC = () => {
+const TodoList : React.FC = () => {
   const {
     todos,
     setErrorMessage,
@@ -26,20 +26,22 @@ const TodoList: React.FC = () => {
     }
   });
 
-  const todoUpdate = (newTodo: Todo) => {
-    return updateTodo(newTodo)
-      .catch((error) => {
-        setErrorMessage('Unable to update a todo');
-        throw error;
-      });
+  const todoUpdate = async (newTodo: Todo) => {
+    try {
+      return await updateTodo(newTodo);
+    } catch (error) {
+      setErrorMessage('Unable to update a todo');
+      throw error;
+    }
   };
 
-  const todoDelete = (id: number) => {
-    return deleteTodo(id)
-      .catch((error) => {
-        setErrorMessage('Unable to delete a todo');
-        throw error;
-      });
+  const todoDelete = async (id: number) => {
+    try {
+      return await deleteTodo(id);
+    } catch (error) {
+      setErrorMessage('Unable to delete a todo');
+      throw error;
+    }
   };
 
   return (

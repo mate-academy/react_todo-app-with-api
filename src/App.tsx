@@ -1,5 +1,3 @@
-/* eslint-disable max-len */
-/* eslint-disable jsx-a11y/control-has-associated-label */
 import React, { useContext } from 'react';
 import { UserWarning } from './UserWarning';
 import { TodoContext } from './components/TodoContex';

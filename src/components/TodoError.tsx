@@ -3,7 +3,7 @@ import React, { useContext, useEffect } from 'react';
 import cn from 'classnames';
 import { TodoContext } from './TodoContex';
 
-const TodoError: React.FC = () => {
+const TodoError : React.FC = () => {
   const { errorMessage, setErrorMessage } = useContext(TodoContext);
 
   useEffect(() => {
