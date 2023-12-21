@@ -1,3 +1,4 @@
+/* eslint-disable jsx-a11y/no-autofocus */
 import { Dispatch, SetStateAction, useState } from 'react';
 import cn from 'classnames';
 import { Todo as TodoType } from '../../types/Todo';
@@ -93,6 +94,7 @@ export const Todo: React.FC<Props> = (
               value={title}
               onChange={event => setTitle(event.target.value)}
               onBlur={saveUpdatedTitle}
+              autoFocus
             />
           </form>
         )
