@@ -77,7 +77,7 @@ export const App: React.FC = () => {
     };
 
     try {
-      setTempTodo(() => newTodo);
+      setTempTodo(newTodo);
       const todo = await addTodo(newTodo);
 
       setTodosFromServer(
