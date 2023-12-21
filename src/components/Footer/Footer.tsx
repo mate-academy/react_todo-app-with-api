@@ -18,14 +18,14 @@ export const Footer: React.FC<Props> = React.memo((props) => {
     statusFilter,
     setStatusFilter,
     deleteTodo,
-    newTodoInputRef: createTodoInputRef,
+    newTodoInputRef,
   } = props;
 
   const handleClearAllCompleted = () => {
     todos.forEach(todo => {
       if (todo.completed) {
         deleteTodo(todo.id).finally(() => {
-          createTodoInputRef.current?.focus();
+          newTodoInputRef.current?.focus();
         });
       }
     });
