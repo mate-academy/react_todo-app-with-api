@@ -61,6 +61,7 @@ export const Header: React.FC<Props> = ({
   return (
     <header className="todoapp__header">
       <button
+        hidden={!todos}
         type="button"
         className={cn('todoapp__toggle-all', { active: isAllCompleted })}
         data-cy="ToggleAllButton"
