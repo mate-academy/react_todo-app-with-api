@@ -8,6 +8,8 @@ type Props = {
   todoTemp: Todo | null;
   isProcessing: Todo | null;
   onUpdate: (id: number, todo: Todo) => void;
+  isLoading: boolean,
+  onProcessing: (todo: Todo | null) => void;
 };
 
 export const TodoList: React.FC<Props> = ({
@@ -16,6 +18,8 @@ export const TodoList: React.FC<Props> = ({
   todoTemp,
   isProcessing,
   onUpdate,
+  isLoading,
+  onProcessing,
 }) => {
   const [isEdited, setIsEdited] = useState<number | null>(null);
 
@@ -30,6 +34,8 @@ export const TodoList: React.FC<Props> = ({
           onUpdate={onUpdate}
           isEdited={isEdited}
           onEdit={setIsEdited}
+          isLoading={isLoading}
+          onProcessing={onProcessing}
         />
       ))}
 
@@ -42,6 +48,8 @@ export const TodoList: React.FC<Props> = ({
           onUpdate={onUpdate}
           isEdited={isEdited}
           onEdit={setIsEdited}
+          isLoading={isLoading}
+          onProcessing={onProcessing}
         />
       )}
     </section>

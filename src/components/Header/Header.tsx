@@ -43,11 +43,19 @@ export const Header: React.FC<Props> = ({
     }
   }, [newTodoTitle]);
 
-  const handleUpdateTodoSstatus = () => {
+  const handleUpdateTodoStatus = () => {
+    let newStatus : boolean;
+
+    if (todos.some(todo => !todo.completed)) {
+      newStatus = true;
+    } else {
+      newStatus = false;
+    }
+
     todos.forEach(todo => {
       onUpdate(todo.id, {
         ...todo,
-        completed: !todo.completed,
+        completed: newStatus,
       });
     });
   };
@@ -59,7 +67,7 @@ export const Header: React.FC<Props> = ({
         className={cn('todoapp__toggle-all', { active: isAllCompleted })}
         data-cy="ToggleAllButton"
         aria-labelledby="button-label"
-        onClick={handleUpdateTodoSstatus}
+        onClick={handleUpdateTodoStatus}
       />
 
       <form onSubmit={handleSubmitAdd}>

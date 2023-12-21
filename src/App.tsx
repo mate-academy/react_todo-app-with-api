@@ -161,6 +161,8 @@ export const App: React.FC = () => {
             todoTemp={tempTodo}
             isProcessing={isLoadingTodo}
             onUpdate={updateTodo}
+            isLoading={isLoading}
+            onProcessing={setIsLoadingTodo}
           />
         )}
         {todos.length > 0 && (

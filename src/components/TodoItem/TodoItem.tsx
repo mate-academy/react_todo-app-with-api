@@ -6,10 +6,12 @@ import { Todo } from '../../types/Todo';
 type Props = {
   todo: Todo;
   onDelete: (todoID: number) => void;
-  isProcessing: Todo | null,
+  isProcessing: Todo | null;
+  onProcessing: (todo: Todo | null) => void;
   onUpdate: (id: number, todo: Todo) => void;
   isEdited: number | null;
   onEdit: (todoId: number | null) => void;
+  isLoading: boolean;
 };
 
 export const TodoItem: React.FC<Props> = ({
@@ -19,6 +21,8 @@ export const TodoItem: React.FC<Props> = ({
   onUpdate,
   isEdited,
   onEdit,
+  isLoading,
+  onProcessing,
 }) => {
   const [updateTitle, setUpdateTitle] = useState<string>('');
   const [isHidenButton, setIsHidenButton] = useState(false);
@@ -29,10 +33,17 @@ export const TodoItem: React.FC<Props> = ({
     onDelete(todoId);
   };
 
-  const handleUpdateTodoStatus = () => {
-    onUpdate(todo.id, {
-      ...todo, completed: !todo.completed,
-    });
+  const handleUpdateTodoStatus = async () => {
+    try {
+      onProcessing(todo);
+
+      await onUpdate(todo.id, {
+        ...todo,
+        completed: !todo.completed,
+      });
+    } finally {
+      onProcessing(null);
+    }
   };
 
   const updateTodoTitle = () => {
@@ -90,6 +101,7 @@ export const TodoItem: React.FC<Props> = ({
           className="todo__status"
           checked={todo.completed}
           onChange={() => handleUpdateTodoStatus()}
+          onClick={() => onProcessing(todo)}
         />
       </label>
 
@@ -130,17 +142,28 @@ export const TodoItem: React.FC<Props> = ({
         ×
       </button>
 
-      {isProcessing && (
-        <div
-          data-cy="TodoLoader"
-          className={cn('modal overlay', {
-            'is-active': isProcessing.id === todo.id,
-          })}
-        >
-          <div className="modal-background has-background-white-ter" />
-          <div className="loader" />
-        </div>
-      )}
+      {isProcessing
+        ? (
+          <div
+            data-cy="TodoLoader"
+            className={cn('modal overlay', {
+              'is-active': isProcessing.id === todo.id,
+            })}
+          >
+            <div className="modal-background has-background-white-ter" />
+            <div className="loader" />
+          </div>
+        ) : (
+          <div
+            data-cy="TodoLoader"
+            className={cn('modal overlay', {
+              'is-active': isLoading,
+            })}
+          >
+            <div className="modal-background has-background-white-ter" />
+            <div className="loader" />
+          </div>
+        )}
     </div>
   );
 };
