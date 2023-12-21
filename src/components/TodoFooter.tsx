@@ -27,7 +27,7 @@ const TodoFooter: React.FC = () => {
     ? ('1 item left')
     : (`${currentTodosLength} items left`);
 
-  const hasCompletedTodos = todos.some(todo => todo.completed);
+  const hasCompletedTodos = todos.some(todo => !todo.completed);
 
   return (
     <footer data-cy="Footer" className="todoapp__footer">
@@ -40,16 +40,15 @@ const TodoFooter: React.FC = () => {
 
       <TodoFilter />
 
-      {hasCompletedTodos && (
-        <button
-          type="button"
-          className="todoapp__clear-completed"
-          data-cy="ClearCompletedButton"
-          onClick={handleDeleteCompleted}
-        >
-          Clear completed
-        </button>
-      )}
+      <button
+        type="button"
+        className="todoapp__clear-completed"
+        data-cy="ClearCompletedButton"
+        onClick={handleDeleteCompleted}
+        disabled={hasCompletedTodos}
+      >
+        Clear completed
+      </button>
     </footer>
   );
 };
