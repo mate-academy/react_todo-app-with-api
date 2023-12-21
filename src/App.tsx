@@ -23,6 +23,9 @@ export const App: React.FC = () => {
   const [isInputDisabled, setIsInputDisabled] = useState(false);
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
   const [loadingTodo, setLoadingTodo] = useState<Todo | null>(null);
+  const [editingTodo, setEditingTodo] = useState<Todo | null>(null);
+
+  const areAllCompleted = uncompletedTodosCount === 0;
 
   const filteredTodos = useMemo(
     () => filterTodos(todosFromServer, status),
@@ -109,13 +112,83 @@ export const App: React.FC = () => {
   };
 
   const clearCompleted = () => {
-    filteredTodos.forEach(element => {
+    filteredTodos.forEach((element) => {
       if (element.completed) {
         removeTodo(element.id);
       }
     });
     setUncompletedTodosCount(0);
     setHasErrors(false);
+  };
+
+  const updateTodo = (todo: Todo) => {
+    setLoadingTodo(
+      filteredTodos.find((todoToPatch) => todoToPatch.id === todo.id) || null,
+    );
+
+    TodoService.updateTodo(todo)
+      .then(() => {
+        setLoadingTodo(todo);
+      })
+      .catch(() => {
+        setError(ErrorSpec.NOT_UPDATED);
+        setLoadingTodo(null);
+      })
+      .finally(() => {
+        const todosAfterUpdate = filteredTodos.map(
+          todoFromPrev => (todoFromPrev.id === todo.id ? todo : todoFromPrev),
+        );
+
+        setTodosFromServer(todosAfterUpdate);
+        setLoadingTodo(null);
+      });
+  };
+
+  const onToggleCompleted = (todo: Todo) => {
+    const todoUpdated = { ...todo, completed: !todo.completed };
+
+    updateTodo(todoUpdated);
+  };
+
+  const onToggleAll = () => {
+    const toggledTodos = todosFromServer.map((todo) => (areAllCompleted
+      ? {
+        ...todo,
+        completed: !todo.completed,
+      }
+      : {
+        ...todo,
+        completed: true,
+      }));
+
+    const updatePromises = toggledTodos.map(
+      updatedTodo => TodoService.updateTodo(updatedTodo),
+    );
+
+    Promise.all(updatePromises)
+      .then(() => {
+        setTodosFromServer(toggledTodos);
+      })
+      .catch(() => {
+        setError(ErrorSpec.NOT_UPDATED);
+        setHasErrors(true);
+      });
+  };
+
+  const handleTitleUpdate = (newTitle: string, todo: Todo) => {
+    setEditingTodo(null);
+
+    if (!newTitle) {
+      removeTodo(todo.id);
+    } else if (newTitle !== todo.title) {
+      const updatedTodo = { ...todo, title: newTitle };
+
+      updateTodo(updatedTodo);
+    }
+  };
+
+  const onEditTodo = (todoToEdit: Todo | null) => {
+    setEditingTodo(todoToEdit);
   };
 
   useEffect(() => {
@@ -140,6 +213,8 @@ export const App: React.FC = () => {
           onInput={cleanErrors}
           inputDisabled={isInputDisabled}
           hasErrors={hasErrors}
+          isAllCompleted={areAllCompleted}
+          onToggleAll={onToggleAll}
         />
 
         {todosFromServer.length > 0 && (
@@ -149,6 +224,10 @@ export const App: React.FC = () => {
               tempTodo={tempTodo}
               deleteTodo={removeTodo}
               isProcessing={loadingTodo}
+              onToggleCompleted={onToggleCompleted}
+              isEditing={editingTodo}
+              onEditTodo={onEditTodo}
+              handleSaveTodo={handleTitleUpdate}
             />
             <Footer
               onStatus={handleStatus}
@@ -157,7 +236,6 @@ export const App: React.FC = () => {
               handleClear={clearCompleted}
               isClearNeeded={uncompletedTodosCount === filteredTodos.length}
             />
-
           </>
         )}
       </div>

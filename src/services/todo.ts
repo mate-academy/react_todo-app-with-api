@@ -8,3 +8,11 @@ export function createTodo({ title, completed, userId }: Omit<Todo, 'id'>) {
 export function deleteTodo(id: number) {
   return client.delete(`/todos/${id}`);
 }
+
+export function updateTodo(todo: Todo) {
+  return client.patch<Todo>(`/todos/${todo.id}`, {
+    userId: todo.userId,
+    title: todo.title,
+    completed: todo.completed,
+  });
+}

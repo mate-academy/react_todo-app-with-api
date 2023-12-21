@@ -7,6 +7,10 @@ type Props = {
   tempTodo: Todo | null;
   deleteTodo: (id: number) => void;
   isProcessing: Todo | null;
+  onToggleCompleted: (todo: Todo) => void;
+  isEditing: Todo | null;
+  onEditTodo: (todo: Todo | null) => void;
+  handleSaveTodo: (updatedTitle: string, todo: Todo) => void;
 };
 
 export const TodoList: React.FC<Props> = ({
@@ -14,6 +18,10 @@ export const TodoList: React.FC<Props> = ({
   tempTodo,
   deleteTodo,
   isProcessing,
+  onToggleCompleted,
+  isEditing,
+  onEditTodo,
+  handleSaveTodo,
 }) => {
   return (
     <section className="todoapp__main" data-cy="TodoList">
@@ -23,6 +31,10 @@ export const TodoList: React.FC<Props> = ({
           todo={todo}
           deleteTodo={deleteTodo}
           isProcessing={isProcessing}
+          onToggleCompleted={onToggleCompleted}
+          isEditing={isEditing}
+          onEditTodo={onEditTodo}
+          handleSaveTodo={handleSaveTodo}
         />
       ))}
 
@@ -32,6 +44,10 @@ export const TodoList: React.FC<Props> = ({
           todo={tempTodo}
           deleteTodo={() => {}}
           isProcessing={isProcessing}
+          onToggleCompleted={onToggleCompleted}
+          isEditing={isEditing}
+          onEditTodo={onEditTodo}
+          handleSaveTodo={handleSaveTodo}
         />
       )}
     </section>

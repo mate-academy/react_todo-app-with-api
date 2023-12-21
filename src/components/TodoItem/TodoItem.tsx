@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import classNames from 'classnames';
 import { Todo } from '../../types/Todo';
 
@@ -6,11 +6,41 @@ type TodoItemProps = {
   todo: Todo;
   deleteTodo: (id: number) => void;
   isProcessing: Todo | null;
+  onToggleCompleted: (todo: Todo) => void;
+  isEditing: Todo | null;
+  onEditTodo: (todo: Todo | null) => void;
+  handleSaveTodo: (titleUpdated: string, todo: Todo) => void;
 };
 
-export const TodoItem: React.FC<TodoItemProps> = (
-  { todo, deleteTodo, isProcessing },
-) => {
+export const TodoItem: React.FC<TodoItemProps> = ({
+  todo,
+  deleteTodo,
+  isProcessing,
+  onToggleCompleted,
+  isEditing,
+  onEditTodo,
+  handleSaveTodo,
+}) => {
+  const [editedTitle, setEditedTitle] = useState(todo.title);
+  const titleField = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    if (titleField.current) {
+      titleField.current.focus();
+    }
+  }, [isEditing, handleSaveTodo]);
+
+  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    handleSaveTodo(editedTitle, todo);
+  };
+
+  const handleKeyup = (event: React.KeyboardEvent<HTMLInputElement>) => {
+    if (event.key === 'Escape') {
+      onEditTodo(null);
+    }
+  };
+
   return (
     <div
       key={todo.id}
@@ -24,12 +54,34 @@ export const TodoItem: React.FC<TodoItemProps> = (
           data-cy="TodoStatus"
           type="checkbox"
           className="todo__status"
+          onClick={() => onToggleCompleted(todo)}
         />
       </label>
 
-      <span data-cy="TodoTitle" className="todo__title">
-        {todo.title}
-      </span>
+      {isEditing === todo ? (
+        <form onSubmit={(event) => handleSubmit(event)}>
+          <input
+            data-cy="TodoTitleField"
+            type="text"
+            className="todo__title-field"
+            placeholder="Empty todo will be deleted"
+            value={editedTitle}
+            ref={titleField}
+            onChange={(event) => setEditedTitle(event.target.value)}
+            onBlur={() => handleSaveTodo(editedTitle, todo)}
+            onKeyUp={(key) => handleKeyup(key)}
+          />
+        </form>
+      ) : (
+        <span
+          data-cy="TodoTitle"
+          className="todo__title"
+          onDoubleClick={() => onEditTodo(todo)}
+          onBlur={() => onEditTodo(null)}
+        >
+          {todo.title}
+        </span>
+      )}
 
       <button
         type="button"
