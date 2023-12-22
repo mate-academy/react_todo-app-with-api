@@ -7,12 +7,16 @@ interface Props {
   addTodo: (title: string, userId: number) => void;
   tempTodo: TodoType | null,
   updateTodos: (updatedTodo: TodoType) => void;
-  globalLoading: boolean,
+  loadingIds: number[],
 }
 
 export const TodoList: React.FC<Props> = (
   {
-    todos, onDelete, tempTodo, updateTodos, globalLoading,
+    todos,
+    onDelete,
+    tempTodo,
+    updateTodos,
+    loadingIds,
   },
 ) => {
   return (
@@ -23,7 +27,7 @@ export const TodoList: React.FC<Props> = (
           todo={todo}
           onDelete={onDelete}
           onUpdate={updateTodos}
-          globalLoading={globalLoading}
+          loadingIds={loadingIds}
         />
       ))}
 

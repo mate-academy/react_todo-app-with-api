@@ -8,7 +8,7 @@ interface Props {
   isAnyCompleted: boolean,
   todos: Todo[],
   onClear: (todoId: number) => void,
-  setGlobalLoading: Dispatch<SetStateAction<boolean>>,
+  setLoadingIds:Dispatch<SetStateAction<number[]>>
 }
 
 export const Footer:React.FC<Props> = ({
@@ -17,10 +17,11 @@ export const Footer:React.FC<Props> = ({
   isAnyCompleted,
   todos,
   onClear,
-  setGlobalLoading,
+  setLoadingIds,
 }) => {
   const ClearAllCompleted = async () => {
-    setGlobalLoading(true);
+    setLoadingIds((
+    ) => todos.filter(todo => todo.completed).map(todo => todo.id));
 
     try {
       await Promise.all(
@@ -31,7 +32,7 @@ export const Footer:React.FC<Props> = ({
           }),
       );
     } finally {
-      setGlobalLoading(false);
+      setLoadingIds([]);
     }
   };
 

@@ -6,7 +6,7 @@ interface Props {
   todo: TodoType,
   onDelete?: (id: number) => void,
   onUpdate?: (updateteTodo: TodoType) => void;
-  globalLoading?: boolean,
+  loadingIds?: number[],
 
 }
 
@@ -15,7 +15,7 @@ export const Todo: React.FC<Props> = (
     todo,
     onDelete,
     onUpdate,
-    globalLoading,
+    loadingIds,
   },
 ) => {
   const [isLoading, setIsLoading] = useState(false);
@@ -111,7 +111,10 @@ export const Todo: React.FC<Props> = (
         data-cy="TodoLoader"
         className={cn(
           'modal overlay',
-          { 'is-active': isLoading || todo.id === 0 || globalLoading },
+          {
+            'is-active': isLoading
+          || todo.id === 0 || loadingIds?.includes(todo.id),
+          },
         )}
       >
         <div className="modal-background has-background-white-ter" />

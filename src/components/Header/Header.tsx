@@ -11,7 +11,7 @@ interface Props {
   setErrorMessage: (error: ErrorType | null) => void,
   updateTodos: (updatedTodo: Todo) => void,
   todos: Todo[],
-  setGlobalLoading: Dispatch<SetStateAction<boolean>>,
+  setLoadingIds:Dispatch<SetStateAction<number[]>>
 }
 
 export const Header:React.FC<Props> = ({
@@ -20,7 +20,7 @@ export const Header:React.FC<Props> = ({
   setErrorMessage,
   updateTodos,
   todos,
-  setGlobalLoading,
+  setLoadingIds,
 }) => {
   const todoInput = useRef<HTMLInputElement>(null);
   const [title, setTitle] = useState('');
@@ -58,21 +58,24 @@ export const Header:React.FC<Props> = ({
   };
 
   const toggleAll = async () => {
-    setGlobalLoading(true);
-
     if (isAllCompleted) {
+      setLoadingIds(() => todos.map(todo => todo.id));
       await Promise.all(
         todos.map(todo => updateTodos({ ...todo, completed: !todo.completed })),
       );
     } else {
+      setLoadingIds(
+        () => todos.filter(todo => !todo.completed).map(todo => todo.id),
+      );
       await Promise.all(
         todos
           .filter((todo) => !todo.completed)
           .map((todo) => updateTodos({ ...todo, completed: true })),
+
       );
     }
 
-    setGlobalLoading(false);
+    setLoadingIds([]);
   };
 
   return (

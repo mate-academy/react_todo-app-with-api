@@ -25,7 +25,7 @@ export const App: React.FC = () => {
   const [progressStatus, setProgressStatus] = useState<Progress>(Progress.All);
   const [errorMessage, setErrorMessage] = useState<ErrorType | null>(null);
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
-  const [globalLoading, setGlobalLoading] = useState(false);
+  const [loadingIds, setLoadingIds] = useState<number[]>([]);
 
   useEffect(() => {
     getTodos(USER_ID)
@@ -116,7 +116,7 @@ export const App: React.FC = () => {
           setErrorMessage={setErrorMessage}
           updateTodos={updateTodos}
           todos={todosFromServer}
-          setGlobalLoading={setGlobalLoading}
+          setLoadingIds={setLoadingIds}
         />
 
         <TodoList
@@ -125,7 +125,7 @@ export const App: React.FC = () => {
           addTodo={addTodo}
           tempTodo={tempTodo}
           updateTodos={updateTodos}
-          globalLoading={globalLoading}
+          loadingIds={loadingIds}
         />
 
         {todosFromServer.length > 0 && (
@@ -135,7 +135,7 @@ export const App: React.FC = () => {
             isAnyCompleted={isAnyCompleted}
             todos={todosFromServer}
             onClear={removeTodo}
-            setGlobalLoading={setGlobalLoading}
+            setLoadingIds={setLoadingIds}
           />
         )}
 
