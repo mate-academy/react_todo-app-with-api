@@ -22,17 +22,6 @@ export const App: React.FC = () => {
   const [loadingTodo, setLoadingTodo] = useState<Todo | null>(null);
   const [editingTodo, setEditingTodo] = useState<Todo | null>(null);
 
-  const filteredTodos = useMemo(
-    () => filterTodos(todos, status),
-    [status, todos],
-  );
-
-  const uncompletedTodosCount = useMemo(() => {
-    return filteredTodos.filter(todo => !todo.completed).length;
-  }, [filteredTodos]);
-
-  const areAllCompleted = uncompletedTodosCount === 0;
-
   useEffect(() => {
     client
       .get<Todo[]>(ADDED_URL)
@@ -44,7 +33,16 @@ export const App: React.FC = () => {
         }
       })
       .catch(() => setError(ErrorSpec.NOT_LOADED));
-  }, [todos]);
+  }, []);
+
+  const filteredTodos = useMemo(() => filterTodos(todos, status),
+    [status, todos]);
+
+  const uncompletedTodosCount = useMemo(() => {
+    return filteredTodos.filter((todo) => !todo.completed).length;
+  }, [filteredTodos]);
+
+  const areAllCompleted = uncompletedTodosCount === 0;
 
   const handleStatus = (newStatus: Status) => {
     setStatus(newStatus);
@@ -142,8 +140,10 @@ export const App: React.FC = () => {
   };
 
   const onToggleAll = () => {
-    const toggledTodos = todos.map((todo) => (
-      { ...todo, completed: areAllCompleted ? !todo.completed : false }));
+    const toggledTodos = filteredTodos.map((todo) => ({
+      ...todo,
+      completed: areAllCompleted ? !todo.completed : true,
+    }));
 
     const updatePromises = toggledTodos.map(
       updatedTodo => TodoService.updateTodo(updatedTodo),
