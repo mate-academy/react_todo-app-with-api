@@ -1,3 +1,4 @@
+import { Dispatch, SetStateAction } from 'react';
 import { Progress } from '../../types/Progress';
 import { Todo } from '../../types/Todo';
 
@@ -7,6 +8,7 @@ interface Props {
   isAnyCompleted: boolean,
   todos: Todo[],
   onClear: (todoId: number) => void,
+  setGlobalLoading: Dispatch<SetStateAction<boolean>>,
 }
 
 export const Footer:React.FC<Props> = ({
@@ -15,13 +17,22 @@ export const Footer:React.FC<Props> = ({
   isAnyCompleted,
   todos,
   onClear,
+  setGlobalLoading,
 }) => {
-  const ClearAllCompleted = () => {
-    todos.forEach(todo => {
-      if (todo.completed) {
-        onClear(todo.id);
-      }
-    });
+  const ClearAllCompleted = async () => {
+    setGlobalLoading(true);
+
+    try {
+      await Promise.all(
+        todos
+          .filter(todo => todo.completed)
+          .map(async todo => {
+            await onClear(todo.id);
+          }),
+      );
+    } finally {
+      setGlobalLoading(false);
+    }
   };
 
   return (

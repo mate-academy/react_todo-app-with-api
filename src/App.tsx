@@ -25,6 +25,7 @@ export const App: React.FC = () => {
   const [progressStatus, setProgressStatus] = useState<Progress>(Progress.All);
   const [errorMessage, setErrorMessage] = useState<ErrorType | null>(null);
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
+  const [globalLoading, setGlobalLoading] = useState(false);
 
   useEffect(() => {
     getTodos(USER_ID)
@@ -78,7 +79,7 @@ export const App: React.FC = () => {
         ]);
         setTempTodo(null);
       } catch (error) {
-        setErrorMessage(ErrorType.Todo);
+        setErrorMessage(ErrorType.AddTodo);
       }
     },
     [],
@@ -87,17 +88,11 @@ export const App: React.FC = () => {
   const updateTodos = useCallback(
     async (updatedTodo: Todo) => {
       try {
-        const updatedTodoFromServer = (await updateTodo(updatedTodo)) as Todo;
+        const updatedTodoFromServer = await updateTodo(updatedTodo);
 
-        setTodosFromServer((currentTodos) => {
-          const newTodos = [...currentTodos];
-          const index = newTodos.findIndex(
-            (todo) => todo.id === updatedTodo.id,
-          );
-
-          newTodos.splice(index, 1, updatedTodoFromServer);
-
-          return newTodos;
+        setTodosFromServer(currentTodos => {
+          return currentTodos.map(todo => (
+            todo.id === updatedTodo.id ? updatedTodoFromServer : todo));
         });
       } catch (error) {
         setErrorMessage(ErrorType.Update);
@@ -121,6 +116,7 @@ export const App: React.FC = () => {
           setErrorMessage={setErrorMessage}
           updateTodos={updateTodos}
           todos={todosFromServer}
+          setGlobalLoading={setGlobalLoading}
         />
 
         <TodoList
@@ -129,6 +125,7 @@ export const App: React.FC = () => {
           addTodo={addTodo}
           tempTodo={tempTodo}
           updateTodos={updateTodos}
+          globalLoading={globalLoading}
         />
 
         {todosFromServer.length > 0 && (
@@ -138,6 +135,7 @@ export const App: React.FC = () => {
             isAnyCompleted={isAnyCompleted}
             todos={todosFromServer}
             onClear={removeTodo}
+            setGlobalLoading={setGlobalLoading}
           />
         )}
 

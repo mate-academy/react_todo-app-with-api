@@ -25,5 +25,5 @@ export const updateTodo = ({
     id, userId, title, completed,
   };
 
-  return client.patch(`/todos/${id}`, data);
+  return client.patch<Todo>(`/todos/${id}`, data);
 };

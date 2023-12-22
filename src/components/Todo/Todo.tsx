@@ -1,5 +1,4 @@
-/* eslint-disable jsx-a11y/no-autofocus */
-import { Dispatch, SetStateAction, useState } from 'react';
+import { FormEvent, useState } from 'react';
 import cn from 'classnames';
 import { Todo as TodoType } from '../../types/Todo';
 
@@ -7,8 +6,7 @@ interface Props {
   todo: TodoType,
   onDelete?: (id: number) => void,
   onUpdate?: (updateteTodo: TodoType) => void;
-  isEditing?: boolean,
-  setEditing?: Dispatch<SetStateAction<number | null>>,
+  globalLoading?: boolean,
 
 }
 
@@ -17,12 +15,12 @@ export const Todo: React.FC<Props> = (
     todo,
     onDelete,
     onUpdate,
-    isEditing,
-    setEditing,
+    globalLoading,
   },
 ) => {
   const [isLoading, setIsLoading] = useState(false);
   const [title, setTitle] = useState(todo.title);
+  const [isEditingTodoId, setEditingTodoId] = useState<number | null>(null);
 
   const handleDelete = async () => {
     setIsLoading(true);
@@ -44,13 +42,17 @@ export const Todo: React.FC<Props> = (
   };
 
   const saveUpdatedTitle = async () => {
-    setIsLoading(true);
+    onUpdate?.({ ...todo, title });
+    setEditingTodoId(null);
+  };
 
-    try {
-      await onUpdate?.({ ...todo, title });
-    } finally {
-      setEditing?.(null);
-      setIsLoading(false);
+  const onSubmitHandler = (event: FormEvent) => {
+    event.preventDefault();
+
+    if (!title.length) {
+      handleDelete();
+    } else {
+      saveUpdatedTitle();
     }
   };
 
@@ -61,7 +63,7 @@ export const Todo: React.FC<Props> = (
         {
           'todo completed': todo.completed,
         })}
-      onDoubleClick={() => setEditing?.(todo.id)}
+      onDoubleClick={() => setEditingTodoId?.(todo.id)}
     >
       <label className="todo__status-label">
         <input
@@ -73,18 +75,10 @@ export const Todo: React.FC<Props> = (
         />
       </label>
 
-      {isEditing
+      {isEditingTodoId
         ? (
           <form
-            onSubmit={e => {
-              e.preventDefault();
-
-              if (title.length === 0) {
-                handleDelete();
-              } else {
-                saveUpdatedTitle();
-              }
-            }}
+            onSubmit={onSubmitHandler}
           >
             <input
               data-cy="TodoTitleField"
@@ -94,6 +88,7 @@ export const Todo: React.FC<Props> = (
               value={title}
               onChange={event => setTitle(event.target.value)}
               onBlur={saveUpdatedTitle}
+              // eslint-disable-next-line jsx-a11y/no-autofocus
               autoFocus
             />
           </form>
@@ -116,7 +111,7 @@ export const Todo: React.FC<Props> = (
         data-cy="TodoLoader"
         className={cn(
           'modal overlay',
-          { 'is-active': isLoading || todo.id === 0 },
+          { 'is-active': isLoading || todo.id === 0 || globalLoading },
         )}
       >
         <div className="modal-background has-background-white-ter" />

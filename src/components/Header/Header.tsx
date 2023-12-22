@@ -1,5 +1,7 @@
 import cn from 'classnames';
-import { useEffect, useRef, useState } from 'react';
+import {
+  Dispatch, SetStateAction, useEffect, useRef, useState,
+} from 'react';
 import { ErrorType } from '../../types/ErrorEnum';
 import { Todo } from '../../types/Todo';
 
@@ -9,6 +11,7 @@ interface Props {
   setErrorMessage: (error: ErrorType | null) => void,
   updateTodos: (updatedTodo: Todo) => void,
   todos: Todo[],
+  setGlobalLoading: Dispatch<SetStateAction<boolean>>,
 }
 
 export const Header:React.FC<Props> = ({
@@ -17,6 +20,7 @@ export const Header:React.FC<Props> = ({
   setErrorMessage,
   updateTodos,
   todos,
+  setGlobalLoading,
 }) => {
   const todoInput = useRef<HTMLInputElement>(null);
   const [title, setTitle] = useState('');
@@ -45,7 +49,7 @@ export const Header:React.FC<Props> = ({
 
       await addTodo(preparedTitle, USER_ID);
     } catch (error) {
-      setErrorMessage(ErrorType.Todo);
+      setErrorMessage(ErrorType.AddTodo);
     } finally {
       setIsLoading(false);
 
@@ -53,16 +57,22 @@ export const Header:React.FC<Props> = ({
     }
   };
 
-  const toggleAll = () => {
+  const toggleAll = async () => {
+    setGlobalLoading(true);
+
     if (isAllCompleted) {
-      todos.forEach((todo) => updateTodos(
-        { ...todo, completed: !todo.completed },
-      ));
+      await Promise.all(
+        todos.map(todo => updateTodos({ ...todo, completed: !todo.completed })),
+      );
     } else {
-      todos
-        .filter((todo) => !todo.completed)
-        .forEach((todo) => updateTodos({ ...todo, completed: true }));
+      await Promise.all(
+        todos
+          .filter((todo) => !todo.completed)
+          .map((todo) => updateTodos({ ...todo, completed: true })),
+      );
     }
+
+    setGlobalLoading(false);
   };
 
   return (

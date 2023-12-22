@@ -1,4 +1,3 @@
-import { useState } from 'react';
 import { Todo as TodoType } from '../../types/Todo';
 import { Todo } from '../Todo/Todo';
 
@@ -8,15 +7,14 @@ interface Props {
   addTodo: (title: string, userId: number) => void;
   tempTodo: TodoType | null,
   updateTodos: (updatedTodo: TodoType) => void;
+  globalLoading: boolean,
 }
 
 export const TodoList: React.FC<Props> = (
   {
-    todos, onDelete, tempTodo, updateTodos,
+    todos, onDelete, tempTodo, updateTodos, globalLoading,
   },
 ) => {
-  const [editingTodoId, setEditingTodoId] = useState<number | null>(null);
-
   return (
     <section className="todoapp__main" data-cy="TodoList">
       {todos.map(todo => (
@@ -25,8 +23,7 @@ export const TodoList: React.FC<Props> = (
           todo={todo}
           onDelete={onDelete}
           onUpdate={updateTodos}
-          isEditing={editingTodoId === todo.id}
-          setEditing={setEditingTodoId}
+          globalLoading={globalLoading}
         />
       ))}
 
