@@ -42,13 +42,7 @@ export const Header: React.FC<Props> = ({
   }, [newTodoTitle]);
 
   const handleUpdateTodoStatus = () => {
-    let newStatus : boolean;
-
-    if (todos.some(todo => !todo.completed)) {
-      newStatus = true;
-    } else {
-      newStatus = false;
-    }
+    const newStatus = todos.some(todo => !todo.completed);
 
     todos.forEach(todo => {
       onUpdate(todo.id, {
