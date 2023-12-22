@@ -40,7 +40,7 @@ export const App: React.FC = () => {
   const [
     currentError,
     setCurrentError,
-  ] = useState<ErrorType>(ErrorType.NoError);
+  ] = useState<ErrorType | null>(null);
 
   const timerId = useRef<NodeJS.Timeout>();
 
@@ -51,7 +51,7 @@ export const App: React.FC = () => {
 
     setCurrentError(error);
     timerId.current = setTimeout(
-      () => setCurrentError(ErrorType.NoError),
+      () => setCurrentError(null),
       3000,
     );
   };
@@ -133,7 +133,7 @@ export const App: React.FC = () => {
     try {
       setSelectedTodoIds(ids => [...ids, ...completedTodoIds]);
 
-      completedTodoIds.forEach(async (todoId) => {
+      await Promise.all(completedTodoIds.map(async (todoId) => {
         try {
           await deleteTodo(todoId);
           setTodosFromServer(
@@ -142,7 +142,7 @@ export const App: React.FC = () => {
         } catch {
           onError(ErrorType.UnableToDelete);
         }
-      });
+      }));
     } finally {
       setTimeout(
         () => {
@@ -177,6 +177,9 @@ export const App: React.FC = () => {
     } catch {
       onError(ErrorType.UnableToUpdate);
       throw new Error();
+      // ^ this error throw is needed to trigger catch
+      // in onSubmitTitle (TodoItem.tsx)
+      // "Edit Form √ should stay open on fail"
     } finally {
       setSelectedTodoIds(
         ids => ids.filter(id => !(id === updatedTodo.id)),
@@ -185,7 +188,7 @@ export const App: React.FC = () => {
   };
 
   useEffect(() => {
-    setCurrentError(ErrorType.NoError);
+    setCurrentError(null);
     getTodos(USER_ID)
       .then(setTodosFromServer)
       .catch(() => (onError(ErrorType.UnableToLoad)));
@@ -200,11 +203,11 @@ export const App: React.FC = () => {
   const activeTodoIds = activeTodos.map(todo => todo.id);
   const activeTodosCount = activeTodos.length;
 
-  const handleToggleAll = () => {
+  const handleToggleAll = async () => {
     if (activeTodosCount) {
       setSelectedTodoIds(ids => [...ids, ...activeTodoIds]);
 
-      activeTodos.forEach(async (todo) => {
+      await Promise.all(activeTodos.map(async (todo) => {
         try {
           const updatedTodo = {
             ...todo,
@@ -215,11 +218,11 @@ export const App: React.FC = () => {
         } catch {
           onError(ErrorType.UnableToUpdate);
         }
-      });
+      }));
     } else {
       setSelectedTodoIds(ids => [...ids, ...completedTodoIds]);
 
-      todosFromServer.forEach(async (todo) => {
+      await Promise.all(todosFromServer.map(async (todo) => {
         try {
           const updatedTodo = {
             ...todo,
@@ -230,7 +233,7 @@ export const App: React.FC = () => {
         } catch {
           onError(ErrorType.UnableToUpdate);
         }
-      });
+      }));
     }
   };
 

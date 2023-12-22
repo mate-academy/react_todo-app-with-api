@@ -35,8 +35,6 @@ export const TodoMain: React.FC<Props> = ({
         <TodoItem
           todo={tempTodo}
           selectedTodoIds={selectedTodoIds}
-          onDelete={() => {}}
-          updateTodo={async () => {}}
           key={tempTodo.id}
         />
       )}

@@ -5,15 +5,15 @@ import { Todo } from '../../types/Todo';
 type Props = {
   todo: Todo,
   selectedTodoIds: number[],
-  onDelete: (todoId: number) => void,
-  updateTodo: (updatedTodo: Todo) => Promise<void>,
+  onDelete?: (todoId: number) => void,
+  updateTodo?: (updatedTodo: Todo) => Promise<void>,
 };
 
 export const TodoItem: React.FC<Props> = ({
   todo,
   selectedTodoIds,
-  onDelete,
-  updateTodo,
+  onDelete = () => {},
+  updateTodo = () => {},
 }) => {
   const isLoading = selectedTodoIds.includes(todo.id) || todo.id === 0;
   const [isBeingEdited, setIsBeingEdited] = useState(false);

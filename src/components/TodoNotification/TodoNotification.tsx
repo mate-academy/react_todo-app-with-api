@@ -3,8 +3,8 @@ import cn from 'classnames';
 import { ErrorType } from '../../types/ErrorType';
 
 type Props = {
-  currentError: ErrorType,
-  setCurrentError: Dispatch<SetStateAction<ErrorType>>,
+  currentError: ErrorType | null,
+  setCurrentError: Dispatch<SetStateAction<ErrorType | null>>,
 };
 
 export const TodoNotification: React.FC<Props> = ({
@@ -27,7 +27,7 @@ export const TodoNotification: React.FC<Props> = ({
         data-cy="HideErrorButton"
         type="button"
         className="delete"
-        onClick={() => setCurrentError(ErrorType.NoError)}
+        onClick={() => setCurrentError(null)}
       />
       {currentError}
     </div>
