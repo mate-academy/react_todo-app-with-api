@@ -1,5 +1,3 @@
-/* eslint-disable max-len */
-/* eslint-disable jsx-a11y/control-has-associated-label */
 import React, {
   useCallback,
   useEffect, useMemo, useState,
@@ -43,7 +41,8 @@ export const App: React.FC = () => {
         setErorType(ErrorType.DeleteError);
       } finally {
         setProcessingTodoIds(
-          currentIds => currentIds.filter(proccesingId => proccesingId !== todoId),
+          currentIds => currentIds
+            .filter(proccesingId => proccesingId !== todoId),
         );
       }
     },
@@ -156,22 +155,23 @@ export const App: React.FC = () => {
         />
 
         {todosToView && (
-          <TodoList
-            todos={todosToView}
-            onDelete={deleteTodo}
-            todoTemp={tempTodo}
-            onUpdate={updateTodo}
-            processingTodoIds={processingTodoIds}
-          />
+          <>
+            <TodoList
+              todos={todosToView}
+              onDelete={deleteTodo}
+              todoTemp={tempTodo}
+              onUpdate={updateTodo}
+              processingTodoIds={processingTodoIds}
+            />
+            <Footer
+              onFilter={setFilterBy}
+              todos={todosToView}
+              filterBy={filterBy}
+              onClear={clearCompleted}
+            />
+          </>
         )}
-        {todos.length > 0 && (
-          <Footer
-            onFilter={setFilterBy}
-            todos={todosToView}
-            filterBy={filterBy}
-            onClear={clearCompleted}
-          />
-        )}
+
       </div>
       {errorType
         && (
