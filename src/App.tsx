@@ -61,17 +61,20 @@ export const App: React.FC = () => {
 
   const createTodo = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    if (!todoTitle) {
+
+    const trimmedTitle = todoTitle.trim();
+
+    if (!trimmedTitle) {
       handleError('Title should not be empty');
     }
 
-    if (todoTitle) {
+    if (trimmedTitle) {
       const tempTodoId = 0;
 
       setTempTodo({
         id: tempTodoId,
         userId: USER_ID,
-        title: todoTitle,
+        title: trimmedTitle,
         completed: false,
       });
 
@@ -171,15 +174,17 @@ export const App: React.FC = () => {
 
       <div className="todoapp__content">
         <header className="todoapp__header">
-          <button
-            aria-label="Toggle Button"
-            type="button"
-            className={cn('todoapp__toggle-all', {
-              active: todos.every(todo => todo.completed),
-            })}
-            data-cy="ToggleAllButton"
-            onClick={toggleAllTodos}
-          />
+          {todos.length > 0 && (
+            <button
+              aria-label="Toggle Button"
+              type="button"
+              className={cn('todoapp__toggle-all', {
+                active: todos.every(todo => todo.completed),
+              })}
+              data-cy="ToggleAllButton"
+              onClick={toggleAllTodos}
+            />
+          )}
 
           <form onSubmit={createTodo}>
             <input
