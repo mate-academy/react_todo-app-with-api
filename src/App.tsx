@@ -33,7 +33,9 @@ export const App: React.FC = () => {
     if (titleField.current) {
       titleField.current.focus();
     }
+  }, [loadingTodoIds]);
 
+  useEffect(() => {
     todosService.getTodos(USER_ID)
       .then(setTodos)
       .catch(() => (handleError('Unable to load todos')));
@@ -81,7 +83,7 @@ export const App: React.FC = () => {
       setLoadingTodoIds(curr => [...curr, tempTodoId]);
 
       todosService.addTodo({
-        userId: USER_ID, title: todoTitle, completed: false,
+        userId: USER_ID, title: trimmedTitle, completed: false,
       })
         .then(newTodo => {
           setTodos(currentTodos => {
@@ -154,8 +156,6 @@ export const App: React.FC = () => {
     updateTodo(todoUpdated);
   };
 
-  // const updateTodoTitle
-
   const toggleAllTodos = () => {
     todos.map(todo => {
       updateTodoComplete(todo);
@@ -195,6 +195,7 @@ export const App: React.FC = () => {
               placeholder="What needs to be done?"
               value={todoTitle}
               onChange={(event) => setTodoTitle(event.target.value)}
+              disabled={loadingTodoIds.length > 0}
             />
           </form>
         </header>
