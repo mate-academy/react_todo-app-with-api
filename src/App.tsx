@@ -36,6 +36,12 @@ export const App: React.FC = () => {
     setTitle(event.target.value);
   };
 
+  const handleUpdateTodo = (todo: Todo) => {
+    updateTodo(todo)
+      .then(() => setTodos(current => current.map(t => (t.id === todo.id ? todo : t))))
+      .catch(() => setErrorMessage(Errors.CAN_NOT_UPDATE_TODO));
+  };
+
   const handleToggleAll = async () => {
     const allCompleted = todos.every(todo => todo.completed === true);
 
@@ -186,7 +192,7 @@ export const App: React.FC = () => {
 
   useEffect(() => {
     titleRef.current?.focus();
-  });
+  }, [todos]);
 
   return (
     <div className="todoapp">
@@ -221,6 +227,7 @@ export const App: React.FC = () => {
           todos={filteredTodos}
           handleDeleteTodo={handleDeleteTodo}
           handleToggleTodo={handleToggleTodo}
+          handleUpdateTodo={handleUpdateTodo}
         />
 
         <footer className="todoapp__footer" data-cy="Footer">
