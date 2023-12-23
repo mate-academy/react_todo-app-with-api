@@ -14,42 +14,74 @@ export const Footer: React.FC = () => {
     deleteTodoItem,
     setIsCompletedRemoving,
     setError,
+    setErrorId,
     setIsTitleOnFocus,
   } = useContext(GlobalContex);
 
-  const [deletedTodos, setDeletedTodos] = useState<Todo[]>([]);
+  const [numberOfItemsLeft, setNumberOfItemsLeft] = useState(todos
+    .filter(todo => !todo.completed).length);
 
   useEffect(() => {
-    setIsCompletedRemoving(false);
-    setIsTitleOnFocus(true);
-    setTodos(todos.filter(todo => !deletedTodos.includes(todo)));
-  }, [deletedTodos]);
+    setNumberOfItemsLeft(() => todos.filter(todo => !todo.completed).length);
+  }, [todos]);
 
   const handleFilterClick = (selectedFilter: Filter) => {
     setFilter(selectedFilter);
   };
 
+  const errorAction = () => {
+    setErrorId(Date.now());
+    setError(() => TodoErrors.Delete);
+  };
+
   const handleClearTodosClick = () => {
-    setIsCompletedRemoving(true);
-    setIsTitleOnFocus(false);
+    setIsCompletedRemoving((previousItem: boolean) => !previousItem);
+    setIsTitleOnFocus((previousState) => !previousState);
 
     todos
       .filter(todo => todo.completed)
       .forEach(async (todo) => {
-        const res = await deleteTodoItem(todo.id);
+        // const deletedItem = await deleteTodoItem(todo.id);
 
-        if (res) {
-          setDeletedTodos((previousItems: Todo[]) => [...previousItems, todo]);
-        } else {
-          setError(TodoErrors.Delete);
-        }
+        // try {
+        //   if (deletedItem) {
+        //     setTodos((previousTodos: Todo[]) => previousTodos
+        //       .filter(todoItem => todoItem.id !== todo.id));
+        //   }
+        // } catch (err) {
+        //   setErrorId(Date.now());
+        //   setError(() => TodoErrors.Delete);
+        // } finally {
+        //   setIsCompletedRemoving((previousItem: boolean) => !previousItem);
+        //   setIsTitleOnFocus((previousState) => !previousState);
+        // }
+        // let test = todo.id;
+
+        // if (test === 327589) {
+        //   test = 1000000;
+        // }
+
+        deleteTodoItem(todo.id)
+          .then(deletedItem => {
+            if (deletedItem) {
+              setTodos((previousTodos: Todo[]) => previousTodos
+                .filter(todoItem => todoItem.id !== todo.id));
+            } else {
+              errorAction();
+            }
+          })
+          .catch(() => errorAction())
+          .finally(() => {
+            setIsCompletedRemoving((previousItem: boolean) => !previousItem);
+            setIsTitleOnFocus((previousState) => !previousState);
+          });
       });
   };
 
   return (
     <footer className="todoapp__footer" data-cy="Footer">
       <span className="todo-count" data-cy="TodosCounter">
-        {`${todos.filter(todo => !todo.completed).length} items left`}
+        {`${numberOfItemsLeft} items left`}
       </span>
 
       <nav className="filter" data-cy="Filter">

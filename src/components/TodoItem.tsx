@@ -22,17 +22,25 @@ export const TodoItem: React.FC<TodoItemProps> = ({ todo }) => {
     todos,
     setTodos,
     setError,
+    setErrorId,
     deleteTodoItem,
     updateTodoItem,
     isLoading,
     isAllUpdating,
     isCompletedRemoving,
     setIsTitleOnFocus,
+    isToggleAll,
   } = useContext(GlobalContex);
   const [isRemoving, setIsRemoving] = useState(false);
   const [isUpdating, setIsUpdating] = useState(false);
   const [isEditFormVisible, setIsEditFormVisible] = useState(false);
   const [editTitle, setEditTitle] = useState(title);
+
+  const shouldPerformAction = (isLoading && !id)
+  || (isRemoving && id)
+  || (isUpdating && id)
+  || (isToggleAll === completed && isAllUpdating)
+  || (isCompletedRemoving && completed);
 
   const editTitleRef = useRef<HTMLInputElement>(null);
 
@@ -59,7 +67,10 @@ export const TodoItem: React.FC<TodoItemProps> = ({ todo }) => {
             return todoItem;
           }));
         })
-        .catch(() => setError(TodoErrors.Update))
+        .catch(() => {
+          setErrorId(Date.now());
+          setError(() => TodoErrors.Update);
+        })
         .finally(() => setIsUpdating(false));
     }
   };
@@ -74,15 +85,33 @@ export const TodoItem: React.FC<TodoItemProps> = ({ todo }) => {
           setTodos(todos.filter(todoItem => todoItem.id !== id));
         }
       })
-      .catch(() => setError(TodoErrors.Delete))
+      .catch(() => {
+        setErrorId(Date.now());
+        setError(() => TodoErrors.Delete);
+      })
       .finally(() => {
         setIsTitleOnFocus(true);
         setIsRemoving(false);
       });
   };
 
+  const failedAction = (error: TodoErrors) => {
+    setEditTitle(title);
+    setIsEditFormVisible(true);
+    editTitleRef.current?.focus();
+    setErrorId(Date.now());
+    setError(() => error);
+  };
+
   const saveTitle = (value: string) => {
     setIsTitleOnFocus(false);
+
+    if (value.trim() === title) {
+      setIsEditFormVisible(false);
+      setEditTitle(value.trim());
+
+      return;
+    }
 
     if (value.trim()) {
       const data = { title: value.trim() };
@@ -102,10 +131,9 @@ export const TodoItem: React.FC<TodoItemProps> = ({ todo }) => {
 
           setIsEditFormVisible(false);
         })
-        .catch(() => setError(TodoErrors.Update))
+        .catch(() => failedAction(TodoErrors.Update))
         .finally(() => {
           setIsUpdating(false);
-          setIsTitleOnFocus(true);
         });
 
       setEditTitle(value.trim());
@@ -114,13 +142,15 @@ export const TodoItem: React.FC<TodoItemProps> = ({ todo }) => {
 
       deleteTodoItem(id)
         .then(() => {
-          setTodos(todos.filter(todoItem => todoItem.id !== id));
+          setTodos((previousTodos: Todo[]) => {
+            return previousTodos.filter(todoItem => todoItem.id !== id);
+          });
+
           setIsEditFormVisible(false);
         })
-        .catch(() => setError(TodoErrors.Delete))
+        .catch(() => failedAction(TodoErrors.Delete))
         .finally(() => {
           setIsRemoving(false);
-          setIsTitleOnFocus(true);
         });
     }
   };
@@ -203,11 +233,7 @@ export const TodoItem: React.FC<TodoItemProps> = ({ todo }) => {
       <div
         data-cy="TodoLoader"
         className={classNames('modal overlay', {
-          'is-active': (isLoading && !id)
-            || (isRemoving && id)
-            || (isUpdating && id)
-            || (isAllUpdating && id)
-            || (isCompletedRemoving && completed),
+          'is-active': shouldPerformAction,
         })}
       >
         <div

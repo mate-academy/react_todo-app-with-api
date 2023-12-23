@@ -15,23 +15,31 @@ type GlobalContexTypes = {
     data: Pick<Todo, 'completed'> | Pick<Todo, 'title'>,
   ) => Promise<Todo>,
   todos: [],
-  setTodos: (todos: Todo[]) => {},
+  setTodos: (todos: Todo[] | ((todos: Todo[]) => Todo[])) => {},
   filter: Filter,
   setFilter: (filter: Filter) => {},
   filteredTodos: [],
   setFilteredTodos: (filteredTodos: Todo[]) => {},
   error: string,
-  setError: (error: string) => {},
+  setError: (error: string | ((error: string) => string)) => {},
+  errorId: number,
+  setErrorId: (errorId: number) => {},
   tempTodo: null,
   setTempTodo: (tempTodo: Omit<Todo, 'userId'> | null) => {},
   isLoading: boolean,
-  setIsLoading: (isLoading: boolean) => {},
+  setIsLoading: (isLoading: boolean | ((isLoading: boolean) => boolean)) => {},
   isAllUpdating: boolean,
-  setIsAllUpdating: (isAllUpdating: boolean) => {},
+  setIsAllUpdating: (isAllUpdating: boolean
+  | ((isAllUpdating: boolean) => boolean)) => {},
   isCompletedRemoving: boolean,
-  setIsCompletedRemoving: (isCompletedRemoving: boolean) => {},
+  setIsCompletedRemoving: (isCompletedRemoving: boolean
+  | ((isCompletedRemoving: boolean) => boolean)) => {},
   isTitleOnFocus: boolean,
-  setIsTitleOnFocus: (isTitleOnFocus: boolean) => {},
+  setIsTitleOnFocus: (isTitleOnFocus: boolean
+  | ((isTitleOnFocus: boolean) => boolean)) => {},
+  isToggleAll: boolean,
+  setIsToggleAll: (isToggleAll: boolean
+  | ((isToggleAll: boolean) => boolean)) => {},
 };
 
 type GlobalContextProps = {
@@ -43,23 +51,31 @@ type GlobalContextProps = {
     data: Pick<Todo, 'completed'> | Pick<Todo, 'title'>,
   ) => Promise<Todo>,
   todos: Todo[],
-  setTodos: (todos: Todo[]) => void,
+  setTodos: (todos: Todo[] | ((todos: Todo[]) => Todo[])) => void,
   filter: Filter,
   setFilter: (filter: Filter) => void,
   filteredTodos: Todo[],
   setFilteredTodos: (filteredTodos: Todo[]) => void,
   error: string,
-  setError: (error: string) => void,
+  setError: (error: string | ((error: string) => string)) => void,
+  errorId: number,
+  setErrorId: (errorId: number) => void,
   tempTodo: Omit<Todo, 'userId'> | null,
   setTempTodo: (tempTodo: Omit<Todo, 'userId'> | null) => void,
   isLoading: boolean,
   setIsLoading: (isLoading: boolean) => void,
   isAllUpdating: boolean,
-  setIsAllUpdating: (isAllUpdating: boolean) => void,
+  setIsAllUpdating: (isAllUpdating: boolean
+  | ((isAllUpdating: boolean) => boolean)) => void,
   isCompletedRemoving: boolean,
-  setIsCompletedRemoving: (isCompletedRemoving: boolean) => void,
+  setIsCompletedRemoving: (isCompletedRemoving: boolean
+  | ((isCompletedRemoving: boolean) => boolean)) => void,
   isTitleOnFocus: boolean,
-  setIsTitleOnFocus: (isTitleOnFocus: boolean) => void,
+  setIsTitleOnFocus: (isTitleOnFocus: boolean
+  | ((isTitleOnFocus: boolean) => boolean)) => void,
+  isToggleAll: boolean,
+  setIsToggleAll: (isToggleAll: boolean
+  | ((isToggleAll: boolean) => boolean)) => void,
 };
 
 export const GlobalContex = React.createContext<GlobalContextProps>(
@@ -75,11 +91,13 @@ export const GlobalProvider: React.FC<GlobalProviderProps> = ({ children }) => {
   const [filter, setFilter] = useState<Filter>(Filter.All);
   const [filteredTodos, setFilteredTodos] = useState<Todo[]>(todos);
   const [error, setError] = useState('');
+  const [errorId, setErrorId] = useState(Date.now());
   const [tempTodo, setTempTodo] = useState<Omit<Todo, 'userId'> | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [isAllUpdating, setIsAllUpdating] = useState(false);
   const [isCompletedRemoving, setIsCompletedRemoving] = useState(false);
   const [isTitleOnFocus, setIsTitleOnFocus] = useState(false);
+  const [isToggleAll, setIsToggleAll] = useState(false);
 
   const getTodoList = async (): Promise<Todo[]> => API.getTodos(USER_ID);
   const postNewTodo = async (data: Omit<Todo, 'id'>): Promise<Todo> => {
@@ -98,7 +116,7 @@ export const GlobalProvider: React.FC<GlobalProviderProps> = ({ children }) => {
   };
 
   useEffect(() => {
-    setError('');
+    setError(() => '');
     getTodoList()
       .then(todoList => {
         setTodos(todoList);
@@ -125,10 +143,13 @@ export const GlobalProvider: React.FC<GlobalProviderProps> = ({ children }) => {
   }, [todos, filter]);
 
   useEffect(() => {
-    setTimeout(() => {
-      setError('');
+    const timer = setTimeout(() => {
+      setError(() => '');
+      setErrorId(0);
     }, 3000);
-  }, [error]);
+
+    return () => clearTimeout(timer);
+  }, [error, errorId]);
 
   const globalContextValue = {
     USER_ID,
@@ -144,6 +165,8 @@ export const GlobalProvider: React.FC<GlobalProviderProps> = ({ children }) => {
     setFilteredTodos,
     error,
     setError,
+    errorId,
+    setErrorId,
     tempTodo,
     setTempTodo,
     isLoading,
@@ -154,6 +177,8 @@ export const GlobalProvider: React.FC<GlobalProviderProps> = ({ children }) => {
     setIsCompletedRemoving,
     isTitleOnFocus,
     setIsTitleOnFocus,
+    isToggleAll,
+    setIsToggleAll,
   };
 
   return (

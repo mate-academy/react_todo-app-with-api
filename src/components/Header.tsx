@@ -19,16 +19,18 @@ export const Header: React.FC = () => {
     todos,
     setTodos,
     setError,
+    setErrorId,
     setTempTodo,
     isLoading,
     setIsLoading,
     setIsAllUpdating,
     isTitleOnFocus,
     setIsTitleOnFocus,
+    isToggleAll,
+    setIsToggleAll,
   } = useContext(GlobalContex);
 
   const [title, setTitle] = useState('');
-  const [isToggleAll, setIsToggleAll] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -43,7 +45,7 @@ export const Header: React.FC = () => {
     setTitle(titleValue);
   };
 
-  const handleFormSubmit = (event: React.FormEvent) => {
+  const handleFormSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
 
     setIsTitleOnFocus(false);
@@ -66,52 +68,63 @@ export const Header: React.FC = () => {
       };
 
       postNewTodo(newTodo)
-        .then(todo => {
+        .then(responsePost => {
           setTitle('');
-          setTodos([...todos, {
-            id: todo.id,
-            title: todo.title,
-            userId: todo.userId,
-            completed: todo.completed,
+          setTodos((previousTodos: Todo[]) => [...previousTodos, {
+            id: responsePost.id,
+            title: responsePost.title,
+            userId: responsePost.userId,
+            completed: responsePost.completed,
           }]);
         })
-        .catch(() => setError(TodoErrors.Add))
+        .catch(() => {
+          setErrorId(Date.now());
+          setError(() => TodoErrors.Add);
+        })
         .finally(() => {
           setTempTodo(null);
           setIsLoading(false);
           setIsTitleOnFocus(true);
         });
     } else {
+      setErrorId(Date.now());
       setError(TodoErrors.Title);
     }
   };
 
   const handleToggleAllClick = async () => {
-    setTodos(todos.map(todo => {
-      setIsAllUpdating(true);
-
-      if (todo.completed === isToggleAll) {
+    todos
+      .filter(todo => todo.completed === isToggleAll)
+      .forEach(todo => {
+        setIsAllUpdating(true);
         updateTodoItem(todo.id, { completed: !isToggleAll })
-          .catch((err) => {
-            setError(TodoErrors.Update);
-            throw err;
+          .then(() => {
+            setTodos((previousTodos: Todo[]) => {
+              return previousTodos.map(todoItem => {
+                if (todoItem.id === todo.id) {
+                  return {
+                    ...todoItem,
+                    completed: !todoItem.completed,
+                  };
+                }
+
+                return todoItem;
+              });
+            });
           })
-          .finally(() => setIsAllUpdating(false));
-
-        return { ...todo, completed: !isToggleAll };
-      }
-
-      return todo;
-    }));
+          .catch(() => {
+            setErrorId(Date.now());
+            setError(() => TodoErrors.Update);
+          })
+          .finally(() => {
+            setIsAllUpdating(false);
+          });
+      });
   };
 
   useEffect(() => {
-    if (todos.every(todo => todo.completed)) {
-      setIsToggleAll(true);
-    } else {
-      setIsToggleAll(false);
-    }
-  }, [todos]);
+    setIsToggleAll(todos.every(todo => todo.completed));
+  }, [todos, setIsToggleAll]);
 
   return (
     <header className="todoapp__header">
