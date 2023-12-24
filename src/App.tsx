@@ -9,6 +9,7 @@ import { TodoList } from './components/TodoList/TodoList';
 import { TodoFooter } from './components/TodoFooter/TodoFooter';
 import { Status } from './types/Status';
 import { ErrorNotification } from './components/ErrorNotification';
+import { filteredTodos } from './helpers';
 
 const USER_ID = 12042;
 
@@ -41,25 +42,9 @@ export const App: React.FC = () => {
       .catch(() => (handleError('Unable to load todos')));
   }, []);
 
-  const filteredTodos = useMemo(() => {
-    switch (status) {
-      case Status.all: {
-        return todos;
-      }
-
-      case Status.active: {
-        return todos.filter(todo => !todo.completed);
-      }
-
-      case Status.completed: {
-        return todos.filter(todo => todo.completed);
-      }
-
-      default: {
-        return todos;
-      }
-    }
-  }, [todos, status]);
+  const visibleTodos = useMemo(() => {
+    return filteredTodos(todos, status);
+  }, [status, todos]);
 
   const createTodo = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -87,10 +72,7 @@ export const App: React.FC = () => {
       })
         .then(newTodo => {
           setTodos(currentTodos => {
-            const maxId = Math.max(0, ...currentTodos.map(todo => todo.id));
-            const id = maxId + 1;
-
-            return [...currentTodos, { ...newTodo, id }];
+            return [...currentTodos, { ...newTodo }];
           });
           setTodoTitle('');
         })
@@ -118,7 +100,8 @@ export const App: React.FC = () => {
   const clearTodos = () => {
     todos.map(todo => {
       if (todo.completed) {
-        todosService.deleteTodo(todo.id);
+        todosService.deleteTodo(todo.id)
+          .finally(() => titleField.current?.focus());
       }
 
       return 1;
@@ -203,7 +186,7 @@ export const App: React.FC = () => {
         {todos.length > 0 && (
           <>
             <TodoList
-              todos={filteredTodos}
+              todos={visibleTodos}
               tempTodo={tempTodo}
               title={todoTitle}
               onDelete={deleteTodo}
@@ -213,7 +196,8 @@ export const App: React.FC = () => {
             />
 
             <TodoFooter
-              todos={filteredTodos}
+              allTodos={todos}
+              visibleTodos={visibleTodos}
               status={status}
               onStatus={setStatus}
               onClear={clearTodos}

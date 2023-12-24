@@ -3,19 +3,20 @@ import { Status } from '../../types/Status';
 import { Todo } from '../../types/Todo';
 
 interface Props {
-  todos: Todo[]
+  allTodos: Todo[]
+  visibleTodos: Todo[]
   status: Status
   onStatus: (status: Status) => void
   onClear: () => void
 }
 
 export const TodoFooter: React.FC<Props> = ({
-  todos, status, onStatus, onClear,
+  allTodos, visibleTodos, status, onStatus, onClear,
 }) => {
   return (
     <footer className="todoapp__footer" data-cy="Footer">
       <span className="todo-count" data-cy="TodosCounter">
-        {`${todos.filter(todo => !todo.completed).length} items left`}
+        {`${allTodos.filter(todo => !todo.completed).length} items left`}
       </span>
 
       <nav className="filter" data-cy="Filter">
@@ -58,7 +59,7 @@ export const TodoFooter: React.FC<Props> = ({
         className="todoapp__clear-completed"
         data-cy="ClearCompletedButton"
         onClick={() => onClear()}
-        disabled={todos.every(todo => todo.completed === false)}
+        disabled={visibleTodos.every(todo => todo.completed === false)}
       >
         Clear completed
       </button>
