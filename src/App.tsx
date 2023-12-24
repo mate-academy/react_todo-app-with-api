@@ -154,7 +154,7 @@ export const App: React.FC = () => {
           todos={todosToView}
         />
 
-        {todosToView.length > 0 && (
+        {todos.length > 0 && (
           <>
             <TodoList
               todos={todosToView}
