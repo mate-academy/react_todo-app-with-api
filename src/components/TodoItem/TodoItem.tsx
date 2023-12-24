@@ -57,17 +57,29 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
   const saveTitle = (value: string) => {
     if (!value.trim()) {
       handleDeleteClick(); // Delete the todo if the title is empty
+
+      return;
     }
 
     if (value.trim() === initialTitle) {
       // Cancel editing if the new title is the same as the old one
       setIsEdit(false);
+
+      return;
     }
 
     setIsSaving(true);
     const updatedTodo = { ...todo, title: value.trim() };
 
-    updateTodoItem(updatedTodo);
+    if (value.trim() !== initialTitle) {
+      updateTodoItem(updatedTodo);
+      setEditTitle(value.trim());
+      setIsEdit(false);
+      setIsSaving(false);
+    } else {
+      setIsEdit(false);
+      setIsSaving(false);
+    }
   };
 
   const handleTodoTitleBlur = () => {
