@@ -1,7 +1,4 @@
-/* eslint-disable jsx-a11y/no-autofocus */
-/* eslint-disable @typescript-eslint/no-unused-expressions */
 /* eslint-disable react-hooks/rules-of-hooks */
-/* eslint-disable max-len */
 /* eslint-disable jsx-a11y/control-has-associated-label */
 import React, {
   useEffect, useMemo, useRef, useState,
@@ -25,8 +22,8 @@ const USER_ID = 7023;
 export const App: React.FC = () => {
   const [todos, setTodos] = useState<Todo[]>([]);
   const [filteredType, setFilteredType] = useState(Status.All);
-  const [, setTodo] = useState<Todo | null>(null);
   const [isInputDisabled, setIsInputDisabled] = useState(false);
+  const [, setTodo] = useState<Todo | null>(null);
   const [errorMessage, setErrorMessage] = useState<Errors | null>(null);
   const [title, setTitle] = useState<string>('');
 
@@ -38,7 +35,8 @@ export const App: React.FC = () => {
 
   const handleUpdateTodo = (todo: Todo) => {
     updateTodo(todo)
-      .then(() => setTodos(current => current.map(t => (t.id === todo.id ? todo : t))))
+      .then(() => setTodos(current => current
+        .map(t => (t.id === todo.id ? todo : t))))
       .catch(() => setErrorMessage(Errors.CAN_NOT_UPDATE_TODO));
   };
 
@@ -51,7 +49,9 @@ export const App: React.FC = () => {
         completed: false,
       }));
 
-      updatedTodos.map(todo => updateTodo(todo).then(() => setTodos(updatedTodos)).catch(() => Errors.CAN_NOT_UPDATE_TODO));
+      await updatedTodos.map(todo => updateTodo(todo)
+        .then(() => setTodos(updatedTodos))
+        .catch(() => Errors.CAN_NOT_UPDATE_TODO));
 
       setTodos(updatedTodos);
     } else {
@@ -60,7 +60,9 @@ export const App: React.FC = () => {
         completed: true,
       }));
 
-      updatedTodos.map(todo => updateTodo(todo).then(() => setTodos(updatedTodos)).catch(() => Errors.CAN_NOT_UPDATE_TODO));
+      await updatedTodos.map(todo => updateTodo(todo)
+        .then(() => setTodos(updatedTodos))
+        .catch(() => Errors.CAN_NOT_UPDATE_TODO));
 
       setTodos(updatedTodos);
     }
@@ -87,7 +89,10 @@ export const App: React.FC = () => {
     setTodo(newTodo);
 
     addTodo({ title: title.trim(), userId: USER_ID, completed: false })
-      .then(todo => setTodos((currentTodos) => [...currentTodos, todo]))
+      .then((todo) => {
+        setTodos((currentTodos) => [...currentTodos, todo]);
+        setTitle('');
+      })
       .catch(() => {
         setTitle(title);
         setErrorMessage(Errors.CAN_NOT_ADD_TODO);
@@ -96,8 +101,6 @@ export const App: React.FC = () => {
         setTodo(null);
         setIsInputDisabled(false);
       });
-
-    setTitle('');
   };
 
   const handleToggleTodo = (id: number) => {
@@ -144,9 +147,7 @@ export const App: React.FC = () => {
 
       setTodos(newTodos);
     } catch {
-      () => {
-        setErrorMessage(Errors.CAN_NOT_DELETE_TODO);
-      };
+      setErrorMessage(Errors.CAN_NOT_DELETE_TODO);
     }
   };
 
