@@ -51,7 +51,7 @@ export const TodoAppContent: React.FC = () => {
 
   useEffect(() => {
     setTodosCount(countOfNotCompleted.length);
-  }, [todos]);
+  }, [countOfNotCompleted]);
 
   useEffect(() => {
     if (!isAdding) {
