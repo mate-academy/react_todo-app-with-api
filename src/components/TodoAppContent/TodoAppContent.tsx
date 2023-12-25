@@ -98,18 +98,18 @@ export const TodoAppContent: React.FC = () => {
     }
   };
 
-  const handleDeleteTodo = (idToDel: number) => {
-    setLoadTodosIds(prev => [...prev, idToDel]);
+  const handleDeleteTodo = (idToDelete: number) => {
+    setLoadTodosIds(prev => [...prev, idToDelete]);
 
-    deleteTodo(idToDel)
+    deleteTodo(idToDelete)
       .then(() => {
-        setTodos(prev => prev.filter(({ id }) => id !== idToDel));
+        setTodos(prev => prev.filter(({ id }) => id !== idToDelete));
       })
       .catch(() => {
         setErrorMessage(ErrorMessage.Delete);
       })
       .finally(() => {
-        setLoadTodosIds(prev => prev.filter(i => i !== idToDel));
+        setLoadTodosIds(prev => prev.filter(i => i !== idToDelete));
       });
   };
 
