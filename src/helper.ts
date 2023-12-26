@@ -15,17 +15,12 @@ export const filterTodos = (
 
   switch (filterStatus) {
     case Status.Active:
-      todosCopy = todosCopy.filter(todo => !todo.completed);
-      break;
-    case Status.Completed:
-      todosCopy = todosCopy.filter(todo => todo.completed);
-      break;
-    case Status.All:
-      todosCopy = [...todosCopy];
-      break;
-    default:
-      throw new Error('not filter');
-  }
+      return todosCopy.filter(todo => !todo.completed);
 
-  return todosCopy;
+    case Status.Completed:
+      return todosCopy.filter(todo => todo.completed);
+
+    default:
+      return todosCopy;
+  }
 };

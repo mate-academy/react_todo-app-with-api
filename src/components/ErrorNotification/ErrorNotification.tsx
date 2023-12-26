@@ -1,4 +1,3 @@
-/* eslint-disable jsx-a11y/control-has-associated-label */
 import { FC } from 'react';
 
 type Props = {
@@ -11,7 +10,12 @@ export const ErrorNotification: FC<Props> = ({ errorMessage }) => {
       data-cy="ErrorNotification"
       className="notification is-danger is-light has-text-weight-normal"
     >
-      <button data-cy="HideErrorButton" type="button" className="delete" />
+      <button
+        data-cy="HideErrorButton"
+        type="button"
+        className="delete"
+        aria-label="Hide Error"
+      />
       {errorMessage}
     </div>
   );

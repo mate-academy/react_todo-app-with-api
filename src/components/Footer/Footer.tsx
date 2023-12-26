@@ -15,15 +15,9 @@ export const Footer: FC<Props> = ({
   filterStatus,
 }) => {
   const countTodosActive = (todos : Todo[]) : number => {
-    let count = 0;
+    const result = todos.filter(item => !item.completed);
 
-    todos.forEach(item => {
-      if (item.completed) {
-        count += 1;
-      }
-    });
-
-    return count;
+    return result.length;
   };
 
   return (

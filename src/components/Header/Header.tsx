@@ -1,4 +1,3 @@
-/* eslint-disable jsx-a11y/control-has-associated-label */
 import {
   FC, useEffect, useRef, useState,
 } from 'react';
@@ -11,12 +10,12 @@ type Props = {
 
 export const Header: FC<Props> = ({ addTodo, showError }) => {
   const [todoTitle, setTodoTitle] = useState<string>('');
-  const [titleDisabled, seTitleDisabled] = useState(false);
+  const [isTitleDisabled, seTIsitleDisabled] = useState(false);
   const todoTitleRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     todoTitleRef.current?.focus();
-  }, [titleDisabled]);
+  }, [isTitleDisabled]);
 
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -29,11 +28,11 @@ export const Header: FC<Props> = ({ addTodo, showError }) => {
       return;
     }
 
-    seTitleDisabled(true);
+    seTIsitleDisabled(true);
     addTodo(title)
       .then(() => setTodoTitle(''))
       .finally(() => {
-        seTitleDisabled(false);
+        seTIsitleDisabled(false);
       });
   };
 
@@ -43,6 +42,7 @@ export const Header: FC<Props> = ({ addTodo, showError }) => {
         type="button"
         className="todoapp__toggle-all active"
         data-cy="ToggleAllButton"
+        aria-label="Toggle Button"
       />
 
       <form onSubmit={handleSubmit}>
@@ -53,7 +53,7 @@ export const Header: FC<Props> = ({ addTodo, showError }) => {
           placeholder="What needs to be done?"
           value={todoTitle}
           onChange={(e) => setTodoTitle(e.target.value)}
-          disabled={titleDisabled}
+          disabled={isTitleDisabled}
           ref={todoTitleRef}
         />
       </form>

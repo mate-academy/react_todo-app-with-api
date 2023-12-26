@@ -48,7 +48,9 @@ export const Todo: FC<Props> = ({
       .then(() => {
         setIsEdit(false);
       })
-      .catch(() => { });
+      .catch((e) => {
+        throw new Error(e);
+      });
 
     editTitletRef.current?.focus();
   };
@@ -99,7 +101,6 @@ export const Todo: FC<Props> = ({
         )
         : (
           <>
-
             <span
               data-cy="TodoTitle"
               className="todo__title"
