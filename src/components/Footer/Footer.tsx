@@ -7,6 +7,7 @@ interface Props {
   todos: Todo[],
   setFilterValue: (value: FilterValue) => void,
   filterValue: string,
+  deleteTodo: (todoId: number) => void,
 }
 
 export const Footer: FC<Props> = (props) => {
@@ -14,10 +15,17 @@ export const Footer: FC<Props> = (props) => {
     todos,
     setFilterValue,
     filterValue,
+    deleteTodo,
   } = props;
 
   const remainingTodosLength = todos.filter(todo => !todo.completed).length;
   const completedTodosLength = todos.filter(todo => todo.completed).length;
+
+  const handleClearCompletedTodos = () => {
+    const completedTodos = todos.filter(todo => todo.completed);
+
+    completedTodos.forEach(todo => deleteTodo(todo.id));
+  };
 
   return (
     <footer className="todoapp__footer" data-cy="Footer">
@@ -59,6 +67,7 @@ export const Footer: FC<Props> = (props) => {
         type="button"
         className="todoapp__clear-completed hidden"
         data-cy="ClearCompletedButton"
+        onClick={handleClearCompletedTodos}
         style={{
           visibility: completedTodosLength !== 0
             ? 'visible' : 'hidden',

@@ -79,7 +79,9 @@ export const App: React.FC = () => {
   };
 
   const deleteTodo = (todoId: number) => {
-    setLoadingTodoId([todoId]);
+    const completedTodos = todos.filter(todo => todo.completed);
+
+    setLoadingTodoId(completedTodos.map(todo => todo.id));
     todosService.deleteTodo(todoId)
       .then(() => setTodos(
         currentTodos => currentTodos.filter(todo => todo.id !== todoId),
@@ -102,9 +104,7 @@ export const App: React.FC = () => {
           addTodo={addTodo}
           handleError={handleError}
           setLoadingTodoId={setLoadingTodoId}
-          errorMessage={errorMessage}
           setErrorMessage={setErrorMessage}
-          loadingTodoId={loadingTodoId}
         />
 
         <TodoList
@@ -121,6 +121,7 @@ export const App: React.FC = () => {
             todos={todosToRender}
             setFilterValue={setFilterValue}
             filterValue={filterValue}
+            deleteTodo={deleteTodo}
           />
         )}
       </div>
