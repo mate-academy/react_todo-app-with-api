@@ -6,7 +6,7 @@ type Props = {
   todos: Todo[],
   tempTodo?: Todo | null,
   onDeleteTodo?: (todoId: number) => void,
-  processingTodoIds: number[],
+  processingTodoIds: number | number[] | null,
   onUpdateTodo: (updatedTodo: Todo) => void,
 };
 

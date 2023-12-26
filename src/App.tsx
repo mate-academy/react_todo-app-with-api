@@ -18,16 +18,21 @@ export const App: React.FC = () => {
   const [errorType, setErrorType] = useState<Errors | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
-  const [processingTodoIds, setProcessingTodoIds] = useState<number[]>([]);
+  const [processingTodoId, setProcessingTodoId]
+    = useState<number | number[] | null>(null);
   const [todoTitle, setTodoTitle] = useState('');
 
   useEffect(() => {
+    setIsLoading(true);
     todoService.getTodos(USER_ID)
       .then(response => {
         setTodos(response);
       })
-      .catch((error) => {
-        throw error;
+      .catch(() => {
+        setErrorType(Errors.Load);
+      })
+      .finally(() => {
+        setIsLoading(false);
       });
   }, []);
 
@@ -36,22 +41,24 @@ export const App: React.FC = () => {
   }
 
   const handleDelete = (id: number) => {
-    setProcessingTodoIds(prevIds => [...prevIds, id]);
+    setProcessingTodoId(id);
     todoService.deleteTodo(id)
       .then(() => {
         setTimeout(() => {
           setTodos(currentTodos => currentTodos.filter(post => post.id !== id));
         }, 500);
       })
-      .finally(() => setTimeout(() => {
-        setProcessingTodoIds(prevIds => [...prevIds]
-          .filter(prevId => prevId !== id));
-      }, 500));
+      .catch(() => {
+        setErrorType(Errors.Delete);
+      })
+      .finally(() => {
+        setProcessingTodoId(null);
+      });
   };
 
   const addTodo = (title: string) => {
     setIsLoading(true);
-    setProcessingTodoIds(prevIds => [...prevIds, 0]);
+    setProcessingTodoId(0);
     setTempTodo({
       id: 0,
       title,
@@ -66,16 +73,16 @@ export const App: React.FC = () => {
       .then(newTodo => {
         setTodoTitle('');
         setTimeout(() => {
-          setTodos(currentTodos => {
-            return [...currentTodos, newTodo];
-          });
+          setTodos(currentTodos => [...currentTodos, newTodo]);
           setTempTodo(null);
         }, 500);
       })
+      .catch(() => {
+        setErrorType(Errors.Add);
+      })
       .finally(() => {
         setIsLoading(false);
-        setProcessingTodoIds(prevIds => [...prevIds]
-          .filter(prevId => prevId !== 0));
+        setProcessingTodoId(null);
       });
   };
 
@@ -84,7 +91,7 @@ export const App: React.FC = () => {
   const filteredTodos = prepareTodos(todos, filterStatus);
 
   const updateTodo = (updatedTodo: Todo) => {
-    setProcessingTodoIds(currentTodos => [...currentTodos, updatedTodo.id]);
+    setProcessingTodoId(updatedTodo.id);
 
     todoService.updateTodo(updatedTodo)
       .then(() => setTodos(prev => (
@@ -96,8 +103,7 @@ export const App: React.FC = () => {
       )))
       .catch(() => setErrorType(Errors.Update))
       .finally(() => {
-        setProcessingTodoIds(currentTodos => currentTodos
-          .filter(todoId => updatedTodo.id !== todoId));
+        setProcessingTodoId(null);
       });
   };
 
@@ -136,7 +142,7 @@ export const App: React.FC = () => {
           todos={filteredTodos}
           tempTodo={tempTodo}
           onDeleteTodo={handleDelete}
-          processingTodoIds={processingTodoIds}
+          processingTodoIds={processingTodoId}
           onUpdateTodo={updateTodo}
         />
 

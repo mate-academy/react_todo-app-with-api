@@ -5,7 +5,7 @@ import { Todo } from '../../types/Todo';
 interface Props {
   todo: Todo,
   onDeleteTodo?: (todoId: number) => void;
-  processingTodoIds: number[];
+  processingTodoIds: number | number[] | null;
   onUpdateTodo?: (updatedTodo: Todo) => void;
 }
 
@@ -23,6 +23,17 @@ export const SingleTodo: React.FC<Props> = ({
   const [isEditing, setIsEditing] = useState(false);
 
   const inputRef = useRef<HTMLInputElement>(null);
+
+  const handleKeyUp = (event: React.KeyboardEvent<HTMLInputElement>) => {
+    if (event.key === 'Escape') {
+      setNewTitle(todo.title);
+      setIsEditing(false);
+    }
+  };
+
+  const isProcessing = Array.isArray(processingTodoIds)
+    ? processingTodoIds.includes(id)
+    : false;
 
   useEffect(() => {
     if (isEditing && inputRef.current) {
@@ -103,13 +114,8 @@ export const SingleTodo: React.FC<Props> = ({
             className="todo__title-field"
             placeholder="Empty todo will be deleted"
             value={newTitle}
-            onChange={event => setNewTitle(event.target.value)}
-            onKeyUp={event => {
-              if (event.key === 'Escape') {
-                setNewTitle(todo.title);
-                setIsEditing(false);
-              }
-            }}
+            onChange={(event) => setNewTitle(event.target.value)}
+            onKeyUp={handleKeyUp}
           />
         </form>
       ) : (
@@ -131,7 +137,7 @@ export const SingleTodo: React.FC<Props> = ({
       <div
         data-cy="TodoLoader"
         className={cn('modal overlay', {
-          'is-active': processingTodoIds.includes(id),
+          'is-active': isProcessing,
         })}
       >
         <div className="modal-background has-background-white-ter" />

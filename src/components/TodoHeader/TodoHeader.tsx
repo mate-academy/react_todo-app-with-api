@@ -32,7 +32,7 @@ export const TodoHeader: React.FC<Props> = ({
 
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event?.preventDefault();
-    if (!todoTitle || todoTitle.trim().length === 0) {
+    if (!todoTitle.trim()) {
       setError(Errors.EmptyTitle);
 
       return;
