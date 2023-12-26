@@ -72,7 +72,7 @@ export const App: React.FC = () => {
       })
         .then(newTodo => {
           setTodos(currentTodos => {
-            return [...currentTodos, { ...newTodo }];
+            return [...currentTodos, newTodo];
           });
           setTodoTitle('');
         })
@@ -100,16 +100,11 @@ export const App: React.FC = () => {
   const clearTodos = () => {
     todos.map(todo => {
       if (todo.completed) {
-        todosService.deleteTodo(todo.id)
-          .finally(() => titleField.current?.focus());
+        deleteTodo(todo.id);
       }
 
       return 1;
     });
-
-    setTodos(
-      currentTodos => currentTodos.filter(todo => todo.completed !== true),
-    );
   };
 
   const updateTodo = (newTodo: Todo): Promise<void> => {
@@ -140,11 +135,19 @@ export const App: React.FC = () => {
   };
 
   const toggleAllTodos = () => {
+    if (todos.every(todo => todo.completed)) {
+      return todos.map(todo => updateTodoComplete(todo));
+    }
+
     todos.map(todo => {
-      updateTodoComplete(todo);
+      if (!todo.completed) {
+        return updateTodoComplete(todo);
+      }
 
       return 1;
     });
+
+    return 1;
   };
 
   if (!USER_ID) {

@@ -28,10 +28,10 @@ export const TodoItem: React.FC<Props> = ({
   const EditedTitleField = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    if (EditedTitleField.current) {
+    if (EditedTitleField.current && isEditing) {
       EditedTitleField.current.focus();
     }
-  });
+  }, [isEditing]);
 
   const handleEditSumbit = (event: React.FormEvent) => {
     event.preventDefault();
@@ -59,6 +59,11 @@ export const TodoItem: React.FC<Props> = ({
     updateTodo(editedTodo)
       .then(() => {
         setIsEditing(false);
+      })
+      .catch(() => {
+        if (EditedTitleField.current) {
+          EditedTitleField.current.focus();
+        }
       });
   };
 
