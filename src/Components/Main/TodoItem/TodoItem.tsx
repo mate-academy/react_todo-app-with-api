@@ -11,8 +11,8 @@ import { Todo } from '../../../types/Todo';
 import { TemporaryTodo } from '../TemporaryTodo/TemporaryTodo';
 
 export const TodoItem = memo(() => {
-  const [todoForEdit, setTodoForEdit] = useState<Todo | null>(null);
-  const [editTitle, setEditTitle] = useState('');
+  const [updatedTodo, setUptatedTodo] = useState<Todo | null>(null);
+  const [todoTitle, setTodoTitle] = useState('');
   const {
     filteredList,
     tempTodo,
@@ -27,41 +27,41 @@ export const TodoItem = memo(() => {
   const titleInput = useRef<HTMLInputElement>(null);
   const escapeFunction = useCallback((event:KeyboardEvent) => {
     if (event.key === 'Escape') {
-      setTodoForEdit(null);
+      setUptatedTodo(null);
     }
   }, []);
 
   const handleTitleForm = useCallback((event:React.FormEvent) => {
     event.preventDefault();
 
-    if (!todoForEdit) {
+    if (!updatedTodo) {
       return;
     }
 
-    if (todoForEdit.title === editTitle.trim()) {
-      setTodoForEdit(null);
+    if (updatedTodo.title === todoTitle.trim()) {
+      setUptatedTodo(null);
 
       return;
     }
 
-    if (editTitle === '') {
-      handleDelete(todoForEdit.id).then(() => {
-        setTodoForEdit(null);
+    if (!todoTitle) {
+      handleDelete(updatedTodo.id).then(() => {
+        setUptatedTodo(null);
       });
 
       return;
     }
 
-    editTodo({ ...todoForEdit, title: editTitle.trim() })
+    editTodo({ ...updatedTodo, title: todoTitle.trim() })
       .then(() => {
-        setTodoForEdit(null);
+        setUptatedTodo(null);
       })
       .catch(() => {})
       .finally(() => {
         setOnDelete([]);
       });
-  }, [editTitle, editTodo, handleDelete,
-    setOnDelete, todoForEdit]);
+  }, [todoTitle, editTodo, handleDelete,
+    setOnDelete, updatedTodo]);
 
   useEffect(() => {
     if (titleInput.current) {
@@ -73,88 +73,81 @@ export const TodoItem = memo(() => {
     return () => {
       document.removeEventListener('keyup', escapeFunction, false);
     };
-  }, [todoForEdit, escapeFunction, errorMessage, editTitle]);
+  }, [updatedTodo, escapeFunction, errorMessage, todoTitle]);
 
   return (
     <section className="todoapp__main" data-cy="TodoList">
-      {filteredList.map(({
-        title,
-        completed,
-        id,
-        userId,
-      }) => (
-        <div
-          key={id}
-          data-cy="Todo"
-          className={cn('todo',
-            { completed })}
-        >
-          <label className="todo__status-label">
-            <input
-              data-cy="TodoStatus"
-              type="checkbox"
-              className="todo__status"
-              onChange={() => toggleTodoCompleted({
-                title,
-                completed,
-                id,
-                userId,
-              })}
-              checked={completed}
-            />
-          </label>
-          {todoForEdit?.id !== id
-            ? (
-              <>
-                <span
-                  onDoubleClick={() => {
-                    setTodoForEdit({
-                      id,
-                      title,
-                      completed,
-                      userId,
-                    });
-                    setEditTitle(title);
-                  }}
-                  data-cy="TodoTitle"
-                  className="todo__title"
-                >
-                  { title }
-                </span>
-                <button
-                  onClick={() => handleDelete(id)}
-                  type="button"
-                  className="todo__remove"
-                  data-cy="TodoDelete"
-                >
-                  ×
-                </button>
-              </>
-            )
-            : (
-              <form onSubmit={handleTitleForm}>
-                <input
-                  ref={titleInput}
-                  data-cy="TodoTitleField"
-                  type="text"
-                  className="todo__title-field"
-                  placeholder="Empty todo will be deleted"
-                  value={editTitle}
-                  onChange={(event) => setEditTitle(event.target.value)}
-                  onBlur={handleTitleForm}
-                />
-              </form>
-            )}
+      {filteredList.map((todo) => {
+        const {
+          id,
+          completed,
+          title,
+        } = todo;
+
+        return (
           <div
-            data-cy="TodoLoader"
-            className={cn('modal overlay',
-              { 'is-active': onDelete.includes(id) })}
+            key={id}
+            data-cy="Todo"
+            className={cn('todo',
+              { completed })}
           >
-            <div className="modal-background has-background-white-ter" />
-            <div className="loader" />
+            <label className="todo__status-label">
+              <input
+                data-cy="TodoStatus"
+                type="checkbox"
+                className="todo__status"
+                onChange={() => toggleTodoCompleted(todo)}
+                checked={completed}
+              />
+            </label>
+            {updatedTodo?.id !== id
+              ? (
+                <>
+                  <span
+                    onDoubleClick={() => {
+                      setUptatedTodo(todo);
+                      setTodoTitle(title);
+                    }}
+                    data-cy="TodoTitle"
+                    className="todo__title"
+                  >
+                    { title }
+                  </span>
+                  <button
+                    onClick={() => handleDelete(id)}
+                    type="button"
+                    className="todo__remove"
+                    data-cy="TodoDelete"
+                  >
+                    ×
+                  </button>
+                </>
+              )
+              : (
+                <form onSubmit={handleTitleForm}>
+                  <input
+                    ref={titleInput}
+                    data-cy="TodoTitleField"
+                    type="text"
+                    className="todo__title-field"
+                    placeholder="Empty todo will be deleted"
+                    value={todoTitle}
+                    onChange={(event) => setTodoTitle(event.target.value)}
+                    onBlur={handleTitleForm}
+                  />
+                </form>
+              )}
+            <div
+              data-cy="TodoLoader"
+              className={cn('modal overlay',
+                { 'is-active': onDelete.includes(id) })}
+            >
+              <div className="modal-background has-background-white-ter" />
+              <div className="loader" />
+            </div>
           </div>
-        </div>
-      ))}
+        );
+      })}
       {tempTodo && <TemporaryTodo />}
     </section>
   );
