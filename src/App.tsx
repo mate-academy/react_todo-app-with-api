@@ -1,24 +1,31 @@
-/* eslint-disable max-len */
-/* eslint-disable jsx-a11y/control-has-associated-label */
 import React from 'react';
-import { UserWarning } from './UserWarning';
-
-const USER_ID = 0;
+import cn from 'classnames';
+import { useTodoContext } from './Context/Context';
+import { TodoHeader } from './Components/Header/TodoHeader/TodoHeader';
+import {
+  ErrorNotification,
+} from './Components/ErrorNotification/ErrorNotification';
+import { TodoFooter } from './Components/Footer/TodoFooter/TodoFooter';
+import { TodoItem } from './Components/Main/TodoItem/TodoItem';
 
 export const App: React.FC = () => {
-  if (!USER_ID) {
-    return <UserWarning />;
-  }
+  const { renderedTodos, errorMessage } = useTodoContext();
+
+  const numberOfActiveTodos = renderedTodos
+    .filter(({ completed }) => !completed).length;
 
   return (
-    <section className="section container">
-      <p className="title is-4">
-        Copy all you need from the prev task:
-        <br />
-        <a href="https://github.com/mate-academy/react_todo-app-add-and-delete#react-todo-app-add-and-delete">React Todo App - Add and Delete</a>
-      </p>
+    <div className={cn('todoapp', { 'has-error': errorMessage })}>
+      <h1 className="todoapp__title">todos</h1>
+      <div className="todoapp__content">
+        <TodoHeader />
 
-      <p className="subtitle">Styles are already copied</p>
-    </section>
+        <TodoItem />
+
+        {renderedTodos.length !== 0
+        && <TodoFooter activeTodos={numberOfActiveTodos} />}
+      </div>
+      <ErrorNotification />
+    </div>
   );
 };
