@@ -3,38 +3,34 @@ import React, { useEffect, useMemo } from 'react';
 import classNames from 'classnames';
 import { Errors } from '../types/Errors';
 
+const ERROR_MESSAGES: Record<Errors, string> = {
+  [Errors.LoadError]: Errors.LoadError,
+  [Errors.EmptyTitle]: Errors.EmptyTitle,
+  [Errors.AddTodoError]: Errors.AddTodoError,
+  [Errors.DeleteTodoError]: Errors.DeleteTodoError,
+  [Errors.UpdateTodoError]: Errors.UpdateTodoError,
+};
+
 interface Props {
   error: Errors | '';
   setError: (value: Errors | '') => void;
 }
 
 export const ErrorNotification: React.FC<Props> = ({ error, setError }) => {
-  const errorMessage = useMemo(() => {
-    switch (error) {
-      case Errors.LoadError:
-        return Errors.LoadError;
-      case Errors.EmptyTitle:
-        return Errors.EmptyTitle;
-      case Errors.AddTodoError:
-        return Errors.AddTodoError;
-      case Errors.DeleteTodoError:
-        return Errors.DeleteTodoError;
-      case Errors.UpdateTodoError:
-        return Errors.UpdateTodoError;
-      default:
-        return '';
-    }
-  }, [error]);
+  const errorMessage = useMemo(() => ERROR_MESSAGES[error as Errors]
+  || '', [error]);
 
   useEffect(() => {
     const timeoutId = setTimeout(() => {
-      setError('');
+      if (error !== '') {
+        setError('');
+      }
     }, 3000);
 
     return () => clearTimeout(timeoutId);
   }, [error, setError]);
 
-  const handleError = () => {
+  const resetError = () => {
     setError('');
   };
 
@@ -50,10 +46,9 @@ export const ErrorNotification: React.FC<Props> = ({ error, setError }) => {
         data-cy="HideErrorButton"
         type="button"
         className="delete"
-        onClick={handleError}
+        onClick={resetError}
       />
       {errorMessage}
     </div>
-
   );
 };

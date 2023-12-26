@@ -33,18 +33,21 @@ export const Header: React.FC<Props> = ({
   const allTodosChecked = todos.every(todo => todo.completed);
 
   useEffect(() => {
-    const newTodos = [...todos]
-      .map(todo => ({ ...todo, completed: isCheckedAll }));
+    const newTodos = todos.map(todo => ({
+      ...todo,
+      completed: isCheckedAll,
+    }));
 
     setTodos(newTodos);
 
-    Promise.all(newTodos.map(todo => (
-      handleUpdateTodo({
-        ...todo,
-        completed: !isCheckedAll,
-      })
-
-    )));
+    Promise.all(newTodos.map(todo => handleUpdateTodo({
+      ...todo,
+      completed: !isCheckedAll,
+    })))
+      .catch(error => {
+        // eslint-disable-next-line no-console
+        console.error('Error updating todos:', error);
+      });
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isCheckedAll]);
@@ -81,7 +84,7 @@ export const Header: React.FC<Props> = ({
 
   return (
     <header className="todoapp__header">
-      {todos[0] && (
+      {todos.length > 0 && (
         <button
           type="button"
           className={classNames('todoapp__toggle-all', {
