@@ -34,7 +34,7 @@ export const App: React.FC = () => {
     if (titleField.current) {
       titleField.current.focus();
     }
-  }, [loadingTodoIds]);
+  }, [todos]);
 
   useEffect(() => {
     todosService.getTodos(USER_ID)
@@ -122,7 +122,10 @@ export const App: React.FC = () => {
           return todo;
         }),
       ))
-      .catch(() => handleError('Unable to update a todo'))
+      .catch(() => {
+        handleError('Unable to update a todo');
+        throw new Error();
+      })
       .finally(() => {
         setLoadingTodoIds([]);
       });
