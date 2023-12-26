@@ -10,6 +10,7 @@ interface Props {
   loadingTodoId: number[],
   updateTodo: (updatedTodo: TodoType) =>Promise<void>,
   setLoadingTodoId: (loadingTodoId: number[]) => void,
+  handleEditTodo: (todoId: number, newTitle: string) => void,
 }
 
 export const TodoList: FC<Props> = (props) => {
@@ -20,6 +21,7 @@ export const TodoList: FC<Props> = (props) => {
     loadingTodoId,
     updateTodo,
     setLoadingTodoId,
+    handleEditTodo,
   } = props;
 
   return (
@@ -38,6 +40,7 @@ export const TodoList: FC<Props> = (props) => {
               loading={loadingTodoId.includes(todo.id)}
               updateTodo={updateTodo}
               setLoadingTodoId={setLoadingTodoId}
+              handleEditTodo={handleEditTodo}
             />
           </CSSTransition>
         ))}

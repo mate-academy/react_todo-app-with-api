@@ -8,6 +8,7 @@ interface Props {
   setFilterValue: (value: FilterValue) => void,
   filterValue: string,
   deleteTodo: (todoId: number) => void,
+  activeTodosCounter: number,
 }
 
 export const Footer: FC<Props> = (props) => {
@@ -16,9 +17,9 @@ export const Footer: FC<Props> = (props) => {
     setFilterValue,
     filterValue,
     deleteTodo,
+    activeTodosCounter,
   } = props;
 
-  const remainingTodosLength = todos.filter(todo => !todo.completed).length;
   const completedTodosLength = todos.filter(todo => todo.completed).length;
 
   const handleClearCompletedTodos = () => {
@@ -30,7 +31,7 @@ export const Footer: FC<Props> = (props) => {
   return (
     <footer className="todoapp__footer" data-cy="Footer">
       <span className="todo-count" data-cy="TodosCounter">
-        {`${remainingTodosLength} items left`}
+        {`${activeTodosCounter} items left`}
       </span>
 
       <nav className="filter" data-cy="Filter">

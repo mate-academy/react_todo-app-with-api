@@ -1,4 +1,6 @@
-import { FC } from 'react';
+import React, {
+  FC, useEffect, useRef, useState,
+} from 'react';
 import cn from 'classnames';
 import { Todo as TodoType } from '../../types/Todo';
 
@@ -9,6 +11,7 @@ interface Props {
   isTemporary?: boolean,
   updateTodo?: (updatedTodo: TodoType) => Promise<void>,
   setLoadingTodoId?: (loadingTodoId: number[]) => void,
+  handleEditTodo?: (todoId: number, newTitle: string) => void,
 }
 
 export const Todo: FC<Props> = (props) => {
@@ -19,7 +22,13 @@ export const Todo: FC<Props> = (props) => {
     isTemporary,
     updateTodo,
     setLoadingTodoId,
+    handleEditTodo,
   } = props;
+
+  const [isEditing, setIsEditing] = useState(false);
+  const [editedTitle, setEditedTitle] = useState(todo.title);
+
+  const titleField = useRef<HTMLInputElement>(null);
 
   const handleToggle = async () => {
     setLoadingTodoId?.([todo.id]);
@@ -32,6 +41,36 @@ export const Todo: FC<Props> = (props) => {
     await updateTodo?.(newTodo);
     setLoadingTodoId?.([]);
   };
+
+  const titleChanger = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setEditedTitle(event.target.value);
+  };
+
+  const handleEditTitle = () => {
+    setIsEditing(true);
+
+    if (editedTitle === todo.title) {
+      setIsEditing(false);
+    }
+
+    handleEditTodo?.(todo.id, editedTitle);
+    setIsEditing(false);
+  };
+
+  const handleKeyUp = (event: React.KeyboardEvent<HTMLInputElement>) => {
+    if (event.key === 'Enter') {
+      handleEditTitle();
+    } else if (event.key === 'Escape') {
+      setEditedTitle(todo.title);
+      setIsEditing(false);
+    }
+  };
+
+  useEffect(() => {
+    if (isEditing) {
+      titleField.current?.focus();
+    }
+  }, [isEditing, todo.id]);
 
   return (
     <div
@@ -46,22 +85,41 @@ export const Todo: FC<Props> = (props) => {
           className="todo__status"
           checked={todo.completed}
           onChange={handleToggle}
+          disabled={loading}
+          ref={titleField}
         />
       </label>
 
-      <span data-cy="TodoTitle" className="todo__title">
-        {todo.title}
-      </span>
+      {!isEditing ? (
+        <>
+          <span
+            data-cy="TodoTitle"
+            className="todo__title"
+            onDoubleClick={() => setIsEditing(true)}
+          >
+            {todo.title}
+          </span>
 
-      <button
-        type="button"
-        className="todo__remove"
-        data-cy="TodoDelete"
-        onClick={() => deleteTodo(todo.id)}
-      >
-        ×
-      </button>
-
+          <button
+            type="button"
+            className="todo__remove"
+            onClick={() => deleteTodo(todo.id)}
+            disabled={loading}
+          >
+            ×
+          </button>
+        </>
+      ) : (
+        <input
+          type="text"
+          className="todo__title"
+          value={editedTitle}
+          ref={titleField}
+          onKeyUp={handleKeyUp}
+          onBlur={handleEditTitle}
+          onChange={titleChanger}
+        />
+      )}
       <div className={cn('modal overlay', {
         'is-active': loading || isTemporary,
       })}

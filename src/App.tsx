@@ -18,6 +18,11 @@ export const App: React.FC = () => {
   const [errorMessage, setErrorMessage] = useState<Errors>(Errors.Null);
   const [loadingTodoId, setLoadingTodoId] = useState<number[]>([]);
 
+  const completedTodosCounter = todos.reduce((acc, todo) => {
+    return todo.completed ? acc + 1 : acc;
+  }, 0);
+  const activeTodosCounter = todos.length - completedTodosCounter;
+
   const handleError = (error: Errors) => {
     setErrorMessage(error);
     setTimeout(() => setErrorMessage(Errors.Null), 3000);
@@ -89,6 +94,27 @@ export const App: React.FC = () => {
       .catch(() => handleError(Errors.DeleteTodo));
   };
 
+  const handleEditTodo = async (todoId: number, newTitle: string) => {
+    if (!newTitle) {
+      setErrorMessage(Errors.UpdateTodo);
+
+      return;
+    }
+
+    try {
+      setLoadingTodoId([todoId]);
+      const updatedTodo = await todosService.updateTodoTitle(todoId, newTitle);
+
+      setTodos(currentTodos => currentTodos.map(
+        todo => (todoId === todo.id ? updatedTodo : todo),
+      ));
+    } catch {
+      setErrorMessage(Errors.EmptyTitle);
+    } finally {
+      setLoadingTodoId([]);
+    }
+  };
+
   if (!USER_ID) {
     return <UserWarning />;
   }
@@ -114,6 +140,7 @@ export const App: React.FC = () => {
           loadingTodoId={loadingTodoId}
           updateTodo={updateTodo}
           setLoadingTodoId={setLoadingTodoId}
+          handleEditTodo={handleEditTodo}
         />
 
         {todos.length > 0 && (
@@ -122,6 +149,7 @@ export const App: React.FC = () => {
             setFilterValue={setFilterValue}
             filterValue={filterValue}
             deleteTodo={deleteTodo}
+            activeTodosCounter={activeTodosCounter}
           />
         )}
       </div>
