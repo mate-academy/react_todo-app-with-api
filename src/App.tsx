@@ -6,7 +6,7 @@ import { useTodoContext } from './Context/Context';
 import { TodoHeader } from './Components/Header/TodoHeader/TodoHeader';
 import { ErrorNotification } from './Components/ErrorNotification/ErrorNotification';
 import { TodoFooter } from './Components/Footer/TodoFooter/TodoFooter';
-import { TodoForRender } from './Components/Main/TodoForRender/TodoForRender';
+import { TodoItem } from './Components/Main/TodoItem/TodoItem';
 
 export const App: React.FC = () => {
   const { renderedTodos, errorMessage } = useTodoContext();
@@ -17,10 +17,10 @@ export const App: React.FC = () => {
   return (
     <div className={cn('todoapp', { 'has-error': errorMessage })}>
       <h1 className="todoapp__title">todos</h1>
-
-      <TodoHeader />
       <div className="todoapp__content">
-        <TodoForRender />
+        <TodoHeader />
+
+        <TodoItem />
 
         {renderedTodos.length !== 0 && <TodoFooter activeTodos={numberOfActiveTodos} />}
       </div>

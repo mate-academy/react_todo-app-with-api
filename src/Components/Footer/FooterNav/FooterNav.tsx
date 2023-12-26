@@ -14,7 +14,7 @@ export const FooterNav = () => {
         data-cy="FilterLinkAll"
         onClick={() => setSelectedOption(States.All)}
       >
-        All
+        {States.All}
       </a>
 
       <a
@@ -24,7 +24,7 @@ export const FooterNav = () => {
         data-cy="FilterLinkActive"
         onClick={() => setSelectedOption(States.Active)}
       >
-        Active
+        {States.Active}
       </a>
 
       <a
@@ -34,7 +34,7 @@ export const FooterNav = () => {
         data-cy="FilterLinkCompleted"
         onClick={() => setSelectedOption(States.Completed)}
       >
-        Completed
+        {States.Completed}
       </a>
     </nav>
   );
