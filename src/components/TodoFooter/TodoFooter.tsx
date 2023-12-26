@@ -1,6 +1,6 @@
 import React from 'react';
 import { useCompletedTodos } from '../../helpers/useComplitedTodos';
-import { useUncompletedTodos } from '../../helpers/useUncomplitedTodos';
+import { getActiveTodos } from '../../helpers/getActiveTodos';
 import { TodoFilter } from '../TodoFilter';
 import { apiClient } from '../../api/todos';
 import { useTodosContext } from '../store';
@@ -18,7 +18,7 @@ export const TodoFooter: React.FC<Props> = ({ handlerErrors }) => {
   } = useTodosContext();
 
   const completedTodosLength = useCompletedTodos().length;
-  const uncompletedTodosLength = useUncompletedTodos(todos).length;
+  const uncompletedTodosLength = getActiveTodos(todos).length;
   const completedTodosIds = useCompletedTodos().map(todo => todo.id);
 
   const handlerDeleteCompletedTodos = () => {
@@ -47,7 +47,7 @@ export const TodoFooter: React.FC<Props> = ({ handlerErrors }) => {
         type="button"
         className="todoapp__clear-completed"
         data-cy="ClearCompletedButton"
-        disabled={completedTodosLength === 0}
+        disabled={!completedTodosLength}
         onClick={handlerDeleteCompletedTodos}
       >
         Clear completed

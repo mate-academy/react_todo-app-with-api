@@ -1,5 +1,4 @@
 export enum ErrorOption {
-  Clear = '',
   RecivingError = 'Unable to load todos',
   TitleError = 'Title should not be empty',
   AddTodoError = 'Unable to add a todo',

@@ -6,7 +6,7 @@ type Props = {
   filterSelected: FilterOption,
 };
 
-export const useTodosFilter = ({ todos, filterSelected }: Props): Todo[] => (
+export const filterTodos = ({ todos, filterSelected }: Props): Todo[] => (
   todos.filter(todo => {
     switch (filterSelected) {
       case FilterOption.Active:

@@ -10,13 +10,13 @@ import React, {
 import { Todo } from '../../types/Todo';
 import { ProviderProps } from '../../types/ProviderProps';
 import { FilterOption } from '../../enum/FilterOption';
-import { useTodosFilter } from '../../helpers/useTodosFilter';
+import { filterTodos } from '../../helpers/filterTodos';
 import { ErrorOption } from '../../enum/ErrorOption';
 import { apiClient } from '../../api/todos';
 
 type TodosContextType = {
   todos: Todo[],
-  hasError: ErrorOption;
+  hasError: ErrorOption | null;
   resetHasError: () => void;
   setError: (errMessage: ErrorOption) => void;
   addTodo: (newTodo: Todo) => void;
@@ -41,7 +41,7 @@ type TodosContextType = {
 
 const TodosContext = createContext<TodosContextType>({
   todos: [],
-  hasError: ErrorOption.Clear,
+  hasError: ErrorOption.AddTodoError,
   resetHasError: () => {},
   setError: () => {},
   addTodo: () => {},
@@ -62,7 +62,7 @@ export const TodosContextProvider: React.FC<ProviderProps> = ({
   children,
 }) => {
   const [todos, setTodos] = useState<Todo[]>([]);
-  const [hasError, setHasError] = useState(ErrorOption.Clear);
+  const [hasError, setHasError] = useState<ErrorOption | null>(null);
   const [deletingTodoIds, setDeletingTodoIds] = useState<number[]>([]);
   const [
     filterSelected,
@@ -76,7 +76,7 @@ export const TodosContextProvider: React.FC<ProviderProps> = ({
     [],
   );
 
-  const filteredTodos = useTodosFilter({ todos, filterSelected });
+  const filteredTodos = filterTodos({ todos, filterSelected });
 
   const resetDeletingTodoIds = () => {
     setDeletingTodoIds([]);
@@ -87,7 +87,7 @@ export const TodosContextProvider: React.FC<ProviderProps> = ({
   };
 
   const resetHasError = useCallback(
-    () => setHasError(ErrorOption.Clear),
+    () => setHasError(null),
     [],
   );
 
@@ -130,9 +130,9 @@ export const TodosContextProvider: React.FC<ProviderProps> = ({
 
   const toggleAllTodoCondition = async () => {
     const findedTodos = todos.filter(outerTodo => {
-      const uncompletedTodos = todos.filter(innerTodo => !innerTodo.completed);
+      const uncompletedTodos = todos.some(innerTodo => !innerTodo.completed);
 
-      if (uncompletedTodos.length > 0) {
+      if (uncompletedTodos) {
         return !outerTodo.completed;
       }
 

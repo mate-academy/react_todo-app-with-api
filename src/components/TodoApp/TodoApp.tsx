@@ -75,8 +75,8 @@ export const TodoApp: React.FC = () => {
     };
 
     apiClient.postTodo(newTodo)
-      .then(newTodoFS => {
-        addTodo(newTodoFS);
+      .then(newTodoFromServer => {
+        addTodo(newTodoFromServer);
         setTempTodo(null);
         setInputValue('');
 
