@@ -32,26 +32,26 @@ export const TodoItem: React.FC<Props> = ({
   };
 
   const handleOnSubmit = () => {
-    const arg = {
+    const fieldTitle = {
       title: value,
     };
 
     if (onEdit) {
-      onEdit(id, arg);
+      onEdit(id, fieldTitle);
     }
   };
 
   const handleCheck = () => {
-    const arg = {
+    const fieldCompleted = {
       completed: !completed,
     };
 
     if (onEdit) {
-      onEdit(id, arg);
+      onEdit(id, fieldCompleted);
     }
   };
 
-  const handleOnClick = () => {
+  const handleDeleteTodo = () => {
     if (onDelete) {
       onDelete(id);
     }
@@ -98,7 +98,7 @@ export const TodoItem: React.FC<Props> = ({
             type="button"
             className="todo__remove"
             data-cy="TodoDelete"
-            onClick={handleOnClick}
+            onClick={handleDeleteTodo}
           >
             ×
           </button>

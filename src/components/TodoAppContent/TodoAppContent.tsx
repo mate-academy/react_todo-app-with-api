@@ -142,11 +142,11 @@ export const TodoAppContent: React.FC = () => {
       ? countOfCompleted
       : countOfNotCompleted;
 
-    const arg = {
+    const fieldCompleted = {
       completed: !completedsTodos,
     };
 
-    todosToToggle.forEach(({ id }) => handleEditTodo(id, arg));
+    todosToToggle.forEach(({ id }) => handleEditTodo(id, fieldCompleted));
   };
 
   const handleClearCompleted = () => {
@@ -165,7 +165,7 @@ export const TodoAppContent: React.FC = () => {
             type="button"
             className={cn(
               'todoapp__toggle-all',
-              { active: todosCount === 0 },
+              { active: !todosCount },
             )}
             data-cy="ToggleAllButton"
             aria-label="toggle all button"
