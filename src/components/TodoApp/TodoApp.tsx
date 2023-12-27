@@ -3,7 +3,6 @@ import React, {
   useRef,
   useState,
 } from 'react';
-import cn from 'classnames';
 
 import { TodoList } from '../TodoList';
 import { apiClient } from '../../api/todos';
@@ -12,6 +11,7 @@ import { ErrorOption } from '../../enum/ErrorOption';
 import { TodoFooter } from '../TodoFooter';
 import { TodoItem } from '../TodoItem';
 import { Todo } from '../../types/Todo';
+import { ErrorNotification } from '../ErrorNotification';
 
 const USER_ID = 12027;
 
@@ -19,14 +19,12 @@ export const TodoApp: React.FC = () => {
   const {
     todos,
     addTodo,
-    hasError,
     setError,
     recieveTodos,
     resetHasError,
     toggleAllTodoCondition,
   } = useTodosContext();
 
-  const [isLoading, setIsLoading] = useState(true);
   const [inputValue, setInputValue] = useState('');
   const [isPostRequest, setIsPostRequest] = useState(false);
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
@@ -43,17 +41,16 @@ export const TodoApp: React.FC = () => {
     resetHasError();
 
     apiClient.getTodos(USER_ID)
-      .then(todosFS => {
-        recieveTodos(todosFS);
+      .then(todosFromServer => {
+        recieveTodos(todosFromServer);
       })
-      .catch(() => setError(ErrorOption.RecivingError))
-      .finally(() => setIsLoading(false));
+      .catch(() => setError(ErrorOption.RecivingError));
   }, [resetHasError, recieveTodos, setError]);
 
   const onSubmitForm = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
-    if (inputValue.trim() === '') {
+    if (!inputValue.trim()) {
       setError(ErrorOption.TitleError);
 
       return;
@@ -61,23 +58,20 @@ export const TodoApp: React.FC = () => {
 
     setIsPostRequest(true);
 
-    setTempTodo({
-      id: 0,
-      userId: USER_ID,
-      title: inputValue,
-      completed: false,
-    });
-
     const newTodo = {
       userId: USER_ID,
       title: inputValue,
       completed: false,
     };
 
+    setTempTodo({
+      id: 0,
+      ...newTodo,
+    });
+
     apiClient.postTodo(newTodo)
       .then(newTodoFromServer => {
         addTodo(newTodoFromServer);
-        setTempTodo(null);
         setInputValue('');
 
         if (inputRef.current) {
@@ -86,10 +80,10 @@ export const TodoApp: React.FC = () => {
       })
       .catch(() => {
         setError(ErrorOption.AddTodoError);
-        setTempTodo(null);
       })
       .finally(() => {
         setIsPostRequest(false);
+        setTempTodo(null);
       });
   };
 
@@ -120,7 +114,9 @@ export const TodoApp: React.FC = () => {
             />
           </form>
         </header>
-        {!isLoading && <TodoList />}
+
+        <TodoList />
+
         {!!tempTodo && (
           <TodoItem todo={tempTodo} />
         )}
@@ -134,24 +130,7 @@ export const TodoApp: React.FC = () => {
         )}
       </div>
 
-      <div
-        data-cy="ErrorNotification"
-        className={cn(
-          'notification is-danger is-light has-text-weight-normal',
-          {
-            hidden: !hasError,
-          },
-        )}
-      >
-        <button
-          data-cy="HideErrorButton"
-          aria-label="hideErrorBtn"
-          type="button"
-          className="delete"
-          onClick={resetHasError}
-        />
-        {hasError}
-      </div>
+      <ErrorNotification />
     </div>
   );
 };

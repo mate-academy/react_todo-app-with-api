@@ -26,7 +26,7 @@ type TodosContextType = {
   filterSelected: FilterOption,
   filteredTodos: Todo[],
   toggleTodoCondition: (
-    todoId: number,
+    todo: Todo,
     setIsLoading: Dispatch<SetStateAction<boolean>>,
   ) => void,
   updateTodoTitle: (
@@ -69,12 +69,9 @@ export const TodosContextProvider: React.FC<ProviderProps> = ({
     setFilterSelected,
   ] = useState<FilterOption>(FilterOption.All);
 
-  const recieveTodos = useCallback(
-    (newTodos: Todo[]) => {
-      setTodos(newTodos);
-    },
-    [],
-  );
+  const recieveTodos = (newTodos: Todo[]) => {
+    setTodos(newTodos);
+  };
 
   const filteredTodos = filterTodos({ todos, filterSelected });
 
@@ -101,23 +98,11 @@ export const TodosContextProvider: React.FC<ProviderProps> = ({
   );
 
   const updateTodoTitle = (todoId: number, title: string) => {
-    const copyTodos = [...todos];
-
-    const findedTodo = copyTodos.find(todo => todo.id === todoId) || null;
-
-    if (!findedTodo) {
-      return;
-    }
-
-    const indexFindedTodo = copyTodos.indexOf(findedTodo);
-    const updatedTodo = {
-      ...findedTodo,
-      title,
-    };
-
-    copyTodos[indexFindedTodo] = updatedTodo;
-
-    setTodos(copyTodos);
+    setTodos(currentTodos => currentTodos.map(currentTodo => (
+      currentTodo.id === todoId
+        ? { ...currentTodo, title }
+        : currentTodo
+    )));
   };
 
   const addTodo = (newTodo: Todo) => {
@@ -129,29 +114,22 @@ export const TodosContextProvider: React.FC<ProviderProps> = ({
   };
 
   const toggleAllTodoCondition = async () => {
-    const findedTodos = todos.filter(outerTodo => {
-      const uncompletedTodos = todos.some(innerTodo => !innerTodo.completed);
+    const hasUncompletedTodos = todos.some(todo => !todo.completed);
+    const findedTodos = todos.filter(todo => (
+      todo.completed === !hasUncompletedTodos
+    ));
 
-      if (uncompletedTodos) {
-        return !outerTodo.completed;
-      }
-
-      return outerTodo.completed;
-    });
-
-    if (findedTodos.length === 0) {
+    if (!findedTodos.length) {
       return;
     }
 
     try {
-      const updatePromises = findedTodos.map(async findedTodo => {
-        const updatedTodo = await apiClient.updateTodo(findedTodo.id, {
+      const updatePromises = findedTodos.map(findedTodo => (
+        apiClient.updateTodo(findedTodo.id, {
           ...findedTodo,
           completed: !findedTodo.completed,
-        });
-
-        return updatedTodo;
-      });
+        })
+      ));
 
       const updatedTodos = await Promise.all(updatePromises);
 
@@ -165,34 +143,27 @@ export const TodosContextProvider: React.FC<ProviderProps> = ({
     }
   };
 
-  const toggleTodoCondition = async (
-    todoId: number,
-    setIsLoading: (loading: boolean) => void,
-  ) => {
-    const findedTodo = todos.find(todo => todo.id === todoId) || null;
+  const toggleTodoCondition = useCallback(
+    async (todo: Todo, setIsLoading: (loading: boolean) => void) => {
+      try {
+        const updatedTodo = await apiClient.updateTodo(todo.id, {
+          ...todo,
+          completed: !todo.completed,
+        });
 
-    if (!findedTodo) {
-      return;
-    }
-
-    try {
-      const updatedTodo = await apiClient.updateTodo(todoId, {
-        ...findedTodo,
-        completed: !findedTodo.completed,
-      });
-
-      const copyTodos = [...todos];
-      const indexFindedTodo = copyTodos.indexOf(findedTodo);
-
-      copyTodos[indexFindedTodo] = updatedTodo;
-
-      setTodos(copyTodos);
-    } catch (error) {
-      setError(ErrorOption.UpdateTodoError);
-    } finally {
-      setIsLoading(false);
-    }
-  };
+        setTodos(currentTodos => (
+          currentTodos.map(currentTodo => (
+            currentTodo.id === todo.id ? updatedTodo : currentTodo
+          ))
+        ));
+      } catch (error) {
+        setError(ErrorOption.UpdateTodoError);
+      } finally {
+        setIsLoading(false);
+      }
+    },
+    [setTodos, setError],
+  );
 
   const TodosProviderValue: TodosContextType = {
     todos,

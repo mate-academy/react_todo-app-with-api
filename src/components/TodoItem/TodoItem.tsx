@@ -52,7 +52,7 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
     const cachedTitle = todo.title;
 
     try {
-      if (editingValue.trim() === '') {
+      if (!editingValue.trim()) {
         setIsEditing(false);
         await handlerDeleteTodo(todo.id);
 
@@ -90,7 +90,7 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
 
   const handlerChangeCheckbox = () => {
     setIsLoading(true);
-    toggleTodoCondition(todo.id, setIsLoading);
+    toggleTodoCondition(todo, setIsLoading);
   };
 
   const onKeyUp = (event: React.KeyboardEvent<HTMLInputElement>) => {
