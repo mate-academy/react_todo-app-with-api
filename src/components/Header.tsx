@@ -12,7 +12,6 @@ export const Header: React.FC<Props> = (props) => {
   const { isEveryTodosCompleted } = props;
   const {
     todos,
-    // setTodos,
     todoTitle,
     setTodoTitle,
     shouError,
@@ -22,15 +21,6 @@ export const Header: React.FC<Props> = (props) => {
   } = useContext(AppContext);
 
   const todoTitleRef = useRef<null | HTMLInputElement>(null);
-
-  // const handleToggleAllChange = () => {
-  //   const areAllCompleted = todos.every(todo => todo.completed);
-
-  //   setTodos(todos.map(todo => ({
-  //     ...todo,
-  //     completed: !areAllCompleted,
-  //   })));
-  // };
 
   useEffect(() => {
     if (todoTitleRef.current) {
