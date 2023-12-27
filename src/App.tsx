@@ -1,9 +1,7 @@
-/* eslint-disable react-hooks/rules-of-hooks */
 /* eslint-disable jsx-a11y/control-has-associated-label */
 import React, {
   useEffect, useMemo, useRef, useState,
 } from 'react';
-import cn from 'classnames';
 import { UserWarning } from './UserWarning';
 import { Todo } from './types/Todo';
 import {
@@ -15,7 +13,9 @@ import {
 import { TodoList } from './components/TodoList/TodoList';
 import { Status } from './types/Status';
 import { Errors } from './types/Errors';
-import { TodosFilter } from './components/TodoFilter/TodoFilter';
+import { Header } from './components/Header/Header';
+import { Footer } from './components/Footer/Footer';
+import { ErrorMessage } from './components/ErrorMessage/ErrorMessage';
 
 const USER_ID = 7023;
 
@@ -23,7 +23,6 @@ export const App: React.FC = () => {
   const [todos, setTodos] = useState<Todo[]>([]);
   const [filteredType, setFilteredType] = useState(Status.All);
   const [isInputDisabled, setIsInputDisabled] = useState(false);
-  const [, setTodo] = useState<Todo | null>(null);
   const [errorMessage, setErrorMessage] = useState<Errors | null>(null);
   const [title, setTitle] = useState<string>('');
 
@@ -79,14 +78,6 @@ export const App: React.FC = () => {
     }
 
     setIsInputDisabled(true);
-    const newTodo: Todo = {
-      title: title.trim(),
-      userId: USER_ID,
-      id: +Date,
-      completed: false,
-    };
-
-    setTodo(newTodo);
 
     addTodo({ title: title.trim(), userId: USER_ID, completed: false })
       .then((todo) => {
@@ -98,7 +89,6 @@ export const App: React.FC = () => {
         setErrorMessage(Errors.CAN_NOT_ADD_TODO);
       })
       .finally(() => {
-        setTodo(null);
         setIsInputDisabled(false);
       });
   };
@@ -179,9 +169,9 @@ export const App: React.FC = () => {
     }, 3000);
   }, [errorMessage, setErrorMessage]);
 
-  if (!USER_ID) {
-    return <UserWarning />;
-  }
+  useEffect(() => {
+    titleRef.current?.focus();
+  }, [todos]);
 
   const leftToComplete = useMemo(() => {
     return todos.filter(todo => !todo.completed).length;
@@ -191,38 +181,24 @@ export const App: React.FC = () => {
     return todos.filter(todo => todo.completed).length > 0;
   }, [todos]);
 
-  useEffect(() => {
-    titleRef.current?.focus();
-  }, [todos]);
+  if (!USER_ID) {
+    return <UserWarning />;
+  }
 
   return (
     <div className="todoapp">
       <h1 className="todoapp__title">todos</h1>
 
       <div className="todoapp__content">
-        <header className="todoapp__header">
-          <button
-            type="button"
-            className={cn('todoapp__toggle-all', { active: todos.length > 0 })}
-            data-cy="ToggleAllButton"
-            onClick={handleToggleAll}
-          />
-
-          <form
-            onSubmit={handleSubmit}
-          >
-            <input
-              data-cy="NewTodoField"
-              type="text"
-              value={title}
-              className="todoapp__new-todo"
-              placeholder="What needs to be done?"
-              ref={titleRef}
-              disabled={isInputDisabled}
-              onChange={handleTitleChange}
-            />
-          </form>
-        </header>
+        <Header
+          todos={todos}
+          handleToggleAll={handleToggleAll}
+          handleSubmit={handleSubmit}
+          title={title}
+          isInputDisabled={isInputDisabled}
+          handleTitleChange={handleTitleChange}
+          titleRef={titleRef}
+        />
 
         <TodoList
           todos={filteredTodos}
@@ -231,43 +207,20 @@ export const App: React.FC = () => {
           handleUpdateTodo={handleUpdateTodo}
         />
 
-        <footer className="todoapp__footer" data-cy="Footer">
-          <span className="todo-count" data-cy="TodosCounter">
-            {`${leftToComplete} items left`}
-          </span>
-
-          <TodosFilter
-            filteredType={filteredType}
-            setFilteredType={setFilteredType}
-          />
-          <button
-            type="button"
-            className="todoapp__clear-completed"
-            data-cy="ClearCompletedButton"
-            disabled={!showClearButton}
-            onClick={handleDeleteCompleted}
-          >
-            Clear completed
-          </button>
-        </footer>
+        <Footer
+          leftToComplete={leftToComplete}
+          filteredType={filteredType}
+          setFilteredType={setFilteredType}
+          showClearButton={showClearButton}
+          handleDeleteCompleted={handleDeleteCompleted}
+        />
       </div>
 
       {errorMessage && (
-        <div
-          data-cy="ErrorNotification"
-          className={
-            cn('notification is-danger is-light has-text-weight-normal',
-              { hidden: !errorMessage })
-          }
-        >
-          <button
-            data-cy="HideErrorButton"
-            type="button"
-            className="delete"
-            onClick={() => setErrorMessage(null)}
-          />
-          {errorMessage}
-        </div>
+        <ErrorMessage
+          errorMessage={errorMessage}
+          setErrorMessage={setErrorMessage}
+        />
       )}
     </div>
   );
