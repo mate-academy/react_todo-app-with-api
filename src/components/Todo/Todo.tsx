@@ -58,6 +58,9 @@ export const Todo: React.FC<Props> = ({
       } catch (err) {
         handleError(Errors.UnableToDelete);
       } finally {
+        setSelectedTodos(prevTodosIds => prevTodosIds
+          .filter(prevId => prevId !== editableTodo.id));
+
         setEditableTodo(null);
       }
 
