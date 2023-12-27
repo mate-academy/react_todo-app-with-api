@@ -1,11 +1,10 @@
 import React, {
-  useContext,
   useEffect,
   useRef,
   useState,
 } from 'react';
 import cn from 'classnames';
-import { appContext } from '../Context/Context';
+import { useAppContext } from '../Context/Context';
 import { Todo } from '../../types/Todo';
 
 type Props = {
@@ -19,7 +18,7 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
     isLoading,
     deletedIds,
     updateTodos,
-  } = useContext(appContext);
+  } = useAppContext();
 
   const [titleToChange, setTitleToChange] = useState(title);
   const [isEdit, setIsEdit] = useState(false);
@@ -31,6 +30,12 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
   const onSubmit = (event:
   React.FormEvent<HTMLFormElement> | React.FocusEvent<HTMLInputElement>) => {
     event.preventDefault();
+
+    if (titleToChange === title) {
+      setIsEdit(false);
+
+      return;
+    }
 
     if (!titleToChange.trim()) {
       deleteTodoHandler(id);

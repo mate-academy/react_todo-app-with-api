@@ -5,6 +5,7 @@ import {
   createContext,
   ReactNode,
   useEffect,
+  useContext,
 } from 'react';
 
 import * as TodoMethods from '../../api/todos';
@@ -40,25 +41,27 @@ export const appContext = createContext<AppContextTodoType>({
   todos: [],
   setTodos: () => { },
   filterType: TypeOfFilter.All,
-  setFilterType: () => {},
+  setFilterType: () => { },
   errors: null,
-  setErrors: () => {},
+  setErrors: () => { },
   tempTodo: null,
-  setTempTodo: () => {},
+  setTempTodo: () => { },
   isLoading: false,
-  setIsLoading: () => {},
+  setIsLoading: () => { },
   filteredTodos: [],
-  deleteTodoHandler: () => {},
-  addTodoTitle: async () => {},
+  deleteTodoHandler: () => { },
+  addTodoTitle: async () => { },
   deletedIds: [],
-  setDeletedIds: () => {},
-  updateTodos: () => {},
-  toggleAllToCompletedTodos: () => {},
+  setDeletedIds: () => { },
+  updateTodos: () => { },
+  toggleAllToCompletedTodos: () => { },
 });
 
 type Props = {
   children: ReactNode;
 };
+
+export const useAppContext = () => useContext(appContext);
 
 export const AppContextProvider: React.FC<Props> = ({ children }) => {
   const [todos, setTodos] = useState<Todo[]>([]);
@@ -99,33 +102,34 @@ export const AppContextProvider: React.FC<Props> = ({ children }) => {
           .catch(() => {
             setErrors(Error.DeleteTodo);
             setTodos(todos);
-            setDeletedIds(prevIds => (
-              prevIds.filter(prevId => prevId !== todoId)
-            ));
-          });
+          })
+          .finally(() => setDeletedIds(prevIds => (
+            prevIds.filter(prevId => prevId !== todoId)
+          )));
       }, 500);
     }, [todos],
   );
 
   const addTodoTitle = useCallback(
-    ({ title, completed, userId }: Omit<Todo, 'id'>) => {
+    (newTodo: Omit<Todo, 'id'>) => {
       setTempTodo({
         id: 0,
-        title,
-        completed,
-        userId,
+        ...newTodo,
       });
 
       setIsLoading(true);
 
-      return TodoMethods.addTodo({ title, completed, userId })
-        .then(newTodo => {
-          setTodos(currentTodos => [...currentTodos, newTodo]);
+      return TodoMethods.addTodo(newTodo)
+        .then(newestTodo => {
+          setTodos(currentTodos => [...currentTodos, newestTodo]);
         })
         .catch(() => {
           setErrors(Error.AddTodo);
         })
-        .finally(() => setTempTodo(null));
+        .finally(() => {
+          setTempTodo(null);
+          setIsLoading(false);
+        });
     }, [],
   );
 

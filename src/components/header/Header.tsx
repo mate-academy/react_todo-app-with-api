@@ -1,11 +1,10 @@
 import React, {
-  useContext,
   useEffect,
   useRef,
   useState,
 } from 'react';
 import cn from 'classnames';
-import { appContext } from '../Context/Context';
+import { useAppContext } from '../Context/Context';
 import { Error } from '../../types/TypeOfErrors';
 
 export const TodoHeader: React.FC = () => {
@@ -14,10 +13,9 @@ export const TodoHeader: React.FC = () => {
     setErrors,
     addTodoTitle,
     USER_ID,
-    setIsLoading,
     isLoading,
     toggleAllToCompletedTodos,
-  } = useContext(appContext);
+  } = useAppContext();
 
   const inputRef = useRef<null | HTMLInputElement>(null);
   const [query, setQuery] = useState('');
@@ -41,15 +39,11 @@ export const TodoHeader: React.FC = () => {
       userId: USER_ID,
       title: query.trim(),
       completed: false,
-    }).then(() => setQuery(''))
-      .finally(() => {
-        setIsLoading(false);
-      });
+    }).then(() => setQuery(''));
   };
 
-  const activeButt = () => {
-    return todos.length > 0 && todos.every(todo => todo.completed);
-  };
+  const isToggleAllActive = todos.length > 0
+    && todos.every(todo => todo.completed);
 
   return (
     <header className="todoapp__header">
@@ -58,7 +52,7 @@ export const TodoHeader: React.FC = () => {
           aria-label="ToggleAllButton"
           type="button"
           className={cn('todoapp__toggle-all', {
-            active: activeButt(),
+            active: isToggleAllActive,
           })}
           data-cy="ToggleAllButton"
           onClick={toggleAllToCompletedTodos}
