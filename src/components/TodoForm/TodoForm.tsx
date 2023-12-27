@@ -8,10 +8,11 @@ export const TodoForm = () => {
   const {
     addTodo,
     loading,
+    setIsLoadingAll,
     USER_ID,
     setErrorMessage,
     todos,
-    updateTodo
+    updateTodo,
   } = useContext(TodoContext);
 
   const [inputValue, setInputValue] = useState('');
@@ -43,6 +44,7 @@ export const TodoForm = () => {
   };
 
   const handleToggleAll = () => {
+    setIsLoadingAll(true);
     todos.forEach((todo) => {
       updateTodo({
         ...todo,

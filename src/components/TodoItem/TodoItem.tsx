@@ -1,4 +1,6 @@
-import React, { useContext, useState, useRef, useEffect } from 'react';
+import React, {
+  useContext, useState, useRef, useEffect,
+} from 'react';
 import classNames from 'classnames';
 import { Todo } from '../../types/Todo';
 import { TodoContext } from '../TodoContext';
@@ -9,7 +11,7 @@ type Props = {
 };
 
 export const TodoItem: React.FC<Props> = ({ todo }) => {
-  const { deleteTodo, loading, updateTodo } = useContext(TodoContext);
+  const { deleteTodo, loading, updateTodo, isLoadingAll } = useContext(TodoContext);
   const [isEditing, setIsEditing] = useState(false);
   const [editedTodo, setEditedTodo] = useState(todo.title);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -108,7 +110,7 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
       >
         ×
       </button>
-      {(loading === todo.id) && <Loading />}
+      {(loading === todo.id || isLoadingAll) && <Loading />}
     </div>
   );
 };

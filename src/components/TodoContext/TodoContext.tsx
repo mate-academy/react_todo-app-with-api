@@ -25,6 +25,8 @@ interface TodoContextType {
   setErrorMessage: React.Dispatch<React.SetStateAction<string>>,
   setLoading: React.Dispatch<React.SetStateAction<number | null>>,
   setOption: React.Dispatch<React.SetStateAction<Filter>>,
+  isLoadingAll: boolean,
+  setIsLoadingAll: React.Dispatch<React.SetStateAction<boolean>>,
 }
 
 const USER_ID = 11906;
@@ -39,6 +41,7 @@ export const TodoProvider:React.FC<Props> = ({ children }) => {
   const [option, setOption] = useState(Filter.All);
   const [loading, setLoading] = useState<number | null>(null);
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
+  const [isLoadingAll, setIsLoadingAll] = useState(false);
 
   useEffect(() => {
     postService.getTodos(USER_ID)
@@ -87,7 +90,10 @@ export const TodoProvider:React.FC<Props> = ({ children }) => {
   };
 
   const updateTodo = (updatedTodo: Todo) => {
-    setLoading(updatedTodo.id);
+    if (!isLoadingAll) {
+      setLoading(updatedTodo.id);
+    }
+
     postService.updateTodo(updatedTodo)
       .then((newTodo) => {
         setTodos(prevTodos => {
@@ -102,7 +108,10 @@ export const TodoProvider:React.FC<Props> = ({ children }) => {
         });
       })
       .catch(() => setErrorMessage(ErrorMessage.UnableToUpdate))
-      .finally(() => setLoading(null));
+      .finally(() => {
+        setLoading(null);
+        setIsLoadingAll(false);
+      });
   };
 
   const value = useMemo(() => ({
@@ -121,6 +130,8 @@ export const TodoProvider:React.FC<Props> = ({ children }) => {
     deleteTodo,
     addTodo,
     updateTodo,
+    isLoadingAll,
+    setIsLoadingAll,
   }), [
     todos,
     tempTodo,
@@ -128,6 +139,7 @@ export const TodoProvider:React.FC<Props> = ({ children }) => {
     errorMessage,
     option,
     loading,
+    isLoadingAll,
   ]);
 
   return (
