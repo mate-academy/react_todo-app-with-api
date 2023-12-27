@@ -29,6 +29,14 @@
   }
 
   &__title {
+    background: none;
+    color: inherit;
+    border: none;
+    font: inherit;
+    cursor: pointer;
+    outline: inherit;
+    text-align: left;
+
     padding: 12px 15px;
 
     word-break: break-all;
