@@ -69,9 +69,12 @@ export const TodosContextProvider: React.FC<ProviderProps> = ({
     setFilterSelected,
   ] = useState<FilterOption>(FilterOption.All);
 
-  const recieveTodos = (newTodos: Todo[]) => {
-    setTodos(newTodos);
-  };
+  const recieveTodos = useCallback(
+    (newTodos: Todo[]) => {
+      setTodos(newTodos);
+    },
+    [],
+  );
 
   const filteredTodos = filterTodos({ todos, filterSelected });
 

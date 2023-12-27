@@ -123,9 +123,7 @@ export const TodoApp: React.FC = () => {
 
         {todos.length > 0 && (
           <TodoFooter
-            handlerErrors={
-              (errMessage: ErrorOption) => setError(errMessage)
-            }
+            handlerErrors={setError}
           />
         )}
       </div>
