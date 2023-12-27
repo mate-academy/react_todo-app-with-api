@@ -3,7 +3,6 @@ import classNames from 'classnames';
 import { FilterType } from '../../types/FilterType';
 import { Todo } from '../../types/Todo';
 import { filterTodos } from '../../utils/helpers';
-// import { TodosContext } from '../../utils/contexts/TodoContext';
 
 interface Props {
   filterType: FilterType,
@@ -16,8 +15,6 @@ export const Filter: React.FC<Props> = ({
   onFilterSelect,
   todos,
 }) => {
-  // const todos = useContext(TodosContext);
-
   const todosToComplete = filterTodos(todos, FilterType.Active).length;
 
   return (

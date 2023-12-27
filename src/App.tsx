@@ -1,6 +1,5 @@
 import React, {
   useCallback,
-  // useContext,
   useEffect,
   useMemo,
   useState,
@@ -19,7 +18,6 @@ import { FilterType } from './types/FilterType';
 import { filterTodos } from './utils/helpers';
 import { ErrorNotify } from './components/ErrorNotify/ErrorNotify';
 import { Header } from './components/Header/Header';
-// import { TodoProvider, TodosContext } from './utils/contexts/TodoContext';
 
 const USER_ID = 12041;
 
@@ -29,17 +27,9 @@ export const App: React.FC = () => {
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
   const [selectedTodos, setSelectedTodos] = useState<number[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [newTodoTitle, setNewTodoTitle] = useState('');
-  // const [completedTodos, setCompletedTodos] = useState([]);
-  // const { todos, setTodos } = useContext(TodosContext);
   const [todos, setTodos] = useState<Todo[]>([]);
-
-  // setTodos([]);
-
-  // const [todos, setTodos] = useState<Todo[]>([]);
-  const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setNewTodoTitle(event.target.value);
-  };
+  const [editableTodo, setEditableTodo] = useState<Todo | null>(null);
+  const [newTodoTitle, setNewTodoTitle] = useState('');
 
   const handleError = (err: Errors) => {
     setError(err);
@@ -47,6 +37,10 @@ export const App: React.FC = () => {
     setTimeout(() => {
       setError(null);
     }, 3000);
+  };
+
+  const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setNewTodoTitle(event.target.value);
   };
 
   const handleDelete = async (todoId: number) => {
@@ -77,11 +71,8 @@ export const App: React.FC = () => {
     const renderTodos = async () => {
       try {
         const todosFromServer = await getTodos(USER_ID);
-        // console.log(todosFromServer);
-        // console.log(setTodos);
 
         setTodos(todosFromServer);
-        // console.log(todos);
       } catch (e) {
         handleError(Errors.UnableToLoad);
 
@@ -174,7 +165,6 @@ export const App: React.FC = () => {
   }, [todos]);
 
   const toggleComplete = async (
-    // event: React.MouseEvent<HTMLInputElement, MouseEvent>,
     todoId: number,
     { completed }: Pick<Todo, 'completed'>,
   ) => {
@@ -194,7 +184,6 @@ export const App: React.FC = () => {
         }),
       );
     } catch (err) {
-      // setError();
       handleError(Errors.UnableToUpdate);
 
       throw err;
@@ -205,20 +194,68 @@ export const App: React.FC = () => {
         ),
       );
     }
+  };
 
-    // const updatingTodo = async () => {
-    // };
+  const isEveryTodoCompleted = todos.every(todo => todo.completed);
+
+  const toggleCompleteAll = () => {
+    if (isEveryTodoCompleted) {
+      todos.forEach(async (todo) => {
+        try {
+          setSelectedTodos(prevTodos => [...prevTodos, todo.id]);
+          await updateTodo(todo.id, { completed: false });
+          setSelectedTodos(prevTodos => [
+            ...prevTodos.filter(todoId => todo.id !== todoId),
+          ]);
+          setTodos(prevTodos => prevTodos.map(prevTodo => ({
+            ...prevTodo,
+            completed: false,
+          }
+          )));
+        } catch (err) {
+          setSelectedTodos(todoIds => todoIds
+            .filter(selctedId => selctedId === todo.id));
+          handleError(Errors.UnableToUpdate);
+
+          throw err;
+        }
+      });
+    } else {
+      todos.forEach(async (todo) => {
+        try {
+          setSelectedTodos(prevTodos => [...prevTodos, todo.id]);
+          await updateTodo(todo.id, { completed: true });
+          setSelectedTodos(prevTodos => [
+            ...prevTodos.filter(todoId => todo.id !== todoId),
+          ]);
+          setTodos(prevTodos => prevTodos.map(prevTodo => ({
+            ...prevTodo,
+            completed: true,
+          }
+          )));
+        } catch (err) {
+          setSelectedTodos(todoIds => todoIds
+            .filter(selctedId => selctedId === todo.id));
+          handleError(Errors.UnableToUpdate);
+
+          throw err;
+        }
+      });
+    }
+  };
+
+  const editTodoTitle = (editingTodoId: number) => {
+    setEditableTodo(todos.find(todo => {
+      return todo.id === editingTodoId;
+    }) || null);
   };
 
   const visibleTodos = useMemo(() => {
-    // console.log(visibleTodos)
-
     return filterTodos(todos, filterType);
   }, [filterType, todos]);
 
   return (
     <div className="todoapp">
-      {/* <TodoProvider> */}
       <h1 className="todoapp__title">todos</h1>
 
       <div className="todoapp__content">
@@ -227,6 +264,8 @@ export const App: React.FC = () => {
           handleSubmit={handleSubmit}
           newTodoTitle={newTodoTitle}
           isSubmitting={isSubmitting}
+          todos={todos}
+          toggleCompleteAll={toggleCompleteAll}
         />
 
         <TodoList
@@ -235,6 +274,12 @@ export const App: React.FC = () => {
           handleDelete={handleDelete}
           selectedTodos={selectedTodos}
           toggleComplete={toggleComplete}
+          editTodoTitle={editTodoTitle}
+          editableTodo={editableTodo}
+          setEditableTodo={setEditableTodo}
+          setSelectedTodos={setSelectedTodos}
+          setTodos={setTodos}
+          handleError={handleError}
         />
 
         {!!todos.length && (
@@ -251,7 +296,6 @@ export const App: React.FC = () => {
         error={error}
         onClose={onErrorNotifyClose}
       />
-      {/* </TodoProvider> */}
     </div>
   );
 };

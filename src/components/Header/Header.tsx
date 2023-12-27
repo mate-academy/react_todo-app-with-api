@@ -1,10 +1,14 @@
 import React, { useEffect, useRef } from 'react';
+import classNames from 'classnames';
+import { Todo } from '../../types/Todo';
 
 interface Props {
   handleSubmit: (e: React.FormEvent<HTMLFormElement>) => void,
   isSubmitting: boolean,
   newTodoTitle: string,
   handleInputChange: (event: React.ChangeEvent<HTMLInputElement>) => void,
+  todos: Todo[],
+  toggleCompleteAll: () => void,
 }
 
 export const Header: React.FC<Props> = ({
@@ -12,22 +16,29 @@ export const Header: React.FC<Props> = ({
   isSubmitting,
   newTodoTitle,
   handleInputChange,
+  todos,
+  toggleCompleteAll,
 }) => {
   const titleField = useRef<HTMLInputElement>(null);
+  const isEveryTodoCompleted = todos.every(todo => todo.completed);
 
   useEffect(() => {
     if (titleField.current) {
       titleField.current.focus();
     }
-  });
+  }, [todos]);
 
   return (
     <header className="todoapp__header">
       <button
         type="button"
-        className="todoapp__toggle-all active"
+        // className="todoapp__toggle-all active"
+        className={classNames('todoapp__toggle-all', {
+          active: isEveryTodoCompleted,
+        })}
         data-cy="ToggleAllButton"
         aria-label="Add new todo"
+        onClick={toggleCompleteAll}
       />
 
       <form

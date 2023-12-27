@@ -1,6 +1,7 @@
 import React from 'react';
 import { Todo as TodoInterface } from '../../types/Todo';
 import { Todo } from '../Todo/Todo';
+import { Errors } from '../../types/Errors';
 
 interface Props {
   todos: TodoInterface[],
@@ -10,7 +11,13 @@ interface Props {
   toggleComplete: (
     todoId: number,
     { completed }: Pick<TodoInterface, 'completed'>,
-  ) => void
+  ) => void,
+  editTodoTitle: (editingTodoId: number) => void,
+  editableTodo: TodoInterface | null,
+  setEditableTodo: React.Dispatch<React.SetStateAction<TodoInterface | null>>,
+  handleError: (err: Errors) => void,
+  setSelectedTodos: React.Dispatch<React.SetStateAction<number[]>>,
+  setTodos: React.Dispatch<React.SetStateAction<TodoInterface[]>>,
 }
 
 export const TodoList: React.FC<Props> = ({
@@ -19,6 +26,12 @@ export const TodoList: React.FC<Props> = ({
   handleDelete = () => { },
   selectedTodos,
   toggleComplete,
+  editTodoTitle,
+  editableTodo,
+  setEditableTodo,
+  handleError,
+  setSelectedTodos,
+  setTodos,
 }) => {
   return (
     <section className="todoapp__main" data-cy="TodoList">
@@ -35,6 +48,12 @@ export const TodoList: React.FC<Props> = ({
           handleDelete={handleDelete}
           selectedTodos={selectedTodos}
           onClick={toggleComplete}
+          editTodoTitle={() => editTodoTitle(id)}
+          editableTodo={editableTodo}
+          setEditableTodo={setEditableTodo}
+          handleError={handleError}
+          setSelectedTodos={setSelectedTodos}
+          setTodos={setTodos}
         />
       ))}
       {tempTodo
@@ -45,6 +64,13 @@ export const TodoList: React.FC<Props> = ({
             completed={tempTodo.completed}
             handleDelete={() => { }}
             selectedTodos={selectedTodos}
+            onClick={() => { }}
+            editTodoTitle={() => { }}
+            editableTodo={editableTodo}
+            setEditableTodo={() => { }}
+            handleError={handleError}
+            setTodos={setTodos}
+            setSelectedTodos={() => { }}
           />
         )}
     </section>

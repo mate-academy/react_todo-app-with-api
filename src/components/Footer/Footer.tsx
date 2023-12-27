@@ -3,7 +3,6 @@ import classNames from 'classnames';
 import { FilterType } from '../../types/FilterType';
 import { Todo } from '../../types/Todo';
 import { filterTodos } from '../../utils/helpers';
-// import { TodosContext } from '../../utils/contexts/TodoContext';
 
 interface Props {
   filterType: FilterType,
@@ -18,8 +17,6 @@ export const Footer: React.FC<Props> = ({
   todos,
   clearCompleted,
 }) => {
-  // const todos = useContext(TodosContext);
-
   const todosToComplete = filterTodos(todos, FilterType.Active).length;
   const isClearButtonShown = todos.some(todo => todo.completed);
 
@@ -64,19 +61,15 @@ export const Footer: React.FC<Props> = ({
         </a>
       </nav>
 
-      {
-        isClearButtonShown
-        && (
-          <button
-            type="button"
-            className="todoapp__clear-completed"
-            data-cy="ClearCompletedButton"
-            onClick={clearCompleted}
-          >
-            Clear completed
-          </button>
-        )
-      }
+      <button
+        type="button"
+        className="todoapp__clear-completed"
+        data-cy="ClearCompletedButton"
+        onClick={clearCompleted}
+        disabled={!isClearButtonShown}
+      >
+        Clear completed
+      </button>
     </footer>
   );
 };
