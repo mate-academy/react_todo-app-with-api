@@ -73,15 +73,6 @@ export const App: React.FC = () => {
       .catch(() => showError(ErrorTypes.NotLoad));
   }, []);
 
-  const toogleCompletedTodo = () => {
-    const result = todos.map(todo => ({
-      ...todo,
-      completed: !isCompleteAll,
-    }));
-
-    setTodos(result);
-  };
-
   const updateTodo = ((
     id: number,
     dataUpdate: Partial<Todo>,
@@ -113,6 +104,19 @@ export const App: React.FC = () => {
         });
       });
   });
+
+  const toogleCompletedTodo = () => {
+    const result = todos.map(todo => {
+      if (todo.completed !== isCompleteAll) {
+        updateTodo(todo.id, { ...todo, completed: !isCompleteAll });
+      }
+
+      return { ...todo, completed: !isCompleteAll };
+    });
+
+    setIsCompeteAll(!isCompleteAll);
+    setTodos(result);
+  };
 
   if (!USER_ID) {
     return <UserWarning />;
