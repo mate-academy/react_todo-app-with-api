@@ -20,6 +20,8 @@ type TodoContextType = {
   messageError: string;
   query: string;
   isLoadingTodo: Todo;
+  status: number
+  isToggled: boolean;
   setTodos: React.Dispatch<React.SetStateAction<Todo[]>>;
   setFilteredTodos: React.Dispatch<React.SetStateAction<Todo[]>>;
   setTempTodo: React.Dispatch<React.SetStateAction<Todo>>;
@@ -30,6 +32,10 @@ type TodoContextType = {
   handleSubmitSent: (event: React.FormEvent<HTMLFormElement>) => void;
   handleDeleteTodo: (id: number) => void;
   setIsLoadingTodo: React.Dispatch<React.SetStateAction<Todo>>
+  setStatus: React.Dispatch<React.SetStateAction<number>>
+  handleCheckboxClick: (todo: Todo) => void;
+  setIsToggled: React.Dispatch<React.SetStateAction<boolean>>;
+  handleToggleAll: () => void;
 };
 
 const TodoContext = createContext<TodoContextType | undefined>(undefined);
@@ -55,6 +61,8 @@ export const TodoProvider: React.FC<{ children: ReactNode }> = (
   const [messageError, setMessageError] = useState<string>('');
   const [query, setQuery] = useState<string>('');
   const [isLoadingTodo, setIsLoadingTodo] = useState<Todo | null>(null);
+  const [status, setStatus] = useState<number>(0);
+  const [isToggled, setIsToggled] = useState<boolean>(false);
 
   const fetchTodos = useCallback(
     async (messageId: number) => {
@@ -117,10 +125,14 @@ export const TodoProvider: React.FC<{ children: ReactNode }> = (
   const handleDeleteTodo = useCallback(
     async (id: number) => {
       try {
+        setStatus(id);
         setIsLoadingTodo(todos.find(todo => todo.id === id) || null);
-        setTodos(
-          currentTodos => currentTodos.filter(todo => todo.id !== id),
-        );
+        setTimeout(() => {
+          setStatus(false);
+          setTodos(
+            currentTodos => currentTodos.filter(todo => todo.id !== id),
+          );
+        }, 500);
         await deleteTodo(id);
       } catch (error) {
         setMessageError(ERROR_MESSAGES[3]);
@@ -128,6 +140,39 @@ export const TodoProvider: React.FC<{ children: ReactNode }> = (
     },
     [todos],
   );
+
+  const handleCheckboxClick = useCallback((clickedTodo: Todo) => {
+    try {
+      const { id } = clickedTodo;
+
+      setStatus(id);
+      setTimeout(() => {
+        setStatus(0);
+        setTodos((currentTodos) => currentTodos.map((todo) => (todo.id === id
+          ? { ...todo, completed: !todo.completed }
+          : todo)));
+      }, 500);
+    } catch (error) {
+      setMessageError(ERROR_MESSAGES[3]);
+    }
+  }, [setTodos, setMessageError, setStatus]);
+
+  const handleToggleAll = useCallback(() => {
+    setIsToggled(true);
+
+    setTimeout(() => {
+      setTodos((currentTodos) => {
+        const completedTodos = currentTodos.every((todo) => todo.completed);
+
+        return currentTodos.map((todo) => ({
+          ...todo,
+          completed: !completedTodos,
+        }));
+      });
+
+      setIsToggled(false);
+    }, 500);
+  }, [setTodos]);
 
   useEffect(() => {
     switch (filterType) {
@@ -161,6 +206,8 @@ export const TodoProvider: React.FC<{ children: ReactNode }> = (
       query,
       pending,
       isLoadingTodo,
+      status,
+      isToggled,
       setTodos,
       setFilteredTodos,
       setTempTodo,
@@ -171,6 +218,8 @@ export const TodoProvider: React.FC<{ children: ReactNode }> = (
       handleSubmitSent,
       handleDeleteTodo,
       setIsLoadingTodo,
+      handleCheckboxClick,
+      handleToggleAll,
     }),
     [
       todos,
@@ -181,8 +230,12 @@ export const TodoProvider: React.FC<{ children: ReactNode }> = (
       messageError,
       query,
       isLoadingTodo,
+      status,
+      isToggled,
       handleSubmitSent,
       handleDeleteTodo,
+      handleCheckboxClick,
+      handleToggleAll,
     ],
   );
 

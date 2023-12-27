@@ -13,6 +13,7 @@ export const App: React.FC = () => {
     handleSubmitSent,
     pending,
     todos,
+    handleToggleAll,
   } = useTodoContext();
 
   const inputRef = useRef<HTMLInputElement | null>(null);
@@ -31,6 +32,7 @@ export const App: React.FC = () => {
             type="button"
             className="todoapp__toggle-all active"
             data-cy="ToggleAllButton"
+            onClick={handleToggleAll}
           />
 
           <form onSubmit={(event) => handleSubmitSent(event)}>
