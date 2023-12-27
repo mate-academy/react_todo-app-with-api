@@ -5,8 +5,8 @@ import { appContext } from '../Context/Context';
 
 export const TodoFooter: React.FC = () => {
   const {
-    filter,
-    setFilter,
+    filterType,
+    setFilterType,
     todos,
     deleteTodoHandler,
   } = useContext(appContext);
@@ -29,9 +29,9 @@ export const TodoFooter: React.FC = () => {
         <a
           href="#/"
           className={cn('filter__link',
-            { selected: filter === TypeOfFilter.All })}
+            { selected: filterType === TypeOfFilter.All })}
           data-cy="FilterLinkAll"
-          onClick={() => setFilter(TypeOfFilter.All)}
+          onClick={() => setFilterType(TypeOfFilter.All)}
         >
           {TypeOfFilter.All}
         </a>
@@ -39,9 +39,9 @@ export const TodoFooter: React.FC = () => {
         <a
           href="#/active"
           className={cn('filter__link',
-            { selected: filter === TypeOfFilter.Active })}
+            { selected: filterType === TypeOfFilter.Active })}
           data-cy="FilterLinkActive"
-          onClick={() => setFilter(TypeOfFilter.Active)}
+          onClick={() => setFilterType(TypeOfFilter.Active)}
         >
           {TypeOfFilter.Active}
         </a>
@@ -49,9 +49,9 @@ export const TodoFooter: React.FC = () => {
         <a
           href="#/completed"
           className={cn('filter__link',
-            { selected: filter === TypeOfFilter.Completed })}
+            { selected: filterType === TypeOfFilter.Completed })}
           data-cy="FilterLinkCompleted"
-          onClick={() => setFilter(TypeOfFilter.Completed)}
+          onClick={() => setFilterType(TypeOfFilter.Completed)}
         >
           {TypeOfFilter.Completed}
         </a>

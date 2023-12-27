@@ -17,14 +17,16 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
   const {
     deleteTodoHandler,
     isLoading,
-    deleteIds,
+    deletedIds,
     updateTodos,
   } = useContext(appContext);
 
   const [titleToChange, setTitleToChange] = useState(title);
   const [isEdit, setIsEdit] = useState(false);
 
-  const handlerLoader = () => (isLoading && !todo.id) || deleteIds.includes(id);
+  const handlerLoader = () => (
+    (isLoading && !todo.id) || deletedIds.includes(id)
+  );
 
   const onSubmit = (event:
   React.FormEvent<HTMLFormElement> | React.FocusEvent<HTMLInputElement>) => {
@@ -47,6 +49,7 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
   const onKeyUp = (event: React.KeyboardEvent<HTMLInputElement>) => {
     if (event.key === 'Escape') {
       setIsEdit(false);
+      setTitleToChange(title);
     }
   };
 
