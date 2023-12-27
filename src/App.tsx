@@ -1,5 +1,4 @@
-/* eslint-disable jsx-a11y/control-has-associated-label */
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { UserWarning } from './UserWarning';
 import { Todo } from './types/Todo';
 import * as todoService from './api/todos';
@@ -21,9 +20,16 @@ export const App: React.FC = () => {
   const [filterStatus, setFilterStatus] = useState<Status>(Status.All);
   const [loadingTodosIds, setLoadingTodosIds] = useState<number[]>([]);
 
+  const timerId = useRef<NodeJS.Timeout>();
+
   const showError = (message: string) => {
     setErrorMessage(message);
-    setTimeout(() => setErrorMessage(null), 3000);
+    clearTimeout(timerId.current);
+    timerId.current = setTimeout(() => setErrorMessage(null), 3000);
+  };
+
+  const hideError = () => {
+    setErrorMessage('');
   };
 
   const deleteTodo = async (id: number) => {
@@ -73,18 +79,20 @@ export const App: React.FC = () => {
       .then((updatedTodo) => {
         setTodos(currentTodos => {
           const newTodos = [...currentTodos];
-          const index = newTodos.findIndex(todo => todo.id === id);
 
-          newTodos.splice(index, 1, updatedTodo);
+          const result = newTodos.map(todo => {
+            if (todo.id === id) {
+              return updatedTodo;
+            }
 
-          return newTodos;
+            return todo;
+          });
+
+          return result;
         });
       })
       .catch(() => {
-        setErrorMessage(() => ErrorTypes.NotUpdate);
-        if (errorMessage) {
-          showError(errorMessage);
-        }
+        showError(ErrorTypes.NotUpdate);
       })
       .finally(() => {
         setLoadingTodosIds((currentIds) => {
@@ -98,6 +106,14 @@ export const App: React.FC = () => {
   }
 
   const filteredTodos = filterTodos(todos, filterStatus);
+
+  const clearCompleted = (data: Todo[]) => {
+    data.forEach(todo => {
+      if (todo.completed) {
+        deleteTodo(todo.id);
+      }
+    });
+  };
 
   return (
     <div className="todoapp">
@@ -117,12 +133,13 @@ export const App: React.FC = () => {
             filterStatus={filterStatus}
             filteredTodos={filteredTodos}
             setFilterStatus={setFilterStatus}
+            clearCompleted={clearCompleted}
           />
         )}
 
       </div>
       {errorMessage && (
-        <ErrorNotification errorMessage={errorMessage} />
+        <ErrorNotification hideError={hideError} errorMessage={errorMessage} />
       )}
     </div>
   );

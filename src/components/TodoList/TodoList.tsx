@@ -25,7 +25,7 @@ export const TodoList: FC<Props> = ({
             key={todo.id}
             todo={todo}
             deleteTodo={deleteTodo}
-            Loader={loadingTodosIds.includes(todo.id)}
+            isLoading={loadingTodosIds.includes(todo.id)}
             updateTodo={updateTodo}
           />
         );
@@ -34,7 +34,7 @@ export const TodoList: FC<Props> = ({
         <Todo
           todo={tempTodo}
           deleteTodo={deleteTodo}
-          Loader
+          isLoading
           updateTodo={updateTodo}
         />
       )}

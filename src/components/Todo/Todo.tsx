@@ -7,14 +7,14 @@ import { Todo as TodoTypes } from '../../types/Todo';
 type Props = {
   todo: TodoTypes,
   deleteTodo: (id: number) => void,
-  Loader: boolean;
+  isLoading: boolean;
   updateTodo: (id: number, newData: Partial<TodoTypes>) => Promise<void>;
 };
 
 export const Todo: FC<Props> = ({
   todo,
   deleteTodo,
-  Loader,
+  isLoading,
   updateTodo,
 }) => {
   const [isEdit, setIsEdit] = useState<boolean>(false);
@@ -35,6 +35,8 @@ export const Todo: FC<Props> = ({
     const preparedTitle = newTitle.trim();
 
     if (!preparedTitle) {
+      deleteTodo(todo.id);
+
       return;
     }
 
@@ -124,7 +126,7 @@ export const Todo: FC<Props> = ({
         data-cy="TodoLoader"
         className={cn(
           'modal overlay',
-          { 'is-active': Loader },
+          { 'is-active': isLoading },
         )}
       >
         <div
