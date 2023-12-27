@@ -17,10 +17,12 @@ export const TodoFooter: React.FC = () => {
     completed.map(todo => deleteTodoHandler(todo.id));
   };
 
+  const CountItems = `${active.length} items left`;
+
   return (
     <footer className="todoapp__footer" data-cy="Footer">
       <span className="todo-count" data-cy="TodosCounter">
-        {`${active.length} items left`}
+        {CountItems}
       </span>
 
       <nav className="filter" data-cy="Filter">
@@ -31,7 +33,7 @@ export const TodoFooter: React.FC = () => {
           data-cy="FilterLinkAll"
           onClick={() => setFilter(TypeOfFilter.All)}
         >
-          All
+          {TypeOfFilter.All}
         </a>
 
         <a
@@ -41,7 +43,7 @@ export const TodoFooter: React.FC = () => {
           data-cy="FilterLinkActive"
           onClick={() => setFilter(TypeOfFilter.Active)}
         >
-          Active
+          {TypeOfFilter.Active}
         </a>
 
         <a
@@ -51,7 +53,7 @@ export const TodoFooter: React.FC = () => {
           data-cy="FilterLinkCompleted"
           onClick={() => setFilter(TypeOfFilter.Completed)}
         >
-          Completed
+          {TypeOfFilter.Completed}
         </a>
       </nav>
 

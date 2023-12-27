@@ -26,8 +26,11 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
 
   const handlerLoader = () => (isLoading && !todo.id) || deleteIds.includes(id);
 
-  const onSubmit = () => {
-    if (titleToChange.trim() === '') {
+  const onSubmit = (event:
+  React.FormEvent<HTMLFormElement> | React.FocusEvent<HTMLInputElement>) => {
+    event.preventDefault();
+
+    if (!titleToChange.trim()) {
       deleteTodoHandler(id);
 
       return;
