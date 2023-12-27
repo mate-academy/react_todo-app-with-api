@@ -1,24 +1,58 @@
-/* eslint-disable max-len */
-/* eslint-disable jsx-a11y/control-has-associated-label */
-import React from 'react';
-import { UserWarning } from './UserWarning';
+import React, { useContext, useEffect, useMemo } from 'react';
 
-const USER_ID = 0;
+import { Header } from './components/Header';
+import { TodoList } from './components/TodoList';
+import { Footer } from './components/Footer';
+import { Notifications } from './components/Errors';
+import { getTodos } from './api/todos';
+import { filterTodo } from './helpers/filterTodo';
+import { UserWarning } from './UserWarning';
+import { ErrorType } from './types/Errors';
+import { USER_ID } from './utils/userId';
+import { AppContext } from './AppContext';
 
 export const App: React.FC = () => {
+  const {
+    todos,
+    setTodos,
+    filterBy,
+    shouError,
+  } = useContext(AppContext);
+
+  useEffect(() => {
+    getTodos(USER_ID)
+      .then(setTodos)
+      .catch(() => shouError(ErrorType.UnableToLoadTodo));
+  }, [shouError, setTodos]);
+
+  const preparedTodos = useMemo(
+    () => filterTodo(todos, filterBy),
+    [todos, filterBy],
+  );
+
+  const isEveryTodosCompleted = preparedTodos.every(
+    todo => todo.completed,
+  );
+
   if (!USER_ID) {
     return <UserWarning />;
   }
 
   return (
-    <section className="section container">
-      <p className="title is-4">
-        Copy all you need from the prev task:
-        <br />
-        <a href="https://github.com/mate-academy/react_todo-app-add-and-delete#react-todo-app-add-and-delete">React Todo App - Add and Delete</a>
-      </p>
+    <div className="todoapp">
+      <h1 className="todoapp__title">todos</h1>
 
-      <p className="subtitle">Styles are already copied</p>
-    </section>
+      <div className="todoapp__content">
+        <Header isEveryTodosCompleted={isEveryTodosCompleted} />
+
+        <TodoList todos={preparedTodos} />
+
+        {todos.length > 0 && (
+          <Footer />
+        )}
+      </div>
+
+      <Notifications />
+    </div>
   );
 };
