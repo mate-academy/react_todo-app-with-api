@@ -37,7 +37,7 @@ export const TodoList: FC<Props> = (props) => {
               key={todo.id}
               todo={todo}
               deleteTodo={deleteTodo}
-              loading={loadingTodoId.includes(todo.id)}
+              isLoading={loadingTodoId.includes(todo.id)}
               updateTodo={updateTodo}
               setLoadingTodoId={setLoadingTodoId}
               handleEditTodo={handleEditTodo}
@@ -53,7 +53,7 @@ export const TodoList: FC<Props> = (props) => {
           >
             <Todo
               todo={tempTodo}
-              loading={loadingTodoId.includes(tempTodo.id)}
+              isLoading={loadingTodoId.includes(tempTodo.id)}
               deleteTodo={deleteTodo}
               isTemporary
             />

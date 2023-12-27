@@ -71,6 +71,8 @@ export const App: React.FC = () => {
 
   const updateTodo = async (todoToUpdate: Todo) => {
     try {
+      setLoadingTodoId(prevIds => [...prevIds, todoToUpdate.id]);
+
       const updatedTodo = await todosService
         .updateTodo(todoToUpdate.id, todoToUpdate);
 
@@ -80,10 +82,23 @@ export const App: React.FC = () => {
       });
     } catch (e) {
       handleError(Errors.UpdateTodo);
+    } finally {
+      setLoadingTodoId(prevIds => prevIds
+        .filter(id => id !== todoToUpdate.id));
     }
   };
 
   const deleteTodo = (todoId: number) => {
+    setLoadingTodoId([todoId]);
+    todosService.deleteTodo(todoId)
+      .then(() => setTodos(
+        currentTodos => currentTodos
+          .filter(todo => todo.id !== todoId),
+      ))
+      .catch(() => handleError(Errors.DeleteTodo));
+  };
+
+  const deleteAllCompletedTodos = (todoId: number) => {
     const completedTodos = todos.filter(todo => todo.completed);
 
     setLoadingTodoId(completedTodos.map(todo => todo.id));
@@ -91,18 +106,20 @@ export const App: React.FC = () => {
       .then(() => setTodos(
         currentTodos => currentTodos.filter(todo => todo.id !== todoId),
       ))
-      .catch(() => handleError(Errors.DeleteTodo));
+      .catch(() => handleError(Errors.DeleteTodo))
+      .finally(() => {
+        setLoadingTodoId(prevIds => prevIds.filter(id => id !== todoId));
+      });
   };
 
   const handleEditTodo = async (todoId: number, newTitle: string) => {
     if (!newTitle) {
       setErrorMessage(Errors.UpdateTodo);
-
-      return;
+      deleteTodo(todoId);
     }
 
     try {
-      setLoadingTodoId([todoId]);
+      setLoadingTodoId(prevIds => [...prevIds, todoId]);
       const updatedTodo = await todosService.updateTodoTitle(todoId, newTitle);
 
       setTodos(currentTodos => currentTodos.map(
@@ -111,7 +128,7 @@ export const App: React.FC = () => {
     } catch {
       setErrorMessage(Errors.EmptyTitle);
     } finally {
-      setLoadingTodoId([]);
+      setLoadingTodoId(prevIds => prevIds.filter(id => id !== todoId));
     }
   };
 
@@ -129,8 +146,6 @@ export const App: React.FC = () => {
           todos={todos}
           addTodo={addTodo}
           handleError={handleError}
-          setLoadingTodoId={setLoadingTodoId}
-          setErrorMessage={setErrorMessage}
         />
 
         <TodoList
@@ -148,7 +163,7 @@ export const App: React.FC = () => {
             todos={todosToRender}
             setFilterValue={setFilterValue}
             filterValue={filterValue}
-            deleteTodo={deleteTodo}
+            deleteTodo={deleteAllCompletedTodos}
             activeTodosCounter={activeTodosCounter}
           />
         )}

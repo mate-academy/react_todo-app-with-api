@@ -7,7 +7,7 @@ import { Todo as TodoType } from '../../types/Todo';
 interface Props {
   todo: TodoType,
   deleteTodo: (todoId: number) => void,
-  loading: boolean,
+  isLoading: boolean,
   isTemporary?: boolean,
   updateTodo?: (updatedTodo: TodoType) => Promise<void>,
   setLoadingTodoId?: (loadingTodoId: number[]) => void,
@@ -18,7 +18,7 @@ export const Todo: FC<Props> = (props) => {
   const {
     todo,
     deleteTodo,
-    loading,
+    isLoading,
     isTemporary,
     updateTodo,
     setLoadingTodoId,
@@ -60,7 +60,9 @@ export const Todo: FC<Props> = (props) => {
   const handleKeyUp = (event: React.KeyboardEvent<HTMLInputElement>) => {
     if (event.key === 'Enter') {
       handleEditTitle();
-    } else if (event.key === 'Escape') {
+    }
+
+    if (event.key === 'Escape') {
       setEditedTitle(todo.title);
       setIsEditing(false);
     }
@@ -85,7 +87,7 @@ export const Todo: FC<Props> = (props) => {
           className="todo__status"
           checked={todo.completed}
           onChange={handleToggle}
-          disabled={loading}
+          disabled={isLoading}
           ref={titleField}
         />
       </label>
@@ -104,24 +106,27 @@ export const Todo: FC<Props> = (props) => {
             type="button"
             className="todo__remove"
             onClick={() => deleteTodo(todo.id)}
-            disabled={loading}
+            disabled={isLoading}
           >
             ×
           </button>
         </>
       ) : (
-        <input
-          type="text"
-          className="todo__title"
-          value={editedTitle}
-          ref={titleField}
-          onKeyUp={handleKeyUp}
-          onBlur={handleEditTitle}
-          onChange={titleChanger}
-        />
+        <form onSubmit={handleEditTitle}>
+          <input
+            data-cy="TodoTitleField"
+            type="text"
+            className="todo__title-field"
+            value={editedTitle}
+            ref={titleField}
+            onKeyUp={handleKeyUp}
+            onBlur={handleEditTitle}
+            onChange={titleChanger}
+          />
+        </form>
       )}
       <div className={cn('modal overlay', {
-        'is-active': loading || isTemporary,
+        'is-active': isLoading || isTemporary,
       })}
       >
         <div className="modal-background has-background-white-ter" />

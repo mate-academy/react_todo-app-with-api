@@ -8,10 +8,8 @@ import { Todo } from '../../types/Todo';
 type Props = {
   todos: Todo[],
   handleError: (error: Errors) => void,
-  addTodo: (inputValue: string) =>void,
-  updateTodo: (updatedTodo: Todo) =>void,
-  setLoadingTodoId: (loadingTodoId: number[]) => void;
-  setErrorMessage: (error: Errors) => void,
+  addTodo: (inputValue: string) => void,
+  updateTodo: (updatedTodo: Todo) => void,
 };
 export const Header: FC<Props> = (props) => {
   const {
@@ -19,8 +17,6 @@ export const Header: FC<Props> = (props) => {
     handleError,
     addTodo,
     updateTodo,
-    setLoadingTodoId,
-    setErrorMessage,
   } = props;
 
   const [inputValue, setInputValue] = useState('');
@@ -30,7 +26,7 @@ export const Header: FC<Props> = (props) => {
     input?.focus();
   }, []);
 
-  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
     if (!inputValue.trim()) {
@@ -43,7 +39,6 @@ export const Header: FC<Props> = (props) => {
 
     try {
       addTodo(inputValue);
-
       setInputValue('');
     } finally {
       setIsDisabledInput(false);
@@ -52,24 +47,13 @@ export const Header: FC<Props> = (props) => {
 
   const completeAllTodos = async () => {
     const statusOfTodos = todos.every(todo => todo.completed);
+    const updateTodos = todos.filter(todo => (
+      !statusOfTodos ? !todo.completed : todo.completed
+    ));
 
-    const todoIdsToUpdate = todos.map(todo => todo.id);
-
-    setLoadingTodoId(todoIdsToUpdate);
-
-    try {
-      const updateTodos = todos.filter(todo => (
-        !statusOfTodos ? !todo.completed : todo.completed
-      ));
-
-      await Promise.all(updateTodos.map(async todo => {
-        await updateTodo({ ...todo, completed: !todo.completed });
-      }));
-    } catch {
-      setErrorMessage(Errors.UpdateTodo);
-    } finally {
-      setLoadingTodoId([]);
-    }
+    await Promise.all(updateTodos.map(async todo => {
+      updateTodo({ ...todo, completed: !todo.completed });
+    }));
   };
 
   const allCompleted = useMemo(() => {
