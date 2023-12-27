@@ -27,7 +27,7 @@ export const TodoList: React.FC<Props> = React.memo(({ todos }) => {
           </CSSTransition>
         ))}
 
-        {tempTodo !== null && (
+        {!!tempTodo && (
           <CSSTransition
             key={0}
             timeout={300}

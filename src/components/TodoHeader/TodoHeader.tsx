@@ -15,6 +15,7 @@ export const TodoHeader: React.FC = () => {
   const { todos, inputValue } = useContext(StateContext);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const inputRef = useRef<HTMLInputElement | null>(null);
+  const isCompletedAll = todos.every(todo => todo.completed);
   const hasActiveTodos = todos.some(todo => !todo.completed);
   const todosToUpdate = todos.filter(
     todo => todo.completed !== hasActiveTodos,
@@ -119,13 +120,13 @@ export const TodoHeader: React.FC = () => {
   return (
     <header className="todoapp__header">
 
-      {todos.length > 0 && (
+      {!!todos.length && (
         <button
           type="button"
           data-cy="ToggleAllButton"
           aria-label="Toggle all"
           className={cn('todoapp__toggle-all', {
-            active: todos.every(todo => todo.completed),
+            active: isCompletedAll,
           })}
           onClick={handleToggleAll}
         />
