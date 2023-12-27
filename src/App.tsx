@@ -106,16 +106,11 @@ export const App: React.FC = () => {
   });
 
   const toogleCompletedTodo = () => {
-    const result = todos.map(todo => {
-      if (todo.completed !== isCompleteAll) {
-        updateTodo(todo.id, { ...todo, completed: !isCompleteAll });
-      }
-
-      return { ...todo, completed: !isCompleteAll };
+    todos.forEach(todo => {
+      updateTodo(todo.id, { ...todo, completed: !isCompleteAll });
     });
 
     setIsCompeteAll(!isCompleteAll);
-    setTodos(result);
   };
 
   if (!USER_ID) {
