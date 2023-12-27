@@ -19,6 +19,7 @@ export const App: React.FC = () => {
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [filterStatus, setFilterStatus] = useState<Status>(Status.All);
   const [loadingTodosIds, setLoadingTodosIds] = useState<number[]>([]);
+  const [isCompleteAll, setIsCompeteAll] = useState<boolean | null>(null);
 
   const timerId = useRef<NodeJS.Timeout>();
 
@@ -65,9 +66,21 @@ export const App: React.FC = () => {
 
   useEffect(() => {
     todoService.getTodos(USER_ID)
-      .then(setTodos)
+      .then(data => {
+        setTodos(data);
+        setIsCompeteAll(data.every(item => item.completed));
+      })
       .catch(() => showError(ErrorTypes.NotLoad));
   }, []);
+
+  const toogleCompletedTodo = () => {
+    const result = todos.map(todo => ({
+      ...todo,
+      completed: !isCompleteAll,
+    }));
+
+    setTodos(result);
+  };
 
   const updateTodo = ((
     id: number,
@@ -119,7 +132,11 @@ export const App: React.FC = () => {
     <div className="todoapp">
       <h1 className="todoapp__title">todos</h1>
       <div className="todoapp__content">
-        <Header addTodo={addTodo} showError={showError} />
+        <Header
+          addTodo={addTodo}
+          showError={showError}
+          toogleCompletedTodo={toogleCompletedTodo}
+        />
         <TodoList
           deleteTodo={deleteTodo}
           todos={filteredTodos}

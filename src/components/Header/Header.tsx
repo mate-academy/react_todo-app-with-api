@@ -6,9 +6,14 @@ import { Error } from '../../types/Error';
 type Props = {
   addTodo: (title: string) => Promise<void>,
   showError: (error: string) => void,
+  toogleCompletedTodo: () => void,
 };
 
-export const Header: FC<Props> = ({ addTodo, showError }) => {
+export const Header: FC<Props> = ({
+  addTodo,
+  showError,
+  toogleCompletedTodo,
+}) => {
   const [todoTitle, setTodoTitle] = useState<string>('');
   const [isTitleDisabled, seTIsitleDisabled] = useState(false);
   const todoTitleRef = useRef<HTMLInputElement>(null);
@@ -43,6 +48,7 @@ export const Header: FC<Props> = ({ addTodo, showError }) => {
         className="todoapp__toggle-all active"
         data-cy="ToggleAllButton"
         aria-label="Toggle Button"
+        onClick={toogleCompletedTodo}
       />
 
       <form onSubmit={handleSubmit}>
