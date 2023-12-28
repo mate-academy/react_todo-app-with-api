@@ -1,24 +1,195 @@
-/* eslint-disable max-len */
 /* eslint-disable jsx-a11y/control-has-associated-label */
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { UserWarning } from './UserWarning';
+import { Form } from './components/Form';
+import { Todo } from './types/Todo';
+import { TodoList } from './components/TodoList';
+import { Footer } from './components/Footer';
+import { Status } from './types/Status';
+import { getTodos, updateTodo, deleteTodo } from './api/todos';
 
-const USER_ID = 0;
+const USER_ID = 11851;
 
 export const App: React.FC = () => {
+  const [todos, setTodos] = useState<Todo[]>([]);
+  const [filtredByStatus, setFiltredByStatus] = useState<Status>(Status.all);
+  const [errorNotification, setErrorNotification] = useState<string | null>(
+    null,
+  );
+  const [errorVisible, setErrorVisible] = useState(false);
+  const [tempTodo, setTempTodo] = useState<Todo | null>(null);
+  const [procesingTodoIds, setProcesingTodoIds] = useState<number[]>([]);
+
+  const showErrorNotification = (message: string) => {
+    setErrorNotification(message);
+    setErrorVisible(true);
+
+    setTimeout(() => {
+      setErrorVisible(false);
+      setErrorNotification(null);
+    }, 3000);
+  };
+
+  useEffect(() => {
+    getTodos(USER_ID)
+      .then((data) => {
+        setTodos(data);
+      })
+      .catch(() => {
+        showErrorNotification('Unable to load todos');
+      });
+  }, []);
+
+  const addNewTodo = (newTodo: Todo) => {
+    setTodos([...todos, newTodo]);
+  };
+
+  const handleUpdate = (updatedtodo: Todo) => {
+    setProcesingTodoIds(prev => [...prev, updatedtodo.id]);
+
+    updateTodo(updatedtodo)
+      .then((todoFromserver) => {
+        setTodos((corentTodos) => {
+          const newTodos = [...corentTodos];
+          const index = newTodos.findIndex(
+            (todo) => todo.id === updatedtodo.id,
+          );
+
+          newTodos.splice(index, 1, todoFromserver);
+
+          return newTodos;
+        });
+      })
+      .catch(() => {
+        showErrorNotification('Unable to update a todo');
+      })
+      .finally(() => {
+        setProcesingTodoIds(prev => prev
+          .filter(id => id !== updatedtodo.id));
+      });
+  };
+
+  const togleCheck = (todo: Todo) => {
+    const chekedtodo = { ...todo, completed: !todo.completed };
+
+    handleUpdate(chekedtodo);
+  };
+
+  const isAllCompleted = todos.every((todo) => todo.completed); //
+
+  const toggleAll = () => {
+    const todosToUpdate = todos.filter((todo) => (isAllCompleted
+      ? todo.completed
+      : !todo.completed));
+
+    const updatePromises = todosToUpdate.map((todo) => (
+      handleUpdate({
+        ...todo,
+        completed: !isAllCompleted,
+      })));
+
+    return Promise.all(updatePromises);
+  };
+
+  const toDelete = (id: number) => {
+    const afterDeleteTodo = todos.filter((todo) => todo.id !== id);
+
+    setTodos(afterDeleteTodo);
+  };
+
+  const handleDeletedTodo = (id: number) => {
+    setProcesingTodoIds((prev) => [...prev, id]);
+
+    deleteTodo(id)
+      .then(() => {
+        toDelete(id);
+      })
+      .catch(() => {
+        showErrorNotification('Unable to delete a todo');
+      })
+      .finally(() => {
+        setProcesingTodoIds((prev) => prev
+          .filter((processingId) => processingId !== id));
+      });
+  };
+
+  const filtredTodo = todos.filter((todo) => {
+    switch (filtredByStatus) {
+      case Status.active:
+        return !todo.completed;
+      case Status.completed:
+        return todo.completed;
+      default:
+        return true;
+    }
+  });
+
   if (!USER_ID) {
     return <UserWarning />;
   }
 
   return (
-    <section className="section container">
-      <p className="title is-4">
-        Copy all you need from the prev task:
-        <br />
-        <a href="https://github.com/mate-academy/react_todo-app-add-and-delete#react-todo-app-add-and-delete">React Todo App - Add and Delete</a>
-      </p>
+    <div className="todoapp">
+      <h1 className="todoapp__title">todos</h1>
 
-      <p className="subtitle">Styles are already copied</p>
-    </section>
+      <div className="todoapp__content">
+        <header className="todoapp__header">
+          {todos.length > 0 && (
+            <button
+              type="button"
+              className={`todoapp__toggle-all
+                ${isAllCompleted ? 'active' : ''}
+              `}
+              data-cy="ToggleAllButton"
+              onClick={toggleAll}
+            />
+          )}
+          <Form
+            USER_ID={USER_ID}
+            addNewTodo={addNewTodo}
+            showErrorNotification={showErrorNotification}
+            setTempTodo={setTempTodo}
+            todos={filtredTodo}
+          />
+        </header>
+
+        {todos.length > 0 && (
+          <>
+            <TodoList
+              handleDeletedTodo={handleDeletedTodo} //
+              todos={filtredTodo}
+              togleCheck={togleCheck}
+              tempTodo={tempTodo}
+              handleUpdate={handleUpdate}
+              processingTodosIds={procesingTodoIds}
+            />
+
+            <Footer
+              setTodos={setTodos}
+              todos={todos}
+              setFiltredByStatus={setFiltredByStatus}
+              filtredByStatus={filtredByStatus}
+              showErrorNotification={showErrorNotification}
+              setProcesingTodoIds={setProcesingTodoIds}
+            />
+          </>
+        )}
+      </div>
+
+      <div
+        data-cy="ErrorNotification"
+        className={`notification is-danger is-light has-text-weight-normal ${
+          errorVisible ? '' : 'hidden'
+        }`}
+      >
+        <button
+          data-cy="HideErrorButton"
+          type="button"
+          className="delete"
+          onClick={() => setErrorVisible(false)}
+        />
+        {errorNotification}
+      </div>
+    </div>
   );
 };
