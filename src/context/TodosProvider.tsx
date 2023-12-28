@@ -9,7 +9,9 @@ import React, {
 } from 'react';
 
 import { Todo } from '../types/Todo';
-import { getTodos, addTodo, deleteTodo } from '../api/todos';
+import {
+  getTodos, addTodo, deleteTodo, patchTodo,
+} from '../api/todos';
 
 type TodoContextType = {
   todos: Todo[];
@@ -19,9 +21,11 @@ type TodoContextType = {
   pending: boolean;
   messageError: string;
   query: string;
+  queryTitle: string;
   isLoadingTodo: Todo;
   status: number
   isToggled: boolean;
+  editFormTodoId: number;
   setTodos: React.Dispatch<React.SetStateAction<Todo[]>>;
   setFilteredTodos: React.Dispatch<React.SetStateAction<Todo[]>>;
   setTempTodo: React.Dispatch<React.SetStateAction<Todo>>;
@@ -29,13 +33,18 @@ type TodoContextType = {
   setPending: React.Dispatch<React.SetStateAction<boolean>>;
   setMessageError: React.Dispatch<React.SetStateAction<string>>;
   setQuery: React.Dispatch<React.SetStateAction<string>>;
+  setQueryTitle: React.Dispatch<React.SetStateAction<string>>;
   handleSubmitSent: (event: React.FormEvent<HTMLFormElement>) => void;
+  handleSubmitEdit: (event: React.FormEvent<HTMLFormElement>, todo: Todo) =>
+  void;
   handleDeleteTodo: (id: number) => void;
   setIsLoadingTodo: React.Dispatch<React.SetStateAction<Todo>>
   setStatus: React.Dispatch<React.SetStateAction<number>>
   handleCheckboxClick: (todo: Todo) => void;
   setIsToggled: React.Dispatch<React.SetStateAction<boolean>>;
   handleToggleAll: () => void;
+  handleChangeInputValue: () => void;
+  setEditFormTodoId: React.Dispatch<React.SetStateAction<number>>;
 };
 
 const TodoContext = createContext<TodoContextType | undefined>(undefined);
@@ -60,9 +69,11 @@ export const TodoProvider: React.FC<{ children: ReactNode }> = (
   const [pending, setPending] = useState<boolean>(false);
   const [messageError, setMessageError] = useState<string>('');
   const [query, setQuery] = useState<string>('');
+  const [queryTitle, setQueryTitle] = useState<string>('');
   const [isLoadingTodo, setIsLoadingTodo] = useState<Todo | null>(null);
-  const [status, setStatus] = useState<number>(0);
+  const [status, setStatus] = useState<number>(-1);
   const [isToggled, setIsToggled] = useState<boolean>(false);
+  const [editFormTodoId, setEditFormTodoId] = useState<number>(-1);
 
   const fetchTodos = useCallback(
     async (messageId: number) => {
@@ -128,7 +139,7 @@ export const TodoProvider: React.FC<{ children: ReactNode }> = (
         setStatus(id);
         setIsLoadingTodo(todos.find(todo => todo.id === id) || null);
         setTimeout(() => {
-          setStatus(false);
+          setStatus(0);
           setTodos(
             currentTodos => currentTodos.filter(todo => todo.id !== id),
           );
@@ -156,6 +167,58 @@ export const TodoProvider: React.FC<{ children: ReactNode }> = (
       setMessageError(ERROR_MESSAGES[3]);
     }
   }, [setTodos, setMessageError, setStatus]);
+
+  const handleSubmitEdit = useCallback(
+    async (event: React.FormEvent<HTMLFormElement>, todo: Todo) => {
+      event.preventDefault();
+      setStatus(todo.id);
+      setEditFormTodoId(-1);
+
+      if (todo.title === queryTitle) {
+        return;
+      }
+
+      if (queryTitle === '') {
+        handleDeleteTodo(todo.id);
+
+        return;
+      }
+
+      try {
+        if (!queryTitle) {
+          setMessageError(ERROR_MESSAGES[1]);
+          setPending(false);
+
+          return;
+        }
+
+        const editedTodo = await patchTodo({
+          id: todo.id,
+          title: queryTitle,
+          completed: todo.completed,
+          userId: USER_ID,
+        });
+
+        setQueryTitle('');
+        setTodos(
+          (currentTodos) => currentTodos.map(
+            // eslint-disable-next-line @typescript-eslint/no-shadow
+            (todo) => (todo.id === editedTodo.id ? editedTodo : todo),
+          ),
+        );
+      } catch (error) {
+        setMessageError(ERROR_MESSAGES[2]);
+      } finally {
+        setStatus(-1);
+      }
+    },
+    [
+      setTodos,
+      setQueryTitle,
+      queryTitle,
+      handleDeleteTodo,
+    ],
+  );
 
   const handleToggleAll = useCallback(() => {
     setIsToggled(true);
@@ -208,6 +271,7 @@ export const TodoProvider: React.FC<{ children: ReactNode }> = (
       isLoadingTodo,
       status,
       isToggled,
+      editFormTodoId,
       setTodos,
       setFilteredTodos,
       setTempTodo,
@@ -215,11 +279,14 @@ export const TodoProvider: React.FC<{ children: ReactNode }> = (
       setPending,
       setMessageError,
       setQuery,
+      setQueryTitle,
       handleSubmitSent,
+      handleSubmitEdit,
       handleDeleteTodo,
       setIsLoadingTodo,
       handleCheckboxClick,
       handleToggleAll,
+      setEditFormTodoId,
     }),
     [
       todos,
@@ -232,7 +299,9 @@ export const TodoProvider: React.FC<{ children: ReactNode }> = (
       isLoadingTodo,
       status,
       isToggled,
+      editFormTodoId,
       handleSubmitSent,
+      handleSubmitEdit,
       handleDeleteTodo,
       handleCheckboxClick,
       handleToggleAll,
