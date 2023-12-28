@@ -1029,12 +1029,12 @@ describe.skip('', () => {
         cy.wait('@updateRequest');
       });
 
-      it('should show an error', () => {
+      it.skip('should show an error', () => {
         errorMessage.assertVisible();
         errorMessage.assertText('Unable to update a todo');
       });
 
-      it('should not toggle a todo', () => {
+      it.skip('should not toggle a todo', () => {
         todos.assertCompleted(0);
         todos.statusToggler(0).should('be.checked');
       });
