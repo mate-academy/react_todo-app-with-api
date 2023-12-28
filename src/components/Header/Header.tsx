@@ -26,24 +26,25 @@ export const Header: FC<Props> = (props) => {
     input?.focus();
   }, []);
 
-  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
+  const handleSubmit
+    = async (event: React.FormEvent<HTMLFormElement>): Promise<void> => {
+      event.preventDefault();
 
-    if (!inputValue.trim()) {
-      handleError(Errors.EmptyTitle);
+      if (!inputValue.trim()) {
+        handleError(Errors.EmptyTitle);
 
-      return;
-    }
+        return;
+      }
 
-    setIsDisabledInput(true);
+      setIsDisabledInput(true);
 
-    try {
-      addTodo(inputValue);
-      setInputValue('');
-    } finally {
-      setIsDisabledInput(false);
-    }
-  };
+      try {
+        await addTodo(inputValue);
+        setInputValue('');
+      } finally {
+        setIsDisabledInput(false);
+      }
+    };
 
   const completeAllTodos = async () => {
     const statusOfTodos = todos.every(todo => todo.completed);
@@ -51,9 +52,9 @@ export const Header: FC<Props> = (props) => {
       !statusOfTodos ? !todo.completed : todo.completed
     ));
 
-    await Promise.all(updateTodos.map(async todo => {
-      updateTodo({ ...todo, completed: !todo.completed });
-    }));
+    await Promise.all(updateTodos.map(todo => (
+      updateTodo({ ...todo, completed: !todo.completed })
+    )));
   };
 
   const allCompleted = useMemo(() => {

@@ -47,7 +47,7 @@ export const App: React.FC = () => {
     [todos, filterValue],
   );
 
-  const addTodo = (inputValue: string) => {
+  const addTodo = (inputValue: string): Promise<void> => {
     const data = {
       id: 0,
       title: inputValue,
@@ -57,7 +57,7 @@ export const App: React.FC = () => {
 
     setTempTodo(data);
 
-    todosService.createTodo(data)
+    return todosService.createTodo(data)
       .then((createdTodo) => {
         setTodos((currentTodos) => [...currentTodos, createdTodo]);
       })

@@ -31,7 +31,7 @@ export const Todo: FC<Props> = (props) => {
   const titleField = useRef<HTMLInputElement>(null);
 
   const handleToggle = async () => {
-    setLoadingTodoId?.([todo.id]);
+    updateTodo?.(todo);
 
     const newTodo = {
       ...todo,
@@ -51,6 +51,8 @@ export const Todo: FC<Props> = (props) => {
 
     if (editedTitle === todo.title) {
       setIsEditing(false);
+
+      return;
     }
 
     handleEditTodo?.(todo.id, editedTitle);
