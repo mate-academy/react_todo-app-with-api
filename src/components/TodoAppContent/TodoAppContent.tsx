@@ -161,16 +161,18 @@ export const TodoAppContent: React.FC = () => {
     <>
       <div className="todoapp__content">
         <header className="todoapp__header">
-          <button
-            type="button"
-            className={cn(
-              'todoapp__toggle-all',
-              { active: !todosCount },
-            )}
-            data-cy="ToggleAllButton"
-            aria-label="toggle all button"
-            onClick={handleToggleAll}
-          />
+          {todos.length > 0 && (
+            <button
+              type="button"
+              className={cn(
+                'todoapp__toggle-all',
+                { active: !todosCount },
+              )}
+              data-cy="ToggleAllButton"
+              aria-label="toggle all button"
+              onClick={handleToggleAll}
+            />
+          )}
 
           <form onSubmit={handleAddTodo}>
             <input
@@ -186,45 +188,45 @@ export const TodoAppContent: React.FC = () => {
           </form>
         </header>
 
-        {((currentTodos.length > 0) || isAdding) && (
-          <>
-            <section className="todoapp__main" data-cy="TodoList">
-              {currentTodos.map(todo => (
-                <TodoItem
-                  todo={todo}
-                  onDelete={handleDeleteTodo}
-                  onEdit={handleEditTodo}
-                  isLoading={loadTodosIds.includes(todo.id)}
-                  key={todo.id}
-                />
-              ))}
+        {currentTodos.length > 0 && (
+          <section className="todoapp__main" data-cy="TodoList">
+            {currentTodos.map(todo => (
+              <TodoItem
+                todo={todo}
+                onDelete={handleDeleteTodo}
+                onEdit={handleEditTodo}
+                isLoading={loadTodosIds.includes(todo.id)}
+                key={todo.id}
+              />
+            ))}
 
-              {tempTodo && (
-                <TodoItem
-                  todo={tempTodo}
-                  isLoading
-                />
-              )}
-            </section>
+            {tempTodo && (
+              <TodoItem
+                todo={tempTodo}
+                isLoading
+              />
+            )}
+          </section>
+        )}
 
-            <footer className="todoapp__footer" data-cy="Footer">
-              <span className="todo-count" data-cy="TodosCounter">
-                {`${todosCount} items left`}
-              </span>
+        {((todos.length > 0) || isAdding) && (
+          <footer className="todoapp__footer" data-cy="Footer">
+            <span className="todo-count" data-cy="TodosCounter">
+              {`${todosCount} items left`}
+            </span>
 
-              <Filter getFilter={setFilterBy} />
+            <Filter getFilter={setFilterBy} />
 
-              <button
-                type="button"
-                className="todoapp__clear-completed"
-                data-cy="ClearCompletedButton"
-                onClick={handleClearCompleted}
-                disabled={disabledClear}
-              >
-                Clear completed
-              </button>
-            </footer>
-          </>
+            <button
+              type="button"
+              className="todoapp__clear-completed"
+              data-cy="ClearCompletedButton"
+              onClick={handleClearCompleted}
+              disabled={disabledClear}
+            >
+              Clear completed
+            </button>
+          </footer>
         )}
       </div>
 
