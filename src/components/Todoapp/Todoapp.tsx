@@ -5,10 +5,14 @@ import { Todo } from '../../types/Todo';
 interface Props {
   todos: Todo[],
   deleteTodoAction: (todoId: number) => void,
-  unActive: Todo[],
-  setUnActive: (item: Todo[]) => void,
+  unActive: number[],
+  setUnActive: (id: number[]) => void,
   changeCheckbox: (id: number) => void,
   onUpdate: (id: number, newTitle: string) => void,
+}
+
+interface EditedTitleState {
+  [key: string]: string;
 }
 
 export const Todoapp: React.FC<Props> = ({
@@ -20,7 +24,7 @@ export const Todoapp: React.FC<Props> = ({
   onUpdate,
 }) => {
   const [isEditing, setIsEditing] = useState<number | null>(null);
-  const [editedTitle, setEditedTitle] = useState('');
+  const [editedTitle, setEditedTitle] = useState<EditedTitleState>({});
 
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -36,17 +40,17 @@ export const Todoapp: React.FC<Props> = ({
     todoTitle: string,
   ) => {
     if (event.key === 'Enter') {
-      if (editedTitle !== todoTitle) {
-        onUpdate(todoId, editedTitle);
+      if (editedTitle[todoId] !== todoTitle) {
+        onUpdate(todoId, editedTitle[todoId]);
 
         const foundedTodo = todos.find(todo => todo.id === todoId);
 
         if (foundedTodo) {
-          setUnActive([foundedTodo]);
+          setUnActive([foundedTodo.id]);
         }
       }
 
-      if (editedTitle === todoTitle) {
+      if (editedTitle[todoId] === todoTitle) {
         setUnActive([]);
       }
 
@@ -65,19 +69,19 @@ export const Todoapp: React.FC<Props> = ({
   const handleBlur = (currTitle: string, currId: number) => {
     setIsEditing(null);
 
-    if (editedTitle !== currTitle) {
+    if (editedTitle[currId] !== currTitle) {
       const foundedTodo = todos.find(todo => todo.id === currId);
 
       if (foundedTodo) {
-        setUnActive([foundedTodo]);
+        setUnActive([foundedTodo.id]);
       }
 
-      onUpdate(currId, editedTitle);
+      onUpdate(currId, editedTitle[currId]);
     }
   };
 
   const doubleClickAction = (currId: number, currTitle: string) => {
-    setEditedTitle(currTitle);
+    setEditedTitle(prev => ({ ...prev, [currId]: currTitle }));
     setIsEditing(currId);
   };
 
@@ -105,8 +109,13 @@ export const Todoapp: React.FC<Props> = ({
                 type="text"
                 ref={inputRef}
                 className="todo__title-field"
-                value={editedTitle}
-                onChange={event => setEditedTitle(event.target.value)}
+                value={editedTitle[id]}
+                onChange={event => {
+                  setEditedTitle(prev => ({
+                    ...prev,
+                    [id]: event.target.value,
+                  }));
+                }}
                 onBlur={() => handleBlur(title, id)}
                 onKeyUp={event => handleKeyAction(event, id, title)}
               />
@@ -117,10 +126,7 @@ export const Todoapp: React.FC<Props> = ({
                 className={cn('todo__title')}
                 onDoubleClick={() => doubleClickAction(id, title)}
               >
-                {/* {unActive.some(todo => todo.id === id)
-                  ? editedTitle
-                  : title} */}
-                {title}
+                {editedTitle[id] || title}
               </span>
             )}
 
@@ -138,7 +144,7 @@ export const Todoapp: React.FC<Props> = ({
             className={cn(
               'modal',
               'overlay',
-              { 'is-active': unActive.some(todo => todo.id === id) },
+              { 'is-active': unActive.includes(id) },
             )}
           >
             <div className="modal-background has-background-white-ter" />

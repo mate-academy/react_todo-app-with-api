@@ -25,7 +25,7 @@ export const App: React.FC = () => {
   const [status, setStatus] = useState<Status>(Status.all);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
-  const [unActive, setUnActive] = useState<Todo[]>([]);
+  const [unActive, setUnActive] = useState<number[]>([]);
 
   const todoInputRef = useRef<HTMLInputElement>(null);
 
@@ -77,11 +77,7 @@ export const App: React.FC = () => {
       const arrTodosWithTemp = [...todos, tempTodo];
 
       setTodos(arrTodosWithTemp);
-      const foundedTodo = todos.find(todo => todo.id === 0);
-
-      if (foundedTodo) {
-        setUnActive([foundedTodo]);
-      }
+      setUnActive([0]);
 
       fetchCl.createTodo(tempTodo)
         .then(res => {
@@ -102,11 +98,7 @@ export const App: React.FC = () => {
 
   const deleteTodo = (todoId: number) => {
     setLoading(true);
-    const foundedTodo = todos.find(todo => todo.id === todoId);
-
-    if (foundedTodo) {
-      setUnActive([foundedTodo]);
-    }
+    setUnActive([todoId]);
 
     fetchCl.deleteTodo(todoId)
       .then(() => {
@@ -136,11 +128,7 @@ export const App: React.FC = () => {
   const handleChangeCheckbox = (todoId: number) => {
     const changedArr = todos.map(todo => {
       if (todo.id === todoId) {
-        const foundedTodo = todos.find(currTodo => currTodo.id === todoId);
-
-        if (foundedTodo) {
-          setUnActive([foundedTodo]);
-        }
+        setUnActive([todoId]);
 
         const updatedTodo = {
           ...todo,
@@ -176,22 +164,17 @@ export const App: React.FC = () => {
     const withActiveTodo = todos.filter(todo => {
       if (todo.completed) {
         if (completedId) {
-          const foundedTodo = todos
-            .find(currTodo => completedId.includes(currTodo.id));
-
-          if (foundedTodo) {
-            setUnActive([foundedTodo]);
-          }
+          setUnActive(completedId);
         }
 
         fetchCl.deleteTodo(todo.id)
+          .then(() => setTodos(withActiveTodo))
           .catch(() => {
             setError('Unable to delete todo');
             setTimeout(() => setError(''), 3000);
           })
           .finally(() => {
             setUnActive([]);
-            setTodos(withActiveTodo);
           });
       }
 
@@ -232,10 +215,11 @@ export const App: React.FC = () => {
       todos
         .filter(todo => !todo.completed)
         .forEach(todo => {
+          setUnActive(currUnActive => [...currUnActive, todo.id]);
           fetchCl.updateTodo(todo.id, {
             ...todo,
             completed: true,
-          });
+          }).finally(() => setUnActive([]));
         });
 
       const allCompletedArr = todos.map(todo => ({
@@ -250,10 +234,11 @@ export const App: React.FC = () => {
       todos
         .filter(todo => todo.completed)
         .forEach(todo => {
+          setUnActive(currUnActive => [...currUnActive, todo.id]);
           fetchCl.updateTodo(todo.id, {
             ...todo,
             completed: false,
-          });
+          }).finally(() => setUnActive([]));
         });
 
       const allActiveArr = todos.map(todo => ({
