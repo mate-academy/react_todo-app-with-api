@@ -330,7 +330,7 @@ export const TodoProvider: React.FC<{ children: ReactNode }> = (
     }, 500);
   }, [todos, setTodos, setIsToggled, handleDeleteTodo]);
 
-  useEffect(() => {
+  useMemo(() => {
     switch (filterType) {
       case SortType.all:
         setFilteredTodos(todos);
