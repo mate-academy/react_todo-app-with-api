@@ -58,8 +58,10 @@ export const TodoProvider:React.FC<Props> = ({ children }) => {
     switch (option) {
       case Filter.Active:
         return todos.filter(todo => !todo.completed);
+
       case Filter.Completed:
         return todos.filter(todo => todo.completed);
+
       default:
         return todos;
     }
@@ -140,6 +142,7 @@ export const TodoProvider:React.FC<Props> = ({ children }) => {
     option,
     loading,
     isLoadingAll,
+    updateTodo,
   ]);
 
   return (

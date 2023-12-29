@@ -20,10 +20,7 @@ export const App: React.FC = () => {
       <div className="todoapp__content">
         <TodoForm />
         <TodoList />
-        {!!todos.length
-          && (
-            <Footer />
-          )}
+        {!!todos.length && <Footer />}
       </div>
       {errorMessage && <Notification />}
     </div>

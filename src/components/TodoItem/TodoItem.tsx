@@ -11,9 +11,12 @@ type Props = {
 };
 
 export const TodoItem: React.FC<Props> = ({ todo }) => {
-  const { deleteTodo, loading, updateTodo, isLoadingAll } = useContext(TodoContext);
+  const {
+    deleteTodo, loading, updateTodo, isLoadingAll,
+  } = useContext(TodoContext);
+  const { title, completed, id } = { ...todo };
   const [isEditing, setIsEditing] = useState(false);
-  const [editedTodo, setEditedTodo] = useState(todo.title);
+  const [editedTodo, setEditedTodo] = useState(title);
   const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -25,7 +28,7 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
   const handleChangeStatus = () => {
     const updatedTodo = {
       ...todo,
-      completed: !todo.completed,
+      completed: !completed,
     };
 
     return updateTodo(updatedTodo);
@@ -35,7 +38,7 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
     event.preventDefault();
     setIsEditing(false);
 
-    if (editedTodo === todo.title) {
+    if (editedTodo === title) {
       return;
     }
 
@@ -47,7 +50,7 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
 
       updateTodo(updatedTodo);
     } else {
-      deleteTodo(todo.id);
+      deleteTodo(id);
     }
   };
 
@@ -59,7 +62,7 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
   const handleEscapeAction = (event: React.KeyboardEvent<HTMLInputElement>) => {
     if (event.key === 'Escape') {
       setIsEditing(false);
-      setEditedTodo(todo.title);
+      setEditedTodo(title);
     }
   };
 
@@ -67,14 +70,14 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
     <div
       data-cy="Todo"
       className={classNames('todo',
-        { completed: todo.completed })}
+        { completed })}
     >
       <label className="todo__status-label">
         <input
           data-cy="TodoStatus"
           type="checkbox"
           className="todo__status"
-          checked={todo.completed}
+          checked={completed}
           onChange={handleChangeStatus}
         />
       </label>
@@ -106,11 +109,11 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
         type="button"
         className="todo__remove"
         data-cy="TodoDelete"
-        onClick={() => deleteTodo(todo.id)}
+        onClick={() => deleteTodo(id)}
       >
         ×
       </button>
-      {(loading === todo.id || isLoadingAll) && <Loading />}
+      {(loading === id || isLoadingAll) && <Loading />}
     </div>
   );
 };

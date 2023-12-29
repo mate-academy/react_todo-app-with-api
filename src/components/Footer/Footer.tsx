@@ -15,6 +15,7 @@ export const Footer: React.FC = () => {
   const todoCounter = todos.filter(todo => !todo.completed).length;
   const completedTodo = todos.filter(todo => todo.completed);
   const isDisabled = !completedTodo.length;
+  const shownCounts = todoCounter === 1 ? `${todoCounter} item left` : `${todoCounter} items left`;
 
   const handleDeleteCompleted = () => {
     completedTodo.forEach(todo => {
@@ -25,9 +26,7 @@ export const Footer: React.FC = () => {
   return (
     <footer className="todoapp__footer" data-cy="Footer">
       <span className="todo-count" data-cy="TodosCounter">
-        {todoCounter === 1
-          ? `${todoCounter} item left`
-          : `${todoCounter} items left`}
+        {shownCounts}
       </span>
 
       <nav className="filter" data-cy="Filter">
