@@ -16,19 +16,19 @@ import {
 type TodoContextType = {
   todos: Todo[];
   filteredTodos: Todo[];
-  tempTodo: Todo,
+  tempTodo: Todo | null
   filterType: string;
   pending: boolean;
   messageError: string;
   query: string;
   queryTitle: string;
-  isLoadingTodo: Todo;
+  isLoadingTodo: Todo | null;
   status: number
   isToggled: boolean;
   editFormTodoId: number;
   setTodos: React.Dispatch<React.SetStateAction<Todo[]>>;
   setFilteredTodos: React.Dispatch<React.SetStateAction<Todo[]>>;
-  setTempTodo: React.Dispatch<React.SetStateAction<Todo>>;
+  setTempTodo: React.Dispatch<React.SetStateAction<Todo | null>>;
   setFilterType: React.Dispatch<React.SetStateAction<string>>;
   setPending: React.Dispatch<React.SetStateAction<boolean>>;
   setMessageError: React.Dispatch<React.SetStateAction<string>>;
@@ -38,12 +38,12 @@ type TodoContextType = {
   handleSubmitEdit: (event: React.FormEvent<HTMLFormElement>, todo: Todo) =>
   void;
   handleDeleteTodo: (id: number) => void;
-  setIsLoadingTodo: React.Dispatch<React.SetStateAction<Todo>>
-  setStatus: React.Dispatch<React.SetStateAction<number>>
+  setIsLoadingTodo: React.Dispatch<React.SetStateAction<Todo | null>>
+  setStatus: React.Dispatch<React.SetStateAction<number>>;
   handleCheckboxClick: (todo: Todo) => void;
   setIsToggled: React.Dispatch<React.SetStateAction<boolean>>;
   handleToggleAll: () => void;
-  handleChangeInputValue: () => void;
+  handleClearCompleted: () => void;
   setEditFormTodoId: React.Dispatch<React.SetStateAction<number>>;
 };
 
@@ -58,6 +58,12 @@ const ERROR_MESSAGES = [
   'Unable to delete a todo',
   'Unable to update a todo',
 ];
+
+enum SortType {
+  all = 'All',
+  active = 'Active',
+  completed = 'Completed',
+}
 
 export const TodoProvider: React.FC<{ children: ReactNode }> = (
   { children },
@@ -96,6 +102,16 @@ export const TodoProvider: React.FC<{ children: ReactNode }> = (
     async (event: React.FormEvent<HTMLFormElement>) => {
       event.preventDefault();
 
+      // eslint-disable-next-line no-console
+      console.log(query);
+
+      if (!query) {
+        setMessageError(ERROR_MESSAGES[1]);
+        setPending(false);
+
+        return;
+      }
+
       try {
         setPending(true);
         setTempTodo({
@@ -105,19 +121,12 @@ export const TodoProvider: React.FC<{ children: ReactNode }> = (
           userId: USER_ID,
         });
 
-        if (!query) {
-          setMessageError(ERROR_MESSAGES[1]);
-          setPending(false);
-
-          return;
-        }
-
         const newTodo = {
           title: query,
           completed: false,
           userId: USER_ID,
         };
-
+        // eslint-disable-next-line
         const addedTodo = await addTodo(newTodo);
 
         setQuery('');
@@ -152,16 +161,42 @@ export const TodoProvider: React.FC<{ children: ReactNode }> = (
     [todos],
   );
 
-  const handleCheckboxClick = useCallback((clickedTodo: Todo) => {
+  const handleCheckboxClick = useCallback(async (clickedTodo: Todo) => {
     try {
       const { id } = clickedTodo;
 
       setStatus(id);
+
+      const allTodos = await getTodos(USER_ID);
+
+      const todoInAPI = allTodos.find((todo) => todo.id === id);
+
+      if (!todoInAPI) {
+        setMessageError(ERROR_MESSAGES[4]);
+
+        return;
+      }
+
+      try {
+        const updatedTodo = await patchTodo({
+          id: clickedTodo.id,
+          title: clickedTodo.title,
+          completed: !clickedTodo.completed,
+          userId: USER_ID,
+        });
+
+        setTodos(
+          (currentTodos) => currentTodos.map(
+            (todo) => (todo.id === updatedTodo.id ? updatedTodo : todo),
+          ),
+        );
+      } catch (error) {
+        // eslint-disable-next-line no-console
+        console.log(error);
+      }
+
       setTimeout(() => {
         setStatus(0);
-        setTodos((currentTodos) => currentTodos.map((todo) => (todo.id === id
-          ? { ...todo, completed: !todo.completed }
-          : todo)));
       }, 500);
     } catch (error) {
       setMessageError(ERROR_MESSAGES[3]);
@@ -169,20 +204,32 @@ export const TodoProvider: React.FC<{ children: ReactNode }> = (
   }, [setTodos, setMessageError, setStatus]);
 
   const handleSubmitEdit = useCallback(
-    async (event: React.FormEvent<HTMLFormElement>, todo: Todo) => {
+    async (event: React.FormEvent<HTMLFormElement>, editTodo: Todo) => {
       event.preventDefault();
-      setStatus(todo.id);
+
+      const allTodos = await getTodos(USER_ID);
+
+      const todoInAPI = allTodos.find((todo) => todo.id === editTodo.id);
+
+      if (!todoInAPI) {
+        setMessageError(ERROR_MESSAGES[4]);
+
+        return;
+      }
+
       setEditFormTodoId(-1);
 
-      if (todo.title === queryTitle) {
+      if (editTodo.title === queryTitle) {
         return;
       }
 
       if (queryTitle === '') {
-        handleDeleteTodo(todo.id);
+        handleDeleteTodo(editTodo.id);
 
         return;
       }
+
+      setStatus(editTodo.id);
 
       try {
         if (!queryTitle) {
@@ -193,9 +240,9 @@ export const TodoProvider: React.FC<{ children: ReactNode }> = (
         }
 
         const editedTodo = await patchTodo({
-          id: todo.id,
+          id: editTodo.id,
           title: queryTitle,
-          completed: todo.completed,
+          completed: editTodo.completed,
           userId: USER_ID,
         });
 
@@ -220,32 +267,78 @@ export const TodoProvider: React.FC<{ children: ReactNode }> = (
     ],
   );
 
-  const handleToggleAll = useCallback(() => {
+  const handleToggleAll = useCallback(async () => {
     setIsToggled(true);
 
-    setTimeout(() => {
-      setTodos((currentTodos) => {
-        const completedTodos = currentTodos.every((todo) => todo.completed);
+    const completedTodos = todos.every((todo) => todo.completed);
 
-        return currentTodos.map((todo) => ({
-          ...todo,
-          completed: !completedTodos,
-        }));
+    try {
+      const allTodos = await getTodos(USER_ID);
+
+      allTodos.forEach(async (todo) => {
+        try {
+          await patchTodo({
+            id: todo.id,
+            title: todo.title,
+            completed: !completedTodos,
+            userId: USER_ID,
+          });
+        } catch (error) {
+          // eslint-disable-next-line no-console
+          console.log(error);
+          setMessageError(ERROR_MESSAGES[5]);
+        }
       });
 
-      setIsToggled(false);
+      setTodos((currentTodos) => currentTodos.map((todo) => ({
+        ...todo,
+        completed: !completedTodos,
+      })));
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.log(error);
+      setMessageError(ERROR_MESSAGES[3]);
+    } finally {
+      setTimeout(() => {
+        setIsToggled(false);
+      }, 500);
+    }
+  }, [setTodos, setIsToggled, todos]);
+
+  const handleClearCompleted = useCallback(() => {
+    setIsToggled(true);
+
+    setTimeout(async () => {
+      try {
+        const completedTodos = todos.filter((todo) => todo.completed);
+
+        await Promise.all(
+          completedTodos.map(async (todo) => {
+            await handleDeleteTodo(todo.id);
+          }),
+        );
+
+        setTodos(
+          (currentTodos) => currentTodos.filter((todo) => !todo.completed),
+        );
+      } catch (error) {
+        // eslint-disable-next-line no-console
+        console.log(error);
+      } finally {
+        setIsToggled(false);
+      }
     }, 500);
-  }, [setTodos]);
+  }, [todos, setTodos, setIsToggled, handleDeleteTodo]);
 
   useEffect(() => {
     switch (filterType) {
-      case 'All':
+      case SortType.all:
         setFilteredTodos(todos);
         break;
-      case 'Active':
+      case SortType.active:
         setFilteredTodos(todos.filter(todo => !todo.completed));
         break;
-      case 'Completed':
+      case SortType.completed:
         setFilteredTodos(todos.filter(todo => todo.completed));
         break;
       default:
@@ -267,6 +360,7 @@ export const TodoProvider: React.FC<{ children: ReactNode }> = (
       filterType,
       messageError,
       query,
+      queryTitle,
       pending,
       isLoadingTodo,
       status,
@@ -287,6 +381,9 @@ export const TodoProvider: React.FC<{ children: ReactNode }> = (
       handleCheckboxClick,
       handleToggleAll,
       setEditFormTodoId,
+      handleClearCompleted,
+      setStatus,
+      setIsToggled,
     }),
     [
       todos,
@@ -296,6 +393,7 @@ export const TodoProvider: React.FC<{ children: ReactNode }> = (
       pending,
       messageError,
       query,
+      queryTitle,
       isLoadingTodo,
       status,
       isToggled,
@@ -305,6 +403,7 @@ export const TodoProvider: React.FC<{ children: ReactNode }> = (
       handleDeleteTodo,
       handleCheckboxClick,
       handleToggleAll,
+      handleClearCompleted,
     ],
   );
 

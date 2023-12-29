@@ -1,4 +1,9 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, {
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+} from 'react';
 import { useTodoContext } from '../../context/TodosProvider';
 import { Todo } from '../../types/Todo';
 
@@ -21,6 +26,7 @@ export const TodoCard: React.FC<TodoCardProps> = ({ todo }) => {
     } = useTodoContext();
 
   const inputRef = useRef<HTMLInputElement | null>(null);
+  const todoWrapperRef = useRef<HTMLDivElement | null>(null);
   const [localQueryTitle, setLocalQueryTitle] = useState<string>(todo.title);
 
   useEffect(() => {
@@ -31,8 +37,32 @@ export const TodoCard: React.FC<TodoCardProps> = ({ todo }) => {
     setQueryTitle(localQueryTitle);
   }, [setQueryTitle, localQueryTitle, editFormTodoId]);
 
+  const handleDocumentClick = useCallback((event: MouseEvent) => {
+    const target = event.target as HTMLElement;
+
+    if (
+      target.tagName !== 'INPUT'
+    ) {
+      setEditFormTodoId(-1);
+    }
+  }, [setEditFormTodoId]);
+
+  useEffect(() => {
+    document.addEventListener('click', handleDocumentClick);
+
+    return () => {
+      document.removeEventListener('click', handleDocumentClick);
+    };
+  }, [editFormTodoId, setEditFormTodoId, handleDocumentClick]);
+
+  const handleClose = (key: string) => {
+    if (key === 'Escape') {
+      setEditFormTodoId(-1);
+    }
+  };
+
   return (
-    <div data-cy="Todo" className={`todo ${todo.completed ? 'completed' : ''}`}>
+    <div data-cy="Todo" className={`todo ${todo.completed ? 'completed' : ''}`} ref={todoWrapperRef}>
       <label className="todo__status-label">
         <input
           data-cy="TodoStatus"
@@ -50,9 +80,11 @@ export const TodoCard: React.FC<TodoCardProps> = ({ todo }) => {
               data-cy="TodoTitleField"
               type="text"
               className="todo__title-field"
+              placeholder={localQueryTitle ? '' : 'Empty todo will be deleted'}
               value={localQueryTitle}
               ref={inputRef}
               onChange={(event) => setLocalQueryTitle(event?.target.value)}
+              onKeyUp={(event) => handleClose(event.key)}
             />
           </form>
         )
