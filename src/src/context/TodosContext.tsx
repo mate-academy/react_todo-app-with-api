@@ -17,8 +17,8 @@ type PropsTodosContext = {
   setTempTodo: (tempTodo: Todo | null) => void,
   title: string,
   setTitle: (title: string) => void,
-  isLoading: boolean,
-  setIsLoading: (value: boolean) => void,
+  chosenTodoId: number[];
+  setChosenTodoId: (id: number[]) => void;
   addTodo: (todo: Todo) => void,
   deleteTodo: (todoId: number) => void,
   deleteCompletedTodos: () => void;
@@ -41,8 +41,8 @@ export const TodosContext = createContext<PropsTodosContext>({
   setTempTodo: () => {},
   title: '',
   setTitle: () => {},
-  isLoading: false,
-  setIsLoading: () => {},
+  chosenTodoId: [],
+  setChosenTodoId: () => {},
   addTodo: () => {},
   deleteTodo: () => {},
   deleteCompletedTodos: () => {},
@@ -56,7 +56,7 @@ export const TodosProvider: React.FC<Props> = ({ children }) => {
   const [title, setTitle] = useState<string>('');
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
   const [errorMessage, setErrorMessage] = useState<Errors>(Errors.NoErrors);
-  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [chosenTodoId, setChosenTodoId] = useState<number[]>([]);
 
   useEffect(() => {
     getTodos(+USER_ID)
@@ -65,7 +65,7 @@ export const TodosProvider: React.FC<Props> = ({ children }) => {
   }, []);
 
   const addTodo = (todo: Todo) => {
-    setIsLoading(true);
+    setChosenTodoId([0]);
     setErrorMessage(Errors.NoErrors);
 
     setTempTodo({
@@ -85,15 +85,14 @@ export const TodosProvider: React.FC<Props> = ({ children }) => {
       })
       .finally(() => {
         setTempTodo(null);
-        setIsLoading(false);
+        setChosenTodoId([]);
       });
   };
 
   const deleteTodo = (taskId: number) => {
-    setIsLoading(true);
+    setErrorMessage(Errors.NoErrors);
+    setChosenTodoId([taskId]);
     const filteredTasks = todos.filter(task => task.id !== taskId);
-
-    setTodos(filteredTasks);
 
     return TodoService.deleteTodo(taskId)
       .then(() => {
@@ -105,14 +104,15 @@ export const TodosProvider: React.FC<Props> = ({ children }) => {
         throw error;
       })
       .finally(() => {
-        setIsLoading(false);
+        setChosenTodoId([]);
       });
   };
 
   const deleteCompletedTodos = () => {
-    setIsLoading(true);
     const completedTaskIds = todos
       .filter(task => task.completed).map(task => task.id);
+
+    setChosenTodoId(completedTaskIds);
 
     Promise.all(completedTaskIds.map(taskId => TodoService.deleteTodo(taskId)))
       .then(() => setTodos(prevTodos => prevTodos
@@ -123,13 +123,13 @@ export const TodosProvider: React.FC<Props> = ({ children }) => {
         throw error;
       })
       .finally(() => {
-        setIsLoading(false);
+        setChosenTodoId([]);
       });
   };
 
   const upgradeTodo = (updatedTodo: Todo) => {
     setErrorMessage(Errors.NoErrors);
-    setIsLoading(true);
+    setChosenTodoId([updatedTodo.id]);
 
     return TodoService.updateTodo(updatedTodo)
       .then(() => {
@@ -146,38 +146,40 @@ export const TodosProvider: React.FC<Props> = ({ children }) => {
         throw error;
       })
       .finally(() => {
-        setIsLoading(false);
+        setChosenTodoId([]);
       });
   };
 
-  const handleToggleAll = async () => {
-    setIsLoading(true);
+  const handleToggleAll = () => {
     const isEveryTodoCompleted = todos.every(todo => todo.completed);
 
     const todosToUpdate = todos.filter(todo => (isEveryTodoCompleted
       ? todo.completed
-      : !todo.completed
-    ));
+      : !todo.completed));
 
-    try {
-      await Promise.all(
-        todosToUpdate.map(async todo => {
-          await TodoService.updateTodo({
-            ...todo,
-            completed: !isEveryTodoCompleted,
-          });
-        }),
-      );
+    const updatedTodoIds = todosToUpdate.map(todo => todo.id);
 
-      setTodos(prevTodos => prevTodos.map(todo => ({
-        ...todo,
-        completed: !isEveryTodoCompleted,
-      })));
-    } catch (error) {
-      setErrorMessage(Errors.UpdateTodoError);
-    } finally {
-      setIsLoading(false);
-    }
+    setChosenTodoId(updatedTodoIds);
+
+    const updatePromises = todosToUpdate.map(todo => TodoService.updateTodo({
+      ...todo,
+      completed: !isEveryTodoCompleted,
+    }));
+
+    Promise.all(updatePromises)
+      .then(() => {
+        setTodos(prevTodos => prevTodos.map(todo => ({
+          ...todo,
+          completed: !isEveryTodoCompleted,
+        })));
+      })
+      .catch(error => {
+        setErrorMessage(Errors.UpdateTodoError);
+        throw error;
+      })
+      .finally(() => {
+        setChosenTodoId([]);
+      });
   };
 
   return (
@@ -192,8 +194,8 @@ export const TodosProvider: React.FC<Props> = ({ children }) => {
       setTempTodo,
       title,
       setTitle,
-      isLoading,
-      setIsLoading,
+      chosenTodoId,
+      setChosenTodoId,
       addTodo,
       deleteTodo,
       deleteCompletedTodos,

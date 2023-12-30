@@ -14,8 +14,8 @@ export const TodoHeader = () => {
     title,
     setTitle,
     setErrorMessage,
-    isLoading,
     addTodo,
+    chosenTodoId,
   } = useContext(TodosContext);
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -23,7 +23,7 @@ export const TodoHeader = () => {
     if (inputRef.current) {
       inputRef.current.focus();
     }
-  }, [isLoading]);
+  }, [chosenTodoId]);
 
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -61,7 +61,7 @@ export const TodoHeader = () => {
           value={title}
           onChange={handleChangeTitle}
           ref={inputRef}
-          disabled={isLoading}
+          disabled={chosenTodoId.length > 0}
         />
       </form>
     </header>

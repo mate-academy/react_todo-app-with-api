@@ -17,12 +17,11 @@ export const TodoItem: React.FC<Props> = ({
   todo,
 }) => {
   const {
-    tempTodo,
     deleteTodo,
     upgradeTodo,
+    chosenTodoId,
   } = useContext(TodosContext);
 
-  const isTempTodo = tempTodo && tempTodo.id === todo.id;
   const [isEdited, setIsEdited] = useState(false);
   const [newTitle, setNewTitle] = useState(todo.title);
   const focusTodo = useRef<HTMLInputElement | null>(null);
@@ -124,7 +123,7 @@ export const TodoItem: React.FC<Props> = ({
         data-cy="TodoLoader"
         className={classNames(
           'modal overlay', {
-            'is-active': isTempTodo,
+            'is-active': chosenTodoId.includes(todo.id),
           },
         )}
       >

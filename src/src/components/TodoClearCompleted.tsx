@@ -2,14 +2,7 @@ import { useContext } from 'react';
 import { TodosContext } from '../context/TodosContext';
 
 export const TodoClearCompleted = () => {
-  const { todos, setTodos, deleteCompletedTodos } = useContext(TodosContext);
-
-  const handleDeleteCompleted = () => {
-    const updatedTodos = todos.filter(todo => !todo.completed);
-
-    setTodos(updatedTodos);
-    deleteCompletedTodos();
-  };
+  const { todos, deleteCompletedTodos } = useContext(TodosContext);
 
   const completedTasksCount = todos.filter(todo => todo.completed).length;
 
@@ -19,7 +12,7 @@ export const TodoClearCompleted = () => {
       className="todoapp__clear-completed "
       style={{ visibility: completedTasksCount === 0 ? 'hidden' : 'visible' }}
       data-cy="ClearCompletedButton"
-      onClick={handleDeleteCompleted}
+      onClick={() => deleteCompletedTodos()}
     >
       Clear completed
     </button>
