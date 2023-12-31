@@ -25,11 +25,11 @@ export const TodoItem: React.FC<Props> = ({
     setEditedTodoTitle(todo.title);
   };
 
-  const EditedTitleField = useRef<HTMLInputElement>(null);
+  const editedTitleRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    if (EditedTitleField.current && isEditing) {
-      EditedTitleField.current.focus();
+    if (editedTitleRef.current && isEditing) {
+      editedTitleRef.current.focus();
     }
   }, [isEditing]);
 
@@ -61,8 +61,8 @@ export const TodoItem: React.FC<Props> = ({
         setIsEditing(false);
       })
       .catch(() => {
-        if (EditedTitleField.current) {
-          EditedTitleField.current.focus();
+        if (editedTitleRef.current) {
+          editedTitleRef.current.focus();
         }
       });
   };
@@ -95,7 +95,7 @@ export const TodoItem: React.FC<Props> = ({
         ? (
           <form onSubmit={handleEditSumbit}>
             <input
-              ref={EditedTitleField}
+              ref={editedTitleRef}
               data-cy="TodoTitleField"
               type="text"
               className="todo__title-field"

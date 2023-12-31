@@ -16,12 +16,12 @@ const USER_ID = 12042;
 export const App: React.FC = () => {
   const [todos, setTodos] = useState<Todo[]>([]);
   const [error, setError] = useState<string | null>(null);
-  const [status, setStatus] = useState<Status>(Status.all);
+  const [status, setStatus] = useState<Status>(Status.All);
   const [todoTitle, setTodoTitle] = useState<string>('');
   const [loadingTodoIds, setLoadingTodoIds] = useState<number[]>([]);
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
 
-  const titleField = useRef<HTMLInputElement>(null);
+  const titleRef = useRef<HTMLInputElement>(null);
 
   const handleError = (errorMessage: string) => {
     setError(errorMessage);
@@ -31,8 +31,8 @@ export const App: React.FC = () => {
   };
 
   useEffect(() => {
-    if (titleField.current) {
-      titleField.current.focus();
+    if (titleRef.current) {
+      titleRef.current.focus();
     }
   }, [todos]);
 
@@ -177,7 +177,7 @@ export const App: React.FC = () => {
 
           <form onSubmit={createTodo}>
             <input
-              ref={titleField}
+              ref={titleRef}
               data-cy="NewTodoField"
               type="text"
               className="todoapp__new-todo"
