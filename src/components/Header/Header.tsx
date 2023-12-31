@@ -38,6 +38,13 @@ export const Header: React.FC<Props> = ({ setTempTodo }) => {
     } else {
       setIsSubmiting(true);
 
+      setTempTodo({
+        title: todoTitle,
+        completed: false,
+        userId: USER_ID,
+        id: 0,
+      });
+
       addTodo({
         title: todoTitle,
         completed: false,
