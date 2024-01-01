@@ -36,6 +36,7 @@ export const App: React.FC = () => {
   const [todosActivityFilter, setTodosActivityFilter] = useState('All');
   const [errorMessage, setErrorMessage] = useState<Errors | null>(null);
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
+  const [isLoadingList, setIsLoadingList] = useState<number[]>([]);
 
   useEffect(() => {
     getTodos(USER_ID)
@@ -64,6 +65,8 @@ export const App: React.FC = () => {
   };
 
   const onCompletionChange = (todoId: number, completed: boolean) => {
+    setIsLoadingList(prev => [...prev, todoId]);
+
     patchTodoCompleted(todoId, completed)
       .then((patchedTodo) => setTodos(prevTodos => prevTodos
         .map(todo => {
@@ -71,15 +74,20 @@ export const App: React.FC = () => {
             ? { ...todo, completed: patchedTodo.completed }
             : { ...todo };
         })))
-      .catch(() => setErrorMessage(Errors.update));
+      .catch(() => setErrorMessage(Errors.update))
+      .finally(() => setIsLoadingList(prev => prev
+        .filter(id => id !== todoId)));
   };
 
   const onRemoveTodo = (todoId: number) => {
+    setIsLoadingList(prev => [...prev, todoId]);
     deleteTodo(todoId)
       .then(() => {
         setTodos(prevTodos => prevTodos.filter(todo => todo.id !== todoId));
       })
-      .catch(() => setErrorMessage(Errors.delete));
+      .catch(() => setErrorMessage(Errors.delete))
+      .finally(() => setIsLoadingList(prev => prev
+        .filter(id => id !== todoId)));
   };
 
   const onClearCompleted = () => {
@@ -159,6 +167,7 @@ export const App: React.FC = () => {
               onTodoEdited={onTodoEdited}
               setErrorMsg={setErrorMsg}
               tempTodo={tempTodo}
+              isLoadingList={isLoadingList}
             />
           )}
         </section>

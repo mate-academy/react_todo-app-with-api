@@ -8,6 +8,7 @@ type Props = {
   onRemoveTodo: (todoId: number) => void,
   onTodoEdited: (id: number, newTitle: string) => void,
   setErrorMsg: (errorMsg: Errors | null) => void,
+  isLoading: boolean,
 };
 
 export const TodoInfo: React.FC<Props> = (
@@ -17,11 +18,11 @@ export const TodoInfo: React.FC<Props> = (
     onRemoveTodo,
     onTodoEdited,
     setErrorMsg,
+    isLoading,
   },
 ) => {
   const [isEdited, setIsEdited] = useState(false);
   const [editedTitle, setEditedTitle] = useState(todo.title);
-  const [isLoading, setIsLoading] = useState(false);
   const { title, completed, id } = todo;
 
   function handleCheckboxChange() {
@@ -29,7 +30,6 @@ export const TodoInfo: React.FC<Props> = (
   }
 
   function handleRemoveButton() {
-    setIsLoading(true);
     onRemoveTodo(id);
   }
 

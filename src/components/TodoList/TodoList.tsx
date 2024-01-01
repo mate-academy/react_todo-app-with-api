@@ -10,12 +10,13 @@ type Props = {
   onTodoEdited: (id: number, newTitle: string) => void,
   setErrorMsg: (errorMsg: Errors | null) => void,
   tempTodo: Todo | null,
+  isLoadingList: number[],
 };
 
 export const TodoList: React.FC<Props> = (
   {
     todos, onCompletionChange, onRemoveTodo,
-    onTodoEdited, setErrorMsg, tempTodo,
+    onTodoEdited, setErrorMsg, tempTodo, isLoadingList,
   },
 ) => (
   <section className="todoapp__main" data-cy="TodoList">
@@ -28,6 +29,7 @@ export const TodoList: React.FC<Props> = (
           onRemoveTodo={onRemoveTodo}
           onTodoEdited={onTodoEdited}
           setErrorMsg={setErrorMsg}
+          isLoading={isLoadingList.includes(todo.id)}
         />
       ))}
 
