@@ -115,15 +115,9 @@ export const App: React.FC = () => {
   };
 
   const setAllTodosStatus = (isActive: boolean) => {
-    const newTodos = todos.map(todo => {
-      const newTodo = { ...todo };
-
-      newTodo.completed = isActive;
-
-      return newTodo;
-    });
-
-    setTodos(newTodos);
+    todos
+      .filter(todo => todo.completed !== isActive)
+      .forEach(todo => onCompletionChange(todo.id, isActive));
   };
 
   const setErrorMsg = (errorMsg: Errors | null) => {
