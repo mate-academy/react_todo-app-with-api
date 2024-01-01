@@ -12,13 +12,13 @@ export const Footer: React.FC = React.memo(() => {
     clearCompleted,
   } = useContext(AppContext);
 
-  const countUncompletedTodo = todos.filter(todo => !todo.completed).length;
+  const uncompletedTodosCount = todos.filter(todo => !todo.completed).length;
   const isSomeTodosCompleted = todos.some(todo => todo.completed);
 
   return (
     <footer className="todoapp__footer" data-cy="Footer">
       <span className="todo-count" data-cy="TodosCounter">
-        {`${countUncompletedTodo} items left`}
+        {`${uncompletedTodosCount} items left`}
       </span>
 
       <nav className="filter" data-cy="Filter">
@@ -31,7 +31,7 @@ export const Footer: React.FC = React.memo(() => {
           )}
           onClick={() => setFilterBy(FilterBy.All)}
         >
-          {`${FilterBy.All}`}
+          {FilterBy.All}
         </a>
 
         <a
@@ -43,7 +43,7 @@ export const Footer: React.FC = React.memo(() => {
           )}
           onClick={() => setFilterBy(FilterBy.Active)}
         >
-          {`${FilterBy.Active}`}
+          {FilterBy.Active}
         </a>
 
         <a
@@ -55,7 +55,7 @@ export const Footer: React.FC = React.memo(() => {
           )}
           onClick={() => setFilterBy(FilterBy.Completed)}
         >
-          {`${FilterBy.Completed}`}
+          {FilterBy.Completed}
         </a>
       </nav>
 

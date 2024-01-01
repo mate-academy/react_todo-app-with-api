@@ -70,7 +70,7 @@ export const AppProvider: React.FC<Props> = ({ children }) => {
   const [todoTitle, setTodoTitle] = useState('');
   const [selectedTodoIds, setSelectedTodoIds] = useState<number[]>([]);
 
-  const shouError = useCallback((error: ErrorType) => {
+  const showError = useCallback((error: ErrorType) => {
     setErrorMessage(error);
     setTimeout(() => {
       setErrorMessage(null);
@@ -86,11 +86,11 @@ export const AppProvider: React.FC<Props> = ({ children }) => {
         setTodos(currentTodos => currentTodos
           .filter(post => post.id !== todoId));
       } catch (error) {
-        shouError(ErrorType.UnableToDeleteTodo);
+        showError(ErrorType.UnableToDeleteTodo);
       } finally {
         setSelectedTodoIds(ids => ids.filter(id => id !== todoId));
       }
-    }, [shouError, setTodos, setSelectedTodoIds],
+    }, [showError, setTodos, setSelectedTodoIds],
   );
 
   const createNewTodo = useCallback(async (title: string) => {
@@ -115,13 +115,13 @@ export const AppProvider: React.FC<Props> = ({ children }) => {
 
       setTodos(currentTodos => [...currentTodos, newTodo]);
     } catch (error) {
-      shouError(ErrorType.UnableToAddTodo);
+      showError(ErrorType.UnableToAddTodo);
     } finally {
       setIsLoading(false);
       setSelectedTodoIds(ids => ids.filter(id => id !== 0));
       setTempTodo(null);
     }
-  }, [shouError,
+  }, [showError,
     setTodos,
     setSelectedTodoIds,
     setIsLoading,
@@ -143,7 +143,7 @@ export const AppProvider: React.FC<Props> = ({ children }) => {
         ));
       })
       .catch(() => {
-        shouError(ErrorType.UnableToUpdateTodo);
+        showError(ErrorType.UnableToUpdateTodo);
       })
       .finally(() => {
         setSelectedTodoIds(ids => ids.filter(
@@ -152,7 +152,7 @@ export const AppProvider: React.FC<Props> = ({ children }) => {
 
         setIsLoading(false);
       });
-  }, [shouError]);
+  }, [showError]);
 
   const clearCompleted = useCallback(
     () => {
@@ -198,12 +198,12 @@ export const AppProvider: React.FC<Props> = ({ children }) => {
           return newTodos;
         });
       } catch (error) {
-        shouError(ErrorType.UnableToUpdateTodo);
+        showError(ErrorType.UnableToUpdateTodo);
       } finally {
         setSelectedTodoIds((ids) => ids.filter((id) => id !== todoChange.id));
       }
     },
-    [shouError, setTodos, setSelectedTodoIds],
+    [showError, setTodos, setSelectedTodoIds],
   );
 
   const toggleAllTodos = useCallback(
@@ -250,7 +250,7 @@ export const AppProvider: React.FC<Props> = ({ children }) => {
     setTempTodo,
     deleteTodo,
     updateTodo,
-    shouError,
+    shouError: showError,
     handleToggleCompleted,
     toggleAllTodos,
   }), [
@@ -271,7 +271,7 @@ export const AppProvider: React.FC<Props> = ({ children }) => {
     setTempTodo,
     deleteTodo,
     updateTodo,
-    shouError,
+    showError,
     handleToggleCompleted,
     toggleAllTodos,
   ]);

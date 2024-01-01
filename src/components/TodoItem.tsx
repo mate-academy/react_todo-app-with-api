@@ -25,7 +25,7 @@ export const TodoItem: React.FC<Props> = React.memo((props) => {
   } = useContext(AppContext);
 
   const [isEdit, setIsEdit] = useState(false);
-  const [editTitle, setEditTitle] = useState(todo.title);
+  const [newTitle, setNewTitle] = useState(todo.title);
   const [isSaving, setIsSaving] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -37,35 +37,32 @@ export const TodoItem: React.FC<Props> = React.memo((props) => {
 
   const handleEditStart = () => {
     setIsEdit(true);
-    setEditTitle(todo.title);
+    setNewTitle(todo.title);
   };
 
-  const handleEditCancel = () => {
-    setIsEdit(false);
-    setEditTitle(todo.title);
-  };
+  const NEWTITLECLEAR = newTitle.trim();
 
   const handleEditSave = async () => {
     try {
       setIsSaving(true);
 
-      if (editTitle.trim() === '') {
+      if (!NEWTITLECLEAR) {
         deleteTodo(todo.id);
 
         return;
       }
 
-      if (editTitle.trim() === todo.title) {
+      if (NEWTITLECLEAR === todo.title) {
         setIsEdit(false);
 
         return;
       }
 
-      const updatedTodo = { ...todo, title: editTitle.trim() };
+      const updatedTodo = { ...todo, title: NEWTITLECLEAR };
 
       await updateTodo(updatedTodo);
 
-      setEditTitle(updatedTodo.title);
+      setNewTitle(updatedTodo.title);
     } catch (error) {
       shouError(ErrorType.UnableToUpdateTodo);
     } finally {
@@ -74,15 +71,12 @@ export const TodoItem: React.FC<Props> = React.memo((props) => {
     }
   };
 
-  const handleKeyUp = (event: React.KeyboardEvent<HTMLInputElement>) => {
-    if (event.key === 'Enter') {
-      handleEditSave();
-    }
-
-    if (event.key === 'Escape') {
-      handleEditCancel();
-    }
+  const handleFormSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    handleEditSave();
   };
+
+  const isLoading = isSaving || selectedTodoIds.includes(todo.id);
 
   return (
     <div
@@ -122,25 +116,24 @@ export const TodoItem: React.FC<Props> = React.memo((props) => {
           </button>
         </>
       ) : (
-        <form>
+        <form onSubmit={handleFormSubmit}>
           <input
             type="text"
             data-cy="TodoTitleField"
             className="todo__title-field"
-            onChange={(e) => setEditTitle(e.target.value)}
+            onChange={(e) => setNewTitle(e.target.value)}
             onBlur={handleEditSave}
-            onKeyUp={(e) => handleKeyUp(e)}
-            value={editTitle}
+            value={newTitle}
             ref={inputRef}
           />
         </form>
       )}
 
-      {(isSaving || selectedTodoIds.includes(todo.id)) && (
+      {isLoading && (
         <div
           data-cy="TodoLoader"
           className={cn('modal overlay', {
-            'is-active': isSaving || selectedTodoIds.includes(todo.id),
+            'is-active': isLoading,
           })}
         >
           <div className="modal-background has-background-white-ter" />
