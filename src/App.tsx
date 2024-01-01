@@ -1,7 +1,10 @@
 /* eslint-disable jsx-a11y/control-has-associated-label */
 import React, { useEffect, useState } from 'react';
 import { UserWarning } from './UserWarning';
-import { deleteTodo, getTodos, postTodo } from './api/todos';
+import {
+  deleteTodo, getTodos, postTodo,
+  patchTodoCompleted,
+} from './api/todos';
 import { Todo } from './types/Todo';
 import { TodoList } from './components/TodoList';
 import { NewTodo } from './components/NewTodo';
@@ -60,18 +63,15 @@ export const App: React.FC = () => {
       .finally(() => clearTempTodo());
   };
 
-  const onCompletionChange = (todoId: number) => {
-    const newTodos = todos.map(todo => {
-      const newTodo = { ...todo };
-
-      if (newTodo.id === todoId) {
-        newTodo.completed = !newTodo.completed;
-      }
-
-      return newTodo;
-    });
-
-    setTodos(newTodos);
+  const onCompletionChange = (todoId: number, completed: boolean) => {
+    patchTodoCompleted(todoId, completed)
+      .then((patchedTodo) => setTodos(prevTodos => prevTodos
+        .map(todo => {
+          return todo.id === todoId
+            ? { ...todo, completed: patchedTodo.completed }
+            : { ...todo };
+        })))
+      .catch(() => setErrorMessage(Errors.update));
   };
 
   const onRemoveTodo = (todoId: number) => {

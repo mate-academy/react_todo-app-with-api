@@ -4,7 +4,7 @@ import { Errors } from '../../types/ErrorTypes';
 
 type Props = {
   todo: Todo,
-  onCompletionChange: (todoId: number) => void,
+  onCompletionChange: (todoId: number, completed: boolean) => void,
   onRemoveTodo: (todoId: number) => void,
   onTodoEdited: (id: number, newTitle: string) => void,
   setErrorMsg: (errorMsg: Errors | null) => void,
@@ -25,7 +25,7 @@ export const TodoInfo: React.FC<Props> = (
   const { title, completed, id } = todo;
 
   function handleCheckboxChange() {
-    onCompletionChange(id);
+    onCompletionChange(id, !completed);
   }
 
   function handleRemoveButton() {

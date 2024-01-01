@@ -5,7 +5,7 @@ import { Errors } from '../../types/ErrorTypes';
 
 type Props = {
   todos: Todo[],
-  onCompletionChange: (todoId: number) => void,
+  onCompletionChange: (todoId: number, completed: boolean) => void,
   onRemoveTodo: (todoId: number) => void,
   onTodoEdited: (id: number, newTitle: string) => void,
   setErrorMsg: (errorMsg: Errors | null) => void,
