@@ -1,8 +1,9 @@
 import { useEffect, useRef } from 'react';
+import cn from 'classnames';
 import { useTodos } from '../context/TodosProvider';
 import { ErrorMessage } from '../types/Errors';
 import { useAuthorize } from '../context/AutorizationProvider';
-import { addTodos } from '../api/todos';
+import { addTodos, updateTodo } from '../api/todos';
 import { Todo } from '../types/Todo';
 
 export const TodoHeader: React.FC = () => {
@@ -46,7 +47,7 @@ export const TodoHeader: React.FC = () => {
         completed: false,
       });
 
-      addTodos({ userId: USER_ID, title: todoTitle, completed: false })
+      addTodos({ userId: USER_ID, title: todoTitle.trim(), completed: false })
         .then((newTodo: Todo) => {
           setTodoTitle('');
           const currentTodos = [...todos, newTodo];
@@ -62,13 +63,33 @@ export const TodoHeader: React.FC = () => {
     }
   });
 
+  const isEveryTodoCompleted = todos.every(todo => todo.completed);
+
+  const toggleCompleteAll = () => {
+    let copy: Todo[] = [];
+
+    todos.forEach(todo => {
+      updateTodo(todo.id, {
+        completed: !isEveryTodoCompleted,
+      }).then(data => {
+        copy = [...copy, data];
+
+        setTodos(copy);
+      }).catch(() => setErrorMessage(ErrorMessage.Update));
+    });
+  };
+
   return (
     <header className="todoapp__header">
       {/* this buttons is active only if there are some active todos */}
+      {/* "todoapp__toggle-all active" */}
       <button
         type="button"
-        className="todoapp__toggle-all active"
+        className={cn(isEveryTodoCompleted
+          ? 'todoapp__toggle-all active'
+          : 'todoapp__toggle-all')}
         data-cy="ToggleAllButton"
+        onClick={toggleCompleteAll}
       >
         {' '}
       </button>

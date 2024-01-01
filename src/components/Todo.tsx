@@ -15,11 +15,16 @@ export const SingleTodo: React.FC<Props> = ({ todo }) => {
     todos,
     setTodos,
     setErrorMessage,
-    tempTodo,
   } = useTodos();
   const [isEditable, setIsEditable] = useState(false);
-  const [value, setValue] = useState(title);
+  const [loading, setLoading] = useState(false);
   const inputEditRef = useRef<HTMLInputElement | null>(null);
+
+  const loaderClasses = cn(
+    'modal',
+    'overlay',
+    { 'is-active': loading || id === 0 },
+  );
 
   const handeleClickOnTodo = () => {
     setIsEditable(true);
@@ -30,43 +35,77 @@ export const SingleTodo: React.FC<Props> = ({ todo }) => {
   };
 
   const handleDelete = () => {
+    setLoading(true);
     deleteTodos(id)
       .then(() => {
-        setTimeout(() => {
-          const filtered = todos.filter((post: Todo) => post.id !== id);
+        const filtered = todos.filter((post: Todo) => post.id !== id);
 
-          setTodos(filtered);
-        }, 500);
+        setTodos(filtered);
       })
-      .catch(() => setErrorMessage(ErrorMessage.Delete));
+      .catch(() => setErrorMessage(ErrorMessage.Delete))
+      .finally(() => setLoading(false));
+  };
+
+  const toggleCompleted = () => {
+    setLoading(true);
+
+    updateTodo(id, { completed: !completed })
+      .then(updatedTodo => {
+        const updatedTodos = todos.map(tod => (
+          tod.id === id ? updatedTodo : tod));
+
+        setTodos(updatedTodos);
+      })
+      .catch(() => setErrorMessage(ErrorMessage.Update))
+      .finally(() => setLoading(false));
+  };
+
+  const handleBlur = () => {
+    if (title === inputEditRef?.current?.value) {
+      setIsEditable(false);
+
+      return;
+    }
+
+    if (inputEditRef?.current?.value === '') {
+      handleDelete();
+    }
+
+    setLoading(true);
+
+    updateTodo(id, {
+      title: inputEditRef?.current?.value,
+    })
+      .then(data => {
+        const copy = [...todos];
+        const index = todos.findIndex(el => el.id === id);
+
+        copy[index] = data;
+
+        setTodos(copy);
+      })
+      .catch(() => setErrorMessage(ErrorMessage.Update))
+      .finally(() => {
+        setIsEditable(false);
+        setLoading(false);
+      });
   };
 
   const handleSaveTodo = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-
-    updateTodo(id, {
-      title: inputEditRef?.current?.value,
-    }).then(data => {
-      const copy = [...todos];
-      const index = todos.findIndex(el => el.id === id);
-
-      copy[index] = data;
-
-      setTodos(copy);
-    }).catch(() => setErrorMessage(ErrorMessage.Update));
   };
 
-  const toggleCompleted = () => {
-    updateTodo(id, {
-      completed: !completed,
-    }).then(data => {
-      const copy = [...todos];
-      const index = todos.findIndex(el => el.id === id);
-
-      copy[index] = data;
-
-      setTodos(copy);
-    }).catch(() => setErrorMessage(ErrorMessage.Update));
+  const handleEditFieldKeyUp = (event: React.KeyboardEvent) => {
+    switch (event.key) {
+      case 'Enter':
+        inputEditRef.current?.blur();
+        break;
+      case 'Escape':
+        setIsEditable(false);
+        break;
+      default:
+        break;
+    }
   };
 
   return (
@@ -85,7 +124,7 @@ export const SingleTodo: React.FC<Props> = ({ todo }) => {
             className={cn(completed
               ? 'todo__status checked'
               : 'todo__status')}
-            checked={completed}
+            defaultChecked={completed}
           />
         </label>
 
@@ -96,10 +135,10 @@ export const SingleTodo: React.FC<Props> = ({ todo }) => {
               type="text"
               className="todo__title-field"
               placeholder="Empty todo will be deleted"
-              defaultValue={value}
-              onChange={e => setValue(e.target.value)}
-              onBlur={() => setIsEditable(false)}
+              defaultValue={title.trim()}
+              onBlur={handleBlur}
               ref={inputEditRef}
+              onKeyUp={handleEditFieldKeyUp}
             />
           </form>
         ) : (
@@ -109,7 +148,7 @@ export const SingleTodo: React.FC<Props> = ({ todo }) => {
               className="todo__title"
               onDoubleClick={handeleClickOnTodo}
             >
-              {title.trim()}
+              {title}
             </span>
             <button
               type="button"
@@ -123,9 +162,7 @@ export const SingleTodo: React.FC<Props> = ({ todo }) => {
         )}
         <div
           data-cy="TodoLoader"
-          className={cn('modal overlay', id === tempTodo?.id
-            ? 'is-active'
-            : '')}
+          className={loaderClasses}
         >
           <div className="modal-background has-background-white-ter" />
           <div className="loader" />

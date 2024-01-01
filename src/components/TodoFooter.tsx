@@ -1,9 +1,9 @@
 import cn from 'classnames';
-import { useCallback } from 'react';
 import { useTodos } from '../context/TodosProvider';
 import { FilterBy } from '../types/filter';
 import { deleteTodos } from '../api/todos';
 import { ErrorMessage } from '../types/Errors';
+import { Todo } from '../types/Todo';
 
 export const TodoFooter: React.FC = () => {
   const {
@@ -17,18 +17,23 @@ export const TodoFooter: React.FC = () => {
 
   const isSomeTodosCompleted = todos.some((todo) => todo.completed);
 
-  const clearCompleted = useCallback(() => {
+  const clearCompleted = () => {
     const completedTodos = todos.filter((todoToFind) => todoToFind.completed);
 
+    const toDelete: Todo[] = [];
+
     completedTodos.map((completedTodo) => deleteTodos(completedTodo.id)
+      .then(() => toDelete.push(completedTodo))
       .catch(() => setErrorMessage(ErrorMessage.Delete)));
 
     setTimeout(() => {
-      const filtered = todos.filter((todoToFilter) => !todoToFilter.completed);
+      const filtered = todos.filter(
+        (todoToFilter) => !toDelete.includes(todoToFilter),
+      );
 
       setTodos(filtered);
     }, 500);
-  }, [todos, setTodos, setErrorMessage]);
+  };
 
   return (
     <footer className="todoapp__footer" data-cy="Footer">
