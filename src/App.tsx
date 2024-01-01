@@ -4,6 +4,7 @@ import { UserWarning } from './UserWarning';
 import {
   deleteTodo, getTodos, postTodo,
   patchTodoCompleted,
+  patchTodoTitle,
 } from './api/todos';
 import { Todo } from './types/Todo';
 import { TodoList } from './components/TodoList';
@@ -70,7 +71,7 @@ export const App: React.FC = () => {
     patchTodoCompleted(todoId, completed)
       .then((patchedTodo) => setTodos(prevTodos => prevTodos
         .map(todo => {
-          return todo.id === todoId
+          return todo.id === patchedTodo.id
             ? { ...todo, completed: patchedTodo.completed }
             : { ...todo };
         })))
@@ -96,18 +97,19 @@ export const App: React.FC = () => {
     });
   };
 
-  const onTodoEdited = (id: number, newTitle: string) => {
-    const newTodos = todos.map(todo => {
-      const newTodo = { ...todo };
+  const onTodoEdited = (todoId: number, newTitle: string) => {
+    setIsLoadingList(prev => [...prev, todoId]);
 
-      if (newTodo.id === id) {
-        newTodo.title = newTitle;
-      }
-
-      return newTodo;
-    });
-
-    setTodos(newTodos);
+    patchTodoTitle(todoId, newTitle)
+      .then((patchedTodo) => setTodos(prevTodos => prevTodos
+        .map(todo => {
+          return todo.id === patchedTodo.id
+            ? { ...todo, title: patchedTodo.title }
+            : { ...todo };
+        })))
+      .catch(() => setErrorMessage(Errors.update))
+      .finally(() => setIsLoadingList(prev => prev
+        .filter(id => id !== todoId)));
   };
 
   const setActivityFilter = (filterValue: string) => {

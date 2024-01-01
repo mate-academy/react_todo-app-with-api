@@ -17,7 +17,6 @@ export const TodoInfo: React.FC<Props> = (
     onCompletionChange,
     onRemoveTodo,
     onTodoEdited,
-    setErrorMsg,
     isLoading,
   },
 ) => {
@@ -39,22 +38,37 @@ export const TodoInfo: React.FC<Props> = (
 
   const handleEdition: React.ChangeEventHandler<HTMLInputElement>
   = (event) => {
-    try {
-      setEditedTitle(event.target.value);
-    } catch {
-      setErrorMsg(Errors.update);
-    }
+    setEditedTitle(event.target.value);
   };
 
-  function handleOnBlur() {
-    onTodoEdited(id, editedTitle);
+  function todoRename() {
     setIsEdited(false);
+
+    if (editedTitle === title) {
+      return;
+    }
+
+    if (editedTitle === '') {
+      onRemoveTodo(id);
+
+      return;
+    }
+
+    onTodoEdited(id, editedTitle);
+  }
+
+  function handleOnBlur() {
+    todoRename();
   }
 
   function handleKeyPressed(event: React.KeyboardEvent<HTMLInputElement>) {
     if (event.key === 'Enter') {
       event.preventDefault();
-      onTodoEdited(id, editedTitle);
+      todoRename();
+    }
+
+    if (event.key === 'Escape') {
+      setEditedTitle(title);
       setIsEdited(false);
     }
   }
