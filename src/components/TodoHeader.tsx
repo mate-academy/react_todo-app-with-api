@@ -82,14 +82,6 @@ export const TodoHeader: React.FC = () => {
       .catch(() => setErrorMessage(ErrorMessage.Update));
   };
 
-  // const toggleCompleteAll = () => {
-  //   Promise.all([todos.map(
-  //     todo => updateTodo && updateTodo(todo.id, {
-  //       completed: !isEveryTodoCompleted,
-  //     }),
-  //   )]);
-  // };
-
   return (
     <header className="todoapp__header">
       {/* this buttons is active only if there are some active todos */}
