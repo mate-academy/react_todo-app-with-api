@@ -57,6 +57,7 @@ export const App: React.FC = () => {
       completed: false,
       userId: USER_ID,
     });
+
     TodoService.createTodo({
       title,
       completed: false,
@@ -107,10 +108,9 @@ export const App: React.FC = () => {
   const toggleAll = async () => {
     const isAllCompleted = todos.every(todo => todo.completed);
 
-    const todosToUpdate = todos.filter(todo => (isAllCompleted
-      ? todo.completed
-      : !todo.completed
-    ));
+    const todosToUpdate = todos.filter(
+      todo => isAllCompleted === todo.completed,
+    );
 
     await Promise.all(todosToUpdate.map(todo => (
       updateTodo({

@@ -104,11 +104,9 @@ export const OneTodo: React.FC<Props> = ({
             placeholder="Empty todo will be deleted"
             value={newTitle}
             onChange={event => setNewTitle(event.target.value)}
-            onKeyUp={event => {
-              if (event.key === 'Escape') {
-                setNewTitle(todo.title);
-                setIsEditing(false);
-              }
+            onDoubleClick={() => {
+              setNewTitle(todo.title);
+              setIsEditing(false);
             }}
           />
         </form>
