@@ -76,7 +76,7 @@ export const SingleTodo: React.FC<Props> = ({ todo }) => {
     setLoading(true);
 
     updateTodo(id, {
-      title: inputEditRef?.current?.value,
+      title: inputEditRef?.current?.value.trim(),
     })
       .then(data => {
         const copy = [...todos];
@@ -85,10 +85,10 @@ export const SingleTodo: React.FC<Props> = ({ todo }) => {
         copy[index] = data;
 
         setTodos(copy);
+        setIsEditable(false);
       })
       .catch(() => setErrorMessage(ErrorMessage.Update))
       .finally(() => {
-        setIsEditable(false);
         setLoading(false);
       });
   };

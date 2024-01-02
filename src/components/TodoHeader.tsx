@@ -29,7 +29,7 @@ export const TodoHeader: React.FC = () => {
     }
   }, [fieldRender, todos, errorMessage]);
 
-  const handleSubmit = ((event: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmitForm = ((event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
     if (!todoTitle.trim()) {
@@ -99,7 +99,7 @@ export const TodoHeader: React.FC = () => {
         </button>
       )}
       {/* Add a todo on form submit */}
-      <form onSubmit={handleSubmit}>
+      <form onSubmit={handleSubmitForm}>
         <input
           data-cy="NewTodoField"
           type="text"
