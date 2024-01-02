@@ -54,16 +54,17 @@ export const TodoList = () => {
 
             {todo.id !== modifiedTodo
               ? <TodoInfo todo={todo} />
-              : <TodoEdit todoTitle={todo.title} />}
-
-            <button
-              type="button"
-              className="todo__remove"
-              data-cy="TodoDelete"
-              onClick={handleDelete(todo.id)}
-            >
-              ×
-            </button>
+              : <TodoEdit todo={todo} />}
+            {todo.id !== modifiedTodo && (
+              <button
+                type="button"
+                className="todo__remove"
+                data-cy="TodoDelete"
+                onClick={handleDelete(todo.id)}
+              >
+                ×
+              </button>
+            ) }
 
             <div
               data-cy="TodoLoader"
@@ -98,7 +99,7 @@ export const TodoList = () => {
 
           {tempTodo.id !== modifiedTodo
             ? <TodoInfo todo={tempTodo} />
-            : <TodoEdit todoTitle={tempTodo.title} />}
+            : <TodoEdit todo={tempTodo} />}
 
           <button
             type="button"

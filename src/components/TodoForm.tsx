@@ -7,7 +7,6 @@ import { useTodo } from '../providers/TodoProvider';
 export const TodoForm = () => {
   const {
     todos,
-    // setTodos,
     todosLeft,
     addTodo,
     USER_ID,
@@ -26,13 +25,15 @@ export const TodoForm = () => {
 
   useEffect(() => {
     inputRef.current?.focus();
-  }, [tempTodo]);
+  }, [tempTodo, todos]);
 
   const handleClick = () => {
     const toggle = !!todosLeft;
 
     todos.forEach((todo) => {
-      updateTodo(todo.id, { completed: toggle });
+      if (todo.completed !== toggle) {
+        updateTodo(todo.id, { completed: toggle });
+      }
     });
   };
 
@@ -65,7 +66,7 @@ export const TodoForm = () => {
         <button
           type="button"
           className={classNames('todoapp__toggle-all', {
-            active: todosLeft,
+            active: !todosLeft,
           })}
           data-cy="ToggleAllButton"
           onClick={handleClick}

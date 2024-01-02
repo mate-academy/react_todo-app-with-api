@@ -118,6 +118,8 @@ export const TodoProvider: FC<Props> = ({ children }) => {
 
           return copy;
         });
+
+        setModifiedTodo(null);
       })
       .catch(() => setError('Update'))
       .finally(() => setIsUpdating(prev => prev.filter(id => id !== todoId)));

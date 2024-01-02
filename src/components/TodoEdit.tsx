@@ -1,28 +1,53 @@
 /* eslint-disable jsx-a11y/no-autofocus */
 import { FC, useState } from 'react';
 import { useTodo } from '../providers/TodoProvider';
+import { Todo } from '../types/Todo';
 
 type Props = {
-  todoTitle: string
+  todo: Todo;
 };
 
-export const TodoEdit: FC<Props> = ({ todoTitle }) => {
-  const [title, setTitle] = useState<string>(todoTitle);
+export const TodoEdit: FC<Props> = ({ todo }) => {
+  const [title, setTitle] = useState<string>(todo.title);
 
   const {
     setModifiedTodo,
+    updateTodo,
+    deleteTodoFromApi,
   } = useTodo();
 
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setTitle(event.target.value);
   };
 
-  const handleBlur = () => {
-    setModifiedTodo(null);
+  const handleSubmit = (
+    event: React.FormEvent<HTMLFormElement> | null = null,
+  ) => {
+    if (event) {
+      event.preventDefault();
+    }
+
+    if (!title) {
+      deleteTodoFromApi(todo.id);
+    }
+
+    if (title !== todo.title) {
+      updateTodo(todo.id, { title: title.trim() });
+    } else {
+      setModifiedTodo(null);
+    }
+  };
+
+  const handleCancel = (event: React.KeyboardEvent<HTMLInputElement>) => {
+    if (event.key === 'Escape') {
+      setModifiedTodo(null);
+    }
   };
 
   return (
-    <form>
+    <form
+      onSubmit={handleSubmit}
+    >
       <input
         data-cy="TodoTitleField"
         type="text"
@@ -30,7 +55,8 @@ export const TodoEdit: FC<Props> = ({ todoTitle }) => {
         placeholder="Empty todo will be deleted"
         value={title}
         onChange={handleChange}
-        onBlur={handleBlur}
+        onBlur={() => handleSubmit()}
+        onKeyUp={handleCancel}
         autoFocus
       />
     </form>
