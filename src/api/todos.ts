@@ -12,3 +12,9 @@ export const addTodo = ({ title, userId, completed }: Omit<Todo, 'id'>) => {
 export const deleteTodo = (todoId: number) => {
   return client.delete(`/todos/${todoId}`);
 };
+
+export const toggleStatus = (
+  url: number, data: Partial<Todo>,
+): Promise<Todo> => {
+  return client.patch(`/todos/${url}`, data);
+};

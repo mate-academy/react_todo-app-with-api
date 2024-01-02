@@ -2,6 +2,8 @@
 import classNames from 'classnames';
 import { useTodos } from '../../context/todoProvider';
 import { Todo } from '../../types/Todo';
+import { ErrorType } from '../../types/Error';
+import { toggleStatus } from '../../api/todos';
 
 type Props = {
   task: Todo;
@@ -9,7 +11,21 @@ type Props = {
 };
 
 export const TodoItem = ({ task, handleDeleteClick }: Props) => {
-  const { deletingTask } = useTodos();
+  const {
+    deletingTask, setError, todos, setTodos,
+  } = useTodos();
+
+  const toggleTodo = (id: number) => {
+    const todo = todos.find(el => el.id === id);
+
+    toggleStatus(id, { completed: !todo?.completed })
+      .then((data) => {
+        const updatedTodos = todos.map(el => (el.id === id ? data : el));
+
+        setTodos(updatedTodos);
+      })
+      .catch(() => setError(ErrorType.update));
+  };
 
   return (
     <div
@@ -25,6 +41,7 @@ export const TodoItem = ({ task, handleDeleteClick }: Props) => {
           type="checkbox"
           className="todo__status"
           checked={task.completed}
+          onClick={() => toggleTodo(task.id)}
         />
       </label>
 
