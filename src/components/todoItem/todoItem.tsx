@@ -1,5 +1,5 @@
-// import { TodoInfo } from '../todoinfo/todoinfo';
 import classNames from 'classnames';
+import { useRef, useEffect } from 'react';
 import { useTodos } from '../../context/todoProvider';
 import { Todo } from '../../types/Todo';
 import { ErrorType } from '../../types/Error';
@@ -13,8 +13,17 @@ type Props = {
 export const TodoItem = ({ task, handleDeleteClick }: Props) => {
   const {
     deletingTask, setError, todos, setTodos,
-    togglingId, setTogglingId,
+    togglingId, setTogglingId, isEdited, setIsEdited,
+    isAddingTask, setIsAddingTask,
   } = useTodos();
+
+  const inputEditRef = useRef<HTMLInputElement | null>(null);
+
+  useEffect(() => {
+    if (isEdited && inputEditRef.current) {
+      inputEditRef.current.focus();
+    }
+  }, [isEdited]);
 
   const toggleTodo = (id: number) => {
     const todo = todos.find(el => el.id === id);
@@ -30,6 +39,76 @@ export const TodoItem = ({ task, handleDeleteClick }: Props) => {
       })
       .catch(() => setError(ErrorType.update))
       .finally(() => setTogglingId([]));
+  };
+
+  const handleTitleChange = (id: number) => () => {
+    setIsEdited(id);
+  };
+
+  const handleSaveEdited = (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    setIsAddingTask(true);
+
+    toggleStatus(isEdited!, { title: inputEditRef.current?.value })
+      .then(data => {
+        const copy = [...todos];
+        const index = todos.findIndex(el => el.id === isEdited);
+
+        copy[index] = data;
+
+        setTodos(copy);
+      })
+      .catch(() => setError(ErrorType.update))
+      .finally(() => {
+        setIsAddingTask(false);
+        setIsEdited(null);
+      });
+  };
+
+  const hanleBlur = (id: number) => {
+    // return nothning if the new title is the same as the old one
+    if (inputEditRef?.current?.defaultValue === inputEditRef?.current?.value) {
+      setIsEdited(null);
+
+      return;
+    }
+
+    // delete if new title is empty
+    if (inputEditRef?.current?.value === '') {
+      handleDeleteClick(id);
+
+      return;
+    }
+
+    setIsAddingTask(true);
+
+    toggleStatus(isEdited!, { title: inputEditRef.current?.value.trim() })
+      .then(data => {
+        const copy = [...todos];
+        const index = todos.findIndex(el => el.id === isEdited);
+
+        copy[index] = data;
+
+        setTodos(copy);
+      })
+      .catch(() => setError(ErrorType.update))
+      .finally(() => {
+        setIsAddingTask(false);
+        setIsEdited(null);
+      });
+  };
+
+  const handleEditFieldKeyUp = (event: React.KeyboardEvent) => {
+    switch (event.key) {
+      case 'Enter':
+        inputEditRef.current?.blur();
+        break;
+      case 'Escape':
+        setIsEdited(null);
+        break;
+      default:
+        break;
+    }
   };
 
   return (
@@ -50,25 +129,49 @@ export const TodoItem = ({ task, handleDeleteClick }: Props) => {
         />
       </label>
 
-      <span data-cy="TodoTitle" className="todo__title">
-        {task.title}
-      </span>
+      {isEdited === task.id
+        ? (
+          <form onSubmit={handleSaveEdited}>
+            <input
+              data-cy="TodoTitleField"
+              type="text"
+              className="todo__title-field"
+              placeholder="Empty todo will be deleted"
+              defaultValue={task.title.trim()}
+              onBlur={() => hanleBlur(task.id)}
+              ref={inputEditRef}
+              onKeyUp={handleEditFieldKeyUp}
+            />
+          </form>
+        )
+        : (
+          <>
+            <span
+              data-cy="TodoTitle"
+              className="todo__title"
+              onDoubleClick={handleTitleChange(task.id)}
+            >
+              {task.title}
+            </span>
 
-      <button
-        type="button"
-        className="todo__remove"
-        data-cy="TodoDelete"
-        onClick={() => handleDeleteClick(task.id)}
-      >
-        ×
-      </button>
+            <button
+              type="button"
+              className="todo__remove"
+              data-cy="TodoDelete"
+              onClick={() => handleDeleteClick(task.id)}
+            >
+              ×
+            </button>
+          </>
+        )}
 
       {/* overlay will cover the todo while it is being updated */}
       <div
         data-cy="TodoLoader"
         className={classNames('modal overlay', {
           'is-active': deletingTask.includes(task.id)
-          || togglingId.includes(task.id),
+          || togglingId.includes(task.id)
+          || (isAddingTask && isEdited === task.id),
         })}
       >
         <div className="modal-background has-background-white-ter" />

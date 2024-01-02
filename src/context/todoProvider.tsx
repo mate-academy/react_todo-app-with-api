@@ -27,6 +27,8 @@ type TodosProps = {
   setDeletingTask: (n: number[]) => void;
   togglingId: number[];
   setTogglingId: (n: number[]) => void;
+  isEdited: number | null;
+  setIsEdited: (id: number | null) => void;
 };
 
 const TodosContext = createContext<TodosProps>({
@@ -49,6 +51,8 @@ const TodosContext = createContext<TodosProps>({
   setDeletingTask: () => undefined,
   togglingId: [],
   setTogglingId: () => undefined,
+  isEdited: null,
+  setIsEdited: () => undefined,
 });
 
 type Props = {
@@ -76,6 +80,7 @@ export const TodosProvider: React.FC<Props> = ({ children }) => {
   const [deletingTask, setDeletingTask] = useState<number[]>([]);
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
   const [togglingId, setTogglingId] = useState<number[]>([]);
+  const [isEdited, setIsEdited] = useState<number | null>(null);
 
   const visibleTasks = useMemo(() => {
     return dataFilter(todos, filterBy);
@@ -105,6 +110,8 @@ export const TodosProvider: React.FC<Props> = ({ children }) => {
     setDeletingTask,
     togglingId,
     setTogglingId,
+    isEdited,
+    setIsEdited,
   };
 
   useEffect(() => {

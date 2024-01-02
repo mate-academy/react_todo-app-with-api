@@ -1,4 +1,5 @@
 import { useEffect, useRef } from 'react';
+import classNames from 'classnames';
 import { useTodos } from '../../context/todoProvider';
 import { addTodo, toggleStatus } from '../../api/todos';
 import { USER_ID } from '../../utils/userID';
@@ -11,6 +12,8 @@ export const TodoForm = () => {
     setIsAddingTask, countIncompleteTask, setTempTodo,
     todos, setTodos, togglingId, setTogglingId,
   } = useTodos();
+
+  const isActiveBtnComplededAll = todos.every(task => task.completed);
 
   const inputRef = useRef<HTMLInputElement | null>(null);
 
@@ -55,33 +58,62 @@ export const TodoForm = () => {
   };
 
   const completeAllTasks = () => {
-    const uncompletedTasks = todos.filter(task => !task.completed);
+    const updatedTasks = todos.map(todo => ({
+      ...todo,
+      completed: !isActiveBtnComplededAll,
+    }));
 
-    const completedTodos = todos.map(task => ({ ...task, completed: true }));
+    todos.forEach(task => {
+      if (task.completed === isActiveBtnComplededAll) {
+        const currentTogglingId = [...togglingId, task.id];
 
-    uncompletedTasks.forEach(task => {
-      const currentTogglingId = [...togglingId, task.id];
-
-      setTogglingId(currentTogglingId);
+        setTogglingId(currentTogglingId);
+        // setTogglingId(prev => [...prev, task.id]);
+      }
     });
 
-    Promise.allSettled(uncompletedTasks
-      .map(task => toggleStatus(task.id, { completed: true })
-        .catch(() => setError(ErrorType.update))))
+    Promise.allSettled(
+      updatedTasks.map(task => toggleStatus(task.id, {
+        completed: task.completed,
+      })
+        .catch(() => setError(ErrorType.update))),
+    )
+      .then(() => setTodos(updatedTasks))
       .catch(() => setError(ErrorType.update))
-      .finally(() => {
-        setTodos(completedTodos);
-        setTogglingId([]);
-      });
+      .finally(() => setTogglingId([]));
   };
+
+  // const completeAllTasks = () => {
+  //   const uncompletedTasks = todos.filter(task => !task.completed);
+
+  //   const completedTodos = todos.map(task => ({ ...task, completed: true }));
+
+  //   uncompletedTasks.forEach(task => {
+  //     const currentTogglingId = [...togglingId, task.id];
+
+  //     setTogglingId(currentTogglingId);
+  //   });
+
+  //   Promise.allSettled(uncompletedTasks
+  //     .map(task => toggleStatus(task.id, { completed: !task.completed })
+  //       .catch(() => setError(ErrorType.update))))
+  //     .catch(() => setError(ErrorType.update))
+  //     .finally(() => {
+  //       setTodos(completedTodos);
+  //       setTogglingId([]);
+  //     });
+  // };
 
   return (
     <header className="todoapp__header">
-      {countIncompleteTask > 0 && (
+      {countIncompleteTask >= 0 && (
         // eslint-disable-next-line jsx-a11y/control-has-associated-label
         <button
           type="button"
-          className="todoapp__toggle-all active"
+          // className="todoapp__toggle-all"
+          className={classNames('todoapp__toggle-all', {
+            active: isActiveBtnComplededAll,
+          })}
           data-cy="ToggleAllButton"
           onClick={completeAllTasks}
         />
