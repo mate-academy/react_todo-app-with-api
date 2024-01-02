@@ -66,18 +66,29 @@ export const TodoHeader: React.FC = () => {
   const isEveryTodoCompleted = todos.every(todo => todo.completed);
 
   const toggleCompleteAll = () => {
-    let copy: Todo[] = [];
+    const updatedTodos = todos.map(todo => ({
+      ...todo,
+      completed: !isEveryTodoCompleted,
+    }));
 
-    todos.forEach(todo => {
-      updateTodo(todo.id, {
-        completed: !isEveryTodoCompleted,
-      }).then(data => {
-        copy = [...copy, data];
-
-        setTodos(copy);
-      }).catch(() => setErrorMessage(ErrorMessage.Update));
-    });
+    Promise.all(
+      updatedTodos.map(updatedTodo => updateTodo(updatedTodo.id, {
+        completed: updatedTodo.completed,
+      })
+        .then(data => data)
+        .catch(() => setErrorMessage(ErrorMessage.Update))),
+    )
+      .then(() => setTodos(updatedTodos))
+      .catch(() => setErrorMessage(ErrorMessage.Update));
   };
+
+  // const toggleCompleteAll = () => {
+  //   Promise.all([todos.map(
+  //     todo => updateTodo && updateTodo(todo.id, {
+  //       completed: !isEveryTodoCompleted,
+  //     }),
+  //   )]);
+  // };
 
   return (
     <header className="todoapp__header">

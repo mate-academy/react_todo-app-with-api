@@ -61,7 +61,7 @@ export const SingleTodo: React.FC<Props> = ({ todo }) => {
   };
 
   const handleBlur = () => {
-    if (title === inputEditRef?.current?.value) {
+    if (inputEditRef?.current?.defaultValue === inputEditRef?.current?.value) {
       setIsEditable(false);
 
       return;
@@ -69,6 +69,8 @@ export const SingleTodo: React.FC<Props> = ({ todo }) => {
 
     if (inputEditRef?.current?.value === '') {
       handleDelete();
+
+      return;
     }
 
     setLoading(true);
@@ -121,9 +123,7 @@ export const SingleTodo: React.FC<Props> = ({ todo }) => {
             data-cy="TodoStatus"
             type="checkbox"
             onClick={toggleCompleted}
-            className={cn(completed
-              ? 'todo__status checked'
-              : 'todo__status')}
+            className="todo__status"
             defaultChecked={completed}
           />
         </label>
