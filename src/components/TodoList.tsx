@@ -4,32 +4,35 @@ import classNames from 'classnames';
 import { useTodo } from '../providers/TodoProvider';
 import { TodoInfo } from './TodoInfo';
 import { TodoEdit } from './TodoEdit';
+import { Todo } from '../types/Todo';
 
 export const TodoList = () => {
   const {
     visibleTodos,
-    setTodos,
+    updateTodo,
     modifiedTodo,
     setModifiedTodo,
     deleteTodoFromApi,
     tempTodo,
     isDeleting,
+    isUpdating,
   } = useTodo();
 
   const handleDoubleClick = (todoId: number | null = null) => () => {
     setModifiedTodo(todoId);
   };
 
-  const handleCheck = (todoId: number) => () => {
-    setTodos(prev => (
-      prev.map(todo => {
-        if (todo.id === todoId) {
-          return { ...todo, completed: !todo.completed };
-        }
+  const handleCheck = (todo: Todo) => () => {
+    // setTodos(prev => (
+    //   prev.map(todo => {
+    //     if (todo.id === todoId) {
+    //       return { ...todo, completed: !todo.completed };
+    //     }
 
-        return todo;
-      })
-    ));
+    //     return todo;
+    //   })
+    // ));
+    updateTodo(todo.id, { completed: !todo.completed });
   };
 
   const handleDelete = (todoId: number) => () => {
@@ -54,7 +57,7 @@ export const TodoList = () => {
                 type="checkbox"
                 className="todo__status"
                 checked={todo.completed}
-                onChange={handleCheck(todo.id)}
+                onChange={handleCheck(todo)}
               />
             </label>
 
@@ -74,7 +77,8 @@ export const TodoList = () => {
             <div
               data-cy="TodoLoader"
               className={classNames('modal overlay', {
-                'is-active': isDeleting.includes(todo.id),
+                'is-active': isDeleting.includes(todo.id)
+                  || isUpdating.includes(todo.id),
               })}
             >
               <div className="modal-background has-background-white-ter" />
@@ -97,7 +101,7 @@ export const TodoList = () => {
               type="checkbox"
               className="todo__status"
               checked={tempTodo.completed}
-              onChange={handleCheck(tempTodo.id)}
+              onChange={handleCheck(tempTodo)}
             />
           </label>
 
