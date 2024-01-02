@@ -23,15 +23,6 @@ export const TodoList = () => {
   };
 
   const handleCheck = (todo: Todo) => () => {
-    // setTodos(prev => (
-    //   prev.map(todo => {
-    //     if (todo.id === todoId) {
-    //       return { ...todo, completed: !todo.completed };
-    //     }
-
-    //     return todo;
-    //   })
-    // ));
     updateTodo(todo.id, { completed: !todo.completed });
   };
 

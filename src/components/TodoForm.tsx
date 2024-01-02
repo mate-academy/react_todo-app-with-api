@@ -7,7 +7,7 @@ import { useTodo } from '../providers/TodoProvider';
 export const TodoForm = () => {
   const {
     todos,
-    setTodos,
+    // setTodos,
     todosLeft,
     addTodo,
     USER_ID,
@@ -15,6 +15,7 @@ export const TodoForm = () => {
     newTodoTitle,
     setNewTodoTitle,
     tempTodo,
+    updateTodo,
   } = useTodo();
 
   const inputRef = useRef<HTMLInputElement>(null);
@@ -30,8 +31,8 @@ export const TodoForm = () => {
   const handleClick = () => {
     const toggle = !!todosLeft;
 
-    setTodos((prev) => {
-      return prev.map(todo => ({ ...todo, completed: toggle }));
+    todos.forEach((todo) => {
+      updateTodo(todo.id, { completed: toggle });
     });
   };
 

@@ -25,7 +25,7 @@ export const TodoFooter = () => {
 
       <nav className="filter" data-cy="Filter">
         {FILTER_VALUES.map(filter => (
-          <Filter filter={filter} />
+          <Filter filter={filter} key={filter} />
         ))}
       </nav>
 

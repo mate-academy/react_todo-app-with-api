@@ -108,18 +108,20 @@ export const TodoProvider: FC<Props> = ({ children }) => {
     setIsUpdating(prev => [...prev, todoId]);
     patchTodo(todoId, data)
       .then((todo) => {
-        const copy = [...todos];
-        const index = copy.findIndex(item => item.id === todoId);
+        setTodos(prev => {
+          const copy = [...prev];
+          const index = copy.findIndex(item => item.id === todoId);
 
-        if (todo) {
-          copy[index] = todo;
-        }
+          if (todo) {
+            copy[index] = todo;
+          }
 
-        setTodos(copy);
+          return copy;
+        });
       })
       .catch(() => setError('Update'))
       .finally(() => setIsUpdating(prev => prev.filter(id => id !== todoId)));
-  }, [todos]);
+  }, []);
 
   const value = {
     USER_ID,
