@@ -1,6 +1,6 @@
 import { useEffect, useRef } from 'react';
 import { useTodos } from '../../context/todoProvider';
-import { addTodo } from '../../api/todos';
+import { addTodo, toggleStatus } from '../../api/todos';
 import { USER_ID } from '../../utils/userID';
 import { ErrorType } from '../../types/Error';
 import { Todo } from '../../types/Todo';
@@ -9,7 +9,7 @@ export const TodoForm = () => {
   const {
     taskName, setTaskName, error, setError, isAddingTask,
     setIsAddingTask, countIncompleteTask, setTempTodo,
-    todos, setTodos,
+    todos, setTodos, togglingId, setTogglingId,
   } = useTodos();
 
   const inputRef = useRef<HTMLInputElement | null>(null);
@@ -54,6 +54,27 @@ export const TodoForm = () => {
       });
   };
 
+  const completeAllTasks = () => {
+    const uncompletedTasks = todos.filter(task => !task.completed);
+
+    const completedTodos = todos.map(task => ({ ...task, completed: true }));
+
+    uncompletedTasks.forEach(task => {
+      const currentTogglingId = [...togglingId, task.id];
+
+      setTogglingId(currentTogglingId);
+    });
+
+    Promise.allSettled(uncompletedTasks
+      .map(task => toggleStatus(task.id, { completed: true })
+        .catch(() => setError(ErrorType.update))))
+      .catch(() => setError(ErrorType.update))
+      .finally(() => {
+        setTodos(completedTodos);
+        setTogglingId([]);
+      });
+  };
+
   return (
     <header className="todoapp__header">
       {countIncompleteTask > 0 && (
@@ -62,6 +83,7 @@ export const TodoForm = () => {
           type="button"
           className="todoapp__toggle-all active"
           data-cy="ToggleAllButton"
+          onClick={completeAllTasks}
         />
       )}
       {/* Add a todo on form submit */}

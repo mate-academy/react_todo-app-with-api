@@ -13,10 +13,14 @@ type Props = {
 export const TodoItem = ({ task, handleDeleteClick }: Props) => {
   const {
     deletingTask, setError, todos, setTodos,
+    togglingId, setTogglingId,
   } = useTodos();
 
   const toggleTodo = (id: number) => {
     const todo = todos.find(el => el.id === id);
+    const currentTogglingId = [...togglingId, id];
+
+    setTogglingId(currentTogglingId);
 
     toggleStatus(id, { completed: !todo?.completed })
       .then((data) => {
@@ -24,7 +28,8 @@ export const TodoItem = ({ task, handleDeleteClick }: Props) => {
 
         setTodos(updatedTodos);
       })
-      .catch(() => setError(ErrorType.update));
+      .catch(() => setError(ErrorType.update))
+      .finally(() => setTogglingId([]));
   };
 
   return (
@@ -62,7 +67,8 @@ export const TodoItem = ({ task, handleDeleteClick }: Props) => {
       <div
         data-cy="TodoLoader"
         className={classNames('modal overlay', {
-          'is-active': deletingTask.includes(task.id),
+          'is-active': deletingTask.includes(task.id)
+          || togglingId.includes(task.id),
         })}
       >
         <div className="modal-background has-background-white-ter" />
