@@ -3,7 +3,9 @@ import {
   FC, createContext, useCallback, useContext, useEffect, useMemo, useState,
 } from 'react';
 import { Todo } from '../types/Todo';
-import { deleteTodo, getTodos, postTodo } from '../api/todos';
+import {
+  deleteTodo, getTodos, patchTodo, postTodo,
+} from '../api/todos';
 import { FilterType } from '../types/FilterType';
 import { ErrorType } from '../types/ErrorType';
 
@@ -15,6 +17,7 @@ type TodoContextType = {
   setVisibleTodos: Dispatch<React.SetStateAction<Todo[]>>;
   addTodo: (todo: Omit<Todo, 'id'>) => void;
   deleteTodoFromApi: (todoId: number) => void;
+  updateTodo: (todoId: number, data: Partial<Todo>) => void;
   modifiedTodo: number | null;
   setModifiedTodo: Dispatch<React.SetStateAction<number | null>>;
   todosLeft: number;
@@ -24,7 +27,7 @@ type TodoContextType = {
   setNewTodoTitle: Dispatch<React.SetStateAction<string>>;
   tempTodo: Todo | null;
   isDeleting: number[];
-  setIsDeleting: Dispatch<React.SetStateAction<number[]>>;
+  isUpdating: number[];
   error: ErrorType | null;
   setError: Dispatch<React.SetStateAction<ErrorType | null>>;
 };
@@ -45,6 +48,7 @@ export const TodoProvider: FC<Props> = ({ children }) => {
   const [newTodoTitle, setNewTodoTitle] = useState<string>('');
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
   const [isDeleting, setIsDeleting] = useState<number[]>([]);
+  const [isUpdating, setIsUpdating] = useState<number[]>([]);
   const [error, setError] = useState<ErrorType | null>(null);
 
   useEffect(() => {
@@ -100,6 +104,23 @@ export const TodoProvider: FC<Props> = ({ children }) => {
       .finally(() => setIsDeleting(prev => prev.filter(id => id !== todoId)));
   }, []);
 
+  const updateTodo = useCallback((todoId: number, data: Partial<Todo>) => {
+    setIsUpdating(prev => [...prev, todoId]);
+    patchTodo(todoId, data)
+      .then((todo) => {
+        const copy = [...todos];
+        const index = copy.findIndex(item => item.id === todoId);
+
+        if (todo) {
+          copy[index] = todo;
+        }
+
+        setTodos(copy);
+      })
+      .catch(() => setError('Update'))
+      .finally(() => setIsUpdating(prev => prev.filter(id => id !== todoId)));
+  }, [todos]);
+
   const value = {
     USER_ID,
     todos,
@@ -108,6 +129,7 @@ export const TodoProvider: FC<Props> = ({ children }) => {
     setVisibleTodos,
     addTodo,
     deleteTodoFromApi,
+    updateTodo,
     modifiedTodo,
     setModifiedTodo,
     todosLeft,
@@ -119,7 +141,7 @@ export const TodoProvider: FC<Props> = ({ children }) => {
     error,
     setError,
     isDeleting,
-    setIsDeleting,
+    isUpdating,
   };
 
   return (
