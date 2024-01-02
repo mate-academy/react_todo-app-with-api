@@ -1,7 +1,6 @@
 import React, {
   useEffect, useMemo, useRef, useState,
 } from 'react';
-import cn from 'classnames';
 import { UserWarning } from './UserWarning';
 import * as todosService from './api/todos';
 import { Todo } from './types/Todo';
@@ -10,6 +9,7 @@ import { TodoFooter } from './components/TodoFooter/TodoFooter';
 import { Status } from './types/Status';
 import { ErrorNotification } from './components/ErrorNotification';
 import { filteredTodos } from './helpers';
+import { Header } from './components/Header/Header';
 
 const USER_ID = 12042;
 
@@ -139,7 +139,7 @@ export const App: React.FC = () => {
 
   const toggleAllTodos = () => {
     if (todos.every(todo => todo.completed)) {
-      return todos.map(todo => updateTodoComplete(todo));
+      todos.map(todo => updateTodoComplete(todo));
     }
 
     todos.map(todo => {
@@ -162,32 +162,15 @@ export const App: React.FC = () => {
       <h1 className="todoapp__title">todos</h1>
 
       <div className="todoapp__content">
-        <header className="todoapp__header">
-          {todos.length > 0 && (
-            <button
-              aria-label="Toggle Button"
-              type="button"
-              className={cn('todoapp__toggle-all', {
-                active: todos.every(todo => todo.completed),
-              })}
-              data-cy="ToggleAllButton"
-              onClick={toggleAllTodos}
-            />
-          )}
-
-          <form onSubmit={createTodo}>
-            <input
-              ref={titleRef}
-              data-cy="NewTodoField"
-              type="text"
-              className="todoapp__new-todo"
-              placeholder="What needs to be done?"
-              value={todoTitle}
-              onChange={(event) => setTodoTitle(event.target.value)}
-              disabled={loadingTodoIds.length > 0}
-            />
-          </form>
-        </header>
+        <Header
+          todos={todos}
+          toggleAllTodos={toggleAllTodos}
+          createTodo={createTodo}
+          titleRef={titleRef}
+          todoTitle={todoTitle}
+          setTodoTitle={setTodoTitle}
+          loadingTodoIds={loadingTodoIds}
+        />
 
         {todos.length > 0 && (
           <>
