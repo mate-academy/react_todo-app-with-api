@@ -86,16 +86,18 @@ export const TodoHeader: React.FC = () => {
     <header className="todoapp__header">
       {/* this buttons is active only if there are some active todos */}
       {/* "todoapp__toggle-all active" */}
-      <button
-        type="button"
-        className={cn(isEveryTodoCompleted
-          ? 'todoapp__toggle-all active'
-          : 'todoapp__toggle-all')}
-        data-cy="ToggleAllButton"
-        onClick={toggleCompleteAll}
-      >
-        {' '}
-      </button>
+      {todos.length !== 0 && (
+        <button
+          type="button"
+          className={cn(isEveryTodoCompleted
+            ? 'todoapp__toggle-all active'
+            : 'todoapp__toggle-all')}
+          data-cy="ToggleAllButton"
+          onClick={toggleCompleteAll}
+        >
+          {' '}
+        </button>
+      )}
       {/* Add a todo on form submit */}
       <form onSubmit={handleSubmit}>
         <input
