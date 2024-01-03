@@ -3,7 +3,7 @@ import React, {
   useContext, useEffect, useRef, useState,
 } from 'react';
 import { TodosContext } from '../TododsContext/TodosContext';
-import { addTodo } from '../../api/todos';
+import { addTodo, updateTodo } from '../../api/todos';
 import { Todo } from '../../types/Todo';
 
 type Props = {
@@ -13,7 +13,7 @@ type Props = {
 export const Header: React.FC<Props> = ({ setTempTodo }) => {
   const [todoTitle, setTodoTitle] = useState('');
   const {
-    todos, setTodos, setErrorMessage, USER_ID,
+    todos, setTodos, setErrorMessage, userId, setLoadingTodoIds,
   } = useContext(TodosContext);
   const titleRef = useRef<HTMLInputElement | null>(null);
   const [isSubmiting, setIsSubmiting] = useState(false);
@@ -41,27 +41,31 @@ export const Header: React.FC<Props> = ({ setTempTodo }) => {
       setTempTodo({
         title: todoTitle,
         completed: false,
-        userId: USER_ID,
+        userId,
         id: 0,
       });
+
+      setLoadingTodoIds(prevLoadingTodoIds => [...prevLoadingTodoIds, 0]);
 
       addTodo({
         title: todoTitle,
         completed: false,
-        userId: USER_ID,
+        userId,
       })
         .then((newTodo: Todo) => {
           setTodos(currentTodos => [...currentTodos, newTodo]);
           setTodoTitle('');
         })
-        .catch((error) => {
+        .catch(() => {
           setErrorMessage('Unable to add a todo');
-          throw error;
         })
         .finally(() => {
           setTimeout(() => setErrorMessage(''), 3000);
           setTempTodo(null);
           setIsSubmiting(false);
+          setLoadingTodoIds(prevLoadingTodoIds => {
+            return prevLoadingTodoIds.filter(id => id !== 0);
+          });
         });
     }
   };
@@ -69,14 +73,18 @@ export const Header: React.FC<Props> = ({ setTempTodo }) => {
   const handleChangeToggle = () => {
     const isAllCompleted = todos.every(todo => todo.completed);
 
-    const updatedTodos = todos.map(todo => {
-      return {
-        ...todo,
-        completed: !isAllCompleted,
-      };
+    const updatePromises = todos.map(todo => {
+      setLoadingTodoIds(prevLoadingTodoIds => [...prevLoadingTodoIds, todo.id]);
+
+      return updateTodo({ ...todo, completed: !isAllCompleted });
     });
 
-    setTodos(updatedTodos);
+    Promise.all(updatePromises)
+      .then((updatedTodos) => {
+        setTodos(updatedTodos);
+      })
+      .catch(() => setErrorMessage('Unable to update todos'))
+      .finally(() => setLoadingTodoIds([]));
   };
 
   return (

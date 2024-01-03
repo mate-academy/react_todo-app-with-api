@@ -13,10 +13,8 @@ type Props = {
 
 export const TodoItem: React.FC<Props> = ({ todo }) => {
   const {
-    setErrorMessage, setTodos,
+    setErrorMessage, setTodos, loadingTodoIds, setLoadingTodoIds,
   } = useContext(TodosContext);
-  const [isDeliting, setIsDeliting] = useState(false);
-  const [toggled, setToggled] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [newTitle, setNewTitle] = useState(todo.title);
   const [selectedTodo, setSelectedTodo] = useState<Todo | null>(null);
@@ -33,21 +31,32 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
   };
 
   const handleDeleteTodo = (todoId: number) => {
-    setIsDeliting(true);
+    // setIsDeliting(true);
+    setLoadingTodoIds(prevLoadingTodoIds => [...prevLoadingTodoIds, todoId]);
 
     deleteTodo(todoId)
       .then(() => setTodos(
         curentTodos => curentTodos.filter(curtodo => curtodo.id !== todoId),
       ))
-      .catch((error) => {
+      .catch(() => {
         setErrorMessage('Unable to delete a todo');
-        throw error;
       })
-      .finally(() => setIsDeliting(false));
+      .finally(() => {
+        setLoadingTodoIds((prevLoadingTodoIds) => {
+          const updatedLoadingTodoIds = Array.isArray(prevLoadingTodoIds)
+            ? prevLoadingTodoIds.filter((id) => id !== todoId)
+            : [];
+
+          return updatedLoadingTodoIds;
+        });
+      });
   };
 
   const toggleCompletedTodo = (updatedTodo: Todo) => {
-    setToggled(true);
+    // setToggled(true);
+    setLoadingTodoIds(prevLoadingTodoIds => [
+      ...prevLoadingTodoIds, updatedTodo.id,
+    ]);
 
     updateTodo({ ...updatedTodo, completed: !updatedTodo.completed })
       .then(newTodo => {
@@ -61,7 +70,11 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
         });
       })
       .catch(() => setErrorMessage('Unable to update a todo'))
-      .finally(() => setToggled(false));
+      .finally(() => {
+        setLoadingTodoIds(prevLoadingTodoIds => {
+          return prevLoadingTodoIds.filter(id => id !== updatedTodo.id);
+        });
+      });
   };
 
   const handleDoubleClick = () => {
@@ -71,6 +84,7 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
   const handleSubmit = (event: React.FormEvent) => {
     event.preventDefault();
     setIsEditing(false);
+    setLoadingTodoIds(prevLoadingTodoIds => [...prevLoadingTodoIds, todo.id]);
 
     if (newTitle.trim().length === 0) {
       handleDeleteTodo(todo.id);
@@ -98,6 +112,9 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
         .finally(() => {
           setIsEditing(false);
           setSelectedTodo(null);
+          setLoadingTodoIds(prevLoadingTodoIds => {
+            return prevLoadingTodoIds.filter((id) => id !== todo.id);
+          });
         });
     }
   };
@@ -161,9 +178,11 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
           </>
         )}
 
-      {(todo.id === 0 || isDeliting || toggled || selectedTodo) && (
+      {loadingTodoIds.includes(todo.id) && (
         <Loader />
       )}
     </div>
   );
 };
+
+// (todo.id === 0 || isDeliting || toggled || selectedTodo)

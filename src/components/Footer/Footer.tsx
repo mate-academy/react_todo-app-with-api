@@ -29,16 +29,16 @@ export const Footer: React.FC = () => {
 
       <Filter />
       {/* don't show this button if there are no completed todos */}
-      {countCompletedTodos && (
-        <button
-          type="button"
-          className="todoapp__clear-completed"
-          data-cy="ClearCompletedButton"
-          onClick={handleClearCompleted}
-        >
-          Clear completed
-        </button>
-      )}
+      <button
+        style={{ visibility: countCompletedTodos ? 'visible' : 'hidden' }}
+        type="button"
+        className="todoapp__clear-completed"
+        data-cy="ClearCompletedButton"
+        onClick={handleClearCompleted}
+        disabled={!countCompletedTodos}
+      >
+        Clear completed
+      </button>
     </footer>
   );
 };
