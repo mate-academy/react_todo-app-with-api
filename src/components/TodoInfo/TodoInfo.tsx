@@ -96,6 +96,8 @@ export const TodoInfo: React.FC<Props> = (
             onChange={handleEdition}
             onBlur={handleOnBlur}
             onKeyDown={(event) => handleKeyPressed(event)}
+            // eslint-disable-next-line jsx-a11y/no-autofocus
+            autoFocus
           />
         </form>
       ) : (

@@ -42,7 +42,7 @@ export const App: React.FC = () => {
   useEffect(() => {
     getTodos(USER_ID)
       .then(setTodos)
-      .catch(() => setErrorMessage(Errors.load));
+      .catch(() => setErrorMessage(Errors.LOAD));
     setLoadingDone(true);
   }, []);
 
@@ -61,7 +61,7 @@ export const App: React.FC = () => {
       .then((newTodo: Todo) => {
         setTodos(prev => [...prev, newTodo]);
       })
-      .catch(() => setErrorMessage(Errors.add))
+      .catch(() => setErrorMessage(Errors.ADD))
       .finally(() => clearTempTodo());
   };
 
@@ -75,7 +75,7 @@ export const App: React.FC = () => {
             ? { ...todo, completed: patchedTodo.completed }
             : { ...todo };
         })))
-      .catch(() => setErrorMessage(Errors.update))
+      .catch(() => setErrorMessage(Errors.UPDATE))
       .finally(() => setIsLoadingList(prev => prev
         .filter(id => id !== todoId)));
   };
@@ -86,7 +86,7 @@ export const App: React.FC = () => {
       .then(() => {
         setTodos(prevTodos => prevTodos.filter(todo => todo.id !== todoId));
       })
-      .catch(() => setErrorMessage(Errors.delete))
+      .catch(() => setErrorMessage(Errors.DELETE))
       .finally(() => setIsLoadingList(prev => prev
         .filter(id => id !== todoId)));
   };
@@ -107,7 +107,7 @@ export const App: React.FC = () => {
             ? { ...todo, title: patchedTodo.title }
             : { ...todo };
         })))
-      .catch(() => setErrorMessage(Errors.update))
+      .catch(() => setErrorMessage(Errors.UPDATE))
       .finally(() => setIsLoadingList(prev => prev
         .filter(id => id !== todoId)));
   };
@@ -151,6 +151,7 @@ export const App: React.FC = () => {
             onAdd={onAdd}
             userId={USER_ID}
             setErrorMsg={setErrorMsg}
+            todos={todos}
           />
         </header>
 
@@ -208,18 +209,15 @@ export const App: React.FC = () => {
               </a>
             </nav>
 
-            {/* don't show this button if there are no completed todos */}
-            { isCompletedTodo
-              && (
-                <button
-                  type="button"
-                  className="todoapp__clear-completed"
-                  data-cy="ClearCompletedButton"
-                  onClick={onClearCompleted}
-                >
-                  Clear completed
-                </button>
-              )}
+            <button
+              type="button"
+              className="todoapp__clear-completed"
+              data-cy="ClearCompletedButton"
+              onClick={onClearCompleted}
+              disabled={isCompletedTodo}
+            >
+              Clear completed
+            </button>
           </footer>
         )}
       </div>
