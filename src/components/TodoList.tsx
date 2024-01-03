@@ -4,13 +4,7 @@ import { TodosContext } from './TodoProvider';
 import * as postServise from '../api/todos';
 import { Errors } from '../types/Errors';
 
-type Props = {
-  toggleTodo: (value: number) => void;
-};
-
-export const TodoList: React.FC<Props> = ({
-  toggleTodo,
-}) => {
+export const TodoList: React.FC = () => {
   const [isEditing, setIsEditing] = useState(false);
   const [editId, setEditId] = useState<number | null>(null);
   const {
@@ -20,6 +14,26 @@ export const TodoList: React.FC<Props> = ({
     removeTodo,
     filteredTodo,
   } = useContext(TodosContext);
+
+  const toggleTodo = async (todoId: number) => {
+    const completedTodo = todos.map(todo => (
+      todo.id === todoId
+        ? { ...todo, completed: !todo.completed }
+        : { ...todo }
+    ));
+    const currentTodo = completedTodo.find(complted => complted.id === todoId);
+
+    try {
+      await postServise.updateTodo({
+        todo: currentTodo,
+        todoId,
+      });
+    } catch {
+      setError(Errors.UNABLE_UPDATE);
+    }
+
+    setTodos(completedTodo);
+  };
 
   const handleDoubleClick = (id: number) => {
     setEditId(id);
