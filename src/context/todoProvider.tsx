@@ -9,7 +9,7 @@ import { ErrorType } from '../types/Error';
 
 type TodosProps = {
   todos: Todo[];
-  setTodos: (todo: Todo[]) => void;
+  setTodos: any;
   visibleTodos: Todo[];
   taskName: string;
   setTaskName: (query: string) => void;

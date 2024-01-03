@@ -33,9 +33,9 @@ export const TodoItem = ({ task, handleDeleteClick }: Props) => {
 
     toggleStatus(id, { completed: !todo?.completed })
       .then((data) => {
-        const updatedTodos = todos.map(el => (el.id === id ? data : el));
-
-        setTodos(updatedTodos);
+        setTodos((currentTodos: Todo[]) => {
+          return currentTodos.map(el => (el.id === id ? data : el));
+        });
       })
       .catch(() => setError(ErrorType.update))
       .finally(() => setTogglingId([]));
