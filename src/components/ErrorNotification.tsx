@@ -1,12 +1,10 @@
 import cn from 'classnames';
-import { useEffect } from 'react';
-import { Errors } from '../types/Errors';
+import { useContext, useEffect } from 'react';
+import { TodosContext } from './TodoProvider';
 
-type Props = {
-  setError: (value: Errors | null) => void,
-  error: Errors | null,
-};
-export const ErrorNotification: React.FC<Props> = ({ setError, error }) => {
+export const ErrorNotification: React.FC = () => {
+  const { error, setError } = useContext(TodosContext);
+
   useEffect(() => {
     setTimeout(() => {
       setError(null);

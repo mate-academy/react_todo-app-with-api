@@ -1,22 +1,83 @@
-import React, { RefObject } from 'react';
+import React, { RefObject, useContext, useState } from 'react';
+import * as postServise from '../api/todos';
+import { TodosContext } from './TodoProvider';
+import { Errors } from '../types/Errors';
 
 type Props = {
-  handleFormSubmit: (event: React.FormEvent<HTMLFormElement>) => void;
   handleChangeInput: (event: React.ChangeEvent<HTMLInputElement>) => void;
   title: string,
-  isSubmiting: boolean,
   inputRef: RefObject<HTMLInputElement>;
-  toggleAll: () => void;
+  setTitle: (valu: string) => void,
 };
 
 export const TodoHeader: React.FC<Props> = ({
-  handleFormSubmit,
   handleChangeInput,
   title,
-  isSubmiting,
   inputRef,
-  toggleAll,
+  setTitle,
 }) => {
+  const [isSubmiting, setIsSubmiting] = useState(false);
+  const {
+    todos,
+    setTodos,
+    setError,
+    USER_ID,
+  } = useContext(TodosContext);
+
+  const handleFormSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+
+    if (!title.trim()) {
+      setError(Errors.ERRORS_EMPTY_TITLE);
+
+      return;
+    }
+
+    setIsSubmiting(true);
+
+    try {
+      const newTodo = await postServise.createTodo({
+        completed: false,
+        title: title.trim(),
+        userId: USER_ID,
+      });
+
+      setTodos(currentTodo => [...currentTodo, newTodo]);
+      setTitle('');
+    } catch (newError) {
+      setError(Errors.UNABLE_ADD);
+      throw newError;
+    } finally {
+      if (inputRef.current) {
+        inputRef.current.focus();
+      }
+
+      setIsSubmiting(false);
+    }
+  };
+
+  const toggleAll = async () => {
+    const allCompleted = todos.every(todo => todo.completed);
+
+    await Promise.all(todos.map(async (todo) => {
+      try {
+        await postServise.updateTodo({
+          todo: { ...todo, completed: !allCompleted },
+          todoId: todo.id,
+        });
+      } catch (updateError) {
+        setError(Errors.UNABLE_UPDATE);
+      }
+    }));
+
+    const updatedTodos = todos.map(todo => ({
+      ...todo,
+      completed: !allCompleted,
+    }));
+
+    setTodos(updatedTodos);
+  };
+
   return (
     <header className="todoapp__header">
       <button

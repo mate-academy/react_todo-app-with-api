@@ -1,19 +1,29 @@
+import { useContext } from 'react';
 import cn from 'classnames';
 import { Filter } from '../types/Filter';
-import { Todo } from '../types/Todo';
+import { TodosContext } from './TodoProvider';
 
-type Props = {
-  setFilterType: (value: Filter) => void,
-  filterType: Filter,
-  filteredTodo: Todo[],
-  clearCompleted: () => void;
-};
-export const TodoFooter: React.FC<Props> = ({
-  filterType,
-  setFilterType,
-  filteredTodo,
-  clearCompleted,
-}) => {
+export const TodoFooter: React.FC = () => {
+  const {
+    todos,
+    setTodos,
+    removeTodo,
+    setFilterType,
+    filterType,
+    filteredTodo,
+  } = useContext(TodosContext);
+
+  const clearCompleted = () => {
+    const filteredTodos = todos.filter(todo => todo.completed);
+
+    filteredTodos.map(todo => removeTodo(todo.id));
+    const clearTodo = todos.map(todo => (
+      { ...todo, completed: false }
+    ));
+
+    setTodos(clearTodo);
+  };
+
   const filterByTodos = (filter: Filter) => {
     setFilterType(filter);
   };
@@ -59,7 +69,6 @@ export const TodoFooter: React.FC<Props> = ({
         </a>
       </nav>
 
-      {/* don't show this button if there are no completed todos */}
       <button
         type="button"
         className="todoapp__clear-completed"

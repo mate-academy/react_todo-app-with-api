@@ -1,31 +1,84 @@
+import { useContext, useState } from 'react';
 import cn from 'classnames';
-import { Todo } from '../types/Todo';
+import { TodosContext } from './TodoProvider';
+import * as postServise from '../api/todos';
+import { Errors } from '../types/Errors';
 
 type Props = {
-  filteredTodo: Todo[];
-  removeTodo: (value: number) => void;
   toggleTodo: (value: number) => void;
-  handleDoubleClick: () => void;
-  handleEditingChange: (
-    e: React.ChangeEvent<HTMLInputElement>,
-    editingId: number
-  ) => void;
-  isEditing: boolean,
-  handleBlur: () => void,
-  handleKeyPress: (e: React.KeyboardEvent<HTMLInputElement>,
-    editingId: number) => void,
 };
 
 export const TodoList: React.FC<Props> = ({
-  filteredTodo,
-  removeTodo,
   toggleTodo,
-  handleDoubleClick,
-  handleEditingChange,
-  handleKeyPress,
-  isEditing,
-  handleBlur,
 }) => {
+  const [isEditing, setIsEditing] = useState(false);
+  const [editId, setEditId] = useState<number | null>(null);
+  const {
+    todos,
+    setTodos,
+    setError,
+    removeTodo,
+    filteredTodo,
+  } = useContext(TodosContext);
+
+  const handleDoubleClick = (id: number) => {
+    setEditId(id);
+    setIsEditing(true);
+  };
+
+  const handleBlur = () => {
+    setIsEditing(false);
+  };
+
+  const handleKeyPress = async (
+    event: React.KeyboardEvent<HTMLInputElement>,
+    editingId: number,
+  ) => {
+    if (event.key === 'Enter') {
+      event.preventDefault();
+      setIsEditing(false);
+
+      const currentTodo = todos.find(todo => todo.id === editingId);
+
+      if (currentTodo) {
+        try {
+          const updatedTitle = event.currentTarget.value;
+          const updatedTodos = todos.map(todo => {
+            if (todo.id === editingId) {
+              return { ...todo, title: updatedTitle };
+            }
+
+            return todo;
+          });
+
+          await postServise.updateTodo({
+            todo: { ...currentTodo, title: updatedTitle },
+            todoId: editingId,
+          });
+
+          setTodos(updatedTodos);
+        } catch (updateError) {
+          setError(Errors.UNABLE_UPDATE);
+        }
+      }
+    }
+  };
+
+  const handleEditingChange = (
+    event: React.ChangeEvent<HTMLInputElement>,
+    editingId: number,
+  ) => {
+    const completedTodo = todos.map(todo => {
+      if (todo.id === editingId) {
+        return { ...todo, title: event.target.value };
+      }
+
+      return todo;
+    });
+
+    setTodos(completedTodo);
+  };
+
   return (
     <section className="todoapp__main" data-cy="TodoList">
       {filteredTodo.map((todo) => (
@@ -43,11 +96,11 @@ export const TodoList: React.FC<Props> = ({
             />
           </label>
 
-          {isEditing ? (
+          {isEditing && editId === todo.id ? (
             <input
               type="text"
               value={todo.title}
-              className="edit"
+              className="todo__title-field"
               onBlur={handleBlur}
               onChange={(e) => handleEditingChange(e, todo.id)}
               onKeyPress={(e) => handleKeyPress(e, todo.id)}
@@ -55,7 +108,7 @@ export const TodoList: React.FC<Props> = ({
           ) : (
             <>
               <span
-                onDoubleClick={handleDoubleClick}
+                onDoubleClick={() => handleDoubleClick(todo.id)}
                 data-cy="TodoTitle"
                 className="todo__title"
               >
