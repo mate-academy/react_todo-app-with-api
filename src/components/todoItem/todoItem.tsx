@@ -1,5 +1,5 @@
 import classNames from 'classnames';
-import { useRef, useEffect } from 'react';
+import { useEffect } from 'react';
 import { useTodos } from '../../context/todoProvider';
 import { Todo } from '../../types/Todo';
 import { ErrorType } from '../../types/Error';
@@ -14,10 +14,8 @@ export const TodoItem = ({ task, handleDeleteClick }: Props) => {
   const {
     deletingTask, setError, todos, setTodos,
     togglingId, setTogglingId, isEdited, setIsEdited,
-    isAddingTask, setIsAddingTask,
+    isAddingTask, setIsAddingTask, inputEditRef,
   } = useTodos();
-
-  const inputEditRef = useRef<HTMLInputElement | null>(null);
 
   useEffect(() => {
     if (isEdited && inputEditRef.current) {
@@ -26,6 +24,7 @@ export const TodoItem = ({ task, handleDeleteClick }: Props) => {
   }, [isEdited]);
 
   const toggleTodo = (id: number) => {
+    setError(null);
     const todo = todos.find(el => el.id === id);
     const currentTogglingId = [...togglingId, id];
 
@@ -46,10 +45,12 @@ export const TodoItem = ({ task, handleDeleteClick }: Props) => {
   };
 
   const handleTitleChange = (id: number) => () => {
+    setError(null);
     setIsEdited(id);
   };
 
   const handleSaveEdited = (event: React.FormEvent<HTMLFormElement>) => {
+    setError(null);
     event.preventDefault();
     setIsAddingTask(true);
 
@@ -61,15 +62,20 @@ export const TodoItem = ({ task, handleDeleteClick }: Props) => {
         copy[index] = data;
 
         setTodos(copy);
-      })
-      .catch(() => setError(ErrorType.update))
-      .finally(() => {
         setIsAddingTask(false);
         setIsEdited(null);
+      })
+      .catch(() => {
+        setError(ErrorType.update);
+        inputEditRef.current?.focus();
+      })
+      .finally(() => {
+
       });
   };
 
   const hanleBlur = (id: number) => {
+    setError(null);
     // return nothning if the new title is the same as the old one
     if (inputEditRef?.current?.defaultValue === inputEditRef?.current?.value) {
       setIsEdited(null);
@@ -94,11 +100,11 @@ export const TodoItem = ({ task, handleDeleteClick }: Props) => {
         copy[index] = data;
 
         setTodos(copy);
+        setIsEdited(null);
       })
       .catch(() => setError(ErrorType.update))
       .finally(() => {
         setIsAddingTask(false);
-        setIsEdited(null);
       });
   };
 

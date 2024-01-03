@@ -9,8 +9,8 @@ import { Todo } from '../../types/Todo';
 export const TodoForm = () => {
   const {
     taskName, setTaskName, error, setError, isAddingTask,
-    setIsAddingTask, setTempTodo,
-    todos, setTodos, setTogglingId,
+    setIsAddingTask, setTempTodo, isEdited,
+    todos, setTodos, setTogglingId, inputEditRef,
   } = useTodos();
 
   const isActiveBtnComplededAll = todos.every(task => task.completed);
@@ -18,8 +18,21 @@ export const TodoForm = () => {
   const inputRef = useRef<HTMLInputElement | null>(null);
 
   useEffect(() => {
-    inputRef.current?.focus();
+    inputEditRef.current?.focus();
+
+    if (!isEdited) {
+      inputRef.current?.focus();
+    }
   }, [todos, error]);
+
+  const handleInputClick = () => {
+    if (isEdited) {
+      inputEditRef.current.focus();
+      setError(ErrorType.update);
+    }
+
+    inputRef.current?.focus();
+  };
 
   const handleOnSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -50,7 +63,10 @@ export const TodoForm = () => {
         setTodos(newTodo);
         setTaskName('');
       })
-      .catch(() => setError(ErrorType.add))
+      .catch(() => {
+        inputRef.current?.focus();
+        setError(ErrorType.add);
+      })
       .finally(() => {
         setIsAddingTask(false);
         setTempTodo(null);
@@ -58,6 +74,7 @@ export const TodoForm = () => {
   };
 
   const completeAllTasks = () => {
+    setError(null);
     const updatedTasks = todos.map(todo => ({
       ...todo,
       completed: !isActiveBtnComplededAll,
@@ -76,15 +93,31 @@ export const TodoForm = () => {
       return task;
     });
 
-    Promise.allSettled(
-      updatedTasks.map(task => toggleStatus(task.id, {
-        completed: task.completed,
-      })
-        .catch(() => setError(ErrorType.update))),
+    Promise.all(
+      // eslint-disable-next-line array-callback-return
+      updatedTasks.map(task => {
+        if (task.completed !== isActiveBtnComplededAll) {
+          toggleStatus(task.id, {
+            completed: task.completed,
+          })
+            .catch(() => setError(ErrorType.update));
+        }
+      }),
     )
       .then(() => setTodos(updatedTasks))
       .catch(() => setError(ErrorType.update))
       .finally(() => setTogglingId([]));
+
+    // Promise.allSettled(
+    //   updatedTasks.map(task => toggleStatus(task.id, {
+    //     completed: task.completed,
+    //   })
+    //     .then(data => data)
+    //     .catch(() => setError(ErrorType.update))),
+    // )
+    //   .then(() => setTodos(updatedTasks))
+    //   .catch(() => setError(ErrorType.update))
+    //   .finally(() => setTogglingId([]));
   };
 
   // const completeAllTasks = () => {
@@ -130,6 +163,7 @@ export const TodoForm = () => {
           placeholder="What needs to be done?"
           value={taskName}
           onChange={event => setTaskName(event.target.value)}
+          onClick={handleInputClick}
           ref={inputRef}
           disabled={isAddingTask}
         />

@@ -1,7 +1,7 @@
 import {
   Dispatch,
   ReactNode, SetStateAction, createContext,
-  useContext, useEffect, useMemo, useState,
+  useContext, useEffect, useMemo, useRef, useState,
 } from 'react';
 import { Todo } from '../types/Todo';
 import { getTodos } from '../api/todos';
@@ -31,6 +31,7 @@ type TodosProps = {
   setTogglingId: Dispatch<SetStateAction<number[]>>
   isEdited: number | null;
   setIsEdited: (id: number | null) => void;
+  inputEditRef: any;
 };
 
 const TodosContext = createContext<TodosProps>({
@@ -55,6 +56,7 @@ const TodosContext = createContext<TodosProps>({
   setTogglingId: () => undefined,
   isEdited: null,
   setIsEdited: () => undefined,
+  inputEditRef: null,
 });
 
 type Props = {
@@ -92,6 +94,8 @@ export const TodosProvider: React.FC<Props> = ({ children }) => {
     return dataFilter(todos, 'active').length;
   }, [todos]);
 
+  const inputEditRef = useRef<HTMLInputElement | null>(null);
+
   const value = {
     todos,
     setTodos,
@@ -114,6 +118,7 @@ export const TodosProvider: React.FC<Props> = ({ children }) => {
     setTogglingId,
     isEdited,
     setIsEdited,
+    inputEditRef,
   };
 
   useEffect(() => {
