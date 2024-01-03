@@ -9,7 +9,7 @@ export const TodoFooter = () => {
     setTodos, setError, setDeletingTask,
   } = useTodos();
 
-  const hiddenBtn = todos.filter(el => el.completed).length === 0;
+  const completedTaskQuanity = todos.filter(el => el.completed).length === 0;
 
   const deleteCompletedTask = () => {
     setError(null);
@@ -17,12 +17,12 @@ export const TodoFooter = () => {
 
     const compeledTask = todos.filter(task => task.completed);
 
-    const currentDeleting = compeledTask.map(task => task.id);
+    const currentDeletingTaskId = compeledTask.map(task => task.id);
 
     compeledTask.forEach(task => {
-      currentDeleting.push(task.id);
+      currentDeletingTaskId.push(task.id);
 
-      return setDeletingTask(currentDeleting);
+      return setDeletingTask(currentDeletingTaskId);
     });
 
     Promise.all(compeledTask.map(task => deleteTodo(task.id)
@@ -88,7 +88,7 @@ export const TodoFooter = () => {
         className="todoapp__clear-completed"
         data-cy="ClearCompletedButton"
         onClick={deleteCompletedTask}
-        disabled={hiddenBtn}
+        disabled={completedTaskQuanity}
       >
         Clear completed
       </button>

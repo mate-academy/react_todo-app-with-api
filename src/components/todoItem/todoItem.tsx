@@ -3,7 +3,7 @@ import { useEffect } from 'react';
 import { useTodos } from '../../context/todoProvider';
 import { Todo } from '../../types/Todo';
 import { ErrorType } from '../../types/Error';
-import { toggleStatus } from '../../api/todos';
+import { updateTodo } from '../../api/todos';
 
 type Props = {
   task: Todo;
@@ -23,7 +23,7 @@ export const TodoItem = ({ task, handleDeleteClick }: Props) => {
     }
   }, [isEdited]);
 
-  const toggleTodo = (id: number) => {
+  const toggleTodoStatus = (id: number) => {
     setError(null);
     const todo = todos.find(el => el.id === id);
     const currentTogglingId = [...togglingId, id];
@@ -32,7 +32,7 @@ export const TodoItem = ({ task, handleDeleteClick }: Props) => {
 
     setTogglingId(currentTogglingId);
 
-    toggleStatus(id, { completed: !todo?.completed })
+    updateTodo(id, { completed: !todo?.completed })
       .then((data) => {
         setTodos((currentTodos: Todo[]) => {
           return currentTodos.map(el => (el.id === id ? data : el));
@@ -54,7 +54,7 @@ export const TodoItem = ({ task, handleDeleteClick }: Props) => {
     event.preventDefault();
     setIsAddingTask(true);
 
-    toggleStatus(isEdited!, { title: inputEditRef.current?.value })
+    updateTodo(isEdited!, { title: inputEditRef.current?.value })
       .then(data => {
         const copy = [...todos];
         const index = todos.findIndex(el => el.id === isEdited);
@@ -74,7 +74,7 @@ export const TodoItem = ({ task, handleDeleteClick }: Props) => {
       });
   };
 
-  const hanleBlur = (id: number) => {
+  const handleBlur = (id: number) => {
     setError(null);
     // return nothning if the new title is the same as the old one
     if (inputEditRef?.current?.defaultValue === inputEditRef?.current?.value) {
@@ -92,7 +92,7 @@ export const TodoItem = ({ task, handleDeleteClick }: Props) => {
 
     setIsAddingTask(true);
 
-    toggleStatus(isEdited!, { title: inputEditRef.current?.value.trim() })
+    updateTodo(isEdited!, { title: inputEditRef.current?.value.trim() })
       .then(data => {
         const copy = [...todos];
         const index = todos.findIndex(el => el.id === isEdited);
@@ -135,7 +135,7 @@ export const TodoItem = ({ task, handleDeleteClick }: Props) => {
           type="checkbox"
           className="todo__status"
           checked={task.completed}
-          onClick={() => toggleTodo(task.id)}
+          onClick={() => toggleTodoStatus(task.id)}
         />
       </label>
 
@@ -148,7 +148,7 @@ export const TodoItem = ({ task, handleDeleteClick }: Props) => {
               className="todo__title-field"
               placeholder="Empty todo will be deleted"
               defaultValue={task.title.trim()}
-              onBlur={() => hanleBlur(task.id)}
+              onBlur={() => handleBlur(task.id)}
               ref={inputEditRef}
               onKeyUp={handleEditFieldKeyUp}
             />
