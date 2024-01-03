@@ -1,16 +1,25 @@
 import {
-  FC, useEffect, useRef, useState, ChangeEvent, FormEvent, useContext,
+  FC, useEffect, useRef, useState, ChangeEvent, FormEvent,
 } from 'react';
-import { AppContext } from '../context/AppContext';
+import cn from 'classnames';
+import { useAppContext } from '../context/AppContext';
 import { USER_ID } from '../USER_ID';
-import { postTodo } from '../api/todos';
+import { postTodo, updateTodo } from '../api/todos';
+import { Todo } from '../types';
 
 export const Header: FC = () => {
   const [inputValue, setInputValue] = useState<string>('');
 
   const {
-    setErrorMessage, setShowError, setTempTodo, tempTodo, setTodos, todos,
-  } = useContext(AppContext);
+    setErrorMessage,
+    setShowError,
+    setTempTodo,
+    tempTodo,
+    setTodos,
+    todos,
+    completedTodosNum,
+    setTodosBeingLoaded,
+  } = useAppContext();
 
   const handleInputChange = (event: ChangeEvent<HTMLInputElement>) => {
     setInputValue(event.target.value);
@@ -49,6 +58,34 @@ export const Header: FC = () => {
       .finally(() => setTempTodo(null));
   };
 
+  const handleToggleAllStatus = () => {
+    setTodosBeingLoaded(todos.map(todo => todo.id));
+
+    if (todos.length === completedTodosNum) {
+      Promise.all(todos
+        .map(todo => updateTodo(todo.id, { ...todo, completed: false })))
+        .then(response => (
+          setTodos(response as Todo[])
+        ))
+        .catch(() => {
+          setErrorMessage('Unable to update todos');
+          setShowError(true);
+        })
+        .finally(() => setTodosBeingLoaded([]));
+    } else {
+      Promise.all(todos
+        .map(todo => updateTodo(todo.id, { ...todo, completed: true })))
+        .then(response => (
+          setTodos(response as Todo[])
+        ))
+        .catch(() => {
+          setErrorMessage('Unable to update todos');
+          setShowError(true);
+        })
+        .finally(() => setTodosBeingLoaded([]));
+    }
+  };
+
   const todoInputRef = useRef<HTMLInputElement | null>(null);
 
   useEffect(() => {
@@ -62,8 +99,11 @@ export const Header: FC = () => {
       {/* eslint-disable-next-line jsx-a11y/control-has-associated-label */}
       <button
         type="button"
-        className="todoapp__toggle-all active"
+        className={cn('todoapp__toggle-all', {
+          active: completedTodosNum === todos.length,
+        })}
         data-cy="ToggleAllButton"
+        onClick={handleToggleAllStatus}
       />
 
       {/* Add a todo on form submit */}

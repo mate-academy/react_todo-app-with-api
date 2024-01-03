@@ -1,5 +1,4 @@
 import { FC } from 'react';
-import cn from 'classnames';
 import { SingleTodo } from './SingleTodo';
 import { useAppContext } from '../context/AppContext';
 
@@ -10,26 +9,12 @@ export const TodoList: FC = () => {
     <section className="todoapp__main" data-cy="TodoList">
       {
         visibleTodos.map(todo => (
-          <div
-            key={todo.id}
-            data-cy="Todo"
-            className={cn('todo', {
-              completed: todo.completed,
-            })}
-          >
-            <SingleTodo todo={todo} />
-          </div>
+          <SingleTodo key={todo.id} todo={todo} />
         ))
       }
       {
         tempTodo && (
-          <div
-            key={tempTodo.id}
-            data-cy="Todo"
-            className="todo"
-          >
-            <SingleTodo todo={tempTodo} />
-          </div>
+          <SingleTodo key={tempTodo.id} todo={tempTodo} />
         )
       }
     </section>

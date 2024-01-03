@@ -16,6 +16,8 @@ export interface AppContextType {
   loadData: () => void,
   tempTodo: Todo | null,
   setTempTodo: Dispatch<SetStateAction<Todo | null>>,
-  todosBeingoLoaded: number[],
-  setTodosBeingoLoaded: Dispatch<SetStateAction<number[]>>,
+  todosBeingLoaded: number[],
+  setTodosBeingLoaded: Dispatch<SetStateAction<number[]>>,
+  completedTodosNum: number,
+  activeTodosNum: number,
 }

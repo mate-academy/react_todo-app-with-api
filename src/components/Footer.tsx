@@ -12,7 +12,9 @@ export const Footer: FC = () => {
     loadData,
     setErrorMessage,
     setShowError,
-    setTodosBeingoLoaded,
+    setTodosBeingLoaded,
+    completedTodosNum,
+    activeTodosNum,
   } = useAppContext();
 
   const handleClearCompleted = async () => {
@@ -20,7 +22,7 @@ export const Footer: FC = () => {
       .filter(todo => todo.completed)
       .map(todo => todo.id);
 
-    setTodosBeingoLoaded(prev => ([
+    setTodosBeingLoaded(prev => ([
       ...prev,
       ...completedTodosId,
     ]));
@@ -32,17 +34,9 @@ export const Footer: FC = () => {
       setErrorMessage('Unable to remove completed todos');
       setShowError(true);
     } finally {
-      setTodosBeingoLoaded([]);
+      setTodosBeingLoaded([]);
     }
   };
-
-  const activeTodosNum = todos.reduce((acc, curr) => {
-    return !curr.completed
-      ? acc + 1
-      : acc;
-  }, 0);
-
-  const completedTodosNum = todos.length - activeTodosNum;
 
   return (
     <footer className="todoapp__footer" data-cy="Footer">

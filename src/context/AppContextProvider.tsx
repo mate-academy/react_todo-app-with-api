@@ -13,7 +13,7 @@ export const AppContextProvider: FC<Props> = ({ children }) => {
   const [showError, setShowError] = useState<boolean>(false);
   const [errorMessage, setErrorMessage] = useState<string>('');
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
-  const [todosBeingoLoaded, setTodosBeingoLoaded] = useState<number[]>([]);
+  const [todosBeingLoaded, setTodosBeingLoaded] = useState<number[]>([]);
 
   const handleFilterChange = (event: MouseEvent<HTMLAnchorElement>) => {
     const { id } = event.target as HTMLAnchorElement;
@@ -24,6 +24,14 @@ export const AppContextProvider: FC<Props> = ({ children }) => {
 
     setSelectedFilter(id as Filter);
   };
+
+  const activeTodosNum = todos.reduce((acc, curr) => {
+    return !curr.completed
+      ? acc + 1
+      : acc;
+  }, 0);
+
+  const completedTodosNum = todos.length - activeTodosNum;
 
   const loadData = async () => {
     try {
@@ -81,8 +89,10 @@ export const AppContextProvider: FC<Props> = ({ children }) => {
     loadData,
     tempTodo,
     setTempTodo,
-    todosBeingoLoaded,
-    setTodosBeingoLoaded,
+    todosBeingLoaded,
+    setTodosBeingLoaded,
+    completedTodosNum,
+    activeTodosNum,
   };
 
   return (
