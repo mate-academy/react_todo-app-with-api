@@ -17,10 +17,10 @@ export const TodoFooter = () => {
 
     const compeledTask = todos.filter(task => task.completed);
 
-    const currentDeleting = deletingTask;
+    let currentDeleting = deletingTask;
 
     compeledTask.forEach(task => {
-      currentDeleting.push(task.id);
+      currentDeleting = [...currentDeleting, task.id];
 
       return setDeletingTask(currentDeleting);
     });

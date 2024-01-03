@@ -15,18 +15,27 @@ export const TodoList = () => {
   const handleDeleteClick = (id: number) => {
     setError(null);
 
-    setDeletingTask([...deletingTask, id]);
+    // setDeletingTask([...deletingTask, id]);
+    // setDeletingTask((prevState: number[]) => [...prevState, id]);
+    const currentDeleting = [...deletingTask, id];
+
+    setDeletingTask(currentDeleting);
 
     deleteTodo(id)
       .then(() => {
         const filteredTodo = todos.filter(task => task.id !== id);
 
         setTodos(filteredTodo);
+
+        const TodosAfterDelete = deletingTask.filter(taskId => taskId !== id);
+
+        setDeletingTask(TodosAfterDelete);
       })
       .catch(() => {
         setError(ErrorType.delete);
       })
-      .finally(() => setDeletingTask([]));
+      .finally(() => {
+      });
   };
 
   return (
