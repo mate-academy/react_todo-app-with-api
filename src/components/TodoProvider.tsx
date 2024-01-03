@@ -4,18 +4,8 @@ import { Errors } from '../types/Errors';
 import * as postServise from '../api/todos';
 import { Filter } from '../types/Filter';
 import { filterTodo } from '../utils/filterFunc';
+import { TodoContextType } from '../types/TodoContextType';
 
-interface TodoContextType {
-  todos: Todo[],
-  setTodos: React.Dispatch<React.SetStateAction<Todo[]>>;
-  error: Errors | null,
-  setError: React.Dispatch<React.SetStateAction<Errors | null>>,
-  removeTodo: (id: number) => void,
-  filterType: Filter,
-  setFilterType: (value: Filter) => void,
-  filteredTodo: Todo[],
-  USER_ID: number,
-}
 const USER_ID = 12047;
 
 export const TodosContext = createContext<TodoContextType>({
