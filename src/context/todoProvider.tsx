@@ -24,9 +24,9 @@ type TodosProps = {
   tempTodo: Todo | null;
   setTempTodo: (todo: Todo | null) => void;
   deletingTask: number[];
-  setDeletingTask: (n: number[]) => void;
+  setDeletingTask: any;
   togglingId: number[];
-  setTogglingId: (n: number[]) => void;
+  setTogglingId: any;
   isEdited: number | null;
   setIsEdited: (id: number | null) => void;
 };

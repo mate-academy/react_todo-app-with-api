@@ -4,38 +4,33 @@ import { useTodos } from '../../context/todoProvider';
 import { deleteTodo } from '../../api/todos';
 import { ErrorType } from '../../types/Error';
 import { TodoItem } from '../todoItem/todoItem';
+import { Todo } from '../../types/Todo';
 
 export const TodoList = () => {
   const {
-    visibleTasks, setError, tempTodo, todos,
+    visibleTasks, setError, tempTodo,
     setTodos, deletingTask, setDeletingTask,
     isAddingTask,
   } = useTodos();
 
   const handleDeleteClick = (id: number) => {
     setError(null);
+    const currentid = id;
 
-    // setDeletingTask([...deletingTask, id]);
-    // setDeletingTask((prevState: number[]) => [...prevState, id]);
-    const currentDeleting = [...deletingTask, id];
-
-    setDeletingTask(currentDeleting);
+    setDeletingTask([...deletingTask, id]);
 
     deleteTodo(id)
       .then(() => {
-        const filteredTodo = todos.filter(task => task.id !== id);
-
-        setTodos(filteredTodo);
-
-        const TodosAfterDelete = deletingTask.filter(taskId => taskId !== id);
-
-        setDeletingTask(TodosAfterDelete);
+        setTodos((currentTodos: Todo[]) => {
+          return currentTodos.filter(task => task.id !== id);
+        });
       })
       .catch(() => {
         setError(ErrorType.delete);
       })
-      .finally(() => {
-      });
+      .finally(() => setDeletingTask((currentId: number[]) => {
+        return currentId.filter(taskId => taskId !== currentid);
+      }));
   };
 
   return (

@@ -29,6 +29,8 @@ export const TodoItem = ({ task, handleDeleteClick }: Props) => {
     const todo = todos.find(el => el.id === id);
     const currentTogglingId = [...togglingId, id];
 
+    const current = id;
+
     setTogglingId(currentTogglingId);
 
     toggleStatus(id, { completed: !todo?.completed })
@@ -38,7 +40,9 @@ export const TodoItem = ({ task, handleDeleteClick }: Props) => {
         });
       })
       .catch(() => setError(ErrorType.update))
-      .finally(() => setTogglingId([]));
+      .finally(() => setTogglingId((currentId: number[]) => {
+        return currentId.filter(el => el !== current);
+      }));
   };
 
   const handleTitleChange = (id: number) => () => {
