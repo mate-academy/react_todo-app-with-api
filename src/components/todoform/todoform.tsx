@@ -9,8 +9,8 @@ import { Todo } from '../../types/Todo';
 export const TodoForm = () => {
   const {
     taskName, setTaskName, error, setError, isAddingTask,
-    setIsAddingTask, countIncompleteTask, setTempTodo,
-    todos, setTodos, togglingId, setTogglingId,
+    setIsAddingTask, setTempTodo,
+    todos, setTodos, setTogglingId,
   } = useTodos();
 
   const isActiveBtnComplededAll = todos.every(task => task.completed);
@@ -63,13 +63,17 @@ export const TodoForm = () => {
       completed: !isActiveBtnComplededAll,
     }));
 
+    // const taskToToggle = todos
+    //   .filter(todo => todo.completed !== isActiveBtnComplededAll);
+
     todos.forEach(task => {
       if (task.completed === isActiveBtnComplededAll) {
-        const currentTogglingId = [...togglingId, task.id];
-
-        setTogglingId(currentTogglingId);
-        // setTogglingId(prev => [...prev, task.id]);
+        return setTogglingId((current: number[]) => {
+          return [...current, task.id];
+        });
       }
+
+      return task;
     });
 
     Promise.allSettled(
@@ -106,11 +110,10 @@ export const TodoForm = () => {
 
   return (
     <header className="todoapp__header">
-      {countIncompleteTask >= 0 && (
+      {todos.length > 0 && (
         // eslint-disable-next-line jsx-a11y/control-has-associated-label
         <button
           type="button"
-          // className="todoapp__toggle-all"
           className={classNames('todoapp__toggle-all', {
             active: isActiveBtnComplededAll,
           })}

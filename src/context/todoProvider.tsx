@@ -1,5 +1,7 @@
 import {
-  ReactNode, createContext, useContext, useEffect, useMemo, useState,
+  Dispatch,
+  ReactNode, SetStateAction, createContext,
+  useContext, useEffect, useMemo, useState,
 } from 'react';
 import { Todo } from '../types/Todo';
 import { getTodos } from '../api/todos';
@@ -9,7 +11,7 @@ import { ErrorType } from '../types/Error';
 
 type TodosProps = {
   todos: Todo[];
-  setTodos: any;
+  setTodos: Dispatch<SetStateAction<Todo[]>>
   visibleTodos: Todo[];
   taskName: string;
   setTaskName: (query: string) => void;
@@ -24,9 +26,9 @@ type TodosProps = {
   tempTodo: Todo | null;
   setTempTodo: (todo: Todo | null) => void;
   deletingTask: number[];
-  setDeletingTask: any;
+  setDeletingTask: Dispatch<SetStateAction<number[]>>
   togglingId: number[];
-  setTogglingId: any;
+  setTogglingId: Dispatch<SetStateAction<number[]>>
   isEdited: number | null;
   setIsEdited: (id: number | null) => void;
 };
