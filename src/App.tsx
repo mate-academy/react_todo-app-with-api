@@ -1,9 +1,9 @@
 import React from 'react';
 import { UserWarning } from './UserWarning';
-import { TodoFooter } from './components/todoFooter/todoFooter';
-import { TodoErr } from './components/todoErr/todoErr';
-import { TodoForm } from './components/todoForm/todoForm';
-import { TodoList } from './components/todoList/todoList';
+import { TodoFooter } from './components/todofooter/todofooter';
+import { TodoErr } from './components/todoerr/todoerr';
+import { TodoForm } from './components/todoform/todoform';
+import { TodoList } from './components/todolist/todolist';
 import { USER_ID } from './utils/userID';
 
 export const App: React.FC = () => {

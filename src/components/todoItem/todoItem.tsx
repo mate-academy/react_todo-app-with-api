@@ -54,24 +54,26 @@ export const TodoItem = ({ task, handleDeleteClick }: Props) => {
     event.preventDefault();
     setIsAddingTask(true);
 
-    updateTodo(isEdited!, { title: inputEditRef.current?.value })
-      .then(data => {
-        const copy = [...todos];
-        const index = todos.findIndex(el => el.id === isEdited);
+    if (isEdited) {
+      updateTodo(isEdited, { title: inputEditRef.current?.value })
+        .then(data => {
+          const copy = [...todos];
+          const index = todos.findIndex(el => el.id === isEdited);
 
-        copy[index] = data;
+          copy[index] = data;
 
-        setTodos(copy);
-        setIsAddingTask(false);
-        setIsEdited(null);
-      })
-      .catch(() => {
-        setError(ErrorType.update);
-        inputEditRef.current?.focus();
-      })
-      .finally(() => {
+          setTodos(copy);
+          setIsAddingTask(false);
+          setIsEdited(null);
+        })
+        .catch(() => {
+          setError(ErrorType.update);
+          inputEditRef.current?.focus();
+        })
+        .finally(() => {
 
-      });
+        });
+    }
   };
 
   const handleBlur = (id: number) => {
@@ -92,20 +94,22 @@ export const TodoItem = ({ task, handleDeleteClick }: Props) => {
 
     setIsAddingTask(true);
 
-    updateTodo(isEdited!, { title: inputEditRef.current?.value.trim() })
-      .then(data => {
-        const copy = [...todos];
-        const index = todos.findIndex(el => el.id === isEdited);
+    if (isEdited) {
+      updateTodo(isEdited, { title: inputEditRef.current?.value.trim() })
+        .then(data => {
+          const copy = [...todos];
+          const index = todos.findIndex(el => el.id === isEdited);
 
-        copy[index] = data;
+          copy[index] = data;
 
-        setTodos(copy);
-        setIsEdited(null);
-      })
-      .catch(() => setError(ErrorType.update))
-      .finally(() => {
-        setIsAddingTask(false);
-      });
+          setTodos(copy);
+          setIsEdited(null);
+        })
+        .catch(() => setError(ErrorType.update))
+        .finally(() => {
+          setIsAddingTask(false);
+        });
+    }
   };
 
   const handleEditFieldKeyUp = (event: React.KeyboardEvent) => {
