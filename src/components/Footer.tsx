@@ -2,41 +2,15 @@ import { FC } from 'react';
 import cn from 'classnames';
 import { useAppContext } from '../context/AppContext';
 import { Filter } from '../types';
-import { removeTodo } from '../api/todos';
 
 export const Footer: FC = () => {
   const {
-    todos,
     selectedFilter,
-    handleFilterChange,
-    loadData,
-    setErrorMessage,
-    setShowError,
-    setTodosBeingLoaded,
+    changeFilter,
     completedTodosNum,
     activeTodosNum,
+    clearCompleted,
   } = useAppContext();
-
-  const handleClearCompleted = async () => {
-    const completedTodosId = todos
-      .filter(todo => todo.completed)
-      .map(todo => todo.id);
-
-    setTodosBeingLoaded(prev => ([
-      ...prev,
-      ...completedTodosId,
-    ]));
-
-    try {
-      await Promise.all(completedTodosId.map(id => removeTodo(id)));
-      await loadData();
-    } catch (error) {
-      setErrorMessage('Unable to remove completed todos');
-      setShowError(true);
-    } finally {
-      setTodosBeingLoaded([]);
-    }
-  };
 
   return (
     <footer className="todoapp__footer" data-cy="Footer">
@@ -52,7 +26,7 @@ export const Footer: FC = () => {
             selected: selectedFilter === Filter.all,
           })}
           data-cy="FilterLinkAll"
-          onClick={handleFilterChange}
+          onClick={changeFilter}
         >
           {Filter.all}
         </a>
@@ -64,7 +38,7 @@ export const Footer: FC = () => {
             selected: selectedFilter === Filter.active,
           })}
           data-cy="FilterLinkActive"
-          onClick={handleFilterChange}
+          onClick={changeFilter}
         >
           {Filter.active}
         </a>
@@ -76,14 +50,14 @@ export const Footer: FC = () => {
             selected: selectedFilter === Filter.completed,
           })}
           data-cy="FilterLinkCompleted"
-          onClick={handleFilterChange}
+          onClick={changeFilter}
         >
           {Filter.completed}
         </a>
       </nav>
 
       <button
-        onClick={handleClearCompleted}
+        onClick={clearCompleted}
         type="button"
         className="todoapp__clear-completed"
         data-cy="ClearCompletedButton"

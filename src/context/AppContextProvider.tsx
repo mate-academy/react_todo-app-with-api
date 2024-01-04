@@ -1,9 +1,12 @@
 import {
-  FC, useState, useEffect, MouseEvent, useMemo,
+  FC, useState, useEffect, MouseEvent, useMemo, Dispatch, SetStateAction,
 } from 'react';
-import { getTodos } from '../api/todos';
+import {
+  deleteTodo, getTodos, patchTodo, postTodo,
+} from '../api/todos';
 import { Todo, Filter } from '../types';
 import { AppContext } from './AppContext';
+import { USER_ID } from '../USER_ID';
 
 type Props = React.PropsWithChildren;
 
@@ -14,17 +17,11 @@ export const AppContextProvider: FC<Props> = ({ children }) => {
   const [errorMessage, setErrorMessage] = useState<string>('');
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
   const [todosBeingLoaded, setTodosBeingLoaded] = useState<number[]>([]);
+  const [todoInEdit, setTodoInEdit] = useState<number | null>(null);
 
-  const handleFilterChange = (event: MouseEvent<HTMLAnchorElement>) => {
-    const { id } = event.target as HTMLAnchorElement;
+  // CONSTS
 
-    if (selectedFilter === id) {
-      return;
-    }
-
-    setSelectedFilter(id as Filter);
-  };
-
+  // CALCULATING ACTIVE & COMPLETED TODOS
   const activeTodosNum = todos.reduce((acc, curr) => {
     return !curr.completed
       ? acc + 1
@@ -33,6 +30,7 @@ export const AppContextProvider: FC<Props> = ({ children }) => {
 
   const completedTodosNum = todos.length - activeTodosNum;
 
+  // LOADING DATA FROM THE SERVER
   const loadData = async () => {
     try {
       const response = await getTodos();
@@ -44,6 +42,183 @@ export const AppContextProvider: FC<Props> = ({ children }) => {
     }
   };
 
+  // HANDLERS
+
+  // ADD NEW TODO
+  const addTodo = async (
+    todoTitle: string,
+    setInputValue: Dispatch<SetStateAction<string>>,
+  ) => {
+    if (!todoTitle.trim()) {
+      setErrorMessage('Title should not be empty');
+      setShowError(true);
+
+      return;
+    }
+
+    const newTodo = {
+      userId: USER_ID,
+      title: todoTitle.trim(),
+      completed: false,
+    };
+
+    setTodosBeingLoaded(prev => ([
+      ...prev, 0,
+    ]));
+
+    setTempTodo({
+      ...newTodo,
+      id: 0,
+    });
+
+    try {
+      const response = await postTodo(newTodo);
+
+      setTodos(prev => ([...prev, response]));
+      setInputValue('');
+    } catch (error) {
+      setErrorMessage('Unable to add a todo');
+      setShowError(true);
+    } finally {
+      setTempTodo(null);
+      setTodosBeingLoaded(prev => prev.filter(todoId => todoId !== 0));
+    }
+  };
+
+  // REMOVE TODO
+  const removeTodo = async (todoId: number) => {
+    setTodosBeingLoaded(prev => [...prev, todoId]);
+
+    try {
+      await deleteTodo(todoId);
+
+      setTodos(prev => prev.filter(todo => todo.id !== todoId));
+    } catch (error) {
+      setErrorMessage('Unable to add a todo');
+      setShowError(true);
+    } finally {
+      setTodosBeingLoaded(prev => prev.filter(id => id !== todoId));
+    }
+  };
+
+  // RENAME TODO
+  const renameTodo = async (todo: Todo, newTitle: string) => {
+    if (todo.title === newTitle) {
+      return;
+    }
+
+    if (!newTitle.trim()) {
+      removeTodo(todo.id);
+
+      return;
+    }
+
+    setTodosBeingLoaded(prev => [...prev, todo.id]);
+
+    try {
+      const response = await patchTodo(todo.id, { title: newTitle });
+      const updatedTodos = todos.map(_todo => (
+        _todo.id === todo.id
+          ? response
+          : _todo
+      ));
+
+      setTodos(updatedTodos as Todo[]);
+    } catch (error) {
+      setErrorMessage('Unable to update a todo');
+      setShowError(true);
+    } finally {
+      setTodosBeingLoaded(prev => prev.filter(id => id !== todo.id));
+    }
+  };
+
+  // TOGGLE TODO STATUS
+  const changeTodoStatus = async (todoId: number, todoStatus: boolean) => {
+    setTodosBeingLoaded(prev => ([...prev, todoId]));
+
+    try {
+      const response = await patchTodo(todoId, { completed: !todoStatus });
+      const updatedTodos = todos.map(item => (
+        item.id === todoId
+          ? response
+          : item
+      ));
+
+      setTodos(updatedTodos as Todo[]);
+    } catch (error) {
+      setErrorMessage('Unable to update a todo');
+      setShowError(true);
+    } finally {
+      setTodosBeingLoaded(prev => prev.filter(id => id !== todoId));
+    }
+  };
+
+  // CHANGING FILTER
+  const changeFilter = (event: MouseEvent<HTMLAnchorElement>) => {
+    const { id } = event.target as HTMLAnchorElement;
+
+    if (selectedFilter === id) {
+      return;
+    }
+
+    setSelectedFilter(id as Filter);
+  };
+
+  // CLEAR ALL COMPLETED
+  const clearCompleted = async () => {
+    const completedTodosIds = todos
+      .filter(todo => todo.completed)
+      .map(todo => todo.id);
+
+    setTodosBeingLoaded(prev => ([
+      ...prev,
+      ...completedTodosIds,
+    ]));
+
+    try {
+      await Promise.all(completedTodosIds.map(id => removeTodo(id)));
+      const updatedTodos = todos.filter(todo => !todo.completed);
+
+      setTodos(updatedTodos);
+    } catch (error) {
+      setErrorMessage('Unable to remove completed todos');
+      setShowError(true);
+    } finally {
+      setTodosBeingLoaded([]);
+    }
+  };
+
+  // TOGGLE ALL
+  const toggleAllStatus = async () => {
+    setTodosBeingLoaded(todos.map(todo => todo.id));
+
+    try {
+      let updatedTodos;
+
+      if (todos.length === completedTodosNum) {
+        const responses = await Promise.all(
+          todos.map(todo => patchTodo(todo.id, { ...todo, completed: false })),
+        );
+
+        updatedTodos = responses as Todo[];
+      } else {
+        const responses = await Promise.all(
+          todos.map(todo => patchTodo(todo.id, { ...todo, completed: true })),
+        );
+
+        updatedTodos = responses as Todo[];
+      }
+
+      setTodos(updatedTodos);
+    } catch (error) {
+      setErrorMessage('Unable to update todos');
+      setShowError(true);
+    } finally {
+      setTodosBeingLoaded([]);
+    }
+  };
+
+  // EFFECTS
   useEffect(() => {
     loadData();
   }, []);
@@ -56,6 +231,7 @@ export const AppContextProvider: FC<Props> = ({ children }) => {
     }
   }, [showError]);
 
+  // FILTERING TODOS
   const visibleTodos = useMemo(() => {
     let updatedTodos = [...todos];
 
@@ -85,7 +261,7 @@ export const AppContextProvider: FC<Props> = ({ children }) => {
     errorMessage,
     setErrorMessage,
     visibleTodos,
-    handleFilterChange,
+    changeFilter,
     loadData,
     tempTodo,
     setTempTodo,
@@ -93,6 +269,14 @@ export const AppContextProvider: FC<Props> = ({ children }) => {
     setTodosBeingLoaded,
     completedTodosNum,
     activeTodosNum,
+    clearCompleted,
+    addTodo,
+    toggleAllStatus,
+    removeTodo,
+    changeTodoStatus,
+    todoInEdit,
+    setTodoInEdit,
+    renameTodo,
   };
 
   return (

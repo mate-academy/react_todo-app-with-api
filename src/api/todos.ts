@@ -10,10 +10,10 @@ export const postTodo = (todo: Omit<Todo, 'id'>) => {
   return client.post<Todo>('/todos', todo);
 };
 
-export const removeTodo = (todoId: number) => {
+export const deleteTodo = (todoId: number) => {
   return client.delete(`/todos/${todoId}`);
 };
 
-export const updateTodo = (todoId: number, data: Partial<Todo>) => {
+export const patchTodo = (todoId: number, data: Partial<Todo>) => {
   return client.patch(`/todos/${todoId}`, data);
 };

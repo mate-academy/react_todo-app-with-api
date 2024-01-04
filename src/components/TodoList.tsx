@@ -8,9 +8,10 @@ export const TodoList: FC = () => {
   return (
     <section className="todoapp__main" data-cy="TodoList">
       {
-        visibleTodos.map(todo => (
-          <SingleTodo key={todo.id} todo={todo} />
-        ))
+        visibleTodos.length > 0 && (
+          visibleTodos.map(todo => (
+            <SingleTodo key={todo.id} todo={todo} />
+          )))
       }
       {
         tempTodo && (
