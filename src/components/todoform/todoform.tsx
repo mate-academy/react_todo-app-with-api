@@ -18,7 +18,7 @@ export const TodoForm = () => {
   const inputRef = useRef<HTMLInputElement | null>(null);
 
   useEffect(() => {
-    inputEditRef.current?.focus();
+    inputEditRef?.current?.focus();
 
     if (!isEdited) {
       inputRef.current?.focus();
@@ -27,7 +27,7 @@ export const TodoForm = () => {
 
   const handleInputClick = () => {
     if (isEdited) {
-      inputEditRef.current.focus();
+      inputEditRef?.current?.focus();
       setError(ErrorType.update);
     }
 

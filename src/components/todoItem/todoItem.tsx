@@ -18,8 +18,8 @@ export const TodoItem = ({ task, handleDeleteClick }: Props) => {
   } = useTodos();
 
   useEffect(() => {
-    if (isEdited && inputEditRef.current) {
-      inputEditRef.current.focus();
+    if (isEdited && inputEditRef?.current) {
+      inputEditRef?.current.focus();
     }
   }, [inputEditRef, isEdited]);
 
@@ -80,7 +80,7 @@ export const TodoItem = ({ task, handleDeleteClick }: Props) => {
   const handleEditFieldKeyUp = (event: React.KeyboardEvent) => {
     switch (event.key) {
       case 'Enter':
-        inputEditRef.current?.blur();
+        inputEditRef?.current?.blur();
         break;
       case 'Escape':
         setIsEdited(null);

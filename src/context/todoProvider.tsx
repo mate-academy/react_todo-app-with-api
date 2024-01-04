@@ -1,6 +1,6 @@
 import {
   Dispatch,
-  ReactNode, SetStateAction, createContext,
+  ReactNode, RefObject, SetStateAction, createContext,
   useContext, useEffect, useMemo, useRef, useState,
 } from 'react';
 import { Todo } from '../types/Todo';
@@ -31,7 +31,7 @@ type TodosProps = {
   setTogglingId: Dispatch<SetStateAction<number[]>>
   isEdited: number | null;
   setIsEdited: (id: number | null) => void;
-  inputEditRef: any;
+  inputEditRef: RefObject<HTMLInputElement> | null;
   toggleTodo: () => void;
 };
 
