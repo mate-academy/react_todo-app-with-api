@@ -94,7 +94,7 @@ export const AppContextProvider: FC<Props> = ({ children }) => {
 
       setTodos(prev => prev.filter(todo => todo.id !== todoId));
     } catch (error) {
-      setErrorMessage('Unable to add a todo');
+      setErrorMessage('Unable to delete a todo');
       setShowError(true);
     } finally {
       setTodosBeingLoaded(prev => prev.filter(id => id !== todoId));
@@ -103,7 +103,7 @@ export const AppContextProvider: FC<Props> = ({ children }) => {
 
   // RENAME TODO
   const renameTodo = async (todo: Todo, newTitle: string) => {
-    if (todo.title === newTitle) {
+    if (todo.title === newTitle.trim()) {
       return;
     }
 
@@ -116,7 +116,7 @@ export const AppContextProvider: FC<Props> = ({ children }) => {
     setTodosBeingLoaded(prev => [...prev, todo.id]);
 
     try {
-      const response = await patchTodo(todo.id, { title: newTitle });
+      const response = await patchTodo(todo.id, { title: newTitle.trim() });
       const updatedTodos = todos.map(_todo => (
         _todo.id === todo.id
           ? response
@@ -190,23 +190,30 @@ export const AppContextProvider: FC<Props> = ({ children }) => {
 
   // TOGGLE ALL
   const toggleAllStatus = async () => {
-    setTodosBeingLoaded(todos.map(todo => todo.id));
-
     try {
       let updatedTodos;
 
       if (todos.length === completedTodosNum) {
+        setTodosBeingLoaded(todos.map(todo => todo.id));
         const responses = await Promise.all(
           todos.map(todo => patchTodo(todo.id, { ...todo, completed: false })),
         );
 
         updatedTodos = responses as Todo[];
       } else {
-        const responses = await Promise.all(
-          todos.map(todo => patchTodo(todo.id, { ...todo, completed: true })),
+        const todosToUpdate = todos.filter(todo => !todo.completed);
+
+        setTodosBeingLoaded(todosToUpdate.map(todo => todo.id));
+        await Promise.all(
+          todosToUpdate.map(todo => patchTodo(
+            todo.id, { ...todo, completed: true },
+          )),
         );
 
-        updatedTodos = responses as Todo[];
+        updatedTodos = todos.map(todo => (
+          todo.completed
+            ? todo
+            : { ...todo, completed: true }));
       }
 
       setTodos(updatedTodos);
