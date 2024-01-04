@@ -4,7 +4,7 @@ import {
   useContext, useEffect, useMemo, useRef, useState,
 } from 'react';
 import { Todo } from '../types/Todo';
-import { getTodos } from '../api/todos';
+import { getTodos, updateTodo } from '../api/todos';
 import { Filter } from '../types/Filter';
 import { USER_ID } from '../utils/userID';
 import { ErrorType } from '../types/Error';
@@ -32,6 +32,7 @@ type TodosProps = {
   isEdited: number | null;
   setIsEdited: (id: number | null) => void;
   inputEditRef: any;
+  toggleTodo: () => void;
 };
 
 // const inputEditRef = useRef<HTMLInputElement>(null);
@@ -59,6 +60,7 @@ const TodosContext = createContext<TodosProps>({
   isEdited: null,
   setIsEdited: () => undefined,
   inputEditRef: null,
+  toggleTodo: () => undefined,
 });
 
 type Props = {
@@ -98,6 +100,26 @@ export const TodosProvider: React.FC<Props> = ({ children }) => {
 
   const inputEditRef = useRef<HTMLInputElement>(null);
 
+  const toggleTodo = () => {
+    if (isEdited) {
+      updateTodo(isEdited, { title: inputEditRef.current?.value.trim() })
+        .then(data => {
+          const copy = [...todos];
+          const index = todos.findIndex(el => el.id === isEdited);
+
+          copy[index] = data;
+
+          setTodos(copy);
+          setIsAddingTask(false);
+          setIsEdited(null);
+        })
+        .catch(() => {
+          setError(ErrorType.update);
+          inputEditRef.current?.focus();
+        });
+    }
+  };
+
   const value = {
     todos,
     setTodos,
@@ -121,6 +143,7 @@ export const TodosProvider: React.FC<Props> = ({ children }) => {
     isEdited,
     setIsEdited,
     inputEditRef,
+    toggleTodo,
   };
 
   useEffect(() => {
