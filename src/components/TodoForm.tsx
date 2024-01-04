@@ -21,10 +21,6 @@ export const TodoForm = () => {
 
   useEffect(() => {
     inputRef.current?.focus();
-  }, []);
-
-  useEffect(() => {
-    inputRef.current?.focus();
   }, [tempTodo, todos]);
 
   const handleClick = () => {
