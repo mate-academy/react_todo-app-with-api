@@ -12,8 +12,6 @@ export const App: React.FC = () => {
   const {
     setAllTodos,
     errorHandler,
-    inputRef,
-    tempTodo,
     USER_ID,
   } = useTodoContext();
 
@@ -30,12 +28,6 @@ export const App: React.FC = () => {
 
     loadTodos();
   }, [setAllTodos, errorHandler, USER_ID]);
-
-  useEffect(() => {
-    if (inputRef.current) {
-      inputRef.current.focus();
-    }
-  }, [tempTodo, inputRef]);
 
   if (!USER_ID) {
     return <UserWarning />;

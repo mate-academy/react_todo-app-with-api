@@ -1,22 +1,61 @@
 import classNames from 'classnames';
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Todo } from '../types/Todo';
-import { deleteTodo } from '../api/todos';
+import { deleteTodo, updateTodo } from '../api/todos';
 import { useTodoContext } from '../context';
+import { Errors } from '../types/Errors';
 
 type Props = {
   todo: Todo;
 };
 
 export const TodoInfo = ({ todo }: Props) => {
-  const [isLoading, setIsLoading] = useState<number | boolean>(false);
+  const [isEditing, setIsEditing] = useState<number | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [title, setTitle] = useState('');
+  const inputEditRef = useRef<HTMLInputElement>(null);
 
   const {
-    allTodos, setAllTodos, errorHandler, tempTodo,
+    allTodos,
+    setAllTodos,
+    errorHandler,
+    tempTodo,
+    isUpdating,
+    setIsUpdating,
+    inputRef,
   } = useTodoContext();
 
+  const handleComplete = async (id: number, data: boolean) => {
+    setIsUpdating((prevIds) => [...prevIds, id]);
+
+    if (allTodos) {
+      const updatedTodos = allTodos.map(td => {
+        if (td.id === id) {
+          return {
+            ...todo,
+            completed: data,
+          };
+        }
+
+        return td;
+      });
+
+      try {
+        await updateTodo(id, {
+          completed: data,
+        });
+
+        setAllTodos(updatedTodos);
+      } catch (error) {
+        errorHandler(Errors.updateError);
+      } finally {
+        setIsUpdating((prevIds) => prevIds.filter((prevId) => prevId !== id));
+      }
+    }
+  };
+
   const handleTodoDelete = (id: number) => {
-    setIsLoading(id);
+    setIsUpdating((prevIds) => [...prevIds, id]);
 
     const deletingTodo = async () => {
       try {
@@ -27,14 +66,81 @@ export const TodoInfo = ({ todo }: Props) => {
           setAllTodos(updatedTodo);
         }
       } catch (error) {
-        errorHandler('Unable to delete todo');
+        errorHandler(Errors.deleteError);
       } finally {
-        setIsLoading(false);
+        setIsUpdating((prevIds) => prevIds.filter((prevId) => prevId !== id));
       }
     };
 
     deletingTodo();
   };
+
+  const handleTitleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setTitle(event.target.value);
+  };
+
+  const handleDoubleClick = (id: number) => {
+    setIsEditing(id);
+  };
+
+  const handleEditSubmit = async (event: React.FormEvent, id: number) => {
+    event.preventDefault();
+    setIsEditing(id);
+
+    if (title === todo.title) {
+      setIsEditing(null);
+
+      return;
+    }
+
+    if (title.length === 0) {
+      handleTodoDelete(id);
+
+      setIsEditing(null);
+
+      return;
+    }
+
+    try {
+      setIsLoading(true);
+
+      if (allTodos) {
+        const updatedTodos = allTodos.map(td => {
+          if (td.id === id) {
+            return {
+              ...td,
+              title: title.trim(),
+            };
+          }
+
+          return td;
+        });
+
+        setAllTodos(updatedTodos);
+      }
+
+      await updateTodo(id, {
+        title,
+      });
+      setIsEditing(null);
+    } catch (error) {
+      inputEditRef.current?.focus();
+      errorHandler(Errors.updateError);
+    } finally {
+      setIsLoading(false);
+      inputRef.current?.blur();
+    }
+  };
+
+  const handleKeyUp = (event: React.KeyboardEvent<HTMLInputElement>) => {
+    if (event.key === 'Escape' && isEditing !== null) {
+      setIsEditing(null);
+    }
+  };
+
+  useEffect(() => {
+    inputEditRef.current?.focus();
+  }, [isEditing, inputEditRef]);
 
   return (
     <div
@@ -48,25 +154,60 @@ export const TodoInfo = ({ todo }: Props) => {
           type="checkbox"
           className="todo__status"
           checked={todo.completed}
+          onClick={() => handleComplete(todo.id, !todo.completed)}
         />
       </label>
 
-      <span data-cy="TodoTitle" className="todo__title">
-        {todo.title}
-      </span>
+      {isEditing && isEditing === todo.id
+        ? (
+          <form onSubmit={(event) => handleEditSubmit(event, todo.id)}>
+            <input
+              data-cy="TodoTitleField"
+              type="text"
+              className="todo__title-field"
+              placeholder="Empty todo will be deleted"
+              ref={inputEditRef}
+              value={title}
+              onChange={handleTitleChange}
+              onBlur={(event) => handleEditSubmit(event, todo.id)}
+              onKeyUp={handleKeyUp}
+            />
+          </form>
+        )
+        : (
+          <>
+            <span
+              data-cy="TodoTitle"
+              className="todo__title"
+              onDoubleClick={() => {
+                handleDoubleClick(todo.id);
+                setTitle(todo.title);
+              }}
+            >
+              {todo.title}
+            </span>
+            <button
+              type="button"
+              className="todo__remove"
+              data-cy="TodoDelete"
+              onClick={() => handleTodoDelete(todo.id)}
+            >
+              ×
+            </button>
 
-      <button
-        type="button"
-        className="todo__remove"
-        data-cy="TodoDelete"
-        onClick={() => handleTodoDelete(todo.id)}
-      >
-        ×
-      </button>
+          </>
+        )}
+      {isLoading
+        && (
+          <div data-cy="TodoLoader" className="modal overlay is-active">
+            <div className="modal-background has-background-white-ter" />
+            <div className="loader" />
+          </div>
+        ) }
       <div
         data-cy="TodoLoader"
         className={classNames('modal overlay', {
-          'is-active': todo.id === isLoading || todo.id === tempTodo?.id,
+          'is-active': isUpdating.includes(todo.id) || todo.id === tempTodo?.id,
         })}
       >
         <div

@@ -19,6 +19,8 @@ export const TodoContext = createContext<{
   tempTodo: Todo | null;
   setTempTodo:(todo: Todo | null) => void;
   USER_ID: number;
+  isUpdating: number[];
+  setIsUpdating: React.Dispatch<React.SetStateAction<number[]>>
 } | null>(null);
 
 export const TodoProvider:
@@ -28,6 +30,7 @@ React.FC<{ children: ReactNode }> = ({ children }) => {
   const [activeFilter, setActiveFilter] = useState<string>('All');
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
+  const [isUpdating, setIsUpdating] = useState<number[]>([]);
   const inputRef = useRef<HTMLInputElement>(null);
   const timeoutId = useRef<NodeJS.Timeout>();
 
@@ -83,6 +86,8 @@ React.FC<{ children: ReactNode }> = ({ children }) => {
       tempTodo,
       setTempTodo,
       USER_ID: 12113,
+      isUpdating,
+      setIsUpdating,
     };
   }, [
     activeFilter,
@@ -92,6 +97,7 @@ React.FC<{ children: ReactNode }> = ({ children }) => {
     errorMessage,
     errorHandler,
     tempTodo,
+    isUpdating,
   ]);
 
   return (

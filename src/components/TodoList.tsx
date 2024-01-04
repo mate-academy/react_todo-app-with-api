@@ -8,19 +8,12 @@ export const TodoList = () => {
     visibleTodos,
     setVisibleTodos,
     allTodos,
-    inputRef,
     tempTodo,
   } = useTodoContext();
 
   useEffect(() => {
     setVisibleTodos(allTodos);
   }, [allTodos, setVisibleTodos]);
-
-  useEffect(() => {
-    if (inputRef.current) {
-      inputRef.current.focus();
-    }
-  }, [allTodos, inputRef]);
 
   return (
     <>

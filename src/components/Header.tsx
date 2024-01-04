@@ -1,5 +1,6 @@
-import { useState } from 'react';
-import { addTodo } from '../api/todos';
+import { useEffect, useState } from 'react';
+import classNames from 'classnames';
+import { addTodo, updateTodo } from '../api/todos';
 import { useTodoContext } from '../context';
 import { Errors } from '../types/Errors';
 import { Todo } from '../types/Todo';
@@ -10,11 +11,12 @@ export const Header = () => {
 
   const {
     setAllTodos,
-    visibleTodos,
     errorHandler,
     inputRef,
     setTempTodo,
     USER_ID,
+    allTodos,
+    setIsUpdating,
   } = useTodoContext();
 
   const handleSubmit = async (event: React.FormEvent) => {
@@ -47,13 +49,12 @@ export const Header = () => {
         return prevTodos ? [...prevTodos, addedTodo] : [addedTodo];
       });
 
-      setTempTodo(null);
       setQuery('');
-      setIsLoading(false);
     } catch (error) {
-      setTempTodo(null);
-      setIsLoading(false);
       errorHandler(Errors.addError);
+    } finally {
+      setIsLoading(false);
+      setTempTodo(null);
     }
   };
 
@@ -61,20 +62,63 @@ export const Header = () => {
     setQuery(event.target.value);
   };
 
+  const handleToggleAll = async () => {
+    let toggleType = true;
+
+    if (allTodos?.every(todo => todo.completed)) {
+      toggleType = false;
+    }
+
+    try {
+      if (allTodos) {
+        allTodos.forEach(todo => {
+          setIsUpdating((prevIds) => [...prevIds, todo.id]);
+        });
+
+        await Promise.all(
+          allTodos?.filter(todo => todo.completed !== toggleType)
+            .map(todo => updateTodo(todo.id, {
+              completed: toggleType,
+            })),
+        );
+
+        const updatedTodos = allTodos?.map(todo => {
+          return {
+            ...todo,
+            completed: toggleType,
+          };
+        });
+
+        setAllTodos(updatedTodos);
+      }
+    } catch (error) {
+      errorHandler(Errors.updateError);
+    } finally {
+      setIsUpdating([]);
+    }
+  };
+
+  useEffect(() => {
+    if (inputRef.current) {
+      inputRef.current.focus();
+    }
+  }, [allTodos, inputRef]);
+
   return (
     <header className="todoapp__header">
-      {/* this buttons is active only if there are some active todos */}
-      {visibleTodos?.some(todo => !todo.completed)
-        && (
-          <button
-            type="button"
-            className="todoapp__toggle-all active"
-            data-cy="ToggleAllButton"
-            aria-label="Toggle All"
-          />
-        )}
+      <button
+        type="button"
+        className={classNames('todoapp__toggle-all', {
+          active:
+          allTodos
+           && allTodos?.length > 0
+          && allTodos?.every(todo => todo.completed),
+        })}
+        data-cy="ToggleAllButton"
+        aria-label="Toggle All"
+        onClick={handleToggleAll}
+      />
 
-      {/* Add a todo on form submit */}
       <form onSubmit={handleSubmit}>
         <input
           data-cy="NewTodoField"

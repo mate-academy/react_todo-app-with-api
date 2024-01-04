@@ -2,6 +2,7 @@ import { useMemo } from 'react';
 import { useTodoContext } from '../context';
 import { deleteTodo } from '../api/todos';
 import { TodoFilter } from './TodoFilter';
+import { Errors } from '../types/Errors';
 
 export const TodoFooter = () => {
   const {
@@ -31,7 +32,7 @@ export const TodoFooter = () => {
         await Promise.all(completedTodos.map(todo => deleteTodo(todo.id)));
         setAllTodos(allTodos.filter(todo => !todo.completed));
       } catch (error) {
-        errorHandler('Unable to delete todo');
+        errorHandler(Errors.deleteError);
       }
     }
   };
