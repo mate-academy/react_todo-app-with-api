@@ -1,4 +1,6 @@
-import { FC, useRef, useState } from 'react';
+import {
+  ChangeEvent, FC, useRef, useState,
+} from 'react';
 import classNames from 'classnames';
 import { Todo } from '../types/Todo';
 
@@ -6,11 +8,11 @@ type Props = {
   todo: Todo
   inProcess: boolean
   onDelete?: (id: number) => void
-  // onChange: (newTodo: Omit<Todo, 'id'>) => void
+  onChange?: (newTodo: Todo) => void
 };
 
 export const TodoItem: FC<Props> = ({
-  todo, inProcess, onDelete,
+  todo, inProcess, onDelete, onChange,
 }) => {
   const { id, title, completed } = todo;
 
@@ -28,8 +30,8 @@ export const TodoItem: FC<Props> = ({
     inputRef.current?.focus();
   };
 
-  const handleToggleCheckbox = () => {
-    // TODO
+  const handleToggleCheckbox = (e: ChangeEvent<HTMLInputElement>) => {
+    onChange?.({ ...todo, completed: e.target.checked });
   };
 
   return (

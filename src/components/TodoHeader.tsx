@@ -2,9 +2,10 @@ import classNames from 'classnames';
 import {
   FC, FormEvent, useEffect, useRef, useState,
 } from 'react';
-import { addTodo } from '../api/todos';
+import { addTodo, updateTodo } from '../api/todos';
 import { USER_ID } from '../constants/userId';
 import { useDispatch, useSelector } from '../providers/TodosContext';
+import { useError } from '../hooks/useError';
 
 type Props = {
   isSomeActive: boolean
@@ -13,6 +14,7 @@ type Props = {
 export const TodoHeader: FC<Props> = ({ isSomeActive }) => {
   const { todos, updateTodos } = useSelector();
   const dispatch = useDispatch();
+  const { setError } = useError();
 
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -73,6 +75,19 @@ export const TodoHeader: FC<Props> = ({ isSomeActive }) => {
       });
   };
 
+  const handleToggleAll = () => {
+    dispatch({ type: 'setInProcess', payload: todos.map(({ id }) => id) });
+
+    Promise.all(
+      todos.map(todo => updateTodo({ ...todo, completed: isSomeActive })),
+    )
+      .then(updateTodos)
+      .catch(() => setError('Unable to update a todo'))
+      .finally(() => {
+        dispatch({ type: 'setInProcess', payload: [] });
+      });
+  };
+
   useEffect(() => {
     inputRef.current?.focus();
   }, []);
@@ -85,6 +100,7 @@ export const TodoHeader: FC<Props> = ({ isSomeActive }) => {
         className={classNames('todoapp__toggle-all', {
           active: !isSomeActive,
         })}
+        onClick={handleToggleAll}
         data-cy="ToggleAllButton"
       />
 
