@@ -28,6 +28,7 @@ type TodoContextType = {
   isUpdating: number[];
   error: ErrorType | null;
   setError: Dispatch<React.SetStateAction<ErrorType | null>>;
+  handleTodoEdit: () => void;
 };
 
 const TodoContext = createContext<TodoContextType>({} as TodoContextType);
@@ -123,6 +124,22 @@ export const TodoProvider: FC<Props> = ({ children }) => {
       .finally(() => setIsUpdating(prev => prev.filter(id => id !== todoId)));
   }, []);
 
+  const handleTodoEdit = () => {
+    if (!newTodoTitle.trim().length) {
+      setError('Title');
+
+      return;
+    }
+
+    const newTodo = {
+      userId: USER_ID,
+      completed: false,
+      title: newTodoTitle.trim(),
+    };
+
+    addTodo(newTodo);
+  };
+
   const value = {
     USER_ID,
     todos,
@@ -142,6 +159,7 @@ export const TodoProvider: FC<Props> = ({ children }) => {
     setError,
     isDeleting,
     isUpdating,
+    handleTodoEdit,
   };
 
   return (

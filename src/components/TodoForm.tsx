@@ -8,13 +8,11 @@ export const TodoForm = () => {
   const {
     todos,
     todosLeft,
-    addTodo,
-    USER_ID,
-    setError,
     newTodoTitle,
     setNewTodoTitle,
     tempTodo,
     updateTodo,
+    handleTodoEdit,
   } = useTodo();
 
   const inputRef = useRef<HTMLInputElement>(null);
@@ -40,19 +38,7 @@ export const TodoForm = () => {
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
-    if (!newTodoTitle.trim().length) {
-      setError('Title');
-
-      return;
-    }
-
-    const newTodo = {
-      userId: USER_ID,
-      completed: false,
-      title: newTodoTitle.trim(),
-    };
-
-    addTodo(newTodo);
+    handleTodoEdit();
   };
 
   return (
