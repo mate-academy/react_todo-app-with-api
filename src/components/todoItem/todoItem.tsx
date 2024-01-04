@@ -139,7 +139,7 @@ export const TodoItem = ({ task, handleDeleteClick }: Props) => {
           type="checkbox"
           className="todo__status"
           checked={task.completed}
-          onClick={() => toggleTodoStatus(task.id)}
+          onChange={() => toggleTodoStatus(task.id)}
         />
       </label>
 

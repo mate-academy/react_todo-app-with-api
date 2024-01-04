@@ -37,6 +37,7 @@ export const TodoList = () => {
     <section className="todoapp__main" data-cy="TodoList">
       {visibleTasks.map(task => (
         <TodoItem
+          key={task.id}
           task={task}
           handleDeleteClick={handleDeleteClick}
         />
