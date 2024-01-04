@@ -55,7 +55,7 @@ export const TodoItem = ({ todo }: Props) => {
   const noChanges = (newtitle === title) && !isEmpty;
   const isDirty = !isEmpty && !noChanges;
 
-  const handleUpdateOnBlur = () => {
+  const onUpdate = () => {
     if (isEmpty) {
       deleteTodoFromServer(id);
 
@@ -74,10 +74,14 @@ export const TodoItem = ({ todo }: Props) => {
     }
   };
 
+  const handleUpdateOnBlur = () => {
+    onUpdate();
+  };
+
   const handleUpdategOnKey = (event: KeyboardEvent<HTMLInputElement>) => {
     switch (event.key) {
       case 'Enter':
-        handleUpdateOnBlur();
+        onUpdate();
         break;
       case 'Escape':
         setIsUpdating(false);
@@ -86,6 +90,10 @@ export const TodoItem = ({ todo }: Props) => {
       default:
         break;
     }
+  };
+
+  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
   };
 
   const isLoading = loading.includes(id);
@@ -111,7 +119,7 @@ export const TodoItem = ({ todo }: Props) => {
 
       {isUpdating
         ? (
-          <form>
+          <form onSubmit={handleSubmit}>
             <input
               data-cy="TodoTitleField"
               type="text"
