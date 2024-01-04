@@ -35,7 +35,7 @@ export const TodosList: FC<Props> = ({ todos }) => {
   const handleChange = (todo: Todo) => {
     dispatch({ type: 'setInProcess', payload: [...inProcess, todo.id] });
 
-    updateTodo(todo)
+    return updateTodo(todo)
       .then(updateTodos)
       .catch(() => setError('Unable to update a todo'))
       .finally(() => handleDeleteFromInProcess(todo.id));

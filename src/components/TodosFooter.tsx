@@ -42,7 +42,7 @@ export const TodosFooter: FC<Props> = ({
             className={classNames('filter__link', {
               selected: filterBy === value,
             })}
-            data-cy={`FilterLink${value}`}
+            data-cy={`FilterLink${value.at(0)?.toUpperCase()}${value.slice(1)}`}
             onClick={() => onFilterChange(value as FILTERS)}
           >
             {value}

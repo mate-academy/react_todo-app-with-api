@@ -1,5 +1,12 @@
 import {
-  ChangeEvent, FC, useRef, useState,
+  ChangeEvent,
+  FC,
+  FormEvent,
+  useRef,
+  useState,
+  KeyboardEvent,
+  FocusEvent,
+  useEffect,
 } from 'react';
 import classNames from 'classnames';
 import { Todo } from '../types/Todo';
@@ -8,7 +15,7 @@ type Props = {
   todo: Todo
   inProcess: boolean
   onDelete?: (id: number) => void
-  onChange?: (newTodo: Todo) => void
+  onChange?: (newTodo: Todo) => Promise<void>
 };
 
 export const TodoItem: FC<Props> = ({
@@ -21,18 +28,48 @@ export const TodoItem: FC<Props> = ({
   const [isEditMode, setIsEditMode] = useState(false);
   const [inputValue, setInputValue] = useState(title);
 
-  const handleSubmit = () => {
-    // TODO
+  const handleSubmit = (
+    e: FormEvent<HTMLFormElement>
+    | FocusEvent<HTMLInputElement, Element>,
+  ) => {
+    e.preventDefault();
+
+    if (inputValue.trim() === title) {
+      setIsEditMode(false);
+
+      return;
+    }
+
+    if (!inputValue.trim()) {
+      onDelete?.(id);
+
+      return;
+    }
+
+    onChange?.({ ...todo, title: inputValue.trim() })
+      .finally(() => setIsEditMode(false));
   };
 
   const handleStartEditing = () => {
     setIsEditMode(true);
-    inputRef.current?.focus();
+  };
+
+  const handleKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Escape') {
+      setIsEditMode(false);
+      setInputValue(title);
+    }
   };
 
   const handleToggleCheckbox = (e: ChangeEvent<HTMLInputElement>) => {
     onChange?.({ ...todo, completed: e.target.checked });
   };
+
+  useEffect(() => {
+    if (isEditMode) {
+      inputRef.current?.focus();
+    }
+  }, [isEditMode]);
 
   return (
     <div
@@ -61,7 +98,8 @@ export const TodoItem: FC<Props> = ({
             placeholder="Empty todo will be deleted"
             value={inputValue}
             onChange={(e) => setInputValue(e.target.value)}
-            onBlur={() => setIsEditMode(false)}
+            onBlur={handleSubmit}
+            onKeyDown={handleKeyDown}
           />
         </form>
       ) : (
