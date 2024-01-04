@@ -21,11 +21,10 @@ export const TodoEdit: FC<Props> = ({ todo }) => {
   };
 
   const handleSubmit = (
-    event: React.FormEvent<HTMLFormElement> | null = null,
+    event: React.FormEvent<HTMLFormElement>
+    | React.FocusEvent<HTMLInputElement, Element>,
   ) => {
-    if (event) {
-      event.preventDefault();
-    }
+    event.preventDefault();
 
     if (!title) {
       deleteTodoFromApi(todo.id);
@@ -55,7 +54,7 @@ export const TodoEdit: FC<Props> = ({ todo }) => {
         placeholder="Empty todo will be deleted"
         value={title}
         onChange={handleChange}
-        onBlur={() => handleSubmit()}
+        onBlur={handleSubmit}
         onKeyUp={handleCancel}
         autoFocus
       />
