@@ -17,6 +17,7 @@ export const Header = () => {
     USER_ID,
     allTodos,
     setIsUpdating,
+    tempTodo,
   } = useTodoContext();
 
   const handleSubmit = async (event: React.FormEvent) => {
@@ -102,7 +103,7 @@ export const Header = () => {
     if (inputRef.current) {
       inputRef.current.focus();
     }
-  }, [allTodos, inputRef]);
+  }, [tempTodo, inputRef]);
 
   return (
     <header className="todoapp__header">

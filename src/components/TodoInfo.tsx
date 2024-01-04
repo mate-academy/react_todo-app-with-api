@@ -69,6 +69,7 @@ export const TodoInfo = ({ todo }: Props) => {
         errorHandler(Errors.deleteError);
       } finally {
         setIsUpdating((prevIds) => prevIds.filter((prevId) => prevId !== id));
+        inputRef.current?.focus();
       }
     };
 
