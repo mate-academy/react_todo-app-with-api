@@ -40,10 +40,10 @@ type Props = {
 
 export const TodoProvider: FC<Props> = ({ children }) => {
   const USER_ID = 11288;
-  const [todos, setTodos] = useState<Todo[]>([] as Todo[]);
+  const [todos, setTodos] = useState<Todo[]>([]);
   const [modifiedTodo, setModifiedTodo] = useState<number | null>(null);
   const [todosLeft, setTodosLeft] = useState<number>(0);
-  const [visibleTodos, setVisibleTodos] = useState<Todo[]>([] as Todo[]);
+  const [visibleTodos, setVisibleTodos] = useState<Todo[]>([]);
   const [activeFilter, setActiveFilter] = useState<FilterType>('All');
   const [newTodoTitle, setNewTodoTitle] = useState<string>('');
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
