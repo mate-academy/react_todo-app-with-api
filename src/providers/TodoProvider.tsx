@@ -12,9 +12,7 @@ import { ErrorType } from '../types/ErrorType';
 type TodoContextType = {
   USER_ID: number;
   todos: Todo[];
-  setTodos: Dispatch<React.SetStateAction<Todo[]>>;
   visibleTodos: Todo[];
-  setVisibleTodos: Dispatch<React.SetStateAction<Todo[]>>;
   addTodo: (todo: Omit<Todo, 'id'>) => void;
   deleteTodoFromApi: (todoId: number) => void;
   updateTodo: (todoId: number, data: Partial<Todo>) => void;
@@ -128,9 +126,7 @@ export const TodoProvider: FC<Props> = ({ children }) => {
   const value = {
     USER_ID,
     todos,
-    setTodos,
     visibleTodos,
-    setVisibleTodos,
     addTodo,
     deleteTodoFromApi,
     updateTodo,
