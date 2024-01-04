@@ -26,13 +26,7 @@ export const TodoHeader: FC<Props> = ({ isSomeActive }) => {
 
     if (!inputValue.trim()) {
       setInputValue('');
-      dispatch({
-        type: 'setError',
-        payload: {
-          isError: true,
-          errorMessage: 'Title should not be empty',
-        },
-      });
+      setError('Title should not be empty');
 
       return;
     }
@@ -58,13 +52,7 @@ export const TodoHeader: FC<Props> = ({ isSomeActive }) => {
         dispatch({ type: 'setTodos', payload: [...todos, newTodo] });
         updateTodos();
       })
-      .catch(() => dispatch({
-        type: 'setError',
-        payload: {
-          isError: true,
-          errorMessage: 'Unable to add a todo',
-        },
-      }))
+      .catch(() => setError('Unable to add a todo'))
       .finally(() => {
         setIsLoading(false);
         dispatch({

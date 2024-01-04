@@ -6,6 +6,7 @@ import { TodoHeader } from './components/TodoHeader';
 import { useDispatch, useSelector } from './providers/TodosContext';
 import { filterTodos } from './helpers/filterTodo';
 import { deleteTodo } from './api/todos';
+import { useError } from './hooks/useError';
 
 export const App: React.FC = () => {
   const {
@@ -15,6 +16,7 @@ export const App: React.FC = () => {
     errorMessage,
     updateTodos,
   } = useSelector();
+  const { setError } = useError();
   const dispatch = useDispatch();
 
   const [filterBy, setFilterBy] = useState<FILTERS>(FILTERS.All);
@@ -42,12 +44,7 @@ export const App: React.FC = () => {
       .then(() => {
         updateTodos();
       })
-      .catch(() => {
-        dispatch({
-          type: 'setError',
-          payload: { isError: true, errorMessage: 'Unable to delete a todo' },
-        });
-      })
+      .catch(() => setError('Unable to delete a todo'))
       .finally(() => {
         dispatch({
           type: 'setInProcess',
