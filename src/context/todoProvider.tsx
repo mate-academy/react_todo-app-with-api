@@ -34,6 +34,8 @@ type TodosProps = {
   inputEditRef: any;
 };
 
+// const inputEditRef = useRef<HTMLInputElement>(null);
+
 const TodosContext = createContext<TodosProps>({
   todos: [],
   setTodos: () => undefined,
@@ -94,7 +96,7 @@ export const TodosProvider: React.FC<Props> = ({ children }) => {
     return dataFilter(todos, 'active').length;
   }, [todos]);
 
-  const inputEditRef = useRef<HTMLInputElement | null>(null);
+  const inputEditRef = useRef<HTMLInputElement>(null);
 
   const value = {
     todos,

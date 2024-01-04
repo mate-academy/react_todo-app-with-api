@@ -25,7 +25,7 @@ export const TodoFooter = () => {
       return setDeletingTask(currentDeletingTaskId);
     });
 
-    Promise.all(compeledTask.map(task => deleteTodo(task.id)
+    Promise.allSettled(compeledTask.map(task => deleteTodo(task.id)
       .catch(() => {
         setError(ErrorType.delete);
         unCompletedTodos = [...unCompletedTodos, task];

@@ -23,7 +23,7 @@ export const TodoForm = () => {
     if (!isEdited) {
       inputRef.current?.focus();
     }
-  }, [todos, error]);
+  }, [todos, error, inputEditRef, isEdited]);
 
   const handleInputClick = () => {
     if (isEdited) {

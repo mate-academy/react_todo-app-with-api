@@ -21,7 +21,7 @@ export const TodoItem = ({ task, handleDeleteClick }: Props) => {
     if (isEdited && inputEditRef.current) {
       inputEditRef.current.focus();
     }
-  }, [isEdited]);
+  }, [inputEditRef, isEdited]);
 
   const toggleTodoStatus = (id: number) => {
     setError(null);
