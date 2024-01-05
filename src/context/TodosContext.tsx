@@ -85,7 +85,7 @@ export const TodosProvider: FC<Props> = ({ children }) => {
         todo => todo.id !== todoId,
       ));
     } catch (error) {
-      setErrors(ErrorType.delete);
+      setErrors(ErrorType.DELETE);
     } finally {
       removeLoadingTodo(todoId);
     }
@@ -102,7 +102,7 @@ export const TodosProvider: FC<Props> = ({ children }) => {
 
       await Promise.allSettled(queueOfTodosForDelete);
     } catch (error) {
-      setErrors(ErrorType.delete);
+      setErrors(ErrorType.DELETE);
     }
   };
 
@@ -117,7 +117,7 @@ export const TodosProvider: FC<Props> = ({ children }) => {
 
       return true;
     } catch (error) {
-      setErrors(ErrorType.add);
+      setErrors(ErrorType.ADD);
 
       return false;
     } finally {
@@ -140,7 +140,7 @@ export const TodosProvider: FC<Props> = ({ children }) => {
           : todo
       )));
     } catch (error) {
-      setErrors(ErrorType.update);
+      setErrors(ErrorType.UPDATE);
     } finally {
       removeLoadingTodo(todoId);
     }
@@ -168,7 +168,7 @@ export const TodosProvider: FC<Props> = ({ children }) => {
         await Promise.all(queueOfTodosForActivate);
       }
     } catch (error) {
-      setErrors(ErrorType.delete);
+      setErrors(ErrorType.DELETE);
     }
   };
 
@@ -180,7 +180,7 @@ export const TodosProvider: FC<Props> = ({ children }) => {
 
         setTodos(data);
       } catch (er) {
-        setErrors(ErrorType.load);
+        setErrors(ErrorType.LOAD);
       }
     };
 

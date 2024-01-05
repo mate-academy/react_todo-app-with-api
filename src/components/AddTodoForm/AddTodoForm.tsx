@@ -35,7 +35,7 @@ export const AddTodoForm = () => {
     };
 
     if (!title?.trim()) {
-      setErrors(ErrorType.title);
+      setErrors(ErrorType.TITLE);
 
       return;
     }
