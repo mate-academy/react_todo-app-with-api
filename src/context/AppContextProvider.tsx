@@ -102,7 +102,11 @@ export const AppContextProvider: FC<Props> = ({ children }) => {
   };
 
   // RENAME TODO
-  const renameTodo = async (todo: Todo, newTitle: string) => {
+  const renameTodo = async (
+    todo: Todo,
+    newTitle: string,
+    setTodoInputValue: Dispatch<SetStateAction<string>>,
+  ) => {
     if (todo.title === newTitle.trim()) {
       return;
     }
@@ -127,6 +131,7 @@ export const AppContextProvider: FC<Props> = ({ children }) => {
     } catch (error) {
       setErrorMessage('Unable to update a todo');
       setShowError(true);
+      setTodoInputValue(todo.title);
     } finally {
       setTodosBeingLoaded(prev => prev.filter(id => id !== todo.id));
     }

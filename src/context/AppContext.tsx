@@ -34,7 +34,11 @@ export interface AppContextType {
   changeTodoStatus: (todoId: number, todoStatus: boolean) => void,
   todoInEdit: number | null,
   setTodoInEdit: Dispatch<SetStateAction<number | null>>,
-  renameTodo: (todo: Todo, newTitle: string) => void;
+  renameTodo: (
+    todo: Todo,
+    newTitle: string,
+    setTodoInputValue: Dispatch<SetStateAction<string>>
+  ) => void;
 }
 
 const AppContextDefault = {

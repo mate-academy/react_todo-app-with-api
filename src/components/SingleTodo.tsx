@@ -32,7 +32,7 @@ export const SingleTodo: FC<Props> = ({ todo }) => {
   const todoInput = useRef<HTMLInputElement | null>(null);
 
   const handleInputChange = (event: ChangeEvent<HTMLInputElement>) => {
-    setTodoInputValue(event.target.value);
+    setTodoInputValue(event.target.value.trimStart());
   };
 
   const handleRemove = () => {
@@ -51,7 +51,7 @@ export const SingleTodo: FC<Props> = ({ todo }) => {
     event: FormEvent<HTMLFormElement> | FocusEvent<HTMLInputElement>,
   ) => {
     event.preventDefault();
-    renameTodo(todo, todoInputValue);
+    renameTodo(todo, todoInputValue, setTodoInputValue);
     setTodoInEdit(null);
   };
 
@@ -116,7 +116,7 @@ export const SingleTodo: FC<Props> = ({ todo }) => {
                 data-cy="TodoTitle"
                 className="todo__title"
               >
-                {todoInputValue.trim()}
+                {todoInputValue || <p className="is-invisible">.</p>}
               </span>
               <button
                 type="button"
