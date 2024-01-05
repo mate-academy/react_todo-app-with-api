@@ -116,7 +116,7 @@ export const SingleTodo: FC<Props> = ({ todo }) => {
                 data-cy="TodoTitle"
                 className="todo__title"
               >
-                {todoInputValue}
+                {todoInputValue.trim()}
               </span>
               <button
                 type="button"
