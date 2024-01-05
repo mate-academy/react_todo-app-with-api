@@ -18,10 +18,10 @@ export const App: FC = () => {
 
       <div className="todoapp__content">
         <Header />
+        <TodoList />
         {
           todos.length > 0 && (
             <>
-              <TodoList />
               <Footer />
             </>
           )

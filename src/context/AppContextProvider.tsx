@@ -1,12 +1,12 @@
 import {
-  FC, useState, useEffect, MouseEvent, useMemo, Dispatch, SetStateAction,
+  FC, useState, useEffect, MouseEvent, useMemo,
 } from 'react';
 import {
-  deleteTodo, getTodos, patchTodo, postTodo,
+  deleteTodo, getTodos, patchTodo,
 } from '../api/todos';
 import { Todo, Filter } from '../types';
 import { AppContext } from './AppContext';
-import { USER_ID } from '../USER_ID';
+import { ErrorMessage } from '../types/ErrorMessages';
 
 type Props = React.PropsWithChildren;
 
@@ -37,53 +37,12 @@ export const AppContextProvider: FC<Props> = ({ children }) => {
 
       setTodos(response);
     } catch (error) {
-      setErrorMessage('Unable to load todos');
+      setErrorMessage(ErrorMessage.Load);
       setShowError(true);
     }
   };
 
   // HANDLERS
-
-  // ADD NEW TODO
-  const addTodo = async (
-    todoTitle: string,
-    setInputValue: Dispatch<SetStateAction<string>>,
-  ) => {
-    if (!todoTitle.trim()) {
-      setErrorMessage('Title should not be empty');
-      setShowError(true);
-
-      return;
-    }
-
-    const newTodo = {
-      userId: USER_ID,
-      title: todoTitle.trim(),
-      completed: false,
-    };
-
-    setTodosBeingLoaded(prev => ([
-      ...prev, 0,
-    ]));
-
-    setTempTodo({
-      ...newTodo,
-      id: 0,
-    });
-
-    try {
-      const response = await postTodo(newTodo);
-
-      setTodos(prev => ([...prev, response]));
-      setInputValue('');
-    } catch (error) {
-      setErrorMessage('Unable to add a todo');
-      setShowError(true);
-    } finally {
-      setTempTodo(null);
-      setTodosBeingLoaded(prev => prev.filter(todoId => todoId !== 0));
-    }
-  };
 
   // REMOVE TODO
   const removeTodo = async (todoId: number) => {
@@ -94,7 +53,7 @@ export const AppContextProvider: FC<Props> = ({ children }) => {
 
       setTodos(prev => prev.filter(todo => todo.id !== todoId));
     } catch (error) {
-      setErrorMessage('Unable to delete a todo');
+      setErrorMessage(ErrorMessage.Delete);
       setShowError(true);
     } finally {
       setTodosBeingLoaded(prev => prev.filter(id => id !== todoId));
@@ -105,7 +64,6 @@ export const AppContextProvider: FC<Props> = ({ children }) => {
   const renameTodo = async (
     todo: Todo,
     newTitle: string,
-    setTodoInputValue: Dispatch<SetStateAction<string>>,
   ) => {
     if (todo.title === newTitle.trim()) {
       return;
@@ -129,9 +87,9 @@ export const AppContextProvider: FC<Props> = ({ children }) => {
 
       setTodos(updatedTodos as Todo[]);
     } catch (error) {
-      setErrorMessage('Unable to update a todo');
+      setErrorMessage(ErrorMessage.Update);
       setShowError(true);
-      setTodoInputValue(todo.title);
+      throw new Error(ErrorMessage.Update);
     } finally {
       setTodosBeingLoaded(prev => prev.filter(id => id !== todo.id));
     }
@@ -151,7 +109,7 @@ export const AppContextProvider: FC<Props> = ({ children }) => {
 
       setTodos(updatedTodos as Todo[]);
     } catch (error) {
-      setErrorMessage('Unable to update a todo');
+      setErrorMessage(ErrorMessage.Update);
       setShowError(true);
     } finally {
       setTodosBeingLoaded(prev => prev.filter(id => id !== todoId));
@@ -184,7 +142,7 @@ export const AppContextProvider: FC<Props> = ({ children }) => {
         setTodos(prev => prev
           .filter(todoToDelete => todoToDelete.id !== todo.id));
       } catch (error) {
-        setErrorMessage('Unable to delete a todo');
+        setErrorMessage(ErrorMessage.Delete);
         setShowError(true);
       } finally {
         setTodosBeingLoaded([]);
@@ -222,7 +180,7 @@ export const AppContextProvider: FC<Props> = ({ children }) => {
 
       setTodos(updatedTodos);
     } catch (error) {
-      setErrorMessage('Unable to update todos');
+      setErrorMessage(ErrorMessage.Update);
       setShowError(true);
     } finally {
       setTodosBeingLoaded([]);
@@ -281,7 +239,6 @@ export const AppContextProvider: FC<Props> = ({ children }) => {
     completedTodosNum,
     activeTodosNum,
     clearCompleted,
-    addTodo,
     toggleAllStatus,
     removeTodo,
     changeTodoStatus,

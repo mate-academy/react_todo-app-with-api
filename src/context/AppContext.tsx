@@ -26,19 +26,12 @@ export interface AppContextType {
   completedTodosNum: number,
   activeTodosNum: number,
   clearCompleted: () => void,
-  addTodo: (
-    todoTitle: string, setInputValue: Dispatch<SetStateAction<string>>
-  ) => void,
   toggleAllStatus: () => void,
   removeTodo: (todoId: number) => void,
   changeTodoStatus: (todoId: number, todoStatus: boolean) => void,
   todoInEdit: number | null,
   setTodoInEdit: Dispatch<SetStateAction<number | null>>,
-  renameTodo: (
-    todo: Todo,
-    newTitle: string,
-    setTodoInputValue: Dispatch<SetStateAction<string>>
-  ) => void;
+  renameTodo: (todo: Todo, newTitle: string) => void;
 }
 
 const AppContextDefault = {
@@ -60,7 +53,6 @@ const AppContextDefault = {
   todosBeingLoaded: [],
   setTodosBeingLoaded: () => {},
   clearCompleted: () => {},
-  addTodo: () => {},
   toggleAllStatus: () => {},
   removeTodo: () => {},
   changeTodoStatus: () => {},
