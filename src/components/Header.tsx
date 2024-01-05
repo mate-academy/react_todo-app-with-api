@@ -3,6 +3,9 @@ import {
 } from 'react';
 import cn from 'classnames';
 import { useAppContext } from '../context/AppContext';
+import { ErrorMessage } from '../types/ErrorMessages';
+import { USER_ID } from '../USER_ID';
+import { postTodo } from '../api/todos';
 
 export const Header: FC = () => {
   const [inputValue, setInputValue] = useState<string>('');
@@ -13,8 +16,12 @@ export const Header: FC = () => {
     tempTodo,
     todos,
     completedTodosNum,
-    addTodo,
     toggleAllStatus,
+    setErrorMessage,
+    setShowError,
+    setTodosBeingLoaded,
+    setTempTodo,
+    setTodos,
   } = useAppContext();
 
   const handleInputChange = (event: ChangeEvent<HTMLInputElement>) => {
@@ -23,7 +30,44 @@ export const Header: FC = () => {
 
   const handleInputSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    addTodo(inputValue, setInputValue);
+    setShowError(false);
+
+    const todoTitle = inputValue.trim();
+
+    if (!todoTitle) {
+      setErrorMessage(ErrorMessage.Title);
+      setShowError(true);
+
+      return;
+    }
+
+    const newTodo = {
+      userId: USER_ID,
+      title: todoTitle,
+      completed: false,
+    };
+
+    setTodosBeingLoaded(prev => ([
+      ...prev, 0,
+    ]));
+
+    setTempTodo({
+      ...newTodo,
+      id: 0,
+    });
+
+    try {
+      const response = await postTodo(newTodo);
+
+      setTodos(prev => ([...prev, response]));
+      setInputValue('');
+    } catch (error) {
+      setErrorMessage(ErrorMessage.Add);
+      setShowError(true);
+    } finally {
+      setTempTodo(null);
+      setTodosBeingLoaded(prev => prev.filter(todoId => todoId !== 0));
+    }
   };
 
   useEffect(() => {

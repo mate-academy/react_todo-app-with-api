@@ -47,12 +47,16 @@ export const SingleTodo: FC<Props> = ({ todo }) => {
     setTodoInEdit(todo.id);
   };
 
-  const handleRename = (
+  const handleRename = async (
     event: FormEvent<HTMLFormElement> | FocusEvent<HTMLInputElement>,
   ) => {
     event.preventDefault();
-    renameTodo(todo, todoInputValue, setTodoInputValue);
-    setTodoInEdit(null);
+    try {
+      await renameTodo(todo, todoInputValue);
+      setTodoInEdit(null);
+    } catch (error) {
+      setTodoInputValue(todo.title);
+    }
   };
 
   const handleCancelEdit = (event: KeyboardEvent<HTMLInputElement>) => {
@@ -116,7 +120,11 @@ export const SingleTodo: FC<Props> = ({ todo }) => {
                 data-cy="TodoTitle"
                 className="todo__title"
               >
-                {todoInputValue || <p className="is-invisible">.</p>}
+                {
+                  todoInputValue.length > 0
+                    ? todoInputValue.trim()
+                    : <p className="is-invisible">.</p>
+                }
               </span>
               <button
                 type="button"
