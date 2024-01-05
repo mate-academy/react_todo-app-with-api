@@ -19,12 +19,12 @@ export const Footer: React.FC<Props> = ({
     return todos.find(todo => todo.completed);
   };
 
+  const verifyCompleted = activeButton();
+
   return (
     <footer className="todoapp__footer" data-cy="Footer">
       <span className="todo-count" data-cy="TodosCounter">
-        {todos.length}
-        {' '}
-        items left
+        {`${todos.length} items left`}
       </span>
 
       <nav className="filter" data-cy="Filter">
@@ -69,7 +69,7 @@ export const Footer: React.FC<Props> = ({
         data-cy="ClearCompletedButton"
         onClick={deletePerformedTask}
       >
-        {activeButton() && ('Clear completed')}
+        {verifyCompleted && ('Clear completed')}
       </button>
     </footer>
   );

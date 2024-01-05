@@ -65,6 +65,10 @@ export const TodoItem: React.FC<Props> = ({
       setIsVisibleInput(false);
     }
   };
+ 
+  const sendUpdateTodo = () => {
+    handlUpdateTodo({ ...todo, completed: !completed });
+  };
 
   return (
     <>
@@ -81,7 +85,7 @@ export const TodoItem: React.FC<Props> = ({
             data-cy="TodoStatus"
             type="checkbox"
             className="todo__status"
-            onClick={() => handlUpdateTodo({ ...todo, completed: !completed })}
+            onClick={sendUpdateTodo}
           />
         </label>
         {isVisibleInput && (

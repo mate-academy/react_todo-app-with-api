@@ -1,6 +1,4 @@
-/* eslint-disable jsx-a11y/control-has-associated-label */
 import React, { useEffect, useMemo, useState } from 'react';
-// import { UserWarning } from './UserWarning';
 import { Header } from './components/Heder/Heder';
 import { TodoList } from './components/TodoList/TodoList';
 import { Footer } from './components/Footer/Footer';
@@ -44,7 +42,10 @@ export const App: React.FC = () => {
 
   const sendTodo = ({ title, completed }: Omit<Todo, 'userId' | 'id'>) => {
     setTempTodo({
-      title, completed, id: 0, userId: USER_ID,
+      title,
+      completed,
+      id: 0,
+      userId: USER_ID,
     });
 
     setArryLoader([0]);
@@ -170,7 +171,7 @@ export const App: React.FC = () => {
           handlUpdateTodo={handlUpdateTodo}
           quryInput={quryInput}
         />
-        {todos.length > 0 && (
+        {!!todos.length && (
           <Footer
             setChooseFilter={setChooseFilter}
             todos={filterTodos}
