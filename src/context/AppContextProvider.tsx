@@ -166,26 +166,25 @@ export const AppContextProvider: FC<Props> = ({ children }) => {
 
   // CLEAR ALL COMPLETED
   const clearCompleted = async () => {
-    const completedTodosIds = todos
-      .filter(todo => todo.completed)
-      .map(todo => todo.id);
+    const completedTodos: Todo[] = todos.filter(todo => todo.completed);
 
     setTodosBeingLoaded(prev => ([
       ...prev,
-      ...completedTodosIds,
+      ...completedTodos.map(todo => todo.id),
     ]));
 
-    try {
-      await Promise.all(completedTodosIds.map(id => removeTodo(id)));
-      const updatedTodos = todos.filter(todo => !todo.completed);
-
-      setTodos(updatedTodos);
-    } catch (error) {
-      setErrorMessage('Unable to remove completed todos');
-      setShowError(true);
-    } finally {
-      setTodosBeingLoaded([]);
-    }
+    completedTodos.map(async (todo) => {
+      try {
+        await deleteTodo(todo.id);
+        setTodos(prev => prev
+          .filter(todoToDelete => todoToDelete.id !== todo.id));
+      } catch (error) {
+        setErrorMessage('Unable to delete a todo');
+        setShowError(true);
+      } finally {
+        setTodosBeingLoaded([]);
+      }
+    });
   };
 
   // TOGGLE ALL
