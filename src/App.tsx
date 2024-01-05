@@ -15,11 +15,11 @@ const USER_ID = 12111;
 
 export const App: React.FC = () => {
   const [todos, setTodos] = useState<Todo[]>([]);
-  const [chooseFilter, setChooseFilter] = useState<string>(FilterTodos.All);
+  const [chooseFilter, setChooseFilter] = useState(FilterTodos.All);
   const [errorMessage, setErrorMesage] = useState<string | null>('');
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
   const [isLoader, setIsLoader] = useState(false);
-  const [quryInput, setQuryInput] = useState('');
+  const [queryInput, setQueryInput] = useState('');
   const [arryLoader, setArryLoader] = useState<number[] | null>([]);
 
   useEffect(() => {
@@ -55,7 +55,7 @@ export const App: React.FC = () => {
     })
       .then((todo) => {
         setTodos((currentTodo) => [...currentTodo, todo]);
-        setQuryInput('');
+        setQueryInput('');
       })
       .catch((error) => {
         setErrorMesage(TodoError.UnableAdd);
@@ -158,8 +158,8 @@ export const App: React.FC = () => {
         <Header
           setErrorMesage={setErrorMesage}
           sendTodo={sendTodo}
-          quryInput={quryInput}
-          setQuryInput={setQuryInput}
+          queryInput={queryInput}
+          setQueryInput={setQueryInput}
           allCompleted={allCompleted}
           isLoader={isLoader}
         />
@@ -169,7 +169,7 @@ export const App: React.FC = () => {
           handlDdeleteTodo={handlDdeleteTodo}
           arryLoader={arryLoader}
           handlUpdateTodo={handlUpdateTodo}
-          quryInput={quryInput}
+          quryInput={queryInput}
         />
         {!!todos.length && (
           <Footer

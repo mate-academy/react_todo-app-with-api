@@ -39,7 +39,7 @@ export const TodoItem: React.FC<Props> = ({
 
   const findIdIsLoader = () => {
     if (arryLoader) {
-      return arryLoader.find(item => item === id);
+      return arryLoader.some(item => item === id);
     }
 
     return false;
@@ -65,10 +65,12 @@ export const TodoItem: React.FC<Props> = ({
       setIsVisibleInput(false);
     }
   };
- 
+
   const sendUpdateTodo = () => {
     handlUpdateTodo({ ...todo, completed: !completed });
   };
+
+  const loaderId = findIdIsLoader();
 
   return (
     <>
@@ -126,8 +128,7 @@ export const TodoItem: React.FC<Props> = ({
         <div
           data-cy="TodoLoader"
           className={classNames('modal overlay', {
-            'is-active': findIdIsLoader()
-            || (findIdIsLoader() === 0),
+            'is-active': loaderId
           })}
         >
           <div className="modal-background has-background-white-ter" />

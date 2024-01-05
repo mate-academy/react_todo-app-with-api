@@ -3,7 +3,7 @@ import { FilterTodos } from '../../enum/FilterTodos';
 import { Todo } from '../../types/Todo';
 
 type Props = {
-  setChooseFilter: (value: string) => void,
+  setChooseFilter: (value: FilterTodos) => void,
   todos: Todo[],
   chooseFilter: string,
   deletePerformedTask: () => void,
@@ -16,15 +16,16 @@ export const Footer: React.FC<Props> = ({
   deletePerformedTask,
 }) => {
   const activeButton = () => {
-    return todos.find(todo => todo.completed);
+    return todos.some(todo => todo.completed);
   };
 
   const verifyCompleted = activeButton();
+  const lengthTodos = todos.filter(todo => !todo.completed)
 
   return (
     <footer className="todoapp__footer" data-cy="Footer">
       <span className="todo-count" data-cy="TodosCounter">
-        {`${todos.length} items left`}
+        {`${lengthTodos.length} items left`}
       </span>
 
       <nav className="filter" data-cy="Filter">
@@ -62,14 +63,14 @@ export const Footer: React.FC<Props> = ({
           Completed
         </a>
       </nav>
-
       <button
         type="button"
         className="todoapp__clear-completed"
         data-cy="ClearCompletedButton"
         onClick={deletePerformedTask}
+        disabled={!verifyCompleted}
       >
-        {verifyCompleted && ('Clear completed')}
+        Clear completed
       </button>
     </footer>
   );
