@@ -1,6 +1,6 @@
-import React from 'react';
+import { FC } from 'react';
 
-export const UserWarning: React.FC = () => {
+export const UserWarning: FC = () => {
   return (
     <section className="section">
       <p className="box is-size-3">

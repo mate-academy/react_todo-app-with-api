@@ -18,8 +18,8 @@ type Props = {
 };
 
 type TodoProviderType = {
-  loading: number[];
-  setLoading: (loading: number[]) => void
+  loadingTodos: number[];
+  setLoadingTodos: (loadingTodos: number[]) => void
   todos: Todo[];
   setTodos: (todos: Todo[]) => void;
   errors: ErrorType | null;
@@ -38,8 +38,8 @@ type TodoProviderType = {
 };
 
 const TodoContext = createContext<TodoProviderType>({
-  loading: [],
-  setLoading: () => [],
+  loadingTodos: [],
+  setLoadingTodos: () => [],
   todos: [],
   setTodos: () => {},
   errors: null,
@@ -58,7 +58,7 @@ const TodoContext = createContext<TodoProviderType>({
 });
 
 export const TodosProvider: FC<Props> = ({ children }) => {
-  const [loading, setLoading] = useState<number[]>([]);
+  const [loadingTodos, setLoadingTodos] = useState<number[]>([]);
   const [todos, setTodos] = useState<Todo[]>([]);
   const [errors, setErrors] = useState<ErrorType | null>(null);
   const [filter, setFilter] = useState<FilterType>(FilterType.All);
@@ -66,9 +66,19 @@ export const TodosProvider: FC<Props> = ({ children }) => {
 
   const userId = useAuthContext();
 
+  const addLoadingTodo = (todoId: number) => {
+    setLoadingTodos(prevState => [...prevState, todoId]);
+  };
+
+  const removeLoadingTodo = (todoId: number) => {
+    setLoadingTodos(prevState => prevState.filter(
+      loadingTodosId => loadingTodosId !== todoId,
+    ));
+  };
+
   const deleteTodoFromServer = async (todoId: number) => {
     setErrors(null);
-    setLoading(prevState => [...prevState, todoId]);
+    addLoadingTodo(todoId);
     try {
       await deleteTodo(todoId);
       setTodos(currentTodos => currentTodos.filter(
@@ -77,9 +87,7 @@ export const TodosProvider: FC<Props> = ({ children }) => {
     } catch (error) {
       setErrors(ErrorType.delete);
     } finally {
-      setLoading(prevState => prevState.filter(
-        loadingId => loadingId !== todoId,
-      ));
+      removeLoadingTodo(todoId);
     }
   };
 
@@ -101,7 +109,7 @@ export const TodosProvider: FC<Props> = ({ children }) => {
   const addTodoToServer = async (newTodo: Omit<Todo, 'id'>) => {
     setErrors(null);
     try {
-      setLoading(prevState => [...prevState, 0]);
+      addLoadingTodo(0);
       setTempTodo({ id: 0, ...newTodo });
       const data = await addTodo(newTodo);
 
@@ -114,29 +122,27 @@ export const TodosProvider: FC<Props> = ({ children }) => {
       return false;
     } finally {
       setTempTodo(null);
-      setLoading(prevState => prevState.filter(
-        loadingId => loadingId !== 0,
-      ));
+      removeLoadingTodo(0);
     }
   };
 
-  const updateTodoOnServer = async (id: number, editParams: Partial<Todo>) => {
+  const updateTodoOnServer = async (
+    todoId: number, editParams: Partial<Todo>,
+  ) => {
     setErrors(null);
-    setLoading(prevState => [...prevState, id]);
+    addLoadingTodo(todoId);
     try {
-      const data:Todo = await updateTodo(id, editParams);
+      const data:Todo = await updateTodo(todoId, editParams);
 
       setTodos(currentTodos => currentTodos.map(todo => (
-        todo.id === id
+        todo.id === todoId
           ? data
           : todo
       )));
     } catch (error) {
       setErrors(ErrorType.update);
     } finally {
-      setLoading(prevState => prevState.filter(
-        loadingId => loadingId !== id,
-      ));
+      removeLoadingTodo(todoId);
     }
   };
 
@@ -167,20 +173,18 @@ export const TodosProvider: FC<Props> = ({ children }) => {
   };
 
   useEffect(() => {
-    if (userId) {
-      setErrors(null);
-      const fetchData = async () => {
-        try {
-          const data = await getTodos(userId);
+    setErrors(null);
+    const fetchData = async () => {
+      try {
+        const data = await getTodos(userId);
 
-          setTodos(data);
-        } catch (er) {
-          setErrors(ErrorType.load);
-        }
-      };
+        setTodos(data);
+      } catch (er) {
+        setErrors(ErrorType.load);
+      }
+    };
 
-      fetchData();
-    }
+    fetchData();
   }, [userId]);
 
   const filteredTodos = useMemo(() => {
@@ -202,8 +206,8 @@ export const TodosProvider: FC<Props> = ({ children }) => {
   }, [todos]);
 
   const value = {
-    loading,
-    setLoading,
+    loadingTodos,
+    setLoadingTodos,
     todos,
     setTodos,
     errors,

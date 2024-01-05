@@ -1,7 +1,7 @@
 import { createContext, useContext } from 'react';
 import { UserWarning } from '../UserWarning';
 
-const AuthContext = createContext<number | null>(null);
+const AuthContext = createContext<number>(0);
 
 type Props = {
   children: React.ReactNode;

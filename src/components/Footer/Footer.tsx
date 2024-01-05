@@ -28,9 +28,6 @@ export const Footer = () => {
       <button
         type="button"
         className="todoapp__clear-completed"
-        // className={classNames('todoapp__clear-completed', {
-        //   disabled: !isCompleted
-        // })}
         data-cy="ClearCompletedButton"
         onClick={handleClear}
         disabled={!isCompleted}

@@ -19,7 +19,7 @@ export const TodoItem = ({ todo }: Props) => {
   const {
     deleteTodoFromServer,
     updateTodoOnServer,
-    loading,
+    loadingTodos,
     errors,
   } = useTodos();
   const inputRef = useRef<HTMLInputElement>(null);
@@ -96,7 +96,7 @@ export const TodoItem = ({ todo }: Props) => {
     event.preventDefault();
   };
 
-  const isLoading = loading.includes(id);
+  const isloadingTodos = loadingTodos.includes(id);
 
   return (
     <div
@@ -127,7 +127,7 @@ export const TodoItem = ({ todo }: Props) => {
               placeholder="Empty todo will be deleted"
               ref={inputRef}
               value={newtitle}
-              disabled={isLoading}
+              disabled={isloadingTodos}
               onChange={handleChangeTitle}
               onBlur={handleUpdateOnBlur}
               onKeyUp={handleUpdategOnKey}
@@ -156,7 +156,7 @@ export const TodoItem = ({ todo }: Props) => {
       <div
         data-cy="TodoLoader"
         className={classNames('modal overlay', {
-          'is-active': isLoading,
+          'is-active': isloadingTodos,
         })}
       >
         <div className="modal-background has-background-white-ter" />

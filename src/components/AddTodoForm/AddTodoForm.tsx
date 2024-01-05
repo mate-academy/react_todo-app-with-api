@@ -8,7 +8,7 @@ import { ErrorType } from '../../types';
 export const AddTodoForm = () => {
   const [title, setTitle] = useState<string>('');
   const {
-    addTodoToServer, loading, setErrors, todos,
+    addTodoToServer, loadingTodos, setErrors, todos,
   } = useTodos();
   const userId = useAuthContext();
   const inputRef = useRef<HTMLInputElement>(null);
@@ -49,7 +49,7 @@ export const AddTodoForm = () => {
     }
   };
 
-  const isLoading = loading.includes(0);
+  const isloadingTodos = loadingTodos.includes(0);
 
   return (
     <form onSubmit={handleSubmit}>
@@ -60,7 +60,7 @@ export const AddTodoForm = () => {
         placeholder="What needs to be done?"
         ref={inputRef}
         value={title}
-        disabled={isLoading}
+        disabled={isloadingTodos}
         onChange={handleChange}
       />
     </form>
