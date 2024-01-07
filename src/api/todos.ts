@@ -13,7 +13,11 @@ export function deleteUserTodo(id: number) {
   return client.delete(`/todos/${id}`);
 }
 
-export function updateTodo({ id, title, completed }: Todo) {
-  return client.patch<Todo>(`/posts/${id}`, { id, title, completed });
+export function updateTodo({
+  id, title, completed, userId,
+}: Todo) {
+  return client.patch<Todo>(`/todos/${id}`, {
+    userId, id, title, completed,
+  });
 }
 // Add more methods here

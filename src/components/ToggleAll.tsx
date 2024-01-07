@@ -11,7 +11,7 @@ export const ToggleAll: React.FC<Props> = ({ onToggleAll, todos }) => {
     <button
       type="button"
       className={classNames('todoapp__toggle-all', {
-        active: todos.every(todo => !todo.completed),
+        active: todos.every(todo => todo.completed),
       })}
       data-cy="ToggleAllButton"
       onClick={onToggleAll}
