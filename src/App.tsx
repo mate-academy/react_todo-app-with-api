@@ -98,12 +98,10 @@ export const App: React.FC = () => {
   };
 
   const clearTodos = () => {
-    todos.map(todo => {
+    todos.forEach(todo => {
       if (todo.completed) {
         deleteTodo(todo.id);
       }
-
-      return 1;
     });
   };
 
@@ -139,18 +137,14 @@ export const App: React.FC = () => {
 
   const toggleAllTodos = () => {
     if (todos.every(todo => todo.completed)) {
-      todos.map(todo => updateTodoComplete(todo));
+      todos.forEach(todo => updateTodoComplete(todo));
     }
 
-    todos.map(todo => {
+    todos.forEach(todo => {
       if (!todo.completed) {
-        return updateTodoComplete(todo);
+        updateTodoComplete(todo);
       }
-
-      return 1;
     });
-
-    return 1;
   };
 
   if (!USER_ID) {
