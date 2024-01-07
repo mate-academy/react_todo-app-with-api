@@ -169,7 +169,7 @@ export const App: React.FC = () => {
             />
           )}
 
-          <form onSubmit={event => addTodo(event)}>
+          <form onSubmit={addTodo}>
             <input
               value={todoTitle}
               onChange={event => setTodoTitle(event.target.value)}

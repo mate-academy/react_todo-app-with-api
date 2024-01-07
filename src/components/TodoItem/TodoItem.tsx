@@ -1,5 +1,3 @@
-/* eslint-disable jsx-a11y/click-events-have-key-events */
-/* eslint-disable jsx-a11y/no-static-element-interactions */
 import {
   FC,
   memo,
@@ -150,7 +148,7 @@ export const TodoItem: FC<Props> = memo(({
             type="button"
             className="todo__remove"
             data-cy="TodoDelete"
-            onClick={() => handleRemoveTodo()}
+            onClick={handleRemoveTodo}
           >
             ×
           </button>
