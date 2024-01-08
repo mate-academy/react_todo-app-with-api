@@ -96,14 +96,13 @@ export const AppContextProvider: FC<Props> = ({ children }) => {
   };
 
   // TOGGLE TODO STATUS
-
   const changeTodoStatus = async (todoId: number, todoStatus: boolean) => {
     setTodosBeingLoaded(prev => ([...prev, todoId]));
 
     try {
       const response = await patchTodo(todoId, { completed: !todoStatus });
 
-      await setTodos(prevTodos => (
+      setTodos(prevTodos => (
         prevTodos.map(item => (
           item.id === todoId
             ? response
