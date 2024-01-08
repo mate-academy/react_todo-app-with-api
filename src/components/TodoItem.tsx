@@ -1,5 +1,7 @@
 /* eslint-disable jsx-a11y/control-has-associated-label */
-import { useEffect, useRef, useState } from 'react';
+import {
+  memo, useEffect, useRef, useState,
+} from 'react';
 import classNames from 'classnames';
 import { Todo } from '../types/Todo';
 
@@ -7,14 +9,14 @@ interface Props {
   todoItem: Todo,
   onDelete?: (id: number) => void,
   onUpdateTodo?: (updatedTodo: Todo) => void;
-  loader: boolean,
+  loadingTodosPause: number[],
 }
 
-export const TodoItem: React.FC<Props> = ({
+export const TodoItem: React.FC<Props> = memo(({
   todoItem,
   onDelete = () => { },
   onUpdateTodo,
-  loader,
+  loadingTodosPause,
 }) => {
   const {
     id, title, completed, userId,
@@ -123,14 +125,16 @@ export const TodoItem: React.FC<Props> = ({
         )
       }
 
-      {
-        loader && (
-          <div data-cy="TodoLoader" className="modal overlay is-active">
-            <div className="modal-background has-background-white-ter" />
-            <div className="loader" />
-          </div>
-        )
-      }
+      <div
+        data-cy="TodoLoader"
+        className={classNames('modal overlay', {
+          'is-active': loadingTodosPause.includes(id),
+        })}
+      >
+        <div className="modal-background has-background-white-ter" />
+        <div className="loader" />
+      </div>
     </div>
+
   );
-};
+});

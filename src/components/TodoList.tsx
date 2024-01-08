@@ -49,7 +49,7 @@ export const TodoList: React.FC<Props> = React.memo(({
               todoItem={todo}
               onDelete={() => onDelete(id)}
               onUpdateTodo={onUpdateTodo}
-              loader={loadingTodosPause.includes(id)}
+              loadingTodosPause={loadingTodosPause}
             />
           );
         })
@@ -58,8 +58,7 @@ export const TodoList: React.FC<Props> = React.memo(({
         <TodoItem
           todoItem={tempTodo}
           onDelete={onDelete}
-          onUpdateTodo={onUpdateTodo}
-          loader
+          loadingTodosPause={loadingTodosPause}
         />
       )}
     </section>

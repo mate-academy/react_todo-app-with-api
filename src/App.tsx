@@ -1,5 +1,5 @@
 /* eslint-disable jsx-a11y/control-has-associated-label */
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { TodoInput } from './components/TodoInput';
 import { TodoList } from './components/TodoList';
 import { TodoFilter } from './components/TodoFilter';
@@ -40,36 +40,31 @@ export const App: React.FC = () => {
 
   useEffect(loadPosts, []);
 
-  function addTodo(title: string) {
-    setTempTodo({
+  const addTodo = useCallback((title: string): Promise<void> => {
+    setLoadingTodosPause(prev => [...prev, 0]);
+    const newTodo = {
+      userId: USER_ID,
       title,
+      completed: false,
       id: 0,
-      userId: USER_ID,
-      completed: false,
-    });
+    };
 
-    setLoading(true);
-    setErrorMessage(null);
+    setTempTodo({ ...newTodo });
 
-    return todosApiServices.addTodo({
-      title,
-      userId: USER_ID,
-      completed: false,
-    })
-      .then((newTodo: Todo) => {
-        setTodos(currentTodos => {
-          return [...currentTodos, newTodo];
-        });
-      })
-      .catch((error) => {
+    return todosApiServices.addTodo(newTodo)
+      .then((response) => setTodos(
+        currentTodos => [...currentTodos, response],
+      ))
+      .then(() => setTempTodo(null))
+      .catch(() => {
         setErrorMessage(Errors.UnableToAddATodo);
-        throw error;
+        throw new Error(Errors.UnableToAddATodo);
       })
-      .finally(() => {
-        setLoading(false);
-        setTempTodo(null);
-      });
-  }
+      .finally(
+        () => setLoadingTodosPause(prevIds => prevIds
+          .filter(prevId => prevId !== 0)),
+      );
+  }, [errorMessage]);
 
   function deleteTodo(todoId: number) {
     setLoadingTodosPause(prev => [...prev, todoId]);
