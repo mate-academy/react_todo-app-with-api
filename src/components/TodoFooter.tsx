@@ -13,15 +13,9 @@ export const TodoFooter = () => {
   } = useTodoContext();
 
   const activeTodos = useMemo(() => {
-    let counter = 0;
+    const activeTodosArray = allTodos?.filter(todo => !todo.completed);
 
-    allTodos?.forEach(todo => {
-      if (!todo.completed) {
-        counter += 1;
-      }
-    });
-
-    return counter;
+    return activeTodosArray?.length;
   }, [allTodos]);
 
   const handleClearCompleted = async () => {
