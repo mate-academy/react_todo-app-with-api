@@ -59,6 +59,11 @@ export const TodoItem: React.FC<Props> = ({
     setEditing(false);
   };
 
+  const handleEdit = () => {
+    setNewTitle(title);
+    setEditing(false);
+  };
+
   return (
     <div
       data-cy="Todo"
@@ -95,10 +100,7 @@ export const TodoItem: React.FC<Props> = ({
                 placeholder="Empty todo will be deleted"
                 value={newTitle}
                 onChange={event => setNewTitle(event.target.value)}
-                onDoubleClick={() => {
-                  setNewTitle(title);
-                  setEditing(false);
-                }}
+                onDoubleClick={handleEdit}
               />
             </form>
           ) : (

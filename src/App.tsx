@@ -143,7 +143,7 @@ export const App: React.FC = () => {
       <div className="todoapp__content">
         <header className="todoapp__header">
           {/* this buttons is active only if there are some active todos */}
-          {todos.length > 0 && (
+          {!!todos.length && (
             <ToggleAll
               onToggleAll={() => toggleAll()}
               todos={todos}
