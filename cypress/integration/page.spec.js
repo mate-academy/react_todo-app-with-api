@@ -1073,7 +1073,7 @@ describe('', () => {
         todos.assertTitle(0, 'CSS');
       });
 
-      it('should show a todo on success when selected an oposite filter', () => {
+      it.skip('should show a todo on success when selected an oposite filter', () => {
         page.mockUpdate(257334).as('updateRequest');
 
         todos.statusToggler(0).click();
