@@ -29,11 +29,8 @@ export const TodoList: React.FC<Props> = React.memo(({
       case Filter.completed:
         return todo.completed;
 
-      case Filter.all:
-        return todo;
-
       default:
-        return true;
+        return todo;
     }
   });
 

@@ -64,9 +64,9 @@ export const App: React.FC = () => {
         () => setLoadingTodosPause(prevIds => prevIds
           .filter(prevId => prevId !== 0)),
       );
-  }, [errorMessage]);
+  }, []);
 
-  function deleteTodo(todoId: number) {
+  const deleteTodo = (todoId: number) => {
     setLoadingTodosPause(prev => [...prev, todoId]);
 
     return todosApiServices.deleteUserTodo(todoId)
@@ -82,9 +82,9 @@ export const App: React.FC = () => {
           prev => prev.filter(loadingId => loadingId !== todoId),
         );
       });
-  }
+  };
 
-  async function clearCompletedTodos() {
+  const clearCompletedTodos = async () => {
     const completedTodos
       = todos?.filter(({ completed }) => completed);
 
@@ -96,9 +96,9 @@ export const App: React.FC = () => {
           setErrorMessage(Errors.UnabletoDeleteATodo);
         });
     }
-  }
+  };
 
-  function updateTodo(updatedTodo: Todo) {
+  const updateTodo = (updatedTodo: Todo) => {
     setLoadingTodosPause(currentTodo => [...currentTodo, updatedTodo.id]);
 
     return todosApiServices.updateTodo(updatedTodo)
@@ -114,9 +114,9 @@ export const App: React.FC = () => {
         setLoadingTodosPause(currentTodos => currentTodos
           .filter(todoId => updatedTodo.id !== todoId));
       });
-  }
+  };
 
-  async function toggleAll() {
+  const toggleAll = async () => {
     const isAllCompleted = todos
       .every(todo => todo.completed);
 
@@ -129,7 +129,7 @@ export const App: React.FC = () => {
         completed: !isAllCompleted,
       })
     )));
-  }
+  };
 
   return (
     <div className="todoapp">
@@ -140,14 +140,14 @@ export const App: React.FC = () => {
           {/* this buttons is active only if there are some active todos */}
           {!!todos.length && (
             <ToggleAll
-              onToggleAll={() => toggleAll()}
+              onToggleAll={toggleAll}
               todos={todos}
             />
           )}
 
           {/* Add a todo on form submit */}
           <TodoInput
-            onSubmit={(title) => addTodo(title)}
+            onSubmit={addTodo}
             setHasTitleError={setErrorMessage}
           />
         </header>
@@ -159,10 +159,10 @@ export const App: React.FC = () => {
             <TodoList
               todos={todos}
               filter={filter}
-              onDelete={(todoId) => deleteTodo(todoId)}
+              onDelete={deleteTodo}
               tempTodo={tempTodo}
               loadingTodosPause={loadingTodosPause}
-              onUpdateTodo={(updatedTodo) => updateTodo(updatedTodo)}
+              onUpdateTodo={updateTodo}
             />
           )}
 
@@ -181,7 +181,7 @@ export const App: React.FC = () => {
               {/* don't show this button if there are no completed todos */}
               <ClearCompleted
                 hasCompletedTodos={hasCompletedTodos}
-                clearCompletedTodos={() => clearCompletedTodos()}
+                clearCompletedTodos={clearCompletedTodos}
               />
             </footer>
           )}
