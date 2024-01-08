@@ -10,7 +10,7 @@ type Props = {
 };
 
 export const TodoInfo = ({ todo }: Props) => {
-  const [isEditing, setIsEditing] = useState<number | null>(null);
+  const [editTodoId, setEditTodoId] = useState<number | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [title, setTitle] = useState('');
   const inputEditRef = useRef<HTMLInputElement>(null);
@@ -81,15 +81,15 @@ export const TodoInfo = ({ todo }: Props) => {
   };
 
   const handleDoubleClick = (id: number) => {
-    setIsEditing(id);
+    setEditTodoId(id);
   };
 
   const handleEditSubmit = async (event: React.FormEvent, id: number) => {
     event.preventDefault();
-    setIsEditing(id);
+    setEditTodoId(id);
 
     if (title === todo.title) {
-      setIsEditing(null);
+      setEditTodoId(null);
 
       return;
     }
@@ -97,7 +97,7 @@ export const TodoInfo = ({ todo }: Props) => {
     if (title.length === 0) {
       handleTodoDelete(id);
 
-      setIsEditing(null);
+      setEditTodoId(null);
 
       return;
     }
@@ -123,7 +123,7 @@ export const TodoInfo = ({ todo }: Props) => {
       await updateTodo(id, {
         title,
       });
-      setIsEditing(null);
+      setEditTodoId(null);
     } catch (error) {
       inputEditRef.current?.focus();
       errorHandler(Errors.updateError);
@@ -134,14 +134,14 @@ export const TodoInfo = ({ todo }: Props) => {
   };
 
   const handleKeyUp = (event: React.KeyboardEvent<HTMLInputElement>) => {
-    if (event.key === 'Escape' && isEditing !== null) {
-      setIsEditing(null);
+    if (event.key === 'Escape' && editTodoId !== null) {
+      setEditTodoId(null);
     }
   };
 
   useEffect(() => {
     inputEditRef.current?.focus();
-  }, [isEditing, inputEditRef]);
+  }, [editTodoId, inputEditRef]);
 
   return (
     <div
@@ -159,7 +159,7 @@ export const TodoInfo = ({ todo }: Props) => {
         />
       </label>
 
-      {isEditing && isEditing === todo.id
+      {editTodoId && editTodoId === todo.id
         ? (
           <form onSubmit={(event) => handleEditSubmit(event, todo.id)}>
             <input
