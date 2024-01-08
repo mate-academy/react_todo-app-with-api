@@ -25,7 +25,7 @@ export const TodoInfo = ({ todo }: Props) => {
     inputRef,
   } = useTodoContext();
 
-  const handleComplete = async (id: number, data: boolean) => {
+  const handleComplete = async (id: number, isCompleted: boolean) => {
     setIsUpdating((prevIds) => [...prevIds, id]);
 
     if (allTodos) {
@@ -33,7 +33,7 @@ export const TodoInfo = ({ todo }: Props) => {
         if (td.id === id) {
           return {
             ...todo,
-            completed: data,
+            completed: isCompleted,
           };
         }
 
@@ -42,7 +42,7 @@ export const TodoInfo = ({ todo }: Props) => {
 
       try {
         await updateTodo(id, {
-          completed: data,
+          completed: isCompleted,
         });
 
         setAllTodos(updatedTodos);
