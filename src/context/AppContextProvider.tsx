@@ -96,6 +96,7 @@ export const AppContextProvider: FC<Props> = ({ children }) => {
   };
 
   // TOGGLE TODO STATUS
+
   const changeTodoStatus = async (todoId: number, todoStatus: boolean) => {
     setTodosBeingLoaded(prev => ([...prev, todoId]));
 
