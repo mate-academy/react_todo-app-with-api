@@ -26,26 +26,29 @@ export const TodoInfo = ({ todo }: Props) => {
   } = useTodoContext();
 
   const handleComplete = async (id: number, isCompleted: boolean) => {
-    setIsUpdating((prevIds) => [...prevIds, id]);
-
     if (allTodos) {
-      const updatedTodos = allTodos.map(td => {
-        if (td.id === id) {
-          return {
-            ...todo,
-            completed: isCompleted,
-          };
-        }
-
-        return td;
-      });
-
+      setIsUpdating((prevIds) => [...prevIds, id]);
       try {
         await updateTodo(id, {
           completed: isCompleted,
         });
 
-        setAllTodos(updatedTodos);
+        setAllTodos((prevTodos) => {
+          if (prevTodos) {
+            return prevTodos.map(td => {
+              if (td.id === id) {
+                return {
+                  ...todo,
+                  completed: isCompleted,
+                };
+              }
+
+              return td;
+            });
+          }
+
+          return prevTodos;
+        });
       } catch (error) {
         errorHandler(Errors.updateError);
       } finally {
@@ -55,15 +58,19 @@ export const TodoInfo = ({ todo }: Props) => {
   };
 
   const handleTodoDelete = (id: number) => {
-    setIsUpdating((prevIds) => [...prevIds, id]);
-
     const deletingTodo = async () => {
+      setIsUpdating((prevIds) => [...prevIds, id]);
       try {
         if (allTodos) {
           await deleteTodo(id);
-          const updatedTodo = allTodos.filter(td => td.id !== id);
 
-          setAllTodos(updatedTodo);
+          setAllTodos((prevTodos) => {
+            if (prevTodos) {
+              return prevTodos.filter(td => td.id !== id);
+            }
+
+            return prevTodos;
+          });
         }
       } catch (error) {
         errorHandler(Errors.deleteError);
