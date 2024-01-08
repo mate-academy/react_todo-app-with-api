@@ -20,39 +20,39 @@ export const Footer: FC = () => {
 
       <nav className="filter" data-cy="Filter">
         <a
-          id={Filter.all}
+          id={Filter.ALL}
           href="#/"
           className={cn('filter__link', {
-            selected: selectedFilter === Filter.all,
+            selected: selectedFilter === Filter.ALL,
           })}
           data-cy="FilterLinkAll"
           onClick={changeFilter}
         >
-          {Filter.all}
+          {Filter.ALL}
         </a>
 
         <a
-          id={Filter.active}
+          id={Filter.ACTIVE}
           href="#/active"
           className={cn('filter__link', {
-            selected: selectedFilter === Filter.active,
+            selected: selectedFilter === Filter.ACTIVE,
           })}
           data-cy="FilterLinkActive"
           onClick={changeFilter}
         >
-          {Filter.active}
+          {Filter.ACTIVE}
         </a>
 
         <a
-          id={Filter.completed}
+          id={Filter.COMPLETED}
           href="#/completed"
           className={cn('filter__link', {
-            selected: selectedFilter === Filter.completed,
+            selected: selectedFilter === Filter.COMPLETED,
           })}
           data-cy="FilterLinkCompleted"
           onClick={changeFilter}
         >
-          {Filter.completed}
+          {Filter.COMPLETED}
         </a>
       </nav>
 

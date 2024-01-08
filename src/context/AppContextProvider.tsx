@@ -12,7 +12,7 @@ type Props = React.PropsWithChildren;
 
 export const AppContextProvider: FC<Props> = ({ children }) => {
   const [todos, setTodos] = useState<Todo[]>([]);
-  const [selectedFilter, setSelectedFilter] = useState<Filter>(Filter.all);
+  const [selectedFilter, setSelectedFilter] = useState<Filter>(Filter.ALL);
   const [showError, setShowError] = useState<boolean>(false);
   const [errorMessage, setErrorMessage] = useState<string>('');
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
@@ -207,10 +207,10 @@ export const AppContextProvider: FC<Props> = ({ children }) => {
 
     if (todos.length) {
       switch (selectedFilter) {
-        case Filter.active:
+        case Filter.ACTIVE:
           updatedTodos = updatedTodos.filter(todo => !todo.completed) || [];
           break;
-        case Filter.completed:
+        case Filter.COMPLETED:
           updatedTodos = updatedTodos.filter(todo => todo.completed) || [];
           break;
         default:
