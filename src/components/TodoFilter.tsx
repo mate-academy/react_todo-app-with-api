@@ -7,40 +7,22 @@ export const TodoFilter = () => {
     handleTodosFilter,
   } = useTodoContext();
 
+  const filters = ['All', 'Active', 'Completed'];
+
   return (
     <nav className="filter" data-cy="Filter">
-      <a
-        href="#/"
-        className={classNames('filter__link', {
-          selected: activeFilter === 'All',
-        })}
-        data-cy="FilterLinkAll"
-        onClick={() => handleTodosFilter('All')}
-      >
-        All
-      </a>
-
-      <a
-        href="#/active"
-        className={classNames('filter__link', {
-          selected: activeFilter === 'Active',
-        })}
-        data-cy="FilterLinkActive"
-        onClick={() => handleTodosFilter('Active')}
-      >
-        Active
-      </a>
-
-      <a
-        href="#/completed"
-        className={classNames('filter__link', {
-          selected: activeFilter === 'Completed',
-        })}
-        data-cy="FilterLinkCompleted"
-        onClick={() => handleTodosFilter('Completed')}
-      >
-        Completed
-      </a>
+      {filters.map(filter => (
+        <a
+          href={`#/${filter}`}
+          className={classNames('filter__link', {
+            selected: activeFilter === filter,
+          })}
+          data-cy={`FilterLink${filter}`}
+          onClick={() => handleTodosFilter(filter)}
+        >
+          {filter}
+        </a>
+      ))}
     </nav>
   );
 };
