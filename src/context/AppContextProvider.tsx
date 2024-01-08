@@ -101,13 +101,14 @@ export const AppContextProvider: FC<Props> = ({ children }) => {
 
     try {
       const response = await patchTodo(todoId, { completed: !todoStatus });
-      const updatedTodos = todos.map(item => (
-        item.id === todoId
-          ? response
-          : item
-      ));
 
-      setTodos(updatedTodos as Todo[]);
+      setTodos(prevTodos => (
+        prevTodos.map(item => (
+          item.id === todoId
+            ? response
+            : item
+        )) as Todo[]
+      ));
     } catch (error) {
       setErrorMessage(ErrorMessage.Update);
       setShowError(true);
