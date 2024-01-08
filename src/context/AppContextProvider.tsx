@@ -37,7 +37,7 @@ export const AppContextProvider: FC<Props> = ({ children }) => {
 
       setTodos(response);
     } catch (error) {
-      setErrorMessage(ErrorMessage.Load);
+      setErrorMessage(ErrorMessage.LOAD);
       setShowError(true);
     }
   };
@@ -53,7 +53,7 @@ export const AppContextProvider: FC<Props> = ({ children }) => {
 
       setTodos(prev => prev.filter(todo => todo.id !== todoId));
     } catch (error) {
-      setErrorMessage(ErrorMessage.Delete);
+      setErrorMessage(ErrorMessage.DELETE);
       setShowError(true);
     } finally {
       setTodosBeingLoaded(prev => prev.filter(id => id !== todoId));
@@ -87,9 +87,9 @@ export const AppContextProvider: FC<Props> = ({ children }) => {
 
       setTodos(updatedTodos as Todo[]);
     } catch (error) {
-      setErrorMessage(ErrorMessage.Update);
+      setErrorMessage(ErrorMessage.UPDATE);
       setShowError(true);
-      throw new Error(ErrorMessage.Update);
+      throw new Error(ErrorMessage.UPDATE);
     } finally {
       setTodosBeingLoaded(prev => prev.filter(id => id !== todo.id));
     }
@@ -103,7 +103,7 @@ export const AppContextProvider: FC<Props> = ({ children }) => {
     try {
       const response = await patchTodo(todoId, { completed: !todoStatus });
 
-      setTodos(prevTodos => (
+      await setTodos(prevTodos => (
         prevTodos.map(item => (
           item.id === todoId
             ? response
@@ -111,7 +111,7 @@ export const AppContextProvider: FC<Props> = ({ children }) => {
         )) as Todo[]
       ));
     } catch (error) {
-      setErrorMessage(ErrorMessage.Update);
+      setErrorMessage(ErrorMessage.UPDATE);
       setShowError(true);
     } finally {
       setTodosBeingLoaded(prev => prev.filter(id => id !== todoId));
@@ -144,7 +144,7 @@ export const AppContextProvider: FC<Props> = ({ children }) => {
         setTodos(prev => prev
           .filter(todoToDelete => todoToDelete.id !== todo.id));
       } catch (error) {
-        setErrorMessage(ErrorMessage.Delete);
+        setErrorMessage(ErrorMessage.DELETE);
         setShowError(true);
       } finally {
         setTodosBeingLoaded([]);
@@ -182,7 +182,7 @@ export const AppContextProvider: FC<Props> = ({ children }) => {
 
       setTodos(updatedTodos);
     } catch (error) {
-      setErrorMessage(ErrorMessage.Update);
+      setErrorMessage(ErrorMessage.UPDATE);
       setShowError(true);
     } finally {
       setTodosBeingLoaded([]);

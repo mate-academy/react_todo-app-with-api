@@ -35,7 +35,7 @@ export const Header: FC = () => {
     const todoTitle = inputValue.trim();
 
     if (!todoTitle) {
-      setErrorMessage(ErrorMessage.Title);
+      setErrorMessage(ErrorMessage.TITLE);
       setShowError(true);
 
       return;
@@ -62,7 +62,7 @@ export const Header: FC = () => {
       setTodos(prev => ([...prev, response]));
       setInputValue('');
     } catch (error) {
-      setErrorMessage(ErrorMessage.Add);
+      setErrorMessage(ErrorMessage.ADD);
       setShowError(true);
     } finally {
       setTempTodo(null);
