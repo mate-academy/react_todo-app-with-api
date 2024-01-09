@@ -16,16 +16,13 @@ export const App: React.FC = () => {
   const [errorNotification, setErrorNotification] = useState<string | null>(
     null,
   );
-  const [errorVisible, setErrorVisible] = useState(false);
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
   const [procesingTodoIds, setProcesingTodoIds] = useState<number[]>([]);
 
   const showErrorNotification = (message: string) => {
     setErrorNotification(message);
-    setErrorVisible(true);
 
     setTimeout(() => {
-      setErrorVisible(false);
       setErrorNotification(null);
     }, 3000);
   };
@@ -92,9 +89,7 @@ export const App: React.FC = () => {
   };
 
   const toDelete = (id: number) => {
-    const afterDeleteTodo = todos.filter((todo) => todo.id !== id);
-
-    setTodos(afterDeleteTodo);
+    setTodos(prevState => prevState.filter((todo) => todo.id !== id));
   };
 
   const handleDeletedTodo = (id: number) => {
@@ -176,20 +171,20 @@ export const App: React.FC = () => {
         )}
       </div>
 
-      <div
-        data-cy="ErrorNotification"
-        className={`notification is-danger is-light has-text-weight-normal ${
-          errorVisible ? '' : 'hidden'
-        }`}
-      >
-        <button
-          data-cy="HideErrorButton"
-          type="button"
-          className="delete"
-          onClick={() => setErrorVisible(false)}
-        />
-        {errorNotification}
-      </div>
+      {errorNotification && (
+        <div
+          data-cy="ErrorNotification"
+          className="notification is-danger is-light has-text-weight-normal"
+        >
+          <button
+            data-cy="HideErrorButton"
+            type="button"
+            className="delete"
+            onClick={() => setErrorNotification(null)}
+          />
+          {errorNotification}
+        </div>
+      )}
     </div>
   );
 };
