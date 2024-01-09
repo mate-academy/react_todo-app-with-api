@@ -11,7 +11,8 @@ export const Filter: React.FC<Props> = ({ getFilter }) => {
 
   const handleOnClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
     e.preventDefault();
-    const value = e.currentTarget.getAttribute('href')?.replace('#/', '') || '';
+    const value = e.currentTarget
+      .getAttribute('href')?.replace('#/', '') || 'all';
 
     setSelectedFilter(value as FilterBy);
     getFilter(value as FilterBy);

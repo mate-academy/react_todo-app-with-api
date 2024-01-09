@@ -2,9 +2,7 @@ import React, {
   useState,
   useEffect,
   useMemo,
-  useRef,
 } from 'react';
-import cn from 'classnames';
 import { Todo } from '../../types/Todo';
 import {
   getTodos,
@@ -13,16 +11,16 @@ import {
   editTodo,
 } from '../../api/todos';
 import { useAuth } from '../../Context/Context';
+import { Header } from '../Header';
 import { TodoItem } from '../TodoItem';
-import { Filter } from '../Filter';
 import { filteredData } from '../../helpers/filteredData';
-import { FilterBy, ErrorMessage, EditField } from '../../types/types';
+import { FilterBy, ErrorMessage } from '../../types/types';
 import { Error } from '../Error';
+import { Footer } from '../Footer';
 
 export const TodoAppContent: React.FC = () => {
   const userId = useAuth();
   const [todos, setTodos] = useState<Todo[]>([]);
-  const [newTodoField, setNewTodoField] = useState('');
   const [isAdding, setIsAdding] = useState(false);
   const [todosCount, setTodosCount] = useState(0);
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
@@ -31,8 +29,6 @@ export const TodoAppContent: React.FC = () => {
   const [disabledClear, setDisabledClear] = useState(true);
   const [errorMessage, setErrorMessage] = useState<ErrorMessage | null>(null);
   const currentTodos = filteredData<Todo>(todos, filterBy);
-
-  const inputRef = useRef<HTMLInputElement>(null);
 
   const countOfNotCompleted = todos
     .filter(({ completed }) => !completed);
@@ -53,86 +49,89 @@ export const TodoAppContent: React.FC = () => {
     setTodosCount(countOfNotCompleted.length);
   }, [countOfNotCompleted]);
 
-  useEffect(() => {
-    if (!isAdding) {
-      inputRef.current?.focus();
-    }
-  }, [isAdding]);
-
   useMemo(() => {
     setDisabledClear(!todos.some(({ completed }) => completed));
   }, [todos]);
 
-  const handleAddTodo = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-
-    if (userId) {
-      if (!newTodoField.trim()) {
-        setErrorMessage(ErrorMessage.NotBeEmpty);
-
-        return;
-      }
-
-      const body = {
-        id: 0,
-        title: newTodoField.replace(/\s+/g, ' ').trim(),
-        userId,
-        completed: false,
-      };
-
-      setIsAdding(true);
-      setTempTodo(body);
-
-      addTodo(body)
-        .then(resp => {
-          setTodos(prev => [...prev, resp]);
-          setNewTodoField('');
-        })
-        .catch(() => {
-          setErrorMessage(ErrorMessage.Add);
-        })
-        .finally(() => {
-          setTempTodo(null);
-          setIsAdding(false);
-        });
+  const handleAddTodo = (value: string): Promise<void> => {
+    if (!userId) {
+      return Promise.resolve();
     }
+
+    if (!value.trim()) {
+      setErrorMessage(ErrorMessage.NotBeEmpty);
+
+      return Promise.resolve();
+    }
+
+    const body = {
+      id: 0,
+      title: value.replace(/\s+/g, ' ').trim(),
+      userId,
+      completed: false,
+    };
+
+    setIsAdding(true);
+    setTempTodo(body);
+
+    return addTodo(body)
+      .then((resp) => {
+        setTodos((todosPrev) => [...todosPrev, resp]);
+      })
+      .catch(() => {
+        setErrorMessage(ErrorMessage.Add);
+      })
+      .finally(() => {
+        setTempTodo(null);
+        setIsAdding(false);
+      });
   };
 
   const handleDeleteTodo = (idToDelete: number) => {
-    setLoadTodosIds(prev => [...prev, idToDelete]);
+    setLoadTodosIds(loadTodosIdsPrev => [...loadTodosIdsPrev, idToDelete]);
 
     deleteTodo(idToDelete)
       .then(() => {
-        setTodos(prev => prev.filter(({ id }) => id !== idToDelete));
+        setTodos(todosPrev => todosPrev.filter(({ id }) => id !== idToDelete));
       })
       .catch(() => {
         setErrorMessage(ErrorMessage.Delete);
       })
       .finally(() => {
-        setLoadTodosIds(prev => prev.filter(i => i !== idToDelete));
+        setLoadTodosIds(loadTodosIdsPrev => loadTodosIdsPrev
+          .filter(loadTodoId => loadTodoId !== idToDelete));
       });
   };
 
-  const handleEditTodo = (id: number, field: EditField) => {
-    const index = todos.findIndex(todo => todo.id === id);
+  const handleEditTodo = (id: number, field: Partial<Todo>) => {
+    if (field.title?.length === 0) {
+      handleDeleteTodo(id);
 
-    setLoadTodosIds(prev => [...prev, id]);
+      return;
+    }
+
+    const currentIndex = todos.findIndex(todo => todo.id === id);
+
+    setLoadTodosIds(loadTodosIdsPrev => [...loadTodosIdsPrev, id]);
 
     editTodo(id, field)
       .then(resp => {
-        setTodos(prev => prev.map((el, i) => {
-          if (index === i) {
+        setTodos(todosPrev => todosPrev.map((todo, index) => {
+          if (currentIndex === index) {
             return resp;
           }
 
-          return el;
+          return todo;
         }));
       })
       .catch(() => {
         setErrorMessage(ErrorMessage.Update);
       })
       .finally(() => {
-        setLoadTodosIds(prev => prev.filter(i => i !== id));
+        setLoadTodosIds(loadTodosIdsPrev => loadTodosIdsPrev
+          .filter(loadTodoId => (
+            loadTodoId !== id
+          )));
       });
   };
 
@@ -160,33 +159,13 @@ export const TodoAppContent: React.FC = () => {
   return (
     <>
       <div className="todoapp__content">
-        <header className="todoapp__header">
-          {todos.length > 0 && (
-            <button
-              type="button"
-              className={cn(
-                'todoapp__toggle-all',
-                { active: !todosCount },
-              )}
-              data-cy="ToggleAllButton"
-              aria-label="toggle all button"
-              onClick={handleToggleAll}
-            />
-          )}
-
-          <form onSubmit={handleAddTodo}>
-            <input
-              data-cy="NewTodoField"
-              type="text"
-              className="todoapp__new-todo"
-              placeholder="What needs to be done?"
-              onChange={e => setNewTodoField(e.target.value)}
-              value={newTodoField}
-              disabled={isAdding}
-              ref={inputRef}
-            />
-          </form>
-        </header>
+        <Header
+          showFocus={isAdding}
+          showToggle={todos.length > 0}
+          itemCount={todosCount}
+          onClickToggle={handleToggleAll}
+          submitForm={handleAddTodo}
+        />
 
         {currentTodos.length > 0 && (
           <section className="todoapp__main" data-cy="TodoList">
@@ -210,23 +189,12 @@ export const TodoAppContent: React.FC = () => {
         )}
 
         {((todos.length > 0) || isAdding) && (
-          <footer className="todoapp__footer" data-cy="Footer">
-            <span className="todo-count" data-cy="TodosCounter">
-              {`${todosCount} items left`}
-            </span>
-
-            <Filter getFilter={setFilterBy} />
-
-            <button
-              type="button"
-              className="todoapp__clear-completed"
-              data-cy="ClearCompletedButton"
-              onClick={handleClearCompleted}
-              disabled={disabledClear}
-            >
-              Clear completed
-            </button>
-          </footer>
+          <Footer
+            itemsCount={todosCount}
+            getFilter={setFilterBy}
+            clearBtnOnClick={handleClearCompleted}
+            clearBtnDisabled={disabledClear}
+          />
         )}
       </div>
 

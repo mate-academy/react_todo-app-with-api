@@ -1,12 +1,11 @@
 import React, { useState, useEffect, useRef } from 'react';
 import cn from 'classnames';
-import { EditField } from '../../types/types';
 import { Todo } from '../../types/Todo';
 
 type Props = {
   todo: Todo;
   onDelete?: (arg: number) => void;
-  onEdit?: (id: number, arg: EditField) => void;
+  onEdit?: (id: number, arg: Partial<Todo>) => void;
   isLoading?: boolean;
 };
 
@@ -31,24 +30,30 @@ export const TodoItem: React.FC<Props> = ({
     setIsEditable(true);
   };
 
-  const handleOnSubmit = () => {
-    const fieldTitle = {
-      title: value,
-    };
+  const onEditTitle = () => {
+    setValue(value);
 
     if (onEdit) {
-      onEdit(id, fieldTitle);
+      onEdit(id, { title: value });
     }
   };
 
-  const handleCheck = () => {
-    const fieldCompleted = {
-      completed: !completed,
-    };
+  const handleOnSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
 
+    onEditTitle();
+  };
+
+  const handleCheck = () => {
     if (onEdit) {
-      onEdit(id, fieldCompleted);
+      onEdit(id, { completed: !completed });
     }
+  };
+
+  const handleOnBlur = () => {
+    onEditTitle();
+
+    setIsEditable(false);
   };
 
   const handleDeleteTodo = () => {
@@ -81,7 +86,7 @@ export const TodoItem: React.FC<Props> = ({
             placeholder="Empty todo will be deleted"
             value={value}
             onChange={e => setValue(e.target.value)}
-            onBlur={() => setIsEditable(false)}
+            onBlur={handleOnBlur}
             ref={inputEditRef}
           />
         </form>
@@ -92,7 +97,7 @@ export const TodoItem: React.FC<Props> = ({
             className="todo__title"
             onDoubleClick={handleClickOnTitle}
           >
-            {title}
+            {value}
           </span>
           <button
             type="button"

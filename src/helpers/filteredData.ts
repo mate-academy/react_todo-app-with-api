@@ -1,7 +1,8 @@
-import { Data, FilterBy } from '../types/types';
+import { Todo } from '../types/Todo';
+import { FilterBy } from '../types/types';
 
 export const filteredData = <T>(
-  data: Array<T & Data>,
+  data: Array<T & Partial<Todo>>,
   filter: FilterBy,
 ): T[] => {
   switch (filter) {

@@ -1,11 +1,3 @@
-export type Data = {
-  completed: boolean;
-};
-export interface EditField {
-  completed?: boolean,
-  title?: string,
-}
-
 export enum FilterBy {
   All = 'all',
   Active = 'active',
