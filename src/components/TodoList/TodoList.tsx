@@ -4,18 +4,18 @@ import { TodoItem } from '../TodoItem/TodoItem';
 type Props = {
   todos: Todo[],
   tempTodo: Todo | null,
-  handlDdeleteTodo: (value: number) => void,
-  arryLoader: number[] | null,
-  handlUpdateTodo: (value: Todo) => void,
+  handleDeleteTodo: (value: number) => void,
+  arrayLoader: number[] | null,
+  handleUpdateTodo: (value: Todo) => void,
   quryInput: string,
 };
 
 export const TodoList:React.FC<Props> = ({
   todos,
   tempTodo,
-  handlDdeleteTodo,
-  arryLoader,
-  handlUpdateTodo,
+  handleDeleteTodo,
+  arrayLoader,
+  handleUpdateTodo,
   quryInput,
 }) => {
   return (
@@ -24,9 +24,9 @@ export const TodoList:React.FC<Props> = ({
         <TodoItem
           key={todo.id}
           todo={todo}
-          handlDdeleteTodo={handlDdeleteTodo}
-          arryLoader={arryLoader}
-          handlUpdateTodo={handlUpdateTodo}
+          handleDeleteTodo={handleDeleteTodo}
+          arrayLoader={arrayLoader}
+          handleUpdateTodo={handleUpdateTodo}
           quryInput={quryInput}
         />
       ))}
@@ -34,9 +34,9 @@ export const TodoList:React.FC<Props> = ({
       {tempTodo && (
         <TodoItem
           todo={tempTodo}
-          handlDdeleteTodo={handlDdeleteTodo}
-          arryLoader={arryLoader}
-          handlUpdateTodo={handlUpdateTodo}
+          handleDeleteTodo={handleDeleteTodo}
+          arrayLoader={arrayLoader}
+          handleUpdateTodo={handleUpdateTodo}
           quryInput={quryInput}
         />
       )}

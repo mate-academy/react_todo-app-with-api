@@ -20,7 +20,7 @@ export const Footer: React.FC<Props> = ({
   };
 
   const verifyCompleted = activeButton();
-  const lengthTodos = todos.filter(todo => !todo.completed)
+  const lengthTodos = todos.filter(todo => !todo.completed);
 
   return (
     <footer className="todoapp__footer" data-cy="Footer">

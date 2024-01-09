@@ -20,7 +20,7 @@ export const App: React.FC = () => {
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
   const [isLoader, setIsLoader] = useState(false);
   const [queryInput, setQueryInput] = useState('');
-  const [arryLoader, setArryLoader] = useState<number[] | null>([]);
+  const [arrayLoader, setArrayLoader] = useState<number[] | null>([]);
 
   useEffect(() => {
     getTodo(USER_ID).then(setTodos)
@@ -48,7 +48,7 @@ export const App: React.FC = () => {
       userId: USER_ID,
     });
 
-    setArryLoader([0]);
+    setArrayLoader([0]);
     setIsLoader(true);
     createTodo({
       title, completed, userId: USER_ID,
@@ -64,13 +64,13 @@ export const App: React.FC = () => {
       .finally(() => {
         setTempTodo(null);
         setIsLoader(false);
-        setArryLoader(null);
+        setArrayLoader(null);
       });
   };
 
-  const handlDdeleteTodo = (id: number) => {
+  const handleDeleteTodo = (id: number) => {
     setIsLoader(true);
-    setArryLoader([id]);
+    setArrayLoader([id]);
     deleteTodo(id)
       .then(() => setTodos((currentTodos) => currentTodos
         .filter(todo => todo.id !== id)))
@@ -80,14 +80,14 @@ export const App: React.FC = () => {
       })
       .finally(() => {
         setIsLoader(false);
-        setArryLoader(null);
+        setArrayLoader(null);
       });
   };
 
-  const handlUpdateTodo = (todo: Todo) => {
+  const handleUpdateTodo = (todo: Todo) => {
     const { id } = todo;
 
-    setArryLoader([id]);
+    setArrayLoader([id]);
     setIsLoader(true);
     updateTodo(todo).then((data) => {
       setTodos((prevTodos) => {
@@ -106,34 +106,30 @@ export const App: React.FC = () => {
       })
       .finally(() => {
         setIsLoader(false);
-        setArryLoader(null);
+        setArrayLoader(null);
       });
   };
 
   const allCompleted = () => {
     const idCompleted: number[] = [];
-    const chaangeValueCompleted = todos
-      .some((todo) => todo.completed === false);
+    const changeValueCompleted = todos
+      .some((todo) => !todo.completed);
 
-    if (chaangeValueCompleted) {
-      todos.forEach((todo) => {
+    todos.forEach((todo) => {
+      if (changeValueCompleted) {
         if (!todo.completed) {
           idCompleted.push(todo.id);
         }
-
-        handlUpdateTodo({ ...todo, completed: true });
-      });
-    } else {
-      todos.forEach((todo) => {
+      } else {
         if (todo.completed) {
           idCompleted.push(todo.id);
         }
+      }
 
-        handlUpdateTodo({ ...todo, completed: false });
+        handleUpdateTodo({ ...todo, completed: changeValueCompleted });
       });
-    }
 
-    setArryLoader(idCompleted);
+    setArrayLoader(idCompleted);
   };
 
   const deletePerformedTask = () => {
@@ -145,9 +141,9 @@ export const App: React.FC = () => {
       }
     });
 
-    idCompleted.map(todo => handlDdeleteTodo(todo));
+    idCompleted.map(todo => handleDeleteTodo(todo));
 
-    setArryLoader(idCompleted);
+    setArrayLoader(idCompleted);
   };
 
   return (
@@ -166,9 +162,9 @@ export const App: React.FC = () => {
         <TodoList
           todos={filterTodos}
           tempTodo={tempTodo}
-          handlDdeleteTodo={handlDdeleteTodo}
-          arryLoader={arryLoader}
-          handlUpdateTodo={handlUpdateTodo}
+          handleDeleteTodo={handleDeleteTodo}
+          arrayLoader={arrayLoader}
+          handleUpdateTodo={handleUpdateTodo}
           quryInput={queryInput}
         />
         {!!todos.length && (

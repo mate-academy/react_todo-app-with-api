@@ -4,24 +4,24 @@ import { Todo } from '../../types/Todo';
 
 type Props = {
   todo: Todo,
-  handlDdeleteTodo: (value: number) => void,
-  arryLoader: number[] | null,
-  handlUpdateTodo: (value: Todo) => void,
+  handleDeleteTodo: (value: number) => void,
+  arrayLoader: number[] | null,
+  handleUpdateTodo: (value: Todo) => void,
   quryInput: string,
 };
 
 export const TodoItem: React.FC<Props> = ({
   todo,
-  handlDdeleteTodo,
-  arryLoader,
-  handlUpdateTodo,
+  handleDeleteTodo,
+  arrayLoader,
+  handleUpdateTodo,
 }) => {
   const [isVisibleInput, setIsVisibleInput] = useState(false);
   const [changeQuryInput, setChangeQuryInput] = useState('');
 
   const { id, title, completed } = todo;
   const deleteID = () => {
-    handlDdeleteTodo(id);
+    handleDeleteTodo(id);
   };
 
   const inputFocus = useRef<HTMLInputElement | null>(null);
@@ -38,8 +38,8 @@ export const TodoItem: React.FC<Props> = ({
   };
 
   const findIdIsLoader = () => {
-    if (arryLoader) {
-      return arryLoader.some(item => item === id);
+    if (arrayLoader) {
+      return arrayLoader.some(item => item === id);
     }
 
     return false;
@@ -52,12 +52,12 @@ export const TodoItem: React.FC<Props> = ({
       setIsVisibleInput(false);
     }
 
-    if (changeQuryInput.length === 0) {
-      handlDdeleteTodo(id);
+    if (!changeQuryInput.length) {
+      handleDeleteTodo(id);
     }
 
     setIsVisibleInput(false);
-    handlUpdateTodo({ ...todo, title: changeQuryInput });
+    handleUpdateTodo({ ...todo, title: changeQuryInput });
   };
 
   const handleKeyUp = (e: React.KeyboardEvent<HTMLInputElement>) => {
@@ -67,7 +67,7 @@ export const TodoItem: React.FC<Props> = ({
   };
 
   const sendUpdateTodo = () => {
-    handlUpdateTodo({ ...todo, completed: !completed });
+    handleUpdateTodo({ ...todo, completed: !completed });
   };
 
   const loaderId = findIdIsLoader();
@@ -128,7 +128,7 @@ export const TodoItem: React.FC<Props> = ({
         <div
           data-cy="TodoLoader"
           className={classNames('modal overlay', {
-            'is-active': loaderId
+            'is-active': loaderId,
           })}
         >
           <div className="modal-background has-background-white-ter" />
