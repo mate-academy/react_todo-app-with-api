@@ -18,7 +18,6 @@ export const Header: FC = () => {
     completedTodosNum,
     toggleAllStatus,
     setErrorMessage,
-    setShowError,
     setTodosBeingLoaded,
     setTempTodo,
     setTodos,
@@ -30,13 +29,12 @@ export const Header: FC = () => {
 
   const handleInputSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    setShowError(false);
+    setErrorMessage(null);
 
     const todoTitle = inputValue.trim();
 
     if (!todoTitle) {
       setErrorMessage(ErrorMessage.TITLE);
-      setShowError(true);
 
       return;
     }
@@ -63,7 +61,6 @@ export const Header: FC = () => {
       setInputValue('');
     } catch (error) {
       setErrorMessage(ErrorMessage.ADD);
-      setShowError(true);
     } finally {
       setTempTodo(null);
       setTodosBeingLoaded(prev => prev.filter(todoId => todoId !== 0));

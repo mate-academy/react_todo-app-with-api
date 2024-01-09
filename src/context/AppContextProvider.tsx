@@ -13,21 +13,13 @@ type Props = React.PropsWithChildren;
 export const AppContextProvider: FC<Props> = ({ children }) => {
   const [todos, setTodos] = useState<Todo[]>([]);
   const [selectedFilter, setSelectedFilter] = useState<Filter>(Filter.ALL);
-  const [showError, setShowError] = useState<boolean>(false);
-  const [errorMessage, setErrorMessage] = useState<string>('');
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
   const [todosBeingLoaded, setTodosBeingLoaded] = useState<number[]>([]);
   const [todoInEdit, setTodoInEdit] = useState<number | null>(null);
 
-  // CONSTS
-
   // CALCULATING ACTIVE & COMPLETED TODOS
-  const activeTodosNum = todos.reduce((acc, curr) => {
-    return !curr.completed
-      ? acc + 1
-      : acc;
-  }, 0);
-
+  const activeTodosNum = todos.filter(todo => !todo.completed).length;
   const completedTodosNum = todos.length - activeTodosNum;
 
   // LOADING DATA FROM THE SERVER
@@ -38,7 +30,6 @@ export const AppContextProvider: FC<Props> = ({ children }) => {
       setTodos(response);
     } catch (error) {
       setErrorMessage(ErrorMessage.LOAD);
-      setShowError(true);
     }
   };
 
@@ -54,7 +45,6 @@ export const AppContextProvider: FC<Props> = ({ children }) => {
       setTodos(prev => prev.filter(todo => todo.id !== todoId));
     } catch (error) {
       setErrorMessage(ErrorMessage.DELETE);
-      setShowError(true);
     } finally {
       setTodosBeingLoaded(prev => prev.filter(id => id !== todoId));
     }
@@ -88,7 +78,6 @@ export const AppContextProvider: FC<Props> = ({ children }) => {
       setTodos(updatedTodos as Todo[]);
     } catch (error) {
       setErrorMessage(ErrorMessage.UPDATE);
-      setShowError(true);
       throw new Error(ErrorMessage.UPDATE);
     } finally {
       setTodosBeingLoaded(prev => prev.filter(id => id !== todo.id));
@@ -111,7 +100,6 @@ export const AppContextProvider: FC<Props> = ({ children }) => {
       ));
     } catch (error) {
       setErrorMessage(ErrorMessage.UPDATE);
-      setShowError(true);
     } finally {
       setTodosBeingLoaded(prev => prev.filter(id => id !== todoId));
     }
@@ -144,7 +132,6 @@ export const AppContextProvider: FC<Props> = ({ children }) => {
           .filter(todoToDelete => todoToDelete.id !== todo.id));
       } catch (error) {
         setErrorMessage(ErrorMessage.DELETE);
-        setShowError(true);
       } finally {
         setTodosBeingLoaded([]);
       }
@@ -182,7 +169,6 @@ export const AppContextProvider: FC<Props> = ({ children }) => {
       setTodos(updatedTodos);
     } catch (error) {
       setErrorMessage(ErrorMessage.UPDATE);
-      setShowError(true);
     } finally {
       setTodosBeingLoaded([]);
     }
@@ -193,14 +179,6 @@ export const AppContextProvider: FC<Props> = ({ children }) => {
     loadData();
   }, []);
 
-  useEffect(() => {
-    if (showError) {
-      setTimeout(() => {
-        setShowError(false);
-      }, 3000);
-    }
-  }, [showError]);
-
   // FILTERING TODOS
   const visibleTodos = useMemo(() => {
     let updatedTodos = [...todos];
@@ -208,10 +186,10 @@ export const AppContextProvider: FC<Props> = ({ children }) => {
     if (todos.length) {
       switch (selectedFilter) {
         case Filter.ACTIVE:
-          updatedTodos = updatedTodos.filter(todo => !todo.completed) || [];
+          updatedTodos = updatedTodos.filter(todo => !todo.completed);
           break;
         case Filter.COMPLETED:
-          updatedTodos = updatedTodos.filter(todo => todo.completed) || [];
+          updatedTodos = updatedTodos.filter(todo => todo.completed);
           break;
         default:
           break;
@@ -226,8 +204,6 @@ export const AppContextProvider: FC<Props> = ({ children }) => {
     setTodos,
     selectedFilter,
     setSelectedFilter,
-    showError,
-    setShowError,
     errorMessage,
     setErrorMessage,
     visibleTodos,
