@@ -50,6 +50,7 @@ export const TodoItem: React.FC<Props> = ({
 
     if (changeQuryInput === title) {
       setIsVisibleInput(false);
+      return;
     }
 
     if (!changeQuryInput.length) {

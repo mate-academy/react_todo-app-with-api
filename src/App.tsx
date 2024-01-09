@@ -27,18 +27,29 @@ export const App: React.FC = () => {
       .catch(() => setErrorMesage(TodoError.UnableLoad));
   }, []);
 
-  const filterTodos = useMemo(() => todos.filter((todo: Todo) => {
+  // const filterTodos = useMemo(() => todos.filter((todo: Todo) => {
+  //   switch (chooseFilter) {
+  //     case FilterTodos.Active:
+  //       return !todo.completed;
+
+  //     case FilterTodos.Completed:
+  //       return todo.completed;
+
+  //     default:
+  //       return todo;
+  //   }
+  // }), [chooseFilter, todos]);
+
+  const filterTodos = useMemo(() => {
     switch (chooseFilter) {
       case FilterTodos.Active:
-        return !todo.completed;
-
+        return todos.filter((todo: Todo) =>!todo.completed);
       case FilterTodos.Completed:
-        return todo.completed;
-
+        return  todos.filter((todo: Todo) =>todo.completed);
       default:
-        return todo;
+        return todos;
     }
-  }), [chooseFilter, todos]);
+  }, [chooseFilter, todos])
 
   const sendTodo = ({ title, completed }: Omit<Todo, 'userId' | 'id'>) => {
     setTempTodo({
@@ -120,14 +131,12 @@ export const App: React.FC = () => {
         if (!todo.completed) {
           idCompleted.push(todo.id);
         }
-      } else {
-        if (todo.completed) {
-          idCompleted.push(todo.id);
-        }
+      } else if (todo.completed) {
+        idCompleted.push(todo.id);
       }
 
-        handleUpdateTodo({ ...todo, completed: changeValueCompleted });
-      });
+      handleUpdateTodo({ ...todo, completed: changeValueCompleted });
+    });
 
     setArrayLoader(idCompleted);
   };
