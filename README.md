@@ -35,7 +35,7 @@ Implement the ability to edit a todo title on double click:
 - if the title was changed show the loader while waiting for the API response;
 - update the todo title on success;
 - show `Unable to update a todo` in case of API error;
-- or the deletion error message if we tried to delete the todo.
+- or the deletion error message if we tried to delete the todo. // ???
 
 ## If you want to enable tests
 - open `cypress/integration/page.spec.js`

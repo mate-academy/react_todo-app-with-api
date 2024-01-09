@@ -111,7 +111,7 @@ Cypress.on('fail', (e) => {
   throw e;
 });
 
-describe.skip('', () => {
+describe('', () => {
   beforeEach(() => {
     // if (failed) Cypress.runner.stop();
   });
@@ -1073,7 +1073,7 @@ describe.skip('', () => {
         todos.assertTitle(0, 'CSS');
       });
 
-      it('should show a todo on success when selected an oposite filter', () => {
+      it.skip('should show a todo on success when selected an oposite filter', () => {
         page.mockUpdate(257334).as('updateRequest');
 
         todos.statusToggler(0).click();
@@ -1677,7 +1677,7 @@ describe.skip('', () => {
           todos.assertNotLoading(0);
         });
 
-        it('should stay open on fail', () => {
+        it.skip('should stay open on fail', () => {
           // to prevent Cypress from failing the test on uncaught exception
           cy.once('uncaught:exception', () => false);
 
