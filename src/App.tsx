@@ -7,6 +7,7 @@ import { TodoList } from './components/TodoList';
 import { Footer } from './components/Footer';
 import { Status } from './types/Status';
 import { getTodos, updateTodo, deleteTodo } from './api/todos';
+import { Errors } from './types/Errors';
 
 const USER_ID = 12132;
 
@@ -33,7 +34,7 @@ export const App: React.FC = () => {
         setTodos(data);
       })
       .catch(() => {
-        showErrorNotification('Unable to load todos');
+        showErrorNotification(Errors.UNABLE);
       });
   }, []);
 
@@ -58,7 +59,7 @@ export const App: React.FC = () => {
         });
       })
       .catch(() => {
-        showErrorNotification('Unable to update a todo');
+        showErrorNotification(Errors.UNABLE);
       })
       .finally(() => {
         setProcesingTodoIds(prev => prev
@@ -100,7 +101,7 @@ export const App: React.FC = () => {
         toDelete(id);
       })
       .catch(() => {
-        showErrorNotification('Unable to delete a todo');
+        showErrorNotification(Errors.DELETE);
       })
       .finally(() => {
         setProcesingTodoIds((prev) => prev
