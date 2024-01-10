@@ -5,7 +5,7 @@ type Props = {
   todo: Todo;
   togCheck: (todo: Todo) => void;
   handleUpdate: (todo: Todo) => void;
-  loading: boolean; //
+  loading: boolean;
   handleDeletedTodo: (id: number) => void;
 };
 
@@ -23,10 +23,6 @@ export const TodoItem: React.FC<Props> = ({
 
   const handleDoubleClick = () => {
     setIsEditing(true);
-  };
-
-  const handleBlur = () => {
-    setIsEditing(false);
   };
 
   const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -59,6 +55,7 @@ export const TodoItem: React.FC<Props> = ({
   const handleKeyUp = (event: React.KeyboardEvent) => {
     if (event.key === 'Escape') {
       setIsEditing(false);
+      setEditValue(todo.title);
     }
   };
 
@@ -91,7 +88,7 @@ export const TodoItem: React.FC<Props> = ({
             type="text"
             className="todo__title-field"
             placeholder="Empty todo will be deleted"
-            onBlur={handleBlur}
+            onBlur={handleEdit}
             value={editValue}
             onChange={handleInputChange}
             ref={inputRef}
