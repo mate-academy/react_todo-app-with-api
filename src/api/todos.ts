@@ -18,3 +18,19 @@ export const addTodo = (
 export const removeTodo = (todoId: number, userId: number) => {
   return client.delete(`/todos/${todoId}?userId=${userId}`);
 };
+
+export const toggleTodo = (
+  todoId: number, userId: number, completed: boolean,
+): Promise<Todo> => {
+  return client.patch<Todo>(`/todos/${todoId}?userId=${userId}`, {
+    completed,
+  });
+};
+
+export const titleTodo = (
+  todoId: number, userId: number, title: string,
+): Promise<Todo> => {
+  return client.patch<Todo>(`/todos/${todoId}?userId=${userId}`, {
+    title,
+  });
+};

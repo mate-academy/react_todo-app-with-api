@@ -1,23 +1,51 @@
 import cn from 'classnames';
+import { useEffect, useRef, useState } from 'react';
 import { Todo } from '../../types/Todo';
 
 type Props = {
   todo: Todo;
-  key: number;
   onRemove: (todoId: number) => void;
-  removingTodoId: number | null;
+  onToggle: (todoId: number) => void;
+  onEdit: (todoId: number, newTitle: string) => void;
+  processingTodoIds: number[] | null;
 };
 
 export const TodoItem: React.FC<Props> = ({
   todo,
-  key,
   onRemove,
-  removingTodoId,
+  onToggle,
+  onEdit,
+  processingTodoIds,
 }) => {
-  const removing = removingTodoId === todo.id;
+  const [isEditing, setIsEditing] = useState(false);
+  const [editTitle, setEditTitle] = useState(todo.title);
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  const handleDoubleClick = () => {
+    setIsEditing(true);
+  };
+
+  const handleEditChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setEditTitle(e.target.value);
+  };
+
+  const handleEditSubmit = (e: React.FormEvent<HTMLFormElement>
+  | React.FocusEvent<HTMLInputElement>) => {
+    e.preventDefault();
+    onEdit(todo.id, editTitle);
+    setIsEditing(false);
+  };
+
+  useEffect(() => {
+    if (isEditing) {
+      inputRef.current?.focus();
+    }
+  }, [isEditing]);
+
+  const isTodoProcessing = processingTodoIds?.includes(todo.id);
 
   return (
-    <div key={key}>
+    <div>
       <div
         data-cy="Todo"
         className={cn(
@@ -31,12 +59,32 @@ export const TodoItem: React.FC<Props> = ({
             data-cy="TodoStatus"
             type="checkbox"
             className="todo__status"
+            onClick={() => onToggle(todo.id)}
           />
         </label>
 
-        <span data-cy="TodoTitle" className="todo__title">
-          {todo.title}
-        </span>
+        {isEditing ? (
+          <form onSubmit={handleEditSubmit}>
+            <input
+              ref={inputRef}
+              data-cy="TodoTitleField"
+              type="text"
+              className="todo__title-field"
+              placeholder="Empty todo will be deleted"
+              value={editTitle}
+              onChange={handleEditChange}
+              onBlur={handleEditSubmit}
+            />
+          </form>
+        ) : (
+          <span
+            data-cy="TodoTitle"
+            className="todo__title"
+            onDoubleClick={handleDoubleClick}
+          >
+            {todo.title}
+          </span>
+        )}
         <button
           type="button"
           className="todo__remove"
@@ -46,7 +94,7 @@ export const TodoItem: React.FC<Props> = ({
           ×
         </button>
 
-        {removing && (
+        {isTodoProcessing && (
           <div data-cy="TodoLoader" className="modal overlay is-active">
             <div className="modal-background has-background-white-ter" />
             <div className="loader" />

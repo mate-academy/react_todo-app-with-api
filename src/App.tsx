@@ -3,7 +3,9 @@
 import React, { useEffect, useRef, useState } from 'react';
 import cn from 'classnames';
 import { UserWarning } from './UserWarning';
-import { addTodo, getTodos, removeTodo } from './api/todos';
+import {
+  addTodo, getTodos, removeTodo, toggleTodo, titleTodo,
+} from './api/todos';
 import { Todo } from './types/Todo';
 import { TodoItem } from './components/Todo';
 import { Status } from './types/Status';
@@ -13,7 +15,8 @@ const USER_ID = 12035;
 export const App: React.FC = () => {
   const [todos, setTodos] = useState<Todo[]>([]);
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
-  const [removingTodoId, setRemovingTodoId] = useState<number | null>(null);
+  const [processingTodosIds, setProcessingTodosIds]
+    = useState<number[] | null>(null);
   const [filterByStatus, setFilterByStatus] = useState<string>(Status.All);
   const [filteredTodos, setFilteredTodos] = useState<Todo[]>([]);
   const [error, setError] = useState<null | string>(null);
@@ -95,7 +98,7 @@ export const App: React.FC = () => {
           setTimeout(() => {
             setTodos([...todos, newTodo]);
             setTempTodo(null);
-          }, 600);
+          }, 300);
         } catch (catchError) {
           setShowError(true);
           setError('Unable to add a todo.');
@@ -116,7 +119,7 @@ export const App: React.FC = () => {
   };
 
   const handleRemoveTodo = async (todoId: number) => {
-    setRemovingTodoId(todoId);
+    setProcessingTodosIds(prevIds => [...prevIds || [], todoId]);
 
     try {
       await removeTodo(todoId, USER_ID);
@@ -125,15 +128,101 @@ export const App: React.FC = () => {
 
       setTimeout(() => {
         setTodos(updatedTodos);
-        setRemovingTodoId(null);
-      }, 600);
+        setProcessingTodosIds(null);
+      }, 300);
     } catch (e) {
       setShowError(true);
       setError('Unable to delete a todo.');
       setTimeout(() => {
         setShowError(false);
       }, 3000);
-      setRemovingTodoId(null);
+      setProcessingTodosIds(null);
+    }
+  };
+
+  const handleToggleAll = async () => {
+    const activeTodos = todos.filter(todo => !todo.completed);
+    const activeTodosIds = activeTodos.map(todo => todo.id);
+    const completedTodosIds = todos.map(todo => todo.id);
+
+    try {
+      if (activeTodos.length !== 0) {
+        setProcessingTodosIds(prevIds => [...prevIds || [], ...activeTodosIds]);
+
+        await Promise.all(
+          activeTodos.map(async todo => {
+            await toggleTodo(todo.id, USER_ID, true);
+
+            return { ...todo, completed: true };
+          }),
+        );
+
+        setTimeout(() => {
+          setTodos(prevTodos => prevTodos.map(
+            todo => (activeTodosIds.includes(todo.id)
+              ? { ...todo, completed: true }
+              : todo),
+          ));
+
+          setProcessingTodosIds(null);
+        }, 300);
+      } else {
+        setProcessingTodosIds(
+          prevIds => [...prevIds || [], ...completedTodosIds],
+        );
+
+        await Promise.all(
+          todos.map(async todo => {
+            await toggleTodo(todo.id, USER_ID, false);
+
+            return { ...todo, completed: false };
+          }),
+        );
+
+        setTimeout(() => {
+          setTodos(prevTodos => prevTodos.map(
+            todo => (completedTodosIds.includes(todo.id)
+              ? { ...todo, completed: false }
+              : todo),
+          ));
+
+          setProcessingTodosIds(null);
+        }, 300);
+      }
+    } catch (e) {
+      setShowError(true);
+      setError('Unable to processing todos.');
+      setTimeout(() => {
+        setShowError(false);
+      }, 3000);
+      setProcessingTodosIds(null);
+    }
+  };
+
+  const handleToggleTodo = async (todoId: number) => {
+    setProcessingTodosIds(prevIds => [...prevIds || [], todoId]);
+
+    try {
+      const todoToToggle = todos.find(todo => todo.id === todoId);
+      const newCompletedStatus = !todoToToggle?.completed;
+
+      await toggleTodo(todoId, USER_ID, newCompletedStatus);
+
+      const updatedTodos = todos.map(todo => (todo.id === todoId
+        ? { ...todo, completed: newCompletedStatus }
+        : todo));
+
+      setTimeout(() => {
+        setTodos(updatedTodos);
+        setProcessingTodosIds(null);
+      }, 300);
+    } catch (e) {
+      setShowError(true);
+      setError('Unable to update a todo.');
+      setTimeout(() => {
+        setShowError(false);
+      }, 3000);
+      setProcessingTodosIds(null);
     }
   };
 
@@ -161,6 +250,28 @@ export const App: React.FC = () => {
     loadData();
     inputRef.current?.focus();
   }, []);
+
+  const handleEditTodoTitle = async (todoId: number, newTitle: string) => {
+    setProcessingTodosIds(prevIds => [...prevIds || [], todoId]);
+
+    try {
+      await titleTodo(todoId, USER_ID, newTitle);
+
+      setTimeout(() => {
+        setTodos(todos.map(todo => (todo.id === todoId
+          ? { ...todo, title: newTitle }
+          : todo)));
+        setProcessingTodosIds(null);
+      }, 300);
+    } catch (e) {
+      setShowError(true);
+      setError('Unable to processing todos.');
+      setTimeout(() => {
+        setShowError(false);
+      }, 3000);
+      setProcessingTodosIds(null);
+    }
+  };
 
   useEffect(() => {
     const filterTodos = (filter: string) => {
@@ -196,6 +307,7 @@ export const App: React.FC = () => {
             type="button"
             className="todoapp__toggle-all active"
             data-cy="ToggleAllButton"
+            onClick={handleToggleAll}
           />
 
           {/* Add a todo on form submit */}
@@ -220,7 +332,9 @@ export const App: React.FC = () => {
               key={todo.id}
               todo={todo}
               onRemove={handleRemoveTodo}
-              removingTodoId={removingTodoId}
+              onToggle={handleToggleTodo}
+              onEdit={handleEditTodoTitle}
+              processingTodoIds={processingTodosIds}
             />
           ))}
 
