@@ -1,10 +1,29 @@
-
 .todoapp {
   font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
   font-size: 24px;
   font-weight: 300;
   color: #4d4d4d;
-  margin: 40px 20px;
+  margin: 0 20px;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+
+  &__logo {
+    width: 50%;
+    padding: 30px 0 30px;
+    align-self: center;
+  }
+
+  &__author {
+    padding: 20px;
+    text-align: center;
+    font-size: 0.5em;
+    color: #bbbbbb;
+  }
+
+  &__body {
+    flex: 1;
+  }
 
   &__content {
     margin-bottom: 20px;
