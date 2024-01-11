@@ -48,6 +48,13 @@ export const TodoItem: React.FC<Props> = ({
     }
   }, [isEditing]);
 
+  const handleKeyUp = (e: React.KeyboardEvent) => {
+    if (e.key === 'Escape') {
+      setIsEditing(false);
+      setEditTitle(todo.title);
+    }
+  };
+
   const isTodoProcessing = processingTodoIds?.includes(todo.id);
 
   return (
@@ -80,6 +87,7 @@ export const TodoItem: React.FC<Props> = ({
               value={editTitle}
               onChange={handleEditChange}
               onBlur={handleEditSubmit}
+              onKeyUp={handleKeyUp}
             />
           </form>
         ) : (
