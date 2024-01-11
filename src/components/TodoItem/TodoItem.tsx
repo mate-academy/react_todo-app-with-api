@@ -1,5 +1,4 @@
-/* eslint-disable jsx-a11y/no-autofocus */
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Todo } from '../../types/Todo';
 
 type Prop = {
@@ -16,8 +15,11 @@ export const TodoItem:React.FC<Prop> = React.memo(
   }) => {
     const [editingTodo, setEditingTodo] = useState<Todo | null>(null);
 
+    const titleFieldRef = useRef<HTMLInputElement | null>(null);
+
     const handleSubmit = (event: React.FormEvent) => {
       event.preventDefault();
+
       if (!editingTodo) {
         return;
       }
@@ -36,6 +38,22 @@ export const TodoItem:React.FC<Prop> = React.memo(
       setEditingTodo(null);
     };
 
+    const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+      const newTitle = event.currentTarget.value;
+
+      setEditingTodo({ ...todo, title: newTitle });
+    };
+
+    const handleKeyUp = (event: React.KeyboardEvent<HTMLInputElement>) => {
+      if (event.key === 'Escape') {
+        setEditingTodo(null);
+      }
+    };
+
+    useEffect(() => {
+      titleFieldRef.current?.focus();
+    }, [editingTodo?.id]);
+
     return (editingTodo && editingTodo.id === todo.id ? (
       <>
         <form
@@ -46,17 +64,10 @@ export const TodoItem:React.FC<Prop> = React.memo(
             className="todo__title-field"
             placeholder="Empty todo will be deleted"
             value={editingTodo.title}
-            autoFocus
-            onChange={(event) => setEditingTodo({
-              ...todo,
-              title: event.target.value,
-            })}
+            ref={titleFieldRef}
+            onChange={handleChange}
             onBlur={handleSubmit}
-            onKeyUp={(event) => {
-              if (event.key === 'Escape') {
-                setEditingTodo(null);
-              }
-            }}
+            onKeyUp={handleKeyUp}
           />
         </form>
       </>

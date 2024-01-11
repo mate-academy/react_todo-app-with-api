@@ -29,12 +29,13 @@ export const TodoList:React.FC<Prop> = React.memo(
                 classNames="item"
               >
                 <li
-                  key={todo.id}
+                  key={todo.id.toString(10)}
                   className={classNames('todo', { completed: todo.completed })}
                 >
                   <label
-                    id={todo.id.toString(10)}
+                    htmlFor={todo.id.toString(10)}
                     className="todo__status-label"
+                    aria-label="todo-status"
                   >
                     <input
                       type="checkbox"
@@ -44,6 +45,7 @@ export const TodoList:React.FC<Prop> = React.memo(
                       onChange={() => toggleTodo(todo.id, todo.completed)}
                     />
                   </label>
+
                   <TodoItem
                     todo={todo}
                     deleteTodo={deleteTodo}

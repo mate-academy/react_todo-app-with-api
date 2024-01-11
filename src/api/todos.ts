@@ -6,11 +6,7 @@ export const USER_ID = 10565;
 export const todosFromServer = client
   .get<Todo[]>(`/todos?userId=${USER_ID}`);
 export const createTodoOnServer = (title: string) => client
-  .post<Todo>('/todos', {
-  title,
-  userId: USER_ID,
-  completed: false,
-});
+  .post<Todo>('/todos', { title, userId: USER_ID, completed: false });
 export const deleteTodoOnServer = (todoId: number) => client
   .delete(`/todos/${todoId}`);
 export const toggleTodoOnServer = (todoId: number, completed: boolean) => client

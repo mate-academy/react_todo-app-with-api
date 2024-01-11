@@ -1,4 +1,3 @@
-/* eslint-disable jsx-a11y/control-has-associated-label */
 import React, { useEffect, useState } from 'react';
 import classNames from 'classnames';
 import { CSSTransition } from 'react-transition-group';
@@ -84,13 +83,16 @@ export const App: React.FC = () => {
 
   useEffect(() => {
     setError(null);
+
     todosFromServer
       .then(fetchedTodos => setTodos(fetchedTodos))
       .catch(() => showErrors(ShowError.fetchTodos));
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const filteredTodos = React.useMemo(() => {
     return getFilteredTodos(selectedTodos);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedTodos, todos]);
 
   const handleCreateTodo = (event: React.FormEvent) => {
@@ -101,12 +103,14 @@ export const App: React.FC = () => {
     event.preventDefault();
     if (todoTitle) {
       setIsDisabled(true);
+
       setTempTodo({
         id: 0,
         title: '',
         userId: USER_ID,
         completed: false,
       });
+
       createTodoOnServer(todoTitle)
         .then(newTodo => setTodos([...todos, newTodo]))
         .catch(() => showErrors(ShowError.addTodo))
@@ -125,14 +129,12 @@ export const App: React.FC = () => {
       userId: USER_ID,
       completed: false,
     });
+
     updateTodoOnServer(newTodo.id, newTodo.title)
       .then(() => setTodos(todos.map(todo => (
         (todo.id !== newTodo.id)
           ? todo
-          : {
-            ...todo,
-            title: newTodo.title,
-          }))))
+          : { ...todo, title: newTodo.title }))))
       .catch(() => showErrors(ShowError.updateTodo))
       .finally(() => setTempTodo(null));
   };
@@ -144,6 +146,7 @@ export const App: React.FC = () => {
       userId: USER_ID,
       completed: false,
     });
+
     deleteTodoOnServer(todoId)
       .then(() => setTodos(todos.filter(todo => todo.id !== todoId)))
       .catch(() => showErrors(ShowError.deleteTodo))
@@ -157,6 +160,7 @@ export const App: React.FC = () => {
       userId: USER_ID,
       completed: false,
     });
+
     toggleTodoOnServer(todoId, completed)
       .then(() => setTodos(todos.map(todo => (
         (todo.id !== todoId)
@@ -198,6 +202,7 @@ export const App: React.FC = () => {
           <button
             title="Toggle All"
             type="button"
+            aria-label="toggle-all"
             className={classNames(
               'todoapp__toggle-all',
               {
@@ -220,8 +225,6 @@ export const App: React.FC = () => {
         </header>
 
         <section className="todoapp__main">
-          {/* <TransitionGroup> */}
-
           {filteredTodos
           && filteredTodos.length > 0
           && (
@@ -245,8 +248,13 @@ export const App: React.FC = () => {
               classNames="temp-item"
             >
               <div className="todo">
-                <label className="todo__status-label">
-                  <input type="checkbox" className="todo__status" />
+                <label className="todo__status-label" htmlFor="todo-status">
+                  <input
+                    type="checkbox"
+                    className="todo__status"
+                    id="todo-status"
+                    aria-label="todo-status"
+                  />
                 </label>
 
                 <span className="todo__title">Todo is being saved now</span>
@@ -261,7 +269,6 @@ export const App: React.FC = () => {
               </div>
             </CSSTransition>
           )}
-          {/* </TransitionGroup> */}
         </section>
 
         {filteredTodos
@@ -305,6 +312,7 @@ export const App: React.FC = () => {
           type="button"
           title="delete"
           className="delete"
+          aria-label="delete"
           onClick={() => setError(null)}
         />
         {error}
