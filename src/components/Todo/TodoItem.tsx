@@ -32,7 +32,13 @@ export const TodoItem: React.FC<Props> = ({
   const handleEditSubmit = (e: React.FormEvent<HTMLFormElement>
   | React.FocusEvent<HTMLInputElement>) => {
     e.preventDefault();
-    onEdit(todo.id, editTitle);
+
+    if (editTitle.trim() === '') {
+      onRemove(todo.id);
+    } else {
+      onEdit(todo.id, editTitle);
+    }
+
     setIsEditing(false);
   };
 
