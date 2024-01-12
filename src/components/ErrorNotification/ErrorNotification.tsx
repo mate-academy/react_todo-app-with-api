@@ -1,4 +1,4 @@
-import { FC } from 'react';
+import { FC, useEffect } from 'react';
 import cn from 'classnames';
 import { Errors } from '../../types/Errors';
 
@@ -13,6 +13,22 @@ export const ErrorNotification: FC<Props> = (props) => {
     setErrorMessage,
   } = props;
 
+  useEffect(() => {
+    if (errorMessage) {
+      const timeoutId = setTimeout(() => {
+        setErrorMessage(Errors.Null);
+      }, 3000);
+
+      return () => clearTimeout(timeoutId);
+    }
+
+    return undefined;
+  }, [errorMessage, setErrorMessage]);
+
+  const hideError = () => {
+    setErrorMessage(Errors.Null);
+  };
+
   return (
     <div
       data-cy="ErrorNotification"
@@ -24,9 +40,7 @@ export const ErrorNotification: FC<Props> = (props) => {
         className={cn('delete', {
           hidden: !errorMessage,
         })}
-        onClick={() => {
-          setErrorMessage(Errors.Null);
-        }}
+        onClick={hideError}
       />
       {errorMessage}
     </div>

@@ -18,8 +18,9 @@ export const Footer: FC<Props> = (props) => {
     deleteTodo,
   } = props;
 
-  const remainingTodosLength = todos.filter(todo => !todo.completed).length;
-  const completedTodosLength = todos.filter(todo => todo.completed).length;
+  const remainingTodosLength = todos
+    .reduce((count, todo) => (!todo.completed ? count + 1 : count), 0);
+  const completedTodosLength = todos.length - remainingTodosLength;
 
   const handleClearCompletedTodos = () => {
     const completedTodos = todos.filter(todo => todo.completed);

@@ -18,14 +18,8 @@ export const App: React.FC = () => {
   const [errorMessage, setErrorMessage] = useState<Errors>(Errors.Null);
   const [loadingTodoId, setLoadingTodoId] = useState<number[]>([]);
 
-  // const completedTodosCounter = todos.reduce((acc, todo) => {
-  //   return todo.completed ? acc + 1 : acc;
-  // }, 0);
-  // const activeTodosCounter = todos.length - completedTodosCounter;
-
   const handleError = (error: Errors) => {
     setErrorMessage(error);
-    setTimeout(() => setErrorMessage(Errors.Null), 3000);
   };
 
   useEffect(
@@ -178,12 +172,10 @@ export const App: React.FC = () => {
         )}
       </div>
 
-      {errorMessage && (
-        <ErrorNotification
-          errorMessage={errorMessage}
-          setErrorMessage={setErrorMessage}
-        />
-      )}
+      <ErrorNotification
+        errorMessage={errorMessage}
+        setErrorMessage={setErrorMessage}
+      />
     </div>
   );
 };
