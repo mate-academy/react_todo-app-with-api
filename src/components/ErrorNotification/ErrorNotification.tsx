@@ -29,6 +29,10 @@ export const ErrorNotification: FC<Props> = (props) => {
     setErrorMessage(Errors.Null);
   };
 
+  if (!errorMessage) {
+    return null;
+  }
+
   return (
     <div
       data-cy="ErrorNotification"
