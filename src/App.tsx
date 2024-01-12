@@ -115,8 +115,6 @@ export const App: React.FC = () => {
 
   const handleEditTodo = (todoId: number, newTitle: string) => {
     if (!newTitle) {
-      setErrorMessage(Errors.UpdateTodo);
-
       return deleteTodo(todoId);
     }
 
