@@ -1,24 +1,31 @@
 /* eslint-disable max-len */
-/* eslint-disable jsx-a11y/control-has-associated-label */
-import React from 'react';
-import { UserWarning } from './UserWarning';
-
-const USER_ID = 0;
+import React, { useContext } from 'react';
+import { TodosList } from './components/TodosList';
+import { TodosInputForm } from './components/TodosInputForm';
+import { ErrorNotification } from './components/ErrorNotification';
+import { TodosContext } from './components/TodosContext';
+import { TodosControls } from './components/TodosControls';
+import { TodosToggleAll } from './components/TodosToggleAll';
 
 export const App: React.FC = () => {
-  if (!USER_ID) {
-    return <UserWarning />;
-  }
+  const { todos } = useContext(TodosContext);
+  const hasTodo = todos.length > 0;
 
   return (
-    <section className="section container">
-      <p className="title is-4">
-        Copy all you need from the prev task:
-        <br />
-        <a href="https://github.com/mate-academy/react_todo-app-add-and-delete#react-todo-app-add-and-delete">React Todo App - Add and Delete</a>
-      </p>
+    <div className="todoapp">
+      <h1 className="todoapp__title">todos</h1>
+      <div className="todoapp__content">
 
-      <p className="subtitle">Styles are already copied</p>
-    </section>
+        <header className="todoapp__header">
+          {hasTodo && <TodosToggleAll />}
+          <TodosInputForm />
+        </header>
+
+        <TodosList />
+        {hasTodo && <TodosControls />}
+
+      </div>
+      <ErrorNotification />
+    </div>
   );
 };
