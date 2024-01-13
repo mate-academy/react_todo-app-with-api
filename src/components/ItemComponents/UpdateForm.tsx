@@ -6,6 +6,7 @@ import {
 } from 'react';
 import { Todo } from '../../types/Todo';
 import { TodosContext } from '../TodosContext';
+import { keyEventMap } from '../../utils/keyEventMap';
 
 type Props = {
   todo: Todo
@@ -40,11 +41,14 @@ export const UpdateForm: React.FC<Props> = ({ todo, setIsEdit }) => {
     doBlure();
   };
 
-  const handleKeyUp = (event: React.KeyboardEvent) => {
-    switch (event.key) {
-      case ('Escape'): doBlure(); break;
-      case ('Enter'): handleBlure(); break;
-      default: break;
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (keyEventMap[e.key] === keyEventMap.Escape) {
+      doBlure();
+    }
+
+    if (keyEventMap[e.key] === keyEventMap.Enter) {
+      e.preventDefault();
+      handleBlure();
     }
   };
 
@@ -55,9 +59,8 @@ export const UpdateForm: React.FC<Props> = ({ todo, setIsEdit }) => {
         data-cy="TodoTitleField"
         className="todo__title-field"
         placeholder="Empty todo will be deleted"
-        onKeyDown={(e) => e.key === 'Enter' && e.preventDefault()}
         onChange={(e) => setNewTitle(e.target.value)}
-        onKeyUp={handleKeyUp}
+        onKeyDown={handleKeyDown}
         onBlur={handleBlure}
         value={newTitle}
         ref={input}

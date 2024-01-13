@@ -16,7 +16,7 @@ export const TodosContext = React
   tempTodo: null,
   lids: new Set(),
   errorMessage: '',
-  status: Status.all,
+  status: Status.ALL,
 
   setLids: () => {},
   doDelete: () => {},
@@ -32,7 +32,7 @@ export const TodosProvider: React.FC<{
 }> = ({ children }) => {
   const [todos, setTodos] = useState<Todo[]>([]);
   const [errorMessage, setErrorMessage] = useState('');
-  const [status, setStatus] = useState<Status>(Status.all);
+  const [status, setStatus] = useState<Status>(Status.ALL);
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
   const [lids, setLids] = useState<Set<number>>(new Set());
 

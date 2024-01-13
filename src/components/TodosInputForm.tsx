@@ -5,9 +5,11 @@ import {
   useState,
 } from 'react';
 import { addTodos } from '../api/todos';
-import { Error } from '../types/Error';
-import { createTodo } from '../utils/createTodo';
 import { TodosContext } from './TodosContext';
+import { createTodo } from '../utils/createTodo';
+import { keyEventMap } from '../utils/keyEventMap';
+import { EventKey } from '../types/EventKey';
+import { Error } from '../types/Error';
 
 export const TodosInputForm: React.FC = () => {
   const {
@@ -19,6 +21,7 @@ export const TodosInputForm: React.FC = () => {
   const [newTitle, setNewTitle] = useState('');
   const [isPosting, setIsPosting] = useState(false);
   const todoInput = useRef<HTMLInputElement>(null);
+  // const [currentKey, setCurrentKey] = useState('');
 
   useEffect(() => {
     if (todoInput.current) {
@@ -50,6 +53,13 @@ export const TodosInputForm: React.FC = () => {
     setErrorMessage(Error.submit);
   };
 
+  const handleKeyDown = (e:React.KeyboardEvent) => {
+    if (keyEventMap[e.key] === EventKey.Enter) {
+      e.preventDefault();
+      handleSubmit();
+    }
+  };
+
   return (
     <form>
       <input
@@ -61,8 +71,7 @@ export const TodosInputForm: React.FC = () => {
         value={newTitle}
         disabled={isPosting}
         onChange={(e) => setNewTitle(e.target.value)}
-        onKeyDown={(e) => e.key === 'Enter' && e.preventDefault()}
-        onKeyUp={(e) => e.key === 'Enter' && handleSubmit()}
+        onKeyDown={(e) => handleKeyDown(e)}
       />
     </form>
   );
