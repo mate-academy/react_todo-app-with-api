@@ -58,8 +58,6 @@ export const AppContainer: FC = () => {
     }
 
     switch (filterBy) {
-      case Filters.All:
-        return todos;
       case Filters.Active:
         return todos.filter(todo => !todo.completed);
       case Filters.Completed:
@@ -107,6 +105,7 @@ export const AppContainer: FC = () => {
   const handleComplete = async (id: number, completed: boolean) => {
     try {
       setIsUpdatingId((state) => [...state, id]);
+
       const updatedData: Todo = {
         id,
         userId: USER_ID,
@@ -115,6 +114,7 @@ export const AppContainer: FC = () => {
       };
 
       await updateTodo(id, updatedData);
+
       setTodos((state) => state.map((todo) => {
         if (todo.id === id) {
           return {
@@ -125,6 +125,7 @@ export const AppContainer: FC = () => {
 
         return todo;
       }));
+
       setIsUpdatingId((state) => state.filter((stateId) => stateId !== id));
     } catch {
       handleErrorMessage(ErrorMessage.updateTodo);
@@ -193,10 +194,10 @@ export const AppContainer: FC = () => {
               ));
               await deleteTodo(todo.id);
               setTodos((state) => {
-                return [...state.filter(todoF => todoF.id !== todo.id)];
+                return state.filter(todoF => todoF.id !== todo.id);
               });
               setIsUpdatingId((state) => (
-                [...state.filter(stateId => stateId !== todo.id)]
+                state.filter(stateId => stateId !== todo.id)
               ));
             }
           } catch {
@@ -211,10 +212,12 @@ export const AppContainer: FC = () => {
   };
 
   const ecsKeyCancel = (e: string) => {
-    if (e === 'Escape') {
-      setEditQuery(editQueryPrev);
-      setIsEditing(null);
+    if (e !== 'Escape') {
+      return;
     }
+
+    setEditQuery(editQueryPrev);
+    setIsEditing(null);
   };
 
   const handleEdit = (id: number, title: string) => {

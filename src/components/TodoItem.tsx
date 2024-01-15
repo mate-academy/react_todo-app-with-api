@@ -1,5 +1,5 @@
 /* eslint-disable jsx-a11y/no-autofocus */
-import { FC } from 'react';
+import React, { FC } from 'react';
 import classNames from 'classnames';
 import { Todo } from '../types/Todo';
 
@@ -32,6 +32,11 @@ export const TodoItem: FC<TodoItemProps> = ({
     completed,
   } = todo;
 
+  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    handleEditSubmit(query, id);
+  };
+
   return (
     <div
       id={`${id}`}
@@ -56,10 +61,7 @@ export const TodoItem: FC<TodoItemProps> = ({
 
       {isEditing === id ? (
         <form
-          onSubmit={(event) => {
-            event.preventDefault();
-            handleEditSubmit(query, id);
-          }}
+          onSubmit={handleSubmit}
         >
           <input
             autoFocus
