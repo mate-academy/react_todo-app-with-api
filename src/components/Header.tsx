@@ -15,6 +15,7 @@ type Props = {
 };
 
 export const Header: React.FC<Props> = ({
+  USER_ID,
   todo,
   setTodo,
   todos,
@@ -84,7 +85,7 @@ export const Header: React.FC<Props> = ({
 
     const newTodo = {
       id: Math.floor(Math.random() * 1000000),
-      userId: 12147,
+      USER_ID,
       title: text,
       completed: false,
     };
@@ -97,7 +98,7 @@ export const Header: React.FC<Props> = ({
   return (
 
     <header className="todoapp__header">
-      {todos.length > 0 && (
+      {!todos.length && (
         <button
           aria-label="toggle between 3 buttons"
           type="button"

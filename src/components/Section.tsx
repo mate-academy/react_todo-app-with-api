@@ -1,6 +1,7 @@
 import {
   SetStateAction, Dispatch, useState, useRef, useEffect,
 } from 'react';
+import cn from 'classnames';
 import { TasksFilter } from '../types/tasksFilter';
 import { Todo } from '../types/Todo';
 import { ErrorMesage } from '../types/ErrorIMessage';
@@ -131,7 +132,7 @@ export const Section: React.FC<Props> = ({
       {filteringTodos.map(({ title, id, completed }) => (
         <div
           data-cy="Todo"
-          className={`todo ${completed ? 'completed' : ''}`}
+          className={cn('todo', { completed: completed === true })}
           key={id}
         >
           <label className="todo__status-label">

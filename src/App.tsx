@@ -19,7 +19,7 @@ export const App: React.FC = () => {
   const [errorMessage, setErrorMessage] = useState<ErrorMesage>(ErrorMesage.noErrors);
   const [todo, setTodo] = useState<Todo>({
     id: 0,
-    userId: 0,
+    USER_ID: 0,
     title: '',
     completed: false,
   });
