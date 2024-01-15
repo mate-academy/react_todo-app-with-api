@@ -30,10 +30,12 @@ export const TodoApp: React.FC<Props> = ({ userId }) => {
 
   const getFilteredTodos = () => {
     switch (filter) {
-      case Filter.active:
+      case Filter.Active:
         return todos.filter((todo) => !todo.completed);
-      case Filter.completed:
+
+      case Filter.Completed:
         return todos.filter((todo) => todo.completed);
+
       default:
         return todos;
     }

@@ -56,12 +56,14 @@ export const Footer: React.FC<Props> = ({
     }
   };
 
+  const countTitle = `${notCompletedCount} ${
+    notCompletedCount === 1 ? 'item' : 'items'
+  } left`;
+
   return (
     <footer className="todoapp__footer" data-cy="Footer">
       <span className="todo-count" data-cy="TodosCounter">
-        {`${notCompletedCount} ${
-          notCompletedCount === 1 ? 'item' : 'items'
-        } left`}
+        {countTitle}
       </span>
       <TodoFilter setFilter={setFilter} filter={filter} />
       {!!completedCount && (

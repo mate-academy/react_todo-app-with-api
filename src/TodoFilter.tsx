@@ -21,9 +21,9 @@ export const TodoFilter: React.FC<Props> = ({ setFilter, filter }) => {
 
       <a
         href="#/active"
-        className={cn('filter__link', { selected: filter === Filter.active })}
+        className={cn('filter__link', { selected: filter === Filter.Active })}
         data-cy="FilterLinkActive"
-        onClick={() => setFilter(Filter.active)}
+        onClick={() => setFilter(Filter.Active)}
       >
         Active
       </a>
@@ -31,10 +31,10 @@ export const TodoFilter: React.FC<Props> = ({ setFilter, filter }) => {
       <a
         href="#/completed"
         className={cn('filter__link', {
-          selected: filter === Filter.completed,
+          selected: filter === Filter.Completed,
         })}
         data-cy="FilterLinkCompleted"
-        onClick={() => setFilter(Filter.completed)}
+        onClick={() => setFilter(Filter.Completed)}
       >
         Completed
       </a>

@@ -3,6 +3,7 @@ import cn from 'classnames';
 import { Todo } from './types/Todo';
 import { TodoLoader } from './TodoLoader';
 import { deleteTodo, updateTitleTodo, updateTodo } from './api/todos';
+import { Key } from './types/Key';
 
 type Props = {
   todo: Todo;
@@ -23,11 +24,12 @@ export const TodoItem: React.FC<Props> = ({
   setErrorMessage,
   loadingAll,
 }) => {
+  const { id, title, completed } = todo;
   const [isEditing, setIsEditing] = useState(false);
-  const [newTitle, setNewTitle] = useState(todo.title);
+  const [newTitle, setNewTitle] = useState(title);
   const inputRef = useRef<HTMLInputElement | null>(null);
   const [loading, setLoading] = useState(false);
-  const [title, setTitle] = useState(todo.title);
+  const [titlePrev, setTitlePrev] = useState(title);
 
   const handleDelete = (todoId: number) => {
     setLoading(true);
@@ -43,11 +45,11 @@ export const TodoItem: React.FC<Props> = ({
 
   const handleDoubleClick = () => {
     setIsEditing(true);
-    setTitle(newTitle);
+    setTitlePrev(newTitle);
   };
 
   const handleFormSubmit = (todoId: number) => {
-    if (newTitle === title) {
+    if (newTitle === titlePrev) {
       setIsEditing(false);
 
       return;
@@ -82,13 +84,13 @@ export const TodoItem: React.FC<Props> = ({
     e: React.KeyboardEvent<HTMLInputElement>,
     todoId: number,
   ) => {
-    if (e.key === 'Enter') {
+    if (e.key === Key.Enter) {
       handleFormSubmit(todoId);
     }
 
-    if (e.key === 'Escape') {
+    if (e.key === Key.Esc) {
       setIsEditing(false);
-      setNewTitle(title);
+      setNewTitle(titlePrev);
     }
   };
 
@@ -112,14 +114,14 @@ export const TodoItem: React.FC<Props> = ({
 
   return (
     <>
-      <div data-cy="Todo" className={cn('todo', { completed: todo.completed })}>
+      <div data-cy="Todo" className={cn('todo', { completed })}>
         <label className="todo__status-label">
           <input
             data-cy="TodoStatus"
             type="checkbox"
             className="todo__status"
-            checked={todo.completed}
-            onChange={() => handleCheckboxChange(todo.id)}
+            checked={completed}
+            onChange={() => handleCheckboxChange(id)}
           />
         </label>
         {isEditing ? (
@@ -131,9 +133,9 @@ export const TodoItem: React.FC<Props> = ({
               placeholder="Empty todo will be deleted"
               value={newTitle}
               onChange={(e) => setNewTitle(e.target.value)}
-              onBlur={() => handleBlur(todo.id)}
+              onBlur={() => handleBlur(id)}
               ref={inputRef}
-              onKeyDown={(e) => onKeyDownHandler(e, todo.id)}
+              onKeyDown={(e) => onKeyDownHandler(e, id)}
             />
           </form>
         ) : (
@@ -143,21 +145,21 @@ export const TodoItem: React.FC<Props> = ({
               onDoubleClick={handleDoubleClick}
               className="todo__title"
             >
-              {todo.title}
+              {title}
             </span>
 
             <button
               type="button"
               className="todo__remove"
               data-cy="TodoDelete"
-              onClick={() => handleDelete(todo.id)}
+              onClick={() => handleDelete(id)}
               disabled={loading}
             >
               ×
             </button>
           </>
         )}
-        {(loading || loadingAll || (clearCompleted && todo.completed)) && (
+        {(loading || loadingAll || (clearCompleted && completed)) && (
           <TodoLoader />
         )}
       </div>
