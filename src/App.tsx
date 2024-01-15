@@ -57,7 +57,7 @@ export const App: React.FC = () => {
           setErrorMessage={setErrorMessage}
         />
 
-        {todos.length > 0 && (
+        {todos.length && (
           <>
             <Section
               todos={todos}

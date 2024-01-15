@@ -132,7 +132,7 @@ export const Section: React.FC<Props> = ({
       {filteringTodos.map(({ title, id, completed }) => (
         <div
           data-cy="Todo"
-          className={cn('todo', { completed: completed === true })}
+          className={cn('todo', { completed })}
           key={id}
         >
           <label className="todo__status-label">

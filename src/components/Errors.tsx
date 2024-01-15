@@ -1,4 +1,5 @@
 import { Dispatch, SetStateAction } from 'react';
+import cn from 'classnames';
 import { ErrorMesage } from '../types/ErrorIMessage';
 
 interface Props {
@@ -23,11 +24,9 @@ export const Errors: React.FC<Props> = ({
         data-cy="HideErrorButton"
         type="button"
         aria-label="hide error button"
-        className={`delete ${!errorMessage && 'hidden'}`}
+        className={cn('delete', { hidden: !errorMessage })}
         onClick={handleCloseErrors}
       />
-
-      {/* show only one message at a time */}
       {errorMessage}
       <br />
     </div>
