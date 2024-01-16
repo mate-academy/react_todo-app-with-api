@@ -136,7 +136,6 @@ export const TodoItem: React.FC<Props> = ({
 
   const updateTitle = useCallback((event?: React.FormEvent) => {
     event?.preventDefault();
-    setSelectedTodosIds(idsToLoad => [...idsToLoad, id]);
 
     const newTodo = { ...todo, title: editTitle.trim() };
 
@@ -147,6 +146,7 @@ export const TodoItem: React.FC<Props> = ({
     }
 
     if (editTitle.trim()) {
+      setSelectedTodosIds(idsToLoad => [...idsToLoad, id]);
       todosApi.updateTodo(newTodo)
         .then((updatedTodo) => {
           setTodos(tasks => tasks.map(task => {
