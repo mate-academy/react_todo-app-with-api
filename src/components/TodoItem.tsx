@@ -1,20 +1,16 @@
 /* eslint-disable max-len */
-import React, {
-  Dispatch, SetStateAction, useRef, useState,
-} from 'react';
+import React, { useRef, useState } from 'react';
 import cn from 'classnames';
-import { ErrorType, Todo } from '../types';
-import { deleteTodo, updateTodo } from '../api/todos';
+import { Todo } from '../types';
+import { deleteTodo } from '../api/todos';
 
 interface Props {
   todo: Todo
   handleDeleteTodo: (id: number) => void
   isLoading: number[]
   tempTodo: Todo | null
-  setTodos: Dispatch<SetStateAction<Todo[]>>
-  handleError: (error: ErrorType) => void
-  setIsLoading: Dispatch<SetStateAction<number[]>>
   handleEditTodo: (todoId: number, newTitle: string) => void
+  toggleCompleted: (todo: Todo) => void
 }
 
 export const TodoItem: React.FC<Props> = (props) => {
@@ -23,10 +19,8 @@ export const TodoItem: React.FC<Props> = (props) => {
     handleDeleteTodo,
     isLoading,
     tempTodo,
-    setTodos,
-    handleError,
-    setIsLoading,
     handleEditTodo,
+    toggleCompleted,
   } = props;
 
   const [isEditing, setIsEditing] = useState(false);
@@ -66,42 +60,10 @@ export const TodoItem: React.FC<Props> = (props) => {
     }
   };
 
-  const setTodoCompleted = (todoToUpdate: Todo): Promise<void> => {
-    return new Promise((resolve, reject) => {
-      setIsLoading(prev => [...prev, todoToUpdate.id]);
-      updateTodo(todoToUpdate.id, todoToUpdate)
-        .then(updatedTodo => {
-          setTodos(currentTodos => {
-            return currentTodos
-              .map(el => (el.id === todoToUpdate.id ? updatedTodo : el));
-          });
-          resolve();
-        })
-        .catch(() => {
-          handleError(ErrorType.UPDATE);
-          reject();
-        })
-        .finally(() => {
-          setIsLoading(prev => prev.filter(id => id !== todoToUpdate.id));
-        });
-    });
-  };
-
   const handleDoubleClick = () => {
     setIsEditing(true);
 
     setTimeout(() => titleFieldRef.current?.focus(), 0);
-  };
-
-  const handleToggle = async () => {
-    setTodoCompleted?.(todo);
-
-    const newTodo = {
-      ...todo,
-      completed: !todo.completed,
-    };
-
-    await setTodoCompleted?.(newTodo);
   };
 
   return (
@@ -115,7 +77,7 @@ export const TodoItem: React.FC<Props> = (props) => {
           data-cy="TodoStatus"
           type="checkbox"
           className="todo__status"
-          onChange={handleToggle}
+          onChange={() => toggleCompleted(todo)}
           checked={todo.completed}
         />
       </label>

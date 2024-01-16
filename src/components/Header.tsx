@@ -13,11 +13,12 @@ type Props = {
   addTodo: (todo: Todo) => void
   handleError: (error: ErrorType) => void
   setIsLoading: Dispatch<SetStateAction<number[]>>
+  toggleCompletedAll: () => void
 };
 
 export const Header: React.FC<Props> = ({
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  addTodo, handleError, setTempTodo, setIsLoading,
+  addTodo, handleError, setTempTodo, setIsLoading, toggleCompletedAll,
 }) => {
   const inputRef = useRef<any>();
   const formRef = useRef<any>();
@@ -60,6 +61,7 @@ export const Header: React.FC<Props> = ({
         className="todoapp__toggle-all active"
         data-cy="ToggleAllButton"
         aria-label="text"
+        onClick={() => toggleCompletedAll()}
       />
 
       {/* Add a todo on form submit */}

@@ -12,18 +12,17 @@ interface Props {
   handleError: (error: ErrorType) => void
   handleEditTodo: (todoId: number, newTitle: string) => void
   handleDeleteTodo: (id: number) => void
+  toggleCompleted: (todo: Todo) => void
 }
 
 export const TodoList: React.FC<Props> = (props) => {
   const {
     todos,
     tempTodo,
-    setTodos,
     isLoading,
-    setIsLoading,
-    handleError,
     handleEditTodo,
     handleDeleteTodo,
+    toggleCompleted,
   } = props;
 
   return (
@@ -41,10 +40,8 @@ export const TodoList: React.FC<Props> = (props) => {
               isLoading={isLoading}
               tempTodo={tempTodo}
               todo={todo}
-              setTodos={setTodos}
-              handleError={handleError}
-              setIsLoading={setIsLoading}
               handleEditTodo={handleEditTodo}
+              toggleCompleted={toggleCompleted}
             />
           </CSSTransition>
         ))}
@@ -61,10 +58,8 @@ export const TodoList: React.FC<Props> = (props) => {
               isLoading={isLoading}
               tempTodo={tempTodo}
               todo={tempTodo}
-              setTodos={setTodos}
-              handleError={handleError}
-              setIsLoading={setIsLoading}
               handleEditTodo={handleEditTodo}
+              toggleCompleted={toggleCompleted}
             />
           </CSSTransition>
         )}

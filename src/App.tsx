@@ -2,7 +2,9 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { UserWarning } from './UserWarning';
 import { Todo, FilterType, ErrorType } from './types';
-import { getTodos, updateTodoTitle, deleteTodo } from './api/todos';
+import {
+  getTodos, updateTodoTitle, updateTodo, deleteTodo,
+} from './api/todos';
 import { TodoList } from './components/TodoList';
 import { Footer } from './components/Footer';
 import { Header } from './components/Header';
@@ -52,6 +54,48 @@ export const App: React.FC = () => {
       });
   };
 
+  const setTodoCompleted = (todoToUpdate: Todo): Promise<void> => {
+    return new Promise((resolve, reject) => {
+      setIsLoading(prev => [...prev, todoToUpdate.id]);
+      updateTodo(todoToUpdate.id, todoToUpdate)
+        .then(updatedTodo => {
+          setTodos(currentTodos => {
+            return currentTodos
+              .map(el => (el.id === todoToUpdate.id ? updatedTodo : el));
+          });
+        })
+        .catch(() => {
+          handleError(ErrorType.UPDATE);
+          reject();
+        })
+        .finally(() => {
+          setIsLoading(prev => prev.filter(id => id !== todoToUpdate.id));
+          resolve();
+        });
+    });
+  };
+
+  const toggleCompleted = async (todo: Todo, completed?: boolean) => {
+    const newTodo = {
+      ...todo,
+      completed: completed || !todo.completed,
+    };
+
+    await setTodoCompleted(newTodo);
+  };
+
+  const toggleCompletedAll = () => {
+    if (todos.every((todo) => todo.completed)) {
+      todos.forEach(async (todo) => {
+        await toggleCompleted(todo, false);
+      });
+    } else {
+      todos.forEach(async (todo) => {
+        await toggleCompleted(todo, true);
+      });
+    }
+  };
+
   const addTodo = (todo: Todo) => {
     setTodos(prev => [...prev, todo]);
   };
@@ -98,7 +142,13 @@ export const App: React.FC = () => {
       <h1 className="todoapp__title">todos</h1>
 
       <div className="todoapp__content">
-        <Header addTodo={addTodo} setTempTodo={setTempTodo} handleError={handleError} setIsLoading={setIsLoading} />
+        <Header
+          addTodo={addTodo}
+          setTempTodo={setTempTodo}
+          handleError={handleError}
+          setIsLoading={setIsLoading}
+          toggleCompletedAll={toggleCompletedAll}
+        />
 
         <TodoList
           todos={todosToRender}
@@ -109,6 +159,7 @@ export const App: React.FC = () => {
           handleError={handleError}
           handleEditTodo={handleEditTodo}
           handleDeleteTodo={handleDeleteTodo}
+          toggleCompleted={toggleCompleted}
         />
 
         {todos.length > 0 && (
