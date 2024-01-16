@@ -106,27 +106,31 @@ export const AppContainer: FC = () => {
     try {
       setIsUpdatingId((state) => [...state, id]);
 
-      const updatedData: Todo = {
-        id,
-        userId: USER_ID,
-        title: query.trim(),
-        completed: !completed,
-      };
+      const todoToComplete = todos.find((todo) => todo.id === id);
 
-      await updateTodo(id, updatedData);
+      if (todoToComplete) {
+        const updatedData: Todo = {
+          id,
+          userId: USER_ID,
+          title: todoToComplete.title, // Use the existing title instead of query.trim()
+          completed: !completed,
+        };
 
-      setTodos((state) => state.map((todo) => {
-        if (todo.id === id) {
-          return {
-            ...todo,
-            completed: !completed,
-          };
-        }
+        await updateTodo(id, updatedData);
 
-        return todo;
-      }));
+        setTodos((state) => state.map((todo) => {
+          if (todo.id === id) {
+            return {
+              ...todo,
+              completed: !completed,
+            };
+          }
 
-      setIsUpdatingId((state) => state.filter((stateId) => stateId !== id));
+          return todo;
+        }));
+
+        setIsUpdatingId((state) => state.filter((stateId) => stateId !== id));
+      }
     } catch {
       handleErrorMessage(ErrorMessage.updateTodo);
       setIsUpdatingId((state) => state.filter((stateId) => stateId !== id));
