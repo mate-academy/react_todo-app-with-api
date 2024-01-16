@@ -39,7 +39,7 @@ export const Footer: React.FC<Props> = ({
         <a
           href="#/"
           className={cn('filter__link', {
-            selected: !filter,
+            selected: filter === 'all',
           })}
           data-cy="FilterLinkAll"
           onClick={(event) => handleFilterClick(event, FilterType.ALL)}

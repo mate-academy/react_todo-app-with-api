@@ -40,10 +40,10 @@ export const App: React.FC = () => {
   const todoListToShow = useMemo(() => {
     switch (filter) {
       case FilterType.COMPLETED:
-        return todoList.filter(todo => !todo.completed);
+        return todoList.filter(todo => todo.completed);
 
       case FilterType.ACTIVE:
-        return todoList.filter(todo => todo.completed);
+        return todoList.filter(todo => !todo.completed);
 
       default:
         return todoList;
