@@ -54,11 +54,10 @@ export const TodoHeader: React.FC<Props> = ({
         userId,
       });
 
-      setTodos(currentTodo => [...currentTodo, newTodo]);
+      setTodos(currentTodos => [...currentTodos, newTodo]);
       setTitle('');
     } catch (newError) {
       setError(Errors.UNABLE_ADD);
-      throw newError;
     } finally {
       if (inputRef.current) {
         inputRef.current.focus();
