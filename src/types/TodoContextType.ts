@@ -11,5 +11,5 @@ export interface TodoContextType {
   filterType: Filter,
   setFilterType: (value: Filter) => void,
   filteredTodo: Todo[],
-  USER_ID: number,
+  userId: number,
 }

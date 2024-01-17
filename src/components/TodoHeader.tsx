@@ -1,4 +1,10 @@
-import React, { RefObject, useContext, useState } from 'react';
+import React, {
+  useContext,
+  useEffect,
+  useRef,
+  useState,
+} from 'react';
+import cn from 'classnames';
 import * as postServise from '../api/todos';
 import { TodosContext } from './TodoProvider';
 import { Errors } from '../types/Errors';
@@ -6,14 +12,12 @@ import { Errors } from '../types/Errors';
 type Props = {
   handleChangeInput: (event: React.ChangeEvent<HTMLInputElement>) => void;
   title: string,
-  inputRef: RefObject<HTMLInputElement>;
   setTitle: (valu: string) => void,
 };
 
 export const TodoHeader: React.FC<Props> = ({
   handleChangeInput,
   title,
-  inputRef,
   setTitle,
 }) => {
   const [isSubmiting, setIsSubmiting] = useState(false);
@@ -21,8 +25,16 @@ export const TodoHeader: React.FC<Props> = ({
     todos,
     setTodos,
     setError,
-    USER_ID,
+    userId,
   } = useContext(TodosContext);
+
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    if (inputRef.current) {
+      inputRef.current.focus();
+    }
+  }, []);
 
   const handleFormSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -39,7 +51,7 @@ export const TodoHeader: React.FC<Props> = ({
       const newTodo = await postServise.createTodo({
         completed: false,
         title: title.trim(),
-        userId: USER_ID,
+        userId,
       });
 
       setTodos(currentTodo => [...currentTodo, newTodo]);
@@ -80,13 +92,16 @@ export const TodoHeader: React.FC<Props> = ({
 
   return (
     <header className="todoapp__header">
-      <button
-        aria-label="toggle"
-        type="button"
-        className="todoapp__toggle-all"
-        data-cy="ToggleAllButton"
-        onClick={toggleAll}
-      />
+      {todos.length > 0 && (
+        <button
+          aria-label="toggle"
+          type="button"
+          className={cn('todoapp__toggle-all',
+            todos.every(t => t.completed) && 'active')}
+          data-cy="ToggleAllButton"
+          onClick={toggleAll}
+        />
+      )}
 
       <form onSubmit={handleFormSubmit}>
         <input

@@ -1,5 +1,5 @@
 /* eslint-disable jsx-a11y/control-has-associated-label */
-import React, { useContext, useRef, useState } from 'react';
+import React, { useContext, useState } from 'react';
 import { ErrorNotification } from './components/ErrorNotification';
 import { TodoHeader } from './components/TodoHeader';
 import { TodoList } from './components/TodoList';
@@ -8,7 +8,7 @@ import { TodosContext } from './components/TodoProvider';
 
 export const App: React.FC = () => {
   const [title, setTitle] = useState('');
-  const inputRef = useRef<HTMLInputElement>(null);
+
   const {
     todos,
     error,
@@ -26,7 +26,6 @@ export const App: React.FC = () => {
         <TodoHeader
           title={title}
           setTitle={setTitle}
-          inputRef={inputRef}
           handleChangeInput={handleChangeInput}
         />
 

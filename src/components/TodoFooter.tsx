@@ -10,7 +10,6 @@ export const TodoFooter: React.FC = () => {
     removeTodo,
     setFilterType,
     filterType,
-    filteredTodo,
   } = useContext(TodosContext);
 
   const clearCompleted = () => {
@@ -28,10 +27,14 @@ export const TodoFooter: React.FC = () => {
     setFilterType(filter);
   };
 
+  const uncompletedCount = todos.filter(todo => !todo.completed);
+
+  const findCompleted = todos.find(todo => todo.completed);
+
   return (
     <footer className="todoapp__footer" data-cy="Footer">
       <span className="todo-count" data-cy="TodosCounter">
-        {`${filteredTodo.length} items left`}
+        {`${uncompletedCount.length} items left`}
       </span>
 
       <nav className="filter" data-cy="Filter">
@@ -69,14 +72,16 @@ export const TodoFooter: React.FC = () => {
         </a>
       </nav>
 
-      <button
-        type="button"
-        className="todoapp__clear-completed"
-        data-cy="ClearCompletedButton"
-        onClick={clearCompleted}
-      >
-        Clear completed
-      </button>
+      {findCompleted && (
+        <button
+          type="button"
+          className="todoapp__clear-completed"
+          data-cy="ClearCompletedButton"
+          onClick={clearCompleted}
+        >
+          Clear completed
+        </button>
+      )}
     </footer>
   );
 };

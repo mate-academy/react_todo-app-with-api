@@ -17,7 +17,7 @@ export const TodosContext = createContext<TodoContextType>({
   filterType: Filter.All,
   setFilterType: () => {},
   filteredTodo: [],
-  USER_ID,
+  userId: USER_ID,
 });
 
 export const TodoProvider: React.FC<{ children: React.ReactNode }> = ({
@@ -61,7 +61,7 @@ export const TodoProvider: React.FC<{ children: React.ReactNode }> = ({
     setFilterType,
     filteredTodo,
     filterType,
-    USER_ID,
+    userId: USER_ID,
   };
 
   return (
