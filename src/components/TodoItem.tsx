@@ -1,4 +1,3 @@
-/* eslint-disable max-len */
 import React, { useRef, useState } from 'react';
 import cn from 'classnames';
 import { Todo } from '../types';

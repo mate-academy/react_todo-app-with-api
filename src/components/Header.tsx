@@ -23,6 +23,10 @@ export const Header: React.FC<Props> = ({
   const inputRef = useRef<any>();
   const formRef = useRef<any>();
 
+  useEffect(() => {
+    setTimeout(() => inputRef.current?.focus(), 0);
+  }, []);
+
   const handleAddTodo = async () => {
     if (inputRef.current.value.trim() === '') {
       handleError(ErrorType.TITLE);
