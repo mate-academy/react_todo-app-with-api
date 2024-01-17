@@ -2,7 +2,6 @@
 import React, { useRef, useState } from 'react';
 import cn from 'classnames';
 import { Todo } from '../types';
-import { deleteTodo } from '../api/todos';
 
 interface Props {
   todo: Todo
@@ -32,7 +31,10 @@ export const TodoItem: React.FC<Props> = (props) => {
     setIsEditing(true);
 
     if (editedTitle.trim() === '') {
-      deleteTodo(todo.id);
+      handleDeleteTodo(todo.id);
+      setIsEditing(false);
+
+      return;
     }
 
     if (editedTitle === todo.title) {
