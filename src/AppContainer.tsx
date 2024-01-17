@@ -112,7 +112,7 @@ export const AppContainer: FC = () => {
         const updatedData: Todo = {
           id,
           userId: USER_ID,
-          title: todoToComplete.title, // Use the existing title instead of query.trim()
+          title: todoToComplete.title,
           completed: !completed,
         };
 
@@ -143,21 +143,18 @@ export const AppContainer: FC = () => {
     try {
       const updatedTodos = await Promise.all(
         todos.map(async (todo) => {
-          if ((isStatus && todo.completed) || (!isStatus && !todo.completed)) {
-            setIsUpdatingId((state) => [...state, todo.id]);
-            const updatedData: Todo = {
-              id: todo.id,
-              userId: USER_ID,
-              title: query.trim(),
-              completed: !isStatus,
-            };
+          setIsUpdatingId((state) => [...state, todo.id]);
 
-            await updateTodo(todo.id, updatedData);
+          const updatedData: Todo = {
+            id: todo.id,
+            userId: USER_ID,
+            title: todo.title,
+            completed: !isStatus,
+          };
 
-            return { ...todo, completed: !isStatus };
-          }
+          await updateTodo(todo.id, updatedData);
 
-          return todo;
+          return { ...todo, completed: !isStatus };
         }),
       );
 
