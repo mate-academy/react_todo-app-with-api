@@ -1,12 +1,13 @@
 import React from 'react';
 import { Todo } from '../types/Todo';
 import { TodoItem } from './TodoItem';
+import { Status } from '../types/Status';
 
 type Props = {
   todos: Todo[],
   deleteTodo: (todo: number) => void,
   todoCompleteUpdate: (todoId: number, newCompleted: boolean) => void,
-  activeFilter: string,
+  activeFilter: Status,
   onTodoEdit: (todoId: number, newTitle: string) => void,
 };
 

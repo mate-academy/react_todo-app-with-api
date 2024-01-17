@@ -1,5 +1,6 @@
 /* eslint-disable jsx-a11y/control-has-associated-label */
 import React, { useEffect, useState, useRef } from 'react';
+import cn from 'classnames';
 import { UserWarning } from './UserWarning';
 import { Todo } from './types/Todo';
 import { TodoFilter } from './components/TodoFilter';
@@ -7,12 +8,12 @@ import { TodoList } from './components/TodoList';
 import { TodoError } from './components/TodoError';
 import { ErrorMessageEnum } from './types/ErrorMessageEnum';
 import * as postService from './api/todos';
-import cn from 'classnames';
+import { Status } from './types/Status';
 
 const USER_ID = 11385;
 
 export const App: React.FC = () => {
-  const [activeFilter, setActiveFilter] = useState('all');
+  const [activeFilter, setActiveFilter] = useState<Status>(Status.All);
   const [todos, setTodos] = useState<Todo[]>([]);
   const [query, setQuery] = useState<string>('');
   const [
@@ -25,7 +26,10 @@ export const App: React.FC = () => {
   useEffect(() => {
     postService.getTodo(USER_ID)
       .then(setTodos)
-      .catch(() => setErrorMessage(ErrorMessageEnum.TodoLoadError));
+      .catch(() => {
+        setErrorMessage(ErrorMessageEnum.TodoLoadError);
+        setHasMistake(!hasMistake);
+      });
   }, []);
 
   useEffect(() => {
@@ -55,7 +59,7 @@ export const App: React.FC = () => {
     return <UserWarning />;
   }
 
-  const handleFilter = (newFilter: string) => {
+  const handleFilter = (newFilter: Status) => {
     setActiveFilter(newFilter);
   };
 
@@ -66,7 +70,11 @@ export const App: React.FC = () => {
       .then((updatedTodo: Todo) => setTodos(prevTodos => prevTodos
         .map(todo => (todo.id === updatedTodo.id
           ? { ...todo, title: updatedTodo.title }
-          : { ...todo }))));
+          : { ...todo }))))
+      .catch(() => {
+        setErrorMessage(ErrorMessageEnum.UpdateTodoError);
+        setHasMistake(!hasMistake);
+      });
   };
 
   const handleTodoCompletedUpdate = (todoId: number, newCompleted: boolean) => {
@@ -78,7 +86,11 @@ export const App: React.FC = () => {
           return todo.id === updatedTodo.id
             ? { ...todo, completed: newCompleted }
             : { ...todo };
-        })));
+        })))
+      .catch(() => {
+        setErrorMessage(ErrorMessageEnum.UpdateTodoError);
+        setHasMistake(!hasMistake);
+      });
   };
 
   const handleAllTodoCompletedUpdate = () => {
@@ -86,19 +98,15 @@ export const App: React.FC = () => {
     const updatedTodos
     = todos.map(todo => ({ ...todo, completed: newCompleted }));
 
-    const updatePromises
-    = updatedTodos.map(updatedTodo => postService.updateTodo(
+    updatedTodos.map(updatedTodo => postService.updateTodo(
       updatedTodo.id, { completed: updatedTodo.completed },
-    )
-      .catch(() => setErrorMessage(ErrorMessageEnum.UpdateTodoError)));
+    ));
 
-    Promise.all(updatePromises)
-      .then(() => setTodos(
-        prevTodos => prevTodos.map(todo => (
-          { ...todo, completed: newCompleted }
-        )),
-      ))
-      .catch(() => setErrorMessage(ErrorMessageEnum.UpdateTodoError));
+    setTodos(
+      prevTodos => prevTodos.map(todo => (
+        { ...todo, completed: newCompleted }
+      )),
+    );
   };
 
   const handleAddTodo = (e: React.FormEvent<HTMLFormElement>) => {
@@ -119,7 +127,11 @@ export const App: React.FC = () => {
 
     if (newTodo.title.trim()) {
       postService.createTodo(newTodo)
-        .then(() => setTodos([...todos, newTodo]));
+        .then((createdTodo) => setTodos([...todos, createdTodo] as Todo[]))
+        .catch(() => {
+          setErrorMessage(ErrorMessageEnum.AddTodoError);
+          setHasMistake(!hasMistake);
+        });
     }
 
     setQuery('');
@@ -129,20 +141,27 @@ export const App: React.FC = () => {
     postService.deleteTodo(todoId)
       .then(() => setTodos(
         currentTodos => currentTodos.filter(todo => todo.id !== todoId),
-      ));
+      ))
+      .catch(() => {
+        setErrorMessage(ErrorMessageEnum.DeleteTodoError);
+        setHasMistake(!hasMistake);
+      });
   };
 
-  const handleDeleteUncomplete = () => {
-    const updatedTodo = todos.filter(todo => !todo.completed);
+  const allTodoCompleted = todos.every(todo => todo.completed);
 
-    setTodos(updatedTodo);
+  const handleDeleteUncomplete = () => {
+    todos.map(incompleteTodo => (
+      incompleteTodo.completed
+        ? postService.deleteTodo(incompleteTodo.id) : incompleteTodo
+    ));
+
+    setTodos(prevTodos => prevTodos.filter(todo => !todo.completed));
   };
 
   const handleQuery = (event: React.ChangeEvent<HTMLInputElement>) => {
     setQuery(event.target.value);
   };
-
-  const allTodoCompleted = todos.every(todo => todo.completed);
 
   return (
     <div className="todoapp">
@@ -152,7 +171,7 @@ export const App: React.FC = () => {
         <header className="todoapp__header">
           <button
             type="button"
-            className={cn('todoapp__toggle-all', {'active': allTodoCompleted})}
+            className={cn('todoapp__toggle-all', { active: allTodoCompleted })}
             data-cy="ToggleAllButton"
             onClick={handleAllTodoCompletedUpdate}
           />

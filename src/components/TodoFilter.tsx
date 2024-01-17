@@ -1,11 +1,12 @@
 import React from 'react';
 import cn from 'classnames';
 import { Todo } from '../types/Todo';
+import { Status } from '../types/Status';
 
 type Props = {
   todos: Todo[];
   activeFilter: string;
-  onFilterChange: (filter: string) => void;
+  onFilterChange: (filter: Status) => void;
   deleteUncompletedtodos: () => void;
 };
 
@@ -25,13 +26,13 @@ export const TodoFilter: React.FC<Props> = ({
           : `${completedTodos} items left`}
       </span>
 
-      {/* Active filter should have a 'selected' class */}
       <nav className="filter" data-cy="Filter">
         <a
           href="#/"
-          className={cn('filter__link', { selected: activeFilter === 'all' })}
+          className={cn('filter__link',
+            { selected: activeFilter === Status.All })}
           data-cy="FilterLinkAll"
-          onClick={() => onFilterChange('all')}
+          onClick={() => onFilterChange(Status.All)}
         >
           All
         </a>
@@ -39,9 +40,9 @@ export const TodoFilter: React.FC<Props> = ({
         <a
           href="#/active"
           className={cn('filter__link',
-            { selected: activeFilter === 'active' })}
+            { selected: activeFilter === Status.Active })}
           data-cy="FilterLinkActive"
-          onClick={() => onFilterChange('active')}
+          onClick={() => onFilterChange(Status.Active)}
         >
           Active
         </a>
@@ -49,15 +50,14 @@ export const TodoFilter: React.FC<Props> = ({
         <a
           href="#/completed"
           className={cn('filter__link',
-            { selected: activeFilter === 'completed' })}
+            { selected: activeFilter === Status.Completed })}
           data-cy="FilterLinkCompleted"
-          onClick={() => onFilterChange('completed')}
+          onClick={() => onFilterChange(Status.Completed)}
         >
           Completed
         </a>
       </nav>
 
-      {/* don't show this button if there are no completed todos */}
       <button
         type="button"
         className="todoapp__clear-completed"
