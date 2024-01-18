@@ -41,15 +41,17 @@ export const TodoItem: React.FC<Props> = ({
   const completeEditing = () => {
     setEditing(false);
 
+    const updatedTodo = {
+      ...todo,
+      title: newTitle,
+    };
+
     if (newTitle !== title) {
-      setTemptTodo({
-        ...todo,
-        title: newTitle,
-      });
+      setTemptTodo(updatedTodo);
     }
 
     todosService.updateTodo(id, newTitle)
-      .then((updatedTodo) => {
+      .then(() => {
         const updatedTodos = todos
           .map(t => (t.id === id ? updatedTodo : t));
 
