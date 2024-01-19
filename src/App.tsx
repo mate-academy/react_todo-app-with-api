@@ -190,6 +190,7 @@ export const App: React.FC = () => {
               onClick={handleToggleAll}
             />
           )}
+
           <form onSubmit={(event) => handleSubmit(event)}>
             <input
               type="text"
