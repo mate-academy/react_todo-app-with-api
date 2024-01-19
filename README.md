@@ -1,48 +1,50 @@
-# React Todo App with API (complete)
+# React Todo App with API
 
-It is the third part of the React Todo App with API.
+1. Short Project Description:
+   Experience productivity redefined with our React Todo App with API integration. This feature-packed application not only allows you to manage your to-dos efficiently but also boasts advanced functionalities for seamless task handling.
 
-Take your code implemented for [Add and Delete](https://github.com/mate-academy/react_todo-app-add-and-delete)
-and implement the ability to toggle and rename todos.
+2. Project Links:
 
-> Here is [the working example](https://mate-academy.github.io/react_todo-app-with-api/)
+   - [DEMO LINK](https://baraban2003.github.io/react_todo-app-with-api/)
 
-## Toggling a todo status
+3. Key Features:
+   Toggling Todo Status
+   Effortlessly toggle the completed status of your todos with intuitive interactions:
 
-Toggle the `completed` status on `TodoStatus` change:
+- Gracefully cover todos with a loader overlay during API response wait times.
+- Instantly reflect status changes on API success.
+- Receive a user-friendly Unable to update a todo notification in case of API errors.
 
-- covered the todo with a loader overlay while waiting for API response;
-- the status should be changed on success;
-- show the `Unable to update a todo` notification in case of API error.
+Toggle the completed status of all todos with the toggleAll checkbox:
 
-Add the ability to toggle the completed status of all the todos with the `toggleAll` checkbox:
+- Dynamically update the toggleAll button with an active class only if all todos are completed.
+- One-click toggling changes the status for all todos, mimicking individual updates.
+- Efficiently manage API requests, sending updates only for todos with changed statuses.
 
-- `toggleAll` button should have `active` class only if all the todos are completed;
-- `toggleAll` click changes its status to the opposite one, and sets this new status to all the todos;
-- it should work the same as several individual updates of the todos which statuses were actually changed;
-- do send requests for the todos that were not changed;
+Renaming a Todo
+Easily edit todo titles with a few simple actions:
 
-## Renaming a todo
+- Activate the edit form on double-click, replacing the title and remove button.
+- Save changes seamlessly on form submission (press Enter) or when the field loses focus (onBlur).
+- Cancel editing on Esc key keyup event or if the new title is the same as the old one.
+- Delete the todo if the new title is empty, replicating the x button's functionality.
+- Display a loader during API response wait times for title changes.
+- Update the todo title on success and notify users of errors with Unable to update a todo or deletion error messages.
 
-Implement the ability to edit a todo title on double click:
+Technologies Used:
+Revolutionize your development experience with the latest technologies:
 
-- show the edit form instead of the title and remove button;
-- saves changes on the form submit (just press `Enter`);
-- save changes when the field loses focus (`onBlur`);
-- if the new title is the same as the old one just cancel editing;
-- cancel editing on `Esс` key `keyup` event;
-- if the new title is empty delete the todo the same way the `x` button does it;
-- if the title was changed show the loader while waiting for the API response;
-- update the todo title on success;
-- show `Unable to update a todo` in case of API error;
-- or the deletion error message if we tried to delete the todo.
+- React v18.2.0
+- React DOM v18.2.0
+- Classnames
+- Node-sass
+- TypeScript
 
-## If you want to enable tests
-- open `cypress/integration/page.spec.js`
-- replace `describe.skip` with `describe` for the root `describe`
+4. Manual for Starting the Project (Using Webpack):
 
-## Instructions
-
-- Implement a solution following the [React task guideline](https://github.com/mate-academy/react_task-guideline#react-tasks-guideline).
-- Use the [React TypeScript cheat sheet](https://mate-academy.github.io/fe-program/js/extra/react-typescript).
-- Replace `<your_account>` with your Github username in the [DEMO LINK](https://<your_account>.github.io/react_todo-app-with-api/) and add it to the PR description.
+- Clone the repository to your local machine.
+- Navigate to the project directory using the command line.
+- Install project dependencies using npm install.
+- Run the development server with npm start.
+- Access the application in your browser at http://localhost:3000.
+- Get ready to streamline your task management with our cutting-edge React Todo App!
