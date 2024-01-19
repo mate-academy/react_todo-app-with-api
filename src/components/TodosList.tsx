@@ -15,11 +15,11 @@ export const TodosList: FC<Props> = ({ todos }) => {
   const { setError } = useError();
 
   const handleDeleteFromInProcess = (id: number) => {
-    const idx = inProcess.findIndex((todoId) => todoId === id);
+    const updatedInProcess = inProcess.filter((todoId) => todoId !== id);
 
     dispatch({
       type: 'setInProcess',
-      payload: [...inProcess].splice(idx, 1),
+      payload: updatedInProcess,
     });
   };
 
