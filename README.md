@@ -1,7 +1,7 @@
 # React Todo App with API
 
 1. Short Project Description:
-   Experience productivity redefined with our React Todo App with API integration. This feature-packed application not only allows you to manage your to-dos efficiently but also boasts advanced functionalities for seamless task handling.
+   Manage your tasks more efficiently with our React Todo App. Packed with advanced functionalities and API integration, this app ensures seamless task handling.
 
 2. Project Links:
 
@@ -17,19 +17,19 @@
 
 Toggle the completed status of all todos with the toggleAll checkbox:
 
-- Dynamically update the toggleAll button with an active class only if all todos are completed.
+- Dynamically update the toggle button with an active class only if all todos are completed.
 - One-click toggling changes the status for all todos, mimicking individual updates.
 - Efficiently manage API requests, sending updates only for todos with changed statuses.
 
 Renaming a Todo
 Easily edit todo titles with a few simple actions:
 
-- Activate the edit form on double-click, replacing the title and remove button.
+- Activate the edit form by double-clicking, replacing the title, and removing the button.
 - Save changes seamlessly on form submission (press Enter) or when the field loses focus (onBlur).
-- Cancel editing on Esc key keyup event or if the new title is the same as the old one.
+- Cancel editing on the Esc key key up event or if the new title is the same as the old one.
 - Delete the todo if the new title is empty, replicating the x button's functionality.
 - Display a loader during API response wait times for title changes.
-- Update the todo title on success and notify users of errors with Unable to update a todo or deletion error messages.
+- Update the todo title on success and notify users of errors with Unable to update a todo or deletion error message.
 
 Technologies Used:
 Revolutionize your development experience with the latest technologies:
@@ -47,4 +47,4 @@ Revolutionize your development experience with the latest technologies:
 - Install project dependencies using npm install.
 - Run the development server with npm start.
 - Access the application in your browser at http://localhost:3000.
-- Get ready to streamline your task management with our cutting-edge React Todo App!
+- Get ready to streamline task management with our cutting-edge React Todo App!
