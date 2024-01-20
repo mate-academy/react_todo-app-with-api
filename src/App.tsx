@@ -153,7 +153,6 @@ export const App: React.FC = () => {
         </header>
 
         {!loading
-          && !errorMessage
           && todos
           && (
             <TodoList

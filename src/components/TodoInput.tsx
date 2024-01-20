@@ -45,7 +45,6 @@ export const TodoInput: React.FC<Props> = ({ onSubmit, setHasTitleError }) => {
   };
 
   return (
-
     <form onSubmit={handleSubmit}>
       <input
         ref={inputField}
@@ -56,7 +55,6 @@ export const TodoInput: React.FC<Props> = ({ onSubmit, setHasTitleError }) => {
         value={title}
         onChange={handleChange}
         disabled={isSubmitting}
-        required
       />
     </form>
 

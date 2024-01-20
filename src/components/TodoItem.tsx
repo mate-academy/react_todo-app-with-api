@@ -44,27 +44,29 @@ export const TodoItem: React.FC<Props> = memo(({
     }
   }
 
-  const onSubmit = async () => {
-    if (title === newTitle) {
+  const handleOnKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
+    if (event.key === 'Enter') {
+      if (event.target.value.trim() === '') {
+        onDelete(id);
+
+        return;
+      }
+      if (onUpdateTodo) {
+        onUpdateTodo({
+          ...todoItem,
+          title: newTitle.trim(),
+        });
+      }
+      setEditing(false);
+    }
+
+    if (event.key === 'Escape') {
       setEditing(false);
 
-      return;
+      setNewTitle(title);
     }
-
-    if (onUpdateTodo) {
-      await onUpdateTodo({
-        ...todoItem,
-        title: newTitle.trim(),
-      });
-    }
-
-    setEditing(false);
   };
 
-  const handleEdit = () => {
-    setNewTitle(title);
-    setEditing(false);
-  };
 
   return (
     <div
@@ -91,8 +93,6 @@ export const TodoItem: React.FC<Props> = memo(({
         editing
           ? (
             <form
-              onSubmit={onSubmit}
-              onBlur={onSubmit}
             >
               <input
                 ref={inputRef}
@@ -102,11 +102,16 @@ export const TodoItem: React.FC<Props> = memo(({
                 placeholder="Empty todo will be deleted"
                 value={newTitle}
                 onChange={event => setNewTitle(event.target.value)}
-                onDoubleClick={handleEdit}
+                onBlur={() => setEditing(false)}
+                onKeyDown={handleOnKeyDown}
               />
             </form>
           ) : (
-            <span data-cy="TodoTitle" className="todo__title">
+            <span
+              data-cy="TodoTitle"
+              className="todo__title"
+              onDoubleClick={() => setEditing(true)}
+            >
               {title}
             </span>
           )

@@ -1,50 +1,57 @@
 # React Todo App with API
 
 1. Short Project Description:
-   Manage your tasks more efficiently with our React Todo App. Packed with advanced functionalities and API integration, this app ensures seamless task handling.
+   This React project implements a todo list application with key features such as adding, updating, and deleting todos. The application provides an interactive user interface, allowing users to mark todos as completed, edit their titles, and delete them. Additionally, it includes features like double-click to edit and real-time loading indicators for asynchronous operations. The code emphasizes a modular component-based structure and integrates error handling for a seamless user experience.
 
 2. Project Links:
 
    - [DEMO LINK](https://baraban2003.github.io/react_todo-app-with-api/)
 
-3. Key Features:
-   Toggling Todo Status
-   Effortlessly toggle the completed status of your todos with intuitive interactions:
+3. Main requirements:
 
-- Gracefully cover todos with a loader overlay during API response wait times.
-- Instantly reflect status changes on API success.
-- Receive a user-friendly Unable to update a todo notification in case of API errors.
+   - Add a todo with the entered title on the form submit.
+   - Remove a todo on the TodoDeleteButton click.
+   - Remove all the completed todos after the Clear completed button click.
+   - Toggle the completed status on TodoStatus change.
+   - Add the ability to toggle the completed status of all the todos with the toggleAll checkbox.
+   - Implement the ability to edit a todo title on double click.
 
-Toggle the completed status of all todos with the toggleAll checkbox:
+4. Technologies Used:
 
-- Dynamically update the toggle button with an active class only if all todos are completed.
-- One-click toggling changes the status for all todos, mimicking individual updates.
-- Efficiently manage API requests, sending updates only for todos with changed statuses.
+   - React
+   - React router
+   - Classnames
+   - Node-sass
+   - TypeScript
+   - bulma
+   - API
 
-Renaming a Todo
-Easily edit todo titles with a few simple actions:
+5. Manual for Starting the Project (Using Webpack):
 
-- Activate the edit form by double-clicking, replacing the title, and removing the button.
-- Save changes seamlessly on form submission (press Enter) or when the field loses focus (onBlur).
-- Cancel editing on the Esc key key up event or if the new title is the same as the old one.
-- Delete the todo if the new title is empty, replicating the x button's functionality.
-- Display a loader during API response wait times for title changes.
-- Update the todo title on success and notify users of errors with Unable to update a todo or deletion error message.
+Clone the Repository:
 
-Technologies Used:
-Revolutionize your development experience with the latest technologies:
-
-- React v18.2.0
-- React DOM v18.2.0
-- Classnames
-- Node-sass
-- TypeScript
-
-4. Manual for Starting the Project (Using Webpack):
-
-- Clone the repository to your local machine.
-- Navigate to the project directory using the command line.
-- Install project dependencies using npm install.
-- Run the development server with npm start.
-- Access the application in your browser at http://localhost:3000.
-- Get ready to streamline task management with our cutting-edge React Todo App!
+- Open a terminal window.
+- Run the following command to clone the repository to your local machine:
+  git clone https://github.com/baraban2003/react_todo-app-with-api.git
+- Navigate to the project directory:
+  cd <project-directory>
+  Install Dependencies:
+- Ensure you have Node.js and npm installed on your machine.
+- If not, download and install them from Node.js official website (https://nodejs.org/en).
+- Check the Node.js and npm versions installed:
+  Copy code:
+  node -v
+  npm -v
+- Install project dependencies using the following command:
+  Copy code:
+  npm install
+- Start the development server with the following command:
+  Copy code:
+  npm start
+- Access the Application:
+  Once the server is running, open your web browser.
+  -Access the application at http://localhost:3000.
+- Dependencies Used:  
+   Node.js version: v14.21.3
+  npm version: 6.14.18
+  Other project dependencies are managed through npm and specified in the project's package.json file.
