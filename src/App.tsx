@@ -157,6 +157,9 @@ export const App: React.FC = () => {
   const toggleAll = (toggle: boolean) => {
     setErrorMessage('');
 
+    setTodos(currentTodos => currentTodos
+      .map(todo => ({ ...todo, loading: true })));
+
     const toggeledPromises = todos
       .map((todo) => todosService.updateTodo({
         ...todo,
