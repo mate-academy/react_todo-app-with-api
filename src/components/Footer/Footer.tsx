@@ -29,21 +29,19 @@ export const Footer:React.FC = memo(() => {
     });
 
     Promise.all(
-      todos
-        .filter(todo => todo.completed)
-        .map(todo => todoService.deleteTodo(todo.id)
+      complitedTodoIDs
+        .map(id => todoService.deleteTodo(id)
           .then(() => dispatch({
             type: ActionType.Delete,
-            payload: todo.id,
+            payload: id,
           }))
           .catch(() => dispatch({
             type: ActionType.SetError,
-            payload: ShowError.createTodo,
+            payload: ShowError.deleteTodo,
           }))),
-    ).finally(() => dispatch({
-      type: ActionType.SetLoadingIDs,
-      payload: [],
-    }));
+    ).finally(() => {
+      dispatch({ type: ActionType.ClearLoadingIDs });
+    });
   };
 
   const isEmptyTodos = useMemo(() => {

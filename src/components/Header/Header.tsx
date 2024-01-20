@@ -16,7 +16,7 @@ export const Header:React.FC = memo(() => {
 
   const inputNewTitleRef = useRef<HTMLInputElement>(null);
 
-  const completedAll = useMemo(
+  const isAllCompleted = useMemo(
     () => todos.every(todo => todo.completed),
     [todos],
   );
@@ -47,7 +47,6 @@ export const Header:React.FC = memo(() => {
       return;
     }
 
-    // dispatch({ type: ActionType.SetIsLoading });
     dispatch({ type: ActionType.SetLoadingIDs, payload: [0] });
 
     dispatch({
@@ -72,21 +71,54 @@ export const Header:React.FC = memo(() => {
       .finally(() => {
         dispatch({ type: ActionType.ClearTempTodo });
         dispatch({ type: ActionType.ClearLoadingIDs });
-        // dispatch({ type: ActionType.ClearIsLoading });
       });
+  };
+
+  const toggleAll = () => {
+    const completedTodos = todos.filter(todo => todo.completed);
+    const notCompletedTodos = todos.filter(todo => !todo.completed);
+    const toggleAllTodos = isAllCompleted
+      ? completedTodos
+      : notCompletedTodos;
+    const allTodosIds = toggleAllTodos.map(todo => todo.id);
+
+    dispatch({
+      type: ActionType.SetLoadingIDs,
+      payload: allTodosIds,
+    });
+
+    Promise.all(
+      toggleAllTodos
+        .map(todo => todoService.updateTodo(
+          todo.id, { ...todo, completed: !todo.completed },
+        )
+          .then(() => dispatch({
+            type: ActionType.Toggle,
+            payload: todo.id,
+          }))
+          .catch(() => dispatch({
+            type: ActionType.SetError,
+            payload: ShowError.updateTodo,
+          }))),
+    ).finally(() => {
+      dispatch({ type: ActionType.ClearLoadingIDs });
+    });
   };
 
   return (
     <header className="todoapp__header">
-      <button
-        className={cn(
-          'todoapp__toggle-all',
-          { active: completedAll },
-        )}
-        type="button"
-        data-cy="ToggleAllButton"
-        aria-label="toggle-all"
-      />
+      {todos.length > 0 && (
+        <button
+          className={cn(
+            'todoapp__toggle-all',
+            { active: isAllCompleted },
+          )}
+          type="button"
+          data-cy="ToggleAllButton"
+          aria-label="toggle-all"
+          onClick={toggleAll}
+        />
+      )}
 
       <form onSubmit={handleSubmitCreateTodo}>
         <input

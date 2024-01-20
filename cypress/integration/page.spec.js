@@ -818,7 +818,7 @@ describe('', () => {
     });
   });
 
-  describe.skip('Group Todo Deletion', () => {
+  describe('Group Todo Deletion', () => {
     describe('with no completed todos', () => {
       beforeEach(() => {
         page.mockLoad({ fixture: 'active-todos' }).as('loadRequest');
@@ -948,7 +948,7 @@ describe('', () => {
     });
   });
 
-  describe.skip('Todo Toggling', () => {
+  describe('Todo Toggling', () => {
     beforeEach(() => {
       page.mockLoad().as('loadRequest');
       page.visit();
@@ -1100,7 +1100,7 @@ describe('', () => {
     });
   });
 
-  describe.skip('Toggle All Button', () => {
+  describe('Toggle All Button', () => {
     describe('if there are no todos', () => {
       it('should not be visible while loading todos', () => {
         page.mockLoad({ body: [] }).as('loadRequest');
@@ -1354,7 +1354,7 @@ describe('', () => {
     });
   });
 
-  describe.skip('Renaming', () => {
+  describe('Renaming', () => {
     beforeEach(() => {
       page.mockLoad().as('loadRequest');
       page.visit();

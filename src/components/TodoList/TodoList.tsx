@@ -17,41 +17,9 @@ export const TodoList:React.FC = memo(() => {
             timeout={300}
             classNames="item"
           >
-            <TodoItem
-              key={todo.id}
-              todo={todo}
-            />
+            <TodoItem todo={todo} key={todo.id} />
           </CSSTransition>
         ))}
-
-        {/* This todo is being edited */}
-        {false && (
-          <div data-cy="Todo" className="todo">
-            <label className="todo__status-label" aria-label="status">
-              <input
-                data-cy="TodoStatus"
-                type="checkbox"
-                className="todo__status"
-              />
-            </label>
-
-            {/* This form is shown instead of the title and remove button */}
-            <form>
-              <input
-                data-cy="TodoTitleField"
-                type="text"
-                className="todo__title-field"
-                placeholder="Empty todo will be deleted"
-                value="Todo is being edited now"
-              />
-            </form>
-
-            <div data-cy="TodoLoader" className="modal overlay">
-              <div className="modal-background has-background-white-ter" />
-              <div className="loader" />
-            </div>
-          </div>
-        )}
 
         {tempTodo && (
           <CSSTransition
@@ -59,36 +27,7 @@ export const TodoList:React.FC = memo(() => {
             timeout={300}
             classNames="temp-item"
           >
-            {/* <div data-cy="Todo" className="todo">
-              <label className="todo__status-label" aria-label="status">
-                <input
-                  data-cy="TodoStatus"
-                  type="checkbox"
-                  className="todo__status"
-                />
-              </label>
-
-              <span data-cy="TodoTitle" className="todo__title">
-                {tempTodo.title}
-              </span>
-
-              <button
-                type="button"
-                className="todo__remove"
-                data-cy="TodoDelete"
-              >
-                ×
-              </button>
-
-              <div data-cy="TodoLoader" className="modal overlay is-active">
-                <div className="modal-background has-background-white-ter" />
-                <div className="loader" />
-              </div>
-            </div> */}
-            <TodoItem
-              // key={tempTodo.id}
-              todo={tempTodo}
-            />
+            <TodoItem todo={tempTodo} />
           </CSSTransition>
         )}
       </TransitionGroup>
