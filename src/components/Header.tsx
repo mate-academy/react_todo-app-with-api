@@ -4,6 +4,7 @@ import {
   useRef,
   useState,
 } from 'react';
+import cn from 'classnames';
 
 interface Props {
   addTempTodo: (title: string) => void,
@@ -38,7 +39,9 @@ export const Header: React.FC<Props> = memo(({
       <button
         aria-label="toggleAll"
         type="button"
-        className={`todoapp__toggle-all ${allCompleted && 'active'}`}
+        className={cn('todoapp__toggle-all', {
+          active: allCompleted,
+        })}
         data-cy="ToggleAllButton"
         onClick={toggleAllTodos}
       />

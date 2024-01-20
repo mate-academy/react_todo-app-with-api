@@ -1,6 +1,7 @@
 import React, {
   useCallback, useEffect, useRef, useState,
 } from 'react';
+import cn from 'classnames';
 import { Todo } from '../types/Todo';
 
 interface Props {
@@ -83,7 +84,9 @@ export const TodoItem: React.FC<Props> = ({
   return (
     <li
       data-cy="Todo"
-      className={`todo ${completed && 'completed'}`}
+      className={cn('todo', {
+        completed,
+      })}
       key={id}
       onDoubleClick={() => setIsEditing(true)}
       onBlur={handleRename}
@@ -132,9 +135,9 @@ export const TodoItem: React.FC<Props> = ({
 
             <div
               data-cy="TodoLoader"
-              className={`modal overlay ${
-                loader && 'is-active'
-              }`}
+              className={cn('modal overlay', {
+                'is-active': loader,
+              })}
             >
               <div className="modal-background has-background-white-ter" />
               <div className="loader" />

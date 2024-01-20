@@ -1,4 +1,5 @@
 import { memo } from 'react';
+import cn from 'classnames';
 import { Filter } from '../types/enums/filter';
 
 interface Props {
@@ -24,7 +25,9 @@ export const Footer: React.FC<Props> = memo(({
     <nav className="filter" data-cy="Filter">
       <a
         href="#/"
-        className={`filter__link ${filter === Filter.All && 'selected'}`}
+        className={cn('filter__link', {
+          selected: filter === Filter.All,
+        })}
         data-cy="FilterLinkAll"
         onClick={() => filterTodos(Filter.All)}
       >
@@ -33,7 +36,9 @@ export const Footer: React.FC<Props> = memo(({
 
       <a
         href="#/active"
-        className={`filter__link ${filter === Filter.Active && 'selected'}`}
+        className={cn('filter__link', {
+          selected: filter === Filter.Active,
+        })}
         data-cy="FilterLinkActive"
         onClick={() => filterTodos(Filter.Active)}
       >
@@ -42,7 +47,9 @@ export const Footer: React.FC<Props> = memo(({
 
       <a
         href="#/completed"
-        className={`filter__link ${filter === Filter.Completed && 'selected'}`}
+        className={cn('filter__link', {
+          selected: filter === Filter.Completed,
+        })}
         data-cy="FilterLinkCompleted"
         onClick={() => filterTodos(Filter.Completed)}
       >

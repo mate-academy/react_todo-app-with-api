@@ -61,7 +61,7 @@ export const App: React.FC = () => {
 
   const isCompletedTodos = useMemo(() => {
     return todos
-      .filter(todo => todo.completed === true).length > 0;
+      .filter(todo => todo.completed).length > 0;
   }, [todos]);
 
   const addNewTodo = useCallback((title: string) => {
