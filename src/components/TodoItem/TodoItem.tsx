@@ -3,7 +3,6 @@ import { Todo } from '../../types/Todo';
 
 type Props = {
   todo: Todo;
-  selectedId?: number;
   loading?: boolean;
   onDelete?: (id: number) => void;
   updateTodo?: (todo: Todo) => void;
@@ -13,17 +12,12 @@ type Props = {
 
 export const TodoItem: React.FC<Props> = ({
   todo,
-  selectedId,
   onDelete,
   updateTodo,
-  loadingClearCompleted,
 }) => {
   const {
-    title, completed, id, userId,
+    title, completed, id, userId, loading,
   } = todo;
-
-  const isLoading = id === selectedId
-    || (loadingClearCompleted && completed);
 
   const handleCompleted = () => {
     if (updateTodo) {
@@ -32,6 +26,7 @@ export const TodoItem: React.FC<Props> = ({
         id,
         title,
         completed: !completed,
+        loading: true,
       });
     }
   };
@@ -69,7 +64,7 @@ export const TodoItem: React.FC<Props> = ({
           data-cy="TodoLoader"
           className={classNames(
             'modal overlay', {
-              'is-active': isLoading,
+              'is-active': loading,
             },
           )}
         >

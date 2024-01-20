@@ -8,7 +8,8 @@ type Props = {
   onSubmit: (title: string) => Promise<void>;
   error: string;
   setError: (er: string) => void;
-  loading: boolean;
+  isListLoading: boolean;
+  setIsListLoading: (value: boolean) => void;
   toggleAll: (value: boolean) => void;
 };
 
@@ -18,12 +19,12 @@ export const Header: React.FC<Props> = ({
   onSubmit,
   error,
   setError,
-  loading,
+  isListLoading,
+  setIsListLoading,
   toggleAll,
 }) => {
   const [title, setTitle] = useState('');
   const [toggle, setToggle] = useState(false);
-  const [isProcesing, setIsProcesing] = useState(false);
 
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -31,7 +32,7 @@ export const Header: React.FC<Props> = ({
     if (inputRef.current) {
       inputRef.current.focus();
     }
-  }, [isProcesing]);
+  }, [isListLoading]);
 
   const reset = () => {
     setTitle('');
@@ -40,7 +41,7 @@ export const Header: React.FC<Props> = ({
 
   const handleSubmit = (event: React.FormEvent) => {
     event.preventDefault();
-    setIsProcesing(true);
+    setIsListLoading(true);
 
     if (!title.trim()) {
       setError(ErrorMessage.EmptyTitle);
@@ -55,7 +56,7 @@ export const Header: React.FC<Props> = ({
           reset();
         }
       })
-      .finally(() => setIsProcesing(false));
+      .finally(() => setIsListLoading(false));
   };
 
   const handleTitleChage = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -90,7 +91,7 @@ export const Header: React.FC<Props> = ({
           className="todoapp__new-todo"
           placeholder="What needs to be done?"
           ref={inputRef}
-          disabled={loading}
+          disabled={isListLoading}
         />
       </form>
     </header>

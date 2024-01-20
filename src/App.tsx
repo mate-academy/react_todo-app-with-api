@@ -14,11 +14,9 @@ const USER_ID = 11984;
 export const App: React.FC = () => {
   const [todos, setTodos] = useState<Todo[]>([]);
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
-  const [loading, setLoading] = useState(false);
-  const [selectedId, setSelectedId] = useState(-1);
+  const [isListLoading, setIsListLoading] = useState(false);
   const [selectedFilter, setSelectedFilter] = useState(FilterType.ALL);
   const [errorMessage, setErrorMessage] = useState('');
-  const [loadingClearCompleted, setLoadingClearCompleted] = useState(false);
 
   const completedTodos = todos.filter(todo => todo.completed);
   const unComletedTodos = todos.filter(todo => !todo.completed);
@@ -29,10 +27,10 @@ export const App: React.FC = () => {
     todosService.getTodos(USER_ID)
       .then((tasks) => {
         setTodos(tasks);
-        setLoading(true);
+        setIsListLoading(true);
       })
       .catch(() => setErrorMessage(ErrorMessage.UnableToLoad))
-      .finally(() => setLoading(false));
+      .finally(() => setIsListLoading(false));
   }, []);
 
   const handleFilterChange = (filter: FilterType) => setSelectedFilter(filter);
@@ -52,14 +50,13 @@ export const App: React.FC = () => {
 
   const addTodo = (title: string) => {
     setErrorMessage('');
-    setLoading(true);
-    setSelectedId(0);
 
     setTempTodo({
       id: 0,
       userId: USER_ID,
       title,
       completed: false,
+      loading: true,
     });
 
     const request = todosService.createTodo({
@@ -68,16 +65,19 @@ export const App: React.FC = () => {
       completed: false,
     })
       .then(newTodo => {
-        setTodos(currentTodos => [...currentTodos, newTodo]);
+        const addedTodo = {
+          ...newTodo,
+          loading: false,
+        };
+
+        setTodos(currentTodos => [...currentTodos, addedTodo]);
       })
       .catch((error) => {
         setErrorMessage(ErrorMessage.UnableToAdd);
         throw error;
       })
       .finally(() => {
-        setLoading(false);
         setTempTodo(null);
-        setSelectedId(-1);
       });
 
     return request;
@@ -85,8 +85,10 @@ export const App: React.FC = () => {
 
   const deleteTodo = (todoId: number) => {
     setErrorMessage('');
-    setLoading(true);
-    setSelectedId(todoId);
+    setIsListLoading(true);
+
+    setTodos(currentTodos => currentTodos.map(todo => (todo.id === todoId
+      ? { ...todo, loading: true } : todo)));
 
     return todosService.deleteTodo(todoId)
       .then(() => {
@@ -98,40 +100,40 @@ export const App: React.FC = () => {
         throw error;
       })
       .finally(() => {
-        setLoading(false);
-        setSelectedId(-1);
+        setIsListLoading(false);
       });
   };
 
   const updateTodo = (updatedTodo: Todo) => {
     setErrorMessage('');
-    setLoading(true);
-    setSelectedId(updatedTodo.id);
+
+    setTodos(currentTodos => currentTodos
+      .map(todo => (todo.id === updatedTodo.id
+        ? { ...todo, loading: true } : todo)));
 
     return todosService.updateTodo(updatedTodo)
       .then((todo) => {
-        setTodos(currentTodos => {
-          const newTodos = [...currentTodos];
-          const index = newTodos.findIndex(task => task.id === updatedTodo.id);
-
-          newTodos.splice(index, 1, todo);
-
-          return newTodos;
-        });
+        setTodos(currentTodos => currentTodos
+          .map(currentTodo => (todo.id === currentTodo.id
+            ? todo : currentTodo)));
       })
       .catch((error) => {
         setErrorMessage(ErrorMessage.UnableToUpdate);
         throw error;
       })
       .finally(() => {
-        setLoading(false);
-        setSelectedId(-1);
+        setTodos(currentTodos => currentTodos
+          .map(todo => (todo.id === updatedTodo.id
+            ? { ...todo, loading: false } : todo)));
       });
   };
 
   const clearCompleted = () => {
     setErrorMessage('');
-    setLoadingClearCompleted(true);
+    setIsListLoading(true);
+
+    setTodos(currentTodos => currentTodos.map(todo => (todo.completed
+      ? { ...todo, loading: true } : todo)));
 
     const deletePromises = completedTodos
       .map((todo) => todosService.deleteTodo(todo.id));
@@ -146,7 +148,9 @@ export const App: React.FC = () => {
         throw error;
       })
       .finally(() => {
-        setLoadingClearCompleted(false);
+        setTodos(currentTodos => currentTodos.map(todo => (todo.completed
+          ? { ...todo, loading: false } : todo)));
+        setIsListLoading(false);
       });
   };
 
@@ -182,18 +186,16 @@ export const App: React.FC = () => {
                 onSubmit={addTodo}
                 error={errorMessage}
                 setError={setErrorMessage}
-                loading={loading}
+                isListLoading={isListLoading}
+                setIsListLoading={setIsListLoading}
                 toggleAll={toggleAll}
               />
               <TodoList
                 todos={visibleTodos}
                 tempTodo={tempTodo}
-                selectedId={selectedId}
-                loading={loading}
                 onDelete={deleteTodo}
                 updateTodo={updateTodo}
                 completedTodos={completedTodos}
-                loadingClearCompleted={loadingClearCompleted}
               />
 
               {todos.length > 0 && (
