@@ -14,7 +14,7 @@ export const TodoList: React.FC<Props> = memo(({
   todos, tempTodo, deleteTodo, loadingTodoIds, updateTodo,
 }) => {
   return (
-    <section className="todoapp__main" data-cy="TodoList">
+    <ul className="todoapp__main" data-cy="TodoList">
       {todos.map(({ title, completed, id }) => (
         <TodoItem
           title={title}
@@ -36,6 +36,6 @@ export const TodoList: React.FC<Props> = memo(({
           updateTodo={updateTodo}
         />
       )}
-    </section>
+    </ul>
   );
 });

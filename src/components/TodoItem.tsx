@@ -13,7 +13,12 @@ interface Props {
 }
 
 export const TodoItem: React.FC<Props> = ({
-  id, completed, title, deleteTodo, isLoading = false, updateTodo,
+  id,
+  completed,
+  title,
+  deleteTodo,
+  isLoading = false,
+  updateTodo,
 }) => {
   const [loader, setLoader] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
@@ -55,7 +60,7 @@ export const TodoItem: React.FC<Props> = ({
   };
 
   const handleRename
-    = (e: React.FormEvent<HTMLFormElement | HTMLDivElement>) => {
+    = (e: React.FormEvent<HTMLFormElement | HTMLLIElement>) => {
       e.preventDefault();
 
       if (newTitle === title) {
@@ -64,7 +69,7 @@ export const TodoItem: React.FC<Props> = ({
         return;
       }
 
-      if (newTitle.trim() === '') {
+      if (!newTitle.trim()) {
         setIsEditing(false);
         deleteTodo(id);
 
@@ -76,7 +81,7 @@ export const TodoItem: React.FC<Props> = ({
     };
 
   return (
-    <div
+    <li
       data-cy="Todo"
       className={`todo ${completed && 'completed'}`}
       key={id}
@@ -136,6 +141,6 @@ export const TodoItem: React.FC<Props> = ({
             </div>
           </>
         )}
-    </div>
+    </li>
   );
 };

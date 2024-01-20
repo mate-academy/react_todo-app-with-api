@@ -1,10 +1,16 @@
 import React, {
-  useCallback, useEffect, useMemo, useState,
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
 } from 'react';
 import { UserWarning } from './UserWarning';
 import { TodoList } from './components/TodoList';
 import {
-  addTodo, deleteTodo, getTodos, patchTodo,
+  addTodo,
+  deleteTodo,
+  getTodos,
+  patchTodo,
 } from './api/todos';
 import { Todo } from './types/Todo';
 import { Footer } from './components/Footer';
@@ -50,7 +56,7 @@ export const App: React.FC = () => {
   }, [todos, filter, filterTodos]);
 
   const activeTodosCount = useMemo(() => {
-    return todos.filter(todo => todo.completed !== true).length;
+    return todos.filter(todo => !todo.completed).length;
   }, [todos]);
 
   const isCompletedTodos = useMemo(() => {
@@ -59,7 +65,7 @@ export const App: React.FC = () => {
   }, [todos]);
 
   const addNewTodo = useCallback((title: string) => {
-    if (title.trim() === '') {
+    if (!title.trim()) {
       setError(Error.NoTitle);
 
       return;
@@ -163,6 +169,24 @@ export const App: React.FC = () => {
       .finally(() => setLoadingTodoIds([]));
   };
 
+  const clearCompletedTodos = () => {
+    const completedTodoIds = todos
+      .filter(todo => todo.completed)
+      .map(todo => todo.id);
+
+    setLoadingTodoIds(completedTodoIds);
+
+    const deletePromises = completedTodoIds
+      .map(todoId => deleteTodo(todoId));
+
+    Promise.all(deletePromises)
+      .then(() => {
+        setTodos(prev => prev.filter(todo => !todo.completed));
+      })
+      .catch(() => setError(Error.UnableToDelete))
+      .finally(() => setLoadingTodoIds([]));
+  };
+
   if (!USER_ID) {
     return <UserWarning />;
   }
@@ -188,6 +212,8 @@ export const App: React.FC = () => {
           filterTodos={setFilter}
           isCompletedTodos={isCompletedTodos}
           activeTodosCount={activeTodosCount}
+          filter={filter}
+          clearCompletedTodos={clearCompletedTodos}
         />
         {error && <ErrorMessage error={error} close={() => setError(null)} />}
       </div>
