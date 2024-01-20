@@ -1,4 +1,6 @@
-import { memo, useContext, useMemo } from 'react';
+import {
+  memo, useCallback, useContext, useMemo,
+} from 'react';
 import * as todoService from '../../api/todos';
 
 import { DispatchContext, StateContext } from '../../store/store';
@@ -22,27 +24,28 @@ export const Footer:React.FC = memo(() => {
     [todos, complitedTodoIDs],
   );
 
-  const deleteComplitedTodos = () => {
-    dispatch({
-      type: ActionType.SetLoadingIDs,
-      payload: complitedTodoIDs,
-    });
+  const isDisabled = useMemo(
+    () => !complitedTodoIDs.length,
+    [complitedTodoIDs],
+  );
 
-    Promise.all(
-      complitedTodoIDs
-        .map(id => todoService.deleteTodo(id)
-          .then(() => dispatch({
-            type: ActionType.Delete,
-            payload: id,
-          }))
-          .catch(() => dispatch({
-            type: ActionType.SetError,
-            payload: ShowError.deleteTodo,
-          }))),
-    ).finally(() => {
-      dispatch({ type: ActionType.ClearLoadingIDs });
-    });
-  };
+  const deleteComplitedTodos = useCallback(
+    () => {
+      dispatch({ type: ActionType.SetLoadingIDs, payload: complitedTodoIDs });
+
+      Promise.all(
+        complitedTodoIDs
+          .map(id => todoService.deleteTodo(id)
+            .then(() => dispatch({ type: ActionType.Delete, payload: id }))
+            .catch(() => dispatch({
+              type: ActionType.SetError,
+              payload: ShowError.deleteTodo,
+            }))),
+      ).finally(() => {
+        dispatch({ type: ActionType.ClearLoadingIDs });
+      });
+    }, [complitedTodoIDs, dispatch],
+  );
 
   const isEmptyTodos = useMemo(() => {
     return todos.length === 0;
@@ -62,7 +65,7 @@ export const Footer:React.FC = memo(() => {
           type="button"
           className="todoapp__clear-completed"
           data-cy="ClearCompletedButton"
-          disabled={!complitedTodoIDs.length}
+          disabled={isDisabled}
           onClick={deleteComplitedTodos}
         >
           Clear completed

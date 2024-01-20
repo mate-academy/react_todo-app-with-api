@@ -1,5 +1,6 @@
 import React, {
-  useContext, useEffect, useRef, useState,
+  useCallback,
+  useContext, useEffect, useMemo, useRef, useState,
 } from 'react';
 import cn from 'classnames';
 import * as todoService from '../../api/todos';
@@ -26,11 +27,11 @@ export const TodoItem:React.FC<Props> = ({ todo }) => {
     }
   }, [editingTodo]);
 
-  const deleteTodo = (id: number) => {
-    dispatch({ type: ActionType.SetLoadingIDs, payload: [id] });
+  const deleteTodo = useCallback(() => {
+    dispatch({ type: ActionType.SetLoadingIDs, payload: [todo.id] });
 
-    todoService.deleteTodo(id)
-      .then(() => dispatch({ type: ActionType.Delete, payload: id }))
+    todoService.deleteTodo(todo.id)
+      .then(() => dispatch({ type: ActionType.Delete, payload: todo.id }))
       .catch(() => dispatch({
         type: ActionType.SetError,
         payload: ShowError.deleteTodo,
@@ -38,15 +39,15 @@ export const TodoItem:React.FC<Props> = ({ todo }) => {
       .finally(() => {
         dispatch({ type: ActionType.ClearLoadingIDs });
       });
-  };
+  }, [dispatch, todo.id]);
 
-  const toggleTodo = (newTodo: Todo) => {
-    const updatedTodo = { ...newTodo, complited: !newTodo.completed };
+  const toggleTodo = useCallback(() => {
+    const updatedTodo = { ...todo, complited: !todo.completed };
 
-    dispatch({ type: ActionType.SetLoadingIDs, payload: [newTodo.id] });
+    dispatch({ type: ActionType.SetLoadingIDs, payload: [todo.id] });
 
     todoService.updateTodo(todo.id, updatedTodo)
-      .then(() => dispatch({ type: ActionType.Toggle, payload: newTodo.id }))
+      .then(() => dispatch({ type: ActionType.Toggle, payload: todo.id }))
       .catch(() => dispatch({
         type: ActionType.SetError,
         payload: ShowError.updateTodo,
@@ -54,9 +55,9 @@ export const TodoItem:React.FC<Props> = ({ todo }) => {
       .finally(() => {
         dispatch({ type: ActionType.ClearLoadingIDs });
       });
-  };
+  }, [dispatch, todo]);
 
-  const updateTodo = (newTodo: Todo) => {
+  const updateTodo = useCallback((newTodo: Todo) => {
     dispatch({ type: ActionType.SetLoadingIDs, payload: [newTodo.id] });
 
     dispatch({
@@ -88,9 +89,9 @@ export const TodoItem:React.FC<Props> = ({ todo }) => {
         dispatch({ type: ActionType.ClearTempTodo });
         dispatch({ type: ActionType.ClearLoadingIDs });
       });
-  };
+  }, [dispatch]);
 
-  const handleSubmit = (event: React.FormEvent) => {
+  const handleSubmit = useCallback((event: React.FormEvent) => {
     event.preventDefault();
 
     if (!editingTodo) {
@@ -109,35 +110,43 @@ export const TodoItem:React.FC<Props> = ({ todo }) => {
     }
 
     if (emptyTitle) {
-      deleteTodo(editingTodo.id);
+      deleteTodo();
 
       return;
     }
 
     updateTodo(editingTodo);
-  };
+  }, [deleteTodo, editingTodo, todo.title, updateTodo]);
 
-  const handleKeyUp = (event: React.KeyboardEvent<HTMLInputElement>) => {
-    if (event.key === 'Escape') {
-      setEditingTodo(null);
-    }
+  const handleKeyUp = useCallback(
+    (event: React.KeyboardEvent<HTMLInputElement>) => {
+      if (event.key === 'Escape') {
+        setEditingTodo(null);
+      }
+    }, [],
+  );
 
-    // if (event.key === 'Enter') {
-    //   handleSubmit(event);
-    // }
-  };
-
-  const doubleClick = () => {
+  const doubleClick = useCallback(() => {
     setEditingTodo(todo);
-  };
+  }, [todo]);
 
-  const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const newTitle = event.currentTarget.value;
+  const handleChange = useCallback(
+    (event: React.ChangeEvent<HTMLInputElement>) => {
+      const newTitle = event.currentTarget.value;
 
-    setEditingTodo({ ...todo, title: newTitle });
-  };
+      setEditingTodo({ ...todo, title: newTitle });
+    }, [todo],
+  );
 
-  const id = todo.id.toString(10);
+  const id = useMemo(
+    () => todo.id.toString(10),
+    [todo.id],
+  );
+
+  const isActive = useMemo(
+    () => loadingIDs && loadingIDs.includes(todo.id),
+    [loadingIDs, todo.id],
+  );
 
   return (
     <div
@@ -156,7 +165,7 @@ export const TodoItem:React.FC<Props> = ({ todo }) => {
           type="checkbox"
           aria-label="todo-status"
           checked={todo.completed}
-          onChange={() => toggleTodo(todo)}
+          onChange={toggleTodo}
         />
       </label>
 
@@ -193,7 +202,7 @@ export const TodoItem:React.FC<Props> = ({ todo }) => {
               className="todo__remove"
               id={id}
               data-cy="TodoDelete"
-              onClick={() => deleteTodo(todo.id)}
+              onClick={deleteTodo}
             >
               ×
             </button>
@@ -204,7 +213,7 @@ export const TodoItem:React.FC<Props> = ({ todo }) => {
         data-cy="TodoLoader"
         id={id}
         className={cn('modal overlay', {
-          'is-active': loadingIDs && loadingIDs.includes(todo.id),
+          'is-active': isActive,
         })}
       >
         <div className="modal-background has-background-white-ter" />
