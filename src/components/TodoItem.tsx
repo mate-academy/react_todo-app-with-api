@@ -51,12 +51,14 @@ export const TodoItem: React.FC<Props> = memo(({
 
         return;
       }
+
       if (onUpdateTodo) {
         onUpdateTodo({
           ...todoItem,
           title: newTitle.trim(),
         });
       }
+
       setEditing(false);
     }
 
@@ -66,7 +68,6 @@ export const TodoItem: React.FC<Props> = memo(({
       setNewTitle(title);
     }
   };
-
 
   return (
     <div
@@ -92,8 +93,7 @@ export const TodoItem: React.FC<Props> = memo(({
       {
         editing
           ? (
-            <form
-            >
+            <form>
               <input
                 ref={inputRef}
                 data-cy="TodoTitleField"
