@@ -111,7 +111,7 @@ Cypress.on('fail', (e) => {
   throw e;
 });
 
-describe.skip('', () => {
+describe('', () => {
   beforeEach(() => {
     // if (failed) Cypress.runner.stop();
   });
@@ -818,7 +818,7 @@ describe.skip('', () => {
     });
   });
 
-  describe('Group Todo Deletion', () => {
+  describe.skip('Group Todo Deletion', () => {
     describe('with no completed todos', () => {
       beforeEach(() => {
         page.mockLoad({ fixture: 'active-todos' }).as('loadRequest');
@@ -948,7 +948,7 @@ describe.skip('', () => {
     });
   });
 
-  describe('Todo Toggling', () => {
+  describe.skip('Todo Toggling', () => {
     beforeEach(() => {
       page.mockLoad().as('loadRequest');
       page.visit();
@@ -1100,7 +1100,7 @@ describe.skip('', () => {
     });
   });
 
-  describe('Toggle All Button', () => {
+  describe.skip('Toggle All Button', () => {
     describe('if there are no todos', () => {
       it('should not be visible while loading todos', () => {
         page.mockLoad({ body: [] }).as('loadRequest');
@@ -1354,7 +1354,7 @@ describe.skip('', () => {
     });
   });
 
-  describe('Renaming', () => {
+  describe.skip('Renaming', () => {
     beforeEach(() => {
       page.mockLoad().as('loadRequest');
       page.visit();

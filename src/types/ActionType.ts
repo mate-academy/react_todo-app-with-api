@@ -1,0 +1,18 @@
+export enum ActionType {
+  GetTodos,
+  SetError,
+  ClearError,
+  SetTempTodo,
+  ClearTempTodo,
+  // SetIsLoading,
+  // ClearIsLoading,
+  SetLoadingIDs,
+  ClearLoadingIDs,
+  Create,
+  Delete,
+  Update,
+  Toggle,
+  ToggleAllTodos,
+  ClearCompletedTodos,
+  SetFilter,
+}
