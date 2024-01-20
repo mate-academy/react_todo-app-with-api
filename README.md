@@ -1,48 +1,57 @@
-# React Todo App with API (complete)
+# React Todo App with API
 
-It is the third part of the React Todo App with API.
+1. Short Project Description:
+   This React project implements a todo list application with key features such as adding, updating, and deleting todos. The application provides an interactive user interface, allowing users to mark todos as completed, edit their titles, and delete them. Additionally, it includes features like double-click to edit and real-time loading indicators for asynchronous operations. The code emphasizes a modular component-based structure and integrates error handling for a seamless user experience.
 
-Take your code implemented for [Add and Delete](https://github.com/mate-academy/react_todo-app-add-and-delete)
-and implement the ability to toggle and rename todos.
+2. Project Links:
 
-> Here is [the working example](https://mate-academy.github.io/react_todo-app-with-api/)
+   - [DEMO LINK](https://baraban2003.github.io/react_todo-app-with-api/)
 
-## Toggling a todo status
+3. Main requirements:
 
-Toggle the `completed` status on `TodoStatus` change:
+   - Add a todo with the entered title on the form submit.
+   - Remove a todo on the TodoDeleteButton click.
+   - Remove all the completed todos after the Clear completed button click.
+   - Toggle the completed status on TodoStatus change.
+   - Add the ability to toggle the completed status of all the todos with the toggleAll checkbox.
+   - Implement the ability to edit a todo title on double click.
 
-- covered the todo with a loader overlay while waiting for API response;
-- the status should be changed on success;
-- show the `Unable to update a todo` notification in case of API error.
+4. Technologies Used:
 
-Add the ability to toggle the completed status of all the todos with the `toggleAll` checkbox:
+   - React
+   - React router
+   - Classnames
+   - Node-sass
+   - TypeScript
+   - bulma
+   - API
 
-- `toggleAll` button should have `active` class only if all the todos are completed;
-- `toggleAll` click changes its status to the opposite one, and sets this new status to all the todos;
-- it should work the same as several individual updates of the todos which statuses were actually changed;
-- do send requests for the todos that were not changed;
+5. Manual for Starting the Project (Using Webpack):
 
-## Renaming a todo
+Clone the Repository:
 
-Implement the ability to edit a todo title on double click:
-
-- show the edit form instead of the title and remove button;
-- saves changes on the form submit (just press `Enter`);
-- save changes when the field loses focus (`onBlur`);
-- if the new title is the same as the old one just cancel editing;
-- cancel editing on `Esс` key `keyup` event;
-- if the new title is empty delete the todo the same way the `x` button does it;
-- if the title was changed show the loader while waiting for the API response;
-- update the todo title on success;
-- show `Unable to update a todo` in case of API error;
-- or the deletion error message if we tried to delete the todo.
-
-## If you want to enable tests
-- open `cypress/integration/page.spec.js`
-- replace `describe.skip` with `describe` for the root `describe`
-
-## Instructions
-
-- Implement a solution following the [React task guideline](https://github.com/mate-academy/react_task-guideline#react-tasks-guideline).
-- Use the [React TypeScript cheat sheet](https://mate-academy.github.io/fe-program/js/extra/react-typescript).
-- Replace `<your_account>` with your Github username in the [DEMO LINK](https://<your_account>.github.io/react_todo-app-with-api/) and add it to the PR description.
+- Open a terminal window.
+- Run the following command to clone the repository to your local machine:
+  git clone https://github.com/baraban2003/react_todo-app-with-api.git
+- Navigate to the project directory:
+  cd <project-directory>
+  Install Dependencies:
+- Ensure you have Node.js and npm installed on your machine.
+- If not, download and install them from Node.js official website (https://nodejs.org/en).
+- Check the Node.js and npm versions installed:
+  Copy code:
+  node -v
+  npm -v
+- Install project dependencies using the following command:
+  Copy code:
+  npm install
+- Start the development server with the following command:
+  Copy code:
+  npm start
+- Access the Application:
+  Once the server is running, open your web browser.
+  -Access the application at http://localhost:3000.
+- Dependencies Used:  
+   Node.js version: v14.21.3
+  npm version: 6.14.18
+  Other project dependencies are managed through npm and specified in the project's package.json file.
