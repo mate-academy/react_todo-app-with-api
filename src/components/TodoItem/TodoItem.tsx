@@ -87,7 +87,6 @@ export const TodoItem:React.FC<Props> = ({ todo }) => {
       .finally(() => {
         dispatch({ type: ActionType.ClearTempTodo });
         dispatch({ type: ActionType.ClearLoadingIDs });
-        setEditingTodo(null);
       });
   };
 
@@ -122,6 +121,10 @@ export const TodoItem:React.FC<Props> = ({ todo }) => {
     if (event.key === 'Escape') {
       setEditingTodo(null);
     }
+
+    // if (event.key === 'Enter') {
+    //   handleSubmit(event);
+    // }
   };
 
   const doubleClick = () => {
@@ -134,6 +137,8 @@ export const TodoItem:React.FC<Props> = ({ todo }) => {
     setEditingTodo({ ...todo, title: newTitle });
   };
 
+  const id = todo.id.toString(10);
+
   return (
     <div
       data-cy="Todo"
@@ -141,11 +146,13 @@ export const TodoItem:React.FC<Props> = ({ todo }) => {
         'todo',
         { completed: todo.completed },
       )}
+      id={id}
     >
-      <label className="todo__status-label">
+      <label className="todo__status-label" id={id}>
         <input
-          className="todo__status"
           data-cy="TodoStatus"
+          className="todo__status"
+          id={id}
           type="checkbox"
           aria-label="todo-status"
           checked={todo.completed}
@@ -155,10 +162,11 @@ export const TodoItem:React.FC<Props> = ({ todo }) => {
 
       {editingTodo
         ? (
-          <form onSubmit={handleSubmit}>
+          <form onSubmit={handleSubmit} id={id}>
             <input
               data-cy="TodoTitleField"
               type="text"
+              id={id}
               className="todo__title-field"
               placeholder="Empty todo will be deleted"
               ref={inputEditRef}
@@ -174,13 +182,16 @@ export const TodoItem:React.FC<Props> = ({ todo }) => {
             <span
               data-cy="TodoTitle"
               className="todo__title"
+              id={id}
               onDoubleClick={doubleClick}
             >
               {todo.title}
             </span>
+
             <button
               type="button"
               className="todo__remove"
+              id={id}
               data-cy="TodoDelete"
               onClick={() => deleteTodo(todo.id)}
             >
@@ -191,6 +202,7 @@ export const TodoItem:React.FC<Props> = ({ todo }) => {
 
       <div
         data-cy="TodoLoader"
+        id={id}
         className={cn('modal overlay', {
           'is-active': loadingIDs && loadingIDs.includes(todo.id),
         })}

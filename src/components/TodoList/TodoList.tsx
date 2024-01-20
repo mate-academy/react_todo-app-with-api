@@ -27,7 +27,7 @@ export const TodoList:React.FC = memo(() => {
             timeout={300}
             classNames="temp-item"
           >
-            <TodoItem todo={tempTodo} />
+            <TodoItem todo={tempTodo} key={tempTodo.id} />
           </CSSTransition>
         )}
       </TransitionGroup>

@@ -4,8 +4,6 @@ export enum ActionType {
   ClearError,
   SetTempTodo,
   ClearTempTodo,
-  // SetIsLoading,
-  // ClearIsLoading,
   SetLoadingIDs,
   ClearLoadingIDs,
   Create,

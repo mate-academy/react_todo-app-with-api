@@ -1,20 +1,16 @@
 import React, { useEffect, useReducer } from 'react';
 import * as todoService from '../api/todos';
-import { useLocalStorage } from '../hooks/useLocalStorage';
 import { ActionType } from '../types/ActionType';
 import { Todo } from '../types/Todo';
 import { Filters } from '../types/Filters';
 import { ShowError } from '../types/ShowErrors';
-
-const KEY = 'todos';
+import { CLEAN_ERROR_DELAY } from '../types/constants';
 
 type Action = { type: ActionType.GetTodos, payload: Todo[] }
 | { type: ActionType.SetError, payload: ShowError }
 | { type: ActionType.ClearError }
 | { type: ActionType.SetTempTodo, payload: Todo }
 | { type: ActionType.ClearTempTodo }
-// | { type: ActionType.SetIsLoading }
-// | { type: ActionType.ClearIsLoading }
 | { type: ActionType.SetLoadingIDs, payload: number[] }
 | { type: ActionType.ClearLoadingIDs }
 | { type: ActionType.Create, payload: Todo }
@@ -30,7 +26,6 @@ type State = {
   filter: Filters,
   error: ShowError | null,
   tempTodo: Todo | null,
-  // isLoading: boolean
   loadingIDs: number[] | null,
 };
 
@@ -55,14 +50,6 @@ function Reducer(state: State, action:Action):State {
     case ActionType.ClearTempTodo: {
       return { ...state, tempTodo: null };
     }
-
-    // case ActionType.SetIsLoading: {
-    //   return { ...state, isLoading: true };
-    // }
-
-    // case ActionType.ClearIsLoading: {
-    //   return { ...state, isLoading: false };
-    // }
 
     case ActionType.SetLoadingIDs: {
       return { ...state, loadingIDs: action.payload };
@@ -138,7 +125,6 @@ const initialState:State = {
   filter: Filters.All,
   error: null,
   tempTodo: null,
-  // isLoading: false,
   loadingIDs: null,
 };
 
@@ -152,22 +138,12 @@ type Props = {
 };
 
 export const GlobalStateProvider: React.FC<Props> = ({ children }) => {
-  const [localStorage, setLocalStorage] = useLocalStorage(KEY,
-    initialState.todos);
-
-  const [state, dispatch] = useReducer(Reducer, {
-    ...initialState,
-    todos: localStorage,
-  });
-
-  useEffect(() => {
-    setLocalStorage(state.todos);
-  }, [setLocalStorage, state.todos]);
+  const [state, dispatch] = useReducer(Reducer, initialState);
 
   useEffect(() => {
     const timeoutId = setTimeout(() => {
       dispatch({ type: ActionType.ClearError });
-    }, 3000);
+    }, CLEAN_ERROR_DELAY);
 
     return () => clearTimeout(timeoutId);
   }, [state.error]);

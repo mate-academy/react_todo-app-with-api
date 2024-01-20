@@ -1,5 +1,5 @@
 import {
-  memo, useContext, useEffect, useMemo, useRef, useState,
+  memo, useCallback, useContext, useEffect, useMemo, useRef, useState,
 } from 'react';
 import cn from 'classnames';
 import * as todoService from '../../api/todos';
@@ -16,65 +16,83 @@ export const Header:React.FC = memo(() => {
 
   const inputNewTitleRef = useRef<HTMLInputElement>(null);
 
-  const isAllCompleted = useMemo(
-    () => todos.every(todo => todo.completed),
-    [todos],
-  );
-
   useEffect(() => {
     if (inputNewTitleRef.current && loadingIDs === null) {
       inputNewTitleRef.current.focus();
     }
   }, [newTodoTitle, loadingIDs]);
 
-  const handleChangeNewTodoTitle = (
-    event: React.ChangeEvent<HTMLInputElement>,
-  ) => {
-    setNewTodoTitle(event.target.value);
-  };
+  const isAllCompleted = useMemo(
+    () => todos.every(todo => todo.completed),
+    [todos],
+  );
 
-  const handleSubmitCreateTodo = (event: React.FormEvent) => {
-    event.preventDefault();
+  const isDisabled = useMemo(
+    () => !(loadingIDs === null),
+    [loadingIDs],
+  );
 
-    const title = newTodoTitle.trim();
+  const isGreaterZero = useMemo(
+    () => todos.length > 0,
+    [todos],
+  );
 
-    if (!title) {
+  const titleValue = useMemo(
+    () => newTodoTitle ?? '',
+    [newTodoTitle],
+  );
+
+  const handleChange = useCallback(
+    (event: React.ChangeEvent<HTMLInputElement>) => {
+      setNewTodoTitle(event.target.value);
+    },
+    [],
+  );
+
+  const handleSubmitCreateTodo = useCallback(
+    (event: React.FormEvent) => {
+      event.preventDefault();
+
+      const title = newTodoTitle.trim();
+
+      if (!title) {
+        dispatch({
+          type: ActionType.SetError,
+          payload: ShowError.createTodo,
+        });
+
+        return;
+      }
+
+      dispatch({ type: ActionType.SetLoadingIDs, payload: [0] });
+
       dispatch({
-        type: ActionType.SetError,
-        payload: ShowError.createTodo,
+        type: ActionType.SetTempTodo,
+        payload: {
+          id: 0,
+          title,
+          userId: USER_ID,
+          completed: false,
+        },
       });
 
-      return;
-    }
+      todoService.createTodo({ title })
+        .then(newTodo => {
+          dispatch({ type: ActionType.Create, payload: newTodo });
+          setNewTodoTitle('');
+        })
+        .catch(() => dispatch({
+          type: ActionType.SetError,
+          payload: ShowError.addTodo,
+        }))
+        .finally(() => {
+          dispatch({ type: ActionType.ClearTempTodo });
+          dispatch({ type: ActionType.ClearLoadingIDs });
+        });
+    }, [dispatch, newTodoTitle],
+  );
 
-    dispatch({ type: ActionType.SetLoadingIDs, payload: [0] });
-
-    dispatch({
-      type: ActionType.SetTempTodo,
-      payload: {
-        id: 0,
-        title,
-        userId: USER_ID,
-        completed: false,
-      },
-    });
-
-    todoService.createTodo({ title })
-      .then(newTodo => {
-        dispatch({ type: ActionType.Create, payload: newTodo });
-        setNewTodoTitle('');
-      })
-      .catch(() => dispatch({
-        type: ActionType.SetError,
-        payload: ShowError.addTodo,
-      }))
-      .finally(() => {
-        dispatch({ type: ActionType.ClearTempTodo });
-        dispatch({ type: ActionType.ClearLoadingIDs });
-      });
-  };
-
-  const toggleAll = () => {
+  const toggleAll = useCallback(() => {
     const completedTodos = todos.filter(todo => todo.completed);
     const notCompletedTodos = todos.filter(todo => !todo.completed);
     const toggleAllTodos = isAllCompleted
@@ -103,11 +121,11 @@ export const Header:React.FC = memo(() => {
     ).finally(() => {
       dispatch({ type: ActionType.ClearLoadingIDs });
     });
-  };
+  }, [dispatch, isAllCompleted, todos]);
 
   return (
     <header className="todoapp__header">
-      {todos.length > 0 && (
+      {isGreaterZero && (
         <button
           className={cn(
             'todoapp__toggle-all',
@@ -127,9 +145,9 @@ export const Header:React.FC = memo(() => {
           className="todoapp__new-todo"
           placeholder="What needs to be done?"
           ref={inputNewTitleRef}
-          disabled={!(loadingIDs === null)}
-          value={newTodoTitle ?? ''}
-          onChange={handleChangeNewTodoTitle}
+          disabled={isDisabled}
+          value={titleValue}
+          onChange={handleChange}
         />
       </form>
     </header>
