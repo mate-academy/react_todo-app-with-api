@@ -52,7 +52,7 @@ export const Footer:React.FC = memo(() => {
   }, [todos]);
 
   return isEmptyTodos
-    ? <></>
+    ? null
     : (
       <footer className="todoapp__footer" data-cy="Footer">
         <span className="todo-count" data-cy="TodosCounter">
