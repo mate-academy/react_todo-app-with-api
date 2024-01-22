@@ -1,13 +1,11 @@
 import classNames from 'classnames';
+import { useEffect, useRef, useState } from 'react';
 import { Todo } from '../../types/Todo';
 
 type Props = {
   todo: Todo;
-  loading?: boolean;
-  onDelete?: (id: number) => void;
-  updateTodo?: (todo: Todo) => void;
-  completedTodos?: Todo[];
-  loadingClearCompleted?: boolean;
+  onDelete: (id: number) => void;
+  updateTodo: (todo: Todo) => void;
 };
 
 export const TodoItem: React.FC<Props> = ({
@@ -16,18 +14,61 @@ export const TodoItem: React.FC<Props> = ({
   updateTodo,
 }) => {
   const {
-    title, completed, id, userId, loading,
+    title, completed, id, loading,
   } = todo;
+  const [newTitle, setNewTitle] = useState(title);
+  const [isEditing, setIsEditing] = useState(false);
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    if (isEditing && inputRef.current) {
+      inputRef.current.focus();
+    }
+  }, [isEditing]);
 
   const handleCompleted = () => {
     if (updateTodo) {
       updateTodo({
-        userId,
-        id,
-        title,
+        ...todo,
         completed: !completed,
-        loading: true,
       });
+    }
+  };
+
+  const handleDoubleClick = () => {
+    setIsEditing(true);
+  };
+
+  const handleBlur = () => {
+    if (!newTitle) {
+      onDelete(id);
+    } else {
+      updateTodo({
+        ...todo,
+        title: newTitle,
+      });
+    }
+
+    setIsEditing(false);
+  };
+
+  const handleKeyUp = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Escape') {
+      setNewTitle(title);
+      setIsEditing(false);
+    } else if (e.key === 'Enter') {
+      if (!newTitle) {
+        onDelete(id);
+      } else if (newTitle === title) {
+        setIsEditing(false);
+      } else {
+        updateTodo({
+          ...todo,
+          title: newTitle,
+        });
+      }
+
+      setIsEditing(false);
     }
   };
 
@@ -35,9 +76,10 @@ export const TodoItem: React.FC<Props> = ({
     <>
       <div
         data-cy="Todo"
-        className={classNames('todo',
-          { completed })}
+        className={classNames('todo', { completed })}
+        onDoubleClick={handleDoubleClick}
       >
+
         <label className="todo__status-label">
           <input
             data-cy="TodoStatus"
@@ -48,29 +90,40 @@ export const TodoItem: React.FC<Props> = ({
           />
         </label>
 
-        <span data-cy="TodoTitle" className="todo__title">
-          {title}
-        </span>
-        <button
-          type="button"
-          className="todo__remove"
-          data-cy="TodoDelete"
-          onClick={onDelete ? () => onDelete(id) : undefined}
-        >
-          ×
-        </button>
+        {isEditing ? (
+          <input
+            type="text"
+            className="todo__title-field"
+            value={newTitle}
+            placeholder="Empty todo will be deleted"
+            checked={completed}
+            onChange={(e) => setNewTitle(e.target.value)}
+            onKeyUp={handleKeyUp}
+            onBlur={handleBlur}
+            ref={inputRef}
+          />
+        ) : (
+          <>
+            <span data-cy="TodoTitle" className="todo__title">
+              {newTitle}
+            </span>
+            <button
+              type="button"
+              className="todo__remove"
+              data-cy="TodoDelete"
+              onClick={onDelete ? () => onDelete(id) : undefined}
+            >
+              ×
+            </button>
+          </>
+        )}
 
-        <div
-          data-cy="TodoLoader"
-          className={classNames(
-            'modal overlay', {
-              'is-active': loading,
-            },
-          )}
-        >
-          <div className="modal-background has-background-white-ter" />
-          <div className="loader" />
-        </div>
+        {loading && (
+          <div data-cy="TodoLoader" className="modal overlay is-active">
+            <div className="modal-background has-background-white-ter" />
+            <div className="loader" />
+          </div>
+        )}
       </div>
     </>
   );

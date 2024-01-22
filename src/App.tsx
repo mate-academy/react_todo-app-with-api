@@ -198,7 +198,6 @@ export const App: React.FC = () => {
                 tempTodo={tempTodo}
                 onDelete={deleteTodo}
                 updateTodo={updateTodo}
-                completedTodos={completedTodos}
               />
 
               {todos.length > 0 && (
