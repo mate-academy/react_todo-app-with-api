@@ -1,5 +1,5 @@
+import React, { useEffect, useRef, useState } from 'react';
 import classNames from 'classnames';
-import { useEffect, useRef, useState } from 'react';
 import { Todo } from '../../types/Todo';
 
 type Props = {
@@ -8,7 +8,7 @@ type Props = {
   updateTodo: (todo: Todo) => void;
 };
 
-export const TodoItem: React.FC<Props> = ({
+export const TodoItem: React.FC<Props> = React.memo(({
   todo,
   onDelete,
   updateTodo,
@@ -42,6 +42,8 @@ export const TodoItem: React.FC<Props> = ({
   const handleBlur = () => {
     if (!newTitle) {
       onDelete(id);
+    } else if (newTitle === title) {
+      setIsEditing(false);
     } else {
       updateTodo({
         ...todo,
@@ -119,7 +121,14 @@ export const TodoItem: React.FC<Props> = ({
         )}
 
         {loading && (
-          <div data-cy="TodoLoader" className="modal overlay is-active">
+          <div
+            data-cy="TodoLoader"
+            className={classNames(
+              'modal overlay', {
+                'is-active': loading,
+              },
+            )}
+          >
             <div className="modal-background has-background-white-ter" />
             <div className="loader" />
           </div>
@@ -127,7 +136,7 @@ export const TodoItem: React.FC<Props> = ({
       </div>
     </>
   );
-};
+});
 
 // {/* This is a completed todo */}
 // <div data-cy="Todo" className="todo completed">

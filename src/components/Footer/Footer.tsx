@@ -1,3 +1,4 @@
+import React from 'react';
 import classNames from 'classnames';
 import { FilterType } from '../../types/Filter';
 import { Todo } from '../../types/Todo';
@@ -10,13 +11,15 @@ type Props = {
   clearCompleted: () => void;
 };
 
-export const Footer: React.FC<Props> = ({
+export const Footer: React.FC<Props> = React.memo(({
   filterBy,
   changeFilter,
   completedTodos,
   unComletedTodos,
   clearCompleted,
 }) => {
+  const isCompletedButtonDisabaled = completedTodos.length === 0;
+
   return (
     <footer className="todoapp__footer" data-cy="Footer">
       <span className="todo-count" data-cy="TodosCounter">
@@ -59,9 +62,10 @@ export const Footer: React.FC<Props> = ({
         className="todoapp__clear-completed"
         data-cy="ClearCompletedButton"
         onClick={clearCompleted}
+        disabled={isCompletedButtonDisabaled}
       >
-        {completedTodos.length > 0 ? 'Clear completed' : ''}
+        Clear completed
       </button>
     </footer>
   );
-};
+});

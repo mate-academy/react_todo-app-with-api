@@ -1,4 +1,6 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, {
+  useEffect, useMemo, useRef, useState,
+} from 'react';
 import classNames from 'classnames';
 import { ErrorMessage } from '../../types/ErrorMessage';
 import { Todo } from '../../types/Todo';
@@ -14,7 +16,7 @@ type Props = {
 };
 
 /* eslint-disable jsx-a11y/control-has-associated-label */
-export const Header: React.FC<Props> = ({
+export const Header: React.FC<Props> = React.memo(({
   todos,
   onSubmit,
   error,
@@ -23,6 +25,9 @@ export const Header: React.FC<Props> = ({
   setIsListLoading,
   toggleAll,
 }) => {
+  const allCompleted = useMemo(() => todos
+    .every(todo => todo.completed), [todos]);
+
   const [title, setTitle] = useState('');
   const [toggle, setToggle] = useState(false);
 
@@ -34,6 +39,10 @@ export const Header: React.FC<Props> = ({
     }
   }, [isListLoading]);
 
+  useEffect(() => {
+    setToggle(allCompleted);
+  }, [allCompleted]);
+
   const reset = () => {
     setTitle('');
     setError('');
@@ -41,22 +50,21 @@ export const Header: React.FC<Props> = ({
 
   const handleSubmit = (event: React.FormEvent) => {
     event.preventDefault();
-    setIsListLoading(true);
 
     if (!title.trim()) {
       setError(ErrorMessage.EmptyTitle);
       setTitle('');
+    } else {
+      setIsListLoading(true);
 
-      return;
+      onSubmit(title.trim())
+        .then(() => {
+          if (!error) {
+            reset();
+          }
+        })
+        .finally(() => setIsListLoading(false));
     }
-
-    onSubmit(title.trim())
-      .then(() => {
-        if (!error) {
-          reset();
-        }
-      })
-      .finally(() => setIsListLoading(false));
   };
 
   const handleTitleChage = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -64,8 +72,8 @@ export const Header: React.FC<Props> = ({
   };
 
   const handleToggleAll = () => {
-    toggleAll(toggle);
     setToggle(!toggle);
+    toggleAll(!toggle);
   };
 
   return (
@@ -74,7 +82,7 @@ export const Header: React.FC<Props> = ({
         <button
           type="button"
           className={classNames('todoapp__toggle-all',
-            { active: todos.every(todo => todo.completed) })}
+            { active: allCompleted })}
           data-cy="ToggleAllButton"
           onClick={handleToggleAll}
         />
@@ -96,4 +104,4 @@ export const Header: React.FC<Props> = ({
       </form>
     </header>
   );
-};
+});
