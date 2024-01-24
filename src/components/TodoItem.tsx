@@ -164,7 +164,7 @@ export const TodoItem: React.FC<Props> = ({ todoItem, isTempTodo }) => {
       </button>
       <div
         data-cy="TodoLoader"
-        className={cn('modal everplay', {
+        className={cn('modal overlay', {
           'is-active': isTempTodo,
         })}
       >
