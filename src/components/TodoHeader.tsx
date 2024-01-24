@@ -8,11 +8,12 @@ import cn from 'classnames';
 import * as postServise from '../api/todos';
 import { TodosContext } from './TodoProvider';
 import { Errors } from '../types/Errors';
+import { Todo } from '../types/Todo';
 
 type Props = {
   handleChangeInput: (event: React.ChangeEvent<HTMLInputElement>) => void;
   title: string,
-  setTitle: (valu: string) => void,
+  setTitle: (value: string) => void,
 };
 
 export const TodoHeader: React.FC<Props> = ({
@@ -26,6 +27,7 @@ export const TodoHeader: React.FC<Props> = ({
     setTodos,
     setError,
     userId,
+    setTempTodo,
   } = useContext(TodosContext);
 
   const inputRef = useRef<HTMLInputElement>(null);
@@ -38,7 +40,6 @@ export const TodoHeader: React.FC<Props> = ({
 
   const handleFormSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-
     if (!title.trim()) {
       setError(Errors.ERRORS_EMPTY_TITLE);
 
@@ -48,17 +49,23 @@ export const TodoHeader: React.FC<Props> = ({
     setIsSubmiting(true);
 
     try {
-      const newTodo = await postServise.createTodo({
-        completed: false,
+      const temporaryTodo: Todo = {
+        id: Date.now(),
         title: title.trim(),
+        completed: false,
         userId,
-      });
+      };
 
-      setTodos(currentTodos => [...currentTodos, newTodo]);
+      setTempTodo(temporaryTodo);
+
+      const newTodo = await postServise.createTodo(temporaryTodo);
+
+      setTodos((currentTodos) => [...currentTodos, newTodo]);
       setTitle('');
     } catch (newError) {
       setError(Errors.UNABLE_ADD);
     } finally {
+      setTempTodo(null);
       if (inputRef.current) {
         inputRef.current.focus();
       }

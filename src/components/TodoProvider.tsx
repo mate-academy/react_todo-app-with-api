@@ -18,6 +18,8 @@ export const TodosContext = createContext<TodoContextType>({
   setFilterType: () => {},
   filteredTodo: [],
   userId: USER_ID,
+  setTempTodo: () => {},
+  tempTodo: null,
 });
 
 export const TodoProvider: React.FC<{ children: React.ReactNode }> = ({
@@ -27,6 +29,7 @@ export const TodoProvider: React.FC<{ children: React.ReactNode }> = ({
   const [todos, setTodos] = useState<Todo[]>([]);
   const [error, setError] = useState<Errors | null>(null);
   const filteredTodo = filterTodo(todos, filterType);
+  const [tempTodo, setTempTodo] = useState<Todo | null>(null);
 
   const removeTodo = async (todoId: number) => {
     try {
@@ -62,6 +65,8 @@ export const TodoProvider: React.FC<{ children: React.ReactNode }> = ({
     filteredTodo,
     filterType,
     userId: USER_ID,
+    setTempTodo,
+    tempTodo,
   };
 
   return (

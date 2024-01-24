@@ -12,10 +12,10 @@ import { Todo } from '../types/Todo';
 
 type Props = {
   todoItem: Todo,
-
+  isTempTodo?: boolean,
 };
 
-export const TodoItem: React.FC<Props> = ({ todoItem }) => {
+export const TodoItem: React.FC<Props> = ({ todoItem, isTempTodo }) => {
   const [isEditing, setIsEditing] = useState(false);
   const [editId, setEditId] = useState<number | null>(null);
   const {
@@ -23,7 +23,6 @@ export const TodoItem: React.FC<Props> = ({ todoItem }) => {
     setTodos,
     setError,
     removeTodo,
-
   } = useContext(TodosContext);
 
   const inputRef = useRef<HTMLInputElement>(null);
@@ -67,6 +66,11 @@ export const TodoItem: React.FC<Props> = ({ todoItem }) => {
     event: React.KeyboardEvent<HTMLInputElement>,
     editingId: number,
   ) => {
+    if (event.key === 'Escape') {
+      setIsEditing(false);
+      setTodos(todos);
+    }
+
     if (event.key === 'Enter') {
       event.preventDefault();
       setIsEditing(false);
@@ -94,10 +98,6 @@ export const TodoItem: React.FC<Props> = ({ todoItem }) => {
           setError(Errors.UNABLE_UPDATE);
         }
       }
-    }
-
-    if (event.key === 'Escape') {
-      setIsEditing(false);
     }
   };
 
@@ -162,8 +162,12 @@ export const TodoItem: React.FC<Props> = ({ todoItem }) => {
       >
         ×
       </button>
-
-      <div data-cy="TodoLoader" className="modal overlay">
+      <div
+        data-cy="TodoLoader"
+        className={cn('modal everplay', {
+          'is-active': isTempTodo,
+        })}
+      >
         <div className="modal-background has-background-white-ter" />
         <div className="loader" />
       </div>
