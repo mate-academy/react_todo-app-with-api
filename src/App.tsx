@@ -144,34 +144,23 @@ export const App: React.FC = () => {
     setTodos(currentTodos => currentTodos.map(todo => (todo.completed
       ? { ...todo, loading: true } : todo)));
 
-    const deleteTodos = async (todosToDelete: Todo[]) => {
-      try {
-        const deleteOperations = todosToDelete.map((todo) => {
-          return todosService.deleteTodo(todo.id)
-            .then(() => ({ id: todo.id, success: true }))
-            .catch(() => ({ id: todo.id, success: false }));
-        });
+    const deletePromises = completedTodos
+      .map((todo) => todosService.deleteTodo(todo.id)
+        .then(() => {
+          setTodos(currentTodos => currentTodos.filter(t => t.id !== todo.id));
+        })
+        .finally(() => {
+          setTodos(currentTodos => currentTodos.map(t => (t.id !== todo.id
+            ? { ...t, loading: false } : t)));
+        }));
 
-        const results = await Promise.all(deleteOperations);
-
-        setTodos(currentTodos => {
-          return currentTodos.filter(todo => {
-            const result = results.find(r => r.id === todo.id);
-
-            return !result || !result.success;
-          });
-        });
-      } catch (error) {
+    Promise.all(deletePromises)
+      .catch(() => {
         setErrorMessage(ErrorMessage.UnableToDelete);
-      } finally {
-        setTodos(currentTodos => currentTodos.map(todo => (todo.completed
-          ? { ...todo, loading: false } : todo
-        )));
+      })
+      .finally(() => {
         setIsListLoading(false);
-      }
-    };
-
-    deleteTodos(completedTodos);
+      });
   };
 
   const toggleAll = (toggle: boolean) => {
@@ -192,6 +181,7 @@ export const App: React.FC = () => {
         setTodos(result);
       } catch (error) {
         setErrorMessage(ErrorMessage.UnableToUpdate);
+        throw error;
       } finally {
         setTodos(currentTodos => currentTodos.map(todo => (todo.completed
           ? { ...todo, loading: false } : todo
