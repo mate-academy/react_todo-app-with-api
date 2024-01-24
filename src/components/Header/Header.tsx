@@ -1,5 +1,5 @@
 import React, {
-  useEffect, useMemo, useRef, useState,
+  useEffect, useRef, useState,
 } from 'react';
 import classNames from 'classnames';
 import { ErrorMessage } from '../../types/ErrorMessage';
@@ -25,8 +25,7 @@ export const Header: React.FC<Props> = React.memo(({
   setIsListLoading,
   toggleAll,
 }) => {
-  const allCompleted = useMemo(() => todos
-    .every(todo => todo.completed), [todos]);
+  const isAllCompleted = todos.every(todo => todo.completed);
 
   const [title, setTitle] = useState('');
   const [toggle, setToggle] = useState(false);
@@ -40,8 +39,8 @@ export const Header: React.FC<Props> = React.memo(({
   }, [isListLoading]);
 
   useEffect(() => {
-    setToggle(allCompleted);
-  }, [allCompleted]);
+    setToggle(isAllCompleted);
+  }, [isAllCompleted]);
 
   const reset = () => {
     setTitle('');
@@ -82,7 +81,7 @@ export const Header: React.FC<Props> = React.memo(({
         <button
           type="button"
           className={classNames('todoapp__toggle-all',
-            { active: allCompleted })}
+            { active: isAllCompleted })}
           data-cy="ToggleAllButton"
           onClick={handleToggleAll}
         />
