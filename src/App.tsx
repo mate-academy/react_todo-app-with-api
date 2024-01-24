@@ -204,6 +204,7 @@ export const App: React.FC = () => {
                 setError={setErrorMessage}
                 isListLoading={isListLoading}
                 setIsListLoading={setIsListLoading}
+                isAllCompleted={isAllCompleted}
                 toggleAll={toggleAll}
               />
               <TodoList

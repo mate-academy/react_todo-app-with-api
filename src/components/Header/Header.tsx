@@ -12,6 +12,7 @@ type Props = {
   setError: (er: string) => void;
   isListLoading: boolean;
   setIsListLoading: (value: boolean) => void;
+  isAllCompleted: boolean;
   toggleAll: (value: boolean) => void;
 };
 
@@ -23,10 +24,9 @@ export const Header: React.FC<Props> = React.memo(({
   setError,
   isListLoading,
   setIsListLoading,
+  isAllCompleted,
   toggleAll,
 }) => {
-  const isAllCompleted = todos.every(todo => todo.completed);
-
   const [title, setTitle] = useState('');
   const [toggle, setToggle] = useState(false);
 
