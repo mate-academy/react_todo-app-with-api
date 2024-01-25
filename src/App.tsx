@@ -97,9 +97,8 @@ export const App: React.FC = () => {
         setTodos(currentTodo => currentTodo
           .filter(todo => todo.id !== todoId));
       })
-      .catch((error) => {
+      .catch(() => {
         setErrorMessage(ErrorMessage.UnableToDelete);
-        throw error;
       })
       .finally(() => {
         setIsListLoading(false);
@@ -119,9 +118,8 @@ export const App: React.FC = () => {
           .map(currentTodo => (todo.id === currentTodo.id
             ? { ...todo, loading: false } : currentTodo)));
       })
-      .catch((error) => {
+      .catch(() => {
         setErrorMessage(ErrorMessage.UnableToUpdate);
-        throw error;
       })
       .finally(() => {
         setTodos(currentTodos => currentTodos
