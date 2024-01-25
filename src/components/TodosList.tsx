@@ -1,44 +1,44 @@
 import { FC } from 'react';
 import { Todo } from '../types/Todo';
 import { TodoItem } from './TodoItem';
-import { deleteTodo, updateTodo } from '../api/todos';
 import { useDispatch, useSelector } from '../providers/TodosContext';
-import { useError } from '../hooks/useError';
 
 type Props = {
   todos: Todo[]
 };
 
 export const TodosList: FC<Props> = ({ todos }) => {
-  const { updateTodos, tempTodo, inProcess } = useSelector();
+  const { tempTodo, inProcess } = useSelector();
   const dispatch = useDispatch();
-  const { setError } = useError();
-
-  const handleDeleteFromInProcess = (id: number) => {
-    const updatedInProcess = inProcess.filter((todoId) => todoId !== id);
-
-    dispatch({
-      type: 'setInProcess',
-      payload: updatedInProcess,
-    });
-  };
 
   const handleDelete = (id: number) => {
     dispatch({ type: 'setInProcess', payload: [...inProcess, id] });
 
-    deleteTodo(id)
-      .then(updateTodos)
-      .catch(() => setError('Unable to delete a todo'))
-      .finally(() => handleDeleteFromInProcess(id));
+    const updatedTodos = todos.filter(todo => todo.id !== id);
+
+    dispatch({ type: 'setTodos', payload: updatedTodos });
   };
 
-  const handleChange = (todo: Todo) => {
-    dispatch({ type: 'setInProcess', payload: [...inProcess, todo.id] });
+  const handleChange = (todo: Todo): Promise<void> => {
+    return new Promise((resolve) => {
+      dispatch({ type: 'setInProcess', payload: [...inProcess, todo.id] });
 
-    return updateTodo(todo)
-      .then(updateTodos)
-      .catch(() => setError('Unable to update a todo'))
-      .finally(() => handleDeleteFromInProcess(todo.id));
+      // Assuming todos is the array of todos in your local state
+
+      const updatedTodos = todos.map(item => (
+        item.id === todo.id ? todo : item));
+
+      dispatch({ type: 'setTodos', payload: updatedTodos });
+
+      // Resolve the promise to indicate the operation is successful
+      resolve();
+
+      // If there are any further state updates or actions needed based on the change operation, you can do it here
+
+      // Optionally, you can handle any further actions like removing from inProcess or displaying errors
+      // handleDeleteFromInProcess(todo.id);
+      // setError('Unable to update a todo');
+    });
   };
 
   return (

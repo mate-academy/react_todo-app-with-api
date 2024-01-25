@@ -53,6 +53,7 @@ const initialState: State = {
 };
 
 const StateContext = createContext(initialState);
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const DispatchContext = createContext((_action: Action) => { });
 
 export const useSelector = () => useContext(StateContext);

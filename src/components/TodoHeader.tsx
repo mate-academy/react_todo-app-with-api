@@ -50,7 +50,6 @@ export const TodoHeader: FC<Props> = ({ isSomeActive }) => {
       .then((newTodo) => {
         setInputValue('');
         dispatch({ type: 'setTodos', payload: [...todos, newTodo] });
-        updateTodos();
       })
       .catch(() => setError('Unable to add a todo'))
       .finally(() => {

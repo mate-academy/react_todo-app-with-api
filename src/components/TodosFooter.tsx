@@ -31,7 +31,7 @@ export const TodosFooter: FC<Props> = ({
   return (
     <footer className="todoapp__footer" data-cy="Footer">
       <span className="todo-count" data-cy="TodosCounter">
-        {`${activeTodosLength} Items left`}
+        {activeTodosLength === 1 ? `${activeTodosLength} item left` : `${activeTodosLength} items left`}
       </span>
 
       <nav className="filter" data-cy="Filter">
