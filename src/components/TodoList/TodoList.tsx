@@ -6,7 +6,7 @@ type Props = {
   todos: Todo[];
   tempTodo: Todo | null;
   onDelete: (id: number) => void;
-  updateTodo: (todo: Todo) => void;
+  updateTodo: (todo: Todo) => Promise<void>;
 };
 
 export const TodoList: React.FC<Props> = React.memo(({

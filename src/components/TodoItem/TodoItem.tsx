@@ -5,7 +5,7 @@ import { Todo } from '../../types/Todo';
 type Props = {
   todo: Todo;
   onDelete: (id: number) => void;
-  updateTodo: (todo: Todo) => void;
+  updateTodo: (todo: Todo) => Promise<void>;
 };
 
 export const TodoItem: React.FC<Props> = React.memo(({
@@ -34,18 +34,23 @@ export const TodoItem: React.FC<Props> = React.memo(({
   };
 
   const handleEditComplete = () => {
+    setNewTitle(currentTitle => currentTitle.trim());
+
     if (!newTitle) {
       onDelete(id);
-    } else if (newTitle === title) {
-      setIsEditing(false);
-    } else {
+    } else if (newTitle !== title) {
       updateTodo({
         ...todo,
         title: newTitle,
-      });
+      }).then(() => {
+        setIsEditing(false);
+      })
+        .catch(() => {
+          setIsEditing(true);
+        });
+    } else {
+      setIsEditing(false);
     }
-
-    setIsEditing(false);
   };
 
   const handleEditTitle = (event: React.FormEvent<HTMLFormElement>) => {
@@ -57,9 +62,10 @@ export const TodoItem: React.FC<Props> = React.memo(({
     if (e.key === 'Escape') {
       setNewTitle(title);
       setIsEditing(false);
-    } else if (e.key === 'Enter') {
-      handleCompleted();
     }
+    // else if (e.key === 'Enter') {
+    //   handleCompleted();
+    // }
   };
 
   return (
