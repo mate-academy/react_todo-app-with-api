@@ -21,9 +21,11 @@ export const TodoItem: React.FC<Props> = React.memo(({
   const titleField = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    if (isEditing && titleField.current) {
-      titleField.current.focus();
+    if (isEditing) {
+      titleField.current?.focus();
     }
+
+    // console.log(`useEf: ${isEditing}`);
   }, [isEditing]);
 
   const handleCompleted = () => {
@@ -44,8 +46,10 @@ export const TodoItem: React.FC<Props> = React.memo(({
         title: newTitle,
       }).then(() => {
         setIsEditing(false);
+        // console.log(`then: ${isEditing}`);
       })
         .catch(() => {
+          // console.log(`catch: ${isEditing}`);
           setIsEditing(true);
         });
     } else {
@@ -63,9 +67,6 @@ export const TodoItem: React.FC<Props> = React.memo(({
       setNewTitle(title);
       setIsEditing(false);
     }
-    // else if (e.key === 'Enter') {
-    //   handleCompleted();
-    // }
   };
 
   return (

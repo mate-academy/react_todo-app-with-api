@@ -101,6 +101,8 @@ export const App: React.FC = () => {
         setErrorMessage(ErrorMessage.UnableToDelete);
       })
       .finally(() => {
+        setTodos(currentTodos => currentTodos.map(todo => (todo.id === todoId
+          ? { ...todo, loading: false } : todo)));
         setIsListLoading(false);
       });
   };
@@ -118,8 +120,9 @@ export const App: React.FC = () => {
           .map(currentTodo => (todo.id === currentTodo.id
             ? { ...todo, loading: false } : currentTodo)));
       })
-      .catch(() => {
+      .catch((error) => {
         setErrorMessage(ErrorMessage.UnableToUpdate);
+        throw error;
       })
       .finally(() => {
         setTodos(currentTodos => currentTodos
