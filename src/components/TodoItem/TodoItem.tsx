@@ -86,7 +86,7 @@ export const TodoItem: React.FC<Props> = React.memo(({
             className="todo__title"
             onDoubleClick={() => setIsEditing(true)}
           >
-            {title}
+            {newTitle}
           </span>
 
           <button
