@@ -20,7 +20,6 @@ export type Action
   | { type: 'addTodo', payload: Todo }
   | { type: 'deleteTodo', payload: number }
   | { type: 'updateTodo', payload: Todo }
-  | { type: 'toggleAll', payload: boolean }
   | { type: 'setError', payload: string | null }
   | { type: 'setFilter', payload: Filter }
   | { type: 'setTempTodo', payload: Todo | null };
@@ -69,17 +68,6 @@ function reducer(state: State, action: Action): State {
           }
 
           return todo;
-        }),
-      };
-
-    case 'toggleAll':
-      return {
-        ...state,
-        todos: state.todos.map(todo => {
-          return {
-            ...todo,
-            completed: action.payload,
-          };
         }),
       };
 

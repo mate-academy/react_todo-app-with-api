@@ -21,8 +21,6 @@ export const Footer = () => {
       return prev;
     }, [] as number[]);
 
-    dispatch({ type: 'saveTodosForUpdateId', payload: todosForDeleteIds });
-
     todosForDeleteIds.forEach(id => {
       deleteTodo(`/todos/${id}`)
         .then(() => {

@@ -80,30 +80,21 @@ export const Header = () => {
       return prev;
     }, [] as number[]);
 
-    dispatch({
-      type: 'saveTodosForUpdateId',
-      payload: todosForUpdateIds,
-    });
+    dispatch({ type: 'saveTodosForUpdateId', payload: todosForUpdateIds });
 
-    const promises = todosForUpdateIds.map(id => {
-      return updateTodo({ completed: !!activeTodos, id });
-    });
-
-    Promise.all(promises)
-      .then(() => dispatch({
-        type: 'toggleAll',
-        payload: !!activeTodos,
-      }))
-      .catch(() => dispatch({
-        type: 'setError',
-        payload: 'Unable to update a todos',
-      }))
-      .finally(() => {
-        dispatch({
-          type: 'saveTodosForUpdateId',
-          payload: [],
+    todosForUpdateIds.forEach(id => {
+      updateTodo({ completed: !!activeTodos, id })
+        .then(updatedTodo => {
+          dispatch({ type: 'updateTodo', payload: updatedTodo });
+        })
+        .catch(() => dispatch({
+          type: 'setError',
+          payload: 'Unable to update a todos',
+        }))
+        .finally(() => {
+          dispatch({ type: 'saveTodosForUpdateId', payload: [] });
         });
-      });
+    });
   }
 
   return (
