@@ -5,10 +5,9 @@ import { Filter } from '../types/Filter';
 type State = {
   errorMessage: string | null;
   todos: Todo[];
-  clearAll: boolean;
+  todosForUpdateIds: number[],
   filterBy: Filter;
   isSubmitting: boolean;
-  isEscapeKeyup: boolean;
   tempTodo: Todo | null,
 };
 
@@ -18,25 +17,23 @@ type Props = {
 
 export type Action
   = { type: 'saveTodos', payload: Todo[] }
+  | { type: 'saveTodosForUpdateId', payload: number[] }
   | { type: 'addTodo', payload: Todo }
   | { type: 'deleteTodo', payload: number }
   | { type: 'deleteAllCompleted' }
   | { type: 'updateTodo', payload: Todo }
   | { type: 'toggleAll', payload: boolean }
   | { type: 'setError', payload: string | null }
-  | { type: 'clearAll', payload: boolean }
   | { type: 'setFilter', payload: Filter }
-  | { type: 'setIsSubmitting', payload: boolean }
   | { type: 'setEscape', payload: boolean }
   | { type: 'setTempTodo', payload: Todo | null };
 
 export const initialState: State = {
   errorMessage: null,
   todos: [],
-  clearAll: false,
+  todosForUpdateIds: [],
   filterBy: Filter.all,
   isSubmitting: false,
-  isEscapeKeyup: false,
   tempTodo: null,
 };
 
@@ -47,6 +44,12 @@ function reducer(state: State, action: Action): State {
         ...state,
         todos: action.payload,
         tempTodo: null,
+      };
+
+    case 'saveTodosForUpdateId':
+      return {
+        ...state,
+        todosForUpdateIds: action.payload,
       };
 
     case 'addTodo':
@@ -96,28 +99,10 @@ function reducer(state: State, action: Action): State {
         errorMessage: action.payload,
       };
 
-    case 'clearAll':
-      return {
-        ...state,
-        clearAll: action.payload,
-      };
-
     case 'setFilter':
       return {
         ...state,
         filterBy: action.payload,
-      };
-
-    case 'setIsSubmitting':
-      return {
-        ...state,
-        isSubmitting: action.payload,
-      };
-
-    case 'setEscape':
-      return {
-        ...state,
-        isEscapeKeyup: action.payload,
       };
 
     case 'setTempTodo':

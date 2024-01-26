@@ -5,7 +5,6 @@ import cn from 'classnames';
 import { createTodo, updateTodo } from '../../api/todos';
 import { USER_ID } from '../../constants/user';
 import { DispatchContext, StateContext } from '../../State/State';
-import { Todo } from '../../types/Todo';
 
 export const Header = () => {
   const [todo, setTodo] = useState('');
@@ -29,7 +28,10 @@ export const Header = () => {
     const preperedTodo = todo.trim();
 
     if (!preperedTodo.length) {
-      dispatch({ type: 'setError', payload: 'Title should not be empty' });
+      dispatch({
+        type: 'setError',
+        payload: 'Title should not be empty',
+      });
       setTodo('');
 
       return;
@@ -44,7 +46,10 @@ export const Header = () => {
       id: 0,
     };
 
-    dispatch({ type: 'setTempTodo', payload: newTodo });
+    dispatch({
+      type: 'setTempTodo',
+      payload: newTodo,
+    });
 
     createTodo(newTodo)
       .then(res => {
@@ -52,29 +57,37 @@ export const Header = () => {
         dispatch({ type: 'addTodo', payload: res });
       })
       .catch(() => {
-        dispatch(
-          { type: 'setError', payload: 'Unable to add a todo' },
-        );
+        dispatch({
+          type: 'setError',
+          payload: 'Unable to add a todo',
+        });
       })
       .finally(() => {
         setIsSubmitting(false);
-        dispatch({ type: 'setTempTodo', payload: null });
+        dispatch({
+          type: 'setTempTodo',
+          payload: null,
+        });
       });
   }
 
   function handleToggleAll() {
-    const promises = todos.reduce((prev, el) => {
+    const todosForUpdateIds = todos.reduce((prev, el) => {
       if (el.completed === !activeTodos) {
-        return [
-          ...prev,
-          updateTodo({ completed: !!activeTodos, id: el.id }),
-        ];
+        return [...prev, el.id];
       }
 
       return prev;
-    }, [] as Promise<Partial<Todo>>[]);
+    }, [] as number[]);
 
-    dispatch({ type: 'setIsSubmitting', payload: true });
+    dispatch({
+      type: 'saveTodosForUpdateId',
+      payload: todosForUpdateIds,
+    });
+
+    const promises = todosForUpdateIds.map(id => {
+      return updateTodo({ completed: !!activeTodos, id });
+    });
 
     Promise.all(promises)
       .then(() => dispatch({
@@ -86,7 +99,10 @@ export const Header = () => {
         payload: 'Unable to update a todos',
       }))
       .finally(() => {
-        dispatch({ type: 'setIsSubmitting', payload: false });
+        dispatch({
+          type: 'saveTodosForUpdateId',
+          payload: [],
+        });
       });
   }
 

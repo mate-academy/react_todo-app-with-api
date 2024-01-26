@@ -3,7 +3,7 @@ import './Footer.scss';
 import { useContext } from 'react';
 import { DispatchContext, StateContext } from '../../State/State';
 import { Filter } from '../../types/Filter';
-import { deleteAllCompleted } from '../../api/todos';
+import { deleteTodo } from '../../api/todos';
 
 export const Footer = () => {
   const dispatch = useContext(DispatchContext);
@@ -12,15 +12,29 @@ export const Footer = () => {
   const hasCompleted = todos.some(todo => todo.completed);
   const activeTodos = todos.filter(el => !el.completed).length;
 
-  function handleDeleteAllCompleted() {
-    dispatch({ type: 'clearAll', payload: true });
+  function deleteAllCompleted() {
+    const todosForDeleteIds = todos.reduce((prev, current) => {
+      if (current.completed === true) {
+        return [...prev, current.id];
+      }
 
-    deleteAllCompleted(todos)
+      return prev;
+    }, [] as number[]);
+
+    dispatch({ type: 'saveTodosForUpdateId', payload: todosForDeleteIds });
+
+    const promises = todosForDeleteIds.map(id => {
+      return deleteTodo(`/todos/${id}`);
+    });
+
+    Promise.all(promises)
       .then(() => dispatch({ type: 'deleteAllCompleted' }))
       .catch(() => dispatch(
         { type: 'setError', payload: 'Unable to delete a todos' },
       ))
-      .finally(() => dispatch({ type: 'clearAll', payload: false }));
+      .finally(() => dispatch(
+        { type: 'saveTodosForUpdateId', payload: [] },
+      ));
   }
 
   return (
@@ -80,7 +94,7 @@ export const Footer = () => {
           type="button"
           className="todoapp__clear-completed"
           data-cy="ClearCompletedButton"
-          onClick={handleDeleteAllCompleted}
+          onClick={deleteAllCompleted}
         >
           Clear completed
         </button>
