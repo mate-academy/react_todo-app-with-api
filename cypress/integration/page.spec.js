@@ -1484,7 +1484,7 @@ describe('', () => {
         });
 
         // It depend on your implementation
-        it.skip('should stay while waiting', () => {
+        it('should stay while waiting', () => {
           page.mockUpdate(257334);
 
           todos.title(0).trigger('dblclick');

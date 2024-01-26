@@ -4,8 +4,8 @@ import { Todo } from '../../types/Todo';
 
 type Props = {
   todo: Todo;
-  onDelete: (id: number) => void;
-  updateTodo: (todo: Todo) => Promise<void>;
+  onDelete?: (id: number) => void;
+  updateTodo?: (todo: Todo) => Promise<void>;
 };
 
 export const TodoItem: React.FC<Props> = React.memo(({
@@ -24,12 +24,10 @@ export const TodoItem: React.FC<Props> = React.memo(({
     if (isEditing) {
       titleField.current?.focus();
     }
-
-    // console.log(`useEf: ${isEditing}`);
   }, [isEditing]);
 
   const handleCompleted = () => {
-    updateTodo({
+    updateTodo?.({
       ...todo,
       completed: !completed,
     });
@@ -39,17 +37,15 @@ export const TodoItem: React.FC<Props> = React.memo(({
     setNewTitle(currentTitle => currentTitle.trim());
 
     if (!newTitle) {
-      onDelete(id);
+      onDelete?.(id);
     } else if (newTitle !== title) {
-      updateTodo({
+      updateTodo?.({
         ...todo,
         title: newTitle,
       }).then(() => {
         setIsEditing(false);
-        // console.log(`then: ${isEditing}`);
       })
         .catch(() => {
-          // console.log(`catch: ${isEditing}`);
           setIsEditing(true);
         });
     } else {
@@ -100,7 +96,7 @@ export const TodoItem: React.FC<Props> = React.memo(({
             data-cy="TodoDelete"
             type="button"
             className="todo__remove"
-            onClick={() => onDelete(id)}
+            onClick={() => onDelete?.(id)}
             disabled={loading}
           >
             ×

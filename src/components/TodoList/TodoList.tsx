@@ -29,8 +29,6 @@ export const TodoList: React.FC<Props> = React.memo(({
       {tempTodo && (
         <TodoItem
           todo={tempTodo}
-          onDelete={onDelete}
-          updateTodo={updateTodo}
         />
       )}
     </section>

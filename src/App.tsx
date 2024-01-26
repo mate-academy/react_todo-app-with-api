@@ -18,6 +18,12 @@ export const App: React.FC = () => {
   const [selectedFilter, setSelectedFilter] = useState(FilterType.ALL);
   const [errorMessage, setErrorMessage] = useState('');
 
+  // const taskLoader = (task: Todo, isLoading: boolean) => {
+  //   setTodos(currentTodos => currentTodos
+  //     .map(currentTodo => (task.id === currentTodo.id
+  //       ? { ...task, loading: isLoading } : currentTodo)));
+  // };
+
   useEffect(() => {
     setErrorMessage('');
 
@@ -47,7 +53,7 @@ export const App: React.FC = () => {
 
   const visibleTodos = filterTodos(selectedFilter, todos);
   const completedTodos = todos.filter(todo => todo.completed);
-  const unComletedTodos = todos.filter(todo => !todo.completed);
+  const unCompletedTodos = todos.filter(todo => !todo.completed);
   const isAllCompleted = todos.length === completedTodos.length;
 
   const addTodo = (title: string) => {
@@ -85,6 +91,69 @@ export const App: React.FC = () => {
     return request;
   };
 
+  const updateTodo = (updatedTodo: Todo) => {
+    setErrorMessage('');
+
+    setTodos(currentTodos => currentTodos
+      .map(todo => (todo.id === updatedTodo.id
+        ? { ...todo, loading: true } : todo)));
+
+    // taskLoader(updatedTodo, true);
+
+    return todosService.updateTodo(updatedTodo)
+      .then((todo) => {
+        setTodos(currentTodos => currentTodos
+          .map(currentTodo => (todo.id === currentTodo.id
+            ? { ...todo, loading: false } : currentTodo)));
+
+        // taskLoader(todo, false);
+      })
+      .catch((error) => {
+        setErrorMessage(ErrorMessage.UnableToUpdate);
+        throw error;
+      })
+      .finally(() => {
+        setTodos(currentTodos => currentTodos
+          .map(todo => (todo.id === updatedTodo.id
+            ? { ...todo, loading: false } : todo)));
+
+        // taskLoader(updatedTodo, false);
+      });
+  };
+
+  const toggleAll = (toggle: boolean) => {
+    setErrorMessage('');
+
+    const todosForToggle = isAllCompleted
+      ? completedTodos
+      : unCompletedTodos;
+
+    const toggleTodos = todosForToggle.map((todo) => {
+      setTodos(currentTodos => currentTodos
+        .map(currentTodo => (todo.id === currentTodo.id
+          ? { ...todo, loading: true } : currentTodo)));
+
+      return todosService.updateTodo({
+        ...todo,
+        completed: toggle,
+      })
+        .then(task => {
+          setTodos(currentTodos => currentTodos
+            .map(currentTodo => (task.id === currentTodo.id
+              ? { ...task, loading: false } : currentTodo)));
+        });
+    });
+
+    Promise.all(toggleTodos)
+      .catch(() => {
+        setErrorMessage(ErrorMessage.UnableToUpdate);
+
+        todosForToggle.map((todo) => setTodos(currentTodos => currentTodos
+          .map(currentTodo => (todo.id === currentTodo.id
+            ? { ...todo, loading: false } : currentTodo))));
+      });
+  };
+
   const deleteTodo = (todoId: number) => {
     setErrorMessage('');
     setIsListLoading(true);
@@ -104,30 +173,6 @@ export const App: React.FC = () => {
         setTodos(currentTodos => currentTodos.map(todo => (todo.id === todoId
           ? { ...todo, loading: false } : todo)));
         setIsListLoading(false);
-      });
-  };
-
-  const updateTodo = (updatedTodo: Todo) => {
-    setErrorMessage('');
-
-    setTodos(currentTodos => currentTodos
-      .map(todo => (todo.id === updatedTodo.id
-        ? { ...todo, loading: true } : todo)));
-
-    return todosService.updateTodo(updatedTodo)
-      .then((todo) => {
-        setTodos(currentTodos => currentTodos
-          .map(currentTodo => (todo.id === currentTodo.id
-            ? { ...todo, loading: false } : currentTodo)));
-      })
-      .catch((error) => {
-        setErrorMessage(ErrorMessage.UnableToUpdate);
-        throw error;
-      })
-      .finally(() => {
-        setTodos(currentTodos => currentTodos
-          .map(todo => (todo.id === updatedTodo.id
-            ? { ...todo, loading: false } : todo)));
       });
   };
 
@@ -154,39 +199,6 @@ export const App: React.FC = () => {
       })
       .finally(() => {
         setIsListLoading(false);
-      });
-  };
-
-  const toggleAll = (toggle: boolean) => {
-    setErrorMessage('');
-
-    const todosForToggle = isAllCompleted
-      ? completedTodos
-      : unComletedTodos;
-
-    const toggleTodos = todosForToggle.map((todo) => {
-      setTodos(currentTodos => currentTodos
-        .map(currentTodo => (todo.id === currentTodo.id
-          ? { ...todo, loading: true } : currentTodo)));
-
-      return todosService.updateTodo({
-        ...todo,
-        completed: toggle,
-      })
-        .then(task => {
-          setTodos(currentTodos => currentTodos
-            .map(currentTodo => (task.id === currentTodo.id
-              ? { ...task, loading: false } : currentTodo)));
-        });
-    });
-
-    Promise.all(toggleTodos)
-      .catch(() => {
-        setErrorMessage(ErrorMessage.UnableToUpdate);
-
-        todosForToggle.map((todo) => setTodos(currentTodos => currentTodos
-          .map(currentTodo => (todo.id === currentTodo.id
-            ? { ...todo, loading: false } : currentTodo))));
       });
   };
 
@@ -220,7 +232,7 @@ export const App: React.FC = () => {
                   filterBy={selectedFilter}
                   changeFilter={handleFilterChange}
                   completedTodos={completedTodos}
-                  unComletedTodos={unComletedTodos}
+                  unComletedTodos={unCompletedTodos}
                   clearCompleted={clearCompleted}
                 />
               )}
