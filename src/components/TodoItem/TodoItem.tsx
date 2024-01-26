@@ -57,11 +57,21 @@ export const TodoItem: React.FC<Props> = ({
     setIsLoading(true);
 
     updateTodo(updatedTodo)
-      .then(() => dispatch({ type: 'updatedAt' }))
+      .then(res => dispatch(
+        { type: 'updateTodo', payload: res },
+      ))
       .catch(() => dispatch(
         { type: 'setError', payload: 'Unable to update a todo' },
       ))
       .finally(() => setIsLoading(false));
+  }
+
+  function handleDoubleClick() {
+    if (!setIsEditing) {
+      return;
+    }
+
+    setIsEditing(true);
   }
 
   function handleDeleteTodo() {
@@ -81,14 +91,6 @@ export const TodoItem: React.FC<Props> = ({
       .finally(() => {
         setIsLoading(false);
       });
-  }
-
-  function handleDoubleClick() {
-    if (!setIsEditing) {
-      return;
-    }
-
-    setIsEditing(true);
   }
 
   return (

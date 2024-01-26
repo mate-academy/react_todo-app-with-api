@@ -8,15 +8,24 @@ import { client } from './utils/fetchClient';
 import { USER_ID } from './constants/user';
 import { Todo } from './types/Todo';
 import { DispatchContext, StateContext } from './State/State';
-import { countActiveTodos, getPreparedTodos } from './services/todosServices';
+import { Filter } from './types/Filter';
+
+function getPreparedTodos(todos: Todo[], filterBy: Filter): Todo[] {
+  switch (filterBy) {
+    case Filter.active:
+      return todos.filter(todo => !todo.completed);
+
+    case Filter.completed:
+      return todos.filter(todo => todo.completed);
+
+    default:
+      return todos;
+  }
+}
 
 export const App: React.FC = () => {
   const dispatch = useContext(DispatchContext);
-  const {
-    todos,
-    filterBy,
-    updatedAt,
-  } = useContext(StateContext);
+  const { todos, filterBy } = useContext(StateContext);
 
   const preparedTodos = getPreparedTodos(todos, filterBy);
 
@@ -29,16 +38,15 @@ export const App: React.FC = () => {
   useEffect(() => {
     client.get<Todo[]>(`/todos?userId=${USER_ID}`)
       .then(res => {
-        // setTodo(res);
         dispatch({
           type: 'saveTodos',
-          payload: { todos: res, activeTodos: countActiveTodos(res) },
+          payload: res,
         });
       })
       .catch(() => dispatch(
         { type: 'setError', payload: 'Unable to load todos' },
       ));
-  }, [dispatch, updatedAt]);
+  }, [dispatch]);
 
   useEffect(() => {
     document.addEventListener('keyup', pressKey);
@@ -59,7 +67,7 @@ export const App: React.FC = () => {
           <TodoList todos={preparedTodos} />
         </main>
 
-        {!!todos.length && <Footer />}
+        <Footer />
       </div>
 
       <Notification />

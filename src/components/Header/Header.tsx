@@ -2,19 +2,27 @@ import {
   useContext, useEffect, useRef, useState,
 } from 'react';
 import cn from 'classnames';
-import { createTodo } from '../../api/todos';
+import { createTodo, updateTodo } from '../../api/todos';
 import { USER_ID } from '../../constants/user';
 import { DispatchContext, StateContext } from '../../State/State';
-import { handleToggleAll } from '../../services/todosServices';
+import { Todo } from '../../types/Todo';
 
 export const Header = () => {
   const [todo, setTodo] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const { todos, activeTodos } = useContext(StateContext);
+  const { todos } = useContext(StateContext);
   const dispatch = useContext(DispatchContext);
 
   const inputTodo = useRef<HTMLInputElement>(null);
+
+  const activeTodos = todos.filter(el => !el.completed).length;
+
+  useEffect(() => {
+    if (inputTodo.current) {
+      inputTodo.current.focus();
+    }
+  }, [todos, isSubmitting]);
 
   function handleOnSubmit(event: React.FormEvent) {
     event.preventDefault();
@@ -41,7 +49,7 @@ export const Header = () => {
     createTodo(newTodo)
       .then(res => {
         setTodo('');
-        dispatch({ type: 'addActiveTodo', payload: res });
+        dispatch({ type: 'addTodo', payload: res });
       })
       .catch(() => {
         dispatch(
@@ -54,11 +62,33 @@ export const Header = () => {
       });
   }
 
-  useEffect(() => {
-    if (inputTodo.current) {
-      inputTodo.current.focus();
-    }
-  }, [todos, isSubmitting]);
+  function handleToggleAll() {
+    const promises = todos.reduce((prev, el) => {
+      if (el.completed === !activeTodos) {
+        return [
+          ...prev,
+          updateTodo({ completed: !!activeTodos, id: el.id }),
+        ];
+      }
+
+      return prev;
+    }, [] as Promise<Partial<Todo>>[]);
+
+    dispatch({ type: 'setIsSubmitting', payload: true });
+
+    Promise.all(promises)
+      .then(() => dispatch({
+        type: 'toggleAll',
+        payload: !!activeTodos,
+      }))
+      .catch(() => dispatch({
+        type: 'setError',
+        payload: 'Unable to update a todos',
+      }))
+      .finally(() => {
+        dispatch({ type: 'setIsSubmitting', payload: false });
+      });
+  }
 
   return (
     <header className="todoapp__header">
@@ -70,7 +100,7 @@ export const Header = () => {
           className={cn('todoapp__toggle-all', {
             active: !activeTodos,
           })}
-          onClick={() => handleToggleAll(dispatch, todos, activeTodos)}
+          onClick={handleToggleAll}
           data-cy="ToggleAllButton"
           aria-label="Set all"
         />
