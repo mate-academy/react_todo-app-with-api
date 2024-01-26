@@ -21,6 +21,8 @@ export const Footer = () => {
       return prev;
     }, [] as number[]);
 
+    dispatch({ type: 'saveTodosForUpdateId', payload: todosForDeleteIds });
+
     todosForDeleteIds.forEach(id => {
       deleteTodo(`/todos/${id}`)
         .then(() => {
@@ -29,7 +31,10 @@ export const Footer = () => {
         .catch(() => dispatch({
           type: 'setError',
           payload: 'Unable to delete a todo',
-        }));
+        }))
+        .finally(() => {
+          dispatch({ type: 'saveTodosForUpdateId', payload: [] });
+        });
     });
   }
 
