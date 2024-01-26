@@ -27,8 +27,10 @@ export const Footer = () => {
       return deleteTodo(`/todos/${id}`);
     });
 
-    Promise.all(promises)
-      .then(() => dispatch({ type: 'deleteAllCompleted' }))
+    Promise.allSettled(promises)
+      .then(() => {
+        dispatch({ type: 'deleteAllCompleted' });
+      })
       .catch(() => dispatch(
         { type: 'setError', payload: 'Unable to delete a todos' },
       ))
@@ -89,16 +91,15 @@ export const Footer = () => {
       )}
 
       {/* don't show this button if there are no completed todos */}
-      {hasCompleted && (
-        <button
-          type="button"
-          className="todoapp__clear-completed"
-          data-cy="ClearCompletedButton"
-          onClick={deleteAllCompleted}
-        >
-          Clear completed
-        </button>
-      )}
+      <button
+        type="button"
+        className="todoapp__clear-completed"
+        data-cy="ClearCompletedButton"
+        onClick={deleteAllCompleted}
+        disabled={!hasCompleted}
+      >
+        Clear completed
+      </button>
     </footer>
   );
 };

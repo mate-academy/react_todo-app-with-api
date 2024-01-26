@@ -23,7 +23,7 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
   const [isEditing, setIsEditing] = useState(false);
 
   const dispatch = useContext(DispatchContext);
-  const { todosForUpdateIds } = useContext(StateContext);
+  const { todosForUpdateIds, tempTodo } = useContext(StateContext);
 
   const edit = useRef<HTMLInputElement>(null);
 
@@ -40,6 +40,14 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
       setIsLoading(false);
     }
   }, [todosForUpdateIds, id]);
+
+  useEffect(() => {
+    if (tempTodo && id === 0) {
+      setIsLoading(true);
+    } else {
+      setIsLoading(false);
+    }
+  }, [tempTodo, id]);
 
   function handleDeleteTodo() {
     if (!setIsLoading) {
@@ -62,6 +70,14 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
 
   function editTodo(event: React.FormEvent) {
     event.preventDefault();
+    setCurrentTitle(currentTitle.trim());
+
+    if (title === currentTitle) {
+      setIsEditing(false);
+
+      return;
+    }
+
     setIsLoading(true);
 
     if (currentTitle.length) {
@@ -69,6 +85,7 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
         .then(updatedTodo => {
           setIsEditing(false);
           dispatch({ type: 'updateTodo', payload: updatedTodo });
+          setIsEditing(false);
         })
 
         .catch(() => dispatch(
@@ -77,7 +94,6 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
 
         .finally(() => {
           setIsLoading(false);
-          setIsEditing(false);
         });
 
       return;
@@ -166,7 +182,7 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
               <div
                 data-cy="TodoLoader"
                 className={cn('modal overlay', {
-                  'is-active': isLoading || (!currentTitle && !isLoading),
+                  'is-active': isLoading,
                 })}
               >
                 <div className="modal-background has-background-white-ter" />

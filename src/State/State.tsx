@@ -7,7 +7,6 @@ type State = {
   todos: Todo[];
   todosForUpdateIds: number[],
   filterBy: Filter;
-  isSubmitting: boolean;
   tempTodo: Todo | null,
 };
 
@@ -25,15 +24,13 @@ export type Action
   | { type: 'toggleAll', payload: boolean }
   | { type: 'setError', payload: string | null }
   | { type: 'setFilter', payload: Filter }
-  | { type: 'setEscape', payload: boolean }
   | { type: 'setTempTodo', payload: Todo | null };
 
 export const initialState: State = {
-  errorMessage: null,
   todos: [],
   todosForUpdateIds: [],
   filterBy: Filter.all,
-  isSubmitting: false,
+  errorMessage: null,
   tempTodo: null,
 };
 
