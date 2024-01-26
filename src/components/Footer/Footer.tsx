@@ -23,20 +23,16 @@ export const Footer = () => {
 
     dispatch({ type: 'saveTodosForUpdateId', payload: todosForDeleteIds });
 
-    const promises = todosForDeleteIds.map(id => {
-      return deleteTodo(`/todos/${id}`);
+    todosForDeleteIds.forEach(id => {
+      deleteTodo(`/todos/${id}`)
+        .then(() => {
+          dispatch({ type: 'deleteTodo', payload: id });
+        })
+        .catch(() => dispatch({
+          type: 'setError',
+          payload: 'Unable to delete a todo',
+        }));
     });
-
-    Promise.allSettled(promises)
-      .then(() => {
-        dispatch({ type: 'deleteAllCompleted' });
-      })
-      .catch(() => dispatch(
-        { type: 'setError', payload: 'Unable to delete a todos' },
-      ))
-      .finally(() => dispatch(
-        { type: 'saveTodosForUpdateId', payload: [] },
-      ));
   }
 
   return (

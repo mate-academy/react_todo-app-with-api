@@ -19,7 +19,6 @@ export type Action
   | { type: 'saveTodosForUpdateId', payload: number[] }
   | { type: 'addTodo', payload: Todo }
   | { type: 'deleteTodo', payload: number }
-  | { type: 'deleteAllCompleted' }
   | { type: 'updateTodo', payload: Todo }
   | { type: 'toggleAll', payload: boolean }
   | { type: 'setError', payload: string | null }
@@ -59,12 +58,6 @@ function reducer(state: State, action: Action): State {
       return {
         ...state,
         todos: state.todos.filter(todo => todo.id !== action.payload),
-      };
-
-    case 'deleteAllCompleted':
-      return {
-        ...state,
-        todos: state.todos.filter(todo => todo.completed === false),
       };
 
     case 'updateTodo':
