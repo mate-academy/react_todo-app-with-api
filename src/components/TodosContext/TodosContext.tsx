@@ -16,6 +16,8 @@ export const TodosContext = React.createContext<ContextProps>({
   setTempTodo: () => { },
   isLoadingAll: false,
   setIsLoadingAll: () => { },
+  isChangedStatus: null,
+  setIsChangedStatus: () => {},
 });
 
 type Props = {
@@ -30,11 +32,12 @@ export const TodosProvider: React.FC<Props> = ({ children }) => {
   const [errorMessage, setErrorMessage] = useState(ErrorMessage.DEFAULT);
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
   const [isLoadingAll, setIsLoadingAll] = useState(false);
+  const [isChangedStatus, setIsChangedStatus] = useState<boolean | null>(null);
 
   const handleErrorMessage = (error: ErrorMessage) => {
     setErrorMessage(error);
 
-    setTimeout(() => setErrorMessage(ErrorMessage.DEFAULT), 3000);
+    setTimeout(setErrorMessage, 3000, ErrorMessage.DEFAULT);
   };
 
   useEffect(() => {
@@ -56,6 +59,8 @@ export const TodosProvider: React.FC<Props> = ({ children }) => {
         setTempTodo,
         isLoadingAll,
         setIsLoadingAll,
+        isChangedStatus,
+        setIsChangedStatus,
       }}
     >
       {children}

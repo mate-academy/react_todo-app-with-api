@@ -24,6 +24,7 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
     setTodos,
     handleErrorMessage,
     isLoadingAll,
+    isChangedStatus,
   } = useContext(TodosContext);
 
   const [isLoading, setIsLoading] = useState(false);
@@ -31,6 +32,8 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
   const [changedTitle, setChangedTitle] = useState(title);
 
   const inputRef = useRef<HTMLInputElement>(null);
+
+  inputRef.current?.focus();
 
   const handleRemoveTodo = () => {
     setIsLoading(true);
@@ -87,6 +90,7 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
 
     if (!changedTitle.trim()) {
       handleRemoveTodo()
+        .then(() => setIsEditing(false))
         .catch(() => setIsEditing(true));
     }
 
@@ -99,7 +103,6 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
       };
 
       functionUpdateTodo(newTodo)
-        .then(() => setIsEditing(false))
         .catch(() => setIsEditing(true));
     } else {
       setIsEditing(false);
@@ -178,7 +181,8 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
         data-cy="TodoLoader"
         className={cn('modal', 'overlay', {
           'is-active': isLoading
-            || (isLoadingAll && completed),
+            || (isLoadingAll && completed)
+            || (isChangedStatus !== todo.completed && isChangedStatus !== null),
         })}
       >
         <div className="modal-background has-background-white-ter" />

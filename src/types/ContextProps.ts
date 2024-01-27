@@ -13,4 +13,6 @@ export type ContextProps = {
   setTempTodo: React.Dispatch<React.SetStateAction<Todo | null>>,
   isLoadingAll: boolean,
   setIsLoadingAll: React.Dispatch<React.SetStateAction<boolean>>,
+  isChangedStatus: boolean | null,
+  setIsChangedStatus: React.Dispatch<React.SetStateAction<boolean | null>>,
 };

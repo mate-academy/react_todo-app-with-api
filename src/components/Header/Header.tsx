@@ -16,6 +16,7 @@ export const Header: React.FC = () => {
     setTodos,
     handleErrorMessage,
     setTempTodo,
+    setIsChangedStatus,
   } = useContext(TodosContext);
 
   const inputRef = useRef<HTMLInputElement>(null);
@@ -65,6 +66,12 @@ export const Header: React.FC = () => {
   const handleChangeStatusAllTodos = () => {
     const status = todos.every(todo => todo.completed);
 
+    if (status) {
+      setIsChangedStatus(false);
+    } else {
+      setIsChangedStatus(true);
+    }
+
     todos.map((todo) => {
       const updatedTodo = {
         id: todo.id,
@@ -89,7 +96,8 @@ export const Header: React.FC = () => {
           .catch(() => {
             setTodos(todos);
             handleErrorMessage(ErrorMessage.UNABLE_UPDATE);
-          });
+          })
+          .finally(() => setIsChangedStatus(null));
       }
 
       return null;
