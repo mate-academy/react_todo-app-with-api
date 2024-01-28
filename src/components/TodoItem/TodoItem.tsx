@@ -70,7 +70,7 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
 
   function editTodo(event: React.FormEvent) {
     event.preventDefault();
-    setCurrentTitle(currentTitle.trim());
+    setCurrentTitle(() => currentTitle.trim());
 
     if (title === currentTitle) {
       setIsEditing(false);
@@ -80,7 +80,7 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
 
     setIsLoading(true);
 
-    if (currentTitle.length) {
+    if (currentTitle.trim().length) {
       updateTodo({ title: currentTitle, id })
         .then(updatedTodo => {
           setIsEditing(false);
