@@ -19,7 +19,6 @@ interface Props {
 export const TodoItem: React.FC<Props> = ({ todo }) => {
   const { id, title, completed } = todo;
   const {
-    handleRemoveTodo,
     handleErrorChange,
     setTodos,
   } = useContext(Context);
