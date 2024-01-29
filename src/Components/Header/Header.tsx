@@ -1,4 +1,9 @@
-import React, { useState, useContext } from 'react';
+import React, {
+  useState,
+  useContext,
+  useRef,
+  useEffect,
+} from 'react';
 
 import { Context } from '../../Context';
 import { ErrorMessage } from '../../types/ErrorMessage';
@@ -16,10 +21,14 @@ export const Header = () => {
     setTempTodo,
   } = useContext(Context);
 
+  const inputRef = useRef<HTMLInputElement>(null);
+
   const handleQueryChange = (value: string) => {
     setErrorMessage('');
     setQuery(value);
   };
+
+  inputRef.current?.focus();
 
   const addingTodo = (event:React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -30,8 +39,6 @@ export const Header = () => {
 
       return;
     }
-
-    setDisableInput(true);
 
     setTempTodo({
       id: 0,
@@ -46,15 +53,17 @@ export const Header = () => {
       completed: false,
     };
 
+    setDisableInput(true);
+
     addTodo(newTodo)
       .then(returnedTodo => {
         setTodos([...todos, returnedTodo]);
+        setQuery('');
       })
       .catch(() => setErrorMessage(ErrorMessage.UNABLE_TO_ADD))
       .finally(() => {
         setTempTodo(null);
         setDisableInput(false);
-        setQuery('');
       });
   };
 
@@ -78,10 +87,14 @@ export const Header = () => {
     }
   };
 
+  useEffect(() => {
+    inputRef.current?.focus();
+  }, [todos]);
+
   return (
     <header className="todoapp__header">
       <>
-        {todos.length !== 0 && (
+        {todos.length > 0 && (
           /*  eslint-disable-next-line jsx-a11y/control-has-associated-label */
           <button
             type="button"

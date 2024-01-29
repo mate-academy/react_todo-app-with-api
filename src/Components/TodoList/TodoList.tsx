@@ -4,6 +4,7 @@ import { TodoItem } from '../TodoItem';
 
 import { Context } from '../../Context';
 import { Filter } from '../../types/Filter';
+import classNames from 'classnames';
 
 export const Main = () => {
   const {
@@ -27,12 +28,17 @@ export const Main = () => {
   return (
     <section className="todoapp__main" data-cy="TodoList">
 
-      {filteredTodos.map(todo => (
+      {filteredTodos?.map(todo => (
         <TodoItem todo={todo} key={todo.id} />
       ))}
 
       {tempTodo && (
-        <div>
+        <div
+          data-cy="Todo"
+          className={classNames('todo', {
+            completed: tempTodo.completed,
+          })}
+        >
           <label className="todo__status-label">
             <input
               data-cy="TodoStatus"
