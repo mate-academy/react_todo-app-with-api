@@ -2,18 +2,32 @@ import React, { useState, useContext } from 'react';
 
 import { Context } from '../../Context';
 import { ErrorMessage } from '../../types/ErrorMessage';
+import { Todo } from '../../types/Todo';
+import { addTodo } from '../../api/todos';
 
 export const Header = () => {
   const [query, setQuery] = useState('');
   const {
+    USER_ID,
     handleErrorChange,
+    completeAll,
     handleActiveTodos,
-    handleAddTodo,
   } = useContext(Context);
 
   const handleQueryChange = (value: string) => {
     handleErrorChange('');
     setQuery(value);
+  };
+
+  const handleAddTodo = (todoTitle: string) => {
+    const newTodo: Omit<Todo, 'id'> = {
+      title: todoTitle,
+      userId: USER_ID,
+      completed: false,
+    };
+
+    addTodo(newTodo)
+      .catch(() => handleErrorChange(ErrorMessage.UNABLE_TO_ADD));
   };
 
   const addingTodo = (event:React.FormEvent<HTMLFormElement>) => {
@@ -38,7 +52,7 @@ export const Header = () => {
           type="button"
           className="todoapp__toggle-all active"
           data-cy="ToggleAllButton"
-          onClick={() => handleErrorChange(ErrorMessage.UNABLE_TO_UPDATE)}
+          onClick={completeAll}
         />
       )}
 

@@ -1,9 +1,16 @@
-import React, { useContext, useState, useRef } from 'react';
+import React, {
+  useContext,
+  useState,
+  useRef,
+  useEffect,
+} from 'react';
 import classNames from 'classnames';
 
 import { Context } from '../../Context';
 
 import { Todo } from '../../types/Todo';
+import { deleteTodo, updateTodo } from '../../api/todos';
+import { ErrorMessage } from '../../types/ErrorMessage';
 
 interface Props {
   todo: Todo;
@@ -11,9 +18,17 @@ interface Props {
 
 export const TodoItem: React.FC<Props> = ({ todo }) => {
   const { id, title, completed } = todo;
-  const { handleRemoveTodo, handleUpdateTodo } = useContext(Context);
-  const [editing, setEditing] = useState(false);
+  const {
+    handleRemoveTodo,
+    handleErrorChange,
+    setTodos,
+  } = useContext(Context);
   const inputRef = useRef<HTMLInputElement>(null);
+  const [editing, setEditing] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [query, setQuery] = useState(title);
+
+  inputRef.current?.focus();
 
   const handleEdit = () => {
     setEditing(true);
@@ -21,6 +36,25 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
     if (inputRef.current) {
       inputRef.current.value = title;
     }
+  };
+
+  const handleUpdateTodo = (updatedTodo: Todo) => {
+    setIsLoading(true);
+
+    updateTodo(updatedTodo)
+      .then(currentTodos => {
+        setTodos(prevTodos => {
+          const newTodos: Todo[] = [...prevTodos];
+          const index = newTodos
+            .findIndex(newTodo => newTodo.id === updatedTodo.id);
+
+          newTodos.splice(index, 1, currentTodos);
+
+          return newTodos;
+        });
+      })
+      .catch(() => handleErrorChange(ErrorMessage.UNABLE_TO_UPDATE))
+      .finally(() => setIsLoading(false));
   };
 
   const handleTitleUpdate = () => {
@@ -34,7 +68,8 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
         title: inputRef.current.value,
       });
     } else {
-      handleRemoveTodo(id);
+      deleteTodo(id)
+        .catch(() => handleErrorChange(ErrorMessage.UNABLE_TO_DELETE));
     }
 
     setEditing(false);
@@ -49,10 +84,15 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
     }
   };
 
+  useEffect(() => {
+    inputRef.current?.focus();
+  }, [editing]);
+
   return (
     <div
       data-cy="Todo"
       className={classNames('todo', { completed })}
+      onBlur={() => setEditing(false)}
     >
       {/* eslint-disable-next-line jsx-a11y/label-has-associated-control */}
       <label className="todo__status-label">
@@ -73,21 +113,25 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
             type="text"
             className="todo__title-field"
             placeholder="Empty todo will be deleted"
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            ref={inputRef}
             onKeyDown={handleKeyDown}
             onBlur={() => setEditing(false)}
-            ref={inputRef}
           />
         </form>
       ) : (
         <>
-          <label
+          <div
             data-cy="TodoTitle"
             className="todo__title"
-            htmlFor={`toggle-${id}`}
-            onDoubleClick={handleEdit}
+            onDoubleClick={() => {
+              handleEdit();
+              inputRef.current?.focus();
+            }}
           >
             {title}
-          </label>
+          </div>
 
           <button
             type="button"
@@ -100,10 +144,12 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
         </>
       )}
 
-      <div data-cy="TodoLoader" className="modal overlay">
-        <div className="modal-background has-background-white-ter" />
-        <div className="loader" />
-      </div>
+      {isLoading && (
+        <div data-cy="TodoLoader" className="modal overlay is-active">
+          <div className="modal-background has-background-white-ter" />
+          <div className="loader" />
+        </div>
+      )}
     </div>
   );
 };

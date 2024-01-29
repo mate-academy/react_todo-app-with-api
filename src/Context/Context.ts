@@ -6,29 +6,23 @@ import { Filter } from '../types/Filter';
 interface ContextProps {
   USER_ID: number;
   todos: Todo[];
-  filteredTodos: Todo[];
   errorMessage: string;
   handleErrorChange: (value: string) => void;
   handleActiveTodos: number;
-  clearCompleted: () => void;
-  handleAddTodo: (todoTitle: string) => void;
-  handleRemoveTodo: (todoId: number) => void;
-  handleUpdateTodo: (updatedTodo: Todo) => void;
+  completeAll: () => void;
   filter: Filter;
   setFilter: React.Dispatch<React.SetStateAction<Filter>>
+  setTodos: React.Dispatch<React.SetStateAction<Todo[]>>
 }
 
 export const Context = createContext<ContextProps>({
   USER_ID: 12176,
   todos: [],
-  filteredTodos: [],
   errorMessage: '',
   handleErrorChange: () => {},
   handleActiveTodos: 0,
-  clearCompleted: () => {},
-  handleAddTodo: () => {},
-  handleRemoveTodo: () => {},
-  handleUpdateTodo: () => {},
+  completeAll: () => {},
   filter: Filter.ALL,
   setFilter: () => {},
+  setTodos: () => {},
 });

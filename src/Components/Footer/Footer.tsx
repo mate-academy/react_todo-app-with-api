@@ -3,14 +3,33 @@ import classNames from 'classnames';
 
 import { Context } from '../../Context';
 import { Filter } from '../../types/Filter';
+import { ErrorMessage } from '../../types/ErrorMessage';
+import { deleteTodo } from '../../api/todos';
 
 export const Footer = () => {
   const {
     handleActiveTodos,
     filter,
     setFilter,
-    clearCompleted,
+    todos,
+    setTodos,
+    handleErrorChange,
   } = useContext(Context);
+
+  const clearCompleted = () => {
+    const completedTodoIds = todos
+      .filter(todo => todo.completed)
+      .map(todo => todo.id);
+
+    const deletePromises = completedTodoIds
+      .map(todoId => deleteTodo(todoId));
+
+    Promise.all(deletePromises)
+      .then(() => {
+        setTodos(prev => prev.filter(todo => !todo.completed));
+      })
+      .catch(() => handleErrorChange(ErrorMessage.UNABLE_TO_DELETE));
+  };
 
   return (
     <footer className="todoapp__footer" data-cy="Footer">
@@ -56,16 +75,15 @@ export const Footer = () => {
         </a>
       </nav>
 
-      {handleActiveTodos > 0 && (
-        <button
-          type="button"
-          className="todoapp__clear-completed"
-          data-cy="ClearCompletedButton"
-          onClick={clearCompleted}
-        >
-          Clear completed
-        </button>
-      )}
+      <button
+        type="button"
+        className="todoapp__clear-completed"
+        data-cy="ClearCompletedButton"
+        onClick={clearCompleted}
+        disabled={handleActiveTodos === todos.length}
+      >
+        Clear completed
+      </button>
     </footer>
   );
 };

@@ -8,8 +8,6 @@ import {
 
 import {
   getTodos,
-  deleteTodo,
-  addTodo,
   updateTodo,
 } from '../../api/todos';
 
@@ -43,18 +41,6 @@ export const ContextProvider: FC<Props> = ({ children }) => {
       .catch(() => handleErrorChange(ErrorMessage.UNABLE_TO_LOAD));
   }, [todos]);
 
-  const filteredTodos = useMemo(() => {
-    if (filter === Filter.ACTIVE) {
-      return todos.filter((item) => !item.completed);
-    }
-
-    if (filter === Filter.COMPLETED) {
-      return todos.filter((item) => item.completed);
-    }
-
-    return todos;
-  }, [filter, todos]);
-
   const handleActiveTodos = useMemo(() => {
     return todos.reduce((sum, item) => {
       if (!item.completed) {
@@ -65,58 +51,31 @@ export const ContextProvider: FC<Props> = ({ children }) => {
     }, 0);
   }, [todos]);
 
-  const clearCompleted = () => {
-    const updatedTodos = todos.filter((item) => !item.completed);
+  const completeAll = () => {
+    const activeTodo = todos
+      .filter(todo => !todo.completed);
 
-    setTodos(updatedTodos);
-  };
+    const updatePromises = activeTodo
+      .map(prevTodo => updateTodo({ ...prevTodo, completed: true }));
 
-  const handleRemoveTodo = (todoId: number) => {
-    deleteTodo(todoId)
-      .catch(() => handleErrorChange(ErrorMessage.UNABLE_TO_DELETE));
-  };
-
-  const handleAddTodo = (todoTitle: string) => {
-    const newTodo: Omit<Todo, 'id'> = {
-      title: todoTitle,
-      userId: USER_ID,
-      completed: false,
-    };
-
-    addTodo(newTodo)
-      .catch(() => handleErrorChange(ErrorMessage.UNABLE_TO_ADD));
-  };
-
-  const handleUpdateTodo = (updatedTodo: Todo) => {
-    updateTodo(updatedTodo)
-      .then(todo => {
-        setTodos(currentTodo => {
-          const newTodos = [...currentTodo];
-          const index = newTodos
-            .findIndex(newTodo => newTodo.id === updatedTodo.id);
-
-          newTodos.splice(index, 1, todo);
-
-          return newTodos;
-        });
+    Promise.all(updatePromises)
+      .then(() => {
+        setTodos(prev => prev.filter(todo => !todo.completed));
       })
-      .catch(() => handleErrorChange(ErrorMessage.UNABLE_TO_UPDATE));
+      .catch(() => setErrorMessage(ErrorMessage.UNABLE_TO_UPDATE));
   };
 
   return (
     <Context.Provider value={{
       USER_ID,
       todos,
-      filteredTodos,
       errorMessage,
       handleErrorChange,
       handleActiveTodos,
-      clearCompleted,
-      handleAddTodo,
-      handleRemoveTodo,
-      handleUpdateTodo,
+      completeAll,
       filter,
       setFilter,
+      setTodos,
     }}
     >
       {children}
