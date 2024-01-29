@@ -110,7 +110,7 @@ export const TodoItem: React.FC<TodoProps> = ({
   return (
     <div
       data-cy="Todo"
-      className={classNames('todo', completed && 'completed')}
+      className={classNames('todo', { completed: !!completed })}
     >
       <label className="todo__status-label">
         <input
@@ -160,7 +160,7 @@ export const TodoItem: React.FC<TodoProps> = ({
       {/* overlay will cover the todo while it is being updated */}
       <div
         data-cy="TodoLoader"
-        className={classNames('modal overlay', isLoader && 'is-active')}
+        className={classNames('modal overlay', { 'is-active': isLoader })}
       >
         <div className="modal-background has-background-white-ter" />
         <div className="loader" />

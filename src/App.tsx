@@ -172,8 +172,7 @@ export const App: React.FC = () => {
             <button
               type="button"
               className={
-                classNames('todoapp__toggle-all',
-                  !!todos.every(t => t.completed) && 'active')
+                classNames('todoapp__toggle-all', { active: !!todos.every(t => t.completed) })
               }
               data-cy="ToggleAllButton"
               onClick={toggleAll}
@@ -226,10 +225,9 @@ export const App: React.FC = () => {
       </div>
       <div
         data-cy="ErrorNotification"
-        className={
-          classNames('notification is-danger is-light has-text-weight-normal',
-            !errorMasage && 'hidden')
-        }
+        className={classNames('notification is-danger is-light has-text-weight-normal', {
+          hidden: !errorMasage,
+        })}
       >
         <button
           data-cy="HideErrorButton"
