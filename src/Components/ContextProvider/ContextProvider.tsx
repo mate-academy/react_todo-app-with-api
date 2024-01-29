@@ -3,12 +3,10 @@ import {
   ReactNode,
   useState,
   useEffect,
-  useMemo,
 } from 'react';
 
 import {
   getTodos,
-  updateTodo,
 } from '../../api/todos';
 
 import { Context } from '../../Context';
@@ -23,6 +21,8 @@ interface Props {
 
 export const ContextProvider: FC<Props> = ({ children }) => {
   const [todos, setTodos] = useState<Todo[]>([]);
+  const [tempTodo, setTempTodo] = useState<null | Todo>(null);
+  const [globalLoading, setGlobalLoading] = useState(false);
   const [filter, setFilter] = useState<Filter>(Filter.ALL);
   const [
     errorMessage,
@@ -31,51 +31,25 @@ export const ContextProvider: FC<Props> = ({ children }) => {
 
   const USER_ID = 12176;
 
-  const handleErrorChange = (value: string) => {
-    setErrorMessage(value);
-  };
-
   useEffect(() => {
     getTodos(USER_ID)
       .then(setTodos)
-      .catch(() => handleErrorChange(ErrorMessage.UNABLE_TO_LOAD));
-  }, [todos]);
-
-  const handleActiveTodos = useMemo(() => {
-    return todos.reduce((sum, item) => {
-      if (!item.completed) {
-        return sum + 1;
-      }
-
-      return sum;
-    }, 0);
-  }, [todos]);
-
-  const completeAll = () => {
-    const activeTodo = todos
-      .filter(todo => !todo.completed);
-
-    const updatePromises = activeTodo
-      .map(prevTodo => updateTodo({ ...prevTodo, completed: true }));
-
-    Promise.all(updatePromises)
-      .then(() => {
-        setTodos(prev => prev.filter(todo => !todo.completed));
-      })
-      .catch(() => setErrorMessage(ErrorMessage.UNABLE_TO_UPDATE));
-  };
+      .catch(() => setErrorMessage(ErrorMessage.UNABLE_TO_LOAD));
+  }, []);
 
   return (
     <Context.Provider value={{
       USER_ID,
       todos,
       errorMessage,
-      handleErrorChange,
-      handleActiveTodos,
-      completeAll,
       filter,
+      globalLoading,
+      tempTodo,
       setFilter,
       setTodos,
+      setErrorMessage,
+      setGlobalLoading,
+      setTempTodo,
     }}
     >
       {children}

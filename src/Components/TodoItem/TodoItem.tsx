@@ -19,7 +19,9 @@ interface Props {
 export const TodoItem: React.FC<Props> = ({ todo }) => {
   const { id, title, completed } = todo;
   const {
-    handleErrorChange,
+    todos,
+    globalLoading,
+    setErrorMessage,
     setTodos,
   } = useContext(Context);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -52,13 +54,14 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
           return newTodos;
         });
       })
-      .catch(() => handleErrorChange(ErrorMessage.UNABLE_TO_UPDATE))
+      .catch(() => setErrorMessage(ErrorMessage.UNABLE_TO_UPDATE))
       .finally(() => setIsLoading(false));
   };
 
   const handleRemoveTodo = (todoId: number) => {
     deleteTodo(todoId)
-      .catch(() => handleErrorChange(ErrorMessage.UNABLE_TO_DELETE));
+      .then(() => setTodos(todos.filter(item => item.id !== id)))
+      .catch(() => setErrorMessage(ErrorMessage.UNABLE_TO_DELETE));
   };
 
   const handleTitleUpdate = () => {
@@ -147,7 +150,9 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
         </>
       )}
 
-      {isLoading && (
+      {(isLoading
+      || globalLoading)
+      && (
         <div data-cy="TodoLoader" className="modal overlay is-active">
           <div className="modal-background has-background-white-ter" />
           <div className="loader" />

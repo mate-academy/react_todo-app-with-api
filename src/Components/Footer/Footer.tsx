@@ -1,4 +1,4 @@
-import { useContext } from 'react';
+import { useContext, useMemo } from 'react';
 import classNames from 'classnames';
 
 import { Context } from '../../Context';
@@ -8,13 +8,22 @@ import { deleteTodo } from '../../api/todos';
 
 export const Footer = () => {
   const {
-    handleActiveTodos,
     filter,
     setFilter,
     todos,
     setTodos,
-    handleErrorChange,
+    setErrorMessage,
   } = useContext(Context);
+
+  const activeTodosCount = useMemo(() => {
+    return todos.reduce((sum, item) => {
+      if (!item.completed) {
+        return sum + 1;
+      }
+
+      return sum;
+    }, 0);
+  }, [todos]);
 
   const clearCompleted = () => {
     const completedTodoIds = todos
@@ -28,13 +37,13 @@ export const Footer = () => {
       .then(() => {
         setTodos(prev => prev.filter(todo => !todo.completed));
       })
-      .catch(() => handleErrorChange(ErrorMessage.UNABLE_TO_DELETE));
+      .catch(() => setErrorMessage(ErrorMessage.UNABLE_TO_DELETE));
   };
 
   return (
     <footer className="todoapp__footer" data-cy="Footer">
       <span className="todo-count" data-cy="TodosCounter">
-        {`${handleActiveTodos} items left`}
+        {`${activeTodosCount} items left`}
       </span>
 
       <nav className="filter" data-cy="Filter">
@@ -80,7 +89,7 @@ export const Footer = () => {
         className="todoapp__clear-completed"
         data-cy="ClearCompletedButton"
         onClick={clearCompleted}
-        disabled={handleActiveTodos === todos.length}
+        disabled={activeTodosCount === todos.length}
       >
         Clear completed
       </button>

@@ -2,7 +2,7 @@ import { useContext } from 'react';
 
 import { Header } from '../Header';
 import { Footer } from '../Footer';
-import { Main } from '../Main';
+import { Main } from '../TodoList';
 import { Notification } from '../Notification';
 
 import { Context } from '../../Context';

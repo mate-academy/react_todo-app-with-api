@@ -3,69 +3,106 @@ import React, { useState, useContext } from 'react';
 import { Context } from '../../Context';
 import { ErrorMessage } from '../../types/ErrorMessage';
 import { Todo } from '../../types/Todo';
-import { addTodo } from '../../api/todos';
+import { addTodo, updateTodo } from '../../api/todos';
 
 export const Header = () => {
   const [query, setQuery] = useState('');
+  const [disableInput, setDisableInput] = useState(false);
   const {
     USER_ID,
-    handleErrorChange,
-    completeAll,
-    handleActiveTodos,
+    todos,
+    setErrorMessage,
+    setTodos,
+    setTempTodo,
   } = useContext(Context);
 
   const handleQueryChange = (value: string) => {
-    handleErrorChange('');
+    setErrorMessage('');
     setQuery(value);
-  };
-
-  const handleAddTodo = (todoTitle: string) => {
-    const newTodo: Omit<Todo, 'id'> = {
-      title: todoTitle,
-      userId: USER_ID,
-      completed: false,
-    };
-
-    addTodo(newTodo)
-      .catch(() => handleErrorChange(ErrorMessage.UNABLE_TO_ADD));
   };
 
   const addingTodo = (event:React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
     if (!query.trim()) {
-      handleErrorChange(ErrorMessage.EMPTY_TITLE);
+      setErrorMessage(ErrorMessage.EMPTY_TITLE);
       setQuery('');
 
       return;
     }
 
-    handleAddTodo(query.trim());
-    setQuery('');
+    setDisableInput(true);
+
+    setTempTodo({
+      id: 0,
+      userId: USER_ID,
+      title: query.trim(),
+      completed: false,
+    });
+
+    const newTodo: Omit<Todo, 'id'> = {
+      title: query.trim(),
+      userId: USER_ID,
+      completed: false,
+    };
+
+    addTodo(newTodo)
+      .then(returnedTodo => {
+        setTodos([...todos, returnedTodo]);
+      })
+      .catch(() => setErrorMessage(ErrorMessage.UNABLE_TO_ADD))
+      .finally(() => {
+        setTempTodo(null);
+        setDisableInput(false);
+        setQuery('');
+      });
+  };
+
+  const completeAll = async () => {
+    const allCompleted = todos.every(item => item.completed);
+
+    const updatedTodos = todos.map(item => ({
+      ...item,
+      completed: !allCompleted,
+    }));
+
+    try {
+      await Promise.all(
+        todos
+          .map(todo => updateTodo({ ...todo, completed: !allCompleted })),
+      );
+
+      setTodos(updatedTodos);
+    } catch (error) {
+      setErrorMessage(ErrorMessage.UNABLE_TO_UPDATE);
+    }
   };
 
   return (
     <header className="todoapp__header">
-      {handleActiveTodos > 0 && (
-        /*  eslint-disable-next-line jsx-a11y/control-has-associated-label */
-        <button
-          type="button"
-          className="todoapp__toggle-all active"
-          data-cy="ToggleAllButton"
-          onClick={completeAll}
-        />
-      )}
+      <>
+        {todos.length !== 0 && (
+          /*  eslint-disable-next-line jsx-a11y/control-has-associated-label */
+          <button
+            type="button"
+            className="todoapp__toggle-all active"
+            data-cy="ToggleAllButton"
+            onClick={completeAll}
+          />
+        )}
 
-      <form onSubmit={addingTodo}>
-        <input
-          data-cy="NewTodoField"
-          type="text"
-          className="todoapp__new-todo"
-          placeholder="What needs to be done?"
-          value={query}
-          onChange={(event) => handleQueryChange(event.target.value)}
-        />
-      </form>
+        <form onSubmit={addingTodo}>
+          <input
+            data-cy="NewTodoField"
+            type="text"
+            className="todoapp__new-todo"
+            placeholder="What needs to be done?"
+            value={query}
+            onChange={(event) => handleQueryChange(event.target.value)}
+            disabled={disableInput}
+          />
+        </form>
+      </>
     </header>
   );
 };
