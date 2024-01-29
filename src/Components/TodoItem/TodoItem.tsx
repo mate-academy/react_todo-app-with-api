@@ -56,6 +56,11 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
       .finally(() => setIsLoading(false));
   };
 
+  const handleRemoveTodo = (todoId: number) => {
+    deleteTodo(todoId)
+      .catch(() => handleErrorChange(ErrorMessage.UNABLE_TO_DELETE));
+  };
+
   const handleTitleUpdate = () => {
     if (!inputRef.current) {
       return;
@@ -67,8 +72,7 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
         title: inputRef.current.value,
       });
     } else {
-      deleteTodo(id)
-        .catch(() => handleErrorChange(ErrorMessage.UNABLE_TO_DELETE));
+      handleRemoveTodo(id);
     }
 
     setEditing(false);
