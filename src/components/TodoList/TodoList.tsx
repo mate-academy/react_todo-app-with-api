@@ -7,7 +7,7 @@ import './TodoList.scss';
 import { TodoItem } from '../TodoItem';
 import { Todo } from '../../types/Todo';
 
-export const USER_ID = 6980;
+export const USER_ID = 67;
 
 interface Props {
   visibleTodos: Todo[];
