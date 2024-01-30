@@ -1,10 +1,10 @@
 import { useContext, useMemo } from 'react';
 
+import classNames from 'classnames';
 import { TodoItem } from '../TodoItem';
 
 import { Context } from '../../Context';
 import { Filter } from '../../types/Filter';
-import classNames from 'classnames';
 
 export const Main = () => {
   const {
@@ -12,6 +12,8 @@ export const Main = () => {
     filter,
     tempTodo,
   } = useContext(Context);
+
+  const { title, completed } = tempTodo || {};
 
   const filteredTodos = useMemo(() => {
     if (filter === Filter.ACTIVE) {
@@ -36,7 +38,7 @@ export const Main = () => {
         <div
           data-cy="Todo"
           className={classNames('todo', {
-            completed: tempTodo.completed,
+            completed,
           })}
         >
           <label className="todo__status-label">
@@ -44,12 +46,12 @@ export const Main = () => {
               data-cy="TodoStatus"
               type="checkbox"
               className="todo__status"
-              checked={tempTodo.completed}
+              checked={completed}
             />
           </label>
 
           <span data-cy="TodoTitle" className="todo__title">
-            {tempTodo.title}
+            {title}
           </span>
 
           <button

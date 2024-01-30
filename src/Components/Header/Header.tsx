@@ -94,7 +94,7 @@ export const Header = () => {
   return (
     <header className="todoapp__header">
       <>
-        {todos.length > 0 && (
+        {!!todos.length && (
           /*  eslint-disable-next-line jsx-a11y/control-has-associated-label */
           <button
             type="button"

@@ -31,6 +31,20 @@ export const ContextProvider: FC<Props> = ({ children }) => {
 
   const USER_ID = 12176;
 
+  const contextProps = {
+    USER_ID,
+    todos,
+    errorMessage,
+    filter,
+    globalLoading,
+    tempTodo,
+    setFilter,
+    setTodos,
+    setErrorMessage,
+    setGlobalLoading,
+    setTempTodo,
+  };
+
   useEffect(() => {
     getTodos(USER_ID)
       .then(setTodos)
@@ -38,20 +52,7 @@ export const ContextProvider: FC<Props> = ({ children }) => {
   }, []);
 
   return (
-    <Context.Provider value={{
-      USER_ID,
-      todos,
-      errorMessage,
-      filter,
-      globalLoading,
-      tempTodo,
-      setFilter,
-      setTodos,
-      setErrorMessage,
-      setGlobalLoading,
-      setTempTodo,
-    }}
-    >
+    <Context.Provider value={contextProps}>
       {children}
     </Context.Provider>
   );
