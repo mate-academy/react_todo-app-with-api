@@ -1,24 +1,86 @@
 /* eslint-disable max-len */
 /* eslint-disable jsx-a11y/control-has-associated-label */
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { UserWarning } from './UserWarning';
+import { Header } from './components/Header';
+import { Section } from './components/Section';
+import { Footer } from './components/Footer';
+import * as postService from './api/todos';
+import { Todo } from './types/Todo';
+import { TasksFilter } from './types/tasksFilter';
+import { Errors } from './components/Errors';
+import { ErrorMesage } from './types/ErrorIMessage';
 
-const USER_ID = 0;
+const USER_ID = 12147;
 
 export const App: React.FC = () => {
+  const [todos, setTodos] = useState<Todo[]>([]);
+  const [tasksFilter, setTasksFilter] = useState<TasksFilter>(TasksFilter.all);
+  const [errorMessage, setErrorMessage] = useState<ErrorMesage>(ErrorMesage.noErrors);
+  const [todo, setTodo] = useState<Todo>({
+    id: 0,
+    USER_ID: 0,
+    title: '',
+    completed: false,
+  });
+
+  useEffect(() => {
+    async function fetchData() {
+      try {
+        const result = await postService.getTodos(USER_ID);
+
+        setTodos(result);
+        setErrorMessage(ErrorMesage.noErrors);
+      } catch (error) {
+        setErrorMessage(ErrorMesage.loadingError);
+      }
+    }
+
+    fetchData();
+  }, []);
+
   if (!USER_ID) {
     return <UserWarning />;
   }
 
   return (
-    <section className="section container">
-      <p className="title is-4">
-        Copy all you need from the prev task:
-        <br />
-        <a href="https://github.com/mate-academy/react_todo-app-add-and-delete#react-todo-app-add-and-delete">React Todo App - Add and Delete</a>
-      </p>
+    <div className="todoapp">
+      <h1 className="todoapp__title">todos</h1>
 
-      <p className="subtitle">Styles are already copied</p>
-    </section>
+      <div className="todoapp__content">
+        <Header
+          USER_ID={USER_ID}
+          todo={todo}
+          setTodo={setTodo}
+          todos={todos}
+          setTodos={setTodos}
+          setErrorMessage={setErrorMessage}
+        />
+
+        {!!todos.length && (
+          <>
+            <Section
+              todos={todos}
+              setTodos={setTodos}
+              tasksFilter={tasksFilter}
+              setErrorMessage={setErrorMessage}
+            />
+            <Footer
+              todos={todos}
+              setTasksFilter={setTasksFilter}
+              tasksFilter={tasksFilter}
+              setTodos={setTodos}
+              setErrorMessage={setErrorMessage}
+            />
+          </>
+        )}
+      </div>
+      {errorMessage && (
+        <Errors
+          errorMessage={errorMessage}
+          setErrorMessage={setErrorMessage}
+        />
+      )}
+    </div>
   );
 };
