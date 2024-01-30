@@ -25,7 +25,7 @@ export const Footer: React.FC<Props> = ({
     completedTodos.forEach(todo => deleteTodo(todo.id));
   };
 
-  const itemsLeftText = itemsLeft === 1? 'item' : 'items';
+  const itemsLeftText = itemsLeft === 1 ? 'item' : 'items';
 
   return (
     <footer className="todoapp__footer" data-cy="Footer">
@@ -72,6 +72,7 @@ export const Footer: React.FC<Props> = ({
         className="todoapp__clear-completed"
         data-cy="ClearCompletedButton"
         onClick={deleteAllCompleted}
+        disabled={completedTodos.length === 0}
       >
         Clear completed
       </button>
