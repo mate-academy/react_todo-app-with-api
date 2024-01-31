@@ -8,6 +8,8 @@ import React, {
 import classNames from 'classnames';
 import { Todo } from '../types/Todo';
 import { TodoContext } from '../TodoContext';
+import * as todoService from '../api/todos';
+import { ErrorMessage } from '../utils/enums';
 
 type Props = {
   todo: Todo;
@@ -17,34 +19,87 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
   const activeTodo = todo;
   const {
     deleteTodo,
-    setCount,
-    count,
     setTodos,
     todos,
     isSubmitting,
     isDeliting,
     selectedTodo,
     clear,
+    setSelectedTodo,
+    errorHandler,
   } = useContext(TodoContext);
   const [editing, setEditing] = useState(false);
   const [titleEdit, setTitleEdit] = useState(activeTodo.title);
+  const [activeTitle, setActiveTitle] = useState(activeTodo.title);
+  const [updating, setUpdating] = useState(false);
 
   const inputFocus = useRef<HTMLInputElement>(null);
 
+  const updatingTodoOnServer = () => {
+    todoService.updateTodo(activeTodo)
+      .then((updatedTodo) => {
+        setTodos((currentTodos) => {
+          const newTodos = [...currentTodos];
+          const index = newTodos.findIndex(t => t.id === updatedTodo.id);
+
+          newTodos.splice(index, 1, updatedTodo);
+
+          return newTodos;
+        });
+      })
+      .catch(() => {
+        errorHandler(ErrorMessage.update);
+        setTitleEdit(activeTodo.title);
+        activeTodo.title = activeTitle;
+        setActiveTitle(activeTitle);
+        setTitleEdit(activeTitle);
+      })
+      .finally(() => {
+        setUpdating(false);
+        setSelectedTodo(0);
+      });
+    setEditing(false);
+  };
+
   const activeLoader = (selectedTodo === activeTodo.id && isDeliting)
     || (selectedTodo === activeTodo.id && isSubmitting)
-    || (clear && todo.completed);
+    || (clear && todo.completed)
+    || (updating && selectedTodo === activeTodo.id);
 
   const handleCheckbox = () => {
+    setUpdating(true);
+    setSelectedTodo(activeTodo.id);
     if (!activeTodo.completed) {
       activeTodo.completed = true;
-      setCount(count - 1);
-      setTodos(todos);
+      // setCount(count - 1);
     } else {
       activeTodo.completed = false;
-      setCount(count + 1);
-      setTodos(todos);
+      // setCount(count + 1);
     }
+
+    todoService.updateTodo(activeTodo)
+      .then((updatedTodo) => {
+        setTodos((currentTodos) => {
+          const newTodos = [...currentTodos];
+          const index = newTodos.findIndex(t => t.id === updatedTodo.id);
+
+          newTodos.splice(index, 1, updatedTodo);
+
+          return newTodos;
+        });
+      })
+      .catch(() => {
+        errorHandler(ErrorMessage.update);
+        if (!activeTodo.completed) {
+          activeTodo.completed = true;
+        } else {
+          activeTodo.completed = false;
+        }
+      })
+      .finally(() => {
+        setUpdating(false);
+        setSelectedTodo(0);
+      });
   };
 
   const isChecked = activeTodo.completed;
@@ -65,12 +120,15 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
 
   const handleKey = (event: React.KeyboardEvent) => {
     if (event.key === 'Enter') {
+      setSelectedTodo(activeTodo.id);
+      setUpdating(true);
       if (!titleEdit.length) {
         return deleteTodo(activeTodo.id);
       }
 
       activeTodo.title = titleEdit;
-      setEditing(false);
+
+      updatingTodoOnServer();
     }
 
     if (event.key === 'Escape') {
@@ -82,14 +140,15 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
   };
 
   const handleBlur = () => {
-    setEditing(false);
+    setSelectedTodo(activeTodo.id);
+    setUpdating(true);
     if (!titleEdit.length) {
       return deleteTodo(activeTodo.id);
     }
 
     activeTodo.title = titleEdit;
 
-    return setTodos(todos);
+    return updatingTodoOnServer();
   };
 
   return (

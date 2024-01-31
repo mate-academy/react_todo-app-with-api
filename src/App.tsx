@@ -7,26 +7,13 @@ import * as todoService from './api/todos';
 import { TodoContext } from './TodoContext';
 import { TodoList } from './TodoList';
 import { TodoItem } from './TodoItem';
+import { ErrorMessage, FilterOption } from './utils/enums';
 
 const USER_ID = 22;
-
-enum ErrorMessage {
-  'add',
-  'update',
-  'delete',
-  'title',
-}
-
-enum FilterOption {
-  'Active',
-  'Completed',
-  'All',
-}
 
 export const App: React.FC = () => {
   const [todos, setTodos] = useState<Todo[]>([]);
   const [titleValue, setTitleValue] = useState('');
-  const [count, setCount] = useState(0);
   const [selectedFilter, setSelectedFilter] = useState(FilterOption.All);
   const [errorMessage, setErrorMessage] = useState('');
   const [isSubmitting, setIsSubmiting] = useState(false);
@@ -76,7 +63,6 @@ export const App: React.FC = () => {
     todoService.getTodos(USER_ID)
       .then(data => {
         setTodos(data);
-        setCount(data.length);
       })
       .catch(e => {
         errorHandler(ErrorMessage.add);
@@ -130,7 +116,6 @@ export const App: React.FC = () => {
       todoService.addTodo({ userId, title, completed })
         .then(newTodo => {
           setTodos([...todos, newTodo]);
-          setCount(count + 1);
         })
         .catch(() => {
           errorHandler(ErrorMessage.add);
@@ -164,12 +149,6 @@ export const App: React.FC = () => {
       completed: !areAllCompleted,
     }));
 
-    if (areAllCompleted) {
-      setCount(todos.length);
-    } else {
-      setCount(0);
-    }
-
     setTodos(updatedTodos);
   };
 
@@ -184,14 +163,11 @@ export const App: React.FC = () => {
         if (todoForDeletion[0].completed) {
           setTodos(todos.filter(todo => todo.id !== deleteId));
         } else {
-          setCount(count - 1);
-
           setTodos(todos.filter(todo => todo.id !== deleteId));
         }
       })
       .catch(() => {
         setTodos(todos);
-        setCount(count);
         errorHandler(ErrorMessage.delete);
       })
       .finally(() => {
@@ -233,8 +209,6 @@ export const App: React.FC = () => {
   const value = {
     filteredTodo: filteredTodos,
     deleteTodo,
-    setCount,
-    count,
     setTodos,
     todos,
     isSubmitting,
@@ -244,6 +218,7 @@ export const App: React.FC = () => {
     setSelectedTodo: setSelectedTodoId,
     selectedTodo: selectedTodoId,
     clear,
+    errorHandler,
   };
 
   return (

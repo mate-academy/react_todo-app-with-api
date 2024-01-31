@@ -1,11 +1,10 @@
 import React from 'react';
 import { Todo } from './types/Todo';
+import { ErrorMessage } from './utils/enums';
 
 type TodoContextType = {
   filteredTodo:Todo[];
   deleteTodo: (id:number) => void
-  setCount: (count: number) => void
-  count:number
   setTodos:(v: Todo[]) => void
   todos:Todo[]
   isSubmitting: boolean,
@@ -15,13 +14,12 @@ type TodoContextType = {
   setSelectedTodo:(v: number) => void,
   selectedTodo: number,
   clear: boolean,
+  errorHandler: (v: ErrorMessage) => void,
 };
 
 export const TodoContext = React.createContext<TodoContextType>({
   filteredTodo: [],
   deleteTodo: () => {},
-  setCount: () => {},
-  count: 0,
   setTodos: () => {},
   todos: [],
   isSubmitting: false,
@@ -31,4 +29,5 @@ export const TodoContext = React.createContext<TodoContextType>({
   setSelectedTodo: () => {},
   selectedTodo: 0,
   clear: false,
+  errorHandler: () => {},
 });
