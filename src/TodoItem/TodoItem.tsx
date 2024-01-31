@@ -38,14 +38,11 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
   const updatingTodoOnServer = () => {
     todoService.updateTodo(activeTodo)
       .then((updatedTodo) => {
-        setTodos((currentTodos) => {
-          const newTodos = [...currentTodos];
-          const index = newTodos.findIndex(t => t.id === updatedTodo.id);
+        const newTodos = [...todos];
+        const index = newTodos.findIndex(t => t.id === updatedTodo.id);
 
-          newTodos.splice(index, 1, updatedTodo);
-
-          return newTodos;
-        });
+        newTodos.splice(index, 1, updatedTodo);
+        setTodos(newTodos);
       })
       .catch(() => {
         errorHandler(ErrorMessage.update);
@@ -79,14 +76,11 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
 
     todoService.updateTodo(activeTodo)
       .then((updatedTodo) => {
-        setTodos((currentTodos) => {
-          const newTodos = [...currentTodos];
-          const index = newTodos.findIndex(t => t.id === updatedTodo.id);
+        const newTodos = [...todos];
+        const index = newTodos.findIndex(t => t.id === updatedTodo.id);
 
-          newTodos.splice(index, 1, updatedTodo);
-
-          return newTodos;
-        });
+        newTodos.splice(index, 1, updatedTodo);
+        setTodos(newTodos);
       })
       .catch(() => {
         errorHandler(ErrorMessage.update);
