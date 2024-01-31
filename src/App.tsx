@@ -92,8 +92,7 @@ export const App: React.FC = () => {
       todo => PostServise.updateTodo({
         ...todo,
         completed: toggle,
-      }),
-    );
+      }));
 
     Promise.all(updatePromises)
       .then(updatedTodos => {
@@ -105,8 +104,7 @@ export const App: React.FC = () => {
             return updatedTodo
               ? { ...currentTodo, completed: toggle }
               : currentTodo;
-          },
-        ));
+          }));
       })
       .catch(error => {
         setErrorMessage(Error.patch);
@@ -201,7 +199,7 @@ export const App: React.FC = () => {
     <>
       {USER_ID ? (
         <div className="todoapp">
-          <h1 className="todoapp__title">todos</h1>
+          <h1 className="todoapp__title">Todos</h1>
 
           <div className="todoapp__content">
             <Header

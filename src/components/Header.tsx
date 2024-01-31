@@ -52,9 +52,8 @@ export const Header: React.FC<Props> = React.memo(({
       setTitle('');
     } else {
       setLoading(true);
-    }
 
-    addTodo(title.trim())
+      addTodo(title.trim())
       .then(() => {
         if (!error) {
           reset();
@@ -63,6 +62,7 @@ export const Header: React.FC<Props> = React.memo(({
       .finally(() => {
         setLoading(false);
       });
+    }
   };
 
   const handleTitleChange = (event: React.ChangeEvent<HTMLInputElement>) => {

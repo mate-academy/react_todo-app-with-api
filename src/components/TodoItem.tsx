@@ -8,7 +8,7 @@ type Props = {
   updateTodos?: (todo: Todo) => Promise<void>;
 };
 
-export const TodoItem: React.FC<Props> = ({
+export const TodoItem: React.FC<Props> = React.memo(({
   todo,
   onDelete,
   updateTodos,
@@ -20,7 +20,7 @@ export const TodoItem: React.FC<Props> = ({
     loading,
   } = todo;
 
-  const [newTitle, setNewTitle] = useState('');
+  const [newTitle, setNewTitle] = useState(title);
   const [isEdit, setIsEdit] = useState(false);
 
   const titleField = useRef<HTMLInputElement>(null);
@@ -93,7 +93,7 @@ export const TodoItem: React.FC<Props> = ({
             className="todo__title"
             onDoubleClick={() => setIsEdit(true)}
           >
-            {title}
+            {newTitle}
           </span>
 
           <button
@@ -134,4 +134,4 @@ export const TodoItem: React.FC<Props> = ({
     </div>
 
   );
-};
+});

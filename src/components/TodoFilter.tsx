@@ -11,6 +11,8 @@ export const TodoFilter: React.FC<Props> = ({
   filterBy,
   changeFilter,
 }) => {
+
+
   return (
     <nav className="filter" data-cy="Filter">
       <a
