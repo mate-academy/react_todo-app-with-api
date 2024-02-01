@@ -68,10 +68,8 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
     setSelectedTodo(activeTodo.id);
     if (!activeTodo.completed) {
       activeTodo.completed = true;
-      // setCount(count - 1);
     } else {
       activeTodo.completed = false;
-      // setCount(count + 1);
     }
 
     todoService.updateTodo(activeTodo)
@@ -105,6 +103,7 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
   }, [editing]);
 
   const handleDoubleClick = () => {
+    setTitleEdit(titleEdit.trim());
     setEditing(true);
   };
 
@@ -113,9 +112,12 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
   };
 
   const handleKey = (event: React.KeyboardEvent) => {
+    event.preventDefault();
+
     if (event.key === 'Enter') {
       setSelectedTodo(activeTodo.id);
       setUpdating(true);
+
       if (!titleEdit.length) {
         return deleteTodo(activeTodo.id);
       }
@@ -175,7 +177,10 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
           onDoubleClick={handleDoubleClick}
         >
           {editing ? (
-            <form>
+            <form onSubmit={(e) => {
+              e.preventDefault();
+            }}
+            >
               <input
                 data-cy="TodoTitleField"
                 type="text"

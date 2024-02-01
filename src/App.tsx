@@ -27,6 +27,7 @@ export const App: React.FC = () => {
   const inputFocus = useRef<HTMLInputElement>(null);
 
   const todoCount = todos.filter(todo => !todo.completed).length;
+  const checkForCompleted = todos.filter(todo => todo.completed).length;
 
   useEffect(() => {
     if (!titleValue.length && inputFocus.current) {
@@ -200,8 +201,6 @@ export const App: React.FC = () => {
     });
   };
 
-  const checkForCompleted = todos.filter(todo => todo.completed).length;
-
   if (!USER_ID) {
     return <UserWarning />;
   }
@@ -231,7 +230,10 @@ export const App: React.FC = () => {
             {/* this buttons is active only if there are some active todos */}
             <button
               type="button"
-              className="todoapp__toggle-all active"
+              className={classNames('todoapp__toggle-all', {
+                active: todoCount <= 0,
+                disabled: todoCount > 0,
+              })}
               data-cy="ToggleAllButton"
               onClick={handleToggleAll}
             />
