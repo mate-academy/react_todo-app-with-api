@@ -2,7 +2,6 @@ import classNames from 'classnames';
 import React, { useContext, useEffect, useRef } from 'react';
 
 import { TodosContext } from '../TodoContext';
-// import { TodoList } from '../TodoList';
 
 export const Query:React.FC = () => {
   const {

@@ -5,8 +5,6 @@ export const getTodos = (userId: number) => {
   return client.get<Todo[]>(`/todos?userId=${userId}`);
 };
 
-// Add more methods here
-
 export const updateTodoStatus = (
   id: number,
   completed: boolean,
@@ -28,7 +26,7 @@ export const deleteTodo = (
   return client.delete(`/todos/${todoId}`);
 };
 
-export const updateTodoItem = (
+export const renameRequest = (
   todo: Todo,
 ) => {
   return client.patch<Todo>(`/todos/${todo.id}`, todo);

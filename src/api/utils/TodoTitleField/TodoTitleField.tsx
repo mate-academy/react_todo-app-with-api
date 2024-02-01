@@ -3,7 +3,8 @@ import React, {
   useCallback, useContext, useEffect, useRef, useState,
 } from 'react';
 
-import { updateTodoStatus } from '../../todos';
+import { deleteTodo, updateTodoStatus } from '../../todos';
+
 import { Todo } from '../../types/Todo';
 import { TodosContext } from '../TodoContext';
 
@@ -15,57 +16,88 @@ export const TodoTitleField:React.FC<Props> = ({ todo }) => {
   const { id, completed, title } = todo;
 
   const {
-    TodoDeleteButton,
     handleUpdate,
     handleError,
     updateTodo,
-    loaderTodoId,
     setLoaderTodoId,
+    loaderTodoId,
+    setTodos,
+    setError,
   } = useContext(TodosContext);
 
-  const [changedTodo, setChangedTodo] = useState<string>('');
+  const [changedTitle, setChangedTitle] = useState<string>('');
   const [isEditing, setIsEditing] = useState(false);
   const [focus, setFocus] = useState(false);
   const todoFocus = useRef<HTMLInputElement>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
+  const timerRef = useRef<number | null>(null);
+
+  const handleDeleteTodo = useCallback(() => {
+    setLoaderTodoId(todo.id);
+
+    deleteTodo(todo.id)
+      .then(() => {
+        setTodos(
+          (cur: Todo[]) => cur.filter(element => element.id !== todo.id),
+        );
+      })
+      .catch(() => {
+        if (timerRef.current) {
+          clearTimeout(timerRef.current);
+        }
+
+        window.setTimeout(() => {
+          setError('Unable to delete a todo');
+        }, 3000);
+      })
+      .finally(() => {
+        setLoaderTodoId(null);
+        setIsDeleting(false);
+      });
+  }, [isDeleting]);
 
   const handleTitle = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setChangedTodo(event.target.value);
+    setChangedTitle(event.target.value);
   };
 
   const handleDoubleClick = useCallback((elTitle: string) => {
     setIsEditing(true);
     setFocus(true);
-    setChangedTodo(elTitle);
+    setChangedTitle(elTitle);
   }, [setIsEditing]);
 
   const clickEnterOrEsc = (event: React.KeyboardEvent<HTMLInputElement>) => {
     event.preventDefault();
 
     if (event.key === 'Enter') {
-      setLoaderTodoId([todo.id]);
-      if (changedTodo.trim() === '' || todo.title === '') {
-        TodoDeleteButton(todo.id);
+      setLoaderTodoId(todo.id);
+      if (changedTitle.trim() === '' || todo.title === '') {
+        handleDeleteTodo();
         setIsEditing(false);
       }
 
-      const changed = { ...todo, title: changedTodo };
+      if (todo.title === changedTitle) {
+        setIsEditing(false);
+      }
+
+      const changed = { ...todo, title: changedTitle };
 
       handleUpdate(changed);
       setIsEditing(false);
-      setLoaderTodoId(null);
     }
 
     if (event.key === 'Escape') {
       setIsEditing(false);
     }
 
+    setLoaderTodoId(null);
     setFocus(false);
   };
 
   const updateChecked = (todoEl: Todo) => {
     const changed = { ...todo, completed: !todo.completed };
 
-    setLoaderTodoId([todoEl.id]);
+    setLoaderTodoId(todoEl.id);
     updateTodoStatus(changed.id, changed.completed)
       .then(() => {
         updateTodo(changed);
@@ -79,10 +111,10 @@ export const TodoTitleField:React.FC<Props> = ({ todo }) => {
   };
 
   const handleBlur = (todoTodo: Todo) => {
-    if (changedTodo.trim() === '') {
-      TodoDeleteButton(todoTodo.id);
+    if (changedTitle.trim() === '') {
+      handleDeleteTodo();
     } else {
-      const changed = { ...todoTodo, title: changedTodo };
+      const changed = { ...todoTodo, title: changedTitle };
 
       handleUpdate(changed);
     }
@@ -130,7 +162,7 @@ export const TodoTitleField:React.FC<Props> = ({ todo }) => {
                 type="button"
                 className="todo__remove"
                 data-cy="TodoDelete"
-                onClick={() => TodoDeleteButton(todo.id)}
+                onClick={() => handleDeleteTodo()}
               >
                 ×
               </button>
@@ -138,7 +170,10 @@ export const TodoTitleField:React.FC<Props> = ({ todo }) => {
                 data-cy="TodoLoader"
                 className={
                   classNames('modal overlay',
-                    { 'is-active': loaderTodoId?.includes(todo.id) })
+                    {
+                      'is-active': isDeleting
+                    || loaderTodoId === todo.id,
+                    })
                 }
               >
                 <div className="modal-background has-background-white-ter" />
@@ -154,7 +189,7 @@ export const TodoTitleField:React.FC<Props> = ({ todo }) => {
               placeholder={title || 'Empty todo will be deleted'}
               ref={todoFocus}
               onKeyUp={clickEnterOrEsc}
-              value={changedTodo}
+              value={changedTitle}
               onChange={handleTitle}
               onBlur={() => handleBlur(todo)}
             />
