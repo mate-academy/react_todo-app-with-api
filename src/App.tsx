@@ -1,24 +1,102 @@
 /* eslint-disable max-len */
 /* eslint-disable jsx-a11y/control-has-associated-label */
-import React from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { UserWarning } from './UserWarning';
-
-const USER_ID = 0;
+import { Todo, USER_ID } from './types/Todo';
+import { ErrorTp } from './types/error';
+import { createTodo, getTodos, updateTodo } from './api/todos';
+import { Header } from './components/Header';
+import { TodoList } from './components/TodoList';
+import { Errors } from './components/Errors';
+import { FilterType } from './types/FilterType';
+import { Footer } from './components/Footer';
 
 export const App: React.FC = () => {
+  const [todos, setTodos] = useState<Todo[]>([]);
+  const [errors, setErrors] = useState<ErrorTp | null>(null);
+  const [filterType, setFilterType] = useState<FilterType>(FilterType.all);
+
+  useEffect(() => {
+    getTodos(USER_ID)
+      .then(setTodos)
+      .catch(() => setErrors(ErrorTp.load_error));
+  }, []);
+
   if (!USER_ID) {
     return <UserWarning />;
   }
 
-  return (
-    <section className="section container">
-      <p className="title is-4">
-        Copy all you need from the prev task:
-        <br />
-        <a href="https://github.com/mate-academy/react_todo-app-add-and-delete#react-todo-app-add-and-delete">React Todo App - Add and Delete</a>
-      </p>
+  // eslint-disable-next-line react-hooks/rules-of-hooks
+  const filterTodos = useMemo(() => {
+    switch (filterType) {
+      case FilterType.completed:
+        return todos.filter(todo => !todo.completed);
 
-      <p className="subtitle">Styles are already copied</p>
-    </section>
+      case FilterType.active:
+        return todos.filter(todo => todo.completed);
+
+      default:
+        return todos;
+    }
+  }, [todos, filterType]);
+
+  const addTodo = (title: string) => {
+    createTodo({
+      title,
+      completed: false,
+      userId: USER_ID,
+    })
+      .then((newTodo) => {
+        setTodos((prevTodos: Todo[]) => [...prevTodos, newTodo]);
+      })
+      .catch(() => ErrorTp.title_error);
+  };
+
+  const updatingTodo = (updatedTodo: Todo) => {
+    updateTodo(updatedTodo)
+      .then(todo => {
+        setTodos(currentTodo => {
+          const newTodo = [...currentTodo];
+          const index = newTodo.findIndex(uptodo => uptodo.id === updatedTodo.id);
+
+          newTodo.splice(index, 1, todo);
+
+          return newTodo;
+        });
+      });
+  };
+
+  const handelChangFilter = (filter: FilterType) => {
+    setFilterType(filter);
+  };
+
+  return (
+    <div className="todoapp">
+      <h1 className="todoapp__title">todos</h1>
+
+      <div className="todoapp__content">
+        <Header createNewTodo={addTodo} setErrors={setErrors} />
+
+        <TodoList
+          onUpdate={updatingTodo}
+          setTodos={setTodos}
+          todos={filterTodos}
+        />
+
+        {/* Hide the footer if there are no todos */}
+        {todos.length > 0 && (
+          <Footer
+            todos={todos}
+            filterChange={handelChangFilter}
+            filterType={filterType}
+          />
+        )}
+
+      </div>
+
+      {/* Notification is shown in case of any error */}
+      {/* Add the 'hidden' class to hide the message smoothly */}
+      <Errors errors={errors} />
+    </div>
   );
 };
