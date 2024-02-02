@@ -47,19 +47,20 @@ export const TodoTitleField:React.FC<Props> = ({ todo }) => {
     const trimmedTitle = changedTitle.trim();
 
     if (event.key === 'Enter') {
-      if (trimmedTitle === '' || todo.title === '') {
+      if (trimmedTitle === '') {
         handleDeleteTodo(todo.id);
-        setIsEditing(false);
-      }
-
+      } 
+      
       if (todo.title === trimmedTitle) {
         setIsEditing(false);
       }
 
-      const changed = { ...todo, title: trimmedTitle };
+      if (trimmedTitle) {
+        const changed = { ...todo, title: trimmedTitle };
 
-      handleUpdate(changed);
-      setIsEditing(false);
+        handleUpdate(changed);
+        setIsEditing(false);
+      }
     }
 
     if (event.key === 'Escape') {
@@ -67,7 +68,6 @@ export const TodoTitleField:React.FC<Props> = ({ todo }) => {
       setFocus(false);
     }
 
-    setLoaderTodoId(null);
     setFocus(false);
   };
 
