@@ -12,7 +12,7 @@ export const ErrorComponent = () => {
     }, 3000);
 
     return () => clearTimeout(timerID);
-  }, [errorMessage, setErrorMessage]);
+  }, [errorMessage]);
 
   return (
     <div

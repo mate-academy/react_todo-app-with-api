@@ -51,7 +51,7 @@ export const TodosItem: React.FC<Props> = ({ todo }) => {
   const handlerInputChange = () => {
     setChangedTodos(currentTodos => [...currentTodos, todo]);
 
-    updateTodo(todo)
+    updateTodo({ completed: !completed, title, id })
       .then(() => setTodos(currentTodos => currentTodos
         .map(currentTodo => (currentTodo.id === id
           ? ({ ...currentTodo, completed: !completed })
@@ -81,7 +81,7 @@ export const TodosItem: React.FC<Props> = ({ todo }) => {
       } else {
         setChangedTodos(currentTodos => [...currentTodos, todo]);
 
-        updateTodo(todo)
+        updateTodo({ completed, id, title: editedTitle })
           .then(() => {
             setTodos(currentTodos => currentTodos
               .map(currentTodo => (currentTodo.id === id

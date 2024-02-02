@@ -101,7 +101,11 @@ export const Header = () => {
 
     setChangedTodos(notCompletedTodos);
 
-    notCompletedTodos.forEach(changedTodo => updateTodo(changedTodo)
+    notCompletedTodos.forEach(changedTodo => updateTodo({
+      title: changedTodo.title,
+      id: changedTodo.id,
+      completed: !changedTodo.completed,
+    })
       .then(() => {
         setTodos(toggledTodosList);
       })
