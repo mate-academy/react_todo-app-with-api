@@ -3,7 +3,7 @@ import React, {
   useCallback, useContext, useEffect, useRef, useState,
 } from 'react';
 
-import { deleteTodo, updateTodoStatus } from '../../todos';
+import { updateTodoStatus } from '../../todos';
 
 import { Todo } from '../../types/Todo';
 import { TodosContext } from '../TodoContext';
@@ -20,41 +20,15 @@ export const TodoTitleField:React.FC<Props> = ({ todo }) => {
     handleError,
     updateTodo,
     setLoaderTodoId,
+    isDeleting,
     loaderTodoId,
-    setTodos,
-    setError,
+    handleDeleteTodo,
   } = useContext(TodosContext);
 
   const [changedTitle, setChangedTitle] = useState<string>('');
   const [isEditing, setIsEditing] = useState(false);
   const [focus, setFocus] = useState(false);
   const todoFocus = useRef<HTMLInputElement>(null);
-  const [isDeleting, setIsDeleting] = useState(false);
-  const timerRef = useRef<number | null>(null);
-
-  const handleDeleteTodo = useCallback(() => {
-    setLoaderTodoId(todo.id);
-
-    deleteTodo(todo.id)
-      .then(() => {
-        setTodos(
-          (cur: Todo[]) => cur.filter(element => element.id !== todo.id),
-        );
-      })
-      .catch(() => {
-        if (timerRef.current) {
-          clearTimeout(timerRef.current);
-        }
-
-        window.setTimeout(() => {
-          setError('Unable to delete a todo');
-        }, 3000);
-      })
-      .finally(() => {
-        setLoaderTodoId(null);
-        setIsDeleting(false);
-      });
-  }, [isDeleting]);
 
   const handleTitle = (event: React.ChangeEvent<HTMLInputElement>) => {
     setChangedTitle(event.target.value);
@@ -68,19 +42,21 @@ export const TodoTitleField:React.FC<Props> = ({ todo }) => {
 
   const clickEnterOrEsc = (event: React.KeyboardEvent<HTMLInputElement>) => {
     event.preventDefault();
+    setLoaderTodoId(todo.id);
+
+    const trimmedTitle = changedTitle.trim();
 
     if (event.key === 'Enter') {
-      setLoaderTodoId(todo.id);
-      if (changedTitle.trim() === '' || todo.title === '') {
-        handleDeleteTodo();
+      if (trimmedTitle === '' || todo.title === '') {
+        handleDeleteTodo(todo.id);
         setIsEditing(false);
       }
 
-      if (todo.title === changedTitle) {
+      if (todo.title === trimmedTitle) {
         setIsEditing(false);
       }
 
-      const changed = { ...todo, title: changedTitle };
+      const changed = { ...todo, title: trimmedTitle };
 
       handleUpdate(changed);
       setIsEditing(false);
@@ -88,6 +64,7 @@ export const TodoTitleField:React.FC<Props> = ({ todo }) => {
 
     if (event.key === 'Escape') {
       setIsEditing(false);
+      setFocus(false);
     }
 
     setLoaderTodoId(null);
@@ -112,7 +89,7 @@ export const TodoTitleField:React.FC<Props> = ({ todo }) => {
 
   const handleBlur = (todoTodo: Todo) => {
     if (changedTitle.trim() === '') {
-      handleDeleteTodo();
+      handleDeleteTodo(todo.id);
     } else {
       const changed = { ...todoTodo, title: changedTitle };
 
@@ -162,7 +139,7 @@ export const TodoTitleField:React.FC<Props> = ({ todo }) => {
                 type="button"
                 className="todo__remove"
                 data-cy="TodoDelete"
-                onClick={() => handleDeleteTodo()}
+                onClick={() => handleDeleteTodo(todo.id)}
               >
                 ×
               </button>

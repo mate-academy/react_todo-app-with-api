@@ -1,4 +1,6 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, {
+  useCallback, useEffect, useRef, useState,
+} from 'react';
 
 import { UserWarning } from '../../../UserWarning';
 import {
@@ -39,6 +41,8 @@ type ContextType = {
   completeAll: () => void;
   loaderTodoId: number | null;
   setLoaderTodoId: (number: number | null) => void;
+  handleDeleteTodo: (number: number) => void;
+  isDeleting: boolean,
 };
 
 export const TodosContext = React.createContext<ContextType>({
@@ -62,6 +66,8 @@ export const TodosContext = React.createContext<ContextType>({
   completeAll: () => {},
   loaderTodoId: null,
   setLoaderTodoId: () => {},
+  handleDeleteTodo: () => {},
+  isDeleting: false,
 });
 
 export const TodosProvider: React.FC<Props> = ({ children }) => {
@@ -72,6 +78,7 @@ export const TodosProvider: React.FC<Props> = ({ children }) => {
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
   const [isDisabled, setIsDisabled] = useState(false);
   const [loaderTodoId, setLoaderTodoId] = useState<number | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   const handleError = (errorMessage: string) => {
     setError(errorMessage);
@@ -209,25 +216,14 @@ export const TodosProvider: React.FC<Props> = ({ children }) => {
 
   const timerRef = useRef<number | null>(null);
 
-  const clearCompleted = () => {
-    const toComplete = todos.filter(todo => !todo.completed);
-    const toDelete = todos.filter(todo => todo.completed);
+  const handleDeleteTodo = useCallback((todoId: number) => {
+    setLoaderTodoId(todoId);
 
-    const promisesForDelete = toDelete.map((todo) => {
-      deleteTodo(todo.id);
-
-      return todo;
-    });
-
-    Promise.allSettled(promisesForDelete)
-      .then(results => {
-        results.forEach(result => {
-          if (result.status === 'fulfilled') {
-            return result;
-          }
-
-          return handleError('Unable to delete a todo');
-        });
+    deleteTodo(todoId)
+      .then(() => {
+        setTodos(
+          (cur: Todo[]) => cur.filter(element => element.id !== todoId),
+        );
       })
       .catch(() => {
         if (timerRef.current) {
@@ -237,8 +233,21 @@ export const TodosProvider: React.FC<Props> = ({ children }) => {
         window.setTimeout(() => {
           setError('Unable to delete a todo');
         }, 3000);
+      })
+      .finally(() => {
+        setLoaderTodoId(null);
+        setIsDeleting(false);
       });
-    setTodos(toComplete);
+  }, [isDeleting]);
+
+  const clearCompleted = () => {
+    const toDelete = todos.filter(todo => todo.completed);
+
+    toDelete.map((todo) => {
+      handleDeleteTodo(todo.id);
+
+      return todo;
+    });
   };
 
   if (!USER_ID) {
@@ -261,12 +270,14 @@ export const TodosProvider: React.FC<Props> = ({ children }) => {
       onSubmit,
       handleError,
       filteredTodos,
-      clearCompleted,
+      handleDeleteTodo,
       handleUpdate,
       updateTodo,
       completeAll,
       loaderTodoId,
       setLoaderTodoId,
+      isDeleting,
+      clearCompleted,
     }}
     >
       {children}

@@ -12,14 +12,12 @@ export const TodoList:React.FC = () => {
     <section className="todoapp__main" data-cy="TodoList">
       {filteredTodos.length !== 0
       && (
-        <form>
-          {filteredTodos.map((todo) => (
-            <TodoTitleField
-              todo={todo}
-              key={todo.id}
-            />
-          ))}
-        </form>
+        filteredTodos.map((todo) => (
+          <TodoTitleField
+            todo={todo}
+            key={todo.id}
+          />
+        ))
       )}
       {tempTodo
         && (
