@@ -49,8 +49,8 @@ export const TodoTitleField:React.FC<Props> = ({ todo }) => {
     if (event.key === 'Enter') {
       if (trimmedTitle === '') {
         handleDeleteTodo(todo.id);
-      } 
-      
+      }
+
       if (todo.title === trimmedTitle) {
         setIsEditing(false);
       }
