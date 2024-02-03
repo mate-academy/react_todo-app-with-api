@@ -19,6 +19,7 @@ export const TodoList: React.FC<Props> = ({ todos, setTodos, onUpdate }) => {
     <section className="todoapp__main" data-cy="TodoList">
       {todos.map((todo: Todo) => (
         <TodoItem
+          setTodos={setTodos}
           todos={todos}
           onUpdate={onUpdate}
           onDelete={() => removeTodo(todo.id)}

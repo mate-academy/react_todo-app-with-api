@@ -7,31 +7,43 @@ type Props = {
   todo: Todo;
   onDelete: () => void;
   onUpdate: (t: Todo) => void;
+  setTodos: React.Dispatch<React.SetStateAction<Todo[]>>;
 };
 
-export const TodoItem: React.FC<Props>
-= ({
+export const TodoItem: React.FC<Props> = ({
+  todos,
   todo,
   onDelete,
   onUpdate,
+  setTodos,
 }) => {
-  const [editingTitle, setEdingTitle] = useState(todo.title);
+  const [editingTitle, setEditingTitle] = useState(todo.title);
   const [isEnding, setIsEnding] = useState(false);
 
-  const handelDubleClick = () => {
+  const handleDoubleClick = () => {
     setIsEnding(true);
   };
 
-  const handelTitleChenge = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setEdingTitle(event.target.value);
+  const handleTitleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setEditingTitle(event.target.value);
   };
 
   const handleInputBlur = () => {
     setIsEnding(false);
+
     if (editingTitle.trim().length === 0) {
       onDelete();
     } else {
-      onUpdate({ ...todo, title: todo.title });
+      const titleExists = todos.some((t) => t.title === editingTitle);
+
+      if (titleExists) {
+        const filteredTodos = todos.filter((t) => t.title !== editingTitle);
+
+        setTodos(filteredTodos);
+        onDelete();
+      } else {
+        onUpdate({ ...todo, title: editingTitle });
+      }
     }
   };
 
@@ -41,7 +53,7 @@ export const TodoItem: React.FC<Props>
     }
   };
 
-  const handelChangeStatus = () => {
+  const handleChangeStatus = () => {
     const updatedTodo = { ...todo, completed: !todo.completed };
 
     onUpdate(updatedTodo);
@@ -50,16 +62,13 @@ export const TodoItem: React.FC<Props>
   };
 
   return (
-    <li
-      data-cy="Todo"
-      className={cn('todo', { completed: todo.completed })}
-    >
+    <li data-cy="Todo" className={cn('todo', { completed: todo.completed })}>
       <label className="todo__status-label">
         <input
           data-cy="TodoStatus"
           type="checkbox"
           className="todo__status"
-          onChange={handelChangeStatus}
+          onChange={handleChangeStatus}
         />
       </label>
 
@@ -67,8 +76,8 @@ export const TodoItem: React.FC<Props>
         <input
           type="text"
           className="todo__input"
-          value={todo.title}
-          onChange={handelTitleChenge}
+          value={editingTitle}
+          onChange={handleTitleChange}
           onBlur={handleInputBlur}
           onKeyPress={handleKeyPress}
         />
@@ -76,12 +85,12 @@ export const TodoItem: React.FC<Props>
         <span
           data-cy="TodoTitle"
           className="todo__title"
-          onDoubleClick={handelDubleClick}
+          onDoubleClick={handleDoubleClick}
         >
           {todo.title}
         </span>
       )}
-      {/* Remove button appears only on hover */}
+
       <button
         type="button"
         className="todo__remove"
@@ -91,7 +100,6 @@ export const TodoItem: React.FC<Props>
         ×
       </button>
 
-      {/* overlay will cover the todo while it is being updated */}
       <div data-cy="TodoLoader" className="modal overlay">
         <div className="modal-background has-background-white-ter" />
         <div className="loader" />

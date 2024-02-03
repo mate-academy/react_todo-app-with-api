@@ -1,13 +1,22 @@
 /* eslint-disable jsx-a11y/control-has-associated-label */
+import cn from 'classnames';
 import React, { useState } from 'react';
 import { ErrorTp } from '../types/error';
+import { Todo } from '../types/Todo';
 
 type Props = {
   createNewTodo: (title: string) => void;
   setErrors:(error: ErrorTp | null) => void;
+  todos: Todo[];
+  handelToggleAll: () => void;
 };
 
-export const Header: React.FC<Props> = ({ createNewTodo, setErrors }) => {
+export const Header: React.FC<Props> = ({
+  createNewTodo,
+  setErrors,
+  todos,
+  handelToggleAll,
+}) => {
   const [title, setTitle] = useState('');
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
@@ -22,8 +31,17 @@ export const Header: React.FC<Props> = ({ createNewTodo, setErrors }) => {
     }
   };
 
+  const someNotCompleted = todos.some(todo => !todo.completed);
+
   return (
     <header className="todoapp__header">
+      <button
+        type="button"
+        className={cn('todoapp__toggle-all', { active: someNotCompleted })}
+        data-cy="ToggleAllButton"
+        onClick={handelToggleAll}
+      />
+
       <form onSubmit={handleSubmit}>
         <input
           onChange={(e) => setTitle(e.target.value)}

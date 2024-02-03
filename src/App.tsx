@@ -1,10 +1,16 @@
+/* eslint-disable react-hooks/rules-of-hooks */
 /* eslint-disable max-len */
 /* eslint-disable jsx-a11y/control-has-associated-label */
 import React, { useEffect, useMemo, useState } from 'react';
 import { UserWarning } from './UserWarning';
 import { Todo, USER_ID } from './types/Todo';
 import { ErrorTp } from './types/error';
-import { createTodo, getTodos, updateTodo } from './api/todos';
+import {
+  createTodo,
+  deleteTodo,
+  getTodos,
+  updateTodo,
+} from './api/todos';
 import { Header } from './components/Header';
 import { TodoList } from './components/TodoList';
 import { Errors } from './components/Errors';
@@ -26,14 +32,13 @@ export const App: React.FC = () => {
     return <UserWarning />;
   }
 
-  // eslint-disable-next-line react-hooks/rules-of-hooks
   const filterTodos = useMemo(() => {
     switch (filterType) {
       case FilterType.completed:
-        return todos.filter(todo => !todo.completed);
+        return todos.filter(todo => todo.completed);
 
       case FilterType.active:
-        return todos.filter(todo => todo.completed);
+        return todos.filter(todo => !todo.completed);
 
       default:
         return todos;
@@ -70,12 +75,54 @@ export const App: React.FC = () => {
     setFilterType(filter);
   };
 
+  const handlClearCompleted = () => {
+    const completedTodoIds = todos.filter(todo => todo.completed).map(todo => todo.id);
+
+    if (completedTodoIds.length > 0) {
+      Promise.all(completedTodoIds.map(todoId => deleteTodo(todoId)))
+        .then(() => {
+          const newTodos = todos.filter(todo => !todo.completed);
+
+          setTodos(newTodos);
+        });
+    }
+  };
+
+  const someNotCompleted = todos.some(todo => !todo.completed);
+
+  const handelToggleAll = () => {
+    if (someNotCompleted) {
+      const updatedTodos = todos.map(todo => ({
+        ...todo,
+        completed: someNotCompleted,
+      }));
+
+      Promise.all(updatedTodos.map(updateTodo)).then(updatedTodoss => {
+        setTodos(updatedTodoss);
+      });
+    } else {
+      const otherUppdatedTodos = todos.map(todo => ({
+        ...todo,
+        completed: false,
+      }));
+
+      Promise.all(otherUppdatedTodos.map(updateTodo)).then(updatedTodoss => {
+        setTodos(updatedTodoss);
+      });
+    }
+  };
+
   return (
     <div className="todoapp">
       <h1 className="todoapp__title">todos</h1>
 
       <div className="todoapp__content">
-        <Header createNewTodo={addTodo} setErrors={setErrors} />
+        <Header
+          handelToggleAll={handelToggleAll}
+          todos={todos}
+          createNewTodo={addTodo}
+          setErrors={setErrors}
+        />
 
         <TodoList
           onUpdate={updatingTodo}
@@ -89,6 +136,7 @@ export const App: React.FC = () => {
             todos={todos}
             filterChange={handelChangFilter}
             filterType={filterType}
+            deleteCompleted={handlClearCompleted}
           />
         )}
 
