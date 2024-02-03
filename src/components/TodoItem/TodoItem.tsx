@@ -10,7 +10,7 @@ interface Props {
   todo: Todo;
 }
 
-export const TodoItem: React.FC<Props> = React.memo(({ todo }) => {
+export const TodoItem: React.FC<Props> = ({ todo }) => {
   const [editMode, setEditMode] = useState(false);
 
   const {
@@ -106,4 +106,4 @@ export const TodoItem: React.FC<Props> = React.memo(({ todo }) => {
       </div>
     </li>
   );
-});
+};
