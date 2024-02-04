@@ -1,9 +1,8 @@
 import classNames from 'classnames';
-import React, { useContext } from 'react';
+import React, { useContext, useState } from 'react';
 import { Todo } from '../../types/Todo';
 import { TodoLoader } from '../TodoLoader';
 import { TodoUpdateContext, TodosContext } from '../../context/TodosContext';
-import { updateTodo } from '../../api/todos';
 
 interface Props {
   todoItem: Todo,
@@ -11,28 +10,33 @@ interface Props {
 
 export const TodoItem: React.FC<Props> = ({ todoItem }) => {
   const { id, title, completed } = todoItem;
-  const { setIsLoading, setErrorMessage, setTodos } = useContext(TodosContext);
-  const { deleteTodo } = useContext(TodoUpdateContext);
+  const {
+    setErrorMessage,
+  } = useContext(TodosContext);
+  const { deleteTodo, editTodo } = useContext(TodoUpdateContext);
 
-  async function handleDelete() {
-    setIsLoading(true);
+  const [loading, setLoading] = useState(false);
 
+  const handleDelete = async () => {
     try {
       await deleteTodo(id);
     } catch (error) {
       setErrorMessage('Unable to delete a todo');
-    } finally {
-      setIsLoading(false);
     }
-  }
+  };
 
-  const handleCheckbox = () => {
-    setTodos(currentTodos => currentTodos
-      .map(currentTodo => (currentTodo.id === id
-        ? ({ ...currentTodo, completed: !completed })
-        : currentTodo)));
+  const handleCheckbox = async () => {
+    try {
+      setLoading(true);
 
-    updateTodo(id, !completed);
+      const updatedTodo = { ...todoItem, completed: !completed };
+
+      await editTodo(updatedTodo);
+    } catch (error) {
+      setErrorMessage('Unable to update todo status');
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -51,6 +55,7 @@ export const TodoItem: React.FC<Props> = ({ todoItem }) => {
           })}
           checked={completed}
           onChange={handleCheckbox}
+          disabled={loading}
         />
       </label>
 

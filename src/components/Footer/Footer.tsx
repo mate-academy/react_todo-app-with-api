@@ -8,7 +8,7 @@ export const Footer = () => {
     todos,
     setTodos,
     setErrorMessage,
-    setDeleteIds,
+    setLoadingIds,
   } = useContext(TodosContext);
   const { deleteTodo } = useContext(TodoUpdateContext);
 
@@ -20,7 +20,7 @@ export const Footer = () => {
       .filter(todo => todo.completed)
       .map(todo => todo.id);
 
-    setDeleteIds(completedTodoIds);
+    setLoadingIds(completedTodoIds);
 
     try {
       await Promise.all(completedTodoIds.map(id => deleteTodo(id)));
@@ -32,7 +32,7 @@ export const Footer = () => {
     } catch (error) {
       setErrorMessage('Unable to delete a todo');
     } finally {
-      setDeleteIds([]);
+      setLoadingIds([]);
     }
   };
 

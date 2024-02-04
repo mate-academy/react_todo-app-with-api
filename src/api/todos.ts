@@ -9,8 +9,14 @@ export const createTodo = ({ title, completed, userId }: Omit<Todo, 'id'>) => {
   return client.post('/todos', { title, completed, userId });
 };
 
-export const updateTodo = (todoId: number, completed: boolean) => {
+export const updateCheckboxTodo = (todoId: number, completed: boolean) => {
   return client.patch<Todo>(`/todos/${todoId}`, { completed });
+};
+
+export const editTodo = (
+  { id, title, completed }: Omit<Todo, 'userId'>,
+) => {
+  return client.patch<Todo>(`/todos/${id}`, { title, completed });
 };
 
 export const deleteTodo = (id: number) => {

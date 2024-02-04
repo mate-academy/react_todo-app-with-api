@@ -15,7 +15,7 @@ export const Main: React.FC<Props> = ({ items }) => {
       {items.map((todo) => (
         <TodoItem key={todo.id} todoItem={todo} />
       ))}
-      {!!tempTodo && !errorMessage && (
+      {tempTodo && !errorMessage && (
         <div data-cy="Todo" className="todo">
           <label className="todo__status-label">
             <input

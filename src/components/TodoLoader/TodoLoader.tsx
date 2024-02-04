@@ -7,13 +7,13 @@ interface Props {
 }
 
 export const TodoLoader: React.FC<Props> = ({ id }) => {
-  const { deleteIds } = useContext(TodosContext);
+  const { loadingIds } = useContext(TodosContext);
 
   return (
     <div
       data-cy="TodoLoader"
       className={classNames('modal overlay', {
-        'is-active': deleteIds.includes(id),
+        'is-active': loadingIds.includes(id),
       })}
     >
       <div className="modal-background has-background-white-ter" />

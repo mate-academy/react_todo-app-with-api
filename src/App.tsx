@@ -1,5 +1,5 @@
 import React from 'react';
-import { UserWarning } from './UserWarning';
+import { UserWarning } from './components/UserWarning';
 import { TodoApp } from './components/TodoApp';
 
 const USER_ID = 'https://mate.academy/users/91';

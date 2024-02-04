@@ -11,15 +11,13 @@ export interface Context {
   setFilterTodos: (filterField: Status) => void,
   tempTodo: Todo | null,
   setTempTodo: React.Dispatch<React.SetStateAction<Todo | null>>,
-  isLoading: boolean,
-  setIsLoading: (value: boolean) => void,
-  deleteIds: number[],
-  setDeleteIds: (n: number[]) => void,
+  loadingIds: number[];
+  setLoadingIds: (value: React.SetStateAction<number[]>) => void;
 }
 
 export interface ContextUpdate {
   addTodo: (newTodo: Omit<Todo, 'id'>) => void,
   deleteTodo: (todoId: number) => void,
-  // editTodo: (titleId: number, editTitle: string) => void,
-  // clearCompleted: () => void,
+  editTodo: (updatedTodo: Omit<Todo, 'UserId'>) => void,
+  // editTodo: (id: number, completed: boolean) => void,
 }
