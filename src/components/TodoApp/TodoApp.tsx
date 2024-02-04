@@ -1,10 +1,11 @@
 import { useContext } from 'react';
 import { TodosContext } from '../../context/TodosContext';
 
+import { filteredTodos } from '../../services/filterTodos';
+
 import { Footer } from '../Footer';
 import { Header } from '../Header';
 import { Main } from '../Main';
-import { filteredTodos } from '../../services/filterTodos';
 import { ErrorNotification } from '../ErrorNotification';
 
 export const TodoApp = () => {

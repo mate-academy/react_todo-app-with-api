@@ -32,8 +32,6 @@ export const TodoItem: React.FC<Props> = ({ todoItem }) => {
       const updatedTodo = { ...todoItem, completed: !completed };
 
       await editTodo(updatedTodo);
-    } catch (error) {
-      setErrorMessage('Unable to update todo status');
     } finally {
       setLoading(false);
     }
