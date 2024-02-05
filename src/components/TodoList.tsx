@@ -5,6 +5,8 @@ import { TodosContext } from './TodosContext';
 
 export const TodoList: React.FC = () => {
   const { visibleTodos, tempTodo } = useContext(TodosContext);
+  /* eslint-disable-next-line */
+  console.log('visibleTodos:', visibleTodos);
 
   return (
     <section className="todoapp__main" data-cy="TodoList">

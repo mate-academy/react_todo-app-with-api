@@ -1,6 +1,7 @@
 /* eslint-disable max-len */
 /* eslint-disable jsx-a11y/control-has-associated-label */
 import React, {
+  useCallback,
   useContext,
   useEffect, useRef,
 } from 'react';
@@ -20,17 +21,17 @@ export const App: React.FC = () => {
   } = useContext(TodosContext);
 
   // #region error handling
-  const handleErrorHiding = () => {
+  const handleErrorHiding = useCallback(() => {
     setErrorHidden(true);
-  };
+  }, [setErrorHidden]);
 
   useEffect(() => {
     setTimeout(handleErrorHiding, 3000);
-  }, [errorMessage]);
+  }, [errorMessage, handleErrorHiding]);
 
   // #endregion
 
-  function loadTodos() {
+  const loadTodos = useCallback(() => {
     setLoadingTodos(true);
     setErrorHidden(true);
 
@@ -41,9 +42,9 @@ export const App: React.FC = () => {
         setErrorHidden(false);
       })
       .finally(() => setLoadingTodos(false));
-  }
+  }, [setErrorHidden, setErrorMessage, setLoadingTodos, setTodos]);
 
-  useEffect(loadTodos, [setErrorHidden, setErrorMessage, setLoadingTodos, setTodos]);
+  useEffect(() => loadTodos(), [loadTodos, setErrorHidden, setErrorMessage, setLoadingTodos, setTodos]);
 
   const canToggleAll = todos.length > 0;
   const allTodosCompleted = todos.every((todo) => todo.completed);
@@ -149,7 +150,7 @@ export const App: React.FC = () => {
           && (
             <button
               type="button"
-              className="todoapp__toggle-all active"
+              className={`todoapp__toggle-all ${completedTodos && 'active'}`}
               data-cy="ToggleAllButton"
               onClick={handleToggleAllClick}
             />

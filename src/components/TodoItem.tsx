@@ -58,7 +58,6 @@ export const TodoItem: React.FC<Props> = ({
     }
 
     updateTodo({ ...todo, title: editedTitle });
-    setEditedTitle(todo.title);
   };
 
   const handleEnterPress = (event: React.KeyboardEvent<HTMLInputElement>) => {
@@ -114,7 +113,7 @@ export const TodoItem: React.FC<Props> = ({
               data-cy="TodoTitleField"
               type="text"
               className="todo__title-field"
-              // placeholder="Empty todo will be deleted"
+              placeholder="Empty todo will be deleted"
               value={editedTitle}
               onChange={handleTitleEditing}
               ref={inputRef}
