@@ -47,6 +47,7 @@ export const EditForm: React.FC<Props> = ({ todo, onEditMode }) => {
           onEditMode(false);
         })
         .catch(() => {
+          editInput.current?.focus();
           handleError('Unable to delete a todo');
         })
         .finally(() => {
