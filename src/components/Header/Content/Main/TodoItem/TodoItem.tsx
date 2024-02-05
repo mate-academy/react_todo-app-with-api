@@ -37,7 +37,7 @@ export const TodoItem: React.FC<Props> = ({ todo, isTempTodo }) => {
   const handleKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
     if (event.key === ENTER_KEY && editingText) {
       setIsEdit(false);
-      handleUpdateTodo(todo.id, editingText);
+      handleUpdateTodo({ ...todo, title: editingText });
     }
 
     if (event.key === ENTER_KEY && !editingText) {
@@ -49,7 +49,7 @@ export const TodoItem: React.FC<Props> = ({ todo, isTempTodo }) => {
   const handleBlur = () => {
     if (editingText) {
       setIsEdit(false);
-      handleUpdateTodo(todo.id, editingText);
+      handleUpdateTodo({ ...todo, title: editingText });
     }
 
     if (!editingText) {
@@ -62,7 +62,7 @@ export const TodoItem: React.FC<Props> = ({ todo, isTempTodo }) => {
     if (event.key === ESCAPE_KEY) {
       setIsEdit(false);
       setEditingText(todo.title);
-      handleUpdateTodo(todo.id, todo.title);
+      handleUpdateTodo({ ...todo, title: todo.title });
     }
   };
 
@@ -95,7 +95,7 @@ export const TodoItem: React.FC<Props> = ({ todo, isTempTodo }) => {
           >
             <input
               type="text"
-              className="edit"
+              className="todo todo__field"
               name="editingField"
               ref={inputFocus}
               value={editingText}

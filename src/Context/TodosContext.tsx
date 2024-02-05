@@ -21,7 +21,7 @@ interface Context {
   toggleAll: () => void,
   handleDeleteCompleted: () => void,
   handleStatus: (newStatus: Status) => void,
-  handleUpdateTodo: (changeId: number, updateTitle: string) => void,
+  handleUpdateTodo: (updatedTodo: Todo) => void,
   handleDeleteTodo: (deleteId: number) => void,
   handleErrorMessage: (error: Error) => void,
   handleDisabled: (disable: boolean) => void,
@@ -163,10 +163,30 @@ export const TodosProvider: React.FC<Props> = ({ children }) => {
       });
   };
 
-  const handleUpdateTodo = (changeId: number, updateTitle: string) => {
-    setTodos(state => state.map(todo => (todo.id === changeId
-      ? { ...todo, title: updateTitle }
+  const handleUpdateTodo = (updatedTodo: Todo) => {
+    setLoadingIds(state => [
+      ...state,
+      updatedTodo.id,
+    ]);
+
+    setTodos(state => state.map(todo => (todo.id === updatedTodo.id
+      ? { ...todo, title: updatedTodo.title }
       : todo)));
+
+    return todoService.updateTodos(updatedTodo)
+      .then(newTodo => {
+        setTodos(state => state.map(todo => (todo.id === newTodo.id
+          ? newTodo
+          : todo)));
+      })
+
+      .catch(() => {
+        setErrorMessage(Error.Update);
+      })
+      .finally(() => {
+        setIsFieldDisabled(false);
+        setLoadingIds([]);
+      });
   };
 
   const handleDeleteTodo = (deleteId: number) => {
