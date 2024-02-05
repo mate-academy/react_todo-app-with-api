@@ -17,7 +17,6 @@ export const App: React.FC = () => {
   const {
     todos, setTodos, title, setTitle, loadingTodos, setLoadingTodos,
     errorMessage, setErrorMessage, errorHidden, setErrorHidden, tempTodo, setTempTodo,
-    setLoadingUpdatedtodo,
   } = useContext(TodosContext);
 
   // #region error handling
@@ -44,7 +43,18 @@ export const App: React.FC = () => {
       .finally(() => setLoadingTodos(false));
   }
 
-  useEffect(loadTodos, []);
+  useEffect(loadTodos, [setErrorHidden, setErrorMessage, setLoadingTodos, setTodos]);
+
+  const canToggleAll = todos.length > 0;
+  const allTodosCompleted = !todos.every((todo) => todo.completed);
+
+  const handleToggleAllClick = () => {
+    if (canToggleAll) {
+      setTodos(todos.map((todo) => (
+        { ...todo, completed: !allTodosCompleted }
+      )));
+    }
+  };
 
   const addTodo = ({
     title: currentTitle, completed, userId,
@@ -84,18 +94,6 @@ export const App: React.FC = () => {
       });
   };
 
-  const deleteTodo = (todoId: number) => {
-    setTodos(currentTodos => currentTodos.filter(todo => todo.id !== todoId));
-
-    return postService.removeTodo(todoId)
-      .catch((error) => {
-        setTodos(todos);
-        setErrorHidden(false);
-        setErrorMessage('Unable to delete a todo');
-        throw error;
-      });
-  };
-
   const deleteCompletedTodos = () => {
     const comnpletedTodoIds = todos.filter(todo => todo.completed).map(todo => todo.id);
 
@@ -108,31 +106,6 @@ export const App: React.FC = () => {
         setErrorMessage('Unable to delete a todo');
         throw error;
       });
-  };
-
-  const updateTodo = (updatedTodo: Todo) => {
-    setLoadingUpdatedtodo(true);
-
-    return postService.editTodo(updatedTodo)
-      .then(updatedTodoFromApi => {
-        /* eslint-disable-next-line */
-        console.log('Updated Todo from API:', updatedTodoFromApi);
-        setTodos(currentTodos => {
-          const newTodos = [...currentTodos];
-          const index = newTodos.findIndex(foundTodo => foundTodo.id === updatedTodo.id);
-
-          newTodos.splice(index, 1, updatedTodoFromApi);
-
-          return newTodos;
-        });
-      })
-      .catch(error => {
-        setErrorHidden(false);
-        setErrorMessage('Unable to update a todo');
-        setTodos(todos);
-        throw error;
-      })
-      .finally(() => setLoadingUpdatedtodo(false));
   };
 
   const handleTitleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -171,11 +144,14 @@ export const App: React.FC = () => {
 
       <div className="todoapp__content">
         <header className="todoapp__header">
-          {!!activeTodos && (
+          { !loadingTodos
+          && !!todos.length
+          && (
             <button
               type="button"
               className="todoapp__toggle-all active"
               data-cy="ToggleAllButton"
+              onClick={handleToggleAllClick}
             />
           )}
 
@@ -196,10 +172,7 @@ export const App: React.FC = () => {
           !loadingTodos
           && !!todos.length
           && (
-            <TodoList
-              onDelete={deleteTodo}
-              onUpdate={updateTodo}
-            />
+            <TodoList />
           )
         }
         {!!todos.length && (

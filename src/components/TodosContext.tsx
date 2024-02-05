@@ -1,8 +1,9 @@
 import React, {
   Dispatch,
-  SetStateAction, useMemo, useState,
+  SetStateAction, useCallback, useMemo, useState,
 } from 'react';
 import { Status, Todo } from '../types/Todo';
+import * as postService from '../api/todos';
 
 type TodosContextType = {
   todos: Todo[];
@@ -22,10 +23,10 @@ type TodosContextType = {
   setTempTodo: Dispatch<SetStateAction<Todo | null>>,
   loadingUpdatedTodo: boolean,
   setLoadingUpdatedtodo: Dispatch<SetStateAction<boolean>>,
-  editedTitle: string,
-  setEditedTitle: Dispatch<SetStateAction<string>>,
   selectedTodo: Todo | null,
-  setSelectedTodo: Dispatch<SetStateAction<Todo | null>>
+  setSelectedTodo: Dispatch<SetStateAction<Todo | null>>,
+  deleteTodo: (todoId: number) => void,
+  updateTodo: (todo: Todo) => void,
 };
 
 export const TodosContext = React.createContext<TodosContextType>({
@@ -46,10 +47,10 @@ export const TodosContext = React.createContext<TodosContextType>({
   setTempTodo: () => {},
   loadingUpdatedTodo: false,
   setLoadingUpdatedtodo: () => {},
-  editedTitle: '',
-  setEditedTitle: () => {},
   selectedTodo: null,
   setSelectedTodo: () => {},
+  deleteTodo: () => {},
+  updateTodo: () => {},
 });
 
 type Props = {
@@ -66,7 +67,6 @@ export const TodosProvider: React.FC<Props> = ({ children }) => {
   const [errorHidden, setErrorHidden] = useState(true);
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
   const [loadingUpdatedTodo, setLoadingUpdatedtodo] = useState(false);
-  const [editedTitle, setEditedTitle] = useState('');
   const [selectedTodo, setSelectedTodo] = useState<Todo | null>(null);
 
   const visibleTodos = [...todos].filter(todo => {
@@ -81,6 +81,46 @@ export const TodosProvider: React.FC<Props> = ({ children }) => {
         return true;
     }
   });
+
+  const deleteTodo = useCallback((todoId: number) => {
+    setTodos(currentTodos => currentTodos.filter(todo => todo.id !== todoId));
+
+    return postService.removeTodo(todoId)
+      .catch((error) => {
+        setTodos(todos);
+        setErrorHidden(false);
+        setErrorMessage('Unable to delete a todo');
+        throw error;
+      });
+  }, [todos]);
+
+  const updateTodo = useCallback((updatedTodo: Todo) => {
+    setErrorHidden(true);
+    setErrorMessage('');
+    setLoadingUpdatedtodo(true);
+
+    return postService.editTodo(updatedTodo)
+      .then(updatedTodoFromApi => {
+        /* eslint-disable-next-line */
+        console.log('Updated Todo from API:', updatedTodoFromApi);
+        setTodos(currentTodos => {
+          const newTodos = [...currentTodos];
+          const index = newTodos
+            .findIndex(foundTodo => foundTodo.id === updatedTodo.id);
+
+          newTodos.splice(index, 1, updatedTodoFromApi);
+
+          return newTodos;
+        });
+      })
+      .catch(error => {
+        setErrorHidden(false);
+        setErrorMessage('Unable to update a todo');
+        setTodos(todos);
+        throw error;
+      })
+      .finally(() => setLoadingUpdatedtodo(false));
+  }, [todos]);
 
   const values = useMemo(() => ({
     todos,
@@ -100,16 +140,16 @@ export const TodosProvider: React.FC<Props> = ({ children }) => {
     setTempTodo,
     loadingUpdatedTodo,
     setLoadingUpdatedtodo,
-    editedTitle,
-    setEditedTitle,
     selectedTodo,
     setSelectedTodo,
+    deleteTodo,
+    updateTodo,
   }), [
     todos, setTodos, selectedStatus, title, visibleTodos,
     loadingTodos, setLoadingTodos, errorMessage, setErrorMessage,
     errorHidden, setErrorHidden, tempTodo, setTempTodo, loadingUpdatedTodo,
-    setLoadingUpdatedtodo, editedTitle, setEditedTitle, selectedTodo,
-    setSelectedTodo,
+    setLoadingUpdatedtodo, selectedTodo,
+    setSelectedTodo, deleteTodo, updateTodo,
   ]);
 
   return (

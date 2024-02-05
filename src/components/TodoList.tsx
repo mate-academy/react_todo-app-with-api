@@ -1,18 +1,9 @@
 import { CSSTransition, TransitionGroup } from 'react-transition-group';
 import { useContext } from 'react';
-import { Todo } from '../types/Todo';
 import { TodoItem } from './TodoItem';
 import { TodosContext } from './TodosContext';
 
-type Props = {
-  onDelete: (todoId: number) => void,
-  onUpdate: (todo: Todo) => void,
-};
-
-export const TodoList: React.FC<Props> = ({
-  onDelete,
-  onUpdate,
-}) => {
+export const TodoList: React.FC = () => {
   const { visibleTodos, tempTodo } = useContext(TodosContext);
 
   return (
@@ -23,8 +14,6 @@ export const TodoList: React.FC<Props> = ({
             <TodoItem
               key={todo.id}
               todo={todo}
-              onUpdate={onUpdate}
-              onDelete={onDelete}
             />
           );
         })}
@@ -67,33 +56,6 @@ export const TodoList: React.FC<Props> = ({
           </CSSTransition>
         )}
       </TransitionGroup>
-
-      {/* This todo is being edited
-    <div data-cy="Todo" className="todo">
-      <label className="todo__status-label">
-        <input
-          data-cy="TodoStatus"
-          type="checkbox"
-          className="todo__status"
-        />
-      </label>
-
-        This form is shown instead of the title and remove button
-      <form>
-        <input
-          data-cy="TodoTitleField"
-          type="text"
-          className="todo__title-field"
-          placeholder="Empty todo will be deleted"
-          value="Todo is being edited now"
-        />
-      </form>
-
-      <div data-cy="TodoLoader" className="modal overlay">
-        <div className="modal-background has-background-white-ter" />
-        <div className="loader" />
-      </div>
-    </div> */}
     </section>
   );
 };
