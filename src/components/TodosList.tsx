@@ -11,34 +11,48 @@ export const TodosList: FC<Props> = ({ todos }) => {
   const { tempTodo, inProcess } = useSelector();
   const dispatch = useDispatch();
 
-  const handleDelete = (id: number) => {
-    dispatch({ type: 'setInProcess', payload: [...inProcess, id] });
+  const handleDelete = async (id: number) => {
+    try {
+      dispatch({ type: 'setInProcess', payload: [...inProcess, id] });
 
-    const updatedTodos = todos.filter(todo => todo.id !== id);
+      // Make API call to delete todo
+      await fetch(`your-api-url/todos/${id}`, {
+        method: 'DELETE',
+      });
 
-    dispatch({ type: 'setTodos', payload: updatedTodos });
-  };
-
-  const handleChange = (todo: Todo): Promise<void> => {
-    return new Promise((resolve) => {
-      dispatch({ type: 'setInProcess', payload: [...inProcess, todo.id] });
-
-      // Assuming todos is the array of todos in your local state
-
-      const updatedTodos = todos.map(item => (
-        item.id === todo.id ? todo : item));
+      // If successful, update local state
+      const updatedTodos = todos.filter(todo => todo.id !== id);
 
       dispatch({ type: 'setTodos', payload: updatedTodos });
+    } catch (error) {
+      // Handle error
+      /*eslint-disable*/
+      console.error('Error deleting todo:', error);
+    }
+  };
 
-      // Resolve the promise to indicate the operation is successful
-      resolve();
+  const handleChange = async (todo: Todo): Promise<void> => {
+    try {
+      dispatch({ type: 'setInProcess', payload: [...inProcess, todo.id] });
 
-      // If there are any further state updates or actions needed based on the change operation, you can do it here
+      // Make API call to update todo
+      await fetch(`your-api-url/todos/${todo.id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(todo),
+      });
 
-      // Optionally, you can handle any further actions like removing from inProcess or displaying errors
-      // handleDeleteFromInProcess(todo.id);
-      // setError('Unable to update a todo');
-    });
+      // If successful, update local state
+      const updatedTodos = todos
+        .map((item) => (item.id === todo.id ? todo : item));
+
+      dispatch({ type: 'setTodos', payload: updatedTodos });
+    } catch (error) {
+      // Handle error
+      console.error('Error updating todo:', error);
+    }
   };
 
   return (
@@ -48,16 +62,11 @@ export const TodosList: FC<Props> = ({ todos }) => {
           key={todo.id}
           todo={todo}
           inProcess={inProcess.includes(todo.id)}
-          onDelete={handleDelete}
+          onDelete={() => handleDelete(todo.id)}
           onChange={handleChange}
         />
       ))}
-      {tempTodo && (
-        <TodoItem
-          todo={tempTodo}
-          inProcess
-        />
-      )}
+      {tempTodo && <TodoItem todo={tempTodo} inProcess />}
     </section>
   );
 };
