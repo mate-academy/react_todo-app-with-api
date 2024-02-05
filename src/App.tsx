@@ -3,7 +3,6 @@
 /* eslint-disable no-console */
 /* eslint-disable jsx-a11y/control-has-associated-label */
 import React, { useEffect, useState } from 'react';
-import classNames from 'classnames';
 import { UserWarning } from './UserWarning';
 import {
   deleteTodo, getTodos, patchTodo, postTodo,
@@ -11,9 +10,10 @@ import {
 import { TodoHeader } from './components/TodoHeader';
 import { TodoList } from './components/TodoList';
 import { TodoFooter } from './components/TodoFooter';
-import { Filter } from './types/enum';
+import { ErrorMessages, Filter } from './types/enum';
 import { TodoContext } from './TodoContext';
 import { State, Todo } from './types/interfaces';
+import { TodoErrorNotification } from './components/TodoErrorNotification';
 
 const USER_ID = 82;
 
@@ -45,21 +45,11 @@ export const App: React.FC = () => {
           setTempTodo(null);
         })
         .catch(() => {
-          setError('Unable to add a todo');
+          setError(ErrorMessages.AddFail);
           setTempTodo(null);
         });
     }
   }, [tempTodo]);
-
-  useEffect(() => {
-    const hideErrorTimeout = setTimeout(() => {
-      setError('');
-    }, 3000);
-
-    return () => {
-      clearTimeout(hideErrorTimeout);
-    };
-  }, [error]);
 
   useEffect(() => {
     getTodos(USER_ID)
@@ -70,7 +60,7 @@ export const App: React.FC = () => {
         }));
       })
       .catch(() => {
-        setError('Unable to load todos');
+        setError(ErrorMessages.LoadFail);
       });
   }, []);
 
@@ -99,7 +89,7 @@ export const App: React.FC = () => {
       })
       .catch(() => {
         removeLoading(checkTodo.id);
-        setError('Unable to update a todo');
+        setError(ErrorMessages.UpdateFail);
       });
   }
 
@@ -137,7 +127,7 @@ export const App: React.FC = () => {
       })
       .catch(() => {
         removeLoading(todo.id);
-        setError('Unable to delete a todo');
+        setError(ErrorMessages.DeleteFail);
       });
   }
 
@@ -175,7 +165,7 @@ export const App: React.FC = () => {
       })
       .catch(() => {
         removeLoading(editTodo.id);
-        setError('Unable to update a todo');
+        setError(ErrorMessages.UpdateFail);
       });
   }
 
@@ -216,25 +206,10 @@ export const App: React.FC = () => {
               <TodoFooter />
             </>
           )}
-
         </TodoContext.Provider>
       </div>
 
-      <div
-        data-cy="ErrorNotification"
-        className={classNames(
-          'notification is-danger is-light has-text-weight-normal',
-          { hidden: !error },
-        )}
-      >
-        <button
-          data-cy="HideErrorButton"
-          type="button"
-          className="delete"
-          onClick={() => setError(null)}
-        />
-        {error}
-      </div>
+      <TodoErrorNotification error={error} setError={setError} />
     </div>
   );
 };

@@ -12,6 +12,13 @@ export const TodoFooter = () => {
   const itemsLeft = state.todos.filter(todo => !todo.completed).length;
   const completedTodos = state.todos.filter(todo => todo.completed);
 
+  function onChangeStatus(onFilter: Filter) {
+    setState(prev => ({
+      ...prev,
+      filter: onFilter,
+    }));
+  }
+
   return (
     <footer className="todoapp__footer" data-cy="Footer">
       <span className="todo-count" data-cy="TodosCounter">
@@ -24,10 +31,7 @@ export const TodoFooter = () => {
           className={classNames('filter__link',
             { selected: state.filter === Filter.All })}
           data-cy="FilterLinkAll"
-          onClick={() => setState(prev => ({
-            ...prev,
-            filter: Filter.All,
-          }))}
+          onClick={() => onChangeStatus(Filter.All)}
         >
           All
         </a>
@@ -37,10 +41,7 @@ export const TodoFooter = () => {
           className={classNames('filter__link',
             { selected: state.filter === Filter.Active })}
           data-cy="FilterLinkActive"
-          onClick={() => setState(prev => ({
-            ...prev,
-            filter: Filter.Active,
-          }))}
+          onClick={() => onChangeStatus(Filter.Active)}
         >
           Active
         </a>
@@ -50,10 +51,7 @@ export const TodoFooter = () => {
           className={classNames('filter__link',
             { selected: state.filter === Filter.Completed })}
           data-cy="FilterLinkCompleted"
-          onClick={() => setState(prev => ({
-            ...prev,
-            filter: Filter.Completed,
-          }))}
+          onClick={() => onChangeStatus(Filter.Completed)}
         >
           Completed
         </a>

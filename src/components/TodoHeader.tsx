@@ -40,6 +40,7 @@ export const TodoHeader: React.FC<TodoHeaderProps> = ({
         userId: 82,
       });
     } else if (event.key === 'Enter' && !onInput.trim()) {
+      event.preventDefault();
       setError('Title should not be empty');
     }
   };

@@ -1,5 +1,3 @@
-/* eslint-disable import/no-cycle */
-
 import { useContext } from 'react';
 import { TodoItem } from './TodoItem';
 import { Filter } from '../types/enum';
