@@ -59,16 +59,23 @@ export const TodoItem: React.FC<Props> = ({ todoItem }) => {
     try {
       if (!editTitle.trim()) {
         if (isEditingRef.current) {
-          await deleteTodo(id);
+          await deleteTodo(todoItem.id);
         }
       } else {
-        const updatedTodo = { ...todoItem, title: editTitle, id: todoItem.id };
+        const updatedTodo = {
+          ...todoItem,
+          title: editTitle,
+          id: todoItem.id,
+        };
 
         setIsEditing(false);
+
         await editTodo(updatedTodo);
       }
     } catch (error) {
       setErrorMessage('Unable to update a todo');
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -82,10 +89,6 @@ export const TodoItem: React.FC<Props> = ({ todoItem }) => {
   };
 
   const handleKeyUp = (event: React.KeyboardEvent<HTMLInputElement>) => {
-    if (event.key === 'Enter') {
-      saveEditing();
-    }
-
     if (event.key === 'Escape') {
       setIsEditing(false);
       setEditTitle(title);

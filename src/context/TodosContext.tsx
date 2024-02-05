@@ -78,7 +78,7 @@ export const TodosProvider: React.FC<Props> = ({ children }) => {
       .then(() => {
         setTodos((prevTodos) => {
           const updatedTodos = prevTodos.map((todo) => (todo.id === id
-            ? updatedTodo
+            ? { ...todo, completed: !todo.completed }
             : todo));
 
           return updatedTodos;

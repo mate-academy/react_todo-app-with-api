@@ -59,6 +59,7 @@ export const Header: React.FC = () => {
       try {
         await addTodo(newTodo);
         setTitleField('');
+        setErrorMessage('');
       } catch (error) {
         setErrorMessage('Unable to add a todo');
       } finally {
@@ -100,12 +101,16 @@ export const Header: React.FC = () => {
   return (
     <header className="todoapp__header">
       {/* this buttons are active only if there are some active todos */}
-      <button
-        type="button"
-        className={classNames('todoapp__toggle-all', { active: allCompleted })}
-        data-cy="ToggleAllButton"
-        onClick={handleToggleAll}
-      />
+      {!!todos.length && (
+        <button
+          type="button"
+          className={classNames('todoapp__toggle-all', {
+            active: allCompleted,
+          })}
+          data-cy="ToggleAllButton"
+          onClick={handleToggleAll}
+        />
+      )}
 
       {/* Add a todo on form submit */}
       <form onSubmit={handleSubmit}>
