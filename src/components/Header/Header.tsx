@@ -15,6 +15,7 @@ export const Header: React.FC = () => {
 
   const {
     todos,
+    tempTodo,
     handleError,
     addNewTodo,
     handleSetTempTodo,
@@ -26,7 +27,7 @@ export const Header: React.FC = () => {
 
   useEffect(() => {
     todoInput.current?.focus();
-  }, [todos.length, addNewTodo]);
+  }, [todos.length, tempTodo]);
 
   const newTodo = {
     userId: USER_ID,
