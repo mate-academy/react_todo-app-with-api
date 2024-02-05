@@ -29,11 +29,7 @@ export const App: React.FC = () => {
   const [isEditing, setIsEditing] = useState<number | null>(null);
 
   const removeLoading = (todoId: number) => {
-    setIsLoading((prev) => {
-      prev.splice(prev.indexOf(todoId), 1);
-
-      return prev;
-    });
+    setIsLoading((prev) => prev.filter(id => id !== todoId));
   };
 
   useEffect(() => {
