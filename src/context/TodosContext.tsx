@@ -93,15 +93,16 @@ export const TodosProvider: React.FC<Props> = ({ children }) => {
       });
   }
 
-  function editTodo(todoId: number, editTitle: string) {
-    setLoadingIds((prev) => [...prev, todoId]);
+  function editTodo(updateTodo: Todo) {
+    setLoadingIds((prev) => [...prev, updateTodo.id]);
 
-    return api.editTodo({ id: todoId, title: editTitle })
+    return api.editTodo(updateTodo)
       .then((updatedTodo) => {
         setTodos((prevTodos) => {
-          const updatedTodos = prevTodos.map((todo) => (todo.id === todoId
-            ? updatedTodo
-            : todo));
+          const updatedTodos = prevTodos
+            .map((todo) => (todo.id === updateTodo.id
+              ? updatedTodo
+              : todo));
 
           return updatedTodos;
         });
@@ -111,7 +112,7 @@ export const TodosProvider: React.FC<Props> = ({ children }) => {
       })
       .finally(() => {
         setLoadingIds((prev) => prev
-          .filter((loadingId) => loadingId !== todoId));
+          .filter((loadingId) => loadingId !== updateTodo.id));
       });
   }
 

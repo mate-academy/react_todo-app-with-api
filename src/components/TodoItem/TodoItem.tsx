@@ -49,23 +49,36 @@ export const TodoItem: React.FC<Props> = ({ todoItem }) => {
     }
   };
 
-  const saveEditing = async () => {
-    if (!editTitle.trim()) {
-      try {
-        await deleteTodo(id);
-      } catch (error) {
-        setErrorMessage('Unable to delete a todo');
-      }
-    }
+  const isEditingRef = useRef(false);
 
-    if (editTitle.trim()) {
-      setIsEditing(false);
-      editTodo(id, editTitle);
+  useEffect(() => {
+    isEditingRef.current = isEditing;
+  }, [isEditing]);
+
+  const saveEditing = async () => {
+    try {
+      if (!editTitle.trim()) {
+        if (isEditingRef.current) {
+          await deleteTodo(id);
+        }
+      } else {
+        const updatedTodo = { ...todoItem, title: editTitle, id: todoItem.id };
+
+        setIsEditing(false);
+        await editTodo(updatedTodo);
+      }
+    } catch (error) {
+      setErrorMessage('Unable to update a todo');
     }
   };
 
   const handleOnEditing = (event: React.ChangeEvent<HTMLInputElement>) => {
     setEditTitle(event.target.value);
+  };
+
+  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    saveEditing();
   };
 
   const handleKeyUp = (event: React.KeyboardEvent<HTMLInputElement>) => {
@@ -110,7 +123,7 @@ export const TodoItem: React.FC<Props> = ({ todoItem }) => {
       </label>
 
       {isEditing ? (
-        <form>
+        <form onSubmit={handleSubmit}>
           <input
             ref={titleField}
             onBlur={saveEditing}
@@ -129,17 +142,19 @@ export const TodoItem: React.FC<Props> = ({ todoItem }) => {
           className="todo__title"
           onDoubleClick={() => setIsEditing(true)}
         >
-          {title}
+          {editTitle}
         </span>
       )}
-      <button
-        type="button"
-        className="todo__remove"
-        data-cy="TodoDelete"
-        onClick={handleDelete}
-      >
-        ×
-      </button>
+      {!isEditing && (
+        <button
+          type="button"
+          className="todo__remove"
+          data-cy="TodoDelete"
+          onClick={handleDelete}
+        >
+          ×
+        </button>
+      )}
 
       <TodoLoader id={id} />
     </div>

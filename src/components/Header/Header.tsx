@@ -35,7 +35,7 @@ export const Header: React.FC = () => {
     if (inputRef.current) {
       inputRef.current.focus();
     }
-  }, [errorMessage, todos]);
+  }, [isAddingTodo, errorMessage]);
 
   async function handleSubmit(event: React.FormEvent) {
     event.preventDefault();
