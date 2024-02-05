@@ -49,9 +49,13 @@ export const TodoItem: React.FC<Props> = ({ todoItem }) => {
     }
   };
 
-  const saveEditing = () => {
+  const saveEditing = async () => {
     if (!editTitle.trim()) {
-      deleteTodo(id);
+      try {
+        await deleteTodo(id);
+      } catch (error) {
+        setErrorMessage('Unable to delete a todo');
+      }
     }
 
     if (editTitle.trim()) {

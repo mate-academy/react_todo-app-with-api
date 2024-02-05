@@ -93,14 +93,26 @@ export const TodosProvider: React.FC<Props> = ({ children }) => {
       });
   }
 
-  function editTodo(titleId: number, editTitle: string) {
-    setTodos(currentTodos => currentTodos
-      .map(todo => (todo.id === titleId
-        ? {
-          ...todo,
-          title: editTitle,
-        }
-        : todo)));
+  function editTodo(todoId: number, editTitle: string) {
+    setLoadingIds((prev) => [...prev, todoId]);
+
+    return api.editTodo({ id: todoId, title: editTitle })
+      .then((updatedTodo) => {
+        setTodos((prevTodos) => {
+          const updatedTodos = prevTodos.map((todo) => (todo.id === todoId
+            ? updatedTodo
+            : todo));
+
+          return updatedTodos;
+        });
+      })
+      .catch(() => {
+        setErrorMessage('Unable to update a todo');
+      })
+      .finally(() => {
+        setLoadingIds((prev) => prev
+          .filter((loadingId) => loadingId !== todoId));
+      });
   }
 
   const methods = useMemo(() => ({
