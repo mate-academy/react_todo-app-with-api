@@ -1,15 +1,16 @@
 import {
   useContext, useMemo, useState,
 } from 'react';
+import { TransitionGroup, CSSTransition } from 'react-transition-group';
 import { TodoList } from '../TodoList';
 import { TodosContext } from '../../contexts/TodosProvider';
 import { TodoAction } from '../../types/TodoAction';
 import { Todo } from '../../types/Todo';
 import { FilterOptions } from '../../types/FilterOptions';
 import { ErrorMessage } from '../ErrorMessage';
-import { TodoItem } from '../TodoItem';
 import { Header } from '../Header';
 import { Footer } from '../Footer';
+import { TempTodo } from '../TempTodo';
 
 function filterTodos(todos: Todo[], filterOpitons: FilterOptions) {
   switch (filterOpitons) {
@@ -67,10 +68,19 @@ export const TodoApp = () => {
 
         <TodoList todos={filteredTodos} />
 
-        {tempTodo
-          && (
-            <TodoItem todo={tempTodo} isLoading />
-          )}
+        <TransitionGroup>
+          {tempTodo
+            && (
+              <CSSTransition
+                key={0}
+                timeout={300}
+                classNames="temp-item"
+              >
+
+                <TempTodo todo={tempTodo} />
+              </CSSTransition>
+            )}
+        </TransitionGroup>
 
         {!!todos.length
           && (
@@ -83,7 +93,6 @@ export const TodoApp = () => {
         errorMessage={errorMessage}
         onErrorHiding={handleErrorHiding}
       />
-
     </div>
   );
 };
