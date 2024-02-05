@@ -26,7 +26,7 @@ export const Header: React.FC = () => {
 
   useEffect(() => {
     todoInput.current?.focus();
-  }, [todos]);
+  }, [todos.length, addNewTodo]);
 
   const newTodo = {
     userId: USER_ID,
@@ -59,7 +59,6 @@ export const Header: React.FC = () => {
       })
       .finally(() => {
         todoInput.current?.removeAttribute('disabled');
-        todoInput.current?.focus();
         handleSetTempTodo(null);
       });
   };

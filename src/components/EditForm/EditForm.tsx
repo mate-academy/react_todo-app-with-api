@@ -63,6 +63,7 @@ export const EditForm: React.FC<Props> = ({ todo, onEditMode }) => {
         onEditMode(false);
       })
       .catch(() => {
+        editInput.current?.focus();
         handleError('Unable to update a todo');
       })
       .finally(() => {
