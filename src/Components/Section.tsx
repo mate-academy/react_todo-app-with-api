@@ -1,16 +1,18 @@
-import { FormEvent, useRef, useState } from 'react';
+import {
+  FormEvent, useRef, useState, useEffect,
+} from 'react';
 import cn from 'classnames';
 import { Todo } from '../types/Todo';
 
 type Props = {
-  onSelect: (value: Todo) => void;
+  onSelect: (value: Todo) => Promise<void>;
   filteredTodos: Todo[] | null;
   onDelete: (todoId: number) => void;
   tempTodo: Todo | null,
   tempTodos: Todo[] | null,
   selectedTodo: Todo | null,
   isLoad: boolean,
-  onDubleClick: (value: Todo) => void,
+  onDubleClick: (value: Todo) => Promise<void>,
 };
 
 export const Section: React.FC<Props> = ({
@@ -23,16 +25,21 @@ export const Section: React.FC<Props> = ({
   isLoad,
   selectedTodo,
 }) => {
-  const [isDubleClick, setIsDubleClick] = useState<Todo | null>(null);
+  const [currentTodo, setCurrentTodo] = useState<Todo | null>(null);
   const [updatedQuery, setUpdatedQuery] = useState('');
+  // const [isEdit, setIsEdit] = useState(false);
+
   const myInputRef = useRef<HTMLInputElement>(null);
 
-  // const handleDubbleClick = () => {
-  // };
+  useEffect(() => {
+    if (currentTodo && myInputRef) {
+      myInputRef.current?.focus();
+    }
+  }, [currentTodo]);
 
   const handleEscape = (event: KeyboardEvent) => {
     if (event.key === 'Escape') {
-      setIsDubleClick(null);
+      setCurrentTodo(null);
     }
   };
 
@@ -41,15 +48,20 @@ export const Section: React.FC<Props> = ({
   const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
-    if (isDubleClick) {
-      onDubleClick({
-        ...isDubleClick,
-        title: updatedQuery,
-      });
-    }
+    if (currentTodo) {
+      try {
+        onDubleClick({
+          ...currentTodo,
+          title: updatedQuery.trim(),
+        });
 
-    setIsDubleClick(null);
-    setUpdatedQuery('');
+        setUpdatedQuery('');
+        setCurrentTodo(null);
+      } catch (error) {
+        console.error('Error updating todo:', error);
+        myInputRef.current?.focus();
+      }
+    }
   };
 
   return (
@@ -75,19 +87,18 @@ export const Section: React.FC<Props> = ({
             />
           </label>
 
-          {isDubleClick?.id !== todo.id
+          { currentTodo?.id !== todo.id
             ? (
               <>
                 <span
                   data-cy="TodoTitle"
                   className="todo__title"
                   onDoubleClick={() => {
-                    setInterval(() => {
-                      myInputRef.current?.focus();
-                    }, 0);
-                    setIsDubleClick(todo);
+                    // setIsEdit(true);
+                    setCurrentTodo(todo);
                     setUpdatedQuery(todo.title);
                   }}
+                  ref={myInputRef}
                 >
                   {todo.title}
                 </span>

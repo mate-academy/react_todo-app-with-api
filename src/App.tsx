@@ -219,6 +219,7 @@ export const App: React.FC = () => {
   }
 
   function updateTitleTodo(updateTodo: Todo) {
+    setSelectedTodo(updateTodo);
     const isSameTitle = todos.some(todo => todo.title === updateTodo.title);
 
     if (!updateTodo.title.trim()) {
@@ -244,15 +245,14 @@ export const App: React.FC = () => {
 
           return newTodos;
         });
+        setSelectedTodo(null);
       })
       .catch((error) => {
         setErrorMessage('Unable to update a todo');
+
         throw error;
       })
       .finally(() => {
-        // setTimeout(() => {
-        //   myInputRef.current?.focus();
-        // }, 0);
         setInterval(() => setErrorMessage(''), 3000);
         setIsLoad(false);
       });
@@ -274,9 +274,8 @@ export const App: React.FC = () => {
         });
       })
 
-      .catch((error) => {
+      .catch(() => {
         setErrorMessage('Unable to update a todo');
-        throw error;
       })
       .finally(() => {
         setInterval(() => setErrorMessage(''), 3000);
@@ -371,12 +370,11 @@ export const App: React.FC = () => {
         />
 
         <Section
-          onSelect={(newValue) => {
+          onSelect={async (newValue) => {
             setSelectedTodo(newValue);
             updateComplitedTodos(newValue);
           }}
           onDubleClick={async (newValue) => {
-            setSelectedTodo(newValue);
             await updateTitleTodo(newValue);
           }}
           filteredTodos={filterTodos()}
