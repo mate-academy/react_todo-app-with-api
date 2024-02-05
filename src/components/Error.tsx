@@ -1,5 +1,5 @@
 /* eslint-disable jsx-a11y/control-has-associated-label */
-import React, { useContext } from 'react';
+import React, { useContext, useEffect } from 'react';
 import classNames from 'classnames';
 import { TodosContext } from '../TodoContext/TodoContext';
 
@@ -8,6 +8,16 @@ export const Error: React.FC = () => {
     errorMessage,
     setErrorMessage,
   } = useContext(TodosContext);
+
+  useEffect(() => {
+    const timerId = setTimeout(() => {
+      setErrorMessage('');
+    }, 3000);
+
+    return () => {
+      clearTimeout(timerId);
+    };
+  }, [errorMessage, setErrorMessage]);
 
   return (
     <div

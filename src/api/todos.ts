@@ -31,7 +31,7 @@ export const editTodo = (
     title,
   }: Omit<Todo, 'userId'>,
 ) => {
-  return client.patch(`/todos/${id}`, {
+  return client.patch<Todo>(`/todos/${id}`, {
     completed,
     title,
   });

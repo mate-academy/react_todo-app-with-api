@@ -1,11 +1,13 @@
 import React,
 {
+  FormEvent,
   useContext,
   useEffect,
   useRef,
   useState,
 } from 'react';
 import classNames from 'classnames';
+import * as todosServices from '../api/todos';
 import { TodosContext } from '../TodoContext/TodoContext';
 import { Todo } from '../types/Todo';
 
@@ -15,16 +17,13 @@ interface TodoItems {
 
 export const TodoItem: React.FC<TodoItems> = ({ todo }) => {
   const {
-    title,
-    completed,
-    id,
-  } = todo;
-
-  const {
     setCompleted,
     deleteTodo,
-    saveEditingTitle,
-    deleteTodosId,
+    updateTodosId,
+    todos,
+    setUpdateTodosId,
+    setTodos,
+    setErrorMessage,
   } = useContext(TodosContext);
 
   const [isEdeting, setIsEditing] = useState(false);
@@ -38,57 +37,91 @@ export const TodoItem: React.FC<TodoItems> = ({ todo }) => {
     }
   }, [isEdeting]);
 
+  function saveEditingTitle(
+    todoID: number,
+    changedTitle: string,
+  ) {
+    setUpdateTodosId((prevTodos) => [...prevTodos, todoID]);
+
+    if (changedTitle.trim()) {
+      const chosenTodo = todos.find(todoFind => todoFind.id === todoID) as Todo;
+
+      const { completed, id } = chosenTodo;
+
+      todosServices.editTodo({
+        title: changedTitle,
+        completed,
+        id,
+      })
+        .then(() => {
+          setTodos(currentTodos => currentTodos.map(todoSet => (
+            todoSet.id === todoID
+              ? { ...todoSet, title: changedTitle }
+              : todoSet)));
+          setIsEditing(false);
+        })
+        .catch(() => {
+          setErrorMessage('Unable to update a todo');
+          setEditingTitle(todo.title);
+        })
+        .finally(() => setUpdateTodosId([]));
+    }
+  }
+
   const handleOnKeyUp = (event: React.KeyboardEvent<HTMLInputElement>) => {
-    if (event.key === 'Enter') {
+    if (event.key === 'Escape') {
+      setIsEditing(false);
+      setEditingTitle(todo.title);
+    }
+  };
+
+  const handleOnSubmit = (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    if (editingTitle.trim() === todo.title.trim()) {
+      setIsEditing(false);
+    } else {
       if (editingTitle.trim()) {
         saveEditingTitle(todo.id, editingTitle.trim());
-        setEditingTitle(editingTitle.trim());
-        setIsEditing(false);
-      } else {
-        deleteTodo(todo.id);
-      }
-    }
 
-    if (event.key === 'Escape') {
+        return;
+      }
+
       if (!editingTitle.trim()) {
+        deleteTodo(todo.id);
         setIsEditing(false);
-        setEditingTitle(todo.title);
-      } else {
-        setIsEditing(false);
-        setEditingTitle(todo.title);
       }
     }
   };
 
   const handleOnBlur = () => {
+    saveEditingTitle(todo.id, editingTitle);
     setIsEditing(false);
-    saveEditingTitle(todo.id, editingTitle.trim());
   };
 
   return (
     <div
       key={todo.id}
       data-cy="Todo"
-      className={classNames('todo', { completed })}
+      className={classNames('todo', { completed: todo.completed })}
     >
       <label className="todo__status-label">
         <input
           data-cy="TodoStatus"
           type="checkbox"
           className="todo__status"
-          checked={completed}
-          onChange={() => setCompleted(id)}
+          checked={todo.completed}
+          onChange={() => setCompleted(todo)}
         />
       </label>
 
       {isEdeting ? (
-        <form>
+        <form onSubmit={handleOnSubmit}>
           <input
             data-cy="TodoTitleField"
             type="text"
             className="todo__title-field"
             placeholder="Empty todo will be deleted"
-            value={editingTitle.trim()}
+            value={editingTitle}
             onChange={(event) => setEditingTitle(event.currentTarget.value)}
             onBlur={handleOnBlur}
             ref={titleFocus}
@@ -104,7 +137,7 @@ export const TodoItem: React.FC<TodoItems> = ({ todo }) => {
             data-cy="TodoTitle"
             className="todo__title"
           >
-            {title}
+            {todo.title}
           </span>
 
           <button
@@ -121,7 +154,7 @@ export const TodoItem: React.FC<TodoItems> = ({ todo }) => {
       <div
         data-cy="TodoLoader"
         className={classNames('modal overlay', {
-          'is-active': deleteTodosId.includes(todo.id),
+          'is-active': updateTodosId.includes(todo.id),
         })}
       >
         <div className="modal-background has-background-white-ter" />

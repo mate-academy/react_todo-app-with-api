@@ -5,15 +5,15 @@ import React, {
   useRef,
   useState,
 } from 'react';
+import classNames from 'classnames';
 import { TodosContext } from '../TodoContext/TodoContext';
 import * as todosServices from '../api/todos';
 import { USER_ID } from '../variables/UserID';
-import { wait } from '../utils/fetchClient';
 
 export const Header: React.FC = () => {
   const {
     addTodo,
-    makeAllCompleted,
+    onToggleAll,
     todos,
     setErrorMessage,
     setTempTodo,
@@ -26,7 +26,7 @@ export const Header: React.FC = () => {
   const isAllTodosCompleted = todos.every(({ completed }) => completed);
 
   const handleToggleAll = () => {
-    makeAllCompleted(todos);
+    onToggleAll(todos);
   };
 
   const todoTitleFocus = useRef<HTMLInputElement>(null);
@@ -43,7 +43,6 @@ export const Header: React.FC = () => {
     if (!todoTitle.trim()) {
       setErrorMessage('Title should not be empty');
       setTodoTitle('');
-      wait(3000).then(() => setErrorMessage(''));
     }
 
     // eslint-disable-next-line no-extra-boolean-cast
@@ -67,11 +66,7 @@ export const Header: React.FC = () => {
       })
         .catch(() => {
           setErrorMessage('Unable to add a todo');
-
-          wait(3000).then(() => {
-            setTempTodo(null);
-            setErrorMessage('');
-          });
+          setTempTodo(null);
         })
         .finally(() => {
           setDisableInput(false);
@@ -82,13 +77,16 @@ export const Header: React.FC = () => {
   return (
     <header className="todoapp__header">
 
-      <button
-        type="button"
-        className="todoapp__toggle-all active"
-        data-cy="ToggleAllButton"
-        disabled={!isAllTodosCompleted}
-        onClick={handleToggleAll}
-      />
+      {!!todos.length && (
+        <button
+          type="button"
+          className={classNames('todoapp__toggle-all', {
+            active: isAllTodosCompleted,
+          })}
+          data-cy="ToggleAllButton"
+          onClick={handleToggleAll}
+        />
+      )}
 
       <form
         onSubmit={(event) => handleOnSubmit(event)}
