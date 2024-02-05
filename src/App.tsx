@@ -46,7 +46,7 @@ export const App: React.FC = () => {
   useEffect(loadTodos, [setErrorHidden, setErrorMessage, setLoadingTodos, setTodos]);
 
   const canToggleAll = todos.length > 0;
-  const allTodosCompleted = !todos.every((todo) => todo.completed);
+  const allTodosCompleted = todos.every((todo) => todo.completed);
 
   const handleToggleAllClick = () => {
     if (canToggleAll) {
