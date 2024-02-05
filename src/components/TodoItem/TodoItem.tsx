@@ -10,7 +10,7 @@ interface Props {
   todo: Todo
 }
 
-export const TodosItem: React.FC<Props> = ({ todo }) => {
+export const TodoItem: React.FC<Props> = ({ todo }) => {
   const {
     title,
     completed,

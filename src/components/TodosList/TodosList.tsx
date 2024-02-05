@@ -1,6 +1,6 @@
 import { useContext } from 'react';
 import { CSSTransition, TransitionGroup } from 'react-transition-group';
-import { TodosItem } from '../TodosItem/TodosItem';
+import { TodoItem } from '../TodoItem/TodoItem';
 import { Todo } from '../../types/Todo';
 import { TodosContext } from '../../contexts/TodosContext';
 
@@ -20,7 +20,7 @@ export const TodosList: React.FC<Props> = ({ todos }) => {
             timeout={300}
             classNames="item"
           >
-            <TodosItem key={todo.id} todo={todo} />
+            <TodoItem key={todo.id} todo={todo} />
           </CSSTransition>
         ))}
 

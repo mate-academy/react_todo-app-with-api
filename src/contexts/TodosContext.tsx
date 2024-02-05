@@ -22,9 +22,9 @@ export const TodosContext = createContext<TodoContext>({
   setChangedTodos: () => {},
 });
 
-type Props = {
+interface Props {
   children: React.ReactNode
-};
+}
 
 export const TodoProvider: React.FC<Props> = ({ children }) => {
   const [todos, setTodos] = useState<Todo[]>([]);

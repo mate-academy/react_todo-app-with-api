@@ -15,7 +15,7 @@ export const Header = () => {
     setTodos,
     setErrorMessage,
     setTempTodo,
-    errorMessage,
+    tempTodo,
     setChangedTodos,
   } = useContext(TodosContext);
 
@@ -74,7 +74,7 @@ export const Header = () => {
     if (titleField.current) {
       titleField.current.focus();
     }
-  }, [errorMessage, todos]);
+  }, [todos.length, tempTodo]);
 
   const toggledTodosList = useMemo(() => {
     if (conuterOfCompletedTodos) {
