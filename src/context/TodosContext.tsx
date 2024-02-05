@@ -21,6 +21,7 @@ export const TodosContext = React.createContext<Context>({
 export const TodoUpdateContext = React.createContext<ContextUpdate>({
   addTodo: () => { },
   deleteTodo: () => { },
+  toggleTodo: () => { },
   editTodo: () => { },
 });
 
@@ -34,7 +35,6 @@ export const TodosProvider: React.FC<Props> = ({ children }) => {
   const [filterTodos, setFilterTodos] = useState<Status>(Status.all);
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
   const [loadingIds, setLoadingIds] = useState<number[]>([]);
-  // const [deleteIds, setDeleteIds] = useState<number[]>([]);
 
   const USER_ID = 91;
 
@@ -69,7 +69,7 @@ export const TodosProvider: React.FC<Props> = ({ children }) => {
       });
   }
 
-  function editTodo(updatedTodo: Todo) {
+  function toggleTodo(updatedTodo: Todo) {
     const { id } = updatedTodo;
 
     setLoadingIds((prev) => [...prev, id]);
@@ -88,13 +88,25 @@ export const TodosProvider: React.FC<Props> = ({ children }) => {
         setErrorMessage('Unable to update a todo');
       })
       .finally(() => {
-        setLoadingIds((prev) => prev.filter((loadingId) => loadingId !== id));
+        setLoadingIds((prev) => prev
+          .filter((loadingId) => loadingId !== id));
       });
+  }
+
+  function editTodo(titleId: number, editTitle: string) {
+    setTodos(currentTodos => currentTodos
+      .map(todo => (todo.id === titleId
+        ? {
+          ...todo,
+          title: editTitle,
+        }
+        : todo)));
   }
 
   const methods = useMemo(() => ({
     addTodo,
     deleteTodo,
+    toggleTodo,
     editTodo,
   }), []);
 

@@ -18,6 +18,6 @@ export interface Context {
 export interface ContextUpdate {
   addTodo: (newTodo: Omit<Todo, 'id'>) => void,
   deleteTodo: (todoId: number) => void,
-  editTodo: (updatedTodo: Omit<Todo, 'UserId'>) => void,
-  // editTodo: (id: number, completed: boolean) => void,
+  toggleTodo: (updatedTodo: Omit<Todo, 'UserId'>) => void,
+  editTodo: (titleId: number, editTitle: string) => void,
 }

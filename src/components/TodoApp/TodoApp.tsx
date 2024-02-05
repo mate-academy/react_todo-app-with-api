@@ -23,7 +23,7 @@ export const TodoApp = () => {
       <div className="todoapp__content">
         <Header />
 
-        {todos && (
+        {!!todos.length && (
           <Main items={filteredItems} />
         )}
 

@@ -1,5 +1,10 @@
 import classNames from 'classnames';
-import React, { useContext, useState } from 'react';
+import React, {
+  useContext,
+  useEffect,
+  useRef,
+  useState,
+} from 'react';
 import { Todo } from '../../types/Todo';
 import { TodoLoader } from '../TodoLoader';
 import { TodoUpdateContext, TodosContext } from '../../context/TodosContext';
@@ -11,11 +16,18 @@ interface Props {
 export const TodoItem: React.FC<Props> = ({ todoItem }) => {
   const { id, title, completed } = todoItem;
   const {
+    errorMessage,
     setErrorMessage,
   } = useContext(TodosContext);
-  const { deleteTodo, editTodo } = useContext(TodoUpdateContext);
+  const {
+    deleteTodo,
+    toggleTodo,
+    editTodo,
+  } = useContext(TodoUpdateContext);
 
   const [loading, setLoading] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
+  const [editTitle, setEditTitle] = useState(title);
 
   const handleDelete = async () => {
     try {
@@ -31,18 +43,54 @@ export const TodoItem: React.FC<Props> = ({ todoItem }) => {
 
       const updatedTodo = { ...todoItem, completed: !completed };
 
-      await editTodo(updatedTodo);
+      await toggleTodo(updatedTodo);
     } finally {
       setLoading(false);
     }
   };
 
+  const saveEditing = () => {
+    if (!editTitle.trim()) {
+      deleteTodo(id);
+    }
+
+    if (editTitle.trim()) {
+      setIsEditing(false);
+      editTodo(id, editTitle);
+    }
+  };
+
+  const handleOnEditing = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setEditTitle(event.target.value);
+  };
+
+  const handleKeyUp = (event: React.KeyboardEvent<HTMLInputElement>) => {
+    if (event.key === 'Enter') {
+      saveEditing();
+    }
+
+    if (event.key === 'Escape') {
+      setIsEditing(false);
+      setEditTitle(title);
+    }
+  };
+
+  const titleField = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    if (titleField.current) {
+      titleField.current.focus();
+    }
+  }, [isEditing, errorMessage]);
+
   return (
     <div
       data-cy="Todo"
-      className={classNames('todo', {
-        completed,
-      })}
+      className={
+        classNames('todo', {
+          completed,
+        })
+      }
     >
       <label className="todo__status-label">
         <input
@@ -57,9 +105,29 @@ export const TodoItem: React.FC<Props> = ({ todoItem }) => {
         />
       </label>
 
-      <span data-cy="TodoTitle" className="todo__title">
-        {title}
-      </span>
+      {isEditing ? (
+        <form>
+          <input
+            ref={titleField}
+            onBlur={saveEditing}
+            data-cy="TodoTitleField"
+            type="text"
+            className="todo__title-field"
+            placeholder="Empty todo will be deleted"
+            value={editTitle}
+            onChange={handleOnEditing}
+            onKeyUp={handleKeyUp}
+          />
+        </form>
+      ) : (
+        <span
+          data-cy="TodoTitle"
+          className="todo__title"
+          onDoubleClick={() => setIsEditing(true)}
+        >
+          {title}
+        </span>
+      )}
       <button
         type="button"
         className="todo__remove"

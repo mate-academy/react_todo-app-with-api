@@ -22,7 +22,7 @@ export const Header: React.FC = () => {
     setTempTodo,
     setLoadingIds,
   } = useContext(TodosContext);
-  const { addTodo, editTodo } = useContext(TodoUpdateContext);
+  const { addTodo, toggleTodo } = useContext(TodoUpdateContext);
   const inputRef = useRef<HTMLInputElement>(null);
 
   const USER_ID = 91;
@@ -35,7 +35,7 @@ export const Header: React.FC = () => {
     if (inputRef.current) {
       inputRef.current.focus();
     }
-  }, [todos, errorMessage]);
+  }, [errorMessage, todos]);
 
   async function handleSubmit(event: React.FormEvent) {
     event.preventDefault();
@@ -87,7 +87,7 @@ export const Header: React.FC = () => {
         todosToUpdate.map(async (todo: Todo) => {
           const updatedTodo = { ...todo, completed: newStatus };
 
-          await editTodo(updatedTodo);
+          await toggleTodo(updatedTodo);
 
           return updatedTodo;
         }),
