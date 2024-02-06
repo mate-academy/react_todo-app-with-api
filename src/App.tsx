@@ -13,7 +13,7 @@ import { Section } from './Components/Section';
 import { Footer } from './Components/Footer';
 import { Todo } from './types/Todo';
 import * as todoService from './api/todos';
-import { Status } from './types/Status';
+import { filterTodos } from './utils/services';
 
 const USER_ID = 12083;
 
@@ -24,20 +24,20 @@ export const App: React.FC = () => {
   const [erroMessage, setErrorMessage] = useState('');
   const [statusTodo, setStatusTodo] = useState('');
   const [tempTodos, setTempTodos] = useState<Todo[] | null>(null);
-  const [isLoad, setIsLoad] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
   const myInputRef = useRef<HTMLInputElement>(null);
 
   const handleClearCompleted = () => {
-    const completeTodos = todos.filter(todo => todo.completed);
+    const completedTodos = todos.filter(todo => todo.completed);
 
-    setIsLoad(true);
-    setTempTodos(completeTodos);
+    setIsLoading(true);
+    setTempTodos(completedTodos);
 
-    Promise.all(completeTodos.map(delTodo => {
-      return todoService.deleteTodos(delTodo.id)
+    Promise.all(completedTodos.map(todo => {
+      return todoService.deleteTodo(todo.id)
         .then(() => {
-          setTodos(currentTodos => currentTodos.filter(todo => todo.id !== delTodo.id));
+          setTodos(currentTodos => currentTodos.filter(curTodo => curTodo.id !== todo.id));
         })
         .catch((err) => {
           setErrorMessage('Unable to delete a todo');
@@ -50,25 +50,13 @@ export const App: React.FC = () => {
       })
       .finally(() => {
         setTempTodos(null);
-        setIsLoad(false);
+        setIsLoading(false);
         setTimeout(() => {
           setErrorMessage('');
         }, 3000);
         myInputRef.current?.focus();
       });
   };
-
-  function filterTodos() {
-    switch (statusTodo) {
-      case Status.Active:
-        return todos.filter(todo => !todo.completed);
-      case Status.Completed:
-        return todos.filter(todo => todo.completed);
-      case Status.All:
-        return todos;
-      default: return todos;
-    }
-  }
 
   useEffect(() => {
     setErrorMessage('');
@@ -103,7 +91,7 @@ export const App: React.FC = () => {
 
     setTempTodo(newTamperTodo);
 
-    return todoService.addTodos({
+    return todoService.addTodo({
       title,
       userId,
       completed,
@@ -128,15 +116,19 @@ export const App: React.FC = () => {
       });
   }
 
+  const handleAddTodo = (newTodo: Todo) => {
+    return addTodo(newTodo);
+  };
+
   async function deleteTodo(id: number) {
-    setIsLoad(true);
+    setIsLoading(true);
     const newTamperTodo = todos.find(todo => todo.id === id);
 
     if (newTamperTodo) {
       setSelectedTodo(newTamperTodo);
     }
 
-    return todoService.deleteTodos(id)
+    return todoService.deleteTodo(id)
       .then(() => {
         setTodos(currentPosts => currentPosts.filter(todo => todo.id !== id));
         setTimeout(() => {
@@ -150,19 +142,23 @@ export const App: React.FC = () => {
         throw err;
       })
       .finally(() => {
-        setIsLoad(false);
+        setIsLoading(false);
         setInterval(() => setErrorMessage(''), 3000);
       });
   }
 
-  async function updateTitleTodo(updateTodo: Todo) {
-    setSelectedTodo(updateTodo);
-    const isSameTitle = todos.some(todo => todo.title === updateTodo.title);
+  const handleDeleteTodo = (id: number) => {
+    deleteTodo(id);
+  };
 
-    if (!updateTodo.title.trim()) {
+  async function updateTitleTodo(updatedTodo: Todo) {
+    setSelectedTodo(updatedTodo);
+    const isSameTitle = todos.some(todo => todo.title === updatedTodo.title);
+
+    if (!updatedTodo.title.trim()) {
       // eslint-disable-next-line no-useless-catch
       try {
-        await deleteTodo(updateTodo.id);
+        await deleteTodo(updatedTodo.id);
       } catch (error) {
         throw error;
       }
@@ -175,13 +171,13 @@ export const App: React.FC = () => {
     }
 
     setErrorMessage('');
-    setIsLoad(true);
+    setIsLoading(true);
 
-    await todoService.updateTodos(updateTodo)
+    await todoService.updateTodo(updatedTodo)
       .then((newTodo) => {
         setTodos(currentTodos => {
           const newTodos = [...currentTodos];
-          const index = currentTodos.findIndex(todo => todo.id === updateTodo.id);
+          const index = currentTodos.findIndex(todo => todo.id === updatedTodo.id);
 
           newTodos.splice(index, 1, newTodo);
 
@@ -196,7 +192,7 @@ export const App: React.FC = () => {
       })
       .finally(() => {
         setInterval(() => setErrorMessage(''), 3000);
-        setIsLoad(false);
+        setIsLoading(false);
       });
   }
 
@@ -209,15 +205,15 @@ export const App: React.FC = () => {
     }
   };
 
-  function updateComplitedTodos(updateTodo: Todo) {
+  function updateComplitedTodos(updatedTodo: Todo) {
     setErrorMessage('');
-    setIsLoad(true);
+    setIsLoading(true);
 
-    todoService.updateTodos(updateTodo)
+    todoService.updateTodo(updatedTodo)
       .then((newTodo) => {
         setTodos(currentTodos => {
           const newTodos = [...currentTodos];
-          const index = currentTodos.findIndex(todo => todo.id === updateTodo.id);
+          const index = currentTodos.findIndex(todo => todo.id === updatedTodo.id);
 
           newTodos.splice(index, 1, newTodo);
 
@@ -231,26 +227,26 @@ export const App: React.FC = () => {
       })
       .finally(() => {
         setInterval(() => setErrorMessage(''), 3000);
-        setIsLoad(false);
+        setIsLoading(false);
       });
   }
 
   const handleToggleButton = () => {
-    setIsLoad(true);
+    setIsLoading(true);
 
     const isAllCompleted = todos.every(todo => todo.completed);
 
     if (isAllCompleted) {
       Promise.all(todos.map(async todo => {
         try {
-          return await todoService.updateTodos({ ...todo, completed: false });
+          return await todoService.updateTodo({ ...todo, completed: false });
         } catch (err) {
           setErrorMessage('Unable to update todos');
 
           return todo;
         } finally {
           setInterval(() => setErrorMessage(''), 3000);
-          setIsLoad(false);
+          setIsLoading(false);
           setTempTodos(null);
         }
       }))
@@ -263,7 +259,7 @@ export const App: React.FC = () => {
         })
         .finally(() => {
           setInterval(() => setErrorMessage(''), 3000);
-          setIsLoad(false);
+          setIsLoading(false);
           setTempTodos(null);
         });
     }
@@ -281,7 +277,7 @@ export const App: React.FC = () => {
     Promise.all(notComplitedTodo.map(async todo => {
       try {
         const updateTodo = { ...todo, completed: true };
-        const newTodo = await todoService.updateTodos(updateTodo);
+        const newTodo = await todoService.updateTodo(updateTodo);
 
         return newTodo;
       } catch (error) {
@@ -296,7 +292,7 @@ export const App: React.FC = () => {
       })
       .finally(() => {
         setInterval(() => setErrorMessage(''), 3000);
-        setIsLoad(false);
+        setIsLoading(false);
         setTempTodos(null);
       });
   };
@@ -312,8 +308,7 @@ export const App: React.FC = () => {
       <div className="todoapp__content">
         <Header
           userId={USER_ID}
-          // eslint-disable-next-line react/jsx-no-bind
-          onSubmit={addTodo}
+          onSubmit={handleAddTodo}
           selectedTodo={selectedTodo}
           todos={todos}
           myInputRef={myInputRef}
@@ -326,16 +321,15 @@ export const App: React.FC = () => {
             await updateComplitedTodos(newValue);
           }}
           onDubleClick={handleDubleClick}
-          filteredTodos={filterTodos()}
-          // eslint-disable-next-line react/jsx-no-bind
-          onDelete={deleteTodo}
+          filteredTodos={filterTodos(statusTodo, todos)}
+          onDelete={handleDeleteTodo}
           tempTodo={tempTodo}
           tempTodos={tempTodos}
-          isLoad={isLoad}
+          isLoading={isLoading}
           selectedTodo={selectedTodo}
         />
 
-        {todos.length !== 0 && (
+        {todos.length && (
           <Footer
             onStatus={(newStatus: string) => setStatusTodo(newStatus)}
             status={statusTodo}

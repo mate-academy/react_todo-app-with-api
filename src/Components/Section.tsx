@@ -11,7 +11,7 @@ type Props = {
   tempTodo: Todo | null,
   tempTodos: Todo[] | null,
   selectedTodo: Todo | null,
-  isLoad: boolean,
+  isLoading: boolean,
   onDubleClick: (value: Todo) => void,
 };
 
@@ -22,7 +22,7 @@ export const Section: React.FC<Props> = ({
   filteredTodos,
   tempTodo,
   tempTodos,
-  isLoad,
+  isLoading,
   selectedTodo,
 }) => {
   const [currentTodo, setCurrentTodo] = useState<Todo | null>(null);
@@ -46,27 +46,27 @@ export const Section: React.FC<Props> = ({
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
+    if (currentTodo && !currentTodo?.title.trim()) {
+      try {
+        await onDelete(currentTodo.id);
+      } catch (error) {
+        myInputRef.current?.focus();
+      }
+    }
+
     if (currentTodo) {
-      if (!currentTodo?.title.trim()) {
-        try {
-          await onDelete(currentTodo.id);
-        } catch (error) {
-          myInputRef.current?.focus();
-        }
-      } else {
-        try {
-          await onDubleClick({
-            ...currentTodo,
-            title: updatedQuery.trim(),
-          });
+      try {
+        await onDubleClick({
+          ...currentTodo,
+          title: updatedQuery.trim(),
+        });
 
-          setUpdatedQuery('');
-          setCurrentTodo(null);
-        } catch (error) {
-          setCurrentTodo(currentTodo);
+        setUpdatedQuery('');
+        setCurrentTodo(null);
+      } catch (error) {
+        setCurrentTodo(currentTodo);
 
-          myInputRef.current?.focus();
-        }
+        myInputRef.current?.focus();
       }
     }
   };
@@ -143,9 +143,9 @@ export const Section: React.FC<Props> = ({
           <div
             data-cy="TodoLoader"
             className={cn('modal overlay', {
-              'is-active': (isLoad
+              'is-active': (isLoading
               && selectedTodo?.id === todo.id)
-              || (isLoad && tempTodos?.find(
+              || (isLoading && tempTodos?.find(
                 tempT => tempT.id === todo.id,
               )),
             })}

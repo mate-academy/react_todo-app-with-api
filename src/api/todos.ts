@@ -9,7 +9,7 @@ export const getTempTodo = (id: number) => {
   return client.get<Todo>(`/todos/${id}`);
 };
 
-export const addTodos = ({
+export const addTodo = ({
   title,
   userId,
   completed,
@@ -21,7 +21,7 @@ export const addTodos = ({
   });
 };
 
-export const updateTodos = ({ id, completed, title } :Todo) => {
+export const updateTodo = ({ id, completed, title } :Todo) => {
   return client.patch<Todo>(`/todos/${id}`, {
     id,
     completed,
@@ -29,6 +29,6 @@ export const updateTodos = ({ id, completed, title } :Todo) => {
   });
 };
 
-export const deleteTodos = (id : number) => {
+export const deleteTodo = (id : number) => {
   return client.delete(`/todos/${id}`);
 };

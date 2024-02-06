@@ -21,7 +21,7 @@ export const Header: React.FC<Props> = ({
   setAllCompleted,
 }) => {
   const [title, setTitle] = useState('');
-  const [isSubmitted, setIsSabmitted] = useState(false);
+  const [isSubmitted, setIsSubmitted] = useState(false);
 
   const handleToggle = () => {
     setAllCompleted();
@@ -40,7 +40,7 @@ export const Header: React.FC<Props> = ({
   const handleSubmit = (event:React.FormEvent) => {
     event.preventDefault();
 
-    setIsSabmitted(true);
+    setIsSubmitted(true);
 
     onSubmit({
       title: title.trim(),
@@ -53,14 +53,14 @@ export const Header: React.FC<Props> = ({
         myInputRef.current?.focus();
       })
       .finally(() => {
-        setIsSabmitted(false);
+        setIsSubmitted(false);
       });
   };
 
   return (
 
     <header className="todoapp__header">
-      {todos.length !== 0 && (
+      {todos.length && (
         <button
           type="button"
           className={cn('todoapp__toggle-all', {
