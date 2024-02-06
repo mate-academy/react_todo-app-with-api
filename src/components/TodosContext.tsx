@@ -21,12 +21,17 @@ type TodosContextType = {
   setErrorHidden: Dispatch<SetStateAction<boolean>>,
   tempTodo: Todo | null,
   setTempTodo: Dispatch<SetStateAction<Todo | null>>,
-  loadingUpdatedTodo: boolean,
-  setLoadingUpdatedtodo: Dispatch<SetStateAction<boolean>>,
+  loading: boolean,
+  setLoading: Dispatch<SetStateAction<boolean>>,
   selectedTodo: Todo | null,
   setSelectedTodo: Dispatch<SetStateAction<Todo | null>>,
   deleteTodo: (todoId: number) => void,
   updateTodo: (todo: Todo) => void,
+  selectedTodos: Todo[],
+  setSelectedTodos: Dispatch<SetStateAction<Todo[]>>,
+  comnpletedTodoIds: number[],
+  groupTodosLoading: boolean,
+  setGroupTodosLoading: Dispatch<SetStateAction<boolean>>,
 };
 
 export const TodosContext = React.createContext<TodosContextType>({
@@ -45,12 +50,17 @@ export const TodosContext = React.createContext<TodosContextType>({
   setErrorHidden: () => {},
   tempTodo: null,
   setTempTodo: () => {},
-  loadingUpdatedTodo: false,
-  setLoadingUpdatedtodo: () => {},
+  loading: false,
+  setLoading: () => {},
   selectedTodo: null,
   setSelectedTodo: () => {},
   deleteTodo: () => {},
   updateTodo: () => {},
+  selectedTodos: [],
+  setSelectedTodos: () => {},
+  comnpletedTodoIds: [],
+  groupTodosLoading: false,
+  setGroupTodosLoading: () => {},
 });
 
 type Props = {
@@ -66,8 +76,10 @@ export const TodosProvider: React.FC<Props> = ({ children }) => {
   const [errorMessage, setErrorMessage] = useState('');
   const [errorHidden, setErrorHidden] = useState(true);
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
-  const [loadingUpdatedTodo, setLoadingUpdatedtodo] = useState(false);
+  const [loading, setLoading] = useState(false);
   const [selectedTodo, setSelectedTodo] = useState<Todo | null>(null);
+  const [selectedTodos, setSelectedTodos] = useState<Todo[]>([]);
+  const [groupTodosLoading, setGroupTodosLoading] = useState(false);
 
   const visibleTodos = [...todos].filter(todo => {
     switch (selectedStatus) {
@@ -83,6 +95,7 @@ export const TodosProvider: React.FC<Props> = ({ children }) => {
   });
 
   const deleteTodo = useCallback((todoId: number) => {
+    setLoading(true);
     setTodos(currentTodos => currentTodos.filter(todo => todo.id !== todoId));
 
     return postService.removeTodo(todoId)
@@ -91,18 +104,20 @@ export const TodosProvider: React.FC<Props> = ({ children }) => {
         setErrorHidden(false);
         setErrorMessage('Unable to delete a todo');
         throw error;
+      })
+      .finally(() => {
+        setSelectedTodo(null);
+        setLoading(false);
       });
   }, [todos]);
 
   const updateTodo = useCallback((updatedTodo: Todo) => {
+    setLoading(true);
     setErrorHidden(true);
     setErrorMessage('');
-    setLoadingUpdatedtodo(true);
 
     return postService.editTodo(updatedTodo)
       .then(updatedTodoFromApi => {
-        /* eslint-disable-next-line */
-        console.log('Updated Todo from API:', updatedTodoFromApi);
         setTodos(currentTodos => {
           const newTodos = [...currentTodos];
           const index = newTodos
@@ -119,8 +134,14 @@ export const TodosProvider: React.FC<Props> = ({ children }) => {
         setTodos(todos);
         throw error;
       })
-      .finally(() => setLoadingUpdatedtodo(false));
+      .finally(() => {
+        setLoading(false);
+        setSelectedTodo(null);
+      });
   }, [todos]);
+
+  const comnpletedTodoIds = todos
+    .filter(todo => todo.completed).map(todo => todo.id);
 
   const values = useMemo(() => ({
     todos,
@@ -138,18 +159,24 @@ export const TodosProvider: React.FC<Props> = ({ children }) => {
     setErrorHidden,
     tempTodo,
     setTempTodo,
-    loadingUpdatedTodo,
-    setLoadingUpdatedtodo,
+    loading,
+    setLoading,
     selectedTodo,
     setSelectedTodo,
     deleteTodo,
     updateTodo,
+    selectedTodos,
+    setSelectedTodos,
+    comnpletedTodoIds,
+    groupTodosLoading,
+    setGroupTodosLoading,
   }), [
     todos, setTodos, selectedStatus, title, visibleTodos,
     loadingTodos, setLoadingTodos, errorMessage, setErrorMessage,
-    errorHidden, setErrorHidden, tempTodo, setTempTodo, loadingUpdatedTodo,
-    setLoadingUpdatedtodo, selectedTodo,
-    setSelectedTodo, deleteTodo, updateTodo,
+    errorHidden, setErrorHidden, tempTodo, setTempTodo, loading,
+    setLoading, selectedTodo,
+    setSelectedTodo, deleteTodo, updateTodo, selectedTodos, setSelectedTodos,
+    comnpletedTodoIds, groupTodosLoading, setGroupTodosLoading,
   ]);
 
   return (

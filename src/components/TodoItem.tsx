@@ -2,7 +2,7 @@ import cn from 'classnames';
 import {
   useContext, useEffect, useRef, useState,
 } from 'react';
-import { CSSTransition } from 'react-transition-group';
+// import { CSSTransition } from 'react-transition-group';
 import { Todo } from '../types/Todo';
 import { TodosContext } from './TodosContext';
 
@@ -14,13 +14,17 @@ export const TodoItem: React.FC<Props> = ({
   todo,
 }) => {
   const {
-    loadingUpdatedTodo, selectedTodo, setSelectedTodo, deleteTodo, updateTodo,
+    loading, selectedTodo, setSelectedTodo, comnpletedTodoIds,
+    deleteTodo, updateTodo, groupTodosLoading,
   } = useContext(TodosContext);
 
   const [editMode, setEditMode] = useState(false);
   const [editedTitle, setEditedTitle] = useState(todo.title);
 
+  const isSelected = comnpletedTodoIds.includes(todo.id);
+
   const setTodoCompleted = (state: boolean) => {
+    setSelectedTodo(todo);
     const updatedTodo = { ...todo, completed: state };
 
     return updateTodo(updatedTodo);
@@ -40,19 +44,18 @@ export const TodoItem: React.FC<Props> = ({
   };
 
   const finishEditing = () => {
-    setSelectedTodo(null);
     setEditMode(false);
-
-    if (!editedTitle.trim()) {
-      deleteTodo(todo.id);
-
-      return;
-    }
 
     if (editedTitle === todo.title) {
       setEditedTitle(todo.title);
       setSelectedTodo(null);
       setEditMode(false);
+
+      return;
+    }
+
+    if (!editedTitle.trim()) {
+      deleteTodo(todo.id);
 
       return;
     }
@@ -74,6 +77,11 @@ export const TodoItem: React.FC<Props> = ({
     }
   };
 
+  const handleDeleteTodoClick = () => {
+    setSelectedTodo(todo);
+    deleteTodo(todo.id);
+  };
+
   const inputRef = useRef<HTMLInputElement | null>(null);
 
   useEffect(() => {
@@ -83,31 +91,27 @@ export const TodoItem: React.FC<Props> = ({
   }, [selectedTodo, todo]);
 
   return (
-    <CSSTransition
+    <div
       key={todo.id}
-      timeout={300}
-      classNames="item"
+      data-cy="Todo"
+      className={cn({
+        'todo completed': todo.completed,
+        todo: !todo.completed,
+      })}
+      onDoubleClick={startEditing}
     >
-      <div
-        key={todo.id}
-        data-cy="Todo"
-        className={cn({
-          'todo completed': todo.completed,
-          todo: !todo.completed,
-        })}
-        onDoubleClick={startEditing}
-      >
-        <label className="todo__status-label">
-          <input
-            data-cy="TodoStatus"
-            type="checkbox"
-            className="todo__status"
-            checked={todo.completed}
-            onChange={handleCheckboxChange}
-          />
-        </label>
+      <label className="todo__status-label">
+        <input
+          data-cy="TodoStatus"
+          type="checkbox"
+          className="todo__status"
+          checked={todo.completed}
+          onChange={handleCheckboxChange}
+        />
+      </label>
 
-        {editMode ? (
+      {editMode ? (
+        <>
           <form>
             <input
               data-cy="TodoTitleField"
@@ -122,32 +126,33 @@ export const TodoItem: React.FC<Props> = ({
               onKeyUp={handleEscPress}
             />
           </form>
-        ) : (
-          <>
-            <span data-cy="TodoTitle" className="todo__title">
-              {todo.title}
-            </span>
-            <button
-              type="button"
-              className="todo__remove"
-              data-cy="TodoDelete"
-              onClick={() => deleteTodo(todo.id)}
-            >
-              ×
-            </button>
-          </>
-        )}
-
-        {loadingUpdatedTodo && (
-          <div
-            data-cy="TodoLoader"
-            className="modal overlay"
+        </>
+      ) : (
+        <>
+          <span data-cy="TodoTitle" className="todo__title">
+            {todo.title}
+          </span>
+          <button
+            type="button"
+            className="todo__remove"
+            data-cy="TodoDelete"
+            onClick={handleDeleteTodoClick}
           >
-            <div className="modal-background has-background-white-ter" />
-            <div className="loader" />
-          </div>
-        )}
+            ×
+          </button>
+        </>
+      )}
+      <div
+        data-cy="TodoLoader"
+        className={cn('modal overlay',
+          {
+            'is-active': (loading && selectedTodo?.id === todo.id)
+            || (groupTodosLoading && isSelected),
+          })}
+      >
+        <div className="modal-background has-background-white-ter" />
+        <div className="loader" />
       </div>
-    </CSSTransition>
+    </div>
   );
 };

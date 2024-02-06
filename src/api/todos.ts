@@ -26,4 +26,11 @@ export const editTodo = ({
 }: Todo) => {
   return client.patch<Todo>(`/todos/${id}`, { title, completed, userId });
 };
+
+export const editTodos = (todoUpdates: {
+  todoId: number, completed: boolean }[]) => {
+  const editPromise = todoUpdates.map((todoId, completed) => client.patch(`/todos/${todoId}`, { completed }));
+
+  return Promise.all(editPromise);
+};
 // Add more methods here

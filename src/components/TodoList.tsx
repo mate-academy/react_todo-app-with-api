@@ -5,31 +5,30 @@ import { TodosContext } from './TodosContext';
 
 export const TodoList: React.FC = () => {
   const { visibleTodos, tempTodo } = useContext(TodosContext);
-  /* eslint-disable-next-line */
-  console.log('visibleTodos:', visibleTodos);
 
   return (
     <section className="todoapp__main" data-cy="TodoList">
       <TransitionGroup>
-        {visibleTodos.map(todo => {
-          return (
+        {visibleTodos.map(todo => (
+          <CSSTransition
+            key={todo.id}
+            timeout={300}
+            classNames="item"
+          >
             <TodoItem
               key={todo.id}
               todo={todo}
             />
-          );
-        })}
+
+          </CSSTransition>
+        ))}
         {tempTodo && (
           <CSSTransition
             key={tempTodo.id}
             timeout={300}
             classNames="temp-item"
           >
-            <div
-              key={tempTodo.id}
-              data-cy="Todo"
-              className="todo"
-            >
+            <div data-cy="Todo" className="todo">
               <label className="todo__status-label">
                 <input
                   data-cy="TodoStatus"

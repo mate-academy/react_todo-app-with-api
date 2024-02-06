@@ -18,6 +18,7 @@ export const App: React.FC = () => {
   const {
     todos, setTodos, title, setTitle, loadingTodos, setLoadingTodos,
     errorMessage, setErrorMessage, errorHidden, setErrorHidden, tempTodo, setTempTodo,
+    comnpletedTodoIds, setGroupTodosLoading,
   } = useContext(TodosContext);
 
   // #region error handling
@@ -50,11 +51,43 @@ export const App: React.FC = () => {
   const allTodosCompleted = todos.every((todo) => todo.completed);
 
   const handleToggleAllClick = () => {
+    setGroupTodosLoading(true);
+    setErrorHidden(true);
+    setErrorMessage('');
+
     if (canToggleAll) {
-      setTodos(todos.map((todo) => (
-        { ...todo, completed: !allTodosCompleted }
-      )));
+      const todoUpdates = comnpletedTodoIds.map(todoId => ({ todoId, completed: allTodosCompleted }));
+
+      postService.editTodos(todoUpdates)
+        .then(() => setTodos(todos.map((todo) => (
+          { ...todo, completed: !allTodosCompleted }
+        ))))
+        .catch(() => {
+          setTodos(todos);
+          setErrorMessage('Unable to upload todos');
+          setErrorHidden(false);
+        })
+        .finally(() => setGroupTodosLoading(false));
     }
+  };
+
+  const deleteCompletedTodos = () => {
+    setGroupTodosLoading(true);
+    setErrorHidden(true);
+    setErrorMessage('');
+
+    setTodos(currentTodos => currentTodos.filter(todo => !todo.completed));
+
+    return postService.removeTodos(comnpletedTodoIds)
+      .catch((error) => {
+        setTodos(todos);
+        setErrorHidden(false);
+        setErrorMessage('Unable to delete a todo');
+        throw error;
+      })
+      .finally(() => {
+        setGroupTodosLoading(false);
+      });
   };
 
   const addTodo = ({
@@ -91,20 +124,6 @@ export const App: React.FC = () => {
         setErrorMessage('Unable to add a todo');
         setTempTodo(null);
         setErrorHidden(false);
-        throw error;
-      });
-  };
-
-  const deleteCompletedTodos = () => {
-    const comnpletedTodoIds = todos.filter(todo => todo.completed).map(todo => todo.id);
-
-    setTodos(currentTodos => currentTodos.filter(todo => !todo.completed));
-
-    return postService.removeTodos(comnpletedTodoIds)
-      .catch((error) => {
-        setTodos(todos);
-        setErrorHidden(false);
-        setErrorMessage('Unable to delete a todo');
         throw error;
       });
   };
