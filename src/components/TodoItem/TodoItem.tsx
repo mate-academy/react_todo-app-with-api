@@ -5,6 +5,7 @@ import React, {
   useRef,
   useState,
 } from 'react';
+import * as api from '../../api/todos';
 import { Todo } from '../../types/Todo';
 import { TodoLoader } from '../TodoLoader';
 import { TodoUpdateContext, TodosContext } from '../../context/TodosContext';
@@ -18,22 +19,22 @@ export const TodoItem: React.FC<Props> = ({ todoItem }) => {
   const {
     errorMessage,
     setErrorMessage,
+    setTodos,
+    setLoadingIds,
   } = useContext(TodosContext);
   const {
     deleteTodo,
     toggleTodo,
-    editTodo,
   } = useContext(TodoUpdateContext);
 
   const [loading, setLoading] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [editTitle, setEditTitle] = useState(title);
+
   const titleField = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    if (titleField.current && (isEditing || errorMessage)) {
-      titleField.current.focus();
-    }
+    titleField.current?.focus();
   }, [isEditing, errorMessage]);
 
   const handleDelete = async () => {
@@ -56,34 +57,38 @@ export const TodoItem: React.FC<Props> = ({ todoItem }) => {
     }
   };
 
-  const isEditingRef = useRef(false);
+  const handleSubmit = (event: React.FormEvent) => {
+    event.preventDefault();
 
-  useEffect(() => {
-    isEditingRef.current = isEditing;
-  }, [isEditing]);
+    if (!editTitle.trim()) {
+      setLoadingIds((prev) => [...prev, id]);
 
-  const saveEditing = async () => {
-    try {
-      if (!editTitle.trim()) {
-        if (isEditingRef.current) {
-          await deleteTodo(todoItem.id);
-        }
-      } else {
-        const updatedTodo = {
-          ...todoItem,
-          title: editTitle,
-          id: todoItem.id,
-        };
+      api.deleteTodo(id)
+        .then(() => {
+          setTodos(currentTodos => currentTodos
+            .filter(currentTodo => currentTodo.id !== id));
+        })
+        .catch(() => setErrorMessage('Unable to delete a todo'))
+        .finally(() => setLoadingIds([]));
+    }
 
+    if (editTitle.trim()) {
+      if (editTitle === title) {
         setIsEditing(false);
+      } else {
+        setLoadingIds(currentTodos => [...currentTodos, id]);
 
-        await editTodo(updatedTodo);
+        api.editTodo({ completed, id, title: editTitle })
+          .then(() => {
+            setTodos(currentTodos => currentTodos
+              .map(currentTodo => (currentTodo.id === id
+                ? ({ ...currentTodo, title: editTitle.trim() })
+                : currentTodo)));
+            setIsEditing(false);
+          })
+          .catch(() => setErrorMessage('Unable to update a todo'))
+          .finally(() => setLoadingIds([]));
       }
-    } catch (error) {
-      setErrorMessage('Unable to update a todo');
-      titleField.current?.focus();
-    } finally {
-      setLoading(false);
     }
   };
 
@@ -91,10 +96,10 @@ export const TodoItem: React.FC<Props> = ({ todoItem }) => {
     setEditTitle(event.target.value);
   };
 
-  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    saveEditing();
-  };
+  // const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+  //   event.preventDefault();
+  //   saveEditing();
+  // };
 
   const handleKeyUp = (event: React.KeyboardEvent<HTMLInputElement>) => {
     if (event.key === 'Escape') {
@@ -133,7 +138,7 @@ export const TodoItem: React.FC<Props> = ({ todoItem }) => {
             className="todo__title-field"
             placeholder="Empty todo will be deleted"
             ref={titleField}
-            onBlur={saveEditing}
+            onBlur={handleSubmit}
             value={editTitle}
             onChange={handleOnEditing}
             onKeyUp={handleKeyUp}
@@ -145,7 +150,7 @@ export const TodoItem: React.FC<Props> = ({ todoItem }) => {
           className="todo__title"
           onDoubleClick={() => setIsEditing(true)}
         >
-          {editTitle}
+          {editTitle.trim()}
         </span>
       )}
       {!isEditing && (
