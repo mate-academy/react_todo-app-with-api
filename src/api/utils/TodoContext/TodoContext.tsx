@@ -36,7 +36,7 @@ type ContextType = {
   handleError: (errorMessage: string) => void;
   filteredTodos: Todo[];
   clearCompleted: () => void;
-  handleUpdate: (todo: Todo) => void;
+  handleUpdate: (todo: Todo) => Promise<void>;
   updateTodo: (todo: Todo) => void;
   completeAll: () => void;
   loaderTodoId: number | null;
@@ -61,7 +61,7 @@ export const TodosContext = React.createContext<ContextType>({
   handleError: () => {},
   filteredTodos: [],
   clearCompleted: () => {},
-  handleUpdate: () => {},
+  handleUpdate: () => new Promise(() => {}),
   updateTodo: () => {},
   completeAll: () => {},
   loaderTodoId: null,
@@ -138,7 +138,7 @@ export const TodosProvider: React.FC<Props> = ({ children }) => {
   };
 
   const handleUpdate = (todo: Todo) => {
-    renameRequest(todo)
+    return renameRequest(todo)
       .then(newTodo => {
         toBoUpdatedCallback(newTodo);
       })

@@ -42,11 +42,11 @@ export const TodoTitleField:React.FC<Props> = ({ todo }) => {
 
   const clickEnterOrEsc = (event: React.KeyboardEvent<HTMLInputElement>) => {
     event.preventDefault();
-    setLoaderTodoId(todo.id);
 
     const trimmedTitle = changedTitle.trim();
 
     if (event.key === 'Enter') {
+      setLoaderTodoId(todo.id);
       if (trimmedTitle === '') {
         handleDeleteTodo(todo.id);
       }
@@ -58,12 +58,14 @@ export const TodoTitleField:React.FC<Props> = ({ todo }) => {
       if (trimmedTitle) {
         const changed = { ...todo, title: trimmedTitle };
 
-        handleUpdate(changed);
-        setIsEditing(false);
+        handleUpdate(changed).then(() => {
+          setIsEditing(false);
+        });
       }
     }
 
     if (event.key === 'Escape') {
+      setLoaderTodoId(todo.id);
       setIsEditing(false);
       setFocus(false);
     }
@@ -125,6 +127,19 @@ export const TodoTitleField:React.FC<Props> = ({ todo }) => {
             onChange={() => updateChecked(todo)}
           />
         </label>
+        <div
+          data-cy="TodoLoader"
+          className={
+            classNames('modal overlay',
+              {
+                'is-active': isDeleting
+              || loaderTodoId === todo.id,
+              })
+          }
+        >
+          <div className="modal-background has-background-white-ter" />
+          <div className="loader" />
+        </div>
         {!isEditing
           ? (
             <>
@@ -143,19 +158,6 @@ export const TodoTitleField:React.FC<Props> = ({ todo }) => {
               >
                 ×
               </button>
-              <div
-                data-cy="TodoLoader"
-                className={
-                  classNames('modal overlay',
-                    {
-                      'is-active': isDeleting
-                    || loaderTodoId === todo.id,
-                    })
-                }
-              >
-                <div className="modal-background has-background-white-ter" />
-                <div className="loader" />
-              </div>
             </>
           )
           : (
