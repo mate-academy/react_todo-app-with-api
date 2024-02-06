@@ -90,9 +90,9 @@ export const TodosUpdateContext = React.createContext({
   ) => (Promise.prototype),
   clearCompleted: () => { },
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  addTodo: (_todo: Todo, _onSuccess = () => { }, _onFinally = () => { }) => { },
+  addTodo: (_todo: Todo) => (Promise.prototype),
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  deleteTodo: (_todoId: number, _onError = () => { }) => (Promise.prototype),
+  deleteTodo: (_todoId: number) => (Promise.prototype),
 });
 
 export const TodosContext = React.createContext({
@@ -129,21 +129,17 @@ export const TodosProvider: React.FC<Props> = ({ children }) => {
 
   function addTodo(
     todo: Todo,
-    onSuccess = () => { },
-    onFinally = () => { },
   ) {
     return api.addTodo(todo)
       .then(newTodo => {
         setTodos(currentTodos => [...currentTodos, newTodo]);
-        onSuccess();
       })
       .catch(() => {
         dispatch({
           type: TodoAction.SetError,
           errorMessage: 'Unable to add a todo',
         });
-      })
-      .finally(() => onFinally());
+      });
   }
 
   // eslint-disable-next-line react-hooks/exhaustive-deps

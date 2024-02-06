@@ -6,24 +6,11 @@ import { TodoList } from '../TodoList';
 import { TodosContext } from '../../contexts/TodosProvider';
 import { TodoAction } from '../../types/TodoAction';
 import { Todo } from '../../types/Todo';
-import { FilterOptions } from '../../types/FilterOptions';
 import { ErrorMessage } from '../ErrorMessage';
 import { Header } from '../Header';
 import { Footer } from '../Footer';
 import { TempTodo } from '../TempTodo';
-
-function filterTodos(todos: Todo[], filterOpitons: FilterOptions) {
-  switch (filterOpitons) {
-    case FilterOptions.Active:
-      return todos.filter(({ completed }) => !completed);
-
-    case FilterOptions.Completed:
-      return todos.filter(({ completed }) => completed);
-
-    default:
-      return [...todos];
-  }
-}
+import { filterTodos } from '../../services/filterTodos';
 
 export const TodoApp = () => {
   const {
@@ -69,7 +56,7 @@ export const TodoApp = () => {
         <TodoList todos={filteredTodos} />
 
         <TransitionGroup>
-          {tempTodo
+          {!!tempTodo
             && (
               <CSSTransition
                 key={0}

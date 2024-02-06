@@ -30,13 +30,13 @@ export const EditTodoForm: React.FC<Props> = ({
     if (event.key === 'Escape') {
       onCanceled();
     }
-  }, [onCanceled]);
+  }, []);
 
   useEffect(() => {
     window.addEventListener('keyup', keyboardListener);
 
     return () => window.removeEventListener('keyup', keyboardListener);
-  }, [keyboardListener]);
+  }, []);
 
   return (
     <form onSubmit={onSubmit}>

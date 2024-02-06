@@ -43,18 +43,16 @@ export const Header: React.FC<Props> = ({
 
       setTempTodo(newTodo);
 
-      addTodo(
-        newTodo,
-        () => {
+      addTodo(newTodo)
+        .then(() => {
           setNewTodoTitle('');
-        },
-        () => {
+        })
+        .finally(() => {
           setTempTodo(null);
           setTimeout(() => {
             newTodoInput.current?.focus();
           }, 5);
-        },
-      );
+        });
     } else {
       setErrorMessage('Title should not be empty');
     }
