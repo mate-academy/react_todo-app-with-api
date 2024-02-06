@@ -16,7 +16,7 @@ export const TodosContext = React.createContext<TodoContext>({
   setQuery: () => { },
   filteredTodos: [],
   deleteCompletedTodos: () => { },
-  deleteTodo: async () => {},
+  deleteTodo: async () => { },
   errorMessage: '',
   setErrorMessage: () => { },
   tempTodo: null,
@@ -115,15 +115,27 @@ export const TodosProvider: React.FC<Props> = ({ children }) => {
     );
   }
 
-  function deleteCompletedTodos() {
+  async function deleteCompletedTodos() {
     const filterTodos = todos.filter(({ completed }) => completed);
 
     setUpdateTodosId(filterTodos.map(todo => todo.id));
 
-    filterTodos.map(({ id }) => todosServices.deleteTodo(id)
-      .then(() => setTodos(todos.filter(({ completed }) => !completed)))
-      .catch(() => setErrorMessage('Unable to delete a todo'))
-      .finally(() => setUpdateTodosId([])));
+    const promises = filterTodos.map(({ id }) => {
+      return todosServices.deleteTodo(id)
+        .then(() => {
+          setTodos(prevTodos => prevTodos.filter(todo => todo.id !== id));
+        })
+        .catch(() => {
+          setErrorMessage('Unable to delete a todo');
+          throw new Error('Unable to delete a todo');
+        });
+    });
+
+    try {
+      await Promise.all(promises);
+    } finally {
+      setUpdateTodosId([]);
+    }
   }
 
   function deleteTodo(todoID: number) {

@@ -61,7 +61,7 @@ export const TodoItem: React.FC<TodoItems> = ({ todo }) => {
         })
         .catch(() => {
           setErrorMessage('Unable to update a todo');
-          setEditingTitle(todo.title);
+          titleFocus.current?.focus();
         })
         .finally(() => {
           setUpdateTodosId([]);
