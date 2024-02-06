@@ -61,7 +61,7 @@ export const TodoTitleField:React.FC<Props> = ({ todo }) => {
         handleUpdate(changed).then(() => {
           setIsEditing(false);
         })
-        .catch(() => {});
+          .catch(() => {});
       }
     }
 
