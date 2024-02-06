@@ -1,5 +1,5 @@
 export enum Filtering {
-  ALL = 'ALL',
-  ACTIVE = 'ACTIVE',
-  COMPLETED = 'COMPLETED',
+  All = 'ALL',
+  Active = 'ACTIVE',
+  Completed = 'COMPLETED',
 }

@@ -1,22 +1,24 @@
-/* eslint-disable consistent-return */
-/* eslint-disable @typescript-eslint/indent */
 /* eslint-disable jsx-a11y/control-has-associated-label */
 import classNames from 'classnames';
-import React, { useContext, useEffect, useState } from 'react';
+import React, {
+  useContext,
+  useEffect,
+  useRef,
+  useState,
+} from 'react';
 import { TodoContext } from '../contexts/TodoContext';
 import { USER_ID } from '../constants';
 import { createTodo, updateTodo } from '../api/todos';
 import { Todo } from '../types/Todo';
+import { Error } from '../types/Error';
 
 export const Header: React.FC = () => {
   const [title, setTitle] = useState('');
   const [shouldNotFocusInput, setShouldNotFocusInput] = useState(true);
 
-  const myInput = React.createRef<HTMLInputElement>();
+  const myInput = useRef<HTMLInputElement>(null);
 
   const {
-    loadingAllTodos,
-    setLoadingAllTodos,
     todos,
     setTodos,
     setErrorMessage,
@@ -29,7 +31,7 @@ export const Header: React.FC = () => {
     if (myInput.current && shouldNotFocusInput) {
       myInput.current.focus();
     }
-  }, [loadingTodo, loadingAllTodos, myInput]);
+  }, [loadingTodo]);
 
   const handleTitleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setTitle(event.target.value);
@@ -38,12 +40,10 @@ export const Header: React.FC = () => {
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
-    if (!title.trim()) {
-      setErrorMessage('Title should not be empty');
+    const trimmedTitle = title.trim();
 
-      setTimeout(() => {
-        setErrorMessage('');
-      }, 3000);
+    if (!trimmedTitle) {
+      setErrorMessage(Error.Title);
 
       return;
     }
@@ -53,8 +53,6 @@ export const Header: React.FC = () => {
       title,
       completed: false,
     });
-
-    const trimmedTitle = title.trim();
 
     const newTodo = {
       userId: USER_ID,
@@ -69,36 +67,36 @@ export const Header: React.FC = () => {
         setTodos((prev) => [...prev, createdTodo]);
         setTitle('');
       })
-      .catch(() => setErrorMessage('Unable to add a todo'))
+      .catch(() => setErrorMessage(Error.Add))
       .finally(() => {
         setLoadingTodo(null);
         setTempTodo(null);
-        setTimeout(() => {
-          setErrorMessage('');
-        }, 3000);
       });
   };
 
-  const uncompletedTodos = todos.filter((t) => !t.completed).map((t) => t.id);
+  const uncompletedTodos = todos.filter((t) => !t.completed);
 
-  const handleToggleTodos = async (ids: number[]) => {
-    setLoadingAllTodos(true);
+  const handleToggleTodos = () => {
     setShouldNotFocusInput(false);
 
-    try {
-      if (ids.length > 0) {
-        await Promise.all(ids.map((id) => updateTodo(id, { completed: true })));
-        setTodos((prev) => prev.map((todo) => ({ ...todo, completed: true })));
-      } else {
-        await Promise.all(todos.map(
-          (t) => updateTodo(t.id, { completed: false }),
-          ));
-        setTodos((prev) => prev.map((todo) => ({ ...todo, completed: false })));
-      }
-    } catch (error) {
-      setErrorMessage('Unable to toggle todos');
-    } finally {
-      setLoadingAllTodos(false);
+    if (uncompletedTodos.length > 0) {
+      uncompletedTodos.forEach((todo) => {
+        setLoadingTodo(todo);
+        updateTodo(todo.id, { completed: true })
+          .then(() => setTodos((prev) => prev
+            .map((t) => ({ ...t, completed: true }))))
+          .catch(() => setErrorMessage(Error.Update))
+          .finally(() => setLoadingTodo(null));
+      });
+    } else {
+      todos.forEach((t) => {
+        setLoadingTodo(t);
+        updateTodo(t.id, { completed: false })
+          .then(() => setTodos((prev) => prev
+            .map((todo) => ({ ...todo, completed: false }))))
+          .catch(() => setErrorMessage(Error.Update))
+          .finally(() => setLoadingTodo(null));
+      });
     }
   };
 
@@ -107,11 +105,14 @@ export const Header: React.FC = () => {
       {todos.length > 0 && (
         <button
           type="button"
-          className={classNames('todoapp__toggle-all', {
-            active: uncompletedTodos.length === 0,
-          })}
+          className={
+            classNames(
+              'todoapp__toggle-all',
+              { active: uncompletedTodos.length === 0 },
+            )
+          }
           data-cy="ToggleAllButton"
-          onClick={() => handleToggleTodos(uncompletedTodos)}
+          onClick={handleToggleTodos}
         />
       )}
 
@@ -124,7 +125,7 @@ export const Header: React.FC = () => {
           className="todoapp__new-todo"
           placeholder="What needs to be done?"
           onChange={handleTitleChange}
-          disabled={loadingAllTodos || !!loadingTodo}
+          disabled={!!loadingTodo}
         />
       </form>
     </header>

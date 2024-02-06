@@ -1,50 +1,46 @@
 /* eslint-disable @typescript-eslint/no-unused-expressions */
-/* eslint-disable object-curly-newline */
-/* eslint-disable max-len */
-// eslint-disable-next-line object-curly-newline
-import React, { useContext, useEffect, useState, FormEvent, KeyboardEvent } from 'react';
+import React, {
+  useContext, useEffect, useState,
+  FormEvent, KeyboardEvent, useRef,
+} from 'react';
 import classNames from 'classnames';
 import { Todo } from '../types/Todo';
 import { TodoContext } from '../contexts/TodoContext';
 import { deleteTodo, updateTodo } from '../api/todos';
+import { Error } from '../types/Error';
 
 interface Props {
   todo: Todo;
 }
 
-type EditEvent = FormEvent<HTMLFormElement> | KeyboardEvent<HTMLInputElement> | null;
+type EditEvent = FormEvent<HTMLFormElement>
+| KeyboardEvent<HTMLInputElement> | null;
 
 export const TodoItem: React.FC<Props> = ({ todo }) => {
-  const { setTodos, setErrorMessage, loadingTodo, loadingAllTodos, setLoadingTodo } = useContext(TodoContext);
+  const {
+    setTodos,
+    setErrorMessage,
+    loadingTodo,
+    setLoadingTodo,
+  } = useContext(TodoContext);
 
   const { id, title, completed } = todo;
   const [isEditing, setIsEditing] = useState(false);
   const [newTitle, setNewTitle] = useState(title);
-  const [error, setError] = useState(false);
-  const [isSubmitted, setIsSubmitted] = useState(false);
 
-  const myInput = React.createRef<HTMLInputElement>();
+  const myInput = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     myInput.current && myInput.current.focus();
-  }, [loadingAllTodos, myInput]);
-
-  // let timerId: NodeJS.Timeout;
+  }, [isEditing, myInput]);
 
   const handleEditStart = () => {
     setIsEditing(true);
   };
 
   const handleEditCancel = () => {
-    setIsSubmitted(false);
     setIsEditing(false);
     setNewTitle(title);
-  };
-
-  const handleHideError = () => {
-    setTimeout(() => {
-      setErrorMessage('');
-    }, 3000);
   };
 
   const handleDeleteTodo = (todoId: number) => {
@@ -52,7 +48,7 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
 
     deleteTodo(todoId)
       .then(() => setTodos((prev) => prev.filter((t) => t.id !== todoId)))
-      .catch(() => setErrorMessage('Unable to delete a todo'))
+      .catch(() => setErrorMessage(Error.Delete))
       .finally(() => setLoadingTodo(null));
   };
 
@@ -64,25 +60,20 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
         .map(newTodo => (newTodo.id === todoId
           ? ({ ...newTodo, completed: !completed })
           : newTodo))))
-      .catch(() => setErrorMessage('Unable to update a todo'))
+      .catch(() => setErrorMessage(Error.Update))
       .finally(() => {
-        handleHideError();
         setLoadingTodo(null);
       });
   };
 
   const handleEditSubmit = (event: EditEvent = null) => {
+    const newTrimmedTitle = newTitle?.trim();
+
     if (event) {
       event.preventDefault();
     }
 
-    if (isSubmitted) {
-      return;
-    }
-
-    setIsSubmitted(true);
-
-    if (!newTitle?.trim()) {
+    if (!newTrimmedTitle) {
       handleDeleteTodo(todo.id);
 
       return;
@@ -96,21 +87,15 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
 
     setLoadingTodo(todo);
 
-    updateTodo(todo.id, { title: newTitle.trim() })
+    updateTodo(todo.id, { title: newTrimmedTitle })
       .then((newTodo: Todo) => {
         setTodos((prev) => prev.map((t) => (t.id === todo.id ? newTodo : t)));
         setIsEditing(false);
-        setError(false);
       })
       .catch(() => {
-        setErrorMessage('Unable to update a todo');
-        setError(true);
+        setErrorMessage(Error.Update);
       })
       .finally(() => {
-        if (error) {
-          handleHideError();
-        }
-
         setLoadingTodo(null);
       });
   };
@@ -152,7 +137,7 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
           data-cy="TodoLoader"
           className={classNames(
             'modal overlay',
-            { 'is-active': loadingTodo === todo || loadingAllTodos },
+            { 'is-active': loadingTodo === todo },
           )}
         >
           <div className="modal-background has-background-white-ter" />
@@ -195,7 +180,7 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
           data-cy="TodoLoader"
           className={classNames(
             'modal overlay',
-            { 'is-active': loadingTodo === todo || loadingAllTodos },
+            { 'is-active': loadingTodo === todo },
           )}
         >
           <div className="modal-background has-background-white-ter" />

@@ -8,8 +8,6 @@ export interface TodoContextType {
   setTodos: React.Dispatch<React.SetStateAction<Todo[]>>;
   filtering: Filtering;
   setFiltering: React.Dispatch<React.SetStateAction<Filtering>>;
-  loadingAllTodos: boolean;
-  setLoadingAllTodos: React.Dispatch<React.SetStateAction<boolean>>;
   errorMessage: string;
   setErrorMessage: React.Dispatch<React.SetStateAction<string>>
   tempTodo: TempTodo | null;
@@ -24,10 +22,8 @@ export interface TodoContextType {
 export const TodoContext = React.createContext<TodoContextType>({
   todos: [],
   setTodos: () => {},
-  filtering: Filtering.ALL,
+  filtering: Filtering.All,
   setFiltering: () => {},
-  loadingAllTodos: false,
-  setLoadingAllTodos: () => {},
   errorMessage: '',
   setErrorMessage: () => {},
   tempTodo: null,
@@ -45,8 +41,7 @@ interface Props {
 
 export const TodoProvider: React.FC<Props> = ({ children }) => {
   const [todos, setTodos] = useState<Todo[]>([]);
-  const [filtering, setFiltering] = useState(Filtering.ALL);
-  const [loadingAllTodos, setLoadingAllTodos] = useState(false);
+  const [filtering, setFiltering] = useState(Filtering.All);
   const [errorMessage, setErrorMessage] = useState('');
   const [tempTodo, setTempTodo] = useState<TempTodo | null>(null);
   const [editingTodo, setEditingTodo] = useState({} as Todo);
@@ -58,8 +53,6 @@ export const TodoProvider: React.FC<Props> = ({ children }) => {
       setTodos,
       filtering,
       setFiltering,
-      loadingAllTodos,
-      setLoadingAllTodos,
       errorMessage,
       setErrorMessage,
       tempTodo,
@@ -72,7 +65,6 @@ export const TodoProvider: React.FC<Props> = ({ children }) => {
   ), [
     todos,
     filtering,
-    loadingAllTodos,
     errorMessage,
     tempTodo,
     editingTodo,

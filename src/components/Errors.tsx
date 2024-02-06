@@ -1,10 +1,18 @@
 /* eslint-disable jsx-a11y/control-has-associated-label */
-import React, { useContext } from 'react';
+import React, { useContext, useEffect } from 'react';
 import classNames from 'classnames';
 import { TodoContext } from '../contexts/TodoContext';
 
 export const Errors: React.FC = () => {
   const { errorMessage, setErrorMessage } = useContext(TodoContext);
+
+  useEffect(() => {
+    const timeoutId = setTimeout(() => {
+      setErrorMessage('');
+    }, 3000);
+
+    return () => clearTimeout(timeoutId);
+  }, [errorMessage]);
 
   return (
     <div
@@ -26,7 +34,6 @@ export const Errors: React.FC = () => {
         }}
       />
       {errorMessage}
-      {/* Unable to update a todo */}
     </div>
   );
 };

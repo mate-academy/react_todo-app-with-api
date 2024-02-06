@@ -8,15 +8,14 @@ import { Header } from './components/Header';
 import { USER_ID } from './constants';
 import { Footer } from './components/Footer';
 import { Errors } from './components/Errors';
+import { Error } from './types/Error';
 
 export const App: React.FC = () => {
-  const { todos, setTodos, setErrorMessage } = useContext(TodoContext);
-
-  const handleCatch = () => {
-    setTimeout(() => {
-      setErrorMessage('');
-    }, 3000);
-  };
+  const {
+    todos,
+    setTodos,
+    setErrorMessage,
+  } = useContext(TodoContext);
 
   if (!USER_ID) {
     return <UserWarning />;
@@ -26,8 +25,7 @@ export const App: React.FC = () => {
   useEffect(() => {
     getTodos(USER_ID)
       .then(setTodos)
-      .catch(() => setErrorMessage('Unable to load todos'))
-      .finally(() => handleCatch());
+      .catch(() => setErrorMessage(Error.Load));
   }, []);
 
   return (

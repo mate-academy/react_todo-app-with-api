@@ -1,8 +1,9 @@
-import { useContext } from 'react';
+import { useCallback, useContext, useMemo } from 'react';
 import classNames from 'classnames';
 import { TodoContext } from '../contexts/TodoContext';
 import { deleteTodo } from '../api/todos';
 import { Filtering } from '../types/Filtering';
+import { Error } from '../types/Error';
 
 export const Footer = () => {
   const {
@@ -10,11 +11,13 @@ export const Footer = () => {
     setTodos,
     filtering,
     setFiltering,
-    setLoadingAllTodos,
+    setLoadingTodo,
     setErrorMessage,
   } = useContext(TodoContext);
 
-  const completedTodosIds = todos.filter(todo => todo.completed).map(t => t.id);
+  const completedTodosIds = useMemo(
+    () => todos.filter(todo => todo.completed), [todos],
+  );
 
   const itemsLeft = todos.reduce((acc, t) => {
     if (!t.completed) {
@@ -24,25 +27,26 @@ export const Footer = () => {
     return acc;
   }, 0);
 
-  const handleCatch = () => {
-    setLoadingAllTodos(false);
+  const handleFinally = () => {
+    setLoadingTodo(null);
     setTimeout(() => {
       setErrorMessage('');
     }, 3000);
   };
 
-  const handleDelete = ((ids: number[]) => {
-    setLoadingAllTodos(true);
+  const handleDelete = useCallback(() => {
+    completedTodosIds.forEach(todo => {
+      setLoadingTodo(todo);
+      deleteTodo(todo.id)
+        .then(() => {
+          setTodos(prev => prev.filter(t => t.id !== todo.id));
+        })
+        .catch(() => setErrorMessage(Error.Delete))
+        .finally(() => handleFinally());
+    });
+  }, [completedTodosIds]);
 
-    Promise.all(ids.map(id => deleteTodo(id)))
-      .then(() => {
-        setTodos(prev => prev.filter(todo => !todo.completed));
-      })
-      .catch(() => setErrorMessage('Unable to delete a todo'))
-      .finally(() => handleCatch());
-  });
-
-  const hasCompleted = todos.some(t => t.completed);
+  const hasCompleted = todos.some(todo => todo.completed);
 
   return (
     <footer className="todoapp__footer" data-cy="Footer">
@@ -55,10 +59,10 @@ export const Footer = () => {
           href="#/"
           className={classNames(
             'filter__link',
-            { selected: Filtering.ALL === filtering },
+            { selected: Filtering.All === filtering },
           )}
           data-cy="FilterLinkAll"
-          onClick={() => setFiltering(Filtering.ALL)}
+          onClick={() => setFiltering(Filtering.All)}
         >
           All
         </a>
@@ -67,10 +71,10 @@ export const Footer = () => {
           href="#/active"
           className={classNames(
             'filter__link',
-            { selected: Filtering.ACTIVE === filtering },
+            { selected: Filtering.Active === filtering },
           )}
           data-cy="FilterLinkActive"
-          onClick={() => setFiltering(Filtering.ACTIVE)}
+          onClick={() => setFiltering(Filtering.Active)}
         >
           Active
         </a>
@@ -79,10 +83,10 @@ export const Footer = () => {
           href="#/completed"
           className={classNames(
             'filter__link',
-            { selected: Filtering.COMPLETED === filtering },
+            { selected: Filtering.Completed === filtering },
           )}
           data-cy="FilterLinkCompleted"
-          onClick={() => setFiltering(Filtering.COMPLETED)}
+          onClick={() => setFiltering(Filtering.Completed)}
         >
           Completed
         </a>
@@ -93,7 +97,7 @@ export const Footer = () => {
         className="todoapp__clear-completed"
         data-cy="ClearCompletedButton"
         disabled={!hasCompleted}
-        onClick={() => handleDelete(completedTodosIds)}
+        onClick={handleDelete}
       >
         Clear completed
       </button>
