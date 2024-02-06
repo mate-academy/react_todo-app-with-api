@@ -1,11 +1,16 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+} from 'react';
 import { Todo } from './types/Todo';
 import { UserWarning } from './UserWarning';
 import { Footer } from './components/Footer';
 import { TodoList } from './components/TodoList';
 import { Header } from './components/Header';
 import { Notification } from './components/Notification';
-import * as PostServise from './api/todos';
+import * as api from './api/todos';
 import { FilterType } from './types/Filter';
 import { ErrorMessage } from './types/ErrorMessage';
 import { TodoItem } from './components/TodoItem';
@@ -30,29 +35,29 @@ export const App: React.FC = () => {
   }, [closeErrorMsg]);
 
   useEffect(() => {
-    PostServise.getTodos(USER_ID)
+    api.getTodos(USER_ID)
       .then(setTodos)
       .catch(() => {
         newError(ErrorMessage.CANNOT_LOAD_TODOS);
       });
   }, [newError]);
 
-  const filteredTodos = todos.filter((todo) => {
-    switch (filter) {
-      case FilterType.ACTIVE:
-        return !todo.completed;
-
-      case FilterType.COMPLETED:
-        return todo.completed;
-
-      case FilterType.ALL:
-      default:
-        return true;
-    }
-  });
+  const filteredTodos = useMemo(() => {
+    return todos.filter((todo) => {
+      switch (filter) {
+        case FilterType.ACTIVE:
+          return !todo.completed;
+        case FilterType.COMPLETED:
+          return todo.completed;
+        case FilterType.ALL:
+        default:
+          return true;
+      }
+    });
+  }, [todos, filter]);
 
   const updateTodo = (updatedTodo: Todo) => {
-    PostServise.editTodo(updatedTodo)
+    api.editTodo(updatedTodo)
       .then(() => {
         setTodos(prevTodos => prevTodos.map(todo => {
           if (todo.id === updatedTodo.id) {
@@ -105,7 +110,7 @@ export const App: React.FC = () => {
       id: 0, title, userId: USER_ID, completed: false,
     });
 
-    PostServise.createTodo({ title, userId: USER_ID, completed: false })
+    api.createTodo({ title, userId: USER_ID, completed: false })
       .then((newTodo) => {
         const typedNewTodo = newTodo as Todo;
 
@@ -119,7 +124,7 @@ export const App: React.FC = () => {
   };
 
   const deleteTodos = (todoId: number) => {
-    PostServise.deleteTodo(todoId)
+    api.deleteTodo(todoId)
       .then(() => {
         setTodos(prevTodos => prevTodos.filter(todo => todo.id !== todoId));
       })
