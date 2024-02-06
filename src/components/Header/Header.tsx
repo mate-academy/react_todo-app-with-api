@@ -5,6 +5,7 @@ import classNames from 'classnames';
 import { TodosContext } from '../../contexts/TodosContext';
 import { USER_ID } from '../../variables';
 import { createTodo, updateTodo } from '../../api/todos';
+import { Errors } from '../../types/Errors';
 
 /* eslint-disable jsx-a11y/control-has-associated-label */
 export const Header = () => {
@@ -21,7 +22,7 @@ export const Header = () => {
 
   const [isDisabledButton, setIsDisabledButton] = useState(false);
 
-  const changeValues = () => {
+  const addTodo = () => {
     setTempTodo({
       id: 0,
       userId: USER_ID,
@@ -40,7 +41,7 @@ export const Header = () => {
         setTempTodo(null);
       })
       .catch(() => {
-        setErrorMessage('Unable to add a todo');
+        setErrorMessage(Errors.UnableToAdd);
         setTempTodo(null);
       })
       .finally(() => {
@@ -53,18 +54,18 @@ export const Header = () => {
 
     if (title.trim()) {
       setIsDisabledButton(true);
-      changeValues();
+      addTodo();
     } else {
-      setErrorMessage('Title should not be empty');
+      setErrorMessage(Errors.TitleEmpty);
     }
   };
 
-  const hendlerChange
+  const handlerChange
     = (event: React.ChangeEvent<HTMLInputElement>) => setTitle(
       event.target.value,
     );
 
-  const conuterOfCompletedTodos = useMemo(() => {
+  const counterOfCompletedTodos = useMemo(() => {
     return !todos.filter(todo => !todo.completed).length;
   }, [todos]);
 
@@ -77,7 +78,7 @@ export const Header = () => {
   }, [todos.length, tempTodo]);
 
   const toggledTodosList = useMemo(() => {
-    if (conuterOfCompletedTodos) {
+    if (counterOfCompletedTodos) {
       return todos.map(todo => ({
         ...todo,
         completed: !todo.completed,
@@ -88,12 +89,12 @@ export const Header = () => {
       ...todo,
       completed: true,
     }));
-  }, [todos, conuterOfCompletedTodos]);
+  }, [todos, counterOfCompletedTodos]);
 
   const toggleChanges = () => {
     let notCompletedTodos;
 
-    if (!conuterOfCompletedTodos) {
+    if (!counterOfCompletedTodos) {
       notCompletedTodos = todos.filter(todo => !todo.completed);
     } else {
       notCompletedTodos = todos;
@@ -102,26 +103,24 @@ export const Header = () => {
     setChangedTodos(notCompletedTodos);
 
     notCompletedTodos.forEach(changedTodo => updateTodo({
-      title: changedTodo.title,
-      id: changedTodo.id,
+      ...changedTodo,
       completed: !changedTodo.completed,
     })
       .then(() => {
         setTodos(toggledTodosList);
       })
-      .catch(() => setErrorMessage('Unable to update a todo'))
+      .catch(() => setErrorMessage(Errors.UnableToUpdate))
       .finally(() => setChangedTodos([])));
   };
 
   return (
     <header className="todoapp__header">
-      {/* this buttons is active only if there are some active todos */}
       {!!todos.length && (
         <button
           onClick={toggleChanges}
           type="button"
           className={classNames('todoapp__toggle-all',
-            { active: conuterOfCompletedTodos })}
+            { active: counterOfCompletedTodos })}
           data-cy="ToggleAllButton"
         />
       )}
@@ -130,7 +129,7 @@ export const Header = () => {
         <input
           disabled={isDisabledButton}
           ref={titleField}
-          onChange={hendlerChange}
+          onChange={handlerChange}
           data-cy="NewTodoField"
           value={title}
           type="text"

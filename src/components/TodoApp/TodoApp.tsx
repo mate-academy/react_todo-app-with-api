@@ -7,7 +7,9 @@ import { prepareTodosList } from '../../services/prepareTodosList';
 import { Header } from '../Header/Header';
 
 export const TodoApp = () => {
-  const { todos, filterField, tempTodo } = useContext(TodosContext);
+  const {
+    todos, filterField, tempTodo,
+  } = useContext(TodosContext);
   const preparedTodosList = prepareTodosList(todos, filterField);
 
   return (

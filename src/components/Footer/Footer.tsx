@@ -4,6 +4,7 @@ import { useCallback, useContext, useMemo } from 'react';
 import { TodosContext } from '../../contexts/TodosContext';
 import { deleteTodo } from '../../api/todos';
 import { Status } from '../../types/Status';
+import { Errors } from '../../types/Errors';
 
 export const Footer = () => {
   const {
@@ -26,7 +27,7 @@ export const Footer = () => {
     deletedTodos.map(deletedTodo => deleteTodo(deletedTodo.id)
       .then(() => setTodos(currentTodos => currentTodos
         .filter(currentTodo => currentTodo.id !== deletedTodo.id)))
-      .catch(() => setErrorMessage('Unable to delete a todo'))
+      .catch(() => setErrorMessage(Errors.UnableToDelete))
       .finally(() => setChangedTodos([])));
   }, [deletedTodos]);
 
@@ -45,7 +46,7 @@ export const Footer = () => {
           href="#/"
           onClick={() => setFilterField(Status.All)}
           className={classNames('filter__link', {
-            selected: filterField === 'All',
+            selected: filterField === Status.All,
           })}
           data-cy="FilterLinkAll"
         >
@@ -56,7 +57,7 @@ export const Footer = () => {
           href="#/active"
           onClick={() => setFilterField(Status.Active)}
           className={classNames('filter__link', {
-            selected: filterField === 'Active',
+            selected: filterField === Status.Active,
           })}
           data-cy="FilterLinkActive"
         >
@@ -67,7 +68,7 @@ export const Footer = () => {
           href="#/completed"
           onClick={() => setFilterField(Status.Completed)}
           className={classNames('filter__link', {
-            selected: filterField === 'Completed',
+            selected: filterField === Status.Completed,
           })}
           data-cy="FilterLinkCompleted"
         >
