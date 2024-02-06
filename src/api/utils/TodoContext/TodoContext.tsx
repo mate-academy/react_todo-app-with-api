@@ -144,6 +144,7 @@ export const TodosProvider: React.FC<Props> = ({ children }) => {
       })
       .catch(() => {
         handleError('Unable to update a todo');
+        throw new Error('Unable to update a todo');
       })
       .finally(() => {
         setLoaderTodoId(null);
