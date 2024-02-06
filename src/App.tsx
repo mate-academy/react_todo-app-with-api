@@ -116,6 +116,7 @@ export const App: React.FC = () => {
     const timerId = setTimeout(setErrorHide, 3000);
 
     return () => clearTimeout(timerId);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [errorMessage]);
 
   if (!USER_ID) {
@@ -128,7 +129,6 @@ export const App: React.FC = () => {
 
       <div className="todoapp__content">
         <header className="todoapp__header">
-          {/* this buttons is active only if there are some active todos */}
           {todos.length > 0 && (
             <button
               type="button"
@@ -140,7 +140,6 @@ export const App: React.FC = () => {
             />
           )}
 
-          {/* Add a todo on form submit */}
           <TodoForm
             setError={setErrorMessage}
             addTodo={addTodo}

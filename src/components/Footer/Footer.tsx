@@ -47,7 +47,6 @@ export const Footer: React.FC<Props> = (props) => {
         {`${uncompletedCount} items left`}
       </span>
 
-      {/* Active filter should have a 'selected' class */}
       <nav className="filter" data-cy="Filter">
         <a
           href="#/"
