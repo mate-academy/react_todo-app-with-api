@@ -16,7 +16,7 @@ export const TodosContext = React.createContext<TodoContext>({
   setQuery: () => { },
   filteredTodos: [],
   deleteCompletedTodos: () => { },
-  deleteTodo: () => { },
+  deleteTodo: async () => {},
   errorMessage: '',
   setErrorMessage: () => { },
   tempTodo: null,
@@ -129,13 +129,15 @@ export const TodosProvider: React.FC<Props> = ({ children }) => {
   function deleteTodo(todoID: number) {
     setUpdateTodosId(prevNumbers => [...prevNumbers, todoID]);
 
-    return todosServices.deleteTodo(todoID).then(() => setTodos(
-      prevTodos => prevTodos.filter(
-        todo => todo.id !== todoID,
-      ),
-    ))
+    return todosServices.deleteTodo(todoID)
+      .then(() => setTodos(
+        prevTodos => prevTodos.filter(
+          todo => todo.id !== todoID,
+        ),
+      ))
       .catch(() => {
         setErrorMessage('Unable to delete a todo');
+        throw new Error('Unable to delete a todo');
       })
       .finally(() => setUpdateTodosId([]));
   }

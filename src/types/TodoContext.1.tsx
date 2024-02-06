@@ -11,7 +11,7 @@ export interface TodoContext {
   setQuery: React.Dispatch<React.SetStateAction<Status>>;
   filteredTodos: Todo[];
   deleteCompletedTodos: () => void;
-  deleteTodo: (id: number) => void;
+  deleteTodo: (id: number) => Promise<void>;
   errorMessage: string;
   setErrorMessage: React.Dispatch<React.SetStateAction<string>>;
   tempTodo: null | Todo;

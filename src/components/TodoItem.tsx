@@ -35,28 +35,27 @@ export const TodoItem: React.FC<TodoItems> = ({ todo }) => {
     if (titleFocus.current) {
       titleFocus.current.focus();
     }
-  }, [isEdeting]);
+  }, [isEdeting, editingTitle]);
 
-  function saveEditingTitle(
-    todoID: number,
-    changedTitle: string,
-  ) {
-    setUpdateTodosId((prevTodos) => [...prevTodos, todoID]);
+  function saveEditingTitle() {
+    setUpdateTodosId((prevTodos) => [...prevTodos, todo.id]);
 
-    if (changedTitle.trim()) {
-      const chosenTodo = todos.find(todoFind => todoFind.id === todoID) as Todo;
+    if (editingTitle.trim()) {
+      const chosenTodo = todos.find(
+        todoFind => todoFind.id === todo.id,
+      ) as Todo;
 
       const { completed, id } = chosenTodo;
 
       todosServices.editTodo({
-        title: changedTitle,
+        title: editingTitle.trim(),
         completed,
         id,
       })
         .then(() => {
           setTodos(currentTodos => currentTodos.map(todoSet => (
-            todoSet.id === todoID
-              ? { ...todoSet, title: changedTitle }
+            todoSet.id === id
+              ? { ...todoSet, title: editingTitle.trim() }
               : todoSet)));
           setIsEditing(false);
         })
@@ -64,7 +63,9 @@ export const TodoItem: React.FC<TodoItems> = ({ todo }) => {
           setErrorMessage('Unable to update a todo');
           setEditingTitle(todo.title);
         })
-        .finally(() => setUpdateTodosId([]));
+        .finally(() => {
+          setUpdateTodosId([]);
+        });
     }
   }
 
@@ -75,27 +76,28 @@ export const TodoItem: React.FC<TodoItems> = ({ todo }) => {
     }
   };
 
-  const handleOnSubmit = (event: FormEvent<HTMLFormElement>) => {
+  const handleOnSubmit = (event: (FormEvent<HTMLFormElement>
+  | React.FocusEvent<HTMLInputElement, Element>)) => {
     event.preventDefault();
     if (editingTitle.trim() === todo.title.trim()) {
       setIsEditing(false);
-    } else {
-      if (editingTitle.trim()) {
-        saveEditingTitle(todo.id, editingTitle.trim());
 
-        return;
-      }
-
-      if (!editingTitle.trim()) {
-        deleteTodo(todo.id);
-        setIsEditing(false);
-      }
+      return;
     }
-  };
 
-  const handleOnBlur = () => {
-    saveEditingTitle(todo.id, editingTitle);
-    setIsEditing(false);
+    if (editingTitle.trim()) {
+      saveEditingTitle();
+
+      return;
+    }
+
+    if (!editingTitle.trim()) {
+      deleteTodo(todo.id)
+        .then(() => setIsEditing(false))
+        .catch(() => {
+          setEditingTitle(todo.title);
+        });
+    }
   };
 
   return (
@@ -123,7 +125,7 @@ export const TodoItem: React.FC<TodoItems> = ({ todo }) => {
             placeholder="Empty todo will be deleted"
             value={editingTitle}
             onChange={(event) => setEditingTitle(event.currentTarget.value)}
-            onBlur={handleOnBlur}
+            onBlur={handleOnSubmit}
             ref={titleFocus}
             onKeyUp={(event) => handleOnKeyUp(event)}
           />
