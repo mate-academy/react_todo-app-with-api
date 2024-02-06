@@ -28,6 +28,13 @@ export const TodoItem: React.FC<Props> = ({ todoItem }) => {
   const [loading, setLoading] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [editTitle, setEditTitle] = useState(title);
+  const titleField = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    if (titleField.current && (isEditing || errorMessage)) {
+      titleField.current.focus();
+    }
+  }, [isEditing, errorMessage]);
 
   const handleDelete = async () => {
     try {
@@ -74,6 +81,7 @@ export const TodoItem: React.FC<Props> = ({ todoItem }) => {
       }
     } catch (error) {
       setErrorMessage('Unable to update a todo');
+      titleField.current?.focus();
     } finally {
       setLoading(false);
     }
@@ -94,14 +102,6 @@ export const TodoItem: React.FC<Props> = ({ todoItem }) => {
       setEditTitle(title);
     }
   };
-
-  const titleField = useRef<HTMLInputElement>(null);
-
-  useEffect(() => {
-    if (titleField.current) {
-      titleField.current.focus();
-    }
-  }, [isEditing, errorMessage]);
 
   return (
     <div
@@ -128,12 +128,12 @@ export const TodoItem: React.FC<Props> = ({ todoItem }) => {
       {isEditing ? (
         <form onSubmit={handleSubmit}>
           <input
-            ref={titleField}
-            onBlur={saveEditing}
             data-cy="TodoTitleField"
             type="text"
             className="todo__title-field"
             placeholder="Empty todo will be deleted"
+            ref={titleField}
+            onBlur={saveEditing}
             value={editTitle}
             onChange={handleOnEditing}
             onKeyUp={handleKeyUp}

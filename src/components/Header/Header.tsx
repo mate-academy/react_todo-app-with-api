@@ -17,8 +17,8 @@ export const Header: React.FC = () => {
 
   const {
     todos,
-    errorMessage,
     setErrorMessage,
+    tempTodo,
     setTempTodo,
     setLoadingIds,
   } = useContext(TodosContext);
@@ -35,7 +35,7 @@ export const Header: React.FC = () => {
     if (inputRef.current) {
       inputRef.current.focus();
     }
-  }, [isAddingTodo, errorMessage]);
+  }, [tempTodo, todos.length]);
 
   async function handleSubmit(event: React.FormEvent) {
     event.preventDefault();

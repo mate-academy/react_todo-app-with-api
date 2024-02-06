@@ -1,39 +1,20 @@
 import { useContext } from 'react';
 import { FilterTodos } from '../FilterTodos';
 import { TodoUpdateContext, TodosContext } from '../../context/TodosContext';
-import { Todo } from '../../types/Todo';
 
 export const Footer = () => {
   const {
     todos,
-    setTodos,
-    setErrorMessage,
-    setLoadingIds,
   } = useContext(TodosContext);
   const { deleteTodo } = useContext(TodoUpdateContext);
 
   const isCompleted = todos.some(todo => todo.completed);
   const countItems = todos.filter(todo => !todo.completed).length;
 
-  const handleClear = async () => {
-    const completedTodoIds = todos
-      .filter(todo => todo.completed)
-      .map(todo => todo.id);
+  const handleClear = () => {
+    const completedTodos = todos.filter(todo => todo.completed);
 
-    setLoadingIds(completedTodoIds);
-
-    try {
-      await Promise.all(completedTodoIds.map(id => deleteTodo(id)));
-
-      setTodos((prev: Todo[]) => {
-        return prev
-          .filter((todo) => !completedTodoIds.includes(todo.id));
-      });
-    } catch (error) {
-      setErrorMessage('Unable to delete a todo');
-    } finally {
-      setLoadingIds([]);
-    }
+    completedTodos.forEach(todo => deleteTodo(todo.id));
   };
 
   return (
