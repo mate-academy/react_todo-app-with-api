@@ -31,7 +31,7 @@ export const Header: React.FC = () => {
     if (myInput.current && shouldNotFocusInput) {
       myInput.current.focus();
     }
-  }, [loadingTodo]);
+  }, [shouldNotFocusInput, loadingTodo]);
 
   const handleTitleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setTitle(event.target.value);
@@ -79,25 +79,21 @@ export const Header: React.FC = () => {
   const handleToggleTodos = () => {
     setShouldNotFocusInput(false);
 
-    if (uncompletedTodos.length > 0) {
-      uncompletedTodos.forEach((todo) => {
-        setLoadingTodo(todo);
-        updateTodo(todo.id, { completed: true })
-          .then(() => setTodos((prev) => prev
-            .map((t) => ({ ...t, completed: true }))))
-          .catch(() => setErrorMessage(Error.Update))
-          .finally(() => setLoadingTodo(null));
-      });
-    } else {
-      todos.forEach((t) => {
-        setLoadingTodo(t);
-        updateTodo(t.id, { completed: false })
-          .then(() => setTodos((prev) => prev
-            .map((todo) => ({ ...todo, completed: false }))))
-          .catch(() => setErrorMessage(Error.Update))
-          .finally(() => setLoadingTodo(null));
-      });
-    }
+    const todosToUpdate = uncompletedTodos.length > 0
+      ? uncompletedTodos
+      : todos;
+
+    todosToUpdate.forEach((todo) => {
+      setLoadingTodo(todo);
+
+      const updatedStatus = !todo.completed;
+
+      updateTodo(todo.id, { completed: updatedStatus })
+        .then(() => setTodos((prev) => prev
+          .map((prevTodo) => ({ ...prevTodo, completed: updatedStatus }))))
+        .catch(() => setErrorMessage(Error.Update))
+        .finally(() => setLoadingTodo(null));
+    });
   };
 
   return (
@@ -105,12 +101,9 @@ export const Header: React.FC = () => {
       {todos.length > 0 && (
         <button
           type="button"
-          className={
-            classNames(
-              'todoapp__toggle-all',
-              { active: uncompletedTodos.length === 0 },
-            )
-          }
+          className={classNames('todoapp__toggle-all', {
+            active: uncompletedTodos.length === 0,
+          })}
           data-cy="ToggleAllButton"
           onClick={handleToggleTodos}
         />
