@@ -6,6 +6,7 @@ import {
 } from 'react';
 import classNames from 'classnames';
 import { Todo } from '../types/interfaces';
+import { ErrorMessages } from '../types/enum';
 
 interface TodoHeaderProps {
   setTempTodo: Dispatch<SetStateAction<Todo | null>>
@@ -41,7 +42,7 @@ export const TodoHeader: React.FC<TodoHeaderProps> = ({
       });
     } else if (event.key === 'Enter' && !onInput.trim()) {
       event.preventDefault();
-      setError('Title should not be empty');
+      setError(ErrorMessages.EmptyInputFail);
     }
   };
 

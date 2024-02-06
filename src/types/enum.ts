@@ -9,4 +9,5 @@ export enum ErrorMessages {
   DeleteFail = 'Unable to delete a todo',
   LoadFail = 'Unable to load todos',
   AddFail = 'Unable to add a todo',
+  EmptyInputFail = 'Title should not be empty',
 }
