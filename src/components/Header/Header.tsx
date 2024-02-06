@@ -52,9 +52,6 @@ export const Header: React.FC<Props> = ({
         })
         .finally(() => {
           setTempTodo(null);
-          setTimeout(() => {
-            newTodoInput.current?.focus();
-          }, 5);
         });
     } else {
       setErrorMessage('Title should not be empty');
@@ -63,7 +60,7 @@ export const Header: React.FC<Props> = ({
 
   useEffect(() => {
     newTodoInput.current?.focus();
-  }, [todos.length]);
+  }, [tempTodo, todos.length]);
 
   return (
     <header className="todoapp__header">

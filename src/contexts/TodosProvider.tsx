@@ -21,11 +21,15 @@ type Action = {
   type: TodoAction.SetOperatingTodoIds,
   todoIds: number[],
 } | {
-  type: TodoAction.AddOperatingTodoId | TodoAction.DeleteOperatingTodoId,
+  type:
+  TodoAction.AddOperatingTodoId
+  | TodoAction.DeleteOperatingTodoId
+  | TodoAction.SetEditingTodoId
   todoId: number,
 };
 
 interface State {
+  editingTodoId: number,
   filterOptions: FilterOptions,
   errorMessage: string,
   operatingTodoIds: number[],
@@ -72,6 +76,13 @@ function reducer(
       };
     }
 
+    case TodoAction.SetEditingTodoId: {
+      return {
+        ...state,
+        editingTodoId: action.todoId,
+      };
+    }
+
     default:
       break;
   }
@@ -80,6 +91,8 @@ function reducer(
 }
 
 export const TodosUpdateContext = React.createContext({
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  setEditingTodoId: (_todoId: number) => { },
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   toggleAll: (_isAllCompleted: boolean) => { },
   updateTodo: (
@@ -96,6 +109,7 @@ export const TodosUpdateContext = React.createContext({
 });
 
 export const TodosContext = React.createContext({
+  editingTodoId: 0,
   errorMessage: '',
   todos: [] as Todo[],
   filterOptions: FilterOptions.All,
@@ -110,6 +124,7 @@ export const TodosProvider: React.FC<Props> = ({ children }) => {
     filterOptions: FilterOptions.All,
     errorMessage: '',
     operatingTodoIds: [],
+    editingTodoId: 0,
   });
 
   function loadTodos() {
@@ -315,12 +330,20 @@ export const TodosProvider: React.FC<Props> = ({ children }) => {
       });
   }
 
+  function setEditingTodoId(todoId: number) {
+    dispatch({
+      type: TodoAction.SetEditingTodoId,
+      todoId,
+    });
+  }
+
   const todosContextValue = useMemo(() => {
     return {
       todos,
       filterOptions: state.filterOptions,
       errorMessage: state.errorMessage,
       operatingTodoIds: state.operatingTodoIds,
+      editingTodoId: state.editingTodoId,
       dispatch,
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -332,6 +355,7 @@ export const TodosProvider: React.FC<Props> = ({ children }) => {
     clearCompleted,
     addTodo,
     deleteTodo,
+    setEditingTodoId,
   }), [toggleAll, updateTodo, clearCompleted, deleteTodo]);
 
   return (

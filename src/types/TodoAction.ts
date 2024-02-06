@@ -4,4 +4,5 @@ export enum TodoAction {
   AddOperatingTodoId = 'AddOperatingTodo',
   DeleteOperatingTodoId = 'DeleteOperatingTodo',
   SetOperatingTodoIds = 'SetOperatingTodos',
+  SetEditingTodoId = 'SetIsTodoEditing',
 }

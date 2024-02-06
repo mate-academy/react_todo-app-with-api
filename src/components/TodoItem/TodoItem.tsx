@@ -1,6 +1,6 @@
 /* eslint-disable jsx-a11y/control-has-associated-label */
 import React, {
-  useContext, useEffect, useState, useRef,
+  useContext, useEffect, useRef,
 } from 'react';
 import cn from 'classnames';
 import { Todo } from '../../types/Todo';
@@ -13,9 +13,12 @@ interface Props {
 }
 
 export const TodoItem: React.FC<Props> = ({ todo, isLoading = false }) => {
-  const [isEditing, setIsEditing] = useState(false);
-  const { deleteTodo, updateTodo } = useContext(TodosUpdateContext);
-  const { operatingTodoIds } = useContext(TodosContext);
+  const {
+    deleteTodo,
+    updateTodo,
+    setEditingTodoId,
+  } = useContext(TodosUpdateContext);
+  const { operatingTodoIds, editingTodoId } = useContext(TodosContext);
   const { title, completed, id } = todo;
   const todoTitleSpan = useRef<HTMLSpanElement | null>(null);
 
@@ -26,21 +29,21 @@ export const TodoItem: React.FC<Props> = ({ todo, isLoading = false }) => {
       if (normalizedTitle === '') {
         deleteTodo(id)
           .then(() => {
-            setIsEditing(false);
+            setEditingTodoId(0);
           });
       } else {
         updateTodo(id, { title: normalizedTitle })
           .then(() => {
-            setIsEditing(false);
+            setEditingTodoId(0);
           });
       }
     } else {
-      setIsEditing(false);
+      setEditingTodoId(0);
     }
   };
 
   const handleTodoChangeCancelled = () => {
-    setIsEditing(false);
+    setEditingTodoId(0);
   };
 
   const handleTodoStatusChanged = () => {
@@ -48,8 +51,8 @@ export const TodoItem: React.FC<Props> = ({ todo, isLoading = false }) => {
   };
 
   const handleDblclick = () => {
-    if (!isEditing) {
-      setIsEditing(true);
+    if (!editingTodoId) {
+      setEditingTodoId(todo.id);
     }
   };
 
@@ -83,7 +86,7 @@ export const TodoItem: React.FC<Props> = ({ todo, isLoading = false }) => {
         />
       </label>
 
-      {isEditing
+      {editingTodoId === todo.id
         ? (
           <EditTodoForm
             onCanceled={handleTodoChangeCancelled}
