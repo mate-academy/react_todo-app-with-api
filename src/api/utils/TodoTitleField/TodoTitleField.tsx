@@ -65,7 +65,6 @@ export const TodoTitleField:React.FC<Props> = ({ todo }) => {
     }
 
     if (event.key === 'Escape') {
-      setLoaderTodoId(todo.id);
       setIsEditing(false);
       setFocus(false);
     }
