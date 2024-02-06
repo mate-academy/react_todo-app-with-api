@@ -17,9 +17,13 @@ export const ErrorMessage: React.FC<Props> = ({
   };
 
   useEffect(() => {
-    setTimeout(() => {
+    const timeoutId = window.setTimeout(() => {
       onErrorHiding();
-    }, 2000);
+    }, 3000);
+
+    return () => {
+      window.clearTimeout(timeoutId);
+    };
   }, [errorMessage, onErrorHiding]);
 
   return (

@@ -7,6 +7,7 @@ import { TodosContext, TodosUpdateContext } from '../../contexts/TodosProvider';
 import { USER_ID } from '../../constants/USER_ID';
 
 interface Props {
+  handleErrorHiding: () => void,
   setTempTodo: (_todo: Todo | null) => void,
   tempTodo: Todo | null,
   setErrorMessage: (errorMessage: string) => void,
@@ -16,6 +17,7 @@ export const Header: React.FC<Props> = ({
   setTempTodo,
   tempTodo,
   setErrorMessage,
+  handleErrorHiding,
 }) => {
   const { todos } = useContext(TodosContext);
   const { toggleAll, addTodo } = useContext(TodosUpdateContext);
@@ -41,6 +43,7 @@ export const Header: React.FC<Props> = ({
         completed: false,
       };
 
+      handleErrorHiding();
       setTempTodo(newTodo);
 
       addTodo(newTodo)

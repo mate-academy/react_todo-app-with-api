@@ -30,12 +30,14 @@ export const EditTodoForm: React.FC<Props> = ({
     if (event.key === 'Escape') {
       onCanceled();
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
     window.addEventListener('keyup', keyboardListener);
 
     return () => window.removeEventListener('keyup', keyboardListener);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (

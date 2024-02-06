@@ -139,6 +139,8 @@ export const TodosProvider: React.FC<Props> = ({ children }) => {
           type: TodoAction.SetError,
           errorMessage: 'Unable to add a todo',
         });
+
+        throw new Error();
       });
   }
 
@@ -180,8 +182,12 @@ export const TodosProvider: React.FC<Props> = ({ children }) => {
     });
 
     return api.updateTodo(todoId, updatedFields)
-      .then((updatedTodo) => {
+      .then(() => {
         const updatedTodoIndex = todos.findIndex(todo => todo.id === todoId);
+        const updatedTodo = {
+          ...todos[updatedTodoIndex],
+          ...updatedFields,
+        };
 
         setTodos(currentTodos => ([
           ...currentTodos.slice(0, updatedTodoIndex),

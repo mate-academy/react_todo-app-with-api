@@ -48,6 +48,7 @@ export const TodoApp = () => {
       <div className="todoapp__content">
 
         <Header
+          handleErrorHiding={handleErrorHiding}
           setTempTodo={setTempTodo}
           tempTodo={tempTodo}
           setErrorMessage={setErrorMessage}
