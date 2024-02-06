@@ -28,70 +28,6 @@ export const App: React.FC = () => {
 
   const myInputRef = useRef<HTMLInputElement>(null);
 
-  // const handleToggleButton = (value: boolean) => {
-  //   setIsLoad(true);
-  //   setTodos(currentTodos => currentTodos.map(todo => (
-  //     {
-  //       ...todo,
-  //       completed: value,
-  //     }
-  //   )));
-
-  //   setTempTodos(todos);
-
-  //   Promise.all(todos.map(todo => {
-  //     return todoService.updateTodos(todo)
-  //       .then((newTodo) => {
-  //         const updateTodo = { ...newTodo, completed: value };
-
-  //         // setTodos(currentTodos => currentTodos.map(curT => (curT.id === newTodo.id
-  //         //   ? updateTodo
-  //         //   : curT
-  //         // )));
-
-  //         return updateTodo;
-  //       })
-  //       .catch(() => {
-  //         setErrorMessage('Unable to update a todo');
-
-  //         return todo;
-  //       })
-  //       .finally(() => {
-  //         setInterval(() => setErrorMessage(''), 3000);
-  //         setIsLoad(false);
-  //       });
-  //   }))
-  //     .then(updatedTodos => {
-  //       setInterval(() => {
-  //         setTodos(updatedTodos);
-  //       }, 0);
-  //     })
-  //     .catch(() => {
-  //       setErrorMessage('Unable to update a todo');
-  //     })
-  //     .finally(() => {
-  //       setInterval(() => setErrorMessage(''), 3000);
-  //       setIsLoad(false);
-  //     });
-
-  //   // Promise.all(todos.map(todo => {
-  //   //   return todoService.updateTodos(todo)
-  //   //     .catch(() => {
-  //   //       setErrorMessage('Unable to update a todo');
-  //   //     })
-  //   //     .finally(() => {
-  //   //       setInterval(() => setErrorMessage(''), 3000);
-  //   //     });
-  //   // }))
-  //   //   .catch(() => {
-  //   //     setErrorMessage('Unable to update a todo');
-  //   //   })
-  //   //   .finally(() => {
-  //   //     setInterval(() => setErrorMessage(''), 3000);
-  //   //     setIsLoad(false);
-  //   //   });
-  // };
-
   const handleClearCompleted = () => {
     const completeTodos = todos.filter(todo => todo.completed);
 
@@ -192,7 +128,7 @@ export const App: React.FC = () => {
       });
   }
 
-  function deleteTodo(id: number) {
+  async function deleteTodo(id: number) {
     setIsLoad(true);
     const newTamperTodo = todos.find(todo => todo.id === id);
 
@@ -203,27 +139,33 @@ export const App: React.FC = () => {
     return todoService.deleteTodos(id)
       .then(() => {
         setTodos(currentPosts => currentPosts.filter(todo => todo.id !== id));
+        setTimeout(() => {
+          myInputRef.current?.focus();
+        }, 0);
       })
       .catch((err) => {
         setTodos(todos);
         setErrorMessage('Unable to delete a todo');
+
         throw err;
       })
       .finally(() => {
-        setTimeout(() => {
-          myInputRef.current?.focus();
-        }, 0);
-        setIsLoad(true);
+        setIsLoad(false);
         setInterval(() => setErrorMessage(''), 3000);
       });
   }
 
-  function updateTitleTodo(updateTodo: Todo) {
+  async function updateTitleTodo(updateTodo: Todo) {
     setSelectedTodo(updateTodo);
     const isSameTitle = todos.some(todo => todo.title === updateTodo.title);
 
     if (!updateTodo.title.trim()) {
-      deleteTodo(updateTodo.id);
+      // eslint-disable-next-line no-useless-catch
+      try {
+        await deleteTodo(updateTodo.id);
+      } catch (error) {
+        throw error;
+      }
 
       return;
     }
@@ -235,7 +177,7 @@ export const App: React.FC = () => {
     setErrorMessage('');
     setIsLoad(true);
 
-    todoService.updateTodos(updateTodo)
+    await todoService.updateTodos(updateTodo)
       .then((newTodo) => {
         setTodos(currentTodos => {
           const newTodos = [...currentTodos];
@@ -258,6 +200,15 @@ export const App: React.FC = () => {
       });
   }
 
+  const handleDubleClick = async (newValue: Todo) => {
+    // eslint-disable-next-line no-useless-catch
+    try {
+      await updateTitleTodo(newValue);
+    } catch (error) {
+      throw error;
+    }
+  };
+
   function updateComplitedTodos(updateTodo: Todo) {
     setErrorMessage('');
     setIsLoad(true);
@@ -274,8 +225,9 @@ export const App: React.FC = () => {
         });
       })
 
-      .catch(() => {
+      .catch((err) => {
         setErrorMessage('Unable to update a todo');
+        throw err;
       })
       .finally(() => {
         setInterval(() => setErrorMessage(''), 3000);
@@ -363,7 +315,6 @@ export const App: React.FC = () => {
           // eslint-disable-next-line react/jsx-no-bind
           onSubmit={addTodo}
           selectedTodo={selectedTodo}
-          // statusTodo={statusTodo}
           todos={todos}
           myInputRef={myInputRef}
           setAllCompleted={handleToggleButton}
@@ -372,11 +323,9 @@ export const App: React.FC = () => {
         <Section
           onSelect={async (newValue) => {
             setSelectedTodo(newValue);
-            updateComplitedTodos(newValue);
+            await updateComplitedTodos(newValue);
           }}
-          onDubleClick={async (newValue) => {
-            await updateTitleTodo(newValue);
-          }}
+          onDubleClick={handleDubleClick}
           filteredTodos={filterTodos()}
           // eslint-disable-next-line react/jsx-no-bind
           onDelete={deleteTodo}
@@ -386,7 +335,6 @@ export const App: React.FC = () => {
           selectedTodo={selectedTodo}
         />
 
-        {/* Hide the footer if there are no todos */}
         {todos.length !== 0 && (
           <Footer
             onStatus={(newStatus: string) => setStatusTodo(newStatus)}
@@ -397,8 +345,6 @@ export const App: React.FC = () => {
         )}
       </div>
 
-      {/* Notification is shown in case of any error */}
-      {/* Add the 'hidden' class to hide the message smoothly */}
       <div
         data-cy="ErrorNotification"
         className={cn(
@@ -412,7 +358,6 @@ export const App: React.FC = () => {
           className="delete"
           onClick={() => setErrorMessage('')}
         />
-        {/* show only one message at a time */}
         {erroMessage}
       </div>
     </div>

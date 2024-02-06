@@ -12,7 +12,7 @@ type Props = {
   tempTodos: Todo[] | null,
   selectedTodo: Todo | null,
   isLoad: boolean,
-  onDubleClick: (value: Todo) => Promise<void>,
+  onDubleClick: (value: Todo) => void,
 };
 
 export const Section: React.FC<Props> = ({
@@ -27,8 +27,6 @@ export const Section: React.FC<Props> = ({
 }) => {
   const [currentTodo, setCurrentTodo] = useState<Todo | null>(null);
   const [updatedQuery, setUpdatedQuery] = useState('');
-  // const [isEdit, setIsEdit] = useState(false);
-
   const myInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -45,21 +43,30 @@ export const Section: React.FC<Props> = ({
 
   document.addEventListener('keydown', handleEscape);
 
-  const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
     if (currentTodo) {
-      try {
-        onDubleClick({
-          ...currentTodo,
-          title: updatedQuery.trim(),
-        });
+      if (!currentTodo?.title.trim()) {
+        try {
+          await onDelete(currentTodo.id);
+        } catch (error) {
+          myInputRef.current?.focus();
+        }
+      } else {
+        try {
+          await onDubleClick({
+            ...currentTodo,
+            title: updatedQuery.trim(),
+          });
 
-        setUpdatedQuery('');
-        setCurrentTodo(null);
-      } catch (error) {
-        console.error('Error updating todo:', error);
-        myInputRef.current?.focus();
+          setUpdatedQuery('');
+          setCurrentTodo(null);
+        } catch (error) {
+          setCurrentTodo(currentTodo);
+
+          myInputRef.current?.focus();
+        }
       }
     }
   };
@@ -94,7 +101,6 @@ export const Section: React.FC<Props> = ({
                   data-cy="TodoTitle"
                   className="todo__title"
                   onDoubleClick={() => {
-                    // setIsEdit(true);
                     setCurrentTodo(todo);
                     setUpdatedQuery(todo.title);
                   }}
