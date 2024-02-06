@@ -186,7 +186,7 @@ export const App: React.FC = () => {
             setTodos={setTodos}
             tempTodo={tempTodo}
             setError={setError}
-            inputRefAdd={inputRefAdd}
+            inputRefAdd={inputRefAdd.current}
           />
         )}
         {loading && <Loader />}

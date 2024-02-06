@@ -10,7 +10,7 @@ type Props = {
   setTodos: Dispatch<SetStateAction<Todo[]>>,
   tempTodo: Todo | null,
   setError: Dispatch<SetStateAction<ErrorTypes | null>>,
-  inputRefAdd: React.Ref<HTMLInputElement>
+  inputRefAdd: HTMLInputElement | null
 };
 
 export const TodoList:React.FC<Props> = ({

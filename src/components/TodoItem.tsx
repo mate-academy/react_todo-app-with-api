@@ -15,7 +15,7 @@ type Props = {
   id: number;
   setError: Dispatch<SetStateAction<ErrorTypes | null>>;
   todos: Todo[];
-  inputRefAdd: React.Ref<HTMLInputElement>;
+  inputRefAdd: HTMLInputElement | null
 };
 
 export const TodoItem: React.FC<Props> = ({
@@ -72,7 +72,7 @@ export const TodoItem: React.FC<Props> = ({
           ];
         });
         if (inputRefAdd) {
-          inputRefAdd.current.focus();
+          inputRefAdd.focus();
         }
       }
     } catch {
