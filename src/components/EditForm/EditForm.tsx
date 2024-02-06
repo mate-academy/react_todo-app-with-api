@@ -8,6 +8,7 @@ import cn from 'classnames';
 import { Todo } from '../../types/Todo';
 import { TodoContext } from '../../context/TodoContext';
 import { deleteTodos, updateTodos } from '../../api/todos';
+import { Error } from '../../types/Error';
 
 interface Props {
   todo: Todo,
@@ -48,7 +49,7 @@ export const EditForm: React.FC<Props> = ({ todo, onEditMode }) => {
         })
         .catch(() => {
           editInput.current?.focus();
-          handleError('Unable to delete a todo');
+          handleError(Error.Delete);
         })
         .finally(() => {
           setIsLoading(false);
@@ -64,7 +65,7 @@ export const EditForm: React.FC<Props> = ({ todo, onEditMode }) => {
       })
       .catch(() => {
         editInput.current?.focus();
-        handleError('Unable to update a todo');
+        handleError(Error.Update);
       })
       .finally(() => {
         setIsLoading(false);

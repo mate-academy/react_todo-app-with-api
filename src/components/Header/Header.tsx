@@ -9,6 +9,7 @@ import cn from 'classnames';
 import { USER_ID } from '../../constants/user';
 import { addTodos, updateTodos } from '../../api/todos';
 import { TodoContext } from '../../context/TodoContext';
+import { Error } from '../../types/Error';
 
 export const Header: React.FC = () => {
   const [value, setValue] = useState('');
@@ -29,15 +30,15 @@ export const Header: React.FC = () => {
     todoInput.current?.focus();
   }, [todos.length, tempTodo]);
 
-  const newTodo = {
-    userId: USER_ID,
-    title: value.trim(),
-    completed: false,
-  };
-
   const isAllTodoCompleted = todos.every(({ completed }) => completed);
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    const newTodo = {
+      userId: USER_ID,
+      title: value.trim(),
+      completed: false,
+    };
+
     e.preventDefault();
     handleError('');
 
@@ -56,7 +57,7 @@ export const Header: React.FC = () => {
         setValue('');
       })
       .catch(() => {
-        handleError('Unable to add a todo');
+        handleError(Error.Add);
       })
       .finally(() => {
         todoInput.current?.removeAttribute('disabled');
@@ -80,7 +81,7 @@ export const Header: React.FC = () => {
         updateTodos({ title, completed: !completed, id })
           .then(() => updateTodo({ title, completed: !completed, id }))
           .catch(() => {
-            handleError('Unable to update a todo');
+            handleError(Error.Update);
           })
           .finally(() => handleUpdatingTodosIds(null));
       });
@@ -91,7 +92,7 @@ export const Header: React.FC = () => {
         updateTodos({ title, completed: !completed, id })
           .then(() => updateTodo({ title, completed: !completed, id }))
           .catch(() => {
-            handleError('Unable to update a todo');
+            handleError(Error.Update);
           })
           .finally(() => handleUpdatingTodosIds(null));
       });

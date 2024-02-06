@@ -5,6 +5,7 @@ import { Todo } from '../../types/Todo';
 import { TodoContext } from '../../context/TodoContext';
 import { deleteTodos, updateTodos } from '../../api/todos';
 import { EditForm } from '../EditForm';
+import { Error } from '../../types/Error';
 
 interface Props {
   todo: Todo;
@@ -34,7 +35,7 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
     updateTodos({ title, completed, id })
       .then(() => updateTodo({ title, completed, id }))
       .catch(() => {
-        handleError('Unable to update a todo');
+        handleError(Error.Update);
       })
       .finally(() => handleUpdatingTodosIds(null));
   };
@@ -46,7 +47,7 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
     deleteTodos(id)
       .then(() => deleteTodo(id))
       .catch(() => {
-        handleError('Unable to delete a todo');
+        handleError(Error.Delete);
       })
       .finally(() => handleUpdatingTodosIds(null));
   };

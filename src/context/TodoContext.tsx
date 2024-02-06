@@ -5,6 +5,7 @@ import { Todo } from '../types/Todo';
 import { getFilteredTodos } from '../services/getFilteredTodos';
 import { getTodos } from '../api/todos';
 import { USER_ID } from '../constants/user';
+import { Error } from '../types/Error';
 
 export const TodoContext = React.createContext<TodoContextType>({
   todos: [],
@@ -36,12 +37,10 @@ export const TodoProvider: React.FC<Props> = ({ children }) => {
   const filteredTodos = getFilteredTodos(filter, todos);
 
   useEffect(() => {
-    setErrorMessage('');
-
     getTodos(USER_ID)
       .then(setTodos)
       .catch(() => {
-        setErrorMessage('Unable to load todos');
+        setErrorMessage(Error.Load);
       });
   }, []);
 

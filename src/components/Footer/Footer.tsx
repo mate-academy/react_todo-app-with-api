@@ -2,6 +2,7 @@ import React, { useContext } from 'react';
 import { deleteTodos } from '../../api/todos';
 import { TodoContext } from '../../context/TodoContext';
 import { TodoFilter } from '../TodoFilter';
+import { Error } from '../../types/Error';
 
 interface Props {
   activeTodosCount: number;
@@ -26,7 +27,7 @@ export const Footer: React.FC<Props> = ({
       deleteTodos(id)
         .then(() => deleteTodo(id))
         .catch(() => {
-          handleError('Unable to delete a todo');
+          handleError(Error.Delete);
         })
         .finally(() => handleUpdatingTodosIds(null));
     });
