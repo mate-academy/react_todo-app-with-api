@@ -3,7 +3,7 @@ import React, { useContext } from 'react';
 import { Errors } from '../Errors';
 import { Footer } from '../Footer';
 import { Query } from '../Query';
-import { TodosContext } from '../TodoContext';
+import { TodosContext } from '../TodoContext/TodoContext';
 import { TodoList } from '../TodoList';
 
 export const TodoApp: React.FC = () => {

@@ -1,7 +1,7 @@
 import classNames from 'classnames';
 import React, { useContext, useEffect, useRef } from 'react';
 
-import { TodosContext } from '../TodoContext';
+import { TodosContext } from '../TodoContext/TodoContext';
 
 export const Query:React.FC = () => {
   const {

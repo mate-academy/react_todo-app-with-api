@@ -1,21 +1,21 @@
 import classNames from 'classnames';
 import { useContext } from 'react';
 import { FilterStatus } from '../../types/FilterStatus';
-import { TodosContext } from '../TodoContext';
+import { TodosContext } from '../TodoContext/TodoContext';
 
 export const Footer:React.FC = () => {
   const {
     todos,
     clearCompleted,
-    filt,
-    setFilt,
+    filter,
+    setFilter,
   } = useContext(TodosContext);
 
   const filteredTodos = todos.filter(todo => !todo.completed).length;
   const filtToComplete = todos.filter(todo => todo.completed).length;
 
   const handleChange = (status: FilterStatus) => {
-    setFilt(status);
+    setFilter(status);
   };
 
   return (
@@ -27,13 +27,12 @@ export const Footer:React.FC = () => {
             {`${filteredTodos} items left`}
           </span>
 
-          {/* Active filter should have a 'selected' class */}
           <nav className="filter" data-cy="Filter">
             <a
               href="#/"
               className={classNames(
                 'filter__link',
-                { selected: filt === FilterStatus.All },
+                { selected: filter === FilterStatus.All },
               )}
               data-cy="FilterLinkAll"
               onClick={() => handleChange(FilterStatus.All)}
@@ -45,7 +44,7 @@ export const Footer:React.FC = () => {
               href="#/active"
               className={classNames(
                 'filter__link',
-                { selected: filt === FilterStatus.Active },
+                { selected: filter === FilterStatus.Active },
               )}
               data-cy="FilterLinkActive"
               onClick={() => handleChange(FilterStatus.Active)}
@@ -57,7 +56,7 @@ export const Footer:React.FC = () => {
               href="#/completed"
               className={classNames(
                 'filter__link',
-                { selected: filt === FilterStatus.Completed },
+                { selected: filter === FilterStatus.Completed },
               )}
               data-cy="FilterLinkCompleted"
               onClick={() => handleChange(FilterStatus.Completed)}

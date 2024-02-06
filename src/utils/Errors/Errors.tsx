@@ -1,6 +1,6 @@
 import classNames from 'classnames';
 import { useContext } from 'react';
-import { TodosContext } from '../TodoContext';
+import { TodosContext } from '../TodoContext/TodoContext';
 
 export const Errors:React.FC = () => {
   const {

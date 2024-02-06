@@ -2,10 +2,10 @@ import React, {
   useCallback, useEffect, useRef, useState,
 } from 'react';
 
-import { UserWarning } from '../../../UserWarning';
+import { UserWarning } from '../../UserWarning';
 import {
   createTodo, getTodos, deleteTodo, renameRequest,
-} from '../../todos';
+} from '../Requests/todos';
 import { Todo } from '../../types/Todo';
 
 type Props = {
@@ -27,8 +27,8 @@ type ContextType = {
   setQuery: React.Dispatch<React.SetStateAction<string>>;
   isDisabled: boolean,
   setIsDisabled: React.Dispatch<React.SetStateAction<boolean>>;
-  filt: FilterStatus;
-  setFilt: React.Dispatch<React.SetStateAction<FilterStatus>>;
+  filter: FilterStatus;
+  setFilter: React.Dispatch<React.SetStateAction<FilterStatus>>;
   setError: React.Dispatch<React.SetStateAction<string | null>>
   error: string | null;
   tempTodo: Todo | null;
@@ -39,8 +39,8 @@ type ContextType = {
   handleUpdate: (todo: Todo) => Promise<void>;
   updateTodo: (todo: Todo) => void;
   completeAll: () => void;
-  loaderTodoId: number | null;
-  setLoaderTodoId: (number: number | null) => void;
+  loaderTodoIds: number | null;
+  setLoaderTodoIds: (number: number | null) => void;
   handleDeleteTodo: (number: number) => void;
   isDeleting: boolean,
 };
@@ -52,8 +52,8 @@ export const TodosContext = React.createContext<ContextType>({
   setQuery: () => {},
   isDisabled: false,
   setIsDisabled: () => {},
-  filt: FilterStatus.All,
-  setFilt: () => {},
+  filter: FilterStatus.All,
+  setFilter: () => {},
   setError: () => {},
   error: '' || null,
   tempTodo: null,
@@ -64,8 +64,8 @@ export const TodosContext = React.createContext<ContextType>({
   handleUpdate: () => new Promise(() => {}),
   updateTodo: () => {},
   completeAll: () => {},
-  loaderTodoId: null,
-  setLoaderTodoId: () => {},
+  loaderTodoIds: null,
+  setLoaderTodoIds: () => {},
   handleDeleteTodo: () => {},
   isDeleting: false,
 });
@@ -73,11 +73,11 @@ export const TodosContext = React.createContext<ContextType>({
 export const TodosProvider: React.FC<Props> = ({ children }) => {
   const [todos, setTodos] = useState<Todo[]>([]);
   const [query, setQuery] = useState('');
-  const [filt, setFilt] = useState(FilterStatus.All);
+  const [filter, setFilter] = useState(FilterStatus.All);
   const [error, setError] = useState<string | null>(null);
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
   const [isDisabled, setIsDisabled] = useState(false);
-  const [loaderTodoId, setLoaderTodoId] = useState<number | null>(null);
+  const [loaderTodoIds, setLoaderTodoIds] = useState<number | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
 
   const handleError = (errorMessage: string) => {
@@ -104,12 +104,12 @@ export const TodosProvider: React.FC<Props> = ({ children }) => {
     };
 
     setTempTodo(temporaryTodo);
-    setLoaderTodoId(temporaryTodo.id);
+    setLoaderTodoIds(temporaryTodo.id);
     setIsDisabled(true);
 
     createTodo(temporaryTodo)
       .then(newTodo => {
-        setLoaderTodoId(null);
+        setLoaderTodoIds(null);
         setQuery('');
         setTodos(currentTodos => [...currentTodos, newTodo]);
       })
@@ -147,12 +147,12 @@ export const TodosProvider: React.FC<Props> = ({ children }) => {
         throw new Error('Unable to update a todo');
       })
       .finally(() => {
-        setLoaderTodoId(null);
+        setLoaderTodoIds(null);
       });
   };
 
   const sendComplete = (todo: Todo) => {
-    setLoaderTodoId(todo.id);
+    setLoaderTodoIds(todo.id);
     renameRequest(todo)
       .then(() => {
         setTodos(curr => {
@@ -168,13 +168,11 @@ export const TodosProvider: React.FC<Props> = ({ children }) => {
         handleError('Unable to update a todo');
       })
       .finally(() => {
-        setLoaderTodoId(null);
+        setLoaderTodoIds(null);
       });
   };
 
   const callbackToCompleteAll = (todo: Todo) => {
-    setLoaderTodoId(todo.id);
-
     const changed = { ...todo, completed: !todo.completed };
 
     sendComplete(changed);
@@ -186,6 +184,7 @@ export const TodosProvider: React.FC<Props> = ({ children }) => {
 
     if (filteredActive.length > 0) {
       filteredActive.map((todo) => {
+        setLoaderTodoIds(todo.id);
         callbackToCompleteAll(todo);
 
         return todo;
@@ -194,6 +193,7 @@ export const TodosProvider: React.FC<Props> = ({ children }) => {
 
     if (!filteredActive.length) {
       currentTodos.map((todo) => {
+        setLoaderTodoIds(todo.id);
         callbackToCompleteAll(todo);
 
         return todo;
@@ -201,15 +201,17 @@ export const TodosProvider: React.FC<Props> = ({ children }) => {
     }
 
     setTodos(currentTodos);
-    setLoaderTodoId(null);
+    setLoaderTodoIds(null);
   };
 
   const filteredTodos = todos.filter((todo: { completed: boolean; }) => {
-    switch (filt) {
+    switch (filter) {
       case FilterStatus.Active:
         return !todo.completed;
+
       case FilterStatus.Completed:
         return todo.completed;
+
       default:
         return true;
     }
@@ -218,7 +220,7 @@ export const TodosProvider: React.FC<Props> = ({ children }) => {
   const timerRef = useRef<number | null>(null);
 
   const handleDeleteTodo = useCallback((todoId: number) => {
-    setLoaderTodoId(todoId);
+    setLoaderTodoIds(todoId);
 
     deleteTodo(todoId)
       .then(() => {
@@ -236,19 +238,22 @@ export const TodosProvider: React.FC<Props> = ({ children }) => {
         }, 3000);
       })
       .finally(() => {
-        setLoaderTodoId(null);
+        setLoaderTodoIds(null);
         setIsDeleting(false);
       });
-  }, [isDeleting]);
+  }, []);
 
   const clearCompleted = () => {
     const toDelete = todos.filter(todo => todo.completed);
 
     toDelete.map((todo) => {
+      setLoaderTodoIds(todo.id);
       handleDeleteTodo(todo.id);
 
       return todo;
     });
+
+    setLoaderTodoIds(null);
   };
 
   if (!USER_ID) {
@@ -263,8 +268,8 @@ export const TodosProvider: React.FC<Props> = ({ children }) => {
       setQuery,
       isDisabled,
       setIsDisabled,
-      filt,
-      setFilt,
+      filter,
+      setFilter,
       setError,
       error,
       tempTodo,
@@ -275,8 +280,8 @@ export const TodosProvider: React.FC<Props> = ({ children }) => {
       handleUpdate,
       updateTodo,
       completeAll,
-      loaderTodoId,
-      setLoaderTodoId,
+      loaderTodoIds,
+      setLoaderTodoIds,
       isDeleting,
       clearCompleted,
     }}

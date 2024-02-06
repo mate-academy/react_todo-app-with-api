@@ -3,10 +3,10 @@ import React, {
   useCallback, useContext, useEffect, useRef, useState,
 } from 'react';
 
-import { updateTodoStatus } from '../../todos';
+import { updateTodoStatus } from '../Requests/todos';
 
 import { Todo } from '../../types/Todo';
-import { TodosContext } from '../TodoContext';
+import { TodosContext } from '../TodoContext/TodoContext';
 
 type Props = {
   todo: Todo;
@@ -19,9 +19,9 @@ export const TodoTitleField:React.FC<Props> = ({ todo }) => {
     handleUpdate,
     handleError,
     updateTodo,
-    setLoaderTodoId,
+    setLoaderTodoIds,
     isDeleting,
-    loaderTodoId,
+    loaderTodoIds,
     handleDeleteTodo,
   } = useContext(TodosContext);
 
@@ -46,7 +46,7 @@ export const TodoTitleField:React.FC<Props> = ({ todo }) => {
     const trimmedTitle = changedTitle.trim();
 
     if (event.key === 'Enter') {
-      setLoaderTodoId(todo.id);
+      setLoaderTodoIds(todo.id);
       if (trimmedTitle === '') {
         handleDeleteTodo(todo.id);
       }
@@ -76,7 +76,7 @@ export const TodoTitleField:React.FC<Props> = ({ todo }) => {
   const updateChecked = (todoEl: Todo) => {
     const changed = { ...todo, completed: !todo.completed };
 
-    setLoaderTodoId(todoEl.id);
+    setLoaderTodoIds(todoEl.id);
     updateTodoStatus(changed.id, changed.completed)
       .then(() => {
         updateTodo(changed);
@@ -85,7 +85,7 @@ export const TodoTitleField:React.FC<Props> = ({ todo }) => {
         handleError('Unable to update a todo');
       })
       .finally(() => {
-        setLoaderTodoId(null);
+        setLoaderTodoIds(null);
       });
   };
 
@@ -133,7 +133,7 @@ export const TodoTitleField:React.FC<Props> = ({ todo }) => {
             classNames('modal overlay',
               {
                 'is-active': isDeleting
-              || loaderTodoId === todo.id,
+              || loaderTodoIds === todo.id,
               })
           }
         >

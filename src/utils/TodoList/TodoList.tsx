@@ -1,5 +1,5 @@
 import { useContext } from 'react';
-import { TodosContext } from '../TodoContext';
+import { TodosContext } from '../TodoContext/TodoContext';
 import { TodoTitleField } from '../TodoTitleField';
 
 export const TodoList:React.FC = () => {
@@ -10,8 +10,7 @@ export const TodoList:React.FC = () => {
 
   return (
     <section className="todoapp__main" data-cy="TodoList">
-      {filteredTodos.length !== 0
-      && (
+      {filteredTodos.length !== 0 && (
         filteredTodos.map((todo) => (
           <TodoTitleField
             todo={todo}
@@ -22,7 +21,6 @@ export const TodoList:React.FC = () => {
       {tempTodo
         && (
           <TodoTitleField
-            key={tempTodo.id}
             todo={tempTodo}
           />
         )}
