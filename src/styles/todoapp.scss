@@ -1,6 +1,5 @@
-
 .todoapp {
-  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-family: "Roboto Light", "Helvetica Neue", Helvetica, Arial, sans-serif;
   font-size: 24px;
   font-weight: 300;
   color: #4d4d4d;
@@ -15,9 +14,10 @@
 
   &__title {
     font-size: 100px;
+    font-family: "Roboto Thin", "Helvetica Neue", Helvetica, Arial, sans-serif;
     font-weight: 100;
     text-align: center;
-    color: rgba(175, 47, 47, 0.15);
+    color: #dfd6d6;
     -webkit-text-rendering: optimizeLegibility;
     -moz-text-rendering: optimizeLegibility;
     text-rendering: optimizeLegibility;

@@ -1,24 +1,192 @@
-/* eslint-disable max-len */
+/* eslint-disable react/jsx-no-bind */
 /* eslint-disable jsx-a11y/control-has-associated-label */
-import React from 'react';
-import { UserWarning } from './UserWarning';
+import React, { useContext, useEffect, useState } from 'react';
+import classNames from 'classnames';
 
-const USER_ID = 0;
+import { UserWarning } from './UserWarning';
+import { Todo } from './types/Todo';
+import { USER_ID, changeTodo, getTodos } from './api/todos';
+import { TodoComponent } from './components/TodoComponent/TodoComponent';
+import { Filter } from './types/Filter';
+import { ErrorNotification } from
+  './components/ErrorNotification/ErrorNotification';
+import { TodoForm } from './components/TodoForm/TodoForm';
+import { Footer } from './components/Footer/Footer';
+import { TodosContext } from './TodosContext/TodoProvider';
+
+function prepareTodos(todos: Todo[], filter: Filter): Todo[] {
+  let todosCopy = [...todos];
+
+  if (filter === Filter.Active) {
+    todosCopy = todosCopy.filter(todo => todo.completed === false);
+  }
+
+  if (filter === Filter.Completed) {
+    todosCopy = todosCopy.filter(todo => todo.completed === true);
+  }
+
+  return todosCopy;
+}
 
 export const App: React.FC = () => {
+  const [todos, setTodos] = useState<Todo[]>([]);
+  const [filter, setFilter] = useState(Filter.All);
+  const [tempTodo, setTempTodo] = useState<Todo | null>(null);
+  const [errorMessage, setErrorMessage] = useState('');
+  const [allTodosCompleted, setAlltodosCompleted] = useState(true);
+  const someActiveTodos = todos.some(todo => !todo.completed);
+
+  const { addTodoForUpdate, removeTodoForUpdate } = useContext(TodosContext);
+
+  const addTodo = (todo: Todo): void => {
+    setTodos((prevTodos) => ([...prevTodos, todo]));
+  };
+
+  const removeTodo = (todoId: number): void => {
+    setTodos(prev => prev.filter(({ id }) => id !== todoId));
+  };
+
+  const handleTempTodo = (value: null | Todo):void => {
+    setTempTodo(value);
+  };
+
+  function setErrorHide():void {
+    if (errorMessage) {
+      setErrorMessage('');
+    }
+  }
+
+  function updateTodo(updatedTodo: Partial<Todo>): void {
+    setTodos(prevTodos => {
+      const copy = [...prevTodos];
+      const prevTodoIndex = copy.findIndex(todo => todo.id === updatedTodo.id);
+      const changedTodo: Todo = { ...copy[prevTodoIndex], ...updatedTodo };
+
+      copy[prevTodoIndex] = changedTodo;
+
+      return copy;
+    });
+  }
+
+  const setAllCompleted = () => {
+    let todosForUpdate = todos.filter(
+      todo => todo.completed !== allTodosCompleted,
+    );
+
+    let completedValue = allTodosCompleted;
+
+    if (todos.every(todo => todo.completed === allTodosCompleted)) {
+      todosForUpdate = [...todos];
+      completedValue = !allTodosCompleted;
+    }
+
+    todosForUpdate.forEach(
+      todo => {
+        const updatedTodo: Todo = {
+          ...todo,
+          completed: completedValue,
+        };
+
+        addTodoForUpdate(updatedTodo);
+
+        changeTodo(updatedTodo)
+          .then(updateTodo)
+          .catch(() => {
+            setErrorMessage('Unable to update a todo');
+          })
+          .finally(() => removeTodoForUpdate(updatedTodo));
+      },
+    );
+    setAlltodosCompleted(!allTodosCompleted);
+  };
+
+  const preparedTodos = prepareTodos(todos, filter);
+
+  useEffect(() => {
+    getTodos(USER_ID)
+      .then((todosServer) => {
+        setTodos(todosServer);
+      })
+      .catch(() => {
+        setErrorMessage('Unable to load todos');
+      });
+  }, []);
+
+  useEffect(() => {
+    const timerId = setTimeout(setErrorHide, 3000);
+
+    return () => clearTimeout(timerId);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [errorMessage]);
+
   if (!USER_ID) {
     return <UserWarning />;
   }
 
   return (
-    <section className="section container">
-      <p className="title is-4">
-        Copy all you need from the prev task:
-        <br />
-        <a href="https://github.com/mate-academy/react_todo-app-add-and-delete#react-todo-app-add-and-delete">React Todo App - Add and Delete</a>
-      </p>
+    <div className="todoapp">
+      <h1 className="todoapp__title">todos</h1>
 
-      <p className="subtitle">Styles are already copied</p>
-    </section>
+      <div className="todoapp__content">
+        <header className="todoapp__header">
+          {todos.length > 0 && (
+            <button
+              type="button"
+              className={classNames('todoapp__toggle-all', {
+                active: !someActiveTodos,
+              })}
+              data-cy="ToggleAllButton"
+              onClick={() => setAllCompleted()}
+            />
+          )}
+
+          <TodoForm
+            setError={setErrorMessage}
+            addTodo={addTodo}
+            handleTempTodo={handleTempTodo}
+            todos={todos}
+          />
+        </header>
+
+        {!!todos && (
+          <>
+            <section className="todoapp__main" data-cy="TodoList">
+              {preparedTodos?.map(todo => (
+                <TodoComponent
+                  todo={todo}
+                  key={todo.id}
+                  onDelete={removeTodo}
+                  onError={setErrorMessage}
+                  onUpdate={updateTodo}
+                />
+              ))}
+            </section>
+            {!!tempTodo && (
+              <TodoComponent
+                todo={tempTodo}
+                onDelete={removeTodo}
+                onError={setErrorMessage}
+                onUpdate={updateTodo}
+              />
+            )}
+
+            {todos.length > 0 && (
+              <Footer
+                filter={filter}
+                todos={todos}
+                onFilter={setFilter}
+                onRemove={removeTodo}
+                onError={setErrorMessage}
+              />
+            )}
+          </>
+        )}
+      </div>
+
+      <ErrorNotification
+        errorMessage={errorMessage}
+        setErrorHide={setErrorHide}
+      />
+    </div>
   );
 };
