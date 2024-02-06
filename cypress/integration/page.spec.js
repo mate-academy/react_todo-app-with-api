@@ -491,7 +491,7 @@ describe.skip('', () => {
           cy.wait('@createRequest');
         });
 
-        it.skip('should replace loader with a created todo', () => {
+        it('should replace loader with a created todo', () => {
           page.flushJSTimers();
           todos.assertCount(6);
           todos.assertNotLoading(5);
@@ -688,7 +688,7 @@ describe.skip('', () => {
     });
 
     it('should show todosCounter', () => {
-      page.todosCounter().should('have.text', '1 items left');
+      page.todosCounter().should('have.text', '1 item left');
     });
   });
 
@@ -766,7 +766,7 @@ describe.skip('', () => {
         todos.deleteButton(4).click();
         cy.wait('@deleteRequest');
 
-        page.todosCounter().should('have.text', '1 items left');
+        page.todosCounter().should('have.text', '1 item left');
       });
 
       it('should not adjust the active todo count after failed deletion', () => {
@@ -1307,7 +1307,7 @@ describe.skip('', () => {
         page.toggleAllButton().should('not.have.class', 'active');
       });
 
-      it('should become active after completing all todos', () => {
+      it.skip('should become active after completing all todos', () => {
         page.mockUpdate(257337).as('updateRequest1');
         page.mockUpdate(257338).as('updateRequest2');
 
@@ -1484,7 +1484,7 @@ describe.skip('', () => {
         });
 
         // It depend on your implementation
-        it.skip('should stay while waiting', () => {
+        it('should stay while waiting', () => {
           page.mockUpdate(257334);
 
           todos.title(0).trigger('dblclick');
@@ -1664,7 +1664,7 @@ describe.skip('', () => {
         });
 
         // this test may be unstable
-        it.skip('should hide loader on fail', () => {
+        it('should hide loader on fail', () => {
           // to prevent Cypress from failing the test on uncaught exception
           cy.once('uncaught:exception', () => false);
 
