@@ -21,15 +21,18 @@ export const TodoItem: React.FC<Props> = ({ todoItem }) => {
     setErrorMessage,
     setTodos,
     setLoadingIds,
+    // isEditing,
+    // setIsEditing,
   } = useContext(TodosContext);
   const {
     deleteTodo,
     toggleTodo,
+    // editTodo,
   } = useContext(TodoUpdateContext);
 
   const [loading, setLoading] = useState(false);
-  const [isEditing, setIsEditing] = useState(false);
   const [editTitle, setEditTitle] = useState(title);
+  const [isEditing, setIsEditing] = useState(false);
 
   const titleField = useRef<HTMLInputElement>(null);
 
@@ -57,19 +60,9 @@ export const TodoItem: React.FC<Props> = ({ todoItem }) => {
     }
   };
 
-  const handleSubmit = (event: React.FormEvent) => {
-    event.preventDefault();
-
+  const saveEditing = () => {
     if (!editTitle.trim()) {
-      setLoadingIds((prev) => [...prev, id]);
-
-      api.deleteTodo(id)
-        .then(() => {
-          setTodos(currentTodos => currentTodos
-            .filter(currentTodo => currentTodo.id !== id));
-        })
-        .catch(() => setErrorMessage('Unable to delete a todo'))
-        .finally(() => setLoadingIds([]));
+      deleteTodo(id);
     }
 
     if (editTitle.trim()) {
@@ -96,10 +89,10 @@ export const TodoItem: React.FC<Props> = ({ todoItem }) => {
     setEditTitle(event.target.value);
   };
 
-  // const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
-  //   event.preventDefault();
-  //   saveEditing();
-  // };
+  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    saveEditing();
+  };
 
   const handleKeyUp = (event: React.KeyboardEvent<HTMLInputElement>) => {
     if (event.key === 'Escape') {
@@ -138,7 +131,7 @@ export const TodoItem: React.FC<Props> = ({ todoItem }) => {
             className="todo__title-field"
             placeholder="Empty todo will be deleted"
             ref={titleField}
-            onBlur={handleSubmit}
+            onBlur={saveEditing}
             value={editTitle}
             onChange={handleOnEditing}
             onKeyUp={handleKeyUp}

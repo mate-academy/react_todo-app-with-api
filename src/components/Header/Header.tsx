@@ -9,6 +9,7 @@ import React, {
 
 import { TodoUpdateContext, TodosContext } from '../../context/TodosContext';
 import { Todo } from '../../types/Todo';
+import { USER_ID } from '../../constants/USER_ID';
 
 export const Header: React.FC = () => {
   const [titleField, setTitleField] = useState('');
@@ -24,8 +25,6 @@ export const Header: React.FC = () => {
   } = useContext(TodosContext);
   const { addTodo, toggleTodo } = useContext(TodoUpdateContext);
   const inputRef = useRef<HTMLInputElement>(null);
-
-  const USER_ID = 91;
 
   useEffect(() => {
     setAllCompleted(todos.every((todo: Todo) => todo.completed));

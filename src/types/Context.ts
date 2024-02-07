@@ -13,11 +13,12 @@ export interface Context {
   setTempTodo: React.Dispatch<React.SetStateAction<Todo | null>>,
   loadingIds: number[];
   setLoadingIds: (value: React.SetStateAction<number[]>) => void;
+  isEditing: boolean;
+  setIsEditing: (v: boolean) => void;
 }
 
 export interface ContextUpdate {
   addTodo: (newTodo: Omit<Todo, 'id'>) => void,
   deleteTodo: (todoId: number) => void,
   toggleTodo: (updatedTodo: Omit<Todo, 'UserId'>) => void,
-  editTodo: (todo: Omit<Todo, 'UserId'>) => void,
 }

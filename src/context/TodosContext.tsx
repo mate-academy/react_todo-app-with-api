@@ -4,6 +4,7 @@ import { Todo } from '../types/Todo';
 import * as api from '../api/todos';
 import { Context, ContextUpdate } from '../types/Context';
 import { Status } from '../types/Status';
+import { USER_ID } from '../constants/USER_ID';
 
 export const TodosContext = React.createContext<Context>({
   todos: [],
@@ -16,13 +17,14 @@ export const TodosContext = React.createContext<Context>({
   setTempTodo: () => { },
   loadingIds: [],
   setLoadingIds: () => { },
+  isEditing: false,
+  setIsEditing: () => { },
 });
 
 export const TodoUpdateContext = React.createContext<ContextUpdate>({
   addTodo: () => { },
   deleteTodo: () => { },
   toggleTodo: () => { },
-  editTodo: () => { },
 });
 
 interface Props {
@@ -35,8 +37,7 @@ export const TodosProvider: React.FC<Props> = ({ children }) => {
   const [filterTodos, setFilterTodos] = useState<Status>(Status.all);
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
   const [loadingIds, setLoadingIds] = useState<number[]>([]);
-
-  const USER_ID = 91;
+  const [isEditing, setIsEditing] = useState(false);
 
   function loadTodos() {
     api.getTodos(USER_ID)
@@ -93,34 +94,10 @@ export const TodosProvider: React.FC<Props> = ({ children }) => {
       });
   }
 
-  function editTodo(updateTodo: Todo) {
-    setLoadingIds((prev) => [...prev, updateTodo.id]);
-
-    return api.editTodo(updateTodo)
-      .then((updatedTodo) => {
-        setTodos((prevTodos) => {
-          const updatedTodos = prevTodos
-            .map((todo) => (todo.id === updateTodo.id
-              ? updatedTodo
-              : todo));
-
-          return updatedTodos;
-        });
-      })
-      .catch(() => {
-        setErrorMessage('Unable to update a todo');
-      })
-      .finally(() => {
-        setLoadingIds((prev) => prev
-          .filter((loadingId) => loadingId !== updateTodo.id));
-      });
-  }
-
   const methods = useMemo(() => ({
     addTodo,
     deleteTodo,
     toggleTodo,
-    editTodo,
   }), []);
 
   const values = useMemo(() => ({
@@ -134,12 +111,15 @@ export const TodosProvider: React.FC<Props> = ({ children }) => {
     setTempTodo,
     loadingIds,
     setLoadingIds,
+    isEditing,
+    setIsEditing,
   }), [
     todos,
     errorMessage,
     filterTodos,
     tempTodo,
     loadingIds,
+    isEditing,
   ]);
 
   return (
