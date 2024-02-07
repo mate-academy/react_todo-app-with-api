@@ -87,7 +87,7 @@ export const TodosProvider: React.FC<Props> = ({ children }) => {
         });
       })
       .catch(() => {
-        setErrorMessage(Errors.Add);
+        setErrorMessage(Errors.Update);
       })
       .finally(() => {
         setLoadingIds((prev) => prev
