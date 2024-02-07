@@ -13,6 +13,7 @@ import { Footer } from './Components/Footer';
 import { Todo } from './types/Todo';
 import * as todoService from './api/todos';
 import { filterTodos } from './utils/services';
+import { Status } from './types/Status';
 
 const USER_ID = 12083;
 
@@ -21,26 +22,28 @@ export const App: React.FC = () => {
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
   const [selectedTodo, setSelectedTodo] = useState<Todo | null>(null);
   const [erroMessage, setErrorMessage] = useState('');
-  const [statusTodo, setStatusTodo] = useState('');
+  const [statusTodo, setStatusTodo] = useState<Status>(Status.All);
   const [isLoading, setIsLoading] = useState(false);
-  const [loadingTodos, setLoadingTodos] = useState<Todo[] | null>(null);
+  const [loadingTodosId, setLoadingTodosId] = useState<number[] | null>(null);
 
   const myInputRef = useRef<HTMLInputElement>(null);
   const showFooter = todos.length > 0;
 
   const handleClearCompleted = () => {
-    const completedTodos = todos.filter(todo => todo.completed);
+    const completedTodosId = todos.filter(
+      todo => todo.completed,
+    ).map(todo => todo.id);
 
-    setLoadingTodos(completedTodos);
+    setLoadingTodosId(completedTodosId);
 
-    Promise.all(completedTodos.map(todo => {
+    Promise.all(completedTodosId.map(id => {
       setIsLoading(true);
 
-      return todoService.deleteTodo(todo.id)
+      return todoService.deleteTodo(id)
         .then(() => {
           setTodos(
             currentTodos => currentTodos.filter(
-              curTodo => curTodo.id !== todo.id,
+              curTodo => curTodo.id !== id,
             ),
           );
         })
@@ -55,7 +58,7 @@ export const App: React.FC = () => {
       })
       .finally(() => {
         setIsLoading(false);
-        setLoadingTodos(null);
+        setLoadingTodosId(null);
         setTimeout(() => {
           setErrorMessage('');
         }, 3000);
@@ -200,12 +203,7 @@ export const App: React.FC = () => {
   }
 
   const handleDubleClick = async (newValue: Todo) => {
-    // eslint-disable-next-line no-useless-catch
-    try {
-      await updateTitleTodo(newValue);
-    } catch (error) {
-      throw error;
-    }
+    await updateTitleTodo(newValue);
   };
 
   function updateComplitedTodos(updatedTodo: Todo) {
@@ -237,13 +235,14 @@ export const App: React.FC = () => {
   }
 
   const handleToggleButton = () => {
-    setIsLoading(true);
     const isAllCompleted = todos.every(todo => todo.completed);
 
     if (isAllCompleted) {
+      const todosId = todos.map(todo => todo.id);
+
       setTimeout(() => {
         setIsLoading(true);
-        setLoadingTodos(todos);
+        setLoadingTodosId(todosId);
       }, 0);
 
       Promise.all(todos.map(async todo => {
@@ -255,8 +254,6 @@ export const App: React.FC = () => {
           return todo;
         } finally {
           setInterval(() => setErrorMessage(''), 3000);
-          setIsLoading(false);
-          setLoadingTodos(null);
         }
       }))
         .then((upTodos) => {
@@ -269,42 +266,43 @@ export const App: React.FC = () => {
         .finally(() => {
           setInterval(() => setErrorMessage(''), 3000);
           setIsLoading(false);
-          setLoadingTodos(null);
+          setLoadingTodosId(null);
         });
     }
 
-    const notComplitedTodo = todos.filter(todo => !todo.completed);
+    const isActiveTodo = todos.some(todo => !todo.completed);
 
-    const temperTodo = notComplitedTodo.map(todo => ({
-      ...todo,
-      completed: true,
-    }));
+    if (isActiveTodo) {
+      const notComplitedTodo = todos.filter(todo => !todo.completed);
+      const todosId = notComplitedTodo.map(todo => todo.id);
 
-    const complitedTodos = todos.filter(todo => todo.completed);
+      setLoadingTodosId(todosId);
+      setIsLoading(true);
 
-    setLoadingTodos(temperTodo);
+      const complitedTodos = todos.filter(todo => todo.completed);
 
-    Promise.all(notComplitedTodo.map(async todo => {
-      try {
-        const updateTodo = { ...todo, completed: true };
-        const newTodo = await todoService.updateTodo(updateTodo);
+      Promise.all(notComplitedTodo.map(async todo => {
+        try {
+          const updateTodo = { ...todo, completed: true };
+          const newTodo = await todoService.updateTodo(updateTodo);
 
-        return newTodo;
-      } catch (error) {
-        return todo;
-      }
-    }))
-      .then(upTodos => {
-        setTodos([...complitedTodos, ...upTodos]);
-      })
-      .catch(() => {
-        setErrorMessage('Unable to update todos');
-      })
-      .finally(() => {
-        setInterval(() => setErrorMessage(''), 3000);
-        setLoadingTodos(null);
-        setIsLoading(false);
-      });
+          return newTodo;
+        } catch (error) {
+          return todo;
+        }
+      }))
+        .then(upTodos => {
+          setTodos([...complitedTodos, ...upTodos]);
+        })
+        .catch(() => {
+          setErrorMessage('Unable to update todos');
+        })
+        .finally(() => {
+          setInterval(() => setErrorMessage(''), 3000);
+          setLoadingTodosId(null);
+          setIsLoading(false);
+        });
+    }
   };
 
   if (!USER_ID) {
@@ -335,14 +333,13 @@ export const App: React.FC = () => {
           onDelete={handleDeleteTodo}
           tempTodo={tempTodo}
           isLoading={isLoading}
-          loadingTodos={loadingTodos}
+          loadingTodosId={loadingTodosId}
           selectedTodo={selectedTodo}
-          todos={todos}
         />
 
         {showFooter && (
           <Footer
-            onStatus={(newStatus: string) => setStatusTodo(newStatus)}
+            onStatus={(newStatus: Status) => setStatusTodo(newStatus)}
             status={statusTodo}
             todos={todos}
             handleClearCompleted={handleClearCompleted}

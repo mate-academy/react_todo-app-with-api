@@ -6,14 +6,13 @@ import { Todo } from '../types/Todo';
 
 type Props = {
   onSelect: (value: Todo) => Promise<void>;
-  filteredTodos: Todo[] | null;
+  filteredTodos: Todo[];
   onDelete: (todoId: number) => void;
   tempTodo: Todo | null,
   selectedTodo: Todo | null,
   isLoading: boolean,
-  loadingTodos: Todo[] | null,
+  loadingTodosId: number[] | null,
   onDubleClick: (value: Todo) => void,
-  todos: Todo[],
 };
 
 export const Section: React.FC<Props> = ({
@@ -23,18 +22,12 @@ export const Section: React.FC<Props> = ({
   filteredTodos,
   tempTodo,
   isLoading,
-  loadingTodos,
+  loadingTodosId,
   selectedTodo,
 }) => {
   const [currentTodo, setCurrentTodo] = useState<Todo | null>(null);
   const [updatedQuery, setUpdatedQuery] = useState('');
   const myInputRef = useRef<HTMLInputElement>(null);
-
-  useEffect(() => {
-    if (currentTodo && myInputRef) {
-      myInputRef.current?.focus();
-    }
-  }, [currentTodo]);
 
   const handleEscape = (event: KeyboardEvent) => {
     if (event.key === 'Escape') {
@@ -42,7 +35,17 @@ export const Section: React.FC<Props> = ({
     }
   };
 
-  document.addEventListener('keydown', handleEscape);
+  useEffect(() => {
+    if (currentTodo && myInputRef) {
+      myInputRef.current?.focus();
+
+      document.addEventListener('keydown', handleEscape);
+    }
+
+    return () => {
+      document.removeEventListener('keydown', handleEscape);
+    };
+  }, [currentTodo]);
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -74,7 +77,7 @@ export const Section: React.FC<Props> = ({
 
   return (
     <section className="todoapp__main" data-cy="TodoList">
-      {filteredTodos?.map(todo => (
+      {filteredTodos.map(todo => (
         <div
           key={todo.id}
           data-cy="Todo"
@@ -145,9 +148,9 @@ export const Section: React.FC<Props> = ({
             data-cy="TodoLoader"
             className={cn('modal overlay', {
               'is-active': (isLoading && selectedTodo?.id === todo.id)
-              || loadingTodos?.find(
-                curTodo => todo.id === curTodo.id && isLoading,
-              ),
+              || (isLoading && loadingTodosId?.find(
+                id => todo.id === id,
+              )),
             })}
           >
             <div className="modal-background has-background-white-ter" />

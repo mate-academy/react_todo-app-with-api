@@ -3,8 +3,8 @@ import { Todo } from '../types/Todo';
 import { Status } from '../types/Status';
 
 interface Props {
-  onStatus: (value: string) => void
-  status: string,
+  onStatus: (value: Status) => void
+  status: Status,
   todos: Todo[],
   handleClearCompleted: () => void
 }
