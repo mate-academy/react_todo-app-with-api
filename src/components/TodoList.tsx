@@ -21,7 +21,7 @@ export const TodoList: React.FC = () => {
           </CSSTransition>
         ))}
 
-        {tempTodo && (
+        {!!tempTodo && (
           <CSSTransition
             key={0}
             timeout={300}

@@ -1,9 +1,11 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import { useCallback, useContext, useMemo } from 'react';
 import classNames from 'classnames';
 import { TodoContext } from '../contexts/TodoContext';
 import { deleteTodo } from '../api/todos';
 import { Filtering } from '../types/Filtering';
 import { Error } from '../types/Error';
+import { getItemsLeft } from '../utils/getItemsLeft';
 
 export const Footer = () => {
   const {
@@ -15,17 +17,11 @@ export const Footer = () => {
     setErrorMessage,
   } = useContext(TodoContext);
 
+  const itemsLeft = getItemsLeft(todos);
+
   const completedTodosIds = useMemo(
     () => todos.filter(todo => todo.completed), [todos],
   );
-
-  const itemsLeft = todos.reduce((acc, t) => {
-    if (!t.completed) {
-      return acc + 1;
-    }
-
-    return acc;
-  }, 0);
 
   const handleFinally = () => {
     setLoadingTodo(null);

@@ -74,12 +74,12 @@ export const Header: React.FC = () => {
       });
   };
 
-  const uncompletedTodos = todos.filter((t) => !t.completed);
+  const uncompletedTodos = todos.filter(todo => !todo.completed);
 
   const handleToggleTodos = () => {
     setShouldNotFocusInput(false);
 
-    const todosToUpdate = uncompletedTodos.length > 0
+    const todosToUpdate = uncompletedTodos.length
       ? uncompletedTodos
       : todos;
 

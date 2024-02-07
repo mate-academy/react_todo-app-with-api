@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable jsx-a11y/control-has-associated-label */
 import React, { useContext, useEffect } from 'react';
 import { UserWarning } from './UserWarning';
@@ -17,16 +18,15 @@ export const App: React.FC = () => {
     setErrorMessage,
   } = useContext(TodoContext);
 
-  if (!USER_ID) {
-    return <UserWarning />;
-  }
-
-  // eslint-disable-next-line react-hooks/rules-of-hooks
   useEffect(() => {
     getTodos(USER_ID)
       .then(setTodos)
       .catch(() => setErrorMessage(Error.Load));
   }, []);
+
+  if (!USER_ID) {
+    return <UserWarning />;
+  }
 
   return (
     <div className="todoapp">
@@ -37,7 +37,7 @@ export const App: React.FC = () => {
 
         <TodoList />
 
-        {todos.length > 0 && (
+        {!!todos.length && (
           <Footer />
         )}
       </div>
