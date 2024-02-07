@@ -1,5 +1,10 @@
 import classNames from 'classnames';
-import { useContext, useState } from 'react';
+import {
+  useContext,
+  useEffect,
+  useRef,
+  useState,
+} from 'react';
 import { deleteTodo, updateTodos } from '../api/todos';
 import { TodoContext } from '../contexts/TodoContext';
 import { ErrorMessage } from '../types/ErrorMessage';
@@ -24,30 +29,46 @@ export const EditTodoForm: React.FC<Props> = ({
     }, 3000);
   };
 
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    inputRef.current?.focus();
+  }, []);
+
   const handleEdit = () => {
-    if (todoOnUpdate.title.trim() === newTitle.trim()) {
+    setIsLoading(true);
+
+    const titleToUpdate = newTitle.trim();
+
+    if (todoOnUpdate.title === newTitle) {
       onEditMode(false);
 
       return;
     }
 
-    if (newTitle.trim().length === 0) {
+    if (titleToUpdate.length === 0) {
       deleteTodo(todoOnUpdate.id)
         .then(() => setTodos(prevTodos => prevTodos
           .filter(todoToFilter => todoToFilter.id !== todoOnUpdate.id)))
-        .catch(() => setErrorMessage(ErrorMessage.FailedDeleteTodo))
-        .finally(() => handleCatch());
+        .catch(() => {
+          setErrorMessage(ErrorMessage.FailedDeleteTodo);
+          setIsLoading(false);
+        })
+        .finally(() => {
+          setIsLoading(false);
+          handleCatch();
+        });
 
       return;
     }
 
-    updateTodos({ ...todoOnUpdate, title: newTitle })
+    updateTodos({ ...todoOnUpdate, title: titleToUpdate })
       .then(() => {
-        updateTodoList({ ...todoOnUpdate, title: newTitle });
+        updateTodoList({ ...todoOnUpdate, title: titleToUpdate });
         onEditMode(false);
       })
       .catch(() => setErrorMessage(ErrorMessage.FailedUpdateTodo))
-      .finally(() => setIsLoading(true));
+      .finally(() => setIsLoading(false));
   };
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
@@ -73,6 +94,8 @@ export const EditTodoForm: React.FC<Props> = ({
           onChange={(e) => setNewTitle(e.target.value)}
           onBlur={handleEdit}
           onKeyUp={handleKeyUp}
+          // eslint-disable-next-line jsx-a11y/no-autofocus
+          autoFocus
         />
       </form>
 

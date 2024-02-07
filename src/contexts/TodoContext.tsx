@@ -11,6 +11,7 @@ export type TodoContextType = {
   tempTodo: Todo | null,
   filteredTodos: Todo[],
   errorMessage: string,
+  idsToChange: number[],
   idsToUpdate: (id: number | null) => void,
   updateTodoList: (todo: Omit<Todo, 'userId'>) => void,
   setTempTodo: React.Dispatch<React.SetStateAction<Todo | null>>
@@ -22,6 +23,7 @@ export type TodoContextType = {
 export const TodoContext = createContext<TodoContextType>({
   todos: [],
   tempTodo: null,
+  idsToChange: [],
   filteredTodos: [],
   errorMessage: '',
   idsToUpdate: () => {},

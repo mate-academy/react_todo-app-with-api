@@ -4,6 +4,8 @@ import {
   useRef,
   useState,
 } from 'react';
+import classNames from 'classnames';
+
 import { TodoContext } from '../contexts/TodoContext';
 import { ErrorMessage } from '../types/ErrorMessage';
 import { createTodo, updateTodos } from '../api/todos';
@@ -25,7 +27,7 @@ export const Header: React.FC = () => {
 
   useEffect(() => {
     inputRef.current?.focus();
-  }, []);
+  }, [todos]);
 
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -85,13 +87,20 @@ export const Header: React.FC = () => {
 
   return (
     <header className="todoapp__header">
-      {/* eslint-disable-next-line jsx-a11y/control-has-associated-label */}
-      <button
-        type="button"
-        className="todoapp__toggle-all active"
-        data-cy="ToggleAllButton"
-        onClick={HandleCheckAll}
-      />
+      {!!todos.length && (
+        // eslint-disable-next-line jsx-a11y/control-has-associated-label
+        <button
+          type="button"
+          className={classNames(
+            'todoapp__toggle-all',
+            {
+              active: isAllTodoCompleted,
+            },
+          )}
+          data-cy="ToggleAllButton"
+          onClick={HandleCheckAll}
+        />
+      )}
 
       <form
         onSubmit={handleSubmit}

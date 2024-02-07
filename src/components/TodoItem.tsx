@@ -12,9 +12,15 @@ interface Props {
   isTemp?: boolean,
 }
 
-export const TodoItem: React.FC<Props> = ({ todo, isTemp = false }) => {
+export const TodoItem: React.FC<Props> = ({ todo }) => {
   const [isEditMode, setIsEditMode] = useState(false);
-  const { setErrorMessage, setTodos, updateTodoList } = useContext(TodoContext);
+  const {
+    setErrorMessage,
+    setTodos,
+    updateTodoList,
+    idsToUpdate,
+    idsToChange,
+  } = useContext(TodoContext);
   const handleCatch = () => {
     setTimeout(() => {
       setErrorMessage('');
@@ -22,15 +28,22 @@ export const TodoItem: React.FC<Props> = ({ todo, isTemp = false }) => {
   };
 
   const handleDeleteTodo = (todoId: number) => {
+    idsToUpdate(todoId);
+
     deleteTodo(todoId)
       .then(() => setTodos(prevTodos => prevTodos
         .filter(todoToFilter => todoToFilter.id !== todoId)))
-      .catch(() => setErrorMessage(ErrorMessage.FailedLoad))
-      .finally(() => handleCatch());
+      .catch(() => setErrorMessage(ErrorMessage.FailedDeleteTodo))
+      .finally(() => {
+        handleCatch();
+        idsToUpdate(null);
+      });
   };
 
   const handleUpdateStatus = (todoToStatusUpdate: Omit<Todo, 'userId'>) => {
-    const { completed } = todoToStatusUpdate;
+    const { completed, id } = todoToStatusUpdate;
+
+    idsToUpdate(id);
 
     updateTodos({
       ...todoToStatusUpdate,
@@ -40,7 +53,9 @@ export const TodoItem: React.FC<Props> = ({ todo, isTemp = false }) => {
         updateTodoList({ ...todoToStatusUpdate, completed: !completed });
       })
       .catch(() => setErrorMessage(ErrorMessage.FailedUpdateTodo))
-      .finally(() => {});
+      .finally(() => {
+        idsToUpdate(null);
+      });
   };
 
   return (
@@ -88,7 +103,12 @@ export const TodoItem: React.FC<Props> = ({ todo, isTemp = false }) => {
 
       <div
         data-cy="TodoLoader"
-        className={classNames('modal overlay', { 'is-active': isTemp })}
+        className={classNames(
+          'modal overlay',
+          {
+            'is-active': idsToChange.includes(todo.id),
+          },
+        )}
       >
         <div className="modal-background has-background-white-ter" />
         <div className="loader" />

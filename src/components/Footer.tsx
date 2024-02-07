@@ -3,9 +3,17 @@ import classNames from 'classnames';
 
 import { TodoContext } from '../contexts/TodoContext';
 import { TodoStatus } from '../types/TodoStatus';
+import { deleteTodo } from '../api/todos';
+import { ErrorMessage } from '../types/ErrorMessage';
 
 export const Footer: React.FC = () => {
-  const { todos, setFilters } = useContext(TodoContext);
+  const {
+    todos,
+    setFilters,
+    setTodos,
+    setErrorMessage,
+    idsToUpdate,
+  } = useContext(TodoContext);
   const [selectedFilter, setSelectedFilter] = useState('all');
 
   const handleStatusFilter = (value: TodoStatus) => () => {
@@ -14,6 +22,21 @@ export const Footer: React.FC = () => {
   };
 
   const uncompletedTodos = todos.filter(todo => !todo.completed);
+  const completedTodos = todos.filter(todo => todo.completed);
+
+  const handleClear = () => {
+    completedTodos.forEach(todo => {
+      idsToUpdate(todo.id);
+
+      deleteTodo(todo.id)
+        .then(() => setTodos(prevTodos => prevTodos
+          .filter(todoToFilter => todoToFilter.id !== todo.id)))
+        .catch(() => setErrorMessage(ErrorMessage.FailedDeleteTodo))
+        .finally(() => {
+          idsToUpdate(null);
+        });
+    });
+  };
 
   return (
     <footer className="todoapp__footer" data-cy="Footer">
@@ -63,6 +86,8 @@ export const Footer: React.FC = () => {
         type="button"
         className="todoapp__clear-completed"
         data-cy="ClearCompletedButton"
+        disabled={!completedTodos.length}
+        onClick={handleClear}
       >
         Clear completed
       </button>
