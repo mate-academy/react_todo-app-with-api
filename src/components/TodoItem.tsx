@@ -12,7 +12,7 @@ interface Props {
   isTemp?: boolean,
 }
 
-export const TodoItem: React.FC<Props> = ({ todo }) => {
+export const TodoItem: React.FC<Props> = ({ todo, isTemp }) => {
   const [isEditMode, setIsEditMode] = useState(false);
   const {
     setErrorMessage,
@@ -106,7 +106,7 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
         className={classNames(
           'modal overlay',
           {
-            'is-active': idsToChange.includes(todo.id),
+            'is-active': idsToChange.includes(todo.id) || isTemp,
           },
         )}
       >
