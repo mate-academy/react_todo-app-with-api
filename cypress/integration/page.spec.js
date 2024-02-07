@@ -111,9 +111,9 @@ Cypress.on('fail', (e) => {
   throw e;
 });
 
-describe.skip('', () => {
+describe('', () => {
   beforeEach(() => {
-    // if (failed) Cypress.runner.stop();
+    if (failed) Cypress.runner.stop();
   });
 
   describe('Page with no todos', () => {
@@ -176,6 +176,9 @@ describe.skip('', () => {
       });
 
       it('should hide error after 3 seconds', () => {
+        // just in case
+        cy.wait(50);
+
         cy.clock();
         cy.tick(2500);
         errorMessage.assertVisible();
@@ -404,6 +407,9 @@ describe.skip('', () => {
       });
 
       it('should hide an error message after 3 seconds', () => {
+        // just in case
+        cy.wait(50);
+
         cy.clock();
         cy.tick(3000);
         errorMessage.assertHidden();
@@ -430,6 +436,9 @@ describe.skip('', () => {
       });
 
       it('should hide an error message after 3 seconds', () => {
+        // just in case
+        cy.wait(50);
+
         cy.clock();
         cy.tick(3000);
         errorMessage.assertHidden();
@@ -491,6 +500,7 @@ describe.skip('', () => {
           cy.wait('@createRequest');
         });
 
+        // this test may be flaky
         it.skip('should replace loader with a created todo', () => {
           page.flushJSTimers();
           todos.assertCount(6);
@@ -1521,7 +1531,7 @@ describe.skip('', () => {
 
         it('should show the updated title', () => {
           todos.titleField(0).type('Something{enter}');
-          cy.wait('@renameRequest')
+          cy.wait('@renameRequest');
           page.flushJSTimers();
 
           todos.assertTitle(0, 'Something');
@@ -1563,8 +1573,7 @@ describe.skip('', () => {
         });
 
         it('should hide error message in 3s', () => {
-          cy.clock();
-          cy.tick(3000);
+          page.flushJSTimers(3000);
 
           errorMessage.assertHidden();
         });
