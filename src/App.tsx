@@ -1,6 +1,6 @@
 import React from 'react';
-import { TodoApp } from './utils/TodoApp';
-import { TodosProvider } from './utils/TodoContext/TodoContext';
+import { TodoApp } from './components/TodoApp';
+import { TodosProvider } from './components/TodoContext/TodoContext';
 
 export const App: React.FC = () => {
   return (
