@@ -32,9 +32,7 @@ export const Footer: React.FC = () => {
         .then(() => setTodos(prevTodos => prevTodos
           .filter(todoToFilter => todoToFilter.id !== todo.id)))
         .catch(() => setErrorMessage(ErrorMessage.FailedDeleteTodo))
-        .finally(() => {
-          idsToUpdate(null);
-        });
+        .finally(() => idsToUpdate(null));
     });
   };
 

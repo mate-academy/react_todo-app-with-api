@@ -9,10 +9,10 @@ import { EditTodoForm } from './EditTodoForm';
 
 interface Props {
   todo: Todo,
-  isTemp?: boolean,
+  isTempTodo?: boolean,
 }
 
-export const TodoItem: React.FC<Props> = ({ todo, isTemp }) => {
+export const TodoItem: React.FC<Props> = ({ todo, isTempTodo }) => {
   const [isEditMode, setIsEditMode] = useState(false);
   const {
     setErrorMessage,
@@ -21,11 +21,6 @@ export const TodoItem: React.FC<Props> = ({ todo, isTemp }) => {
     idsToUpdate,
     idsToChange,
   } = useContext(TodoContext);
-  const handleCatch = () => {
-    setTimeout(() => {
-      setErrorMessage('');
-    }, 3000);
-  };
 
   const handleDeleteTodo = (todoId: number) => {
     idsToUpdate(todoId);
@@ -35,7 +30,6 @@ export const TodoItem: React.FC<Props> = ({ todo, isTemp }) => {
         .filter(todoToFilter => todoToFilter.id !== todoId)))
       .catch(() => setErrorMessage(ErrorMessage.FailedDeleteTodo))
       .finally(() => {
-        handleCatch();
         idsToUpdate(null);
       });
   };
@@ -45,17 +39,12 @@ export const TodoItem: React.FC<Props> = ({ todo, isTemp }) => {
 
     idsToUpdate(id);
 
-    updateTodos({
-      ...todoToStatusUpdate,
-      completed: !completed,
-    })
+    updateTodos({ ...todoToStatusUpdate, completed: !completed })
       .then(() => {
         updateTodoList({ ...todoToStatusUpdate, completed: !completed });
       })
       .catch(() => setErrorMessage(ErrorMessage.FailedUpdateTodo))
-      .finally(() => {
-        idsToUpdate(null);
-      });
+      .finally(() => idsToUpdate(null));
   };
 
   return (
@@ -106,7 +95,7 @@ export const TodoItem: React.FC<Props> = ({ todo, isTemp }) => {
         className={classNames(
           'modal overlay',
           {
-            'is-active': idsToChange.includes(todo.id) || isTemp,
+            'is-active': idsToChange.includes(todo.id) || isTempTodo,
           },
         )}
       >

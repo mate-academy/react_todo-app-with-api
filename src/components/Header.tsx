@@ -23,6 +23,7 @@ export const Header: React.FC = () => {
     updateTodoList,
   } = useContext(TodoContext);
   const inputRef = useRef<HTMLInputElement>(null);
+
   const isAllTodoCompleted = todos.every(todo => todo.completed);
 
   useEffect(() => {
@@ -60,9 +61,9 @@ export const Header: React.FC = () => {
         setErrorMessage(ErrorMessage.FailedAddTodo);
       })
       .finally(() => {
+        setTempTodo(null);
         inputRef.current?.removeAttribute('disabled');
         inputRef.current?.focus();
-        setTempTodo(null);
       });
   };
 
@@ -112,8 +113,8 @@ export const Header: React.FC = () => {
           className="todoapp__new-todo"
           placeholder="What needs to be done?"
           value={query}
-          onChange={(e) => setQuery(e.target.value)}
           ref={inputRef}
+          onChange={(e) => setQuery(e.target.value)}
         />
       </form>
     </header>

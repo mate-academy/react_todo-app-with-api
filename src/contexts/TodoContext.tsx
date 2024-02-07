@@ -53,11 +53,8 @@ export const TodoProvider: React.FC<Props> = ({ children }) => {
   };
 
   const idsToUpdate = (id: number | null) => {
-    if (id) {
-      setIdsToChange(prev => [...prev, id]);
-    } else {
-      setIdsToChange([]);
-    }
+    // eslint-disable-next-line @typescript-eslint/no-unused-expressions
+    id ? setIdsToChange(prev => [...prev, id]) : setIdsToChange([]);
   };
 
   const value: TodoContextType = useMemo(() => ({

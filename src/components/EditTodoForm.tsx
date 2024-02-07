@@ -5,6 +5,7 @@ import {
   useRef,
   useState,
 } from 'react';
+
 import { deleteTodo, updateTodos } from '../api/todos';
 import { TodoContext } from '../contexts/TodoContext';
 import { ErrorMessage } from '../types/ErrorMessage';
@@ -22,12 +23,6 @@ export const EditTodoForm: React.FC<Props> = ({
   const [newTitle, setNewTitle] = useState(todoOnUpdate.title);
   const [isLoading, setIsLoading] = useState(false);
   const { setTodos, setErrorMessage, updateTodoList } = useContext(TodoContext);
-
-  const handleCatch = () => {
-    setTimeout(() => {
-      setErrorMessage('');
-    }, 3000);
-  };
 
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -52,11 +47,10 @@ export const EditTodoForm: React.FC<Props> = ({
           .filter(todoToFilter => todoToFilter.id !== todoOnUpdate.id)))
         .catch(() => {
           setErrorMessage(ErrorMessage.FailedDeleteTodo);
-          setIsLoading(false);
+          // setIsLoading(false);
         })
         .finally(() => {
           setIsLoading(false);
-          handleCatch();
         });
 
       return;
