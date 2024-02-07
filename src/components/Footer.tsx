@@ -1,6 +1,7 @@
 import { memo } from 'react';
 import classNames from 'classnames';
 import { Filter } from '../types/Filter';
+import { Todo } from '../types/Todo';
 
 interface Props {
   filterTodos: (filter: Filter) => void,
@@ -8,6 +9,7 @@ interface Props {
   isCompletedTodos: boolean,
   activeTodosCount: number,
   deleteCompletedTodos: () => void;
+  todos: Todo[],
 }
 
 export const Footer: React.FC<Props> = memo(({
@@ -16,13 +18,17 @@ export const Footer: React.FC<Props> = memo(({
   isCompletedTodos,
   activeTodosCount,
   deleteCompletedTodos,
+  todos,
 }) => (
-  <footer className="todoapp__footer" data-cy="Footer">
+  <footer
+    className="todoapp__footer"
+    data-cy="Footer"
+    style={{ display: todos.length > 0 ? 'flex' : 'none' }}
+  >
     <span className="todo-count" data-cy="TodosCounter">
       {`${activeTodosCount} items left`}
     </span>
 
-    {/* Active filter should have a 'selected' class */}
     <nav className="filter" data-cy="Filter">
       <a
         href="#/"

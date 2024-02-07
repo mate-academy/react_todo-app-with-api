@@ -1,13 +1,27 @@
+import classNames from 'classnames';
 import {
-  memo, useEffect, useRef, useState,
+  memo,
+  useEffect,
+  useRef,
+  useState,
 } from 'react';
+import { Todo } from '../types/Todo';
 
 interface Props {
   addTempTodo: (title: string) => void;
   disabled: boolean;
+  toggleAllTodos: () => void,
+  allCompleted: boolean,
+  todos: Todo[],
 }
 
-export const Header: React.FC<Props> = memo(({ addTempTodo, disabled }) => {
+export const Header: React.FC<Props> = memo(({
+  addTempTodo,
+  disabled,
+  toggleAllTodos,
+  allCompleted,
+  todos,
+}) => {
   const [title, setTitle] = useState('');
 
   const inputRef = useRef<HTMLInputElement | null>(null);
@@ -30,15 +44,17 @@ export const Header: React.FC<Props> = memo(({ addTempTodo, disabled }) => {
 
   return (
     <header className="todoapp__header">
-      {/* this buttons is active only if there are some active todos */}
       <button
         aria-label="toggleAll"
         type="button"
-        className="todoapp__toggle-all active"
+        className={classNames('todoapp__toggle-all', {
+          active: allCompleted,
+        })}
         data-cy="ToggleAllButton"
+        style={{ display: todos.length > 0 ? 'flex' : 'none' }}
+        onClick={toggleAllTodos}
       />
 
-      {/* Add a todo on form submit */}
       <form onSubmit={handleSubmit}>
         <input
           ref={inputRef}

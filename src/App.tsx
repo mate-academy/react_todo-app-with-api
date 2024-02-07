@@ -1,9 +1,17 @@
 import React, {
-  useCallback, useEffect, useMemo, useState,
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
 } from 'react';
 import { UserWarning } from './UserWarning';
 import { TodoList } from './components/TodoList';
-import { addTodos, deleteTodos, getTodos } from './api/todos';
+import {
+  addTodos,
+  deleteTodos,
+  getTodos,
+  patchTodo,
+} from './api/todos';
 import { Todo } from './types/Todo';
 import { Footer } from './components/Footer';
 import { Filter } from './types/Filter';
@@ -19,6 +27,7 @@ export const App: React.FC = () => {
   const [error, setError] = useState<Error | null>(null);
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
   const [deleteTodoId, setDeleteTodoId] = useState<number | null>(null);
+  const [loadingTodoIds, setLoadingTodoIds] = useState<number[]>([]);
 
   useEffect(() => {
     getTodos(USER_ID)
@@ -113,6 +122,71 @@ export const App: React.FC = () => {
       });
   }, [todos]);
 
+  const allCompleted = todos.every(todo => todo.completed);
+
+  const toggleAllTodos = () => {
+    if (allCompleted) {
+      const loadingTodosIds = todos
+        .map(todo => todo.id);
+
+      setLoadingTodoIds(loadingTodosIds);
+
+      const activeTodos = todos.map(todo => ({
+        ...todo,
+        completed: false,
+      }));
+
+      const patchPromises = todos
+        .map(todo => patchTodo(todo.id, { ...todo, completed: false }));
+
+      Promise.all(patchPromises)
+        .then(() => {
+          setTodos(activeTodos);
+        })
+        .catch(() => setError(Error.UnableToUpdate))
+        .finally(() => setLoadingTodoIds([]));
+
+      return;
+    }
+
+    const loadingTodosIds = todos.filter(todo => !todo.completed)
+      .map(todo => todo.id);
+
+    setLoadingTodoIds(loadingTodosIds);
+
+    const completedTodos = todos.map(todo => ({
+      ...todo,
+      completed: true,
+    }));
+
+    const patchPromises = todos
+      .map(todo => patchTodo(todo.id, { ...todo, completed: true }));
+
+    Promise.all(patchPromises)
+      .then(() => {
+        setTodos(completedTodos);
+      })
+      .catch(() => setError(Error.UnableToUpdate))
+      .finally(() => setLoadingTodoIds([]));
+  };
+
+  const updateTodo = (id: number, data: Partial<Todo>) => {
+    setLoadingTodoIds(prev => [...prev, id]);
+    patchTodo(id, data)
+      .then(() => {
+        setTodos(prev => prev.map(todo => {
+          if (todo.id === data.id) {
+            return { ...todo, ...data };
+          }
+
+          return todo;
+        }));
+      }).catch(() => setError(Error.UnableToUpdate))
+      .finally(() => {
+        setLoadingTodoIds([]);
+      });
+  };
+
   if (!USER_ID) {
     return <UserWarning />;
   }
@@ -122,12 +196,20 @@ export const App: React.FC = () => {
       <h1 className="todoapp__title">todos</h1>
 
       <div className="todoapp__content">
-        <Header addTempTodo={addNewTodo} disabled={!!tempTodo} />
+        <Header
+          addTempTodo={addNewTodo}
+          disabled={!!tempTodo}
+          toggleAllTodos={toggleAllTodos}
+          allCompleted={allCompleted}
+          todos={todos}
+        />
         <TodoList
           todos={filteredTodos}
           tempTodo={tempTodo}
           deleteTodos={deleteCurrentTodo}
           deleteTodosId={deleteTodoId}
+          loadingTodoIds={loadingTodoIds}
+          updateTodo={updateTodo}
         />
         <Footer
           filterTodos={setFilter}
@@ -135,6 +217,7 @@ export const App: React.FC = () => {
           isCompletedTodos={isCompletedTodos}
           activeTodosCount={activeTodosCount}
           deleteCompletedTodos={deleteCompletedTodos}
+          todos={todos}
         />
       </div>
       {error && <ErrorMessage error={error} close={() => setError(null)} />}

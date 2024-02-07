@@ -8,10 +8,16 @@ interface Props {
   tempTodo: Todo | null,
   deleteTodos: (id: number) => void,
   deleteTodosId: number | null,
+  loadingTodoIds: number[],
+  updateTodo: (id: number, data: Partial<Todo>) => void,
 }
 
 export const TodoList: React.FC<Props> = memo(({
-  todos, tempTodo, deleteTodos, deleteTodosId,
+  todos,
+  tempTodo,
+  deleteTodos,
+  deleteTodosId,
+  updateTodo,
 }) => {
   return (
     <section className="todoapp__main" data-cy="TodoList">
@@ -26,9 +32,9 @@ export const TodoList: React.FC<Props> = memo(({
               title={title}
               completed={completed}
               id={id}
-              key={id}
               deleteTodos={deleteTodos}
               isLoading={deleteTodosId === id}
+              updateTodo={updateTodo}
             />
           </CSSTransition>
         ))}
@@ -46,6 +52,7 @@ export const TodoList: React.FC<Props> = memo(({
             id={tempTodo.id}
             deleteTodos={deleteTodos}
             isLoading
+            updateTodo={updateTodo}
           />
         </CSSTransition>
       )}
