@@ -9,10 +9,11 @@ type Props = {
   filteredTodos: Todo[] | null;
   onDelete: (todoId: number) => void;
   tempTodo: Todo | null,
-  tempTodos: Todo[] | null,
   selectedTodo: Todo | null,
   isLoading: boolean,
+  loadingTodos: Todo[] | null,
   onDubleClick: (value: Todo) => void,
+  todos: Todo[],
 };
 
 export const Section: React.FC<Props> = ({
@@ -21,8 +22,8 @@ export const Section: React.FC<Props> = ({
   onDubleClick,
   filteredTodos,
   tempTodo,
-  tempTodos,
   isLoading,
+  loadingTodos,
   selectedTodo,
 }) => {
   const [currentTodo, setCurrentTodo] = useState<Todo | null>(null);
@@ -143,11 +144,10 @@ export const Section: React.FC<Props> = ({
           <div
             data-cy="TodoLoader"
             className={cn('modal overlay', {
-              'is-active': (isLoading
-              && selectedTodo?.id === todo.id)
-              || (isLoading && tempTodos?.find(
-                tempT => tempT.id === todo.id,
-              )),
+              'is-active': (isLoading && selectedTodo?.id === todo.id)
+              || loadingTodos?.find(
+                curTodo => todo.id === curTodo.id && isLoading,
+              ),
             })}
           >
             <div className="modal-background has-background-white-ter" />

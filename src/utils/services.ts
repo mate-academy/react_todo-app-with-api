@@ -9,6 +9,7 @@ export function filterTodos(statusTodo : string, todos : Todo[]) {
       return todos.filter(todo => todo.completed);
     case Status.All:
       return todos;
-    default: return todos;
+    default:
+      return todos;
   }
 }

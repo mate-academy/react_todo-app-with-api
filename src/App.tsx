@@ -1,4 +1,3 @@
-/* eslint-disable max-len */
 /* eslint-disable jsx-a11y/control-has-associated-label */
 import cn from 'classnames';
 import {
@@ -23,21 +22,27 @@ export const App: React.FC = () => {
   const [selectedTodo, setSelectedTodo] = useState<Todo | null>(null);
   const [erroMessage, setErrorMessage] = useState('');
   const [statusTodo, setStatusTodo] = useState('');
-  const [tempTodos, setTempTodos] = useState<Todo[] | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [loadingTodos, setLoadingTodos] = useState<Todo[] | null>(null);
 
   const myInputRef = useRef<HTMLInputElement>(null);
+  const showFooter = todos.length > 0;
 
   const handleClearCompleted = () => {
     const completedTodos = todos.filter(todo => todo.completed);
 
-    setIsLoading(true);
-    setTempTodos(completedTodos);
+    setLoadingTodos(completedTodos);
 
     Promise.all(completedTodos.map(todo => {
+      setIsLoading(true);
+
       return todoService.deleteTodo(todo.id)
         .then(() => {
-          setTodos(currentTodos => currentTodos.filter(curTodo => curTodo.id !== todo.id));
+          setTodos(
+            currentTodos => currentTodos.filter(
+              curTodo => curTodo.id !== todo.id,
+            ),
+          );
         })
         .catch((err) => {
           setErrorMessage('Unable to delete a todo');
@@ -49,8 +54,8 @@ export const App: React.FC = () => {
         throw err;
       })
       .finally(() => {
-        setTempTodos(null);
         setIsLoading(false);
+        setLoadingTodos(null);
         setTimeout(() => {
           setErrorMessage('');
         }, 3000);
@@ -121,12 +126,13 @@ export const App: React.FC = () => {
   };
 
   async function deleteTodo(id: number) {
-    setIsLoading(true);
     const newTamperTodo = todos.find(todo => todo.id === id);
 
     if (newTamperTodo) {
       setSelectedTodo(newTamperTodo);
     }
+
+    setIsLoading(true);
 
     return todoService.deleteTodo(id)
       .then(() => {
@@ -156,12 +162,7 @@ export const App: React.FC = () => {
     const isSameTitle = todos.some(todo => todo.title === updatedTodo.title);
 
     if (!updatedTodo.title.trim()) {
-      // eslint-disable-next-line no-useless-catch
-      try {
-        await deleteTodo(updatedTodo.id);
-      } catch (error) {
-        throw error;
-      }
+      await deleteTodo(updatedTodo.id);
 
       return;
     }
@@ -170,20 +171,21 @@ export const App: React.FC = () => {
       return;
     }
 
-    setErrorMessage('');
     setIsLoading(true);
+    setErrorMessage('');
 
     await todoService.updateTodo(updatedTodo)
       .then((newTodo) => {
         setTodos(currentTodos => {
           const newTodos = [...currentTodos];
-          const index = currentTodos.findIndex(todo => todo.id === updatedTodo.id);
+          const index = currentTodos.findIndex(
+            todo => todo.id === updatedTodo.id,
+          );
 
           newTodos.splice(index, 1, newTodo);
 
           return newTodos;
         });
-        setSelectedTodo(null);
       })
       .catch((error) => {
         setErrorMessage('Unable to update a todo');
@@ -193,6 +195,7 @@ export const App: React.FC = () => {
       .finally(() => {
         setInterval(() => setErrorMessage(''), 3000);
         setIsLoading(false);
+        setSelectedTodo(null);
       });
   }
 
@@ -213,7 +216,9 @@ export const App: React.FC = () => {
       .then((newTodo) => {
         setTodos(currentTodos => {
           const newTodos = [...currentTodos];
-          const index = currentTodos.findIndex(todo => todo.id === updatedTodo.id);
+          const index = currentTodos.findIndex(
+            todo => todo.id === updatedTodo.id,
+          );
 
           newTodos.splice(index, 1, newTodo);
 
@@ -233,10 +238,14 @@ export const App: React.FC = () => {
 
   const handleToggleButton = () => {
     setIsLoading(true);
-
     const isAllCompleted = todos.every(todo => todo.completed);
 
     if (isAllCompleted) {
+      setTimeout(() => {
+        setIsLoading(true);
+        setLoadingTodos(todos);
+      }, 0);
+
       Promise.all(todos.map(async todo => {
         try {
           return await todoService.updateTodo({ ...todo, completed: false });
@@ -247,7 +256,7 @@ export const App: React.FC = () => {
         } finally {
           setInterval(() => setErrorMessage(''), 3000);
           setIsLoading(false);
-          setTempTodos(null);
+          setLoadingTodos(null);
         }
       }))
         .then((upTodos) => {
@@ -260,7 +269,7 @@ export const App: React.FC = () => {
         .finally(() => {
           setInterval(() => setErrorMessage(''), 3000);
           setIsLoading(false);
-          setTempTodos(null);
+          setLoadingTodos(null);
         });
     }
 
@@ -270,9 +279,10 @@ export const App: React.FC = () => {
       ...todo,
       completed: true,
     }));
+
     const complitedTodos = todos.filter(todo => todo.completed);
 
-    setTempTodos(temperTodo);
+    setLoadingTodos(temperTodo);
 
     Promise.all(notComplitedTodo.map(async todo => {
       try {
@@ -285,15 +295,15 @@ export const App: React.FC = () => {
       }
     }))
       .then(upTodos => {
-        setTodos([...upTodos, ...complitedTodos]);
+        setTodos([...complitedTodos, ...upTodos]);
       })
       .catch(() => {
         setErrorMessage('Unable to update todos');
       })
       .finally(() => {
         setInterval(() => setErrorMessage(''), 3000);
+        setLoadingTodos(null);
         setIsLoading(false);
-        setTempTodos(null);
       });
   };
 
@@ -324,12 +334,13 @@ export const App: React.FC = () => {
           filteredTodos={filterTodos(statusTodo, todos)}
           onDelete={handleDeleteTodo}
           tempTodo={tempTodo}
-          tempTodos={tempTodos}
           isLoading={isLoading}
+          loadingTodos={loadingTodos}
           selectedTodo={selectedTodo}
+          todos={todos}
         />
 
-        {todos.length && (
+        {showFooter && (
           <Footer
             onStatus={(newStatus: string) => setStatusTodo(newStatus)}
             status={statusTodo}
@@ -337,6 +348,7 @@ export const App: React.FC = () => {
             handleClearCompleted={handleClearCompleted}
           />
         )}
+
       </div>
 
       <div

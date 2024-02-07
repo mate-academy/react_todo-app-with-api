@@ -60,7 +60,7 @@ export const Header: React.FC<Props> = ({
   return (
 
     <header className="todoapp__header">
-      {todos.length && (
+      {todos.length > 0 && (
         <button
           type="button"
           className={cn('todoapp__toggle-all', {
