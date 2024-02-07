@@ -40,16 +40,18 @@ export const Header: React.FC = () => {
   async function handleSubmit(event: React.FormEvent) {
     event.preventDefault();
 
-    if (titleField.trim()) {
+    const normalizedTitle = titleField.trim();
+
+    if (normalizedTitle) {
       setTempTodo({
         id: 0,
-        title: titleField.trim(),
+        title: normalizedTitle,
         userId: USER_ID,
         completed: false,
       });
 
       const newTodo = {
-        title: titleField.trim(),
+        title: normalizedTitle,
         userId: USER_ID,
         completed: false,
       };

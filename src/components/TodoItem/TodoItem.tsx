@@ -58,12 +58,14 @@ export const TodoItem: React.FC<Props> = ({ todoItem }) => {
     }
   };
 
+  const normalizedTitle = editTitle.trim();
+
   const saveEditing = async () => {
-    if (!editTitle.trim()) {
+    if (!normalizedTitle) {
       deleteTodo(id);
     }
 
-    if (editTitle.trim()) {
+    if (normalizedTitle) {
       if (editTitle === title) {
         setIsEditing(false);
       } else {
@@ -74,7 +76,7 @@ export const TodoItem: React.FC<Props> = ({ todoItem }) => {
 
           setTodos(currentTodos => currentTodos
             .map(currentTodo => (currentTodo.id === id
-              ? ({ ...currentTodo, title: editTitle.trim() })
+              ? ({ ...currentTodo, title: normalizedTitle })
               : currentTodo)));
           setIsEditing(false);
         } catch {
@@ -144,7 +146,7 @@ export const TodoItem: React.FC<Props> = ({ todoItem }) => {
           className="todo__title"
           onDoubleClick={() => setIsEditing(true)}
         >
-          {editTitle.trim()}
+          {normalizedTitle}
         </span>
       )}
       {!isEditing && (
