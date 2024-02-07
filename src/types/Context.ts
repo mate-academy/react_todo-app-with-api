@@ -13,8 +13,6 @@ export interface Context {
   setTempTodo: React.Dispatch<React.SetStateAction<Todo | null>>,
   loadingIds: number[];
   setLoadingIds: (value: React.SetStateAction<number[]>) => void;
-  isEditing: boolean;
-  setIsEditing: (v: boolean) => void;
 }
 
 export interface ContextUpdate {

@@ -18,8 +18,6 @@ export const TodosContext = React.createContext<Context>({
   setTempTodo: () => { },
   loadingIds: [],
   setLoadingIds: () => { },
-  isEditing: false,
-  setIsEditing: () => { },
 });
 
 export const TodoUpdateContext = React.createContext<ContextUpdate>({
@@ -38,7 +36,6 @@ export const TodosProvider: React.FC<Props> = ({ children }) => {
   const [filterTodos, setFilterTodos] = useState<Status>(Status.all);
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
   const [loadingIds, setLoadingIds] = useState<number[]>([]);
-  const [isEditing, setIsEditing] = useState(false);
 
   function loadTodos() {
     api.getTodos(USER_ID)
@@ -112,15 +109,12 @@ export const TodosProvider: React.FC<Props> = ({ children }) => {
     setTempTodo,
     loadingIds,
     setLoadingIds,
-    isEditing,
-    setIsEditing,
   }), [
     todos,
     errorMessage,
     filterTodos,
     tempTodo,
     loadingIds,
-    isEditing,
   ]);
 
   return (

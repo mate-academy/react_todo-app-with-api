@@ -26,7 +26,6 @@ export const TodoItem: React.FC<Props> = ({ todoItem }) => {
   const {
     deleteTodo,
     toggleTodo,
-    // editTodo,
   } = useContext(TodoUpdateContext);
 
   const [loading, setLoading] = useState(false);
@@ -59,7 +58,7 @@ export const TodoItem: React.FC<Props> = ({ todoItem }) => {
     }
   };
 
-  const saveEditing = () => {
+  const saveEditing = async () => {
     if (!editTitle.trim()) {
       deleteTodo(id);
     }
@@ -70,16 +69,19 @@ export const TodoItem: React.FC<Props> = ({ todoItem }) => {
       } else {
         setLoadingIds(currentTodos => [...currentTodos, id]);
 
-        api.editTodo({ completed, id, title: editTitle })
-          .then(() => {
-            setTodos(currentTodos => currentTodos
-              .map(currentTodo => (currentTodo.id === id
-                ? ({ ...currentTodo, title: editTitle.trim() })
-                : currentTodo)));
-            setIsEditing(false);
-          })
-          .catch(() => setErrorMessage(Errors.Update))
-          .finally(() => setLoadingIds([]));
+        try {
+          api.editTodo({ completed, id, title: editTitle });
+
+          setTodos(currentTodos => currentTodos
+            .map(currentTodo => (currentTodo.id === id
+              ? ({ ...currentTodo, title: editTitle.trim() })
+              : currentTodo)));
+          setIsEditing(false);
+        } catch {
+          setErrorMessage(Errors.Update);
+        } finally {
+          setLoadingIds([]);
+        }
       }
     }
   };
