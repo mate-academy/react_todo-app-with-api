@@ -9,6 +9,7 @@ import * as api from '../../api/todos';
 import { Todo } from '../../types/Todo';
 import { TodoLoader } from '../TodoLoader';
 import { TodoUpdateContext, TodosContext } from '../../context/TodosContext';
+import { Errors } from '../../types/Errors';
 
 interface Props {
   todoItem: Todo,
@@ -21,8 +22,6 @@ export const TodoItem: React.FC<Props> = ({ todoItem }) => {
     setErrorMessage,
     setTodos,
     setLoadingIds,
-    // isEditing,
-    // setIsEditing,
   } = useContext(TodosContext);
   const {
     deleteTodo,
@@ -44,7 +43,7 @@ export const TodoItem: React.FC<Props> = ({ todoItem }) => {
     try {
       await deleteTodo(id);
     } catch (error) {
-      setErrorMessage('Unable to delete a todo');
+      setErrorMessage(Errors.Delete);
     }
   };
 
@@ -79,7 +78,7 @@ export const TodoItem: React.FC<Props> = ({ todoItem }) => {
                 : currentTodo)));
             setIsEditing(false);
           })
-          .catch(() => setErrorMessage('Unable to update a todo'))
+          .catch(() => setErrorMessage(Errors.Update))
           .finally(() => setLoadingIds([]));
       }
     }

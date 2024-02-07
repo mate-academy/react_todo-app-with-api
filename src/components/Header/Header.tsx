@@ -10,6 +10,7 @@ import React, {
 import { TodoUpdateContext, TodosContext } from '../../context/TodosContext';
 import { Todo } from '../../types/Todo';
 import { USER_ID } from '../../constants/USER_ID';
+import { Errors } from '../../types/Errors';
 
 export const Header: React.FC = () => {
   const [titleField, setTitleField] = useState('');
@@ -60,13 +61,13 @@ export const Header: React.FC = () => {
         setTitleField('');
         setErrorMessage('');
       } catch (error) {
-        setErrorMessage('Unable to add a todo');
+        setErrorMessage(Errors.Add);
       } finally {
         setIsAddingTodo(false);
         setTempTodo(null);
       }
     } else {
-      setErrorMessage('Title should not be empty');
+      setErrorMessage(Errors.TitleEmpty);
     }
   }
 

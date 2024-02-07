@@ -5,6 +5,7 @@ import * as api from '../api/todos';
 import { Context, ContextUpdate } from '../types/Context';
 import { Status } from '../types/Status';
 import { USER_ID } from '../constants/USER_ID';
+import { Errors } from '../types/Errors';
 
 export const TodosContext = React.createContext<Context>({
   todos: [],
@@ -43,7 +44,7 @@ export const TodosProvider: React.FC<Props> = ({ children }) => {
     api.getTodos(USER_ID)
       .then(setTodos)
       .catch(() => {
-        setErrorMessage('Unable to load todos');
+        setErrorMessage(Errors.Load);
       });
   }
 
@@ -62,7 +63,7 @@ export const TodosProvider: React.FC<Props> = ({ children }) => {
         setTodos((prev) => prev.filter((todo) => todo.id !== todoId));
       })
       .catch(() => {
-        setErrorMessage('Unable to delete a todo');
+        setErrorMessage(Errors.Delete);
       })
       .finally(() => {
         setLoadingIds((prev) => prev
@@ -86,7 +87,7 @@ export const TodosProvider: React.FC<Props> = ({ children }) => {
         });
       })
       .catch(() => {
-        setErrorMessage('Unable to update a todo');
+        setErrorMessage(Errors.Add);
       })
       .finally(() => {
         setLoadingIds((prev) => prev
