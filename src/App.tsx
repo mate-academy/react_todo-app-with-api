@@ -1,7 +1,10 @@
 /* eslint-disable jsx-a11y/control-has-associated-label */
 import cn from 'classnames';
 import React, {
-  useState, useEffect, useMemo, useRef,
+  useState,
+  useEffect,
+  useMemo,
+  useRef,
 } from 'react';
 import { UserWarning } from './UserWarning';
 import { Footer } from './components/Footer';
@@ -11,7 +14,7 @@ import { Todo } from './types/Todo';
 import { getTodos, patchTodos, postTodos } from './api/todos';
 import { ShowState } from './types/ShowState';
 import { ErrorTypes } from './types/ErrorTypes';
-import { Error } from './components/Error';
+import { ErrorComponent } from './components/ErrorComponent';
 import { Loader } from './components/Loader';
 
 import { USER_ID } from './utils/userId';
@@ -20,7 +23,7 @@ export const App: React.FC = () => {
   const [todos, setTodos] = useState<Todo[] | []>([]);
   const [showState, setShowState] = useState<ShowState>(ShowState.All);
   const [error, setError] = useState<ErrorTypes | null>(null);
-  const [loading, setLoading] = useState(false);
+  const [isLoading, setisLoading] = useState(false);
   const [todoTitle, setTodoTitle] = useState<string>('');
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
   const inputRefAdd = useRef<HTMLInputElement | null>(null);
@@ -29,17 +32,20 @@ export const App: React.FC = () => {
     switch (showState) {
       case ShowState.All:
         return todos;
+
       case ShowState.Active:
         return todos.filter(toddo => !toddo.completed);
+
       case ShowState.Completed:
         return todos.filter(toddo => toddo.completed);
+
       default:
         return todos;
     }
   }, [showState, todos]);
 
   const loadAllTodos = async () => {
-    setLoading(true);
+    setisLoading(true);
     try {
       const allTodos = await getTodos(USER_ID);
 
@@ -52,20 +58,22 @@ export const App: React.FC = () => {
 
       return undefined;
     } finally {
-      setLoading(false);
+      setisLoading(false);
     }
   };
 
   useEffect(() => {
-    setError(null);
-
-    (async () => {
+    const updateAllTodos = async () => {
       const todosData = await loadAllTodos();
 
       if (todosData) {
         setTodos(todosData);
       }
-    })();
+    };
+
+    setError(null);
+
+    updateAllTodos();
 
     inputRefAdd.current?.focus();
   }, []);
@@ -189,7 +197,7 @@ export const App: React.FC = () => {
             inputRefAdd={inputRefAdd.current}
           />
         )}
-        {loading && <Loader />}
+        {isLoading && <Loader />}
         {todos.length > 0 && (
           <Footer
             todos={filteredTodos}
@@ -199,7 +207,7 @@ export const App: React.FC = () => {
             setError={setError}
           />
         )}
-        {error && <Error error={error} setError={setError} />}
+        {error && <ErrorComponent error={error} setError={setError} />}
       </div>
     </div>
   );

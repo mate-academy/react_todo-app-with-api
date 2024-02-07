@@ -1,5 +1,10 @@
 import {
-  Dispatch, FormEvent, SetStateAction, useEffect, useRef, useState,
+  Dispatch,
+  FormEvent,
+  SetStateAction,
+  useEffect,
+  useRef,
+  useState,
 } from 'react';
 import cn from 'classnames';
 import { Todo } from '../types/Todo';
@@ -19,7 +24,14 @@ type Props = {
 };
 
 export const TodoItem: React.FC<Props> = ({
-  index, todo, setTodos, id, setError, todos, tempTodo, inputRefAdd,
+  index,
+  todo,
+  setTodos,
+  id,
+  setError,
+  todos,
+  tempTodo,
+  inputRefAdd,
 }) => {
   const [loading, setLoading] = useState(false);
   const firstUpdate = useRef(true);
@@ -157,7 +169,7 @@ export const TodoItem: React.FC<Props> = ({
   };
 
   return (
-    <div
+    <li
       data-cy="Todo"
       className={cn('todo', {
         completed: todo.completed,
@@ -222,6 +234,6 @@ export const TodoItem: React.FC<Props> = ({
         <div className="modal-background has-background-white-ter" />
         <div className="loader" />
       </div>
-    </div>
+    </li>
   );
 };

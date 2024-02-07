@@ -17,7 +17,7 @@ export const TodoList:React.FC<Props> = ({
   todos, setTodos, tempTodo, setError, inputRefAdd,
 }) => {
   return (
-    <section className="todoapp__main" data-cy="TodoList">
+    <ul className="todoapp__main" data-cy="TodoList">
       {todos.map((todo, index) => (
         <TodoItem
           index={index}
@@ -41,6 +41,6 @@ export const TodoList:React.FC<Props> = ({
           setError={setError}
         />
       )}
-    </section>
+    </ul>
   );
 };

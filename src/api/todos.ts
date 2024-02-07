@@ -7,15 +7,15 @@ export const getTodos = async (userId: number) => {
   return client.get<Todo[]>(`/todos?userId=${userId}`);
 };
 
+export const postTodos = (data: Todo) => {
+  return client.post<Todo>('/todos', data);
+};
+
 export const patchTodos = (
   todoId : number,
   data: PatchCompleteTodo | PatchTitleTodo,
 ) => {
   return client.patch<Todo[]>(`/todos/${todoId}`, data);
-};
-
-export const postTodos = (data: Todo) => {
-  return client.post<Todo>('/todos', data);
 };
 
 export const deleteTodo = (userId: number, todoId: number) => {
