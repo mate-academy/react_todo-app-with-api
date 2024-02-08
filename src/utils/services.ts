@@ -7,8 +7,6 @@ export function filterTodos(statusTodo : Status, todos : Todo[]) {
       return todos.filter(todo => !todo.completed);
     case Status.Completed:
       return todos.filter(todo => todo.completed);
-    case Status.All:
-      return todos;
     default:
       return todos;
   }
