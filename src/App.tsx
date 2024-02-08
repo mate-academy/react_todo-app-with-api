@@ -1,24 +1,208 @@
-/* eslint-disable max-len */
 /* eslint-disable jsx-a11y/control-has-associated-label */
-import React from 'react';
+import React, { useEffect, useState } from 'react';
+import classNames from 'classnames';
 import { UserWarning } from './UserWarning';
-
-const USER_ID = 0;
+import {
+  addTodo, deleteTodo, getTodos, updateTodo,
+} from './api/todos';
+import { Todo } from './types/Todo';
+import { Errors } from './types/Errors';
+import { SortType } from './types/SortType';
+import { TodoList } from './components/TodoList';
+import { Header } from './components/Header';
+import { Footer } from './components/Footer';
+import { TodoItem } from './components/TodoItem';
+import { USER_ID, filterTodoList } from './utils/variables';
 
 export const App: React.FC = () => {
+  const [todos, setTodos] = useState<Todo[]>([]);
+  const [tempTodo, setTempTodo] = useState<Todo | null>(null);
+  const [inputText, setInputText] = useState('');
+  const [errorMessage, setErrorMessage] = useState<Errors | ''>('');
+  const [sortBy, setSortBy] = useState<SortType>(SortType.All);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+
+  const filteredTodos = filterTodoList(todos, sortBy);
+  const completedTodo = filterTodoList(todos, SortType.Completed);
+  const activeTodo = filterTodoList(todos, SortType.Active);
+
+  const handleAddTodo = async (newTodo: Omit<Todo, 'id'>) => {
+    setInputText(inputText);
+    setTempTodo({ id: 0, ...newTodo });
+
+    addTodo(newTodo)
+      .then(todo => {
+        setTodos(current => [...current, todo]);
+        setInputText('');
+      })
+      .catch(() => {
+        setErrorMessage(Errors.AddingError);
+        setInputText(inputText);
+      })
+      .finally(() => {
+        setTempTodo(null);
+        setIsLoading(false);
+      });
+  };
+
+  const handleDeleteTodo = async (todoId: number) => {
+    deleteTodo(todoId)
+      .catch(() => {
+        setErrorMessage(Errors.DeletingError);
+      })
+      .finally(() => {
+        setTodos(current => current.filter(todo => todo.id !== todoId));
+        setTempTodo(null);
+      });
+  };
+
+  const handleDeleteCompleted = async () => {
+    const completedTodos = todos.filter(todo => todo.completed);
+    const activeTodos = todos.filter(todo => !todo.completed);
+
+    completedTodos.forEach(todo => handleDeleteTodo(todo.id));
+    setTodos(activeTodos);
+  };
+
+  const handleToggleTodo = async (todo: Todo) => {
+    const { id, completed, title } = todo;
+
+    await updateTodo({ id, completed: !completed, title })
+      .then((updatedTodo) => {
+        setTodos(currentTodos => {
+          const tempTodos = [...currentTodos];
+          const index = tempTodos.findIndex(item => item.id === updatedTodo.id);
+
+          tempTodos.splice(index, 1, updatedTodo);
+
+          return tempTodos;
+        });
+      })
+      .catch(() => {
+        setErrorMessage(Errors.UpdatingError);
+      });
+  };
+
+  const allToggleTodo = async () => {
+    if (activeTodo.length) {
+      activeTodo.forEach(todo => handleToggleTodo(todo));
+    } else {
+      completedTodo.forEach((todo) => handleToggleTodo(todo));
+    }
+  };
+
+  const handleEditTodo = async (todo: Todo, newTitle: string) => {
+    setErrorMessage('');
+
+    await updateTodo({ ...todo, title: newTitle })
+      .then((updatedTodo) => {
+        setTodos(currentTodos => {
+          const tempTodos = [...currentTodos];
+          const index = tempTodos.findIndex(item => item.id === updatedTodo.id);
+
+          tempTodos.splice(index, 1, updatedTodo);
+
+          return tempTodos;
+        });
+      })
+      .catch(() => {
+        setErrorMessage(Errors.UpdatingError);
+      });
+  };
+
+  useEffect(() => {
+    setErrorMessage('');
+
+    getTodos(USER_ID)
+      .then(setTodos)
+      .catch(() => setErrorMessage(Errors.LoadError));
+  }, [setTodos]);
+
+  useEffect(() => {
+    if (!errorMessage) {
+      return () => { };
+    }
+
+    const timerid = setTimeout(() => {
+      setErrorMessage('');
+    }, 2900);
+
+    return () => clearTimeout(timerid);
+  }, [errorMessage]);
+
   if (!USER_ID) {
     return <UserWarning />;
   }
 
   return (
-    <section className="section container">
-      <p className="title is-4">
-        Copy all you need from the prev task:
-        <br />
-        <a href="https://github.com/mate-academy/react_todo-app-add-and-delete#react-todo-app-add-and-delete">React Todo App - Add and Delete</a>
-      </p>
+    <div className="todoapp">
+      <h1 className="todoapp__title">todos</h1>
 
-      <p className="subtitle">Styles are already copied</p>
-    </section>
+      <div className="todoapp__content">
+        <Header
+          userId={USER_ID}
+          inputText={inputText}
+          setInputText={setInputText}
+          setError={setErrorMessage}
+          handleAdd={handleAddTodo}
+          isLoading={isLoading}
+          setIsLoading={setIsLoading}
+          active={activeTodo}
+          toggleAll={allToggleTodo}
+        />
+
+        {!!todos.length && (
+          <>
+            <TodoList
+              todos={filteredTodos}
+              deleteTodo={handleDeleteTodo}
+              handleUpdateTodo={handleToggleTodo}
+              isLoading={isLoading}
+              handleEdit={handleEditTodo}
+            />
+            {tempTodo && (
+              <TodoItem
+                todo={tempTodo}
+                key={tempTodo.id}
+                deleteTodo={handleDeleteTodo}
+                handleUpdateTodo={handleToggleTodo}
+                isLoading={isLoading}
+              />
+            )}
+          </>
+        )}
+
+        {!!todos.length && (
+          <Footer
+            active={activeTodo}
+            completed={completedTodo}
+            setSortBy={setSortBy}
+            sortBy={sortBy}
+            deleteCompleted={handleDeleteCompleted}
+          />
+        )}
+
+      </div>
+
+      {/* {!!errorMessage.length && ( */}
+      <div
+        data-cy="ErrorNotification"
+        className={
+          classNames('notification is-danger is-light has-text-weight-normal',
+            {
+              hidden: !errorMessage,
+            })
+        }
+      >
+        <button
+          data-cy="HideErrorButton"
+          type="button"
+          className="delete"
+          onClick={() => setErrorMessage('')}
+        />
+        {errorMessage}
+        <br />
+      </div>
+    </div>
   );
 };
