@@ -37,8 +37,7 @@ export const completedTodosCounter = computed<number>(() => {
 
 export const allTodosCompleted = computed<boolean>(() => {
   if (todos.value.length) {
-    return todos.value
-      .filter(todo => todo.completed).length === todos.value.length;
+    return !todos.value.some(todo => !todo.completed);
   }
 
   return false;
