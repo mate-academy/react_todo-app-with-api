@@ -40,7 +40,6 @@ export const ErrorNotification = () => {
         className="delete"
         onClick={handleCloseError}
       />
-      {/* show only one message at a time */}
       {errorMessage}
     </div>
   );

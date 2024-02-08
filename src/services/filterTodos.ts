@@ -7,10 +7,10 @@ export const filteredTodos = (
 ): Todo[] => {
   return todoItems.filter((todo: Todo) => {
     switch (filterValues) {
-      case Status.active:
+      case Status.Active:
         return !todo.completed;
 
-      case Status.completed:
+      case Status.Completed:
         return todo.completed;
 
       default:

@@ -21,6 +21,7 @@ export const TodoItem: React.FC<Props> = ({ todoItem }) => {
     errorMessage,
     setErrorMessage,
     setTodos,
+    loadingIds,
     setLoadingIds,
   } = useContext(TodosContext);
   const {
@@ -28,7 +29,6 @@ export const TodoItem: React.FC<Props> = ({ todoItem }) => {
     toggleTodo,
   } = useContext(TodoUpdateContext);
 
-  const [loading, setLoading] = useState(false);
   const [editTitle, setEditTitle] = useState(title);
   const [isEditing, setIsEditing] = useState(false);
 
@@ -48,13 +48,13 @@ export const TodoItem: React.FC<Props> = ({ todoItem }) => {
 
   const handleCheckbox = async () => {
     try {
-      setLoading(true);
+      setLoadingIds(currentTodos => [...currentTodos, id]);
 
       const updatedTodo = { ...todoItem, completed: !completed };
 
       await toggleTodo(updatedTodo);
     } finally {
-      setLoading(false);
+      setLoadingIds([]);
     }
   };
 
@@ -122,7 +122,7 @@ export const TodoItem: React.FC<Props> = ({ todoItem }) => {
           })}
           checked={completed}
           onChange={handleCheckbox}
-          disabled={loading}
+          disabled={!!loadingIds.length}
         />
       </label>
 

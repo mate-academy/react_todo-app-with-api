@@ -15,7 +15,7 @@ import { Errors } from '../../types/Errors';
 export const Header: React.FC = () => {
   const [titleField, setTitleField] = useState('');
   const [isAddingTodo, setIsAddingTodo] = useState(false);
-  const [allCompleted, setAllCompleted] = useState(false);
+  const [isAllCompleted, setIsAllCompleted] = useState(false);
 
   const {
     todos,
@@ -28,7 +28,7 @@ export const Header: React.FC = () => {
   const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    setAllCompleted(todos.every((todo: Todo) => todo.completed));
+    setIsAllCompleted(todos.every((todo: Todo) => todo.completed));
   }, [todos]);
 
   useEffect(() => {
@@ -78,7 +78,7 @@ export const Header: React.FC = () => {
   };
 
   async function handleToggleAll() {
-    const newStatus = !allCompleted;
+    const newStatus = !isAllCompleted;
 
     const todosToUpdate = todos
       .filter((todo: Todo) => todo.completed !== newStatus);
@@ -102,19 +102,17 @@ export const Header: React.FC = () => {
 
   return (
     <header className="todoapp__header">
-      {/* this buttons are active only if there are some active todos */}
       {!!todos.length && (
         <button
           type="button"
           className={classNames('todoapp__toggle-all', {
-            active: allCompleted,
+            active: isAllCompleted,
           })}
           data-cy="ToggleAllButton"
           onClick={handleToggleAll}
         />
       )}
 
-      {/* Add a todo on form submit */}
       <form onSubmit={handleSubmit}>
         <input
           data-cy="NewTodoField"

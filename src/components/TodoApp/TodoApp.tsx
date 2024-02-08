@@ -32,8 +32,6 @@ export const TodoApp = () => {
         )}
       </div>
 
-      {/* Notification is shown in case of any error */}
-      {/* Add the 'hidden' class to hide the message smoothly */}
       <ErrorNotification />
     </div>
   );

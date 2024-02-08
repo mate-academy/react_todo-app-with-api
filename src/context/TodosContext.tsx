@@ -12,7 +12,7 @@ export const TodosContext = React.createContext<Context>({
   setTodos: () => { },
   errorMessage: '',
   setErrorMessage: () => { },
-  filterTodos: Status.all,
+  filterTodos: Status.All,
   setFilterTodos: () => { },
   tempTodo: null,
   setTempTodo: () => { },
@@ -33,7 +33,7 @@ interface Props {
 export const TodosProvider: React.FC<Props> = ({ children }) => {
   const [todos, setTodos] = useState<Todo[]>([]);
   const [errorMessage, setErrorMessage] = useState('');
-  const [filterTodos, setFilterTodos] = useState<Status>(Status.all);
+  const [filterTodos, setFilterTodos] = useState<Status>(Status.All);
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
   const [loadingIds, setLoadingIds] = useState<number[]>([]);
 

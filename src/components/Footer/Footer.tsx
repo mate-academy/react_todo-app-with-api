@@ -9,7 +9,7 @@ export const Footer = () => {
   const { deleteTodo } = useContext(TodoUpdateContext);
 
   const isCompleted = todos.some(todo => todo.completed);
-  const countItems = todos.filter(todo => !todo.completed).length;
+  const countOfNotCompletedItems = todos.filter(todo => !todo.completed).length;
 
   const handleClear = () => {
     const completedTodos = todos.filter(todo => todo.completed);
@@ -20,7 +20,7 @@ export const Footer = () => {
   return (
     <footer className="todoapp__footer" data-cy="Footer">
       <span className="todo-count" data-cy="TodosCounter">
-        {`${countItems} items left`}
+        {`${countOfNotCompletedItems} items left`}
       </span>
 
       <FilterTodos />

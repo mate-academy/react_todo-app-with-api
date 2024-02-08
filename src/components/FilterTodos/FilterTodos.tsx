@@ -13,34 +13,34 @@ export const FilterTodos = () => {
       <a
         href="#/"
         className={classNames('filter__link', {
-          selected: filterTodos === Status.all,
+          selected: filterTodos === Status.All,
         })}
         data-cy="FilterLinkAll"
-        onClick={() => setFilterTodos(Status.all)}
+        onClick={() => setFilterTodos(Status.All)}
       >
-        {Status.all}
+        {Status.All}
       </a>
 
       <a
         href="#/active"
         className={classNames('filter__link', {
-          selected: filterTodos === Status.active,
+          selected: filterTodos === Status.Active,
         })}
         data-cy="FilterLinkActive"
-        onClick={() => setFilterTodos(Status.active)}
+        onClick={() => setFilterTodos(Status.Active)}
       >
-        {Status.active}
+        {Status.Active}
       </a>
 
       <a
         href="#/completed"
         className={classNames('filter__link', {
-          selected: filterTodos === Status.completed,
+          selected: filterTodos === Status.Completed,
         })}
         data-cy="FilterLinkCompleted"
-        onClick={() => setFilterTodos(Status.completed)}
+        onClick={() => setFilterTodos(Status.Completed)}
       >
-        {Status.completed}
+        {Status.Completed}
       </a>
     </nav>
   );

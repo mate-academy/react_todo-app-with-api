@@ -33,7 +33,6 @@ export const Main: React.FC<Props> = ({ items }) => {
             ×
           </button>
 
-          {/* 'is-active' class puts this modal on top of the todo */}
           <div
             data-cy="TodoLoader"
             className="modal overlay is-active"
