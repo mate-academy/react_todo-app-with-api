@@ -34,3 +34,12 @@ export const activeTodosCounter = computed<number>(() => {
 export const completedTodosCounter = computed<number>(() => {
   return todos.value.filter(todo => todo.completed).length;
 });
+
+export const allTodosCompleted = computed<boolean>(() => {
+  if (todos.value.length) {
+    return todos.value
+      .filter(todo => todo.completed).length === todos.value.length;
+  }
+
+  return false;
+});

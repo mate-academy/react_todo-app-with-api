@@ -2,12 +2,15 @@
 import React, { useEffect, useRef } from 'react';
 import { signal } from '@preact/signals-react';
 import { useSignals } from '@preact/signals-react/runtime';
+import classNames from 'classnames';
 import { UserWarning } from './UserWarning';
 import { TodoList } from './components/TodoList/TodoList';
-import { isError, tempTodo, todos } from './signals';
+import {
+  allTodosCompleted, isError, tempTodo, todos, todosToDelete,
+} from './signals';
 import { Error } from './components/Error/Error';
 import { ErrorValues } from './types/ErrorValues';
-import { postTodo } from './api/todos';
+import { postTodo, updateTodo } from './api/todos';
 
 const USER_ID = 132;
 
@@ -55,6 +58,31 @@ export const App: React.FC = () => {
     }
   };
 
+  const handleToggleAll = (e: React.MouseEvent<HTMLButtonElement>) => {
+    e.preventDefault();
+    todos.value.forEach(todo => {
+      if (todo.completed === allTodosCompleted.value) {
+        todosToDelete.value = [...todosToDelete.value, todo.id];
+        updateTodo({
+          id: todo.id,
+          title: todo.title,
+          completed: !allTodosCompleted.value,
+        })
+          .then((updatedTodo) => {
+            todos.value = todos.value
+              .map((t) => (t.id === todo.id ? updatedTodo : t));
+          })
+          .catch(() => {
+            isError.value = ErrorValues.update;
+          })
+          .finally(() => {
+            todosToDelete.value = todosToDelete.value
+              .filter((t) => t !== todo.id);
+          });
+      }
+    });
+  };
+
   if (!USER_ID) {
     return <UserWarning />;
   }
@@ -68,8 +96,10 @@ export const App: React.FC = () => {
           {/* this buttons is active only if there are some active todos */}
           <button
             type="button"
-            className="todoapp__toggle-all active"
+            className={classNames('todoapp__toggle-all',
+              { active: allTodosCompleted.value })}
             data-cy="ToggleAllButton"
+            onClick={handleToggleAll}
           />
 
           {/* Add a todo on form submit */}
