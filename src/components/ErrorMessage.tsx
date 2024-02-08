@@ -1,4 +1,5 @@
 import React, { memo, useState, useEffect } from 'react';
+import classNames from 'classnames';
 import { Error } from '../types/Error';
 
 interface Props {
@@ -27,7 +28,16 @@ export const ErrorMessage: React.FC<Props> = memo(({ error, close }) => {
   return (
     <div
       data-cy="ErrorNotification"
-      className={`notification is-danger is-light has-text-weight-normal ${isVisible ? 'visible' : 'hidden'}`}
+      className={classNames(
+        'notification',
+        'is-danger',
+        'is-light',
+        'has-text-weight-normal',
+        {
+          visible: isVisible,
+          hidden: !isVisible,
+        },
+      )}
     >
       <button
         aria-label="Close"

@@ -37,8 +37,6 @@ export const App: React.FC = () => {
   const filterTodos = useCallback((currentTodos: Todo[], query: Filter) => {
     return currentTodos.filter(todo => {
       switch (query) {
-        case Filter.All:
-          return todo;
         case Filter.Completed:
           return todo.completed;
         case Filter.Active:
@@ -54,12 +52,12 @@ export const App: React.FC = () => {
   }, [todos, filter, filterTodos]);
 
   const activeTodosCount = useMemo(() => {
-    return todos.filter(todo => todo.completed !== true).length;
+    return todos.filter(todo => !todo.completed).length;
   }, [todos]);
 
   const isCompletedTodos = useMemo(() => {
     return todos
-      .filter(todo => todo.completed === true).length > 0;
+      .filter(todo => todo.completed).length > 0;
   }, [todos]);
 
   const addNewTodo = useCallback((title: string) => {
@@ -208,7 +206,6 @@ export const App: React.FC = () => {
           todos={filteredTodos}
           tempTodo={tempTodo}
           deleteTodos={deleteCurrentTodo}
-          // deleteTodosId={deleteTodoId}
           loadingTodoIds={loadingTodoIds}
           updateTodo={updateTodo}
         />

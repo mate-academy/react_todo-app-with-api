@@ -113,9 +113,7 @@ export const TodoItem: React.FC<Props> = ({
             placeholder="Empty todo will be deleted"
             ref={inputRef}
             value={newTitle}
-            onChange={(e) => {
-              setNewTitle(e.target.value);
-            }}
+            onChange={(e) => setNewTitle(e.target.value)}
           />
         </form>
       )
