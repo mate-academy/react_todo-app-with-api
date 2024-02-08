@@ -1,36 +1,51 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import cn from 'classnames';
 import { Todo } from '../../types/Todo';
 
 type Props = {
   todo: Todo;
   deleteTodo: (id: number) => void;
-  isTemp?: boolean;
   updateTodo: (todo: Todo) => void;
+  tempLoading?: boolean;
+  completedLoading?: boolean;
+  toggleAllChangedLoading?: boolean;
 };
 
 export const TodoItem: React.FC<Props> = ({
   todo,
   deleteTodo,
-  isTemp,
+  tempLoading,
   updateTodo,
+  completedLoading,
+  toggleAllChangedLoading,
 }) => {
   const { id, title, completed } = todo;
   const [isEditing, setIsEditing] = useState(false);
   const [newTitle, setNewTitle] = useState(title);
   const [isLoading, setIsLoading] = useState(false);
   const [originalTitle, setOriginalTitle] = useState(title);
+  const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     setNewTitle(title);
     setOriginalTitle(title);
   }, [title]);
 
+  useEffect(() => {
+    if (isEditing && inputRef.current) {
+      inputRef.current.focus();
+    }
+  }, [isEditing]);
+
   const handleDoubleClick = () => {
     setIsEditing(true);
   };
 
   const deleteTodoItem = () => {
+    setIsLoading(true);
+    setTimeout(() => {
+      setIsLoading(false);
+    }, 500);
     deleteTodo(id);
   };
 
@@ -53,11 +68,15 @@ export const TodoItem: React.FC<Props> = ({
     }
 
     setIsLoading(true);
+
     const updatedTodo: Todo = { ...todo, title: newTitle };
 
     updateTodo(updatedTodo);
-    setIsEditing(false);
-    setIsLoading(false);
+
+    setTimeout(() => {
+      setIsEditing(false);
+      setIsLoading(false);
+    }, 500);
   };
 
   const handleTitleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -79,6 +98,22 @@ export const TodoItem: React.FC<Props> = ({
     }
   };
 
+  const todoStatusUpdate = () => {
+    const updatedCompleted = !completed;
+
+    updateTodo({
+      ...todo,
+      completed: updatedCompleted,
+    });
+  };
+
+  const isLoader = () => {
+    return (isLoading
+      || tempLoading
+      || (completedLoading && todo.completed === true)
+      || toggleAllChangedLoading);
+  };
+
   return (
     <div
       data-cy="Todo"
@@ -91,22 +126,14 @@ export const TodoItem: React.FC<Props> = ({
           type="checkbox"
           className="todo__status"
           checked={completed}
-          onChange={() => {
-            const updatedCompleted = !completed;
-
-            updateTodo({
-              ...todo,
-              completed: updatedCompleted,
-            });
-          }}
+          onChange={todoStatusUpdate}
         />
       </label>
 
       {isEditing ? (
         <form onSubmit={handleSubmit} onBlur={handleBlur}>
           <input
-            // eslint-disable-next-line jsx-a11y/no-autofocus
-            autoFocus
+            ref={inputRef}
             data-cy="TodoTitleField"
             type="text"
             className="todo__title-field"
@@ -133,8 +160,8 @@ export const TodoItem: React.FC<Props> = ({
         </>
       )}
 
-      {(isLoading || !isTemp) && (
-        <div data-cy="TodoLoader" className="modal overlay">
+      {isLoader() && (
+        <div data-cy="TodoLoader" className="modal overlay is-active">
           <div className="modal-background has-background-white-ter" />
           <div className="loader" />
         </div>

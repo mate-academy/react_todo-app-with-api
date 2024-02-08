@@ -3,7 +3,7 @@ import cn from 'classnames';
 import { ErrorMessage } from '../../types/ErrorMessage';
 
 type Props = {
-  CreateTodo: (title: string) => void;
+  createTodo: (title: string) => void;
   newError: (errorMes: ErrorMessage) => void;
   todosLength: number;
   isAllCompleted: () => boolean;
@@ -11,7 +11,7 @@ type Props = {
 };
 
 export const Header: React.FC<Props> = ({
-  CreateTodo,
+  createTodo,
   newError: neError,
   todosLength,
   isAllCompleted,
@@ -34,13 +34,12 @@ export const Header: React.FC<Props> = ({
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     if (query) {
-      CreateTodo(query);
+      createTodo(query);
       setIsSubmitting(true);
       setTimeout(() => {
         setIsSubmitting(false);
+        setQuery('');
       }, 500);
-
-      setQuery('');
     } else {
       neError(ErrorMessage.TITLE_SHOULD_NOT_BE_EMPTY);
     }
@@ -68,7 +67,9 @@ export const Header: React.FC<Props> = ({
         <input
           data-cy="NewTodoField"
           type="text"
-          className="todoapp__new-todo"
+          className={cn('todoapp__new-todo', {
+            isSubmitting: isAllCompleted,
+          })}
           placeholder="What needs to be done?"
           value={query}
           onChange={handleQuery}

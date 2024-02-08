@@ -20,8 +20,12 @@ const USER_ID = 35;
 export const App: React.FC = () => {
   const [todos, setTodos] = useState<Todo[]>([]);
   const [filter, setFilter] = useState<FilterType>(FilterType.ALL);
-  const [tempTodo, setTempTodo] = useState<Todo | null>(null); // Add state for tempTodo
+  const [tempTodo, setTempTodo] = useState<Todo | null>(null);
   const [errorMessage, setErrorMessage] = useState(ErrorMessage.NONE);
+
+  const [todoChangeLoading, setTodoChangeLoading] = useState(false);
+  const [toggleAllChangedLoading, setToggleAllChangedLoading] = useState(false);
+  const [clearCompletedLoading, setClearCompletedLoading] = useState(false);
 
   const closeErrorMsg = useCallback(() => {
     setErrorMessage(ErrorMessage.NONE);
@@ -63,7 +67,7 @@ export const App: React.FC = () => {
           if (todo.id === updatedTodo.id) {
             return {
               ...todo,
-              title: updatedTodo.title, // Update title as well
+              title: updatedTodo.title,
               completed: updatedTodo.completed,
             };
           }
@@ -88,13 +92,19 @@ export const App: React.FC = () => {
       completed: !allCompleted,
     }));
 
-    Promise.all(updatedTodos.map(todo => updateTodo(todo)))
-      .then(() => {
-        setTodos(updatedTodos);
-      })
-      .catch(() => {
-        newError(ErrorMessage.UNABLE_TO_UPDATE_A_TODO);
-      });
+    setToggleAllChangedLoading(true);
+
+    setTimeout(() => {
+      Promise.all(updatedTodos.map(todo => updateTodo(todo)))
+        .then(() => {
+          setTodos(updatedTodos);
+        })
+        .catch(() => {
+          newError(ErrorMessage.UNABLE_TO_UPDATE_A_TODO);
+        });
+
+      setToggleAllChangedLoading(false);
+    }, 500);
   };
 
   const addTodo = (title: string) => {
@@ -110,17 +120,23 @@ export const App: React.FC = () => {
       id: 0, title, userId: USER_ID, completed: false,
     });
 
-    api.createTodo({ title, userId: USER_ID, completed: false })
-      .then((newTodo) => {
-        const typedNewTodo = newTodo as Todo;
+    setTodoChangeLoading(true);
 
-        setTodos((currentTodos: Todo[]) => [...currentTodos, typedNewTodo]);
-        setTempTodo(null);
-      })
-      .catch(() => {
-        newError(ErrorMessage.UNABLE_TO_ADD_A_TODO);
-        setTempTodo(null);
-      });
+    setTimeout(() => {
+      api.createTodo({ title, userId: USER_ID, completed: false })
+        .then((newTodo) => {
+          const typedNewTodo = newTodo as Todo;
+
+          setTodos((currentTodos: Todo[]) => [...currentTodos, typedNewTodo]);
+          setTempTodo(null);
+        })
+        .catch(() => {
+          newError(ErrorMessage.UNABLE_TO_ADD_A_TODO);
+          setTempTodo(null);
+        });
+
+      setTodoChangeLoading(false);
+    }, 500);
   };
 
   const deleteTodos = (todoId: number) => {
@@ -134,13 +150,27 @@ export const App: React.FC = () => {
   };
 
   const removeCompletedTodos = () => {
-    Promise.all(
-      todos
-        .filter(todo => todo.completed)
-        .map(todo => deleteTodos(todo.id)),
-    )
-      .then(() => setTodos(currentTodos => currentTodos
-        .filter(todo => !todo.completed)));
+    setClearCompletedLoading(true);
+
+    setTimeout(() => {
+      Promise.all(
+        todos
+          .filter(todo => todo.completed)
+          .map(todo => {
+            return deleteTodos(todo.id);
+          }),
+      )
+        .then(() => {
+          setTodos(currentTodos => (
+            currentTodos.filter(todo => !todo.completed)
+          ));
+        })
+        .catch(() => {
+          newError(ErrorMessage.UNABLE_TO_DELETE_A_TODO);
+        });
+
+      setClearCompletedLoading(false);
+    }, 500);
   };
 
   const itemsLeft = todos.filter((todo) => !todo.completed).length;
@@ -155,7 +185,7 @@ export const App: React.FC = () => {
 
       <div className="todoapp__content">
         <Header
-          CreateTodo={addTodo}
+          createTodo={addTodo}
           newError={newError}
           todosLength={todos.length}
           isAllCompleted={isAllCompleted}
@@ -166,26 +196,21 @@ export const App: React.FC = () => {
             todos={filteredTodos}
             deleteTodo={deleteTodos}
             updateTodo={updateTodo}
+            completedLoading={clearCompletedLoading}
+            toggleAllChangedLoading={toggleAllChangedLoading}
           />
           {tempTodo && (
             <TodoItem
               key={tempTodo?.id}
               todo={tempTodo}
               deleteTodo={deleteTodos}
-              isTemp={!tempTodo}
+              tempLoading={todoChangeLoading}
               updateTodo={updateTodo}
             />
           )}
-          {/* Display loader for tempTodo */}
-          {tempTodo && (
-            <div data-cy="TodoLoader" className="modal overlay">
-              <div className="modal-background has-background-white-ter" />
-              <div className="loader" />
-            </div>
-          )}
         </section>
 
-        {/* Hide the footer if there are no todos */}
+        {/* Скрываем подвал, если нет todo */}
         {!!todos.length && (
           <Footer
             filter={filter}
@@ -196,8 +221,8 @@ export const App: React.FC = () => {
         )}
       </div>
 
-      {/* Notification is shown in case of any error */}
-      {/* Add the 'hidden' class to hide the message smoothly */}
+      {/* Уведомление отображается в случае ошибки */}
+      {/* Добавляем класс 'hidden', чтобы плавно скрыть сообщение */}
       <Notification errorMessage={errorMessage} close={closeErrorMsg} />
     </div>
   );
