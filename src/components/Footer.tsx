@@ -2,19 +2,15 @@
 import { useCallback, useContext, useMemo } from 'react';
 import classNames from 'classnames';
 import { TodoContext } from '../contexts/TodoContext';
-import { deleteTodo } from '../api/todos';
 import { Filtering } from '../types/Filtering';
-import { Error } from '../types/Error';
 import { getItemsLeft } from '../utils/getItemsLeft';
 
 export const Footer = () => {
   const {
     todos,
-    setTodos,
     filtering,
     setFiltering,
-    setLoadingTodo,
-    setErrorMessage,
+    handleDeleteTodo,
   } = useContext(TodoContext);
 
   const itemsLeft = getItemsLeft(todos);
@@ -23,23 +19,8 @@ export const Footer = () => {
     () => todos.filter(todo => todo.completed), [todos],
   );
 
-  const handleFinally = () => {
-    setLoadingTodo(null);
-    setTimeout(() => {
-      setErrorMessage('');
-    }, 3000);
-  };
-
   const handleDelete = useCallback(() => {
-    completedTodosIds.forEach(todo => {
-      setLoadingTodo(todo);
-      deleteTodo(todo.id)
-        .then(() => {
-          setTodos(prev => prev.filter(t => t.id !== todo.id));
-        })
-        .catch(() => setErrorMessage(Error.Delete))
-        .finally(() => handleFinally());
-    });
+    completedTodosIds.forEach(todo => handleDeleteTodo(todo.id, todo));
   }, [completedTodosIds]);
 
   const hasCompleted = todos.some(todo => todo.completed);

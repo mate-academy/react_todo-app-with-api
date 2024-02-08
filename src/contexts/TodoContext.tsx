@@ -2,6 +2,8 @@ import React, { useMemo, useState } from 'react';
 import { Todo } from '../types/Todo';
 import { Filtering } from '../types/Filtering';
 import { TempTodo } from '../types/TempTodo';
+import { deleteTodo } from '../api/todos';
+import { Error } from '../types/Error';
 
 export interface TodoContextType {
   todos: Todo[];
@@ -14,9 +16,9 @@ export interface TodoContextType {
   setTempTodo: React.Dispatch<React.SetStateAction<TempTodo | null>>
   editingTodo: Todo | {}
   setEditingTodo: React.Dispatch<React.SetStateAction<Todo>>
-  loadingTodo: Todo | null
-  setLoadingTodo: React.Dispatch<React.SetStateAction<Todo | null>>
-
+  loadingTodo: Todo[]
+  setLoadingTodo: React.Dispatch<React.SetStateAction<Todo[]>>
+  handleDeleteTodo: (todoId: number, todoToDelete?: Todo) => void
 }
 
 export const TodoContext = React.createContext<TodoContextType>({
@@ -30,9 +32,9 @@ export const TodoContext = React.createContext<TodoContextType>({
   setTempTodo: () => {},
   editingTodo: {},
   setEditingTodo: () => {},
-  loadingTodo: null,
+  loadingTodo: [],
   setLoadingTodo: () => {},
-
+  handleDeleteTodo: () => {},
 });
 
 interface Props {
@@ -45,7 +47,21 @@ export const TodoProvider: React.FC<Props> = ({ children }) => {
   const [errorMessage, setErrorMessage] = useState('');
   const [tempTodo, setTempTodo] = useState<TempTodo | null>(null);
   const [editingTodo, setEditingTodo] = useState({} as Todo);
-  const [loadingTodo, setLoadingTodo] = useState<Todo | null>(null);
+  const [loadingTodo, setLoadingTodo] = useState<Todo[]>([]);
+
+  const handleDeleteTodo = (
+    todoId: number,
+    todoToDelete: Todo | null = null,
+  ) => {
+    if (todoToDelete) {
+      setLoadingTodo(currentTodos => [...currentTodos, todoToDelete]);
+    }
+
+    deleteTodo(todoId)
+      .then(() => setTodos((prev) => prev.filter((t) => t.id !== todoId)))
+      .catch(() => setErrorMessage(Error.Delete))
+      .finally(() => setLoadingTodo([]));
+  };
 
   const value: TodoContextType = useMemo(() => (
     {
@@ -61,6 +77,7 @@ export const TodoProvider: React.FC<Props> = ({ children }) => {
       setEditingTodo,
       loadingTodo,
       setLoadingTodo,
+      handleDeleteTodo,
     }
   ), [
     todos,

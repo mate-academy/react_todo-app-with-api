@@ -60,7 +60,7 @@ export const Header: React.FC = () => {
       completed: false,
     };
 
-    setLoadingTodo(newTodo as Todo);
+    setLoadingTodo(prev => [...prev, newTodo as Todo]);
 
     createTodo(newTodo)
       .then((createdTodo: Todo) => {
@@ -69,7 +69,7 @@ export const Header: React.FC = () => {
       })
       .catch(() => setErrorMessage(Error.Add))
       .finally(() => {
-        setLoadingTodo(null);
+        setLoadingTodo([]);
         setTempTodo(null);
       });
   };
@@ -84,7 +84,7 @@ export const Header: React.FC = () => {
       : todos;
 
     todosToUpdate.forEach((todo) => {
-      setLoadingTodo(todo);
+      setLoadingTodo(prev => [...prev, todo]);
 
       const updatedStatus = !todo.completed;
 
@@ -92,9 +92,11 @@ export const Header: React.FC = () => {
         .then(() => setTodos((prev) => prev
           .map((prevTodo) => ({ ...prevTodo, completed: updatedStatus }))))
         .catch(() => setErrorMessage(Error.Update))
-        .finally(() => setLoadingTodo(null));
+        .finally(() => setLoadingTodo([]));
     });
   };
+
+  const isLoading = !!loadingTodo.length;
 
   return (
     <header className="todoapp__header">
@@ -118,7 +120,7 @@ export const Header: React.FC = () => {
           className="todoapp__new-todo"
           placeholder="What needs to be done?"
           onChange={handleTitleChange}
-          disabled={!!loadingTodo}
+          disabled={isLoading}
         />
       </form>
     </header>
