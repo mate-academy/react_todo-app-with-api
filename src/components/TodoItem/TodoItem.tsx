@@ -5,7 +5,7 @@ import { Todo } from '../../types/Todo';
 import {
   isError, tempTodo, todos, todosToDelete,
 } from '../../signals';
-import { deleteTodo } from '../../api/todos';
+import { deleteTodo, updateTodo } from '../../api/todos';
 import { ErrorValues } from '../../types/ErrorValues';
 
 type Props = {
@@ -33,6 +33,20 @@ export const TodoItem = ({ todo }: Props) => {
       });
   };
 
+  const handleCheckboxChange = () => {
+    setIsLoading(true);
+    updateTodo({ id, title, completed: !completed })
+      .then((updatedTodo) => {
+        todos.value = todos.value.map((t) => (t.id === id ? updatedTodo : t));
+      })
+      .catch(() => {
+        isError.value = ErrorValues.update;
+      })
+      .finally(() => {
+        setIsLoading(false);
+      });
+  };
+
   return (
     <div
       data-cy="Todo"
@@ -44,6 +58,7 @@ export const TodoItem = ({ todo }: Props) => {
           type="checkbox"
           className="todo__status"
           checked={completed}
+          onChange={handleCheckboxChange}
         />
       </label>
 

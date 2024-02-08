@@ -15,3 +15,10 @@ export const postTodo = (todo: Todo) => {
 export const deleteTodo = (id: number) => {
   return client.delete(`/todos/${id}`);
 };
+
+export const updateTodo = (todo: Omit<Todo, 'userId'>) => {
+  return client.patch<Todo>(`/todos/${todo.id}`, {
+    title: todo.title,
+    completed: todo.completed,
+  });
+};
