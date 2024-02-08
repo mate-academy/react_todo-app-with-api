@@ -82,6 +82,7 @@ export const TodoItem = ({ todo }: Props) => {
       })
         .then((updatedTodo) => {
           todos.value = todos.value.map((t) => (t.id === id ? updatedTodo : t));
+          todoIsEditing.value = false;
         })
         .catch(() => {
           isError.value = null;
@@ -89,7 +90,6 @@ export const TodoItem = ({ todo }: Props) => {
         })
         .finally(() => {
           todosToLoad.value = todosToLoad.value.filter((t) => t !== id);
-          todoIsEditing.value = false;
         });
     } else {
       handleDelete();
