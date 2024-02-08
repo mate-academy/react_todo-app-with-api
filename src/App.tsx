@@ -1,7 +1,6 @@
 /* eslint-disable jsx-a11y/control-has-associated-label */
 import React, { useEffect, useRef } from 'react';
-import { signal } from '@preact/signals-react';
-import { useSignals } from '@preact/signals-react/runtime';
+import { useSignal, useSignals } from '@preact/signals-react/runtime';
 import classNames from 'classnames';
 import { UserWarning } from './UserWarning';
 import { TodoList } from './components/TodoList/TodoList';
@@ -14,11 +13,10 @@ import { postTodo, updateTodo } from './api/todos';
 
 const USER_ID = 132;
 
-const inputValue = signal<string>('');
-
 export const App: React.FC = () => {
   useSignals();
 
+  const inputValue = useSignal<string>('');
   const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
