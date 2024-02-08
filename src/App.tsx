@@ -26,7 +26,6 @@ export const App: React.FC = () => {
   const [filter, setFilter] = useState<Filter>(Filter.All);
   const [error, setError] = useState<Error | null>(null);
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
-  const [deleteTodoId, setDeleteTodoId] = useState<number | null>(null);
   const [loadingTodoIds, setLoadingTodoIds] = useState<number[]>([]);
 
   useEffect(() => {
@@ -94,14 +93,14 @@ export const App: React.FC = () => {
   }, []);
 
   const deleteCurrentTodo = useCallback((id: number) => {
-    setDeleteTodoId(id);
+    setLoadingTodoIds(prev => [...prev, id]);
     deleteTodos(id)
       .then(() => {
         setTodos(prev => prev.filter(todo => todo.id !== id));
       })
       .catch(() => setError(Error.UnableToDelete))
       .finally(() => {
-        setDeleteTodoId(null);
+        setLoadingTodoIds([]);
       });
   }, []);
 
@@ -109,6 +108,8 @@ export const App: React.FC = () => {
     const completedTodoIds = todos
       .filter(todo => todo.completed)
       .map(todo => todo.id);
+
+    setLoadingTodoIds(completedTodoIds);
 
     Promise.all(completedTodoIds.map(id => deleteTodos(id)))
       .then(() => {
@@ -118,7 +119,7 @@ export const App: React.FC = () => {
       })
       .catch(() => setError(Error.UnableToDelete))
       .finally(() => {
-        setDeleteTodoId(null);
+        setLoadingTodoIds([]);
       });
   }, [todos]);
 
@@ -207,7 +208,7 @@ export const App: React.FC = () => {
           todos={filteredTodos}
           tempTodo={tempTodo}
           deleteTodos={deleteCurrentTodo}
-          deleteTodosId={deleteTodoId}
+          // deleteTodosId={deleteTodoId}
           loadingTodoIds={loadingTodoIds}
           updateTodo={updateTodo}
         />
