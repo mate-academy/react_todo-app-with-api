@@ -1,24 +1,52 @@
-/* eslint-disable max-len */
 /* eslint-disable jsx-a11y/control-has-associated-label */
-import React from 'react';
-import { UserWarning } from './UserWarning';
-
-const USER_ID = 0;
+import React, {
+  useContext,
+} from 'react';
+import { TodoContext } from './TodoContext';
+import { TodoItem } from './Components/TodoItem/TodoItem';
+import { TodoItemForm } from './Components/TodoItemForm/TodoItemForm';
+import { Footer } from './Components/Footer/Footer';
+import { TempTodo } from './Components/TempTodo/TempTodo';
+import { ErrorsHandling } from './Components/ErrorsHandling/ErrorsHandling';
+import { Header } from './Components/Header/Header';
 
 export const App: React.FC = () => {
-  if (!USER_ID) {
-    return <UserWarning />;
-  }
+  const {
+    todos,
+    filteredTodos,
+    isChosenToRename,
+    tempTodo,
+  } = useContext(TodoContext);
 
   return (
-    <section className="section container">
-      <p className="title is-4">
-        Copy all you need from the prev task:
-        <br />
-        <a href="https://github.com/mate-academy/react_todo-app-add-and-delete#react-todo-app-add-and-delete">React Todo App - Add and Delete</a>
-      </p>
+    <div className="todoapp">
+      <h1 className="todoapp__title">todos</h1>
 
-      <p className="subtitle">Styles are already copied</p>
-    </section>
+      <div className="todoapp__content">
+        <Header />
+
+        <section className="todoapp__main" data-cy="TodoList">
+          {filteredTodos.map((todo) => (
+            <React.Fragment key={todo.id}>
+              {isChosenToRename === todo.id ? (
+                <TodoItemForm todo={todo} />
+              ) : (
+                <TodoItem todo={todo} />
+              )}
+
+            </React.Fragment>
+          ))}
+        </section>
+
+        {tempTodo && (
+          <TempTodo />
+        )}
+
+        {todos.length > 0 && (
+          <Footer />
+        )}
+      </div>
+      <ErrorsHandling />
+    </div>
   );
 };
