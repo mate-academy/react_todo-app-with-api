@@ -1,9 +1,8 @@
 import { useSignals } from '@preact/signals-react/runtime';
 import classNames from 'classnames';
-import { useState } from 'react';
 import { Todo } from '../../types/Todo';
 import {
-  isError, tempTodo, todos, todosToDelete,
+  isError, todos, todosToLoad,
 } from '../../signals';
 import { deleteTodo, updateTodo } from '../../api/todos';
 import { ErrorValues } from '../../types/ErrorValues';
@@ -16,11 +15,10 @@ export const TodoItem = ({ todo }: Props) => {
   useSignals();
 
   const { id, title, completed } = todo;
-  const [isLoading, setIsLoading] = useState(false);
-  const isDeleting = todosToDelete.value.includes(id);
+  const isLoading = todosToLoad.value.includes(id);
 
   const handleDelete = () => {
-    setIsLoading(true);
+    todosToLoad.value = [...todosToLoad.value, id];
     deleteTodo(id)
       .then(() => {
         todos.value = todos.value.filter((t) => t.id !== id);
@@ -29,12 +27,12 @@ export const TodoItem = ({ todo }: Props) => {
         isError.value = ErrorValues.delete;
       })
       .finally(() => {
-        setIsLoading(false);
+        todosToLoad.value = todosToLoad.value.filter((t) => t !== id);
       });
   };
 
   const handleCheckboxChange = () => {
-    setIsLoading(true);
+    todosToLoad.value = [...todosToLoad.value, id];
     updateTodo({ id, title, completed: !completed })
       .then((updatedTodo) => {
         todos.value = todos.value.map((t) => (t.id === id ? updatedTodo : t));
@@ -43,7 +41,7 @@ export const TodoItem = ({ todo }: Props) => {
         isError.value = ErrorValues.update;
       })
       .finally(() => {
-        setIsLoading(false);
+        todosToLoad.value = todosToLoad.value.filter((t) => t !== id);
       });
   };
 
@@ -83,9 +81,7 @@ export const TodoItem = ({ todo }: Props) => {
           'modal',
           'overlay',
           {
-            'is-active': tempTodo.value?.id === id
-            || isLoading
-            || isDeleting,
+            'is-active': isLoading,
           },
         )}
       >

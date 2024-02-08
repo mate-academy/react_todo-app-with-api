@@ -3,7 +3,7 @@ import classNames from 'classnames';
 import { FilterValues } from '../../types/FilterValues';
 import { filter } from '../../signals/filter-signals';
 import {
-  activeTodosCounter, completedTodosCounter, isError, todos, todosToDelete,
+  activeTodosCounter, completedTodosCounter, isError, todos, todosToLoad,
 } from '../../signals';
 import { deleteTodo } from '../../api/todos';
 import { ErrorValues } from '../../types/ErrorValues';
@@ -36,11 +36,11 @@ export const Footer = () => {
   const handleClearCompleted = () => {
     todos.value.forEach((todo) => {
       if (todo.completed) {
-        todosToDelete.value = [...todosToDelete.value, todo.id];
+        todosToLoad.value = [...todosToLoad.value, todo.id];
         deleteTodo(todo.id)
           .then(() => {
             todos.value = todos.value.filter((t) => t.id !== todo.id);
-            todosToDelete.value = todosToDelete.value
+            todosToLoad.value = todosToLoad.value
               .filter((t) => t !== todo.id);
           })
           .catch(() => {

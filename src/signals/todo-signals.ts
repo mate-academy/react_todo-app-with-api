@@ -9,7 +9,7 @@ type Error = keyof typeof ErrorValues;
 export const todos = signal<Todo[]>([]);
 export const tempTodo = signal<Todo | null>(null);
 export const isError = signal<Error | null>(null);
-export const todosToDelete = signal<number[]>([]);
+export const todosToLoad = signal<number[]>([]);
 
 export const filteredTodos = computed<Todo[]>(() => {
   switch (filter.value) {

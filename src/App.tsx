@@ -6,7 +6,7 @@ import classNames from 'classnames';
 import { UserWarning } from './UserWarning';
 import { TodoList } from './components/TodoList/TodoList';
 import {
-  allTodosCompleted, isError, tempTodo, todos, todosToDelete,
+  allTodosCompleted, isError, tempTodo, todos, todosToLoad,
 } from './signals';
 import { Error } from './components/Error/Error';
 import { ErrorValues } from './types/ErrorValues';
@@ -42,17 +42,19 @@ export const App: React.FC = () => {
         completed: false,
         userId: USER_ID,
       };
+      todosToLoad.value = [...todosToLoad.value, tempTodo.value.id];
       postTodo(tempTodo.value)
         .then((todo) => {
           todos.value = [...todos.value, todo];
-          tempTodo.value = null;
           inputValue.value = '';
         })
         .catch(() => {
           isError.value = ErrorValues.add;
-          tempTodo.value = null;
         })
         .finally(() => {
+          todosToLoad.value = todosToLoad.value
+            .filter((t) => t !== tempTodo.value?.id);
+          tempTodo.value = null;
           inputRef.current?.focus();
         });
     }
@@ -62,7 +64,7 @@ export const App: React.FC = () => {
     e.preventDefault();
     todos.value.forEach(todo => {
       if (todo.completed === allTodosCompleted.value) {
-        todosToDelete.value = [...todosToDelete.value, todo.id];
+        todosToLoad.value = [...todosToLoad.value, todo.id];
         updateTodo({
           id: todo.id,
           title: todo.title,
@@ -76,7 +78,7 @@ export const App: React.FC = () => {
             isError.value = ErrorValues.update;
           })
           .finally(() => {
-            todosToDelete.value = todosToDelete.value
+            todosToLoad.value = todosToLoad.value
               .filter((t) => t !== todo.id);
           });
       }
