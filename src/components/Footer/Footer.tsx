@@ -44,6 +44,7 @@ export const Footer = () => {
               .filter((t) => t !== todo.id);
           })
           .catch(() => {
+            isError.value = null;
             isError.value = ErrorValues.delete;
           });
       }

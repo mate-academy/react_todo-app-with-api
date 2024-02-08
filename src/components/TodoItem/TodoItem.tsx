@@ -29,6 +29,7 @@ export const TodoItem = ({ todo }: Props) => {
         todos.value = todos.value.filter((t) => t.id !== id);
       })
       .catch(() => {
+        isError.value = null;
         isError.value = ErrorValues.delete;
       })
       .finally(() => {
@@ -43,6 +44,7 @@ export const TodoItem = ({ todo }: Props) => {
         todos.value = todos.value.map((t) => (t.id === id ? updatedTodo : t));
       })
       .catch(() => {
+        isError.value = null;
         isError.value = ErrorValues.update;
       })
       .finally(() => {
@@ -82,6 +84,7 @@ export const TodoItem = ({ todo }: Props) => {
           todos.value = todos.value.map((t) => (t.id === id ? updatedTodo : t));
         })
         .catch(() => {
+          isError.value = null;
           isError.value = ErrorValues.update;
         })
         .finally(() => {

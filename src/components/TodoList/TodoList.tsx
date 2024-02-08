@@ -15,6 +15,7 @@ effect(() => {
       todos.value = response;
     })
     .catch(() => {
+      isError.value = null;
       isError.value = ErrorValues.load;
     });
 });

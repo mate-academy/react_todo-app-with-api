@@ -93,16 +93,17 @@ export const App: React.FC = () => {
 
       <div className="todoapp__content">
         <header className="todoapp__header">
-          {/* this buttons is active only if there are some active todos */}
-          <button
-            type="button"
-            className={classNames('todoapp__toggle-all',
-              { active: allTodosCompleted.value })}
-            data-cy="ToggleAllButton"
-            onClick={handleToggleAll}
-          />
 
-          {/* Add a todo on form submit */}
+          {!!todos.value.length && (
+            <button
+              type="button"
+              className={classNames('todoapp__toggle-all',
+                { active: allTodosCompleted.value })}
+              data-cy="ToggleAllButton"
+              onClick={handleToggleAll}
+            />
+          )}
+
           <form onSubmit={handleSubmit}>
             <input
               data-cy="NewTodoField"
