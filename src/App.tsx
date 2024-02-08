@@ -3,7 +3,7 @@
 import React, {
   useCallback,
   useContext,
-  useEffect, useRef,
+  useEffect,
 } from 'react';
 import { UserWarning } from './UserWarning';
 import * as postService from './api/todos';
@@ -18,7 +18,7 @@ export const App: React.FC = () => {
   const {
     todos, setTodos, title, setTitle, loadingTodos, setLoadingTodos,
     errorMessage, setErrorMessage, errorHidden, setErrorHidden, tempTodo, setTempTodo,
-    comnpletedTodoIds, setGroupTodosLoading,
+    completedTodoIds, setDeleteLoading, setSelectedTodo, setToggleAllLoading, inputRef, focusInput,
   } = useContext(TodosContext);
 
   // #region error handling
@@ -47,46 +47,71 @@ export const App: React.FC = () => {
 
   useEffect(() => loadTodos(), [loadTodos, setErrorHidden, setErrorMessage, setLoadingTodos, setTodos]);
 
+  const activeTodos = todos.filter(todo => !todo.completed);
+  const completedTodos = todos.filter(todo => todo.completed);
   const canToggleAll = todos.length > 0;
-  const allTodosCompleted = todos.every((todo) => todo.completed);
+  // const allTodosCompleted = todos.every((todo) => todo.completed);
 
   const handleToggleAllClick = () => {
-    setGroupTodosLoading(true);
+    setSelectedTodo(null);
+    setToggleAllLoading(true);
     setErrorHidden(true);
     setErrorMessage('');
 
     if (canToggleAll) {
-      const todoUpdates = comnpletedTodoIds.map(todoId => ({ todoId, completed: allTodosCompleted }));
+      const hasIncompleteTodos = todos.some(todo => !todo.completed);
+      const hasCompletedTodos = todos.some(todo => todo.completed);
+      const newStatus = hasIncompleteTodos; // true or false
+      let todoUpdates = null;
+
+      if (hasIncompleteTodos && hasCompletedTodos) {
+        todoUpdates = activeTodos.map(todo => ({ todoId: todo.id, completed: newStatus }));
+      } else {
+        todoUpdates = todos.map(todo => ({ todoId: todo.id, completed: newStatus }));
+      }
 
       postService.editTodos(todoUpdates)
-        .then(() => setTodos(todos.map((todo) => (
-          { ...todo, completed: !allTodosCompleted }
-        ))))
+        .then(() => {
+          setTodos(todos.map(todo => ({ ...todo, completed: newStatus })));
+        })
         .catch(() => {
           setTodos(todos);
           setErrorMessage('Unable to upload todos');
           setErrorHidden(false);
         })
-        .finally(() => setGroupTodosLoading(false));
+        .finally(() => setToggleAllLoading(false));
     }
   };
 
   const deleteCompletedTodos = () => {
-    setGroupTodosLoading(true);
+    setSelectedTodo(null);
+    setDeleteLoading(true);
     setErrorHidden(true);
     setErrorMessage('');
 
     setTodos(currentTodos => currentTodos.filter(todo => !todo.completed));
+    const todosToDelete = todos.filter(todo => todo.completed);
+    const todosToKeep = todos.filter(todo => !todo.completed);
 
-    return postService.removeTodos(comnpletedTodoIds)
+    return postService.removeTodos(completedTodoIds)
+      .then(() => setTodos(todosToKeep))
       .catch((error) => {
-        setTodos(todos);
+        const restoredCompletedTodos = todosToDelete.filter(todo => completedTodoIds.includes(todo.id));
+        const restoredTodos = [
+          ...todosToKeep,
+          ...restoredCompletedTodos];
+
+        const sortedRestoredTodos = restoredTodos.sort((a, b) => a.id - b.id);
+
+        setTodos(sortedRestoredTodos);
+
         setErrorHidden(false);
         setErrorMessage('Unable to delete a todo');
         throw error;
       })
       .finally(() => {
-        setGroupTodosLoading(false);
+        setDeleteLoading(false);
+        focusInput();
       });
   };
 
@@ -143,16 +168,11 @@ export const App: React.FC = () => {
     });
   };
 
-  const activeTodos = todos.filter(todo => !todo.completed).length;
-  const completedTodos = todos.filter(todo => todo.completed).length;
-
-  const inputRef = useRef<HTMLInputElement>(null);
-
   useEffect(() => {
-    if ((!loadingTodos || tempTodo === null) && inputRef.current) {
+    if ((!loadingTodos || tempTodo === null) && inputRef?.current) {
       inputRef.current.focus();
     }
-  }, [loadingTodos, tempTodo]);
+  }, [loadingTodos, tempTodo, inputRef]);
 
   if (!USER_ID) {
     return <UserWarning />;
@@ -169,7 +189,7 @@ export const App: React.FC = () => {
           && (
             <button
               type="button"
-              className={`todoapp__toggle-all ${completedTodos && 'active'}`}
+              className={`todoapp__toggle-all ${completedTodos.length === todos.length && 'active'}`}
               data-cy="ToggleAllButton"
               onClick={handleToggleAllClick}
             />
@@ -198,7 +218,7 @@ export const App: React.FC = () => {
         {!!todos.length && (
           <footer className="todoapp__footer" data-cy="Footer">
             <span className="todo-count" data-cy="TodosCounter">
-              {`${activeTodos} items left`}
+              {`${activeTodos.length} items left`}
             </span>
 
             <TodoFilter />
@@ -208,7 +228,8 @@ export const App: React.FC = () => {
               className="todoapp__clear-completed"
               data-cy="ClearCompletedButton"
               onClick={deleteCompletedTodos}
-              style={{ visibility: completedTodos > 0 ? 'visible' : 'hidden' }}
+              style={{ visibility: completedTodos.length > 0 ? 'visible' : 'hidden' }}
+              disabled={completedTodos.length === 0}
             >
               Clear completed
             </button>

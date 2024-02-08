@@ -14,14 +14,22 @@ export const TodoItem: React.FC<Props> = ({
   todo,
 }) => {
   const {
-    loading, selectedTodo, setSelectedTodo, comnpletedTodoIds,
-    deleteTodo, updateTodo, groupTodosLoading,
+    loading, selectedTodo, setSelectedTodo, deleteTodo, updateTodo,
+    deleteLoading, toggleAllLoading, todos,
   } = useContext(TodosContext);
 
   const [editMode, setEditMode] = useState(false);
   const [editedTitle, setEditedTitle] = useState(todo.title);
 
-  const isSelected = comnpletedTodoIds.includes(todo.id);
+  const inputRef = useRef<HTMLInputElement | null>(null);
+
+  useEffect(() => {
+    if (selectedTodo === todo && inputRef.current) {
+      inputRef.current.focus();
+    }
+  }, [selectedTodo, todo]);
+
+  const allTodosCompleted = todos.every(item => item.completed);
 
   const setTodoCompleted = (state: boolean) => {
     setSelectedTodo(todo);
@@ -46,7 +54,7 @@ export const TodoItem: React.FC<Props> = ({
   const finishEditing = () => {
     setEditMode(false);
 
-    if (editedTitle === todo.title) {
+    if (editedTitle.trim() === todo.title) {
       setEditedTitle(todo.title);
       setSelectedTodo(null);
       setEditMode(false);
@@ -60,7 +68,7 @@ export const TodoItem: React.FC<Props> = ({
       return;
     }
 
-    updateTodo({ ...todo, title: editedTitle });
+    updateTodo({ ...todo, title: editedTitle.trim() });
   };
 
   const handleEnterPress = (event: React.KeyboardEvent<HTMLInputElement>) => {
@@ -81,14 +89,6 @@ export const TodoItem: React.FC<Props> = ({
     setSelectedTodo(todo);
     deleteTodo(todo.id);
   };
-
-  const inputRef = useRef<HTMLInputElement | null>(null);
-
-  useEffect(() => {
-    if (selectedTodo === todo && inputRef.current) {
-      inputRef.current.focus();
-    }
-  }, [selectedTodo, todo]);
 
   return (
     <div
@@ -147,7 +147,8 @@ export const TodoItem: React.FC<Props> = ({
         className={cn('modal overlay',
           {
             'is-active': (loading && selectedTodo?.id === todo.id)
-            || (groupTodosLoading && isSelected),
+            || (deleteLoading && todo.completed)
+            || (toggleAllLoading && (!todo.completed || allTodosCompleted)),
           })}
       >
         <div className="modal-background has-background-white-ter" />

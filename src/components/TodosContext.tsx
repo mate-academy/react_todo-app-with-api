@@ -1,6 +1,6 @@
 import React, {
   Dispatch,
-  SetStateAction, useCallback, useMemo, useState,
+  SetStateAction, useCallback, useMemo, useRef, useState,
 } from 'react';
 import { Status, Todo } from '../types/Todo';
 import * as postService from '../api/todos';
@@ -27,11 +27,13 @@ type TodosContextType = {
   setSelectedTodo: Dispatch<SetStateAction<Todo | null>>,
   deleteTodo: (todoId: number) => void,
   updateTodo: (todo: Todo) => void,
-  selectedTodos: Todo[],
-  setSelectedTodos: Dispatch<SetStateAction<Todo[]>>,
-  comnpletedTodoIds: number[],
-  groupTodosLoading: boolean,
-  setGroupTodosLoading: Dispatch<SetStateAction<boolean>>,
+  completedTodoIds: number[],
+  deleteLoading: boolean,
+  setDeleteLoading: Dispatch<SetStateAction<boolean>>,
+  toggleAllLoading: boolean,
+  setToggleAllLoading: Dispatch<SetStateAction<boolean>>,
+  inputRef: React.RefObject<HTMLInputElement> | null,
+  focusInput: () => void,
 };
 
 export const TodosContext = React.createContext<TodosContextType>({
@@ -56,11 +58,13 @@ export const TodosContext = React.createContext<TodosContextType>({
   setSelectedTodo: () => {},
   deleteTodo: () => {},
   updateTodo: () => {},
-  selectedTodos: [],
-  setSelectedTodos: () => {},
-  comnpletedTodoIds: [],
-  groupTodosLoading: false,
-  setGroupTodosLoading: () => {},
+  completedTodoIds: [],
+  deleteLoading: false,
+  setDeleteLoading: () => {},
+  toggleAllLoading: false,
+  setToggleAllLoading: () => {},
+  inputRef: null,
+  focusInput: () => {},
 });
 
 type Props = {
@@ -78,8 +82,8 @@ export const TodosProvider: React.FC<Props> = ({ children }) => {
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
   const [loading, setLoading] = useState(false);
   const [selectedTodo, setSelectedTodo] = useState<Todo | null>(null);
-  const [selectedTodos, setSelectedTodos] = useState<Todo[]>([]);
-  const [groupTodosLoading, setGroupTodosLoading] = useState(false);
+  const [deleteLoading, setDeleteLoading] = useState(false);
+  const [toggleAllLoading, setToggleAllLoading] = useState(false);
 
   const visibleTodos = [...todos].filter(todo => {
     switch (selectedStatus) {
@@ -93,6 +97,14 @@ export const TodosProvider: React.FC<Props> = ({ children }) => {
         return true;
     }
   });
+
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  const focusInput = useCallback(() => {
+    if (inputRef.current) {
+      inputRef.current.focus();
+    }
+  }, []);
 
   const deleteTodo = useCallback((todoId: number) => {
     setLoading(true);
@@ -108,8 +120,9 @@ export const TodosProvider: React.FC<Props> = ({ children }) => {
       .finally(() => {
         setSelectedTodo(null);
         setLoading(false);
+        focusInput();
       });
-  }, [todos]);
+  }, [todos, focusInput]);
 
   const updateTodo = useCallback((updatedTodo: Todo) => {
     setLoading(true);
@@ -140,7 +153,7 @@ export const TodosProvider: React.FC<Props> = ({ children }) => {
       });
   }, [todos]);
 
-  const comnpletedTodoIds = todos
+  const completedTodoIds = todos
     .filter(todo => todo.completed).map(todo => todo.id);
 
   const values = useMemo(() => ({
@@ -165,18 +178,21 @@ export const TodosProvider: React.FC<Props> = ({ children }) => {
     setSelectedTodo,
     deleteTodo,
     updateTodo,
-    selectedTodos,
-    setSelectedTodos,
-    comnpletedTodoIds,
-    groupTodosLoading,
-    setGroupTodosLoading,
+    completedTodoIds,
+    deleteLoading,
+    setDeleteLoading,
+    toggleAllLoading,
+    setToggleAllLoading,
+    inputRef,
+    focusInput,
   }), [
     todos, setTodos, selectedStatus, title, visibleTodos,
     loadingTodos, setLoadingTodos, errorMessage, setErrorMessage,
     errorHidden, setErrorHidden, tempTodo, setTempTodo, loading,
-    setLoading, selectedTodo,
-    setSelectedTodo, deleteTodo, updateTodo, selectedTodos, setSelectedTodos,
-    comnpletedTodoIds, groupTodosLoading, setGroupTodosLoading,
+    setLoading, selectedTodo, setSelectedTodo, deleteTodo, updateTodo,
+    completedTodoIds, deleteLoading,
+    setDeleteLoading, toggleAllLoading, setToggleAllLoading, inputRef,
+    focusInput,
   ]);
 
   return (

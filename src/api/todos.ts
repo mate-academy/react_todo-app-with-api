@@ -29,7 +29,7 @@ export const editTodo = ({
 
 export const editTodos = (todoUpdates: {
   todoId: number, completed: boolean }[]) => {
-  const editPromise = todoUpdates.map((todoId, completed) => client.patch(`/todos/${todoId}`, { completed }));
+  const editPromise = todoUpdates.map(({ todoId, completed }) => client.patch(`/todos/${todoId}`, { completed }));
 
   return Promise.all(editPromise);
 };
