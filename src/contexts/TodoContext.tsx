@@ -2,7 +2,7 @@ import React, { useMemo, useState } from 'react';
 import { Todo } from '../types/Todo';
 import { Filtering } from '../types/Filtering';
 import { TempTodo } from '../types/TempTodo';
-import { deleteTodo } from '../api/todos';
+import { deleteTodo, updateTodo } from '../api/todos';
 import { Error } from '../types/Error';
 
 export interface TodoContextType {
@@ -18,7 +18,8 @@ export interface TodoContextType {
   setEditingTodo: React.Dispatch<React.SetStateAction<Todo>>
   loadingTodo: Todo[]
   setLoadingTodo: React.Dispatch<React.SetStateAction<Todo[]>>
-  handleDeleteTodo: (todoId: number, todoToDelete?: Todo) => void
+  handleDeleteTodo: (todoToDelete: Todo) => void
+  handleUpdateTodo: (todoToUpdate: Todo) => void
 }
 
 export const TodoContext = React.createContext<TodoContextType>({
@@ -35,6 +36,7 @@ export const TodoContext = React.createContext<TodoContextType>({
   loadingTodo: [],
   setLoadingTodo: () => {},
   handleDeleteTodo: () => {},
+  handleUpdateTodo: () => {},
 });
 
 interface Props {
@@ -50,17 +52,31 @@ export const TodoProvider: React.FC<Props> = ({ children }) => {
   const [loadingTodo, setLoadingTodo] = useState<Todo[]>([]);
 
   const handleDeleteTodo = (
-    todoId: number,
-    todoToDelete: Todo | null = null,
+    todoToDelete: Todo,
   ) => {
     if (todoToDelete) {
       setLoadingTodo(currentTodos => [...currentTodos, todoToDelete]);
     }
 
-    deleteTodo(todoId)
-      .then(() => setTodos((prev) => prev.filter((t) => t.id !== todoId)))
+    deleteTodo(todoToDelete?.id)
+      .then(() => setTodos((prev) => prev
+        .filter((t) => t.id !== todoToDelete?.id)))
       .catch(() => setErrorMessage(Error.Delete))
       .finally(() => setLoadingTodo([]));
+  };
+
+  const handleUpdateTodo = (todoToUpdate: Todo) => {
+    setLoadingTodo(prevTodos => [...prevTodos, todoToUpdate]);
+
+    updateTodo(todoToUpdate.id, { completed: !todoToUpdate.completed })
+      .then(() => setTodos(prev => prev
+        .map(newTodo => (newTodo.id === todoToUpdate.id
+          ? ({ ...newTodo, completed: !todoToUpdate.completed })
+          : newTodo))))
+      .catch(() => setErrorMessage(Error.Update))
+      .finally(() => {
+        setLoadingTodo([]);
+      });
   };
 
   const value: TodoContextType = useMemo(() => (
@@ -78,6 +94,7 @@ export const TodoProvider: React.FC<Props> = ({ children }) => {
       loadingTodo,
       setLoadingTodo,
       handleDeleteTodo,
+      handleUpdateTodo,
     }
   ), [
     todos,

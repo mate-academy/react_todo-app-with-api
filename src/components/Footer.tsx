@@ -20,7 +20,7 @@ export const Footer = () => {
   );
 
   const handleDelete = useCallback(() => {
-    completedTodosIds.forEach(todo => handleDeleteTodo(todo.id, todo));
+    completedTodosIds.forEach(todo => handleDeleteTodo(todo));
   }, [completedTodosIds]);
 
   const hasCompleted = todos.some(todo => todo.completed);

@@ -23,9 +23,10 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
     loadingTodo,
     setLoadingTodo,
     handleDeleteTodo,
+    handleUpdateTodo,
   } = useContext(TodoContext);
 
-  const { id, title, completed } = todo;
+  const { title, completed } = todo;
   const [isEditing, setIsEditing] = useState(false);
   const [newTitle, setNewTitle] = useState(title);
 
@@ -44,20 +45,6 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
     setNewTitle(title);
   };
 
-  const handleChangeCheckbox = (todoId: number) => {
-    setLoadingTodo(todos => [...todos, todo]);
-
-    updateTodo(todoId, { completed: !completed })
-      .then(() => setTodos(prev => prev
-        .map(newTodo => (newTodo.id === todoId
-          ? ({ ...newTodo, completed: !completed })
-          : newTodo))))
-      .catch(() => setErrorMessage(Error.Update))
-      .finally(() => {
-        setLoadingTodo([]);
-      });
-  };
-
   const handleEditSubmit = (event: EditEvent = null) => {
     const newTrimmedTitle = newTitle?.trim();
 
@@ -66,7 +53,7 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
     }
 
     if (!newTrimmedTitle) {
-      handleDeleteTodo(todo.id, todo);
+      handleDeleteTodo(todo);
 
       return;
     }
@@ -138,7 +125,7 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
         <>
           <label className="todo__status-label">
             <input
-              onChange={() => handleChangeCheckbox(todo.id)}
+              onChange={() => handleUpdateTodo(todo)}
               data-cy="TodoStatus"
               type="checkbox"
               className={classNames('todo__status', { completed })}
@@ -155,7 +142,7 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
           </span>
 
           <button
-            onClick={() => handleDeleteTodo(id, todo)}
+            onClick={() => handleDeleteTodo(todo)}
             type="button"
             className="todo__remove"
             data-cy="TodoDelete"

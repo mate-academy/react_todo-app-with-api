@@ -8,7 +8,7 @@ import React, {
 } from 'react';
 import { TodoContext } from '../contexts/TodoContext';
 import { USER_ID } from '../constants';
-import { createTodo, updateTodo } from '../api/todos';
+import { createTodo } from '../api/todos';
 import { Todo } from '../types/Todo';
 import { Error } from '../types/Error';
 
@@ -25,6 +25,7 @@ export const Header: React.FC = () => {
     setTempTodo,
     loadingTodo,
     setLoadingTodo,
+    handleUpdateTodo,
   } = useContext(TodoContext);
 
   useEffect(() => {
@@ -84,15 +85,7 @@ export const Header: React.FC = () => {
       : todos;
 
     todosToUpdate.forEach((todo) => {
-      setLoadingTodo(prev => [...prev, todo]);
-
-      const updatedStatus = !todo.completed;
-
-      updateTodo(todo.id, { completed: updatedStatus })
-        .then(() => setTodos((prev) => prev
-          .map((prevTodo) => ({ ...prevTodo, completed: updatedStatus }))))
-        .catch(() => setErrorMessage(Error.Update))
-        .finally(() => setLoadingTodo([]));
+      handleUpdateTodo(todo);
     });
   };
 
