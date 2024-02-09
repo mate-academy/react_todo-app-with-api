@@ -1,27 +1,22 @@
+import React, { useState } from 'react';
 import cn from 'classnames';
-import { useState } from 'react';
 import { Todo } from '../types/Todo';
 
 type Props = {
   todos: Todo[];
   todo: Todo;
   onDelete: () => void;
-  onUpdate: (t: Todo) => void;
-  setTodos: React.Dispatch<React.SetStateAction<Todo[]>>;
+  onUpdate: (todo: Todo) => void;
 };
 
-export const TodoItem: React.FC<Props> = ({
-  todos,
-  todo,
-  onDelete,
-  onUpdate,
-  setTodos,
+const TodoItem: React.FC<Props> = ({
+  todos, todo, onDelete, onUpdate,
 }) => {
   const [editingTitle, setEditingTitle] = useState(todo.title);
-  const [isEnding, setIsEnding] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
 
   const handleDoubleClick = () => {
-    setIsEnding(true);
+    setIsEditing(true);
   };
 
   const handleTitleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -29,26 +24,22 @@ export const TodoItem: React.FC<Props> = ({
   };
 
   const handleInputBlur = () => {
-    setIsEnding(false);
+    setIsEditing(false);
+    const trimmedTitle = editingTitle.trim();
 
-    if (editingTitle.trim().length === 0) {
+    if (trimmedTitle === '') {
       onDelete();
-    } else {
-      const titleExists = todos.some((t) => t.title === editingTitle);
+    } else if (trimmedTitle !== todo.title) {
+      const titleExists = todos.some((t) => t.title === trimmedTitle);
 
-      if (titleExists) {
-        const filteredTodos = todos.filter((t) => t.title !== editingTitle);
-
-        setTodos(filteredTodos);
-        onDelete();
-      } else {
-        onUpdate({ ...todo, title: editingTitle });
+      if (!titleExists) {
+        onUpdate({ ...todo, title: trimmedTitle });
       }
     }
   };
 
-  const handleKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === 'Enter') {
+  const handleKeyPress = (event: React.KeyboardEvent<HTMLInputElement>) => {
+    if (event.key === 'Enter') {
       handleInputBlur();
     }
   };
@@ -57,22 +48,24 @@ export const TodoItem: React.FC<Props> = ({
     const updatedTodo = { ...todo, completed: !todo.completed };
 
     onUpdate(updatedTodo);
-
-    return updatedTodo;
   };
 
   return (
-    <li data-cy="Todo" className={cn('todo', { completed: todo.completed })}>
+    <li
+      data-cy="Todo"
+      className={cn('todo', { completed: todo.completed, editing: isEditing })}
+    >
       <label className="todo__status-label">
         <input
           data-cy="TodoStatus"
           type="checkbox"
           className="todo__status"
+          checked={todo.completed}
           onChange={handleChangeStatus}
         />
       </label>
 
-      {isEnding ? (
+      {isEditing ? (
         <input
           type="text"
           className="todo__input"
@@ -80,6 +73,8 @@ export const TodoItem: React.FC<Props> = ({
           onChange={handleTitleChange}
           onBlur={handleInputBlur}
           onKeyPress={handleKeyPress}
+          // eslint-disable-next-line jsx-a11y/no-autofocus
+          autoFocus
         />
       ) : (
         <span
@@ -95,15 +90,12 @@ export const TodoItem: React.FC<Props> = ({
         type="button"
         className="todo__remove"
         data-cy="TodoDelete"
-        onClick={() => onDelete()}
+        onClick={onDelete}
       >
         ×
       </button>
-
-      <div data-cy="TodoLoader" className="modal overlay">
-        <div className="modal-background has-background-white-ter" />
-        <div className="loader" />
-      </div>
     </li>
   );
 };
+
+export default TodoItem;
