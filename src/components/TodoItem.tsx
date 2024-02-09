@@ -2,7 +2,7 @@ import { useContext, useState } from 'react';
 import classNames from 'classnames';
 
 import { Todo } from '../types/Todo';
-import { deleteTodo, updateTodos } from '../api/todos';
+import { updateTodos } from '../api/todos';
 import { TodoContext } from '../contexts/TodoContext';
 import { ErrorMessage } from '../types/ErrorMessage';
 import { EditTodoForm } from './EditTodoForm';
@@ -16,22 +16,16 @@ export const TodoItem: React.FC<Props> = ({ todo, isTempTodo }) => {
   const [isEditMode, setIsEditMode] = useState(false);
   const {
     setErrorMessage,
-    setTodos,
     updateTodoList,
     idsToUpdate,
     idsToChange,
+    deleteTodoById,
   } = useContext(TodoContext);
 
   const handleDeleteTodo = (todoId: number) => {
     idsToUpdate(todoId);
 
-    deleteTodo(todoId)
-      .then(() => setTodos(prevTodos => prevTodos
-        .filter(todoToFilter => todoToFilter.id !== todoId)))
-      .catch(() => setErrorMessage(ErrorMessage.FailedDeleteTodo))
-      .finally(() => {
-        idsToUpdate(null);
-      });
+    deleteTodoById(todoId);
   };
 
   const handleUpdateStatus = (todoToStatusUpdate: Omit<Todo, 'userId'>) => {

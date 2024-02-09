@@ -1,10 +1,13 @@
 import {
   createContext,
+  useCallback,
   useMemo,
   useState,
 } from 'react';
 import { Todo } from '../types/Todo';
 import { TodoStatus } from '../types/TodoStatus';
+import { deleteTodo } from '../api/todos';
+import { ErrorMessage } from '../types/ErrorMessage';
 
 export type TodoContextType = {
   todos: Todo[],
@@ -18,6 +21,7 @@ export type TodoContextType = {
   setTodos: React.Dispatch<React.SetStateAction<Todo[]>>,
   setFilters: React.Dispatch<React.SetStateAction<{ status: TodoStatus }>>,
   setErrorMessage: React.Dispatch<React.SetStateAction<string>>,
+  deleteTodoById: (todoIdToDelete: number) => void,
 };
 
 export const TodoContext = createContext<TodoContextType>({
@@ -26,12 +30,13 @@ export const TodoContext = createContext<TodoContextType>({
   idsToChange: [],
   filteredTodos: [],
   errorMessage: '',
-  idsToUpdate: () => {},
-  setTempTodo: () => {},
-  setTodos: () => {},
-  setFilters: () => {},
-  setErrorMessage: () => {},
-  updateTodoList: () => {},
+  idsToUpdate: () => { },
+  setTempTodo: () => { },
+  setTodos: () => { },
+  setFilters: () => { },
+  setErrorMessage: () => { },
+  updateTodoList: () => { },
+  deleteTodoById: () => { },
 });
 
 interface Props {
@@ -57,6 +62,14 @@ export const TodoProvider: React.FC<Props> = ({ children }) => {
     id ? setIdsToChange(prev => [...prev, id]) : setIdsToChange([]);
   };
 
+  const deleteTodoById = useCallback((todoIdToDelete: number) => {
+    deleteTodo(todoIdToDelete)
+      .then(() => setTodos(prevTodos => prevTodos
+        .filter(todoToFilter => todoToFilter.id !== todoIdToDelete)))
+      .catch(() => setErrorMessage(ErrorMessage.FailedDeleteTodo))
+      .finally(() => idsToUpdate(null));
+  }, []);
+
   const value: TodoContextType = useMemo(() => ({
     todos,
     idsToChange,
@@ -78,7 +91,15 @@ export const TodoProvider: React.FC<Props> = ({ children }) => {
     setFilters,
     updateTodoList,
     idsToUpdate,
-  }), [todos, idsToChange, tempTodo, errorMessage, filters.status]);
+    deleteTodoById,
+  }), [
+    todos,
+    idsToChange,
+    tempTodo,
+    errorMessage,
+    deleteTodoById,
+    filters.status,
+  ]);
 
   return (
     <TodoContext.Provider value={value}>
