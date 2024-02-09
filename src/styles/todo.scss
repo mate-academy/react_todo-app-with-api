@@ -33,6 +33,7 @@
 
     word-break: break-all;
     transition: color 0.4s;
+    cursor: pointer;
   }
 
   &.completed &__title {

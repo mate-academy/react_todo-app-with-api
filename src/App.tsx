@@ -1,24 +1,226 @@
-/* eslint-disable max-len */
-/* eslint-disable jsx-a11y/control-has-associated-label */
-import React from 'react';
+import cn from 'classnames';
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 import { UserWarning } from './UserWarning';
 
-const USER_ID = 0;
+import { Todo } from './types/Todo';
+import { Status } from './types/Status';
+import { ErrorType } from './types/ErrorType';
+
+import { TodoList } from './components/TodoList/TodoList';
+import { TodosFilter } from './components/TodosFilter';
+import { ErrorMessages } from './components/ErrorMessages';
+
+import { preperedTodos } from './helpers';
+import * as todoService from './api/todos';
+
+const USER_ID = 12013;
 
 export const App: React.FC = () => {
+  const [todos, setTodos] = useState<Todo[]>([]);
+  const [todoTitle, setTodoTitle] = useState('');
+  const [selectedFilter, setSelectedFilter] = useState<Status>(Status.ALL);
+  const [errorMessage, setErrorMessage] = useState<ErrorType | null>(null);
+  const [tempTodo, setTempTodo] = useState<Todo | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
+
+  const titleRef = useRef<HTMLInputElement>(null);
+
+  const hasCompletedTodos = todos.some(todo => todo.completed);
+  const uncompletedTodos = todos.filter(todo => !todo.completed).length;
+  const areAllTodosCompleted = todos.every(todo => todo.completed);
+
+  const showError = useCallback((error: ErrorType) => {
+    setErrorMessage(error);
+    setTimeout(() => setErrorMessage(null), 3000);
+  }, []);
+
+  useEffect(() => {
+    todoService.getTodos(USER_ID)
+      .then(setTodos)
+      .catch(() => showError(ErrorType.NOT_LOADED_TODO));
+  }, [showError]);
+
+  useEffect(() => {
+    titleRef.current?.focus();
+  }, [isLoading]);
+
+  const visibleTodos = useMemo(() => {
+    return preperedTodos(todos, selectedFilter);
+  }, [selectedFilter, todos]);
+
+  const createTodo = useCallback((title: string): Promise<void> => {
+    const newTodo = {
+      userId: USER_ID,
+      title,
+      completed: false,
+      id: 0,
+    };
+
+    setTempTodo({ ...newTodo });
+
+    return todoService.addTodo(newTodo)
+      .then((response) => setTodos(
+        currentTodos => [...currentTodos, response],
+      ))
+      .catch(() => {
+        showError(ErrorType.NOT_ADD_TODO);
+        throw new Error(ErrorType.NOT_ADD_TODO);
+      })
+      .finally(() => setTempTodo(null));
+  }, [showError]);
+
+  const addTodo = useCallback((event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+
+    setErrorMessage(null);
+
+    if (!todoTitle.trim().length) {
+      showError(ErrorType.EMPTY_TITLE);
+
+      return;
+    }
+
+    setIsLoading(true);
+
+    createTodo(todoTitle.trim())
+      .then(() => setTodoTitle(''))
+      .finally(() => {
+        setIsLoading(false);
+      });
+  }, [createTodo, showError, todoTitle]);
+
+  const removeTodo = useCallback((id: number): Promise<void> => {
+    return todoService.deleteTodo(id)
+      .then(() => setTodos(
+        currentTodos => currentTodos.filter(todo => todo.id !== id),
+      ))
+      .catch(() => showError(ErrorType.NOT_DELETE_TODO));
+  }, [showError]);
+
+  const updateTodo = useCallback((todo: Todo): Promise<void> => {
+    return todoService.updateTodo(todo)
+      .then((updatedTodo) => {
+        setTodos(currentTodos => {
+          return currentTodos.map(currentTodo => {
+            if (currentTodo.id === updatedTodo.id) {
+              return { ...currentTodo, ...updatedTodo };
+            }
+
+            return currentTodo;
+          });
+        });
+      })
+      .catch(() => {
+        showError(ErrorType.Not_UPDATE_TODO);
+
+        throw new Error(ErrorType.Not_UPDATE_TODO);
+      });
+  }, [showError]);
+
+  const handleSelectFilter = useCallback((status: Status) => {
+    setSelectedFilter(status);
+  }, []);
+
+  const handleClearCompleted = useCallback(() => {
+    const completedTodo = todos.filter(todo => todo.completed);
+
+    completedTodo.forEach(todo => {
+      removeTodo(todo.id)
+        .finally(() => titleRef.current?.focus());
+    });
+  }, [removeTodo, todos]);
+
+  const handleToggleAll = useCallback(() => {
+    const newStatus = !areAllTodosCompleted;
+
+    todos.forEach(todo => {
+      if (todo.completed !== newStatus) {
+        updateTodo({ ...todo, completed: newStatus });
+      }
+    });
+  }, [areAllTodosCompleted, todos, updateTodo]);
+
   if (!USER_ID) {
     return <UserWarning />;
   }
 
   return (
-    <section className="section container">
-      <p className="title is-4">
-        Copy all you need from the prev task:
-        <br />
-        <a href="https://github.com/mate-academy/react_todo-app-add-and-delete#react-todo-app-add-and-delete">React Todo App - Add and Delete</a>
-      </p>
+    <div className="todoapp">
+      <h1 className="todoapp__title">todos</h1>
 
-      <p className="subtitle">Styles are already copied</p>
-    </section>
+      <div className="todoapp__content">
+        <header className="todoapp__header">
+          {todos.length > 0 && (
+            <button
+              type="button"
+              className={cn(
+                'todoapp__toggle-all',
+                { active: areAllTodosCompleted },
+              )}
+              data-cy="ToggleAllButton"
+              aria-label="add-all"
+              onClick={handleToggleAll}
+            />
+          )}
+
+          <form onSubmit={addTodo}>
+            <input
+              value={todoTitle}
+              onChange={event => setTodoTitle(event.target.value)}
+              data-cy="NewTodoField"
+              type="text"
+              className="todoapp__new-todo"
+              placeholder="What needs to be done?"
+              ref={titleRef}
+              disabled={isLoading}
+            />
+          </form>
+        </header>
+
+        {todos.length > 0 && (
+          <>
+            <TodoList
+              todos={visibleTodos}
+              removeTodo={removeTodo}
+              tempTodo={tempTodo}
+              isLoading={isLoading}
+              updateTodo={updateTodo}
+              titleRef={titleRef}
+            />
+            <footer className="todoapp__footer" data-cy="Footer">
+              <span className="todo-count" data-cy="TodosCounter">
+                {`${uncompletedTodos} items left`}
+              </span>
+
+              <TodosFilter
+                selectedFilter={selectedFilter}
+                handleSelectFilter={handleSelectFilter}
+              />
+
+              <button
+                type="button"
+                className="todoapp__clear-completed"
+                data-cy="ClearCompletedButton"
+                disabled={!hasCompletedTodos}
+                onClick={handleClearCompleted}
+              >
+                Clear completed
+              </button>
+            </footer>
+          </>
+        )}
+      </div>
+
+      <ErrorMessages
+        errorMessage={errorMessage}
+        setErrorMessage={setErrorMessage}
+      />
+    </div>
   );
 };
