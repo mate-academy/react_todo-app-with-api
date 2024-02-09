@@ -47,7 +47,6 @@ export const EditTodoForm: React.FC<Props> = ({
           .filter(todoToFilter => todoToFilter.id !== todoOnUpdate.id)))
         .catch(() => {
           setErrorMessage(ErrorMessage.FailedDeleteTodo);
-          // setIsLoading(false);
         })
         .finally(() => {
           setIsLoading(false);

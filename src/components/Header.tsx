@@ -81,7 +81,7 @@ export const Header: React.FC = () => {
 
       updateTodos({ title, completed: !completed, id })
         .then(() => updateTodoList({ title, completed: !completed, id }))
-        .catch(() => setErrorMessage(ErrorMessage.FailedUpdateRequest))
+        .catch(() => setErrorMessage(ErrorMessage.FailedUpdateTodo))
         .finally(() => idsToUpdate(null));
     });
   };
@@ -112,6 +112,7 @@ export const Header: React.FC = () => {
           name="newTodoName"
           className="todoapp__new-todo"
           placeholder="What needs to be done?"
+          autoComplete="off"
           value={query}
           ref={inputRef}
           onChange={(e) => setQuery(e.target.value)}
