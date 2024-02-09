@@ -155,7 +155,7 @@ export const TodoItem: React.FC<Props> = ({
       className={classNames(
         'todo',
         {
-          completed: completed === true,
+          completed,
           editing: idProps === editing,
         },
       )}

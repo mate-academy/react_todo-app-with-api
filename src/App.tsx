@@ -39,7 +39,7 @@ export const App: React.FC = () => {
 
   useEffect(() => {
     getTodos(USER_ID)
-      .then((todos) => setPosts(todos))
+      .then(setPosts)
       .catch(() => {
         setError((prevState) => ({
           ...prevState,
@@ -52,10 +52,10 @@ export const App: React.FC = () => {
   const visibleTodos = useMemo(() => {
     return posts.filter(todo => {
       switch (filter) {
-        case 'active':
+        case Filter.Active:
           return !todo.completed;
 
-        case 'completed':
+        case Filter.Completed:
           return todo.completed;
 
         default: return true;
