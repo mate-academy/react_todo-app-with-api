@@ -1,24 +1,81 @@
-/* eslint-disable max-len */
-/* eslint-disable jsx-a11y/control-has-associated-label */
-import React from 'react';
+import React, {
+  useEffect,
+  useMemo,
+} from 'react';
 import { UserWarning } from './UserWarning';
-
-const USER_ID = 0;
+import { getTodos } from './api/todos';
+import { Footer } from './components/Footer';
+import { prepareTodos } from './helpers';
+import { Header } from './components/Header';
+import { ErrorType } from './types/ErrorType';
+import { ErrorNotification } from './components/ErrorNotification';
+import { TodoList } from './components/TodoList';
+import { useAppContext } from './AppContext';
+import { USER_ID } from './userId/userId';
 
 export const App: React.FC = () => {
+  const {
+    todos,
+    setTodos,
+    status,
+    setStatus,
+    error,
+    handleError,
+  } = useAppContext();
+
+  useEffect(() => {
+    getTodos(USER_ID)
+      .then(setTodos)
+      .catch(() => handleError(ErrorType.cantLoadTodos));
+  }, [setTodos, handleError]);
+
+  const todosOnPage = useMemo(() => prepareTodos({
+    todos,
+    status,
+  }), [status, todos]);
+
+  const uncompletedTodosCount = todos.filter(todo => (
+    !todo.completed
+  )).length;
+
+  const isSomeTodosCompleted = todos.some(
+    todo => todo.completed,
+  );
+
+  const isEveryTodosCompleted = todosOnPage.every(
+    todo => todo.completed,
+  );
+
   if (!USER_ID) {
     return <UserWarning />;
   }
 
   return (
-    <section className="section container">
-      <p className="title is-4">
-        Copy all you need from the prev task:
-        <br />
-        <a href="https://github.com/mate-academy/react_todo-app-add-and-delete#react-todo-app-add-and-delete">React Todo App - Add and Delete</a>
-      </p>
+    <div className="todoapp">
+      <h1 className="todoapp__title">todos</h1>
 
-      <p className="subtitle">Styles are already copied</p>
-    </section>
+      <div className="todoapp__content">
+        <Header
+          isEveryTodosCompleted={isEveryTodosCompleted}
+        />
+
+        <TodoList
+          todos={todosOnPage}
+        />
+
+        {todos.length > 0 && (
+          <Footer
+            uncompletedTodosCount={uncompletedTodosCount}
+            status={status}
+            setStatus={setStatus}
+            isSomeTodosCompleted={isSomeTodosCompleted}
+          />
+        )}
+
+        {error && (
+          <ErrorNotification />
+        )}
+      </div>
+    </div>
   );
 };
