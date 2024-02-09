@@ -63,6 +63,8 @@ export const TodoProvider: React.FC<Props> = ({ children }) => {
   };
 
   const deleteTodoById = useCallback((todoIdToDelete: number) => {
+    idsToUpdate(todoIdToDelete);
+
     deleteTodo(todoIdToDelete)
       .then(() => setTodos(prevTodos => prevTodos
         .filter(todoToFilter => todoToFilter.id !== todoIdToDelete)))
