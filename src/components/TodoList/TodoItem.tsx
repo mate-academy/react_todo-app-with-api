@@ -1,36 +1,51 @@
+import { useState } from 'react';
 import { Todo } from '../../types/Todo';
+import { TodoEditItem } from './TodoEditItem';
+import { useTodoContext } from '../../context/TodoContext';
 
 type TodoItemProps = {
   todo: Todo;
-  removeTodo: (itemId: number) => void;
-  updateTodo: (itemId: number, completed: boolean) => void;
   isLoading?: boolean;
 };
 
 const TodoItem = ({
-  todo, updateTodo, removeTodo, isLoading,
+  todo, isLoading,
 }: TodoItemProps) => {
+  const [isEditMode, setIsEditMode] = useState(false);
+  const { updateTodo, removeTodo } = useTodoContext();
+
   return (
-    <div key={todo.id} className={`todo ${todo.completed && 'completed'}`}>
+    <div
+      key={todo.id}
+      className={`todo ${todo.completed && 'completed'}`}
+      onDoubleClick={() => setIsEditMode(true)}
+    >
       <label className="todo__status-label">
         <input
           type="checkbox"
           className="todo__status"
           checked
-          onChange={() => updateTodo(todo.id, todo.completed)}
+          onChange={() => updateTodo(todo.id, { completed: !todo.completed })}
         />
       </label>
 
-      <span className="todo__title">{todo.title}</span>
-
-      {/* Remove button appears only on hover */}
-      <button
-        type="button"
-        className="todo__remove"
-        onClick={() => removeTodo(todo.id)}
-      >
-        ×
-      </button>
+      {isEditMode ? (
+        <TodoEditItem
+          todo={todo}
+          closeEditForm={() => setIsEditMode(false)}
+        />
+      ) : (
+        <>
+          <span className="todo__title">{todo.title}</span>
+          <button
+            type="button"
+            className="todo__remove"
+            onClick={() => removeTodo(todo.id)}
+          >
+            ×
+          </button>
+        </>
+      )}
 
       {/* overlay will cover the todo while it is being updated */}
       <div className={`modal overlay ${isLoading && 'is-active'}`}>

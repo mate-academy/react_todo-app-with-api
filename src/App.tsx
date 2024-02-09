@@ -23,7 +23,7 @@ export const App: React.FC = () => {
               type="button"
               className={
                 cn('todoapp__toggle-all',
-                  { active: nrOfActiveTodos === todos.length })
+                  { active: nrOfActiveTodos === 0 })
               }
               aria-label="Toggle between active and not active"
               onClick={toggleAll}

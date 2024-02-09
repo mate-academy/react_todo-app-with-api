@@ -13,6 +13,8 @@ export const deleteTodo = (itemId: number) => {
   return client.delete(`/todos/${itemId}`);
 };
 
-export const patchTodo = (itemId: number, completed: boolean) => {
-  return client.patch(`/todos/${itemId}`, { completed });
+export const patchTodo = (
+  itemId: number, data: Record<string, boolean | string>,
+) => {
+  return client.patch(`/todos/${itemId}`, data);
 };

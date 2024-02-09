@@ -5,7 +5,7 @@ import { useTodoContext } from '../../context/TodoContext';
 
 export const TodoList = () => {
   const {
-    filteredTodos, tempTodo, loadingTodoId, removeTodo, updateTodo,
+    filteredTodos, tempTodo, loadingTodoId,
   } = useTodoContext();
 
   return (
@@ -20,9 +20,7 @@ export const TodoList = () => {
           <TodoItem
             key={todo.id}
             todo={todo}
-            removeTodo={removeTodo}
             isLoading={loadingTodoId.includes(todo.id)}
-            updateTodo={updateTodo}
           />
         </CSSTransition>
       ))}
@@ -36,8 +34,6 @@ export const TodoList = () => {
           <TodoItem
             key={tempTodo.id}
             todo={tempTodo}
-            removeTodo={removeTodo}
-            updateTodo={updateTodo}
             isLoading
           />
         </CSSTransition>

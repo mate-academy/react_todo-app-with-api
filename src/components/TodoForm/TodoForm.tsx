@@ -22,6 +22,8 @@ export const TodoForm = React.memo(() => {
   return (
     <form onSubmit={handleSubmit}>
       <input
+        // eslint-disable-next-line jsx-a11y/no-autofocus
+        autoFocus
         type="text"
         className="todoapp__new-todo"
         placeholder="What needs to be done?"

@@ -1,5 +1,4 @@
 import React, {
-
   RefObject,
   SetStateAction,
   useCallback, useContext, useEffect, useMemo, useRef, useState,
@@ -25,7 +24,9 @@ type ContextValue = {
   inputRef: RefObject<HTMLInputElement>;
   addTodo: (todo: string) => void;
   removeTodo: (id: number) => void;
-  updateTodo: (itemId: number, completed: boolean) => void;
+  updateTodo: (
+    itemId: number, data: Record<string, boolean | string>
+  ) => Promise<void>;
   removeAllCompleted: () => void;
   changeErrorMessage: (message: string) => void;
   setError: React.Dispatch<SetStateAction<string | null>>;
@@ -44,6 +45,7 @@ export const TodoContextProvider = ({ children }: Props) => {
   const [error, setError] = useState<string | null>(null);
   const [filter, setFilter] = useState<Filters>('all');
   const inputRef = useRef<HTMLInputElement>(null);
+  const [isEditMode, setIsEditMode] = useState(false);
 
   const changeErrorMessage = useCallback((message: string) => {
     setError(message);
@@ -52,23 +54,10 @@ export const TodoContextProvider = ({ children }: Props) => {
     }, 3000);
   }, []);
 
-  const focusOnInput = () => {
-    if (inputRef.current) {
-      inputRef.current.focus();
-    }
-  };
-
-  const clearInput = () => {
-    if (inputRef.current) {
-      inputRef.current.value = '';
-    }
-  };
-
   useEffect(() => {
     getTodos(USER_ID)
       .then(data => {
         setTodos(data);
-        focusOnInput();
       })
       .catch(() => changeErrorMessage(ErrorMessages.DOWNLOAD));
   }, [changeErrorMessage]);
@@ -95,6 +84,18 @@ export const TodoContextProvider = ({ children }: Props) => {
     }, []);
   }, [todos]);
 
+  const focusOnInput = useCallback(() => {
+    if (inputRef.current) {
+      inputRef.current.focus();
+    }
+  }, []);
+
+  const clearInput = useCallback(() => {
+    if (inputRef.current) {
+      inputRef.current.value = '';
+    }
+  }, []);
+
   const addTodo = useCallback((todo: string) => {
     const newTodo = {
       id: 0,
@@ -115,7 +116,7 @@ export const TodoContextProvider = ({ children }: Props) => {
       .finally(() => {
         setTempTodo(null);
       });
-  }, [changeErrorMessage]);
+  }, [changeErrorMessage, clearInput, focusOnInput]);
 
   const removeTodo = useCallback((itemId: number) => {
     setLoadingTodoId(prev => [...prev, itemId]);
@@ -131,29 +132,33 @@ export const TodoContextProvider = ({ children }: Props) => {
         },
 
       );
-  }, [changeErrorMessage]);
+  }, [changeErrorMessage, focusOnInput]);
 
-  const updateTodo = (itemId: number, completed: boolean) => {
+  const updateTodo = useCallback(async (
+    itemId: number, data: Record<string, boolean | string>,
+  ): Promise<void> => {
     setLoadingTodoId(prev => [...prev, itemId]);
-    patchTodo(itemId, !completed)
-      .then(() => {
-        setTodos(old => old.map(todo => {
-          if (todo.id === itemId) {
-            return {
-              ...todo,
-              completed: !completed,
-            };
-          }
 
-          return todo;
-        }));
-        focusOnInput();
-      })
-      .catch(() => changeErrorMessage(ErrorMessages.UPDATE))
-      .finally(
-        () => setLoadingTodoId(prev => prev.filter(id => id !== itemId)),
-      );
-  };
+    try {
+      await patchTodo(itemId, data);
+
+      setTodos(old => old.map(todo => {
+        if (todo.id === itemId) {
+          return {
+            ...todo,
+            ...data,
+          };
+        }
+
+        return todo;
+      }));
+
+      setLoadingTodoId(prev => prev.filter(id => id !== itemId));
+    } catch (err) {
+      changeErrorMessage(ErrorMessages.UPDATE);
+      setLoadingTodoId(prev => prev.filter(id => id !== itemId));
+    }
+  }, [changeErrorMessage]);
 
   const removeAllCompleted = useCallback(() => {
     todos.forEach(todo => {
@@ -167,13 +172,13 @@ export const TodoContextProvider = ({ children }: Props) => {
     return todos.filter(todo => !todo.completed).length;
   }, [todos]);
 
-  const toggleAll = () => {
+  const toggleAll = useCallback(() => {
     const allActive = nrOfActiveTodos > 0;
 
     todos.forEach(todo => {
-      updateTodo(todo.id, (!allActive));
+      updateTodo(todo.id, { completed: allActive });
     });
-  };
+  }, [nrOfActiveTodos, todos, updateTodo]);
 
   const contextValue = {
     filteredTodos,
@@ -193,6 +198,8 @@ export const TodoContextProvider = ({ children }: Props) => {
     setError,
     toggleAll,
     setFilter,
+    isEditMode,
+    setIsEditMode,
   };
 
   return (
