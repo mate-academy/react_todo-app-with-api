@@ -1,6 +1,6 @@
 import { Todo } from '../../types/Todo';
 import { ErrorType } from '../../types/type';
-import { TodoItem } from '../TodoItem';
+import { TodoItem } from '../TodoItem/index';
 
 type Props = {
   posts: Todo[];
