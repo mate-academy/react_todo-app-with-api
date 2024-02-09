@@ -1,14 +1,13 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-/* eslint-disable max-len */
 /* eslint-disable jsx-a11y/control-has-associated-label */
-import classNames from 'classnames';
-import { Dispatch, SetStateAction, useEffect } from 'react';
 
-interface TodoErrorNotificationProps {
-  error: string | null
-  setError: Dispatch<SetStateAction<string | null>>
-}
-export const TodoErrorNotification: React.FC<TodoErrorNotificationProps> = ({ error, setError }) => {
+import classNames from 'classnames';
+import { useContext, useEffect } from 'react';
+import { GlobalContext } from '../TodoContext';
+
+export const TodoErrorNotification: React.FC = () => {
+  const { setError, error } = useContext(GlobalContext);
+
   useEffect(() => {
     const hideErrorTimeout = setTimeout(() => {
       setError('');

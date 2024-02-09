@@ -1,27 +1,12 @@
 import { useContext } from 'react';
 import { TodoItem } from './TodoItem';
-import { Filter } from '../types/enum';
-import { TodoContext } from '../TodoContext';
-import { TodoContextProps } from '../types/interfaces';
+import { GlobalContext } from '../TodoContext';
+import { filterTodos } from '../utils/filterTodos';
 
 export const TodoList = () => {
-  const { state, tempTodo } = useContext(TodoContext) as TodoContextProps;
+  const { state, tempTodo } = useContext(GlobalContext);
 
-  const filteredTodos = state.todos.filter(todo => {
-    switch (state.filter) {
-      case Filter.Active:
-        return !todo.completed;
-
-      case Filter.Completed:
-        return todo.completed;
-
-      case Filter.All:
-        return true;
-
-      default:
-        return true;
-    }
-  });
+  const filteredTodos = filterTodos(state.todos, state.filter);
 
   return (
     <section className="todoapp__main" data-cy="TodoList">

@@ -1,13 +1,10 @@
-/* eslint-disable max-len */
-/* eslint-disable import/no-cycle */
 import { useContext } from 'react';
 import classNames from 'classnames';
 import { Filter } from '../types/enum';
-import { TodoContext } from '../TodoContext';
-import { TodoContextProps } from '../types/interfaces';
+import { GlobalContext } from '../TodoContext';
 
 export const TodoFooter = () => {
-  const { state, setState, deleteAllCompleted } = useContext(TodoContext) as TodoContextProps;
+  const { state, setState, deleteAllCompleted } = useContext(GlobalContext);
 
   const itemsLeft = state.todos.filter(todo => !todo.completed).length;
   const completedTodos = state.todos.filter(todo => todo.completed);

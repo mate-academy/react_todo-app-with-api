@@ -1,14 +1,11 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable max-len */
-/* eslint-disable no-console */
-/* eslint-disable import/no-cycle */
-
 import classNames from 'classnames';
 import {
   useContext, useEffect, useRef, useState,
 } from 'react';
-import { TodoContext } from '../TodoContext';
-import { Todo, TodoContextProps } from '../types/interfaces';
+import { GlobalContext } from '../TodoContext';
+import { Todo } from '../types/interfaces';
+import { TodoLoader } from './TodoLoader';
 
 interface ItemProps {
   todo: Todo
@@ -18,15 +15,17 @@ export const TodoItem: React.FC<ItemProps> = ({ todo }) => {
   const {
     handleCheck,
     handleDeleteTodo,
-    setIsLoading,
-    isLoading,
+    setTodosIsLoading,
+    todosIsLoading,
     handleEditTodo,
     isEditing,
     setIsEditing,
 
-  } = useContext(TodoContext) as TodoContextProps;
+  } = useContext(GlobalContext);
 
-  const [onInput, setOnInput] = useState('');
+  const [inputValue, setInputValue] = useState('');
+
+  const trimedInputValue = inputValue.trim();
 
   const todoTitleFieldRef = useRef<HTMLInputElement>(null);
 
@@ -35,14 +34,14 @@ export const TodoItem: React.FC<ItemProps> = ({ todo }) => {
   }, [isEditing]);
 
   const onClickHandler: React.MouseEventHandler<HTMLInputElement> = () => {
-    setIsLoading(prev => (
+    setTodosIsLoading(prev => (
       [...prev, todo.id]
     ));
     handleCheck(todo);
   };
 
   const onDeleteTodo: React.MouseEventHandler<HTMLButtonElement> = () => {
-    setIsLoading(prev => (
+    setTodosIsLoading(prev => (
       [...prev, todo.id]
     ));
     handleDeleteTodo(todo);
@@ -50,44 +49,44 @@ export const TodoItem: React.FC<ItemProps> = ({ todo }) => {
 
   function onEdit() {
     setIsEditing(todo.id);
-    setOnInput(todo.title);
+    setInputValue(todo.title);
   }
 
   function handleKeyPress(event: React.KeyboardEvent<HTMLInputElement>) {
-    if (event.key === 'Enter' && onInput.trim() && onInput !== todo.title) {
-      setIsLoading(prev => (
+    if (event.key === 'Enter' && trimedInputValue && inputValue !== todo.title) {
+      setTodosIsLoading(prev => (
         [...prev, todo.id]
       ));
-      handleEditTodo(todo, onInput.trim());
-    } else if (event.key === 'Enter' && onInput.trim() === '') {
-      setIsLoading(prev => (
+      handleEditTodo(todo, inputValue.trim());
+    } else if (event.key === 'Enter' && trimedInputValue === '') {
+      setTodosIsLoading(prev => (
         [...prev, todo.id]
       ));
       handleDeleteTodo(todo);
-    } else if ((event.key === 'Enter' && onInput === todo.title)
+    } else if ((event.key === 'Enter' && inputValue === todo.title)
     || (event.key === 'Escape')) {
       setIsEditing(null);
     }
   }
 
   const onBlur = () => {
-    if (todo.title !== onInput && onInput.trim() !== '') {
-      setIsLoading(prev => (
+    if (todo.title !== inputValue && trimedInputValue !== '') {
+      setTodosIsLoading(prev => (
         [...prev, todo.id]
       ));
-      handleEditTodo(todo, onInput.trim());
-    } else if (onInput.trim() === '') {
-      setIsLoading(prev => (
+      handleEditTodo(todo, trimedInputValue);
+    } else if (trimedInputValue === '') {
+      setTodosIsLoading(prev => (
         [...prev, todo.id]
       ));
       handleDeleteTodo(todo);
-    } else if (onInput === todo.title) {
+    } else if (inputValue === todo.title) {
       setIsEditing(null);
     }
   };
 
   const editMode = todo.id === isEditing;
-  const loading = isLoading.includes(todo.id);
+  const loading = todosIsLoading.includes(todo.id);
 
   return (
     <>
@@ -114,20 +113,14 @@ export const TodoItem: React.FC<ItemProps> = ({ todo }) => {
               type="text"
               className="todo__title-field"
               placeholder="Empty todo will be deleted"
-              value={onInput}
-              onChange={(event) => setOnInput(event.target.value)}
+              value={inputValue}
+              onChange={(event) => setInputValue(event.target.value)}
               onBlur={onBlur}
               onKeyDown={handleKeyPress}
             />
           </span>
 
-          <div
-            data-cy="TodoLoader"
-            className={classNames('modal', 'overlay', { 'is-active': loading || todo.id === 0 })}
-          >
-            <div className="modal-background has-background-white-ter" />
-            <div className="loader" />
-          </div>
+          <TodoLoader loading={loading || todo.id === 0} />
         </div>
       ) : (
         <div
@@ -158,16 +151,9 @@ export const TodoItem: React.FC<ItemProps> = ({ todo }) => {
             ×
           </button>
 
-          <div
-            data-cy="TodoLoader"
-            className={classNames('modal', 'overlay', { 'is-active': loading || todo.id === 0 })}
-          >
-            <div className="modal-background has-background-white-ter" />
-            <div className="loader" />
-          </div>
+          <TodoLoader loading={loading || todo.id === 0} />
         </div>
       )}
-
     </>
   );
 };

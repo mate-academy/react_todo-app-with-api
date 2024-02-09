@@ -1,46 +1,38 @@
-/* eslint-disable max-len */
 /* eslint-disable jsx-a11y/control-has-associated-label */
 
 import {
-  Dispatch, SetStateAction, useEffect, useRef, useState,
+  useContext, useEffect, useRef, useState,
 } from 'react';
 import classNames from 'classnames';
-import { Todo } from '../types/interfaces';
 import { ErrorMessages } from '../types/enum';
+import { GlobalContext } from '../TodoContext';
 
-interface TodoHeaderProps {
-  setTempTodo: Dispatch<SetStateAction<Todo | null>>
-  setError: Dispatch<SetStateAction<string | null>>
-  tempTodo: Todo | null
-  error: string | null
-  handleCheckAll: () => void
-  todos: Todo[]
-}
+export const TodoHeader: React.FC = () => {
+  const {
+    setTempTodo,
+    setError,
+    tempTodo,
+    error,
+    handleCheckAll,
+    state,
+  } = useContext(GlobalContext);
 
-export const TodoHeader: React.FC<TodoHeaderProps> = ({
-  setTempTodo,
-  setError,
-  tempTodo,
-  error,
-  handleCheckAll,
-  todos,
-}) => {
-  const [onInput, setOnInput] = useState('');
+  const [inputValue, setInputValue] = useState('');
   const [isInputDisabled, setIsInputDisabled] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
 
   const handleKeyPress = (event: React.KeyboardEvent<HTMLInputElement>) => {
-    if (event.key === 'Enter' && onInput.trim()) {
+    if (event.key === 'Enter' && inputValue.trim()) {
       event.preventDefault();
       setIsInputDisabled(true);
 
       setTempTodo({
-        title: onInput.trim(),
+        title: inputValue.trim(),
         id: 0,
         completed: false,
         userId: 82,
       });
-    } else if (event.key === 'Enter' && !onInput.trim()) {
+    } else if (event.key === 'Enter' && !inputValue.trim()) {
       event.preventDefault();
       setError(ErrorMessages.EmptyInputFail);
     }
@@ -48,9 +40,9 @@ export const TodoHeader: React.FC<TodoHeaderProps> = ({
 
   if (!tempTodo && isInputDisabled) {
     if (!error) {
-      setOnInput('');
+      setInputValue('');
     } else {
-      setOnInput(prev => prev);
+      setInputValue(prev => prev);
     }
 
     setIsInputDisabled(false);
@@ -58,13 +50,14 @@ export const TodoHeader: React.FC<TodoHeaderProps> = ({
 
   useEffect(() => {
     inputRef.current?.focus();
-  }, [onInput, error]);
+  }, [inputValue, error]);
 
-  const toggleFlag = todos.filter(todo => todo.completed).length === todos.length;
+  const toggleFlag = state.todos
+    .filter(todo => todo.completed).length === state.todos.length;
 
   return (
     <header className="todoapp__header">
-      {!!todos.length && (
+      {!!state.todos.length && (
         <button
           type="button"
           className={classNames('todoapp__toggle-all', { active: toggleFlag })}
@@ -80,9 +73,9 @@ export const TodoHeader: React.FC<TodoHeaderProps> = ({
           type="text"
           className="todoapp__new-todo"
           placeholder="What needs to be done?"
-          value={onInput}
+          value={inputValue}
           onKeyDown={handleKeyPress}
-          onChange={(event) => setOnInput(event.target.value)}
+          onChange={(event) => setInputValue(event.target.value)}
           disabled={isInputDisabled}
         />
       </form>

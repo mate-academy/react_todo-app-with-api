@@ -19,12 +19,15 @@ export interface TodoContextProps {
   setState: Dispatch<SetStateAction<State>>;
   handleCheck: (todo: Todo) => void;
   tempTodo: Todo | null;
+  setTempTodo: Dispatch<SetStateAction<Todo | null>>;
   handleDeleteTodo: (todo: Todo) => void;
   deleteAllCompleted: () => void;
-  setIsLoading: Dispatch<SetStateAction<number[]>>;
-  isLoading: number[];
+  setTodosIsLoading: Dispatch<SetStateAction<number[]>>;
+  todosIsLoading: number[];
   handleEditTodo: (todo: Todo, newTitle: string) => void;
   error: string | null;
   isEditing: number | null;
   setIsEditing: Dispatch<SetStateAction<number | null>>;
+  setError: Dispatch<SetStateAction<string | null>>;
+  handleCheckAll: () => void;
 }
