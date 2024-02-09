@@ -2,7 +2,6 @@ import React, {
   useContext,
   useEffect,
   useRef,
-  // useRef,
   useState,
 } from 'react';
 import classNames from 'classnames';
@@ -28,14 +27,10 @@ export const Header:React.FC = () => {
   const titleField = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    titleField.current?.focus();
-  }, [todos.length]);
-
-  useEffect(() => {
     if (titleField.current) {
       titleField.current.focus();
     }
-  }, [disabledInput, inputRef]);
+  }, [todos.length, disabledInput, inputRef]);
 
   const handleAllToggle = () => {
     toggleAllCompleted(true);

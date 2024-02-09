@@ -12,7 +12,6 @@ export interface TodoContextProps {
   toggleCompleted: (id: number) => void;
   toggleAllCompleted: (completed: boolean) => void;
   deleteTodo: (id: number) => void;
-  clearCompleted: () => void;
   setFilter: (filter: Status) => void;
   errorMessage: string;
   setErrorMessage: React.Dispatch<React.SetStateAction<string>>;

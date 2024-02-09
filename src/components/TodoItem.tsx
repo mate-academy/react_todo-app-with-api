@@ -7,12 +7,10 @@ import { updateTodo } from '../api/todos';
 
 interface Props {
   todo: Todo;
-  // onRename?: (newTitle: string) => Promise<void>
 }
 
 export const TodoItem: React.FC<Props> = ({
   todo,
-  // onRename = () => Promise.resolve,
 }) => {
   const {
     toggleCompleted,
@@ -57,6 +55,11 @@ export const TodoItem: React.FC<Props> = ({
 
   const handleDeleteTodo = () => {
     deleteTodo(todo.id);
+  };
+
+  const handleEditingTodo = () => {
+    setEditing(true);
+    setTitle(todo.title.trim());
   };
 
   function handleSubmit(event: React.FormEvent) {
@@ -120,10 +123,7 @@ export const TodoItem: React.FC<Props> = ({
           <span
             data-cy="TodoTitle"
             className="todo__title"
-            onDoubleClick={() => {
-              setEditing(true);
-              setTitle(todo.title.trim());
-            }}
+            onDoubleClick={handleEditingTodo}
           >
             {todo.title}
           </span>

@@ -29,12 +29,8 @@ export const App: React.FC = () => {
 
         {todos && <TodoList />}
 
-        {/* Hide the footer if there are no todos */}
         {todos.length > 0 && <Footer />}
       </div>
-
-      {/* Notification is shown in case of any error */}
-      {/* Add the 'hidden' class to hide the message smoothly */}
       <ErrorComponent />
     </div>
   );

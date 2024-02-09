@@ -3,7 +3,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { Todo } from '../types/Todo';
 import { Status } from '../types/Status';
 import { TodoContextProps } from '../types/TodoContextProps';
-import { deleteTodoo, getTodos, updateTodo } from '../api/todos';
+import { deleteTodoAPI, getTodos, updateTodo } from '../api/todos';
 import { USER_ID } from '../utils/constants';
 
 export const TodoContext = React
@@ -17,7 +17,6 @@ export const TodoContext = React
   toggleCompleted: () => {},
   toggleAllCompleted: () => {},
   deleteTodo: () => {},
-  clearCompleted: () => {},
   updateTodoTitle: async () => {},
   setFilter: () => {},
   errorMessage: '',
@@ -44,7 +43,6 @@ export const TodoProvider: React.FC<Props> = ({ children }) => {
 
   const activeTodos = todos.filter(todo => !todo.completed);
   const completedTodos = todos.filter(todo => todo.completed);
-  // const [loading, setLoading] = useState<boolean>(false);
 
   useEffect(() => {
     getTodos(USER_ID)
@@ -61,7 +59,7 @@ export const TodoProvider: React.FC<Props> = ({ children }) => {
   const deleteTodo = (idTodo: number) => {
     setProcessingIds((prevIds) => [...prevIds, idTodo]);
 
-    deleteTodoo(idTodo)
+    deleteTodoAPI(idTodo)
       .then(() => {
         setTodos((prevTodos) => prevTodos.filter((todo) => todo.id !== idTodo));
       })
@@ -79,12 +77,20 @@ export const TodoProvider: React.FC<Props> = ({ children }) => {
       return;
     }
 
+    setProcessingIds((prevProcessingIds) => [
+      ...prevProcessingIds,
+      ...completedTodoIds,
+    ]);
+
     completedTodoIds.forEach(todoId => {
-      deleteTodoo(todoId)
+      deleteTodoAPI(todoId)
         .then(() => {
           setTodos(prevTodos => prevTodos.filter(todo => todo.id !== todoId));
         })
-        .catch(() => setErrorMessage('Unable to delete a todo'));
+        .catch(() => setErrorMessage('Unable to delete a todo'))
+        .finally(() => {
+          setProcessingIds([]);
+        });
     });
   };
 
@@ -121,10 +127,6 @@ export const TodoProvider: React.FC<Props> = ({ children }) => {
     }
   };
 
-  const clearCompleted = () => {
-    setTodos(prevTodos => prevTodos.filter(todo => !todo.completed));
-  };
-
   const updateTodoTitle = () => Promise.resolve();
 
   const valueTodo: TodoContextProps = {
@@ -137,7 +139,6 @@ export const TodoProvider: React.FC<Props> = ({ children }) => {
     deleteTodo,
     toggleCompleted,
     toggleAllCompleted,
-    clearCompleted,
     updateTodoTitle,
     setFilter,
     errorMessage,

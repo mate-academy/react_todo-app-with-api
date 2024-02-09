@@ -17,8 +17,6 @@ export const Footer: React.FC = () => {
 
       <TodosFilter filter={Status.ALL} setFilter={() => {}} />
 
-      {/* don't show this button if there are no completed todos */}
-
       <button
         type="button"
         className="todoapp__clear-completed"

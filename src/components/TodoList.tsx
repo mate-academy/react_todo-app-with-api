@@ -2,9 +2,9 @@ import { useContext } from 'react';
 
 import { TodoContext } from './TodosContext';
 import { TodoContextProps } from '../types/TodoContextProps';
-import { Status } from '../types/Status';
 
 import { TodoItem } from './TodoItem';
+import { filterTodos } from '../utils/getFilteredTodos';
 
 export const TodoList:React.FC = () => {
   const {
@@ -14,16 +14,7 @@ export const TodoList:React.FC = () => {
     errorMessage,
   }:TodoContextProps = useContext(TodoContext);
 
-  const filteredTodos = todos.filter(todo => {
-    switch (filter) {
-      case Status.ACTIVE:
-        return !todo.completed;
-      case Status.COMPLETED:
-        return todo.completed;
-      default:
-        return true;
-    }
-  });
+  const filteredTodos = filterTodos(todos, filter);
 
   return (
     <ul className="todo-list">
