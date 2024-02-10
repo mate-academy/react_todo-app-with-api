@@ -2,10 +2,11 @@
 /* eslint-disable import/no-cycle */
 /* eslint-disable quote-props */
 import { useContext } from 'react';
-import { LoadingContext, TodosContext } from '../../TodosContext/TodosContext';
 import { Status } from '../../types/Status';
 import { reduceItems } from '../../services/reduceItems';
 import { filterByStatus } from '../../services/filterByStatus';
+
+import { LoadingContext, TodosContext } from '../../TodosContext/TodosContext';
 
 interface FilterProps {
   onChangeStatus: (newStatus: Status) => void;
@@ -20,6 +21,7 @@ export const Filter: React.FC<FilterProps> = ({
 }) => {
   const { todos } = useContext(TodosContext);
   const { startLoading } = useContext(LoadingContext);
+
   const handleStatusChange = (newStatus: Status) => {
     onChangeStatus(newStatus);
   };
@@ -38,8 +40,8 @@ export const Filter: React.FC<FilterProps> = ({
 
   const todosLeft = todos.filter(todo => todo.id !== 0);
   const itemsLeft = reduceItems(todosLeft, false);
-
   const itemsDone = reduceItems(todos, true);
+
   const clearCompletedStyle: React.CSSProperties = {
     visibility: itemsDone > 0 ? 'visible' : 'hidden',
   };
@@ -50,7 +52,6 @@ export const Filter: React.FC<FilterProps> = ({
         {`${itemsLeft} items left`}
       </span>
 
-      {/* Active filter should have a 'selected' class */}
       <nav className="filter" data-cy="Filter">
         <a
           href="#/"

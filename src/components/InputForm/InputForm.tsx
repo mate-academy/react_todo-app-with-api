@@ -31,17 +31,19 @@ type Props = {
 };
 
 export const InputForm: React.FC<Props> = ({ onSubmit, onCompleted }) => {
-  const [newTodoTitle, setNewTodoTitle] = useState('');
-  const [completeAll, setCompleteAll] = useState(false);
   const { todos, setTodos } = useContext(TodosContext);
   const { loading, startLoading } = useContext(LoadingContext);
   const {
-    newError,
     showError,
+    newError,
     setNewError,
     setShowError,
   } = useContext(ErrorsContext);
 
+  const [newTodoTitle, setNewTodoTitle] = useState('');
+  const [completeAll, setCompleteAll] = useState(false);
+
+  const titleField = useRef<HTMLInputElement>(null);
   const itemsLeft = reduceItems(todos, false);
 
   const handleChangeAll = () => {
@@ -74,6 +76,7 @@ export const InputForm: React.FC<Props> = ({ onSubmit, onCompleted }) => {
     if (normalizedTitle === '') {
       setNewError(ErrorMessages.emptyTitle);
       setShowError(true);
+      titleField.current?.focus();
 
       return;
     }
@@ -91,17 +94,22 @@ export const InputForm: React.FC<Props> = ({ onSubmit, onCompleted }) => {
     setNewTodoTitle('');
   }
 
-  const titleField = useRef<HTMLInputElement>(null);
+  useEffect(() => {
+    titleField.current?.focus();
+  }, [newTodoTitle]);
 
   useEffect(() => {
-    if (titleField.current) {
-      titleField.current.focus();
+    if (newError === ErrorMessages.unableToAddTodo) {
+      titleField.current?.focus();
     }
-  }, [newError, showError, newTodoTitle]);
+
+    if (newError === ErrorMessages.unableToAddTodo) {
+      titleField.current?.focus();
+    }
+  }, [newError, showError]);
 
   return (
     <header className="todoapp__header">
-      {/* this buttons is active only if there are some active todos */}
       <button
         type="button"
         className={`todoapp__toggle-all ${itemsLeft ? '' : 'active'}`}
@@ -111,7 +119,6 @@ export const InputForm: React.FC<Props> = ({ onSubmit, onCompleted }) => {
           setCompleteAll(!completeAll);
         }}
       />
-      {/* Add a todo on form submit */}
       <form onSubmit={handleSubmit}>
         <input
           ref={titleField}

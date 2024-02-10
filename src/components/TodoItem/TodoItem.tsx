@@ -7,9 +7,13 @@ import {
   useRef,
   useState,
 } from 'react';
+
 import { Todo } from '../../types/Todo';
+import { ErrorMessages } from '../../types/Error';
+
 // eslint-disable-next-line import/no-cycle
 import {
+  ErrorsContext,
   LoadingContext,
   TodoUpdateContext,
 } from '../../TodosContext/TodosContext';
@@ -21,10 +25,13 @@ type Props = {
 export const TodoItem: React.FC<Props> = ({ todo }) => {
   const { removeTodo, changeTodo } = useContext(TodoUpdateContext);
   const { loading, startLoading } = useContext(LoadingContext);
+  const { newError, showError } = useContext(ErrorsContext);
 
   const [title, setTitle] = useState(todo.title);
   const [changeTitle, setChangeTitle] = useState<boolean>(false);
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
+
+  const inputRef = useRef<HTMLInputElement>(null);
 
   async function handleRemove(event: React.FormEvent<HTMLButtonElement>) {
     event.preventDefault();
@@ -39,19 +46,22 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
     await changeTodo(todo.id, !todo.completed);
   }
 
-  const inputRef = useRef<HTMLInputElement>(null);
-
   useEffect(() => {
     if (tempTodo) {
       inputRef.current?.focus();
     }
-  }, [tempTodo]);
+  }, [tempTodo, changeTitle]);
+
+  useEffect(() => {
+    if (newError === ErrorMessages.unableToUpdate
+      || newError === ErrorMessages.unableToDelete) {
+      inputRef.current?.focus();
+    }
+  }, [showError, newError]);
 
   async function renameTodo(todoToUpdate: Todo, newTitle: string) {
     startLoading(todoToUpdate.id);
     if (newTitle === '') {
-      console.log('trying to remove');
-
       await removeTodo(todoToUpdate.id);
       setTempTodo(null);
       setChangeTitle(false);
@@ -68,8 +78,8 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
 
     try {
       renameTodo(todo, title);
-    } catch (error) {
       inputRef.current?.focus();
+    } catch (error) {
       setTitle(todo.title);
     }
   }
@@ -94,6 +104,7 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
       {changeTitle ? (
         <form onSubmit={handleSubmit}>
           <input
+            ref={inputRef}
             data-cy="TodoTitleField"
             type="text"
             className="todo__title-field"
@@ -108,7 +119,6 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
                 console.log('escape was pushed');
               }
             }}
-            ref={inputRef}
           />
         </form>
       ) : (
@@ -124,21 +134,17 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
         </span>
       )}
 
-      {/* {changeTitle && (<span data-cy="TodoTitle" className="todo__title">
-        {todo.title}
-      </span>)} */}
+      {!changeTitle && (
+        <button
+          type="button"
+          className="todo__remove"
+          data-cy="TodoDelete"
+          onClick={handleRemove}
+        >
+          ×
+        </button>
+      )}
 
-      {/* Remove button appears only on hover */}
-      <button
-        type="button"
-        className="todo__remove"
-        data-cy="TodoDelete"
-        onClick={handleRemove}
-      >
-        ×
-      </button>
-
-      {/* overlay will cover the todo while it is being updated */}
       <div
         data-cy="TodoLoader"
         className={classNames('modal overlay', {

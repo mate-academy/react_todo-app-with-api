@@ -3,11 +3,12 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable import/no-cycle */
 import React, { useEffect, useMemo, useState } from 'react';
-import { Todo } from '../types/Todo';
+
 import * as api from '../api/todos';
 import { USER_ID } from '../App';
 import { Context } from '../types/Context';
 import { Todos } from '../types/Todos';
+import { Todo } from '../types/Todo';
 import { ErrorMessages, Errors } from '../types/Error';
 
 type Props = {
@@ -98,8 +99,6 @@ export const TodosProvider: React.FC<Props> = ({ children }) => {
         finishLoading(todo.id);
       });
   }
-
-  console.log(todos);
 
   function removeTodo(todoId: number) {
     setNewError(ErrorMessages.unableToDelete);

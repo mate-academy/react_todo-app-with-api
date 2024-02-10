@@ -3,6 +3,7 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import classNames from 'classnames';
 import { useContext, useEffect, useState } from 'react';
+
 import { ErrorsContext } from '../../TodosContext/TodosContext';
 
 /* eslint-disable jsx-a11y/control-has-associated-label */
@@ -11,8 +12,9 @@ interface Props {
 }
 
 export const Error: React.FC<Props> = ({ onIsClicked }) => {
-  const [isClicked, setIsClicked] = useState(false);
   const { newError, showError, setShowError } = useContext(ErrorsContext);
+
+  const [isClicked, setIsClicked] = useState(false);
 
   useEffect(() => {
     let timer: NodeJS.Timeout | undefined;
