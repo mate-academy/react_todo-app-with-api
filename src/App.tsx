@@ -21,6 +21,7 @@ export const App: React.FC = () => {
   const [todos, setTodos] = useState<Todo[]>([]);
   const [errors, setErrors] = useState<ErrorTp | null>(null);
   const [filterType, setFilterType] = useState<FilterType>(FilterType.all);
+  const [tempTodo, setTempTodo] = useState<Todo | null>(null);
 
   useEffect(() => {
     getTodos(USER_ID)
@@ -53,6 +54,7 @@ export const App: React.FC = () => {
     })
       .then((newTodo) => {
         setTodos((prevTodos: Todo[]) => [...prevTodos, newTodo]);
+        setTempTodo(null);
       })
       .catch(() => ErrorTp.title_error);
   };
@@ -118,6 +120,7 @@ export const App: React.FC = () => {
 
       <div className="todoapp__content">
         <Header
+          setTempTodo={setTempTodo}
           handelToggleAll={handelToggleAll}
           todos={todos}
           createNewTodo={addTodo}
@@ -125,6 +128,7 @@ export const App: React.FC = () => {
         />
 
         <TodoList
+          tempTodo={tempTodo}
           onUpdate={updatingTodo}
           setTodos={setTodos}
           todos={filterTodos}

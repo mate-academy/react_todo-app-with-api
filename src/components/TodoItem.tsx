@@ -14,6 +14,7 @@ const TodoItem: React.FC<Props> = ({
 }) => {
   const [editingTitle, setEditingTitle] = useState(todo.title);
   const [isEditing, setIsEditing] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleDoubleClick = () => {
     setIsEditing(true);
@@ -30,10 +31,14 @@ const TodoItem: React.FC<Props> = ({
     if (trimmedTitle === '') {
       onDelete();
     } else if (trimmedTitle !== todo.title) {
+      setIsLoading(true);
       const titleExists = todos.some((t) => t.title === trimmedTitle);
 
       if (!titleExists) {
         onUpdate({ ...todo, title: trimmedTitle });
+        setTimeout(() => {
+          setIsLoading(false); // Після 1000 мс, зупиняємо анімацію завантаження
+        }, 500);
       }
     }
   };
@@ -73,8 +78,6 @@ const TodoItem: React.FC<Props> = ({
           onChange={handleTitleChange}
           onBlur={handleInputBlur}
           onKeyPress={handleKeyPress}
-          // eslint-disable-next-line jsx-a11y/no-autofocus
-          autoFocus
         />
       ) : (
         <span
@@ -94,6 +97,13 @@ const TodoItem: React.FC<Props> = ({
       >
         ×
       </button>
+
+      {isLoading && (
+        <div data-cy="TodoLoader" className="modal overlay is-active">
+          <div className="modal-background has-background-white-ter" />
+          <div className="loader" />
+        </div>
+      )}
     </li>
   );
 };

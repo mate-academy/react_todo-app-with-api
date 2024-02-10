@@ -2,13 +2,14 @@
 import cn from 'classnames';
 import React, { useState } from 'react';
 import { ErrorTp } from '../types/error';
-import { Todo } from '../types/Todo';
+import { Todo, USER_ID } from '../types/Todo';
 
 type Props = {
   createNewTodo: (title: string) => void;
   setErrors:(error: ErrorTp | null) => void;
   todos: Todo[];
   handelToggleAll: () => void;
+  setTempTodo:(tempT: Todo | null) => void;
 };
 
 export const Header: React.FC<Props> = ({
@@ -16,11 +17,20 @@ export const Header: React.FC<Props> = ({
   setErrors,
   todos,
   handelToggleAll,
+  setTempTodo,
 }) => {
   const [title, setTitle] = useState('');
 
+  const newTodo = {
+    userId: USER_ID,
+    title: title.trim(),
+    completed: false,
+  };
+
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+
+    setTempTodo({ ...newTodo, id: 0 });
 
     if (title.trim().length < 1) {
       setErrors(ErrorTp.title_error);
@@ -31,7 +41,7 @@ export const Header: React.FC<Props> = ({
     }
   };
 
-  const someNotCompleted = todos.some(todo => !todo.completed);
+  const someNotCompleted = todos.some(todo => todo.completed);
 
   return (
     <header className="todoapp__header">
