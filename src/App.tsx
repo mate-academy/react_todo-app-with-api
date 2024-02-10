@@ -272,17 +272,15 @@ export const App: React.FC = () => {
                 Completed
               </a>
             </nav>
-
-            {!!completedTodos.length && (
-              <button
-                type="button"
-                className="todoapp__clear-completed"
-                data-cy="ClearCompletedButton"
-                onClick={destroyCompletedTodos}
-              >
-                Clear completed
-              </button>
-            )}
+            <button
+              type="button"
+              className="todoapp__clear-completed"
+              data-cy="ClearCompletedButton"
+              onClick={destroyCompletedTodos}
+              disabled={!completedTodos.length}
+            >
+              Clear completed
+            </button>
           </footer>
         )}
       </div>
