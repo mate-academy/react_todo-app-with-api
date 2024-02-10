@@ -36,7 +36,7 @@ export const App: React.FC = () => {
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
   const [inputDisabled, setInputDisabled] = useState(false);
 
-  const itemsLeft = activeTodos.length === 0
+  const itemsLeft = !activeTodos.length
     ? `${activeTodos.length} item left`
     : `${activeTodos.length} items left`;
 
@@ -47,7 +47,7 @@ export const App: React.FC = () => {
   useEffect(() => {
     const currentInputRef = inputRef.current;
 
-    if (currentInputRef !== null) {
+    if (currentInputRef) {
       currentInputRef.focus();
     }
   });
