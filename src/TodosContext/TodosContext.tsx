@@ -28,8 +28,8 @@ export const TodosContext = React.createContext<Todos>({
 
 export const TodoUpdateContext = React.createContext<Context>({
   addTodo: async (_todo: Todo) => {},
-  removeTodo: (_id: number) => {},
-  changeTodo: (_todoId: number, _todo: boolean) => {},
+  removeTodo: async (_id: number) => {},
+  changeTodo: async (_todoId: number, _todo: boolean, _title?: string) => {},
 });
 
 export const ErrorsContext = React.createContext<Errors>({
@@ -62,7 +62,6 @@ export const TodosProvider: React.FC<Props> = ({ children }) => {
   }
 
   function loadTodos() {
-    setNewError(null);
     setShowError(false);
     api
       .getTodos(USER_ID)
@@ -83,7 +82,7 @@ export const TodosProvider: React.FC<Props> = ({ children }) => {
   }, [newTodo]);
 
   function addTodo(todo: Todo) {
-    setNewError(null);
+    setNewError(ErrorMessages.unableToAddTodo);
     setShowError(false);
 
     return api.createTodo(todo)
@@ -103,7 +102,7 @@ export const TodosProvider: React.FC<Props> = ({ children }) => {
   console.log(todos);
 
   function removeTodo(todoId: number) {
-    setNewError(null);
+    setNewError(ErrorMessages.unableToDelete);
     setShowError(false);
 
     return api.deleteTodo(todoId)
@@ -115,11 +114,11 @@ export const TodosProvider: React.FC<Props> = ({ children }) => {
       .finally(() => finishLoading(todoId));
   }
 
-  function changeTodo(todoId: number, completed: boolean) {
-    setNewError(null);
+  function changeTodo(todoId: number, completed: boolean, title?: string) {
+    setNewError(ErrorMessages.unableToUpdate);
     setShowError(false);
 
-    return api.updateTodo(todoId, completed)
+    return api.updateTodo(todoId, completed, title)
       .then(loadTodos)
       .catch(() => {
         setNewError(ErrorMessages.unableToUpdate);

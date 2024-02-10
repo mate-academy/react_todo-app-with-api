@@ -95,6 +95,7 @@ export const Filter: React.FC<FilterProps> = ({
           : 'todoapp__clear-completed hidden'}
         data-cy="ClearCompletedButton"
         onClick={handleClearCompleted}
+        disabled={itemsDone === 0}
       >
         Clear completed
       </button>
