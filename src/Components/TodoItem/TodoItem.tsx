@@ -8,7 +8,7 @@ import React, {
 import cn from 'classnames';
 import { Todo } from '../../types/Todo';
 import { Actions, DispatchContext, Keys } from '../Store';
-import { deleteData, updateC, updateT } from '../../api/todos';
+import { deleteData, updateTodo } from '../../api/todos';
 
 interface Props {
   todo: Todo,
@@ -39,7 +39,7 @@ export const TodoItem: React.FC<Props> = ({
 
   const handleInputToogle = () => {
     setIsUpdating(true);
-    updateC({ id, completed: !completed })
+    updateTodo({ id, completed: !completed, title })
       .then(() => {
         dispatch({
           type: Actions.mark,
@@ -84,9 +84,10 @@ export const TodoItem: React.FC<Props> = ({
       deleteTodo();
     } else if (title !== currentTitle.trim()) {
       setIsUpdating(true);
-      updateT({
+      updateTodo({
         id,
         title: currentTitle,
+        completed,
       })
         .then((newTodo) => {
           setCurrentTitle(newTodo.title);

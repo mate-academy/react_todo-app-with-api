@@ -13,10 +13,8 @@ export const createTodo = ({ title, userId, completed }: Omit<Todo, 'id'>) => {
   return client.post<Todo>('/todos', { title, userId, completed });
 };
 
-export const updateT = ({ id, title }: Omit<Todo, 'userId' | 'completed'>) => {
-  return client.patch<Todo>(`/todos/${id}`, { title });
-};
+type UpdateTodoInput = Partial<Omit<Todo, 'userId'>>;
 
-export const updateC = ({ id, completed }: Omit<Todo, 'userId' | 'title'>) => {
-  return client.patch<Todo>(`/todos/${id}`, { completed });
+export const updateTodo = ({ id, completed, title }: UpdateTodoInput) => {
+  return client.patch<Todo>(`/todos/${id}`, { completed, title });
 };
