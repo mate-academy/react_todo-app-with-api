@@ -1,34 +1,14 @@
 import classNames from 'classnames';
-import React, {
-  Dispatch, SetStateAction, useContext, useEffect, useRef,
-} from 'react';
+import React, { useContext, useEffect, useRef } from 'react';
 import { Todo } from '../../types/Todo';
 import { TodosContext } from '../../TodosContext/TodosContext';
 
-type Props = {
+interface Props {
   todo: Todo,
-  editedTodoTitle: string,
-  setEditedTodoTitle: Dispatch<SetStateAction<string>>,
-  handleSpanDoubleClick: (
-    id: number,
-    title: string
-  ) => void,
-  handleDeleteTodo: (todoId: number) => void,
-  editedTodoId: number | null,
-  handleEditTodo: (event: React.FormEvent<HTMLFormElement>,
-    todoId: number) => void,
-  handleCompleteChange: (todoId: number, cheked: boolean) => void,
-};
+}
 
 export const TodoItem: React.FC<Props> = ({
   todo,
-  editedTodoTitle,
-  setEditedTodoTitle,
-  handleSpanDoubleClick,
-  handleDeleteTodo,
-  editedTodoId,
-  handleEditTodo,
-  handleCompleteChange,
 }) => {
   const inputRef = useRef<HTMLInputElement | null>(null);
 
@@ -36,6 +16,13 @@ export const TodoItem: React.FC<Props> = ({
     handleEditKeyUp,
     processingIds,
     handleEditTodoOnBlur,
+    setEditedTodoTitle,
+    handleSpanDoubleClick,
+    handleDeleteTodo,
+    editedTodoTitle,
+    editedTodoId,
+    handleEditTodo,
+    handleCompleteChange,
   } = useContext(TodosContext);
 
   useEffect(() => {

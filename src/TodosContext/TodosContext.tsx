@@ -71,9 +71,9 @@ export const TodosContext = React.createContext<TodosContextProps>({
 
 export const USER_ID = 76;
 
-type Props = {
+interface Props {
   children: React.ReactNode;
-};
+}
 
 export const TodosProvider: React.FC<Props> = ({ children }) => {
   const [todos, setTodos] = useState<Todo[]>([]);
@@ -146,13 +146,13 @@ export const TodosProvider: React.FC<Props> = ({ children }) => {
 
               return todo;
             }));
-            setProcessingIds((curr) => curr.filter(c => c !== todoId));
+            setProcessingIds((prev) => prev.filter(currentTodo => currentTodo !== todoId));
           })
           .catch(() => {
             setErrorMessage(ErrorMessage.UnableToUpdateATodo);
             setTimeout(() => setErrorMessage(null), 3000);
             setEditedTodoId(todoId);
-            setProcessingIds((curr) => curr.filter(c => c !== todoId));
+            setProcessingIds((prev) => prev.filter(currTodo => currTodo !== todoId));
           });
       } else {
         setEditedTodoId(null);
@@ -176,13 +176,13 @@ export const TodosProvider: React.FC<Props> = ({ children }) => {
 
               return todo;
             }));
-            setProcessingIds((curr) => curr.filter(c => c !== todoId));
+            setProcessingIds((prev) => prev.filter(currentTodoId => currentTodoId !== todoId));
           })
           .catch(() => {
             setErrorMessage(ErrorMessage.UnableToUpdateATodo);
             setTimeout(() => setErrorMessage(null), 3000);
             setEditedTodoId(todoId);
-            setProcessingIds((curr) => curr.filter(c => c !== todoId));
+            setProcessingIds((prev) => prev.filter(currentTodoId => currentTodoId !== todoId));
           });
       } else {
         setEditedTodoId(null);
@@ -230,12 +230,12 @@ export const TodosProvider: React.FC<Props> = ({ children }) => {
           return todo;
         }));
         setEditedTodoId(null);
-        setProcessingIds((curr) => curr.filter(c => c !== todoId));
+        setProcessingIds((prev) => prev.filter(todo => todo !== todoId));
       })
       .catch(() => {
         setErrorMessage(ErrorMessage.UnableToUpdateATodo);
         setTimeout(() => setErrorMessage(null), 3000);
-        setProcessingIds((curr) => curr.filter(c => c !== todoId));
+        setProcessingIds((prev) => prev.filter(todo => todo !== todoId));
       });
   };
 

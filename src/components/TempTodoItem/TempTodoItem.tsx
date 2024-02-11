@@ -2,9 +2,9 @@ import classNames from 'classnames';
 import React, { useEffect, useRef } from 'react';
 import { Todo } from '../../types/Todo';
 
-type Props = {
+interface Props {
   todo: Todo,
-};
+}
 
 export const TempTodoItem: React.FC<Props> = ({
   todo,

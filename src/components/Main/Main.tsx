@@ -6,13 +6,6 @@ import { filterTodos } from '../../services/filterTodos';
 
 export const Main: React.FC = () => {
   const {
-    editedTodoTitle,
-    setEditedTodoTitle,
-    handleSpanDoubleClick,
-    handleDeleteTodo,
-    editedTodoId,
-    handleEditTodo,
-    handleCompleteChange,
     temptTodo,
     todos,
     filteringBy,
@@ -27,13 +20,6 @@ export const Main: React.FC = () => {
         <TodoItem
           todo={todo}
           key={todo.id}
-          editedTodoTitle={editedTodoTitle}
-          setEditedTodoTitle={setEditedTodoTitle}
-          handleSpanDoubleClick={handleSpanDoubleClick}
-          handleDeleteTodo={handleDeleteTodo}
-          editedTodoId={editedTodoId}
-          handleEditTodo={handleEditTodo}
-          handleCompleteChange={handleCompleteChange}
         />
 
       ))}
