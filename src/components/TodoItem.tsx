@@ -32,13 +32,14 @@ const TodoItem: React.FC<Props> = ({
       onDelete();
     } else if (trimmedTitle !== todo.title) {
       setIsLoading(true);
+
       const titleExists = todos.some((t) => t.title === trimmedTitle);
 
       if (!titleExists) {
         onUpdate({ ...todo, title: trimmedTitle });
         setTimeout(() => {
-          setIsLoading(false); // Після 1000 мс, зупиняємо анімацію завантаження
-        }, 500);
+          setIsLoading(false);
+        }, 1000);
       }
     }
   };
@@ -78,6 +79,8 @@ const TodoItem: React.FC<Props> = ({
           onChange={handleTitleChange}
           onBlur={handleInputBlur}
           onKeyPress={handleKeyPress}
+          // eslint-disable-next-line jsx-a11y/no-autofocus
+          autoFocus
         />
       ) : (
         <span
