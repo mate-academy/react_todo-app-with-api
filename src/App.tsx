@@ -13,20 +13,8 @@ import { ErrorNotification } from
 import { TodoForm } from './components/TodoForm/TodoForm';
 import { Footer } from './components/Footer/Footer';
 import { TodosContext } from './TodosContext/TodoProvider';
-
-function prepareTodos(todos: Todo[], filter: Filter): Todo[] {
-  let todosCopy = [...todos];
-
-  if (filter === Filter.Active) {
-    todosCopy = todosCopy.filter(todo => todo.completed === false);
-  }
-
-  if (filter === Filter.Completed) {
-    todosCopy = todosCopy.filter(todo => todo.completed === true);
-  }
-
-  return todosCopy;
-}
+import { TodoError } from './types/errors';
+import { prepareTodos } from './utils/prepareTodos';
 
 export const App: React.FC = () => {
   const [todos, setTodos] = useState<Todo[]>([]);
@@ -108,7 +96,7 @@ export const App: React.FC = () => {
         setTodos(todosServer);
       })
       .catch(() => {
-        setErrorMessage('Unable to load todos');
+        setErrorMessage(TodoError.Load);
       });
   }, []);
 

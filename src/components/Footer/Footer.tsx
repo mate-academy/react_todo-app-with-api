@@ -4,6 +4,7 @@ import { Filter } from '../../types/Filter';
 import { Todo } from '../../types/Todo';
 import { TodosContext } from '../../TodosContext/TodoProvider';
 import { deleteTodo } from '../../api/todos';
+import { TodoError } from '../../types/errors';
 
 interface Props {
   todos: Todo[];
@@ -34,7 +35,7 @@ export const Footer: React.FC<Props> = (props) => {
             onRemove(todo.id);
           })
           .catch(() => {
-            onError('Unable to delete a todo');
+            onError(TodoError.DeleteTodo);
             removeTodoForUpdate(todo);
           });
       },

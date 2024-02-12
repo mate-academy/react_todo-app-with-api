@@ -8,24 +8,8 @@ import cn from 'classnames';
 import { Todo } from '../../types/Todo';
 import { changeTodo, deleteTodo } from '../../api/todos';
 import { TodosContext } from '../../TodosContext/TodoProvider';
-
-interface LoaderProps {
-  showUpdating: boolean;
-}
-
-const LoadOverlay: React.FC<LoaderProps> = ({ showUpdating }) => {
-  return (
-    <div
-      data-cy="TodoLoader"
-      className={cn('modal', 'overlay', {
-        'is-active': showUpdating,
-      })}
-    >
-      <div className="modal-background has-background-white-ter" />
-      <div className="loader" />
-    </div>
-  );
-};
+import { LoadOverlay } from './LoadOverlay';
+import { TodoError } from '../../types/errors';
 
 interface Props {
   todo: Todo;
@@ -60,7 +44,7 @@ export const TodoComponent: React.FC<Props> = (props) => {
     deleteTodo(todo.id)
       .then(() => onDelete(todo.id))
       .catch(() => {
-        onError('Unable to delete a todo');
+        onError(TodoError.DeleteTodo);
         removeTodoForUpdate(todo);
       })
       .finally(() => removeTodoForUpdate(todo));
@@ -77,7 +61,7 @@ export const TodoComponent: React.FC<Props> = (props) => {
       .then(res => {
         onUpdate(res);
       })
-      .catch(() => onError('Unable to update a todo'))
+      .catch(() => onError(TodoError.TodoUpdate))
       .finally(() => setUpdating(false));
   };
 
@@ -107,7 +91,7 @@ export const TodoComponent: React.FC<Props> = (props) => {
           onUpdate(editetTodo);
           setEditing(false);
         }))
-        .catch(() => onError('Unable to update a todo'))
+        .catch(() => onError(TodoError.TodoUpdate))
         .finally(() => setUpdating(false));
     }
 
@@ -145,7 +129,7 @@ export const TodoComponent: React.FC<Props> = (props) => {
         />
       </label>
 
-      {editing && (
+      {!!editing && (
         <form onSubmit={handleSubmit}>
           <input
             data-cy="TodoTitleField"
@@ -167,7 +151,6 @@ export const TodoComponent: React.FC<Props> = (props) => {
           <span
             data-cy="TodoTitle"
             className="todo__title"
-            /* onClick={handleDoubleClick} */
             onDoubleClick={handleDoubleClick}
           >
             {todo.title}
@@ -177,7 +160,7 @@ export const TodoComponent: React.FC<Props> = (props) => {
             type="button"
             className="todo__remove"
             data-cy="TodoDelete"
-            onClick={() => removeTodo()}
+            onClick={removeTodo}
           >
             ×
           </button>
