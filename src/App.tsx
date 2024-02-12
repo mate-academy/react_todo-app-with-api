@@ -19,22 +19,25 @@ import { Header } from './Components/Header';
 import { Footer } from './Components/Footer';
 
 export const App: React.FC = () => {
+  const ErrorClases = 'notification is-danger '
+    + 'is-light has-text-weight-normal';
+  const USER_ID = 12123;
+
   const dispatch = useContext(DispatchContext);
   const {
     allTodos,
     error,
   } = useContext(StateContext);
+
   const activeTodos = useMemo(() => {
     return allTodos?.filter(todo => !todo.completed) || [];
   }, [allTodos]);
   const completedTodos = useMemo(() => {
     return allTodos?.filter(todo => todo.completed) || [];
   }, [allTodos]);
+
   const [visibleTodosType, setVisibleTodosType] = useState(TodosType.all);
   const [errorMessage, setErrorMessage] = useState(error);
-  const USER_ID = 12123;
-  const ErrorClases = 'notification is-danger '
-    + 'is-light has-text-weight-normal';
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
 
   useEffect(() => {
@@ -113,10 +116,6 @@ export const App: React.FC = () => {
           onClick={handleErrorCanceling}
         />
         <p>{errorMessage}</p>
-        {/* Title should not be empty */}
-        {/* Unable to add a todo */}
-        {/* Unable to delete a todo */}
-        {/* Unable to update a todo */}
       </div>
     </div>
   );
