@@ -10,7 +10,7 @@ import { Todo } from './types/Todo';
 
 const USER_ID = 100;
 
-type Error = 'Unable to load todos' | 'Title should not be empty' | 'Unable to add a todo' | 'Unable to delete a todo' | 'Unable to update a todo' | '';
+type Error = 'Unable to load todos' | 'Title should not be empty' | 'Unable to add a todo' | 'Unable to delete a todo' | 'Unable to update a todo';
 type FilPar = 'All' | 'Active' | 'Completed';
 
 export const App: React.FC = () => {
@@ -26,12 +26,13 @@ export const App: React.FC = () => {
   const [redactedTodo, setRedactedTodo] = useState<number | null>(null);
   const inputRef = useRef<HTMLInputElement | null>(null);
   const todoInputRef = useRef<HTMLInputElement | null>(null);
+  const isError = errorMsg !== null;
 
   useEffect(() => {
     if (inputRef.current) {
       inputRef.current.focus();
     }
-  }, []);
+  }, [todos]);
 
   function filterTodos() {
     switch (filterParam) {
@@ -49,6 +50,17 @@ export const App: React.FC = () => {
     }
   }
 
+  function hideErrorMsg() {
+    setTimeout(() => {
+      setErrorMsg(null);
+    }, 3000);
+  }
+
+  function showError(error: Error) {
+    setErrorMsg(error);
+    setTimeout(() => hideErrorMsg(), 3000);
+  }
+
   useEffect(() => {
     setVisibleTodos(todos);
   }, [todos]);
@@ -58,22 +70,18 @@ export const App: React.FC = () => {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [filterParam]);
 
-  useEffect(() => {
-    todoService.getTodos(USER_ID).then(setTodos);
-  }, []);
-
   function loadTodos() {
     todoService.getTodos(USER_ID).then((data) => {
       setTodos(data);
-    }).catch(() => setErrorMsg('Unable to load todos'));
+    }).catch(() => showError('Unable to load todos'));
   }
 
   function deleteTodo(todoId: number) {
     setLoadingList((curList) => [...curList, todoId]);
 
     todoService.removeTodo(todoId)
-      .catch(() => setErrorMsg('Unable to delete a todo'))
       .then(() => loadTodos())
+      .catch(() => showError('Unable to delete a todo'))
       .finally(() => setLoadingList(curList => curList.filter(todo => todo !== todoId)));
   }
 
@@ -81,17 +89,20 @@ export const App: React.FC = () => {
     setDisInput(true);
 
     todoService.postTodo({ title, completed, userId })
-      .catch(() => setErrorMsg('Unable to add a todo'))
       .then(newPost => {
         setTodos(currTodos => [...currTodos, newPost] as Todo[]);
-      }).finally(() => setDisInput(false));
-    setTempTodo(null);
+        setNewTodoTitle('');
+      })
+      .catch(() => showError('Unable to add a todo'))
+      .finally(() => {
+        setDisInput(false);
+        setTempTodo(null);
+      });
   }
 
   function updateTodo(updatedPost: Todo) {
     setLoadingList((curList) => [...curList, updatedPost.id]);
     todoService.updateTodo(updatedPost)
-      .catch(() => setErrorMsg('Unable to update a todo'))
       .then(todo => {
         setTodos(currTodos => {
           const newTodo = [...currTodos];
@@ -102,6 +113,7 @@ export const App: React.FC = () => {
           return newTodo;
         });
       })
+      .catch(() => showError('Unable to update a todo'))
       .finally(() => {
         setLoadingList(curList => curList.filter(todo => todo !== updatedPost.id));
         setRedactedTodo(null);
@@ -123,11 +135,10 @@ export const App: React.FC = () => {
   }
 
   function redactTodoHandler(todoId: number, todoTitle: string) {
-    setTodoNewTitle(todoTitle); // Спочатку встановлюємо todoNewTitle
-    setRedactedTodo(todoId); // Потім встановлюємо redactedTodo
+    setTodoNewTitle(todoTitle);
+    setRedactedTodo(todoId);
   }
 
-  // Пізніше, використовуючи useEffect, ви фокусуєте на введенні, коли redactedTodo змінюється
   useEffect(() => {
     if (redactedTodo !== null && todoInputRef.current) {
       todoInputRef.current.focus();
@@ -154,17 +165,18 @@ export const App: React.FC = () => {
 
   const handleAddTodo = (event: FormEvent) => {
     event.preventDefault();
-    setTempTodo({
-      title: newTodoTitle, completed: false, userId: USER_ID, id: 0,
-    });
-    if (!newTodoTitle) {
-      setErrorMsg('Title should not be empty');
-    } else {
-      addTodo({
-        title: newTodoTitle, completed: false, userId: USER_ID, id: 0,
-      });
-      setNewTodoTitle('');
+    if (newTodoTitle.trim().length < 1) {
+      showError('Title should not be empty');
+
+      return;
     }
+
+    setTempTodo({
+      title: newTodoTitle.trim(), completed: false, userId: USER_ID, id: 0,
+    });
+    addTodo({
+      title: newTodoTitle.trim(), completed: false, userId: USER_ID, id: 0,
+    });
   };
 
   if (!USER_ID) {
@@ -208,8 +220,9 @@ export const App: React.FC = () => {
                 <input
                   data-cy="TodoStatus"
                   type="checkbox"
-                  className="todo__status"
-                  onClick={() => (updateTodo({
+                  checked={todo.completed}
+                  className={classNames('todo__status', { completed: todo.completed })}
+                  onChange={() => (updateTodo({
                     id: todo.id, title: todo.title, completed: !todo.completed, userId: todo.userId,
                   }))}
                 />
@@ -249,6 +262,11 @@ export const App: React.FC = () => {
                     value={todoNewTitle}
                     ref={todoInputRef}
                     onChange={(event) => setTodoNewTitle(event.target.value)}
+                    onKeyUp={(event) => {
+                      if (event.key === 'Escape') {
+                        setRedactedTodo(null);
+                      }
+                    }}
                     onBlur={(event) => {
                       if (todoNewTitle !== todo.title) {
                         onTodoChange(event, {
@@ -342,29 +360,28 @@ export const App: React.FC = () => {
               </a>
             </nav>
             <div>
-              {todos.filter(todo => todo.completed).length > 0 && (
-                <button
-                  type="button"
-                  className="todoapp__clear-completed"
-                  data-cy="ClearCompletedButton"
-                  onClick={() => onDeleteCompleted()}
-                >
-                  Clear completed
-                </button>
-              )}
+              <button
+                type="button"
+                disabled={todos.filter(todo => todo.completed).length < 1}
+                className="todoapp__clear-completed"
+                data-cy="ClearCompletedButton"
+                onClick={() => onDeleteCompleted()}
+              >
+                Clear completed
+              </button>
             </div>
           </footer>
         )}
       </div>
       <div
         data-cy="ErrorNotification"
-        className={classNames('notification is-danger is-light has-text-weight-normal', { hidden: !errorMsg })}
+        className={classNames('notification is-danger is-light has-text-weight-normal', { hidden: !isError })}
       >
         <button
           data-cy="HideErrorButton"
           type="button"
           className="delete"
-          onClick={() => (setErrorMsg(null))}
+          onClick={hideErrorMsg}
         />
         {errorMsg}
       </div>
