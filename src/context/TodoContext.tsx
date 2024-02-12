@@ -1,7 +1,12 @@
 import React, {
   RefObject,
   SetStateAction,
-  useCallback, useContext, useEffect, useMemo, useRef, useState,
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
 } from 'react';
 import { Todo } from '../types/Todo';
 import {
@@ -13,7 +18,7 @@ import { Filters } from '../types/Filters';
 const USER_ID = 11208;
 
 type ContextValue = {
-  filteredTodos: Todo[];
+  filteredTodos: () => Todo[];
   todos: Todo[];
   loadingTodoId: number[];
   tempTodo: Todo | null;
@@ -62,7 +67,7 @@ export const TodoContextProvider = ({ children }: Props) => {
       .catch(() => changeErrorMessage(ErrorMessages.DOWNLOAD));
   }, [changeErrorMessage]);
 
-  const filteredTodos = useMemo(() => {
+  const filteredTodos = () => {
     switch (filter) {
       case 'active':
         return todos.filter(todo => !todo.completed);
@@ -74,7 +79,7 @@ export const TodoContextProvider = ({ children }: Props) => {
       default:
         return todos;
     }
-  }, [filter, todos]);
+  };
 
   const completedTodosId = useMemo(() => {
     return todos.filter(
@@ -168,9 +173,7 @@ export const TodoContextProvider = ({ children }: Props) => {
     });
   }, [todos, removeTodo]);
 
-  const nrOfActiveTodos = useMemo(() => {
-    return todos.filter(todo => !todo.completed).length;
-  }, [todos]);
+  const nrOfActiveTodos = todos.filter(todo => !todo.completed).length;
 
   const toggleAll = useCallback(() => {
     const allActive = nrOfActiveTodos > 0;

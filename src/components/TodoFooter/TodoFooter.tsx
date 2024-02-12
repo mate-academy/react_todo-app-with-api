@@ -1,8 +1,8 @@
-import React from 'react';
+import { memo } from 'react';
 import cn from 'classnames';
 import { useTodoContext } from '../../context/TodoContext';
 
-export const TodoFooter = React.memo(() => {
+export const TodoFooter = memo(() => {
   const {
     removeAllCompleted, nrOfActiveTodos, setFilter, filter, completedTodosId,
   } = useTodoContext();
@@ -42,17 +42,14 @@ export const TodoFooter = React.memo(() => {
         </a>
       </nav>
 
-      {/* don't show this button if there are no completed todos */}
-      {/* {completedTodosId.length > 0 && ( */}
       <button
         type="button"
         className="todoapp__clear-completed"
         onClick={removeAllCompleted}
-        disabled={!(completedTodosId.length > 0)}
+        disabled={!completedTodosId.length}
       >
         Clear completed
       </button>
-      {/* )} */}
     </footer>
   );
 });

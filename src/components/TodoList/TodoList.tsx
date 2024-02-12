@@ -11,7 +11,7 @@ export const TodoList = () => {
   return (
     <TransitionGroup>
 
-      {filteredTodos.map(todo => (
+      {filteredTodos().map(todo => (
         <CSSTransition
           key={todo.id}
           timeout={300}

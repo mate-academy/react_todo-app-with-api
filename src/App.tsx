@@ -18,7 +18,7 @@ export const App: React.FC = () => {
 
       <div className="todoapp__content">
         <header className="todoapp__header">
-          {(todos.length > 0) && (
+          {!!todos.length && (
             <button
               type="button"
               className={
@@ -37,7 +37,7 @@ export const App: React.FC = () => {
           <TodoList />
         </section>
 
-        {todos.length > 0 && (
+        {!!todos.length && (
           <TodoFooter />
         )}
       </div>
