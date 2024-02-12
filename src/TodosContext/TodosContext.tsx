@@ -109,7 +109,9 @@ export const TodosProvider: React.FC<Props> = ({ children }) => {
     setShowError(false);
 
     return api.deleteTodo(todoId)
-      .then(loadTodos)
+      .then(() => {
+        setTodos((prev) => prev.filter((t) => t.id !== todoId));
+      })
       .catch((error) => {
         setNewError(ErrorMessages.unableToDelete);
         setShowError(true);
@@ -123,7 +125,15 @@ export const TodosProvider: React.FC<Props> = ({ children }) => {
     setShowError(false);
 
     return api.updateTodo(todoId, completed, title)
-      .then(loadTodos)
+      .then((res) => {
+        setTodos((prev) => prev.map(t => {
+          if (t.id === res.id) {
+            return res;
+          }
+
+          return t;
+        }));
+      })
       .catch((error) => {
         setNewError(ErrorMessages.unableToUpdate);
         setShowError(true);

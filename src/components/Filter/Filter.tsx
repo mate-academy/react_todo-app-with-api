@@ -102,9 +102,7 @@ export const Filter: React.FC<FilterProps> = ({
       <button
         type="button"
         style={clearCompletedStyle}
-        className={itemsDone > 0
-          ? 'todoapp__clear-completed'
-          : 'todoapp__clear-completed hidden'}
+        className="todoapp__clear-completed"
         data-cy="ClearCompletedButton"
         onClick={handleClearCompleted}
         disabled={itemsDone === 0}

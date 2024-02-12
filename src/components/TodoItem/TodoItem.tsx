@@ -57,6 +57,13 @@ export const TodoItem: React.FC<Props> = ({ todo, inputRef }) => {
   }
 
   async function renameTodo(todoToUpdate: Todo, newTitle: string) {
+    if (todoToUpdate.title === newTitle) {
+      setTempTodo(null);
+      setChangeTitle(false);
+
+      return;
+    }
+
     startLoading(todoToUpdate.id);
     if (newTitle === '') {
       try {

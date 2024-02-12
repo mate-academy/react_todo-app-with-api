@@ -114,12 +114,17 @@ export const InputForm: React.FC<Props> = ({
     }
   }, [newError, showError]);
 
+  const hideToggle: React.CSSProperties = {
+    visibility: todos.length ? 'visible' : 'hidden',
+  };
+
   return (
     <header className="todoapp__header">
       <button
         type="button"
         className={`todoapp__toggle-all ${itemsLeft ? '' : 'active'}`}
         data-cy="ToggleAllButton"
+        style={hideToggle}
         onClick={() => {
           handleChangeAll();
           setCompleteAll(!completeAll);
