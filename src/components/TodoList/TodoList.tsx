@@ -12,15 +12,22 @@ import {
 
 type Props = {
   status: Status,
+  inputRef: React.RefObject<HTMLInputElement>;
 };
 
-export const TodoList: React.FC<Props> = ({ status }) => {
+export const TodoList: React.FC<Props> = ({ status, inputRef }) => {
   const { todos } = useContext(TodosContext);
   const todosWithStatus = filterByStatus(todos, status);
 
   return (
     <section className="todoapp__main" data-cy="TodoList">
-      {todosWithStatus.map((todo) => (<TodoItem todo={todo} key={todo.id} />))}
+      {todosWithStatus.map((todo) => (
+        <TodoItem
+          todo={todo}
+          inputRef={inputRef}
+          key={todo.id}
+        />
+      ))}
     </section>
   );
 };

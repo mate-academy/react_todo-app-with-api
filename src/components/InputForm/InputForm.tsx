@@ -3,7 +3,6 @@
 import {
   useContext,
   useEffect,
-  useRef,
   useState,
 } from 'react';
 
@@ -28,10 +27,15 @@ import { reduceItems } from '../../services/reduceItems';
 type Props = {
   onSubmit: (todo: Todo) => Promise<void>;
   onCompleted: (id: number, completeAll: boolean) => void;
+  inputRef: React.RefObject<HTMLInputElement>;
 };
 
-export const InputForm: React.FC<Props> = ({ onSubmit, onCompleted }) => {
-  const { todos, setTodos } = useContext(TodosContext);
+export const InputForm: React.FC<Props> = ({
+  onSubmit,
+  onCompleted,
+  inputRef,
+}) => {
+  const { todos, setTodos, setTempTodo } = useContext(TodosContext);
   const { loading, startLoading } = useContext(LoadingContext);
   const {
     showError,
@@ -43,8 +47,11 @@ export const InputForm: React.FC<Props> = ({ onSubmit, onCompleted }) => {
   const [newTodoTitle, setNewTodoTitle] = useState('');
   const [completeAll, setCompleteAll] = useState(false);
 
-  const titleField = useRef<HTMLInputElement>(null);
   const itemsLeft = reduceItems(todos, false);
+
+  useEffect(() => {
+    inputRef.current?.focus();
+  }, [newTodoTitle]);
 
   const handleChangeAll = () => {
     if (checkAllStatuses(todos)) {
@@ -76,7 +83,7 @@ export const InputForm: React.FC<Props> = ({ onSubmit, onCompleted }) => {
     if (normalizedTitle === '') {
       setNewError(ErrorMessages.emptyTitle);
       setShowError(true);
-      titleField.current?.focus();
+      inputRef.current?.focus();
 
       return;
     }
@@ -88,6 +95,8 @@ export const InputForm: React.FC<Props> = ({ onSubmit, onCompleted }) => {
       completed: false,
     };
 
+    setTempTodo(newTodo);
+
     startLoading(0);
     setTodos((prev) => [...prev, newTodo]);
     await onSubmit(newTodo);
@@ -95,16 +104,12 @@ export const InputForm: React.FC<Props> = ({ onSubmit, onCompleted }) => {
   }
 
   useEffect(() => {
-    titleField.current?.focus();
-  }, [newTodoTitle]);
-
-  useEffect(() => {
     if (newError === ErrorMessages.unableToAddTodo) {
-      titleField.current?.focus();
+      inputRef.current?.focus();
     }
 
     if (newError === ErrorMessages.unableToAddTodo) {
-      titleField.current?.focus();
+      inputRef.current?.focus();
     }
   }, [newError, showError]);
 
@@ -121,7 +126,7 @@ export const InputForm: React.FC<Props> = ({ onSubmit, onCompleted }) => {
       />
       <form onSubmit={handleSubmit}>
         <input
-          ref={titleField}
+          ref={inputRef}
           data-cy="NewTodoField"
           type="text"
           className="todoapp__new-todo"

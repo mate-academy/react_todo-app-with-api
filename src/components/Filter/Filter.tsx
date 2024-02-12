@@ -1,3 +1,4 @@
+/* eslint-disable array-callback-return */
 /* eslint-disable react/style-prop-object */
 /* eslint-disable import/no-cycle */
 /* eslint-disable quote-props */
@@ -6,36 +7,46 @@ import { Status } from '../../types/Status';
 import { reduceItems } from '../../services/reduceItems';
 import { filterByStatus } from '../../services/filterByStatus';
 
-import { LoadingContext, TodosContext } from '../../TodosContext/TodosContext';
+import {
+  LoadingContext,
+  TodoUpdateContext,
+  TodosContext,
+} from '../../TodosContext/TodosContext';
 
 interface FilterProps {
   onChangeStatus: (newStatus: Status) => void;
   status: Status
-  onClearCompleted: (id: number) => void;
+  inputRef: React.RefObject<HTMLInputElement>;
 }
 
 export const Filter: React.FC<FilterProps> = ({
   onChangeStatus,
   status,
-  onClearCompleted,
+  inputRef,
 }) => {
   const { todos } = useContext(TodosContext);
+  const { removeTodo } = useContext(TodoUpdateContext);
   const { startLoading } = useContext(LoadingContext);
 
   const handleStatusChange = (newStatus: Status) => {
     onChangeStatus(newStatus);
   };
 
-  const handleClearCompleted = () => {
+  function clearCompleted() {
     const onlyActiveTodos = filterByStatus(todos, Status.Completed);
 
-    return onlyActiveTodos.map(todo => {
+    onlyActiveTodos.map(todo => {
       const { id } = todo;
 
       startLoading(id);
 
-      return onClearCompleted(id);
+      removeTodo(id);
     });
+    inputRef.current?.focus();
+  }
+
+  const handleClearCompleted = () => {
+    clearCompleted();
   };
 
   const todosLeft = todos.filter(todo => todo.id !== 0);

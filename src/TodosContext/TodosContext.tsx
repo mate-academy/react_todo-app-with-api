@@ -25,6 +25,8 @@ interface Loading {
 export const TodosContext = React.createContext<Todos>({
   todos: [],
   setTodos: () => {},
+  tempTodo: null,
+  setTempTodo: () => {},
 });
 
 export const TodoUpdateContext = React.createContext<Context>({
@@ -49,7 +51,7 @@ export const LoadingContext = React.createContext<Loading>({
 
 export const TodosProvider: React.FC<Props> = ({ children }) => {
   const [todos, setTodos] = useState<Todo[]>([]);
-  const [newTodo, setNewTodo] = useState<Todo | null>(null);
+  const [tempTodo, setTempTodo] = useState<Todo | null>(null);
   const [newError, setNewError] = useState<ErrorMessages | null>(null);
   const [showError, setShowError] = useState<boolean>(false);
   const [loading, setLoading] = useState<number[]>([]);
@@ -77,18 +79,20 @@ export const TodosProvider: React.FC<Props> = ({ children }) => {
 
   useEffect(() => {
     setTodos(todos.filter(todo => todo.id !== 0));
-    if (newTodo !== null) {
-      setTodos((prev) => [...prev, newTodo]);
+    if (tempTodo !== null) {
+      setTodos((prev) => [...prev, tempTodo]);
     }
-  }, [newTodo]);
+  }, [tempTodo]);
 
   function addTodo(todo: Todo) {
     setNewError(ErrorMessages.unableToAddTodo);
     setShowError(false);
 
     return api.createTodo(todo)
-      .then((res) => setNewTodo(res))
-      .then(loadTodos)
+      .then((res) => {
+        setTodos((prev) => prev.filter((t) => t.id !== 0));
+        setTodos((prevTodos) => [...prevTodos, res]);
+      })
       .catch((error) => {
         setNewError(ErrorMessages.unableToAddTodo);
         setShowError(true);
@@ -106,9 +110,10 @@ export const TodosProvider: React.FC<Props> = ({ children }) => {
 
     return api.deleteTodo(todoId)
       .then(loadTodos)
-      .catch(() => {
+      .catch((error) => {
         setNewError(ErrorMessages.unableToDelete);
         setShowError(true);
+        throw new Error(error);
       })
       .finally(() => finishLoading(todoId));
   }
@@ -119,9 +124,10 @@ export const TodosProvider: React.FC<Props> = ({ children }) => {
 
     return api.updateTodo(todoId, completed, title)
       .then(loadTodos)
-      .catch(() => {
+      .catch((error) => {
         setNewError(ErrorMessages.unableToUpdate);
         setShowError(true);
+        throw new Error(error);
       }).finally(() => {
         finishLoading(todoId);
       });
@@ -131,7 +137,13 @@ export const TodosProvider: React.FC<Props> = ({ children }) => {
     loading, setLoading, startLoading, finishLoading,
   }), [loading]);
   const methods = useMemo(() => ({ addTodo, removeTodo, changeTodo }), []);
-  const value = useMemo(() => ({ todos, setTodos }), [todos]);
+  const value = useMemo(() => (
+    {
+      todos,
+      setTodos,
+      tempTodo,
+      setTempTodo,
+    }), [todos]);
   const errors = useMemo(() => (
     {
       newError, setNewError, showError, setShowError,

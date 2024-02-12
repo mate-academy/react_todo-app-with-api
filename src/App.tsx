@@ -1,7 +1,7 @@
 /* eslint-disable no-console */
 /* eslint-disable import/no-cycle */
 /* eslint-disable jsx-a11y/control-has-associated-label */
-import { useContext, useState } from 'react';
+import { useContext, useRef, useState } from 'react';
 
 import { UserWarning } from './UserWarning';
 import { Filter } from './components/Filter/Filter';
@@ -20,10 +20,12 @@ import {
 export const USER_ID = 105;
 
 export const AppContent: React.FC = () => {
-  const { addTodo, changeTodo, removeTodo } = useContext(TodoUpdateContext);
+  const { addTodo, changeTodo } = useContext(TodoUpdateContext);
   const { todos } = useContext(TodosContext);
   const [status, setStatus] = useState<Status>(Status.All);
   const { setShowError } = useContext(ErrorsContext);
+
+  const inputRef = useRef<HTMLInputElement>(null);
 
   const handleStatusChange = (newStatus: Status) => {
     setStatus(newStatus);
@@ -42,15 +44,21 @@ export const AppContent: React.FC = () => {
       <h1 className="todoapp__title">todos</h1>
 
       <div className="todoapp__content">
-        <InputForm onSubmit={addTodo} onCompleted={changeTodo} />
+        <InputForm
+          onSubmit={addTodo}
+          onCompleted={changeTodo}
+          inputRef={inputRef}
+        />
 
-        <TodoList status={status} />
+        {!!todos.length && (
+          <TodoList status={status} inputRef={inputRef} />
+        )}
 
         {!!todos.length && (
           <Filter
             onChangeStatus={handleStatusChange}
             status={status}
-            onClearCompleted={removeTodo}
+            inputRef={inputRef}
           />
         )}
       </div>
