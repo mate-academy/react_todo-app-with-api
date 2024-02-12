@@ -1,6 +1,8 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Todo } from '../../types/Todo';
-import { USER_ID, createTodo } from '../../api/todos';
+import { createTodo } from '../../api/todos';
+import { USER_ID } from '../../utils/consts';
+import { TodoError } from '../../types/errors';
 
 interface Props {
   setError: (errorMessage: string) => void;
@@ -32,7 +34,7 @@ export const TodoForm: React.FC<Props> = (props) => {
     const value = newTitle.trim();
 
     if (!value) {
-      setError('Title should not be empty');
+      setError(TodoError.EmptyTitle);
       setNewTitle('');
 
       return;
@@ -51,7 +53,7 @@ export const TodoForm: React.FC<Props> = (props) => {
 
     createTodo(todo)
       .then(approveTodoSave)
-      .catch(() => setError('Unable to add a todo'))
+      .catch(() => setError(TodoError.AddTodo))
       .finally(() => {
         setDisableInput(false);
         handleTempTodo(null);

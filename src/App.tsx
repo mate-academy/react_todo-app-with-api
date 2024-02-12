@@ -5,7 +5,8 @@ import classNames from 'classnames';
 
 import { UserWarning } from './UserWarning';
 import { Todo } from './types/Todo';
-import { USER_ID, changeTodo, getTodos } from './api/todos';
+import { changeTodo, getTodos } from './api/todos';
+import { USER_ID } from './utils/consts';
 import { TodoComponent } from './components/TodoComponent/TodoComponent';
 import { Filter } from './types/Filter';
 import { ErrorNotification } from
@@ -80,7 +81,7 @@ export const App: React.FC = () => {
         changeTodo(updatedTodo)
           .then(updateTodo)
           .catch(() => {
-            setErrorMessage('Unable to update a todo');
+            setErrorMessage(TodoError.TodoUpdate);
           })
           .finally(() => removeTodoForUpdate(updatedTodo));
       },
@@ -99,13 +100,6 @@ export const App: React.FC = () => {
         setErrorMessage(TodoError.Load);
       });
   }, []);
-
-  useEffect(() => {
-    const timerId = setTimeout(setErrorHide, 3000);
-
-    return () => clearTimeout(timerId);
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [errorMessage]);
 
   if (!USER_ID) {
     return <UserWarning />;
