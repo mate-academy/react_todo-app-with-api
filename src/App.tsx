@@ -88,7 +88,6 @@ export const App: React.FC = () => {
       })
       .catch(() => {
         showErrorNotification(ErrorMessage.DELETE_ERROR);
-        throw new Error();
       })
       .finally(() => {
         setProcessingTodoIds(
@@ -105,14 +104,11 @@ export const App: React.FC = () => {
 
     return todosService.updateTodo(id, dataToUpdate)
       .then((updatedTodo) => {
-        setTodos(currentTodos => {
-          const newTodos = [...currentTodos];
-          const index = newTodos.findIndex(todo => todo.id === id);
-
-          newTodos.splice(index, 1, updatedTodo);
-
-          return newTodos;
-        });
+        setTodos(currentTodos => currentTodos.map(todo => {
+          return todo.id === updatedTodo.id
+            ? updatedTodo
+            : todo;
+        }));
       })
       .catch(() => {
         showErrorNotification(ErrorMessage.UPDATE_ERROR);

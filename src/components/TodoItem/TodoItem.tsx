@@ -31,7 +31,6 @@ export const TodoItem: React.FC<Props> = React.memo((props) => {
 
   const handleDeleteButton = () => {
     onDelete(todo.id)
-      .catch(() => {})
       .finally(() => {
         createTodoInputRef.current?.focus();
       });
@@ -46,7 +45,7 @@ export const TodoItem: React.FC<Props> = React.memo((props) => {
     const preparedTitle = newTitle.trim();
 
     if (!preparedTitle) {
-      onDelete(todo.id).catch(() => editTitleInputRef.current?.focus());
+      onDelete(todo.id);
 
       return;
     }
@@ -61,9 +60,7 @@ export const TodoItem: React.FC<Props> = React.memo((props) => {
       .then(() => {
         setIsBeingEdited(false);
       })
-      .catch(() => { });
-
-    editTitleInputRef.current?.focus();
+      .catch(() => {});
   };
 
   const handleSubmit = (event: React.FormEvent) => {
