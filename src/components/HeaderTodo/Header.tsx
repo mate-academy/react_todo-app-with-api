@@ -76,7 +76,7 @@ export const HeaderTodo = () => {
     }
   }, [todos.length, tempTodo]);
 
-  // button in header >
+  // button in header
   const toggledTodosList = useMemo(() => {
     if (todosLeft) {
       return todos.map(todo => ({
