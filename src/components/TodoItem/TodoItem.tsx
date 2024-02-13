@@ -50,7 +50,7 @@ export const TodoItem: React.FC<Props> = ({ todo, inputRef }) => {
     startLoading(todo.id);
 
     try {
-      await changeTodo(todo.id, !todo.completed);
+      await changeTodo(todo.id, !todo.completed, todo.title);
     } catch (error) {
       titleRef?.current?.focus();
     }
@@ -86,7 +86,7 @@ export const TodoItem: React.FC<Props> = ({ todo, inputRef }) => {
     setTempTodo(todo);
 
     try {
-      renameTodo(todo, title);
+      renameTodo(todo, title.trim());
       titleRef.current?.focus();
     } catch (error) {
       setTitle(todo.title);

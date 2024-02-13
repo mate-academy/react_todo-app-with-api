@@ -120,16 +120,18 @@ export const InputForm: React.FC<Props> = ({
 
   return (
     <header className="todoapp__header">
-      <button
-        type="button"
-        className={`todoapp__toggle-all ${itemsLeft ? '' : 'active'}`}
-        data-cy="ToggleAllButton"
-        style={hideToggle}
-        onClick={() => {
-          handleChangeAll();
-          setCompleteAll(!completeAll);
-        }}
-      />
+      {!!todos.length && (
+        <button
+          type="button"
+          className={`todoapp__toggle-all ${itemsLeft ? '' : 'active'}`}
+          data-cy="ToggleAllButton"
+          style={hideToggle}
+          onClick={() => {
+            handleChangeAll();
+            setCompleteAll(!completeAll);
+          }}
+        />
+      )}
       <form onSubmit={handleSubmit}>
         <input
           ref={inputRef}
