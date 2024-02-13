@@ -1,0 +1,114 @@
+/* eslint-disable array-callback-return */
+/* eslint-disable react/style-prop-object */
+/* eslint-disable import/no-cycle */
+/* eslint-disable quote-props */
+import { useContext } from 'react';
+import { Status } from '../../types/Status';
+import { reduceItems } from '../../services/reduceItems';
+import { filterByStatus } from '../../services/filterByStatus';
+
+import {
+  LoadingContext,
+  TodoUpdateContext,
+  TodosContext,
+} from '../../TodosContext/TodosContext';
+
+interface FilterProps {
+  onChangeStatus: (newStatus: Status) => void;
+  status: Status
+  inputRef: React.RefObject<HTMLInputElement>;
+}
+
+export const Filter: React.FC<FilterProps> = ({
+  onChangeStatus,
+  status,
+  inputRef,
+}) => {
+  const { todos } = useContext(TodosContext);
+  const { removeTodo } = useContext(TodoUpdateContext);
+  const { startLoading } = useContext(LoadingContext);
+
+  const handleStatusChange = (newStatus: Status) => {
+    onChangeStatus(newStatus);
+  };
+
+  function clearCompleted() {
+    const onlyActiveTodos = filterByStatus(todos, Status.Completed);
+
+    onlyActiveTodos.map(todo => {
+      const { id } = todo;
+
+      startLoading(id);
+
+      removeTodo(id);
+    });
+    inputRef.current?.focus();
+  }
+
+  const handleClearCompleted = () => {
+    clearCompleted();
+  };
+
+  const todosLeft = todos.filter(todo => todo.id !== 0);
+  const itemsLeft = reduceItems(todosLeft, false);
+  const itemsDone = reduceItems(todos, true);
+
+  const clearCompletedStyle: React.CSSProperties = {
+    visibility: itemsDone > 0 ? 'visible' : 'hidden',
+  };
+
+  return (
+    <footer className="todoapp__footer" data-cy="Footer">
+      <span className="todo-count" data-cy="TodosCounter">
+        {`${itemsLeft} items left`}
+      </span>
+
+      <nav className="filter" data-cy="Filter">
+        <a
+          href="#/"
+          className={status === Status.All
+            ? 'filter__link selected'
+            : 'filter__link'}
+          data-cy="FilterLinkAll"
+          onClick={() => handleStatusChange(Status.All)}
+        >
+          All
+        </a>
+
+        <a
+          href="#/active"
+          className={status === Status.Active
+            ? 'filter__link selected'
+            : 'filter__link'}
+          data-cy="FilterLinkActive"
+          onClick={() => handleStatusChange(Status.Active)}
+        >
+          Active
+        </a>
+
+        <a
+          href="#/completed"
+          className={status === Status.Completed
+            ? 'filter__link selected'
+            : 'filter__link'}
+          data-cy="FilterLinkCompleted"
+          onClick={() => handleStatusChange(Status.Completed)}
+        >
+          Completed
+        </a>
+      </nav>
+
+      {/* don't show this button if there are no completed todos */}
+      <button
+        type="button"
+        style={clearCompletedStyle}
+        className="todoapp__clear-completed"
+        data-cy="ClearCompletedButton"
+        onClick={handleClearCompleted}
+        disabled={itemsDone === 0}
+      >
+        Clear completed
+      </button>
+    </footer>
+  );
+};
