@@ -90,7 +90,6 @@ export const TodosProvider: React.FC<Props> = ({ children }) => {
 
     return api.createTodo(todo)
       .then((res) => {
-        console.log(res);
         setTodos((prev) => prev.filter((t) => t.id !== 0));
         setTodos((prevTodos) => [...prevTodos, res]);
       })
