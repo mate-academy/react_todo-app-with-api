@@ -8,7 +8,7 @@ import { Todo } from '../../types/Todo';
 
 export const TodoItem: React.FC<{ todo: Todo }> = React.memo(({ todo }) => {
   const {
-    isLoading,
+    loadingTodos,
     editingTodo,
     handleEditing,
     setHandleEditing,
@@ -17,6 +17,12 @@ export const TodoItem: React.FC<{ todo: Todo }> = React.memo(({ todo }) => {
     handleDelete,
     makeTodoCompleted,
   } = useContext(TodoContext);
+
+  const handleTodoTitle = () => {
+    return editingTodo.trim() && handleEditing === todo.id ? (
+      editingTodo.trim()
+    ) : todo.title;
+  };
 
   return (
     <div
@@ -31,10 +37,7 @@ export const TodoItem: React.FC<{ todo: Todo }> = React.memo(({ todo }) => {
           type="checkbox"
           className="todo__status"
           checked={todo.completed}
-          onChange={() => null}
-          onClick={() => {
-            makeTodoCompleted(todo.id, todo.completed);
-          }}
+          onChange={() => makeTodoCompleted(todo.id, todo.completed)}
         />
       </label>
 
@@ -44,7 +47,7 @@ export const TodoItem: React.FC<{ todo: Todo }> = React.memo(({ todo }) => {
         role="button"
         tabIndex={0}
         onDoubleClick={() => {
-          if (handleEditing === 0) {
+          if (!handleEditing) {
             setIsChosenToRename(todo.id);
             setEditingTodo(todo.title);
             setHandleEditing(todo.id);
@@ -56,9 +59,7 @@ export const TodoItem: React.FC<{ todo: Todo }> = React.memo(({ todo }) => {
           }
         }}
       >
-        {editingTodo.trim() !== '' && handleEditing === todo.id ? (
-          editingTodo.trim()
-        ) : todo.title}
+        {handleTodoTitle()}
       </span>
 
       <button
@@ -75,7 +76,7 @@ export const TodoItem: React.FC<{ todo: Todo }> = React.memo(({ todo }) => {
       <div
         data-cy="TodoLoader"
         className={cn('modal overlay', {
-          'is-active': isLoading.includes(todo.id),
+          'is-active': loadingTodos.includes(todo.id),
         })}
       >
         <div

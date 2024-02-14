@@ -18,9 +18,9 @@ export const Header: React.FC = React.memo(() => {
     makeTodoCompleted,
   } = useContext(TodoContext);
 
-  const areAllCompleted = () => {
-    return todos.every((todo) => todo.completed === true);
-  };
+  const areAllCompleted = () => todos.every((todo) => todo.completed);
+
+  const allTodosCompleted: boolean = areAllCompleted();
 
   const onSubmitMainInput = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -32,7 +32,7 @@ export const Header: React.FC = React.memo(() => {
   };
 
   const toggleAllButtons = () => {
-    if (areAllCompleted()) {
+    if (allTodosCompleted) {
       todos.forEach((todo) => {
         makeTodoCompleted(todo.id, todo.completed);
       });
@@ -51,7 +51,7 @@ export const Header: React.FC = React.memo(() => {
         <button
           type="button"
           className={cn('todoapp__toggle-all', {
-            active: areAllCompleted(),
+            active: allTodosCompleted,
           })}
           data-cy="ToggleAllButton"
           onClick={toggleAllButtons}

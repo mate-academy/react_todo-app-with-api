@@ -7,40 +7,10 @@ import React, {
 } from 'react';
 import * as api from './api/todos';
 import { Todo } from './types/Todo';
+import { TodoContextValue } from './types/ContextType';
 
 interface TodoContextProps {
   children: ReactNode;
-}
-
-export interface TodoContextValue {
-  todos: Todo[];
-  postTodo: string;
-  filteredTodos: Todo[];
-  filter: string;
-  error: string;
-  existingCompleted: boolean;
-  nonCompletedTodos: number;
-  disableInput: boolean
-  isLoading: number[];
-  titleField: React.MutableRefObject<HTMLInputElement>;
-  tempTodo: Todo | null;
-  isChosenToRename: number;
-  editingTodo: string;
-  handleEditing: number;
-  setHandleEditing: (id: number) => void;
-  setEditingTodo: (qury: string) => void;
-  setIsLoading: React.Dispatch<React.SetStateAction<number[]>>;
-  setError: (errorMessage: string) => void;
-  setFilter: (newFilter: string) => void;
-  handleSubmit: () => void;
-  setPostTodo: (postTodo: string) => void;
-  setFilteredTodos: (todos: Todo[]) => void;
-  setDisableInput: (bollean: boolean) => void;
-  handleDelete: (id: number) => void;
-  handleCompletedDelete: () => void,
-  makeTodoCompleted: (id: number, isCompleted: boolean) => void,
-  setIsChosenToRename: (id: number) => void,
-  makeTodoChange: (id: number, value: string) => void,
 }
 
 export const TodoContext = createContext<TodoContextValue>({
@@ -52,7 +22,7 @@ export const TodoContext = createContext<TodoContextValue>({
   existingCompleted: false,
   nonCompletedTodos: 0,
   disableInput: false,
-  isLoading: [],
+  loadingTodos: [],
   tempTodo: null,
   // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
   titleField: null!,
@@ -60,7 +30,7 @@ export const TodoContext = createContext<TodoContextValue>({
   editingTodo: '',
   handleEditing: 0,
   setEditingTodo: () => {},
-  setIsLoading: () => {},
+  setLoadingTodos: () => {},
   setError: () => {},
   setFilter: () => {},
   handleSubmit: () => {},
@@ -84,22 +54,20 @@ export const TodoProvider: React.FC<TodoContextProps> = ({ children }) => {
   const [filter, setFilter] = useState('all');
   const [error, setError] = useState('');
   const [disableInput, setDisableInput] = useState(false);
-  const [isLoading, setIsLoading] = useState<number[]>([]);
+  const [loadingTodos, setLoadingTodos] = useState<number[]>([]);
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
-  // const [doubleClickCounter, setDoubleClickCounter] = useState(0);
   const [isChosenToRename, setIsChosenToRename] = useState(0);
   const [editingTodo, setEditingTodo] = useState('');
   const [handleEditing, setHandleEditing] = useState(0);
-  const [timeToFocus, setTimeToFocus] = useState(0);
 
   // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-  const titleField = useRef<HTMLInputElement>(null!);
+  const titleField = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    if (titleField?.current) {
+    if (titleField.current) {
       titleField.current.focus();
     }
-  }, [timeToFocus]);
+  }, [tempTodo, todos.length]);
 
   const existingCompleted = todos.some((todo) => {
     return todo.completed;
@@ -118,43 +86,29 @@ export const TodoProvider: React.FC<TodoContextProps> = ({ children }) => {
       .then((apiTodos) => {
         setTodos(apiTodos);
         setFilteredTodos(apiTodos);
-        setTimeToFocus(current => current + 1);
       })
       .catch(() => {
         setError('Unable to load todos');
-        setTimeToFocus(current => current + 1);
       });
   }, []);
 
   useEffect(() => {
-    const timer = setTimeout(() => {
-      setError('');
-    }, 3000);
-
-    return () => {
-      clearTimeout(timer);
-    };
-  }, [error]);
-
-  useEffect(() => {
-    const filtereDtodo = () => {
+    const filteredtodo = () => {
       switch (filter) {
         case 'active':
           return todos.filter((todo) => {
-            return todo.completed === false;
+            return !todo.completed;
           });
         case 'completed':
           return todos.filter((todo) => {
-            return todo.completed === true;
+            return todo.completed;
           });
-        case 'all':
-          return todos;
         default:
           return todos;
       }
     };
 
-    setFilteredTodos(filtereDtodo());
+    setFilteredTodos(filteredtodo());
   }, [filter, todos]);
 
   const handleSubmit = () => {
@@ -178,12 +132,10 @@ export const TodoProvider: React.FC<TodoContextProps> = ({ children }) => {
         setTempTodo(null);
         setTodos((currentTodos) => [...currentTodos, todo]);
         setPostTodo('');
-        setTimeToFocus(current => current + 1);
       })
       .catch(() => {
         setTempTodo(null);
         setError('Unable to add a todo');
-        setTimeToFocus(current => current + 1);
       })
       .finally(() => {
         titleField.current?.focus();
@@ -192,25 +144,22 @@ export const TodoProvider: React.FC<TodoContextProps> = ({ children }) => {
   };
 
   const handleDelete = (id: number) => {
-    setIsLoading((currentLoading) => [...currentLoading, id]);
+    setLoadingTodos((currentLoading) => [...currentLoading, id]);
 
     api.deletTodos(id)
       .then(() => {
         setTodos((currentTodos) => currentTodos.filter(
           (todo) => todo.id !== id,
         ));
-        setTimeToFocus(current => current + 1);
       })
       .catch(() => {
         setError('Unable to delete a todo');
         if (titleField.current) {
           titleField.current.focus();
         }
-
-        setTimeToFocus(current => current + 1);
       })
       .finally(() => {
-        setIsLoading((currentLoading) => {
+        setLoadingTodos((currentLoading) => {
           return currentLoading.filter((loadingId) => loadingId !== id);
         });
         setHandleEditing(0);
@@ -221,13 +170,13 @@ export const TodoProvider: React.FC<TodoContextProps> = ({ children }) => {
     const changedTodo: Pick<Todo, 'title' | 'userId'>
       = { title: value, userId: USER_ID };
 
-    setIsLoading((currentLoading) => [...currentLoading, id]);
+    setLoadingTodos((currentLoading) => [...currentLoading, id]);
     api.patchTodos(id, changedTodo)
       .then(() => {
         setTodos((currentTodos) => currentTodos.map(todo => {
           return todo.id === id ? { ...todo, title: value } : todo;
         }));
-        setIsLoading((currentLoading) => {
+        setLoadingTodos((currentLoading) => {
           return currentLoading.filter((loadingId) => loadingId !== id);
         });
         setIsChosenToRename(0);
@@ -235,7 +184,7 @@ export const TodoProvider: React.FC<TodoContextProps> = ({ children }) => {
       })
       .catch(() => {
         setError('Unable to update a todo');
-        setIsLoading((currentLoading) => {
+        setLoadingTodos((currentLoading) => {
           return currentLoading.filter((loadingId) => loadingId !== id);
         });
       });
@@ -245,7 +194,7 @@ export const TodoProvider: React.FC<TodoContextProps> = ({ children }) => {
     const completedTodo: Pick<Todo, 'completed' | 'userId'>
       = { completed: !isCompleted, userId: USER_ID };
 
-    setIsLoading((currentLoading) => [...currentLoading, id]);
+    setLoadingTodos((currentLoading) => [...currentLoading, id]);
 
     api.patchTodos(id, completedTodo)
       .then(() => {
@@ -254,13 +203,13 @@ export const TodoProvider: React.FC<TodoContextProps> = ({ children }) => {
             ...todo, completed: !isCompleted,
           } : todo;
         }));
-        setIsLoading((currentLoading) => {
+        setLoadingTodos((currentLoading) => {
           return currentLoading.filter((loadingId) => loadingId !== id);
         });
       })
       .catch(() => {
         setError('Unable to update a todo');
-        setIsLoading((currentLoading) => {
+        setLoadingTodos((currentLoading) => {
           return currentLoading.filter((loadingId) => loadingId !== id);
         });
         if (titleField.current) {
@@ -287,14 +236,14 @@ export const TodoProvider: React.FC<TodoContextProps> = ({ children }) => {
     existingCompleted,
     nonCompletedTodos,
     disableInput,
-    isLoading,
+    loadingTodos,
     titleField,
     tempTodo,
     isChosenToRename,
     editingTodo,
     handleEditing,
     setHandleEditing,
-    setIsLoading,
+    setLoadingTodos,
     setFilter,
     handleSubmit,
     setError,

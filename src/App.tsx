@@ -4,7 +4,7 @@ import React, {
 } from 'react';
 import { TodoContext } from './TodoContext';
 import { TodoItem } from './Components/TodoItem/TodoItem';
-import { TodoItemForm } from './Components/TodoItemForm/TodoItemForm';
+import { TodoItemForm } from './Components/TodoRenameForm/TodoRenameForm';
 import { Footer } from './Components/Footer/Footer';
 import { TempTodo } from './Components/TempTodo/TempTodo';
 import { ErrorsHandling } from './Components/ErrorsHandling/ErrorsHandling';

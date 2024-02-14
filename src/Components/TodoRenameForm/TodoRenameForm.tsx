@@ -10,7 +10,7 @@ export const TodoItemForm: React.FC<{ todo: Todo }> = React.memo(({ todo }) => {
   const {
     isChosenToRename,
     editingTodo,
-    isLoading,
+    loadingTodos,
     setHandleEditing,
     setIsChosenToRename,
     setEditingTodo,
@@ -19,7 +19,7 @@ export const TodoItemForm: React.FC<{ todo: Todo }> = React.memo(({ todo }) => {
   } = useContext(TodoContext);
 
   // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-  const todoField = useRef<HTMLInputElement>(null!);
+  const todoField = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     if (isChosenToRename && todoField.current) {
@@ -32,7 +32,6 @@ export const TodoItemForm: React.FC<{ todo: Todo }> = React.memo(({ todo }) => {
     value: Todo,
   ) => {
     event.preventDefault();
-    // setIsLoading((currentLoading) => [...currentLoading, value.id]);
     if (!editingTodo.trim()) {
       handleDelete(value.id);
     } else if (value.title === editingTodo.trim()) {
@@ -91,7 +90,7 @@ export const TodoItemForm: React.FC<{ todo: Todo }> = React.memo(({ todo }) => {
       <div
         data-cy="TodoLoader"
         className={cn('modal overlay', {
-          'is-active': isLoading.includes(todo.id),
+          'is-active': loadingTodos.includes(todo.id),
         })}
       >
         <div
