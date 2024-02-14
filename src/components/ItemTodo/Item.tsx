@@ -87,7 +87,7 @@ export const ItemTodo: React.FC<Props> = ({ todo }) => {
                 : currentTodo)));
             setIsEditing(false);
           })
-          .catch(() => setErrorMessage(ErrorMessage.DeleteTodoError))
+          .catch(() => setErrorMessage(ErrorMessage.UpdateTodoError))
           .finally(() => setLoadingTodoIds([]));
       }
     }
