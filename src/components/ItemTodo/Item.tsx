@@ -70,16 +70,7 @@ export const ItemTodo: React.FC<Props> = ({ todo }) => {
     e.preventDefault();
 
     if (!editedTitle.trim()) {
-      // deleteHandler();
-      setLoadingTodoIds(currentId => [...currentId, id]);
-
-      deleteTodo(id)
-        .then(() => {
-          setTodos(currentTodos => currentTodos
-            .filter(currentTodo => currentTodo.id !== id));
-        })
-        .catch(() => setErrorMessage(ErrorMessage.UpdateTodoError))
-        .finally(() => setLoadingTodoIds([]));
+      deleteHandler();
     }
 
     if (editedTitle.trim()) {
