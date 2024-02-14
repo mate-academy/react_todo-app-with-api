@@ -34,7 +34,7 @@ export const TodoList: React.FC = () => {
           <CSSTransition
             key={todo.id}
             timeout={300}
-            className="item"
+            classNames="item"
           >
             <TodoItem
               todo={todo}
@@ -46,20 +46,12 @@ export const TodoList: React.FC = () => {
           <CSSTransition
             key={0}
             timeout={300}
-            className="temp-item"
+            classNames="temp-item"
           >
             <TodoItem todo={tempTodo} />
           </CSSTransition>
         )}
       </TransitionGroup>
-
-      {/* {visibleTodos.map(todo => (
-        <TodoItem
-          todo={todo}
-          key={todo.id}
-        />
-      ))}
-      {tempTodo && <TodoItem todo={tempTodo} />} */}
     </section>
   );
 };
