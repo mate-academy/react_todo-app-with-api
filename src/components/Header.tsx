@@ -4,7 +4,7 @@ import React, {
 } from 'react';
 import classNames from 'classnames';
 import { TodoContext } from '../context/TodoContext';
-import { USER_ID } from '../variables/UserID';
+import { USER_ID } from '../commonConsts/UserID';
 import { createTodo, updateTodo } from '../api/todos';
 import { Error } from '../types/Errors';
 
@@ -37,20 +37,6 @@ export const Header: React.FC = () => {
     return !todos.filter(todo => !todo.completed).length;
   }, [todos]);
 
-  const toggledTodos = useMemo(() => {
-    if (completedTodos) {
-      return todos.map(todo => ({
-        ...todo,
-        completed: !todo.completed,
-      }));
-    }
-
-    return todos.map(todo => ({
-      ...todo,
-      completed: true,
-    }));
-  }, [todos, completedTodos]);
-
   const toggleChanges = () => {
     let unCompletedTodos;
 
@@ -62,32 +48,37 @@ export const Header: React.FC = () => {
 
     setChangedTodos(unCompletedTodos);
 
-    unCompletedTodos.forEach(changedTodo => updateTodo({
+    Promise.all(unCompletedTodos.map(changedTodo => updateTodo({
       ...changedTodo,
       completed: !changedTodo.completed,
-    })
+    })))
       .then(() => {
-        setTodos(toggledTodos);
+        setTodos(prevTodos => prevTodos.map(todo => ({
+          ...todo,
+          completed: !completedTodos,
+        })));
       })
       .catch(() => setErrorMessage(Error.UPDATE_ERROR))
-      .finally(() => setChangedTodos([])));
+      .finally(() => setChangedTodos([]));
   };
 
   const addTodo = () => {
+    const trimmedTitle = title.trim();
+
     setTempTodo({
       id: 0,
       userId: USER_ID,
-      title: title.trim(),
+      title: trimmedTitle,
       completed: false,
     });
 
     createTodo({
       userId: USER_ID,
-      title: title.trim(),
+      title: trimmedTitle,
       completed: false,
     })
       .then(todoFromServer => {
-        setTodos(currentTodo => [...currentTodo, todoFromServer]);
+        setTodos(prevTodos => [...prevTodos, todoFromServer]);
         setTitle('');
         setTempTodo(null);
       })

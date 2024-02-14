@@ -1,7 +1,7 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { Todo } from '../types/Todo';
 import * as apiService from '../api/todos';
-import { USER_ID } from '../variables/UserID';
+import { USER_ID } from '../commonConsts/UserID';
 import { FilterStatus } from '../types/Status';
 import { filterTodoByStatus } from '../utils/FilteringByStatus';
 import { TempTodo } from '../types/TempTodo';
@@ -84,13 +84,6 @@ export const TodoProvider: React.FC<Props> = ({ children }) => {
     setTodos(currentTodo => currentTodo.filter(todo => todo.id !== todoId));
   }
 
-  const toggleAll = (completed: boolean) => {
-    setTodos((prevTodos) => prevTodos.map((todo) => ({
-      ...todo,
-      completed,
-    })));
-  };
-
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const clearTodo = async () => {
     try {
@@ -132,7 +125,6 @@ export const TodoProvider: React.FC<Props> = ({ children }) => {
     setTodos,
     clearTodo,
     filterTodoByStatus,
-    toggleAll,
   }), [
     todos,
     status,
