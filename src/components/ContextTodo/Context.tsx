@@ -10,11 +10,9 @@ import { getTodos } from '../../api/todos';
 export const ContextTodo = createContext<TodoContext>({
   todos: [],
   setTodos: () => { },
-  title: '',
-  setTitle: () => { },
   filterBy: TodoFilter.All,
   setFilterBy: () => { },
-  errorMessage: ErrorMessage.NothingEror,
+  errorMessage: ErrorMessage.NothingError,
   setErrorMessage: () => { },
   tempTodo: null,
   setTempTodo: () => { },
@@ -28,7 +26,6 @@ type Props = {
 
 export const ProviderTodo: React.FC<Props> = ({ children }) => {
   const [todos, setTodos] = useState<Todo[]>([]);
-  const [title, setTitle] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
 
   const [filterBy, setFilterBy] = useState(TodoFilter.All);
@@ -46,8 +43,6 @@ export const ProviderTodo: React.FC<Props> = ({ children }) => {
   const preparedValues = useMemo(() => ({
     todos,
     setTodos,
-    title,
-    setTitle,
     filterBy,
     setFilterBy,
     errorMessage,
@@ -57,7 +52,6 @@ export const ProviderTodo: React.FC<Props> = ({ children }) => {
     loadingTodoIds,
     setLoadingTodoIds,
   }), [todos,
-    title,
     filterBy,
     setTodos,
     errorMessage,

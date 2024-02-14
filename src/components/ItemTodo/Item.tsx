@@ -36,17 +36,17 @@ export const ItemTodo: React.FC<Props> = ({ todo }) => {
     }
   }, [isEditing, errorMessage]);
 
-  const clickHandler = () => {
+  const deleteHandler = () => {
     setLoadingTodoIds(currentId => [...currentId, id]);
 
-    deleteTodo(id) // повтор кода 67стр
+    deleteTodo(id)
       .then(() => {
         setTodos(currentTodos => currentTodos
           .filter(currentTodo => currentTodo.id !== id));
       })
       .catch(() => setErrorMessage(ErrorMessage.DeleteTodoError))
       .finally(() => setLoadingTodoIds([]));
-  }; // DELETE TODO
+  };
 
   const inputChangeHandler = () => {
     setTodos(currentTodos => currentTodos
@@ -63,7 +63,7 @@ export const ItemTodo: React.FC<Props> = ({ todo }) => {
     e.preventDefault();
 
     if (!editedTitle.trim()) {
-      clickHandler();// DELETE TODO
+      deleteHandler();
     }
 
     if (editedTitle.trim()) {
@@ -137,7 +137,7 @@ export const ItemTodo: React.FC<Props> = ({ todo }) => {
           </span>
 
           <button
-            onClick={clickHandler}
+            onClick={deleteHandler}
             type="button"
             className="todo__remove"
             data-cy="TodoDelete"

@@ -8,7 +8,7 @@ export const ErrorNotification = () => {
 
   useEffect(() => {
     const timerID = setTimeout(() => {
-      setErrorMessage(ErrorMessage.NothingEror);
+      setErrorMessage(ErrorMessage.NothingError);
     }, 3000);
 
     return () => clearTimeout(timerID);
@@ -25,7 +25,7 @@ export const ErrorNotification = () => {
     >
       <button
         aria-label="delete"
-        onClick={() => setErrorMessage(ErrorMessage.NothingEror)}
+        onClick={() => setErrorMessage(ErrorMessage.NothingError)}
         data-cy="HideErrorButton"
         type="button"
         className="delete"

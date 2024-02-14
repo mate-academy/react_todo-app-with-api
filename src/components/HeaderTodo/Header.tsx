@@ -9,8 +9,6 @@ import { ErrorMessage } from '../../types';
 
 export const HeaderTodo = () => {
   const {
-    title,
-    setTitle,
     todos,
     setTodos,
     setErrorMessage,
@@ -19,6 +17,7 @@ export const HeaderTodo = () => {
     setLoadingTodoIds,
   } = useContext(ContextTodo);
 
+  const [title, setTitle] = useState('');
   const [isDisabled, setIsDisabledButton] = useState(false);
 
   const changeValues = () => {
@@ -41,10 +40,10 @@ export const HeaderTodo = () => {
       })
       .catch(() => {
         setErrorMessage(ErrorMessage.AddTodoError);
-        setTempTodo(null);
       })
       .finally(() => {
         setIsDisabledButton(false);
+        setTempTodo(null);
       });
   };
 

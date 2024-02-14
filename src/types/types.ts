@@ -25,18 +25,16 @@ export enum ErrorMessage {
   AddTodoError = 'Unable to add a todo',
   DeleteTodoError = 'Unable to delete a todo',
   UpdateTodoError = 'Unable to update a todo',
-  NothingEror = '',
+  NothingError = '',
 }
 
 export type TodoContext = {
   todos: Todo[]
   setTodos: (v: Todo[] | ((n: Todo[]) => Todo[])) => void
-  title: string
-  setTitle: React.Dispatch<React.SetStateAction<string>>
   filterBy: TodoFilter
   setFilterBy: (filterBy: TodoFilter) => void
   errorMessage: ErrorMessage | string
-  setErrorMessage: (errorMessage: ErrorMessage | string) => void
+  setErrorMessage: (errorMessage: ErrorMessage) => void
   tempTodo: Todo | null
   setTempTodo: React.Dispatch<React.SetStateAction<Todo | null>>
   loadingTodoIds: number[]
