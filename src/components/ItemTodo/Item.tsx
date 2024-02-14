@@ -49,6 +49,8 @@ export const ItemTodo: React.FC<Props> = ({ todo }) => {
   };
 
   const inputChangeHandler = () => {
+    setLoadingTodoIds(currentId => [...currentId, id]);
+
     setTodos(currentTodos => currentTodos
       .map(currentTodo => (currentTodo.id === id
         ? ({ ...currentTodo, completed: !completed })
