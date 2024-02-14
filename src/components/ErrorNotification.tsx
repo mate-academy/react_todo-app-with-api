@@ -38,7 +38,7 @@ export const ErrorNotification: React.FC = () => {
         aria-label="close error message"
         onClick={closeMessageError}
       />
-      {errorMessage}
+      { errorMessage }
     </div>
   );
 };

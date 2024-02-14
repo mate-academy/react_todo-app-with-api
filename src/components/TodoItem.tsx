@@ -33,7 +33,7 @@ export const TodoItem: React.FC<Props> = ({
     }
   }, [isEdited]);
 
-  function hendleStatus() {
+  function handleStatus() {
     dispatch({ type: 'isLoading', payload: true });
     dispatch({ type: 'createCurrentId', payload: id });
     updateTodo({ id, title, completed: !completed })
@@ -53,7 +53,7 @@ export const TodoItem: React.FC<Props> = ({
       });
   }
 
-  function hendleDeleteTodo() {
+  function handleDeleteTodo() {
     dispatch({ type: 'isLoading', payload: true });
     dispatch({ type: 'createCurrentId', payload: id });
 
@@ -71,7 +71,7 @@ export const TodoItem: React.FC<Props> = ({
       });
   }
 
-  function hendleSaveEditTitle() {
+  function handleSaveEditTitle() {
     if (editedTitle.trim()) {
       if (editedTitle.trim() === title) {
         setIsEdited(false);
@@ -102,20 +102,28 @@ export const TodoItem: React.FC<Props> = ({
           });
       }
     } else {
-      hendleDeleteTodo();
+      handleDeleteTodo();
     }
   }
 
   function editFormSubmit(e: React.FormEvent) {
     e.preventDefault();
-    hendleSaveEditTitle();
+    handleSaveEditTitle();
   }
 
-  function hendleCancelEdit(e: React.KeyboardEvent<HTMLInputElement>) {
+  function handleCancelEdit(e: React.KeyboardEvent<HTMLInputElement>) {
     if (e.key === 'Escape') {
       setEditedTitle(title);
       setIsEdited(false);
     }
+  }
+
+  function checkEdited() {
+    setIsEdited(true);
+  }
+
+  function getEditTitle(e: React.ChangeEvent<HTMLInputElement>) {
+    setEditedTitle(e.target.value)
   }
 
   return (
@@ -131,7 +139,7 @@ export const TodoItem: React.FC<Props> = ({
           type="checkbox"
           className="todo__status"
           checked={completed}
-          onChange={hendleStatus}
+          onChange={handleStatus}
         />
       </label>
 
@@ -140,7 +148,7 @@ export const TodoItem: React.FC<Props> = ({
           <span
             data-cy="TodoTitle"
             className="todo__title"
-            onDoubleClick={() => setIsEdited(true)}
+            onDoubleClick={checkEdited}
           >
             {title.trim()}
           </span>
@@ -149,7 +157,7 @@ export const TodoItem: React.FC<Props> = ({
             type="button"
             className="todo__remove"
             data-cy="TodoDelete"
-            onClick={hendleDeleteTodo}
+            onClick={handleDeleteTodo}
           >
             ×
           </button>
@@ -163,9 +171,9 @@ export const TodoItem: React.FC<Props> = ({
             className="todo__title-field"
             placeholder="Empty todo will be deleted"
             value={editedTitle}
-            onChange={(e) => setEditedTitle(e.target.value)}
-            onBlur={hendleSaveEditTitle}
-            onKeyUp={hendleCancelEdit}
+            onChange={getEditTitle}
+            onBlur={handleSaveEditTitle}
+            onKeyUp={handleCancelEdit}
           />
         </form>
       )}
