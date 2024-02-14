@@ -25,8 +25,6 @@ export const AppTodo = () => {
         {!!todos.length
           && <FooterTodo />}
 
-        {/* {!!errorMessage
-          && <ErrorNotification />} */}
         <ErrorNotification />
       </div>
     </div>

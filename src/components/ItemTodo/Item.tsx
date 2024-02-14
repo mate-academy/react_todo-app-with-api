@@ -51,13 +51,18 @@ export const ItemTodo: React.FC<Props> = ({ todo }) => {
   const inputChangeHandler = () => {
     setLoadingTodoIds(currentId => [...currentId, id]);
 
-    setTodos(currentTodos => currentTodos
-      .map(currentTodo => (currentTodo.id === id
-        ? ({ ...currentTodo, completed: !completed })
-        : currentTodo)));
-
     updateTodo({ id, completed: !completed, title })
-      .catch(() => setErrorMessage(ErrorMessage.UpdateTodoError))
+      .then((responce) => {
+        if (responce) {
+          setTodos(currentTodos => currentTodos
+            .map(currentTodo => (currentTodo.id === id
+              ? ({ ...currentTodo, completed: !completed })
+              : currentTodo)));
+        }
+      })
+      .catch(() => {
+        setErrorMessage(ErrorMessage.UpdateTodoError);
+      })
       .finally(() => setLoadingTodoIds([]));
   };
 
