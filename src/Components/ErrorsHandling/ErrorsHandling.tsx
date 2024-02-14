@@ -1,6 +1,6 @@
 /* eslint-disable jsx-a11y/control-has-associated-label */
 import React, {
-  useContext,
+  useContext, useEffect,
 } from 'react';
 import cn from 'classnames';
 import { TodoContext } from '../../TodoContext';
@@ -10,6 +10,16 @@ export const ErrorsHandling: React.FC = React.memo(() => {
     error,
     setError,
   } = useContext(TodoContext);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setError('');
+    }, 3000);
+
+    return () => {
+      clearTimeout(timer);
+    };
+  }, [error, setError]);
 
   return (
     <div
@@ -28,21 +38,7 @@ export const ErrorsHandling: React.FC = React.memo(() => {
           setError('');
         }}
       />
-      {error === 'Unable to load todos' && (
-        'Unable to load todos'
-      )}
-      {error === 'Title should not be empty' && (
-        'Title should not be empty'
-      )}
-      {error === 'Unable to add a todo' && (
-        'Unable to add a todo'
-      )}
-      {error === 'Unable to delete a todo' && (
-        'Unable to delete a todo'
-      )}
-      {error === 'Unable to update a todo' && (
-        'Unable to update a todo'
-      )}
+      {error}
     </div>
   );
 });

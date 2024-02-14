@@ -5,6 +5,12 @@ import React, {
 import cn from 'classnames';
 import { TodoContext } from '../../TodoContext';
 
+enum TodoFilter {
+  All = 'all',
+  Completed = 'completed',
+  Active = 'active',
+}
+
 export const Footer: React.FC = React.memo(() => {
   const {
     filter,
@@ -24,11 +30,11 @@ export const Footer: React.FC = React.memo(() => {
         <a
           href="#/"
           className={cn('filter__link', {
-            selected: filter === 'all',
+            selected: filter === TodoFilter.All,
           })}
           data-cy="FilterLinkAll"
           onClick={() => {
-            setFilter('all');
+            setFilter(TodoFilter.All);
           }}
         >
           All
@@ -37,11 +43,11 @@ export const Footer: React.FC = React.memo(() => {
         <a
           href="#/active"
           className={cn('filter__link', {
-            selected: filter === 'active',
+            selected: filter === TodoFilter.Active,
           })}
           data-cy="FilterLinkActive"
           onClick={() => {
-            setFilter('active');
+            setFilter(TodoFilter.Active);
           }}
         >
           Active
@@ -50,11 +56,11 @@ export const Footer: React.FC = React.memo(() => {
         <a
           href="#/completed"
           className={cn('filter__link', {
-            selected: filter === 'completed',
+            selected: filter === TodoFilter.Completed,
           })}
           data-cy="FilterLinkCompleted"
           onClick={() => {
-            setFilter('completed');
+            setFilter(TodoFilter.Completed);
           }}
         >
           Completed
