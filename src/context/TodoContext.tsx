@@ -24,7 +24,6 @@ interface ContextProps {
   filterTodoByStatus: (todoItems: Todo[], values: FilterStatus) => Todo[];
   setErrorMessage: React.Dispatch<React.SetStateAction<string>>
   setStatus: React.Dispatch<React.SetStateAction<FilterStatus>>;
-  clearTodo: () => void;
   setTitle: React.Dispatch<React.SetStateAction<string>>;
   setChangedTodos: React.Dispatch<React.SetStateAction<Todo[]>>
 }
@@ -46,7 +45,6 @@ export const TodoContext = React.createContext<ContextProps>({
   setTodos: () => {},
   setStatus: () => [],
   filterTodoByStatus: () => [],
-  clearTodo: () => [],
   changedTodos: [],
   setChangedTodos: () => {},
 });
@@ -84,27 +82,6 @@ export const TodoProvider: React.FC<Props> = ({ children }) => {
     setTodos(currentTodo => currentTodo.filter(todo => todo.id !== todoId));
   }
 
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  const clearTodo = async () => {
-    try {
-      const completedIds = todos
-        .filter(todo => todo.completed)
-        .map(todo => todo.id);
-
-      await Promise.all(completedIds.map(id => apiService.deleteTodos(id)));
-
-      setTodos(
-        (prevTodos) => prevTodos.filter(
-          todo => !completedIds.includes(todo.id),
-        ),
-      );
-    } catch (error) {
-      setErrorMessage(Error.DELETE_ERROR);
-    }
-
-    setDeletedId([]);
-  };
-
   const value = useMemo(() => ({
     todos,
     status,
@@ -123,7 +100,6 @@ export const TodoProvider: React.FC<Props> = ({ children }) => {
     setErrorMessage,
     setStatus,
     setTodos,
-    clearTodo,
     filterTodoByStatus,
   }), [
     todos,
@@ -134,7 +110,6 @@ export const TodoProvider: React.FC<Props> = ({ children }) => {
     tempTodo,
     loading,
     changedTodos,
-    clearTodo,
   ]);
 
   return (

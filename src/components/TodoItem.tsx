@@ -8,6 +8,7 @@ import { Loader } from './Loader';
 import { TodoContext } from '../context/TodoContext';
 import * as apiService from '../api/todos';
 import { Error } from '../types/Errors';
+import { updateTodo } from '../api/todos';
 
 interface Props {
   items: Todo;
@@ -32,25 +33,37 @@ export const TodoItem: React.FC<Props> = ({ items }) => {
     }
   }, [isEditing]);
 
-  const handleInputChange = () => {
-    const newCompletedState = !completed;
+  // const handleInputChange = () => {
+  //   const newCompletedState = !completed;
 
-    apiService.updateTodo({ completed: newCompletedState, title, id })
-      .then(() => {
-        setTodos(currentTodos => currentTodos.map(currentTodo => (
-          currentTodo.id === id
-            ? { ...currentTodo, completed: newCompletedState }
-            : currentTodo)));
-      })
-      .catch(() => {
-        setErrorMessage(Error.UPDATE_ERROR);
-      })
-      .finally(() => {
-        // Revert the checkbox state if the API call failed
-        setChangedTodos(prevChangedTodos => prevChangedTodos.filter(
-          todo => todo.id !== id,
-        ));
-      });
+  //   apiService.updateTodo({ completed: newCompletedState, title, id })
+  //     .then(() => {
+  //       setTodos(currentTodos => currentTodos.map(currentTodo => (
+  //         currentTodo.id === id
+  //           ? { ...currentTodo, completed: newCompletedState }
+  //           : currentTodo)));
+  //     })
+  //     .catch(() => {
+  //       setErrorMessage(Error.UPDATE_ERROR);
+  //     })
+  //     .finally(() => {
+  //       // Revert the checkbox state if the API call failed
+  //       setChangedTodos(prevChangedTodos => prevChangedTodos.filter(
+  //         todo => todo.id !== id,
+  //       ));
+  //     });
+  // };
+
+  const handlerInputChange = () => {
+    setChangedTodos(currentTodos => [...currentTodos, items]);
+
+    updateTodo({ completed: !completed, title, id })
+      .then(() => setTodos(currentTodos => currentTodos
+        .map(currentTodo => (currentTodo.id === id
+          ? ({ ...currentTodo, completed: !completed })
+          : currentTodo))))
+      .catch(() => setErrorMessage(Error.UPDATE_ERROR))
+      .finally(() => setChangedTodos([]));
   };
 
   const onSubmitChanges = (event: React.FormEvent) => {
@@ -118,10 +131,10 @@ export const TodoItem: React.FC<Props> = ({ items }) => {
     >
       <label className="todo__status-label">
         <input
-          onChange={handleInputChange}
+          onChange={handlerInputChange}
           data-cy="TodoStatus"
           type="checkbox"
-          defaultChecked={completed}
+          checked={completed}
           className={classNames('todo__status', { completed })}
         />
       </label>

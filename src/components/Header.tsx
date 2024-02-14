@@ -37,29 +37,40 @@ export const Header: React.FC = () => {
     return !todos.filter(todo => !todo.completed).length;
   }, [todos]);
 
-  const toggleChanges = () => {
-    let unCompletedTodos;
-
-    if (!completedTodos) {
-      unCompletedTodos = todos.filter(todo => !todo.completed);
-    } else {
-      unCompletedTodos = todos;
+  const toggledTodosList = useMemo(() => {
+    if (completedTodos) {
+      return todos.map(todo => ({
+        ...todo,
+        completed: !todo.completed,
+      }));
     }
 
-    setChangedTodos(unCompletedTodos);
+    return todos.map(todo => ({
+      ...todo,
+      completed: true,
+    }));
+  }, [todos, completedTodos]);
 
-    Promise.all(unCompletedTodos.map(changedTodo => updateTodo({
+  const toggleChanges = () => {
+    let notCompletedTodos;
+
+    if (!completedTodos) {
+      notCompletedTodos = todos.filter(todo => !todo.completed);
+    } else {
+      notCompletedTodos = todos;
+    }
+
+    setChangedTodos(notCompletedTodos);
+
+    notCompletedTodos.forEach(changedTodo => updateTodo({
       ...changedTodo,
       completed: !changedTodo.completed,
-    })))
+    })
       .then(() => {
-        setTodos(prevTodos => prevTodos.map(todo => ({
-          ...todo,
-          completed: !completedTodos,
-        })));
+        setTodos(toggledTodosList);
       })
       .catch(() => setErrorMessage(Error.UPDATE_ERROR))
-      .finally(() => setChangedTodos([]));
+      .finally(() => setChangedTodos([])));
   };
 
   const addTodo = () => {

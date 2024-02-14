@@ -1,16 +1,39 @@
-import React, { useContext, useMemo } from 'react';
+/* eslint-disable react-hooks/exhaustive-deps */
+import React, { useCallback, useContext, useMemo } from 'react';
 import classNames from 'classnames';
 import { FilterStatus } from '../types/Status';
 import { TodoContext } from '../context/TodoContext';
+import { deleteTodos } from '../api/todos';
+import { Error } from '../types/Errors';
 
 export const Footer: React.FC = () => {
   const {
-    todos, setStatus, status, clearTodo,
+    todos,
+    setStatus,
+    status,
+    setChangedTodos,
+    setTodos,
+    setErrorMessage,
   } = useContext(TodoContext);
 
   const unCompletedTodos = useMemo(() => {
     return todos.filter(todo => !todo.completed).length;
   }, [todos]);
+
+  const deletedTodos = useMemo(
+    () => todos.filter(todo => todo.completed),
+    [todos],
+  );
+
+  const removeCompletedTodos = useCallback(() => {
+    setChangedTodos(deletedTodos);
+
+    deletedTodos.map(deletedTodo => deleteTodos(deletedTodo.id)
+      .then(() => setTodos(currentTodos => currentTodos
+        .filter(currentTodo => currentTodo.id !== deletedTodo.id)))
+      .catch(() => setErrorMessage(Error.DELETE_ERROR))
+      .finally(() => setChangedTodos([])));
+  }, [deletedTodos]);
 
   return (
     <footer className="todoapp__footer" data-cy="Footer">
@@ -60,7 +83,7 @@ export const Footer: React.FC = () => {
         type="button"
         className="todoapp__clear-completed"
         data-cy="ClearCompletedButton"
-        onClick={clearTodo}
+        onClick={removeCompletedTodos}
         disabled={unCompletedTodos === todos.length}
       >
         Clear completed
