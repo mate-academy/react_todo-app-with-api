@@ -8,7 +8,7 @@ import { ErrorNotification } from '../ErrorNotification';
 
 export const AppTodo = () => {
   const {
-    todos, filterBy, tempTodo, errorMessage,
+    todos, filterBy, tempTodo,
   } = useContext(ContextTodo);
   const filteredListTodos = filteredTodos(todos, filterBy);
 
@@ -25,8 +25,9 @@ export const AppTodo = () => {
         {!!todos.length
           && <FooterTodo />}
 
-        {!!errorMessage
-          && <ErrorNotification />}
+        {/* {!!errorMessage
+          && <ErrorNotification />} */}
+        <ErrorNotification />
       </div>
     </div>
   );
