@@ -98,7 +98,7 @@ export const App: React.FC = () => {
     setProcessingIds(current => [...current, todoToUpdate.id]);
 
     return todoService.updateTodo({ ...todoToUpdate, completed: !todoToUpdate.completed })
-      .then((updatedTodo: any) => setTodos(current => current.map((todo) => (
+      .then((updatedTodo) => setTodos(current => current.map((todo) => (
         todo.id === updatedTodo.id ? updatedTodo : todo
       )) as Todo[]))
       .catch(() => {
