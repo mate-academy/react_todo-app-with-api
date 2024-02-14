@@ -1,6 +1,6 @@
 import React from 'react';
-import { Todo } from '../types/Todo';
 import cn from 'classnames';
+import { Todo } from '../types/Todo';
 
 type Props = {
   filtredTodo: Todo[];
@@ -12,24 +12,26 @@ type Props = {
 
 export const Header: React.FC<Props> = (
   {
-    filtredTodo, 
+    filtredTodo,
     newTodo,
     toggleAll,
     handleNewTodoSubmit,
     handleNewTodoChange,
-  }
+  },
 ) => {
+  const completed = filtredTodo.filter(todo => todo.completed).length > 0;
+
   return (
     <header className="todoapp__header">
-        <button
-          type="button"
-          onClick={toggleAll}
-          className={cn('todoapp__toggle-all', {
-            active: filtredTodo.filter(todo => todo.completed).length > 0
-          })}
-          data-cy="ToggleAllButton"
-        />
-
+      <button
+        type="button"
+        onClick={toggleAll}
+        className={cn('todoapp__toggle-all', {
+          active: completed,
+        })}
+        data-cy="ToggleAllButton"
+        aria-label="Toggle all todos"
+      />
 
       <form onSubmit={handleNewTodoSubmit}>
         <input
@@ -41,8 +43,9 @@ export const Header: React.FC<Props> = (
           onChange={handleNewTodoChange}
           // eslint-disable-next-line jsx-a11y/no-autofocus
           autoFocus
+          aria-label="New todo"
         />
       </form>
     </header>
-  )
-}
+  );
+};

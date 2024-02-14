@@ -1,11 +1,13 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { Todo } from '../types/Todo';
 import cn from 'classnames';
+import { Todo } from '../types/Todo';
+import { Errors } from '../types/Errors';
 
 type Props = {
   todo: Todo;
   onDelete?: () => void;
   onToggle?: () => void;
+  setError?: (error: Errors) => void;
   onRename?: (newTitle: string) => Promise<void>;
   loading?: boolean;
 };
@@ -13,9 +15,10 @@ type Props = {
 export const TodoItem: React.FC<Props> = (
   {
     todo,
-    onDelete = () => {},
-    onToggle = () => {},
+    onDelete = () => { },
+    onToggle = () => { },
     onRename = () => Promise.resolve(),
+    setError = () => { },
     loading = false,
   },
 ) => {
@@ -28,7 +31,7 @@ export const TodoItem: React.FC<Props> = (
     if (editing) {
       inputRef.current?.focus();
     }
-  }, [editing])
+  }, [editing]);
 
   async function handleSubmit(event: React.FormEvent) {
     event.preventDefault();
@@ -47,12 +50,10 @@ export const TodoItem: React.FC<Props> = (
 
     try {
       await onRename(title);
-
       setEditing(false);
-      console.log('Renamed');
     } catch {
-      console.log('Rename failed');
-      inputRef.current?.focus()
+      inputRef.current?.focus();
+      setError(Errors.Update);
     }
   }
 
@@ -73,7 +74,7 @@ export const TodoItem: React.FC<Props> = (
           onChange={onToggle}
         />
       </label>
-      
+
       {editing ? (
         <form onSubmit={handleSubmit}>
           <input
@@ -87,7 +88,7 @@ export const TodoItem: React.FC<Props> = (
             onKeyUp={event => {
               if (event.key === 'Escape') {
                 setEditing(false);
-                setTitle(todo.title)
+                setTitle(todo.title);
               }
             }}
             ref={inputRef}
@@ -95,8 +96,8 @@ export const TodoItem: React.FC<Props> = (
         </form>
       ) : (
         <>
-          <span 
-            data-cy="TodoTitle" 
+          <span
+            data-cy="TodoTitle"
             className="todo__title"
             onDoubleClick={() => setEditing(true)}
           >
@@ -107,21 +108,24 @@ export const TodoItem: React.FC<Props> = (
             type="button"
             className="todo__remove"
             data-cy="TodoDelete"
-            onClick={() => onDelete()}
+            onClick={() => {
+              onDelete();
+            }}
           >
             ×
           </button>
 
-          <div data-cy="TodoLoader" className={cn('modal overlay',
-            { 'is-active': loading})}>
-            <div
-              className="modal-background has-background-white-ter"
-            />
+          <div
+            data-cy="TodoLoader"
+            className={cn('modal overlay',
+              { 'is-active': loading })}
+          >
+            <div className="modal-background has-background-white-ter" />
             <div className="loader" />
           </div>
         </>
       )}
-     
+
     </div>
   );
 };
