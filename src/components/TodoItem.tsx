@@ -109,9 +109,7 @@ export const TodoItem: FC<Props> = ({
     setIsLoading(true);
 
     if (e.key === 'Enter' && newTodoTitle.trim() === '') {
-      // console.log('need delete todo');
       deleteReqById(todo.id);
-      // removeTodoFromTodos(todo.id);
     } else if (e.key === 'Enter') {
       saveNewTodoTitle();
     } else if (e.key === 'Escape') {
@@ -150,7 +148,6 @@ export const TodoItem: FC<Props> = ({
       </label>
 
       {editMode ? (
-        // EDIT MODE
         <form onSubmit={(e) => e.preventDefault()}>
           <input
             data-cy="TodoTitleField"

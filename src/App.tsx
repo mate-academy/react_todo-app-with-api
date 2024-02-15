@@ -161,7 +161,6 @@ export const App: FC = () => {
     setErrorMessage('');
 
     if (allIsCompleted) {
-      // add loading
       setTodos(todos.map(el => {
         return { ...el, loading: true };
       }));
@@ -193,10 +192,7 @@ export const App: FC = () => {
       } catch (error) {
         setErrorMessage('Unable to edit a todo');
       }
-
-      // console.log('ALL is Completed:', listOfSendingTodos);
     } else {
-      // add loading
       setTodos(todos.map(el => {
         return el.completed ? el : { ...el, loading: true };
       }));
@@ -236,7 +232,6 @@ export const App: FC = () => {
   };
 
   const changeTodoTitleById = (changedTodo:Todo) => {
-    // console.log('need change todo title by id', changedTodo);
     setTodos(todos.map(el => {
       if (el.id === changedTodo.id) {
         return { ...el, title: changedTodo.title };
