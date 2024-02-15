@@ -118,32 +118,6 @@ export const App: FC = () => {
 
   const filteredTodos = filterTodos(todos, filter);
 
-  const changeCompletedInArrOfTodos = (
-    arr:Todo[],
-    result: boolean,
-    index = 0,
-  ) => {
-    editTodo({
-      ...arr[index],
-      completed: !arr[index].completed,
-    })
-      .then(() => {
-        if (arr.length - 1 > index) {
-          changeCompletedInArrOfTodos(arr, result, index + 1);
-        } else {
-          setTodos(todos.map(el => {
-            const newTodo = el;
-
-            newTodo.completed = result;
-
-            return newTodo;
-          }));
-          setAllCompletedInProcess(false);
-        }
-      })
-      .catch(() => setErrorMessage('Unable to edit a todo'));
-  };
-
   const removeCompletedTodos = async () => {
     setErrorMessage('');
     const completedTodos = todos.filter(todo => todo.completed);
@@ -182,18 +156,94 @@ export const App: FC = () => {
     setTodos(updatedList);
   };
 
-  const toggleAllCompleted = () => {
+  const toggleAllCompleted = async () => {
     setAllCompletedInProcess(true);
     setErrorMessage('');
+
     if (allIsCompleted) {
-      const list = todos.filter(todo => todo.completed);
+      // add loading
+      setTodos(todos.map(el => {
+        return { ...el, loading: true };
+      }));
+      const listOfSendingTodos = todos.map(el => (
+        { ...el, completed: false }
+      ));
+      const uncompletedTodosId: number[] = [];
 
-      changeCompletedInArrOfTodos(list, false);
+      try {
+        const editedTodosResponseArr = await Promise.allSettled(
+          listOfSendingTodos.map(el => editTodo(el)),
+        );
+
+        for (let i = 0; i < editedTodosResponseArr.length; i += 1) {
+          if (editedTodosResponseArr[i].status === 'fulfilled') {
+            uncompletedTodosId.push(listOfSendingTodos[i].id);
+          } else {
+            setErrorMessage('Unable to edit a todo');
+          }
+        }
+
+        setTodos(todos.map(todo => {
+          if (uncompletedTodosId.includes(todo.id)) {
+            return { ...todo, loading: false, completed: false };
+          }
+
+          return todo;
+        }));
+      } catch (error) {
+        setErrorMessage('Unable to edit a todo');
+      }
+
+      // console.log('ALL is Completed:', listOfSendingTodos);
     } else {
-      const list = todos.filter(todo => !todo.completed);
+      // add loading
+      setTodos(todos.map(el => {
+        return el.completed ? el : { ...el, loading: true };
+      }));
 
-      changeCompletedInArrOfTodos(list, true);
+      const notCompletedTodos = todos.filter(todo => !todo.completed);
+      const listOfSendingTodos = notCompletedTodos.map(el => (
+        { ...el, completed: true }
+      ));
+      const completedTodosId: number[] = [];
+
+      try {
+        const editedTodosResponseArr = await Promise.allSettled(
+          listOfSendingTodos.map(el => editTodo(el)),
+        );
+
+        for (let i = 0; i < editedTodosResponseArr.length; i += 1) {
+          if (editedTodosResponseArr[i].status === 'fulfilled') {
+            completedTodosId.push(listOfSendingTodos[i].id);
+          } else {
+            setErrorMessage('Unable to edit a todo');
+          }
+        }
+
+        setTodos(todos.map(todo => {
+          if (completedTodosId.includes(todo.id)) {
+            return { ...todo, loading: false, completed: true };
+          }
+
+          return todo;
+        }));
+      } catch (error) {
+        setErrorMessage('Unable to edit a todo');
+      }
     }
+
+    setAllCompletedInProcess(false);
+  };
+
+  const changeTodoTitleById = (changedTodo:Todo) => {
+    // console.log('need change todo title by id', changedTodo);
+    setTodos(todos.map(el => {
+      if (el.id === changedTodo.id) {
+        return { ...el, title: changedTodo.title };
+      }
+
+      return el;
+    }));
   };
 
   useEffect(() => {
@@ -211,15 +261,17 @@ export const App: FC = () => {
       <h1 className="todoapp__title">todos</h1>
       <div className="todoapp__content">
         <header className="todoapp__header">
-          <button
-            type="button"
-            className={cn('todoapp__toggle-all', {
-              active: allIsCompleted,
-            })}
-            data-cy="ToggleAllButton"
-            onClick={toggleAllCompleted}
-            disabled={allCompletedInProcess}
-          />
+          {todos.length > 0 && (
+            <button
+              type="button"
+              className={cn('todoapp__toggle-all', {
+                active: allIsCompleted,
+              })}
+              data-cy="ToggleAllButton"
+              onClick={toggleAllCompleted}
+              disabled={allCompletedInProcess}
+            />
+          )}
 
           <form onSubmit={formSubmitHandler}>
             <input
@@ -242,6 +294,7 @@ export const App: FC = () => {
               removeTodoFromTodos={removeTodoFromTodos}
               changeCompletedTodoById={changeCompletedTodoById}
               setErrorMessage={setErrorMessage}
+              changeTodoTitleById={changeTodoTitleById}
             />
             {
               tempTodo && (

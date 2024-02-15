@@ -6,6 +6,7 @@ type Props = {
   removeTodoFromTodos: (v: number) => void;
   changeCompletedTodoById: (v: number) => void;
   setErrorMessage:(v: string) => void;
+  changeTodoTitleById:(v: Todo) => void;
 };
 
 export const TodoList: React.FC<Props> = ({
@@ -13,6 +14,7 @@ export const TodoList: React.FC<Props> = ({
   removeTodoFromTodos,
   changeCompletedTodoById,
   setErrorMessage,
+  changeTodoTitleById,
 }) => {
   return (
     <section className="todoapp__main" data-cy="TodoList">
@@ -24,6 +26,7 @@ export const TodoList: React.FC<Props> = ({
             removeTodoFromTodos={removeTodoFromTodos}
             changeCompletedTodoById={changeCompletedTodoById}
             setErrorMessage={setErrorMessage}
+            changeTodoTitleById={changeTodoTitleById}
           />
         );
       })}
