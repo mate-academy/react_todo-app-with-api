@@ -6,7 +6,8 @@ import cn from 'classnames';
 import { TodoContext } from '../../TodoContext';
 import { Todo } from '../../types/Todo';
 
-export const TodoItemForm: React.FC<{ todo: Todo }> = React.memo(({ todo }) => {
+export const TodoRenameForm: React.FC<{ todo: Todo }>
+= React.memo(({ todo }) => {
   const {
     isChosenToRename,
     editingTodo,

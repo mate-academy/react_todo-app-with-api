@@ -8,6 +8,7 @@ import React, {
 import * as api from './api/todos';
 import { Todo } from './types/Todo';
 import { TodoContextValue } from './types/ContextType';
+import { TodoFilter, Errors } from './enums/enums';
 
 interface TodoContextProps {
   children: ReactNode;
@@ -88,18 +89,18 @@ export const TodoProvider: React.FC<TodoContextProps> = ({ children }) => {
         setFilteredTodos(apiTodos);
       })
       .catch(() => {
-        setError('Unable to load todos');
+        setError(Errors.load);
       });
   }, []);
 
   useEffect(() => {
     const filteredtodo = () => {
       switch (filter) {
-        case 'active':
+        case TodoFilter.Active:
           return todos.filter((todo) => {
             return !todo.completed;
           });
-        case 'completed':
+        case TodoFilter.Completed:
           return todos.filter((todo) => {
             return todo.completed;
           });
@@ -135,7 +136,7 @@ export const TodoProvider: React.FC<TodoContextProps> = ({ children }) => {
       })
       .catch(() => {
         setTempTodo(null);
-        setError('Unable to add a todo');
+        setError(Errors.add);
       })
       .finally(() => {
         titleField.current?.focus();
@@ -153,15 +154,12 @@ export const TodoProvider: React.FC<TodoContextProps> = ({ children }) => {
         ));
       })
       .catch(() => {
-        setError('Unable to delete a todo');
-        if (titleField.current) {
-          titleField.current.focus();
-        }
+        setError(Errors.delete);
       })
       .finally(() => {
-        setLoadingTodos((currentLoading) => {
-          return currentLoading.filter((loadingId) => loadingId !== id);
-        });
+        setLoadingTodos(currentLoading => (
+          currentLoading.filter((loadingId) => loadingId !== id)
+        ));
         setHandleEditing(0);
       });
   };
@@ -173,20 +171,20 @@ export const TodoProvider: React.FC<TodoContextProps> = ({ children }) => {
     setLoadingTodos((currentLoading) => [...currentLoading, id]);
     api.patchTodos(id, changedTodo)
       .then(() => {
-        setTodos((currentTodos) => currentTodos.map(todo => {
-          return todo.id === id ? { ...todo, title: value } : todo;
-        }));
-        setLoadingTodos((currentLoading) => {
-          return currentLoading.filter((loadingId) => loadingId !== id);
-        });
+        setTodos(currentTodos => currentTodos.map(todo => (
+          todo.id === id ? { ...todo, title: value } : todo
+        )));
+        setLoadingTodos(currentLoading => (
+          currentLoading.filter((loadingId) => loadingId !== id)
+        ));
         setIsChosenToRename(0);
         setTimeout(() => setHandleEditing(0), 10);
       })
       .catch(() => {
-        setError('Unable to update a todo');
-        setLoadingTodos((currentLoading) => {
-          return currentLoading.filter((loadingId) => loadingId !== id);
-        });
+        setError(Errors.update);
+        setLoadingTodos(currentLoading => (
+          currentLoading.filter((loadingId) => loadingId !== id)
+        ));
       });
   };
 
@@ -198,20 +196,20 @@ export const TodoProvider: React.FC<TodoContextProps> = ({ children }) => {
 
     api.patchTodos(id, completedTodo)
       .then(() => {
-        setTodos((currentTodos) => currentTodos.map(todo => {
-          return todo.id === id ? {
+        setTodos((currentTodos) => currentTodos.map(todo => (
+          todo.id === id ? {
             ...todo, completed: !isCompleted,
-          } : todo;
-        }));
-        setLoadingTodos((currentLoading) => {
-          return currentLoading.filter((loadingId) => loadingId !== id);
-        });
+          } : todo
+        )));
+        setLoadingTodos(currentLoading => (
+          currentLoading.filter((loadingId) => loadingId !== id)
+        ));
       })
       .catch(() => {
-        setError('Unable to update a todo');
-        setLoadingTodos((currentLoading) => {
-          return currentLoading.filter((loadingId) => loadingId !== id);
-        });
+        setError(Errors.update);
+        setLoadingTodos(currentLoading => (
+          currentLoading.filter((loadingId) => loadingId !== id)
+        ));
         if (titleField.current) {
           titleField.current.focus();
         }

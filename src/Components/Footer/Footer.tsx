@@ -4,12 +4,7 @@ import React, {
 } from 'react';
 import cn from 'classnames';
 import { TodoContext } from '../../TodoContext';
-
-enum TodoFilter {
-  All = 'all',
-  Completed = 'completed',
-  Active = 'active',
-}
+import { TodoFilter } from '../../enums/enums';
 
 export const Footer: React.FC = React.memo(() => {
   const {

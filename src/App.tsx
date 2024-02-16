@@ -4,7 +4,7 @@ import React, {
 } from 'react';
 import { TodoContext } from './TodoContext';
 import { TodoItem } from './Components/TodoItem/TodoItem';
-import { TodoItemForm } from './Components/TodoRenameForm/TodoRenameForm';
+import { TodoRenameForm } from './Components/TodoRenameForm/TodoRenameForm';
 import { Footer } from './Components/Footer/Footer';
 import { TempTodo } from './Components/TempTodo/TempTodo';
 import { ErrorsHandling } from './Components/ErrorsHandling/ErrorsHandling';
@@ -29,7 +29,7 @@ export const App: React.FC = () => {
           {filteredTodos.map((todo) => (
             <React.Fragment key={todo.id}>
               {isChosenToRename === todo.id ? (
-                <TodoItemForm todo={todo} />
+                <TodoRenameForm todo={todo} />
               ) : (
                 <TodoItem todo={todo} />
               )}
