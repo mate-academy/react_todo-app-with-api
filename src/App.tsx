@@ -42,11 +42,11 @@ export const App: React.FC = () => {
   }, [todos, filter, filterTodos]);
 
   const activeTodosCount = useMemo(() => {
-    return todos.filter(todo => todo.completed !== true).length;
+    return todos.filter(todo => !todo.completed).length;
   }, [todos]);
 
   const isCompletedTodos = useMemo(() => {
-    return todos.filter(todo => todo.completed === true).length > 0;
+    return todos.filter(todo => todo.completed).length > 0;
   }, [todos]);
 
   const addNewTodo = useCallback((title: string) => {
@@ -107,51 +107,88 @@ export const App: React.FC = () => {
       });
   }, [todos]);
 
-  const allCompleted = todos.every(todo => todo.completed);
+  // const allCompleted = todos.every(todo => todo.completed);
 
+  // const toggleAllTodos = () => {
+  //   if (allCompleted) {
+  //     const loadingTodosIds = todos.map(todo => todo.id);
+
+  //     setLoadingTodoIds(loadingTodosIds);
+
+  //     const activeTodos = todos.map(todo => ({
+  //       ...todo,
+  //       completed: false,
+  //     }));
+
+  //     const patchPromises = todos.map(todo =>
+  //       patchTodo(todo.id, { ...todo, completed: false }),
+  //     );
+
+  //     Promise.all(patchPromises)
+  //       .then(() => {
+  //         setTodos(activeTodos);
+  //       })
+  //       .catch(() => setError(Error.UnableToUpdate))
+  //       .finally(() => setLoadingTodoIds([]));
+
+  //     return;
+  //   }
+
+  //   const loadingTodosIds = todos
+  //     .filter(todo => !todo.completed)
+  //     .map(todo => todo.id);
+
+  //   setLoadingTodoIds(loadingTodosIds);
+
+  //   const completedTodos = todos.map(todo => ({
+  //     ...todo,
+  //     completed: true,
+  //   }));
+
+  //   const patchPromises = todos.map(todo =>
+  //     patchTodo(todo.id, { ...todo, completed: true }),
+  //   );
+
+  //   Promise.all(patchPromises)
+  //     .then(() => {
+  //       setTodos(completedTodos);
+  //     })
+  //     .catch(() => setError(Error.UnableToUpdate))
+  //     .finally(() => setLoadingTodoIds([]));
+  // };
   const toggleAllTodos = () => {
-    if (allCompleted) {
-      const loadingTodosIds = todos.map(todo => todo.id);
+    const areAllCompleted = todos.every(todo => todo.completed);
 
-      setLoadingTodoIds(loadingTodosIds);
+    const updatedTodos = todos.map(todo => {
+      if (
+        // eslint-disable-next-line operator-linebreak
+        (areAllCompleted && !todo.completed) ||
+        (!areAllCompleted && todo.completed)
+      ) {
+        return {
+          ...todo,
+          completed: !todo.completed,
+        };
+      }
 
-      const activeTodos = todos.map(todo => ({
-        ...todo,
-        completed: false,
-      }));
+      return todo;
+    });
 
-      const patchPromises = todos.map(todo =>
-        patchTodo(todo.id, { ...todo, completed: false }),
-      );
-
-      Promise.all(patchPromises)
-        .then(() => {
-          setTodos(activeTodos);
-        })
-        .catch(() => setError(Error.UnableToUpdate))
-        .finally(() => setLoadingTodoIds([]));
-
-      return;
-    }
-
-    const loadingTodosIds = todos
-      .filter(todo => !todo.completed)
+    const todosToUpdateIds = updatedTodos
+      .filter((todo, index) => todo.completed !== todos[index].completed)
       .map(todo => todo.id);
 
-    setLoadingTodoIds(loadingTodosIds);
+    setLoadingTodoIds(todosToUpdateIds);
 
-    const completedTodos = todos.map(todo => ({
-      ...todo,
-      completed: true,
-    }));
-
-    const patchPromises = todos.map(todo =>
-      patchTodo(todo.id, { ...todo, completed: true }),
+    const patchPromises = todosToUpdateIds.map(id =>
+      patchTodo(id, {
+        completed: updatedTodos.find(todo => todo.id === id)?.completed,
+      }),
     );
 
     Promise.all(patchPromises)
       .then(() => {
-        setTodos(completedTodos);
+        setTodos(updatedTodos);
       })
       .catch(() => setError(Error.UnableToUpdate))
       .finally(() => setLoadingTodoIds([]));
@@ -189,7 +226,7 @@ export const App: React.FC = () => {
           addTempTodo={addNewTodo}
           disabled={!!tempTodo}
           toggleAllTodos={toggleAllTodos}
-          allCompleted={allCompleted}
+          allCompleted={todos.every(todo => todo.completed)}
           todos={todos}
         />
         <TodoList
@@ -199,14 +236,16 @@ export const App: React.FC = () => {
           loadingTodoIds={loadingTodoIds}
           updateTodo={updateTodo}
         />
-        <Footer
-          filterTodos={setFilter}
-          currentFilter={filter}
-          isCompletedTodos={isCompletedTodos}
-          activeTodosCount={activeTodosCount}
-          deleteCompletedTodos={deleteCompletedTodos}
-          todos={todos}
-        />
+        {!!todos.length && (
+          <Footer
+            filterTodos={setFilter}
+            currentFilter={filter}
+            isCompletedTodos={isCompletedTodos}
+            activeTodosCount={activeTodosCount}
+            deleteCompletedTodos={deleteCompletedTodos}
+            todos={todos}
+          />
+        )}
       </div>
       {error && <ErrorMessage error={error} close={() => setError(null)} />}
     </div>

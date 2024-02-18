@@ -36,19 +36,7 @@ export const TodoItem: React.FC<Props> = ({
     if (isEditing && inputRef.current) {
       inputRef.current.focus();
     }
-
-    const handleKeyUp = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') {
-        cancelEditing();
-      }
-    };
-
-    window.addEventListener('keyup', handleKeyUp);
-
-    return () => {
-      window.removeEventListener('keyup', handleKeyUp);
-    };
-  }, [isLoading, isEditing, cancelEditing]);
+  }, [isLoading, isEditing]);
 
   const handleComplete = () => {
     updateTodo(id, { id, completed: !completed });
@@ -80,6 +68,19 @@ export const TodoItem: React.FC<Props> = ({
     setIsEditing(false);
   };
 
+  const handleKeyUp = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Escape') {
+      cancelEditing();
+    }
+  };
+
+  const handleOnBlur = () => {
+    if (!newTitle.trim()) {
+      setIsEditing(false);
+      deleteTodos(id);
+    }
+  };
+
   return (
     <div
       data-cy="Todo"
@@ -107,6 +108,8 @@ export const TodoItem: React.FC<Props> = ({
             ref={inputRef}
             value={newTitle}
             onChange={e => setNewTitle(e.target.value)}
+            onKeyUp={handleKeyUp}
+            onBlur={handleOnBlur}
           />
         </form>
       ) : (
