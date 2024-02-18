@@ -199,16 +199,14 @@ export const App: React.FC = () => {
           loadingTodoIds={loadingTodoIds}
           updateTodo={updateTodo}
         />
-        {!!todos.length && (
-          <Footer
-            filterTodos={setFilter}
-            currentFilter={filter}
-            isCompletedTodos={isCompletedTodos}
-            activeTodosCount={activeTodosCount}
-            deleteCompletedTodos={deleteCompletedTodos}
-            todos={todos}
-          />
-        )}
+        <Footer
+          filterTodos={setFilter}
+          currentFilter={filter}
+          isCompletedTodos={isCompletedTodos}
+          activeTodosCount={activeTodosCount}
+          deleteCompletedTodos={deleteCompletedTodos}
+          todos={todos}
+        />
       </div>
       {error && <ErrorMessage error={error} close={() => setError(null)} />}
     </div>
