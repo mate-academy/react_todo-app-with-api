@@ -107,55 +107,6 @@ export const App: React.FC = () => {
       });
   }, [todos]);
 
-  // const allCompleted = todos.every(todo => todo.completed);
-
-  // const toggleAllTodos = () => {
-  //   if (allCompleted) {
-  //     const loadingTodosIds = todos.map(todo => todo.id);
-
-  //     setLoadingTodoIds(loadingTodosIds);
-
-  //     const activeTodos = todos.map(todo => ({
-  //       ...todo,
-  //       completed: false,
-  //     }));
-
-  //     const patchPromises = todos.map(todo =>
-  //       patchTodo(todo.id, { ...todo, completed: false }),
-  //     );
-
-  //     Promise.all(patchPromises)
-  //       .then(() => {
-  //         setTodos(activeTodos);
-  //       })
-  //       .catch(() => setError(Error.UnableToUpdate))
-  //       .finally(() => setLoadingTodoIds([]));
-
-  //     return;
-  //   }
-
-  //   const loadingTodosIds = todos
-  //     .filter(todo => !todo.completed)
-  //     .map(todo => todo.id);
-
-  //   setLoadingTodoIds(loadingTodosIds);
-
-  //   const completedTodos = todos.map(todo => ({
-  //     ...todo,
-  //     completed: true,
-  //   }));
-
-  //   const patchPromises = todos.map(todo =>
-  //     patchTodo(todo.id, { ...todo, completed: true }),
-  //   );
-
-  //   Promise.all(patchPromises)
-  //     .then(() => {
-  //       setTodos(completedTodos);
-  //     })
-  //     .catch(() => setError(Error.UnableToUpdate))
-  //     .finally(() => setLoadingTodoIds([]));
-  // };
   const toggleAllTodos = () => {
     const areAllCompleted = todos.every(todo => todo.completed);
 
