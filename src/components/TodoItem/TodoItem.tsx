@@ -104,9 +104,9 @@ export const TodoItem: React.FC<Props> = ({
       completed: value.completed,
     }).then(() => setTodos(prevTodos => prevTodos.map(todo => (
       todo.id === idTodo ? { ...todo, title: trimedTitleEdit } : todo))))
-      .catch(() => {
-        setIsError(true);
+      .catch((error) => {
         setErrorText('Unable to update a todo');
+        throw error;
       })
       .finally(() => {
         setHandleDeleteTodoId(pre => pre.filter(prevId => prevId !== idTodo));
