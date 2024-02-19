@@ -107,6 +107,7 @@ export const TodoItem: React.FC<Props> = ({
       .catch((error) => {
         setErrorText('Unable to update a todo');
         setIsError(true);
+
         throw error;
       })
       .finally(() => {
