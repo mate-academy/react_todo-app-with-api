@@ -83,9 +83,9 @@ export const Header: React.FC = () => {
     setTodos(newTodos);
 
     setHandleDeleteTodoId(todos.map(todo => todo.id));
-    const incompleteTodos = todos.filter(todo => !todo.completed);
+    // const incompleteTodos = todos.filter(todo => !todo.completed);
 
-    const promises = incompleteTodos.map(todo => patchTodos(todo.id, {
+    const promises = todos.map(todo => patchTodos(todo.id, {
       userId: todo.userId,
       title: todo.title,
       completed: someCompleted,
