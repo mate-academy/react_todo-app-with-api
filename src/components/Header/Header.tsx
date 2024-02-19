@@ -73,23 +73,22 @@ export const Header: React.FC = () => {
   };
 
   const handleToggleAll = () => {
-    const someCompleted = todos.some(todo => todo.completed);
+    const someCompleted = todos.some(todo => !todo.completed);
+
     const newTodos = todos.map(todo => ({
       ...todo,
-      completed: !someCompleted,
+      completed: someCompleted,
     }));
 
     setTodos(newTodos);
 
+    setHandleDeleteTodoId(todos.map(todo => todo.id));
     const incompleteTodos = todos.filter(todo => !todo.completed);
-    const incompleteTodoIds = incompleteTodos.map(todo => todo.id);
-
-    setHandleDeleteTodoId(incompleteTodoIds);
 
     const promises = incompleteTodos.map(todo => patchTodos(todo.id, {
       userId: todo.userId,
       title: todo.title,
-      completed: !someCompleted,
+      completed: someCompleted,
     }));
 
     Promise.all(promises)
