@@ -25,9 +25,7 @@ export const App: React.FC = () => {
         <Header />
         <TodoList />
         {!!todos.length && (
-          <>
-            <Footer />
-          </>
+          <Footer />
         )}
       </div>
 

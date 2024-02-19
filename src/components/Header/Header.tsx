@@ -7,6 +7,7 @@ import {
 } from 'react';
 import { patchTodos, postTodos } from '../../api/todos';
 import { TodoContext } from '../State/TodoContext';
+import { USER_ID } from '../../utils/userId';
 
 export const Header: React.FC = () => {
   const {
@@ -15,7 +16,6 @@ export const Header: React.FC = () => {
     setIsError,
     isFocused,
     setIsFocused,
-    isError,
     setErrorText,
     setTempToDo,
     setHandleDeleteTodoId,
@@ -24,15 +24,14 @@ export const Header: React.FC = () => {
   } = useContext(TodoContext);
 
   const allTodosToggle = todos.every(todo => todo.completed);
-  const USER_ID = 136;
   const trimmedQuery = query.trim();
   const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    if (inputRef.current) {
+    if (inputRef.current && !isFocused) {
       inputRef.current.focus();
     }
-  }, [todos, isError]);
+  }, [isFocused]);
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -77,7 +76,6 @@ export const Header: React.FC = () => {
     const idCompleted = todos
       .filter(todo => todo.completed)
       .map(todo => todo.id);
-      // console.log(idCompleted)
 
     const newTodos = todos.map(todo => ({
       ...todo,
@@ -87,7 +85,6 @@ export const Header: React.FC = () => {
     setTodos(newTodos);
 
     const promises = todos.map(todo => patchTodos(todo.id, {
-      // id: todo.id,
       userId: todo.userId,
       title: todo.title,
       completed: !allCompleted,

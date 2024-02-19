@@ -1,8 +1,9 @@
-import { useContext } from 'react';
+import { useContext, useMemo } from 'react';
 import { CSSTransition, TransitionGroup } from 'react-transition-group';
-import { filterTodos } from '../../utils/filterTodos';
 import { TodoItem } from '../TodoItem';
 import { TodoContext } from '../State/TodoContext';
+import { Status } from '../../types/Status';
+import { Todo } from '../../types/Todo';
 
 export const TodoList: React.FC = () => {
   const {
@@ -11,7 +12,22 @@ export const TodoList: React.FC = () => {
     tempToDo,
   } = useContext(TodoContext);
 
-  const filteredTodos = filterTodos(status, todos);
+  const filterTodos = (filterStatus: Status, todoList: Todo[]): Todo[] => {
+    switch (filterStatus) {
+      case Status.Active:
+        return todoList.filter(todo => !todo.completed);
+
+      case Status.Completed:
+        return todoList.filter(todo => todo.completed);
+
+      default:
+        return todoList;
+    }
+  };
+
+  const filteredTodos = useMemo(
+    () => filterTodos(status, todos), [status, todos],
+  );
 
   return (
     <section className="todoapp__main" data-cy="TodoList">

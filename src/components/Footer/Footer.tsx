@@ -52,7 +52,7 @@ export const Footer: React.FC = () => {
           data-cy="FilterLinkAll"
           onClick={() => setStatus(Status.All)}
         >
-          All
+          {Status.All}
         </a>
 
         <a
@@ -62,7 +62,7 @@ export const Footer: React.FC = () => {
           data-cy="FilterLinkActive"
           onClick={() => setStatus(Status.Active)}
         >
-          Active
+          {Status.Active}
         </a>
 
         <a
@@ -72,7 +72,7 @@ export const Footer: React.FC = () => {
           data-cy="FilterLinkCompleted"
           onClick={() => setStatus(Status.Completed)}
         >
-          Completed
+          {Status.Completed}
         </a>
       </nav>
 

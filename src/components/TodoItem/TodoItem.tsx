@@ -38,7 +38,7 @@ export const TodoItem: React.FC<Props> = ({
     if (inputRef.current) {
       inputRef.current.focus();
     }
-  });
+  }, [isEdit]);
 
   const handleCheckTodo = (idTodo: number) => {
     const toggleStatus = todos.find(todo => idTodo === todo.id);
@@ -46,22 +46,29 @@ export const TodoItem: React.FC<Props> = ({
     setHandleDeleteTodoId(prev => [...prev, idTodo]);
 
     setTodos(prevTodos => prevTodos.map(todo => (
-      todo.id === idTodo ? { ...todo, completed: !todo.completed } : todo)));
+      todo.id === idTodo
+        ? { ...todo, completed: !todo.completed }
+        : todo
+    )));
 
-    const checkedTodo = todos.filter(todo => todo.id === idTodo);
+    const checkedTodo = todos.find(todo => todo.id === idTodo);
 
-    checkedTodo.map(todo => patchTodos(idTodo, {
-      userId: todo.userId,
-      title: todo.title,
-      completed: !toggleStatus?.completed,
-    })
-      .catch(() => {
-        setIsError(true);
-        setErrorText('Unable to update a todo');
+    if (checkedTodo) {
+      patchTodos(idTodo, {
+        userId: checkedTodo.userId,
+        title: checkedTodo.title,
+        completed: !toggleStatus?.completed,
       })
-      .finally(() => {
-        setHandleDeleteTodoId(prev => prev.filter(prevId => prevId !== idTodo));
-      }));
+        .catch(() => {
+          setIsError(true);
+          setErrorText('Unable to update a todo');
+        })
+        .finally(() => {
+          setHandleDeleteTodoId(prev => prev.filter(
+            prevId => prevId !== idTodo,
+          ));
+        });
+    }
   };
 
   const handleDeleteTodo = (idTodo: number) => {
@@ -98,7 +105,8 @@ export const TodoItem: React.FC<Props> = ({
   };
 
   const handleKeyUp = (
-    e: React.KeyboardEvent<HTMLInputElement>, idTodo: number,
+    e: React.KeyboardEvent<HTMLInputElement>,
+    idTodo: number,
   ) => {
     if (e.key === 'Enter' && trimedTitleEdit === '') {
       handleDeleteTodo(idTodo);

@@ -47,9 +47,13 @@ export const TodoProvider: React.FC<Props> = ({ children }) => {
       });
   }, []);
 
-  setTimeout(() => {
-    setIsError(false);
-  }, 3000);
+  useEffect(() => {
+    const errorTimeout = setTimeout(() => {
+      setIsError(false);
+    }, 3000);
+
+    return () => clearTimeout(errorTimeout);
+  }, [isError]);
 
   const value = useMemo(() => ({
     todos,
