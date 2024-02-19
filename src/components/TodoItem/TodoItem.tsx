@@ -66,6 +66,7 @@ export const TodoItem: React.FC<Props> = ({
             ? { ...todo, completed: !newCompletedStatus }
             : todo)));
 
+          setTodoTitleEdit(todoTitleEdit);
           setIsError(true);
           setErrorText('Unable to update a todo');
         })
@@ -100,6 +101,8 @@ export const TodoItem: React.FC<Props> = ({
       return;
     }
 
+    const trimmedTitle = trimedTitleEdit.trim();
+
     currTodo.map(value => patchTodos(idTodo, {
       userId: value.userId,
       title: trimedTitleEdit,
@@ -109,11 +112,12 @@ export const TodoItem: React.FC<Props> = ({
       .catch((error) => {
         setErrorText('Unable to update a todo');
         setIsError(true);
-
         throw error;
       })
       .finally(() => {
         setHandleDeleteTodoId(pre => pre.filter(prevId => prevId !== idTodo));
+        setIsEdit(false);
+        setTodoTitleEdit(trimmedTitle);
       }));
 
     setIsError(false);
