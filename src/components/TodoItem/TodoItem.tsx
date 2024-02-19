@@ -91,9 +91,12 @@ export const TodoItem: React.FC<Props> = ({
   };
 
   const updateTodo = (idTodo: number) => {
-    // setIsEdit(false);
     setHandleDeleteTodoId(prev => [...prev, idTodo]);
     const currTodo = todos.filter(todo => todo.id === idTodo);
+
+    if (!currTodo) {
+      return;
+    }
 
     currTodo.map(value => patchTodos(idTodo, {
       userId: value.userId,
