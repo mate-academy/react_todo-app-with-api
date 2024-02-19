@@ -91,7 +91,7 @@ export const TodoItem: React.FC<Props> = ({
   };
 
   const updateTodo = (idTodo: number) => {
-    setIsEdit(false);
+    // setIsEdit(false);
     setHandleDeleteTodoId(prev => [...prev, idTodo]);
     const currTodo = todos.filter(todo => todo.id === idTodo);
 
