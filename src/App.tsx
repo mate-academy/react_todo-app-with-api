@@ -108,38 +108,35 @@ export const App: React.FC = () => {
   }, [todos]);
 
   const toggleAllTodos = () => {
-    const areAllCompleted = todos.every(todo => todo.completed);
+    const uncompletedTodos = todos.filter(todo => !todo.completed);
+    const loadingTodosIds = uncompletedTodos.map(todo => todo.id);
 
-    const updatedTodos = todos.map(todo => {
-      if (
-        // eslint-disable-next-line operator-linebreak
-        (areAllCompleted && !todo.completed) ||
-        (!areAllCompleted && todo.completed)
-      ) {
-        return {
-          ...todo,
-          completed: !todo.completed,
-        };
-      }
+    setLoadingTodoIds(loadingTodosIds);
 
-      return todo;
-    });
+    const updatedTodos = uncompletedTodos.map(todo => ({
+      ...todo,
+      completed: true,
+    }));
 
-    const todosToUpdateIds = updatedTodos
-      .filter((todo, index) => todo.completed !== todos[index].completed)
-      .map(todo => todo.id);
-
-    setLoadingTodoIds(todosToUpdateIds);
-
-    const patchPromises = todosToUpdateIds.map(id =>
-      patchTodo(id, {
-        completed: updatedTodos.find(todo => todo.id === id)?.completed,
-      }),
+    const patchPromises = uncompletedTodos.map(todo =>
+      patchTodo(todo.id, { ...todo, completed: true }),
     );
 
     Promise.all(patchPromises)
       .then(() => {
-        setTodos(updatedTodos);
+        setTodos(prevTodos =>
+          prevTodos.map(todo => {
+            if (loadingTodosIds.includes(todo.id)) {
+              return (
+                // eslint-disable-next-line operator-linebreak
+                updatedTodos.find(updatedTodo => updatedTodo.id === todo.id) ||
+                todo
+              );
+            }
+
+            return todo;
+          }),
+        );
       })
       .catch(() => setError(Error.UnableToUpdate))
       .finally(() => setLoadingTodoIds([]));
