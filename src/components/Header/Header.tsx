@@ -28,10 +28,10 @@ export const Header: React.FC = () => {
   const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    if (inputRef.current && !isFocused) {
+    if (inputRef.current) {
       inputRef.current.focus();
     }
-  }, [isFocused]);
+  }, [todos]);
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -72,37 +72,29 @@ export const Header: React.FC = () => {
   };
 
   const handleToggleAll = () => {
-    const allCompleted = todos.every(todo => todo.completed);
-    const idCompleted = todos
-      .filter(todo => todo.completed)
-      .map(todo => todo.id);
+    const allCompleted = todos.every(todo => !todo.completed);
 
     const newTodos = todos.map(todo => ({
       ...todo,
-      completed: !allCompleted,
+      completed: allCompleted,
     }));
 
     setTodos(newTodos);
 
+    setHandleDeleteTodoId(todos.map(todo => todo.id));
+
     const promises = todos.map(todo => patchTodos(todo.id, {
       userId: todo.userId,
       title: todo.title,
-      completed: !allCompleted,
+      completed: allCompleted,
     }));
 
     Promise.all(promises)
-      .then(() => {
-        setHandleDeleteTodoId(prev => [...prev, ...idCompleted]);
-      })
       .catch(() => {
         setIsError(true);
         setErrorText('Unable to update a todo');
       })
-      .finally(() => {
-        setHandleDeleteTodoId(prev => prev.filter(
-          id => !idCompleted.includes(id),
-        ));
-      });
+      .finally(() => setHandleDeleteTodoId([]));
   };
 
   return (
