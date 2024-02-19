@@ -110,8 +110,9 @@ export const TodoItem: React.FC<Props> = ({
     }).then(() => setTodos(prevTodos => prevTodos.map(todo => (
       todo.id === idTodo ? { ...todo, title: trimedTitleEdit } : todo))))
       .catch((error) => {
-        setErrorText('Unable to update a todo');
         setIsError(true);
+        setIsEdit(true);
+        setErrorText('Unable to update a todo');
         throw error;
       })
       .finally(() => {
