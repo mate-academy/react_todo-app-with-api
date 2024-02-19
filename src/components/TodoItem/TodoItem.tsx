@@ -54,12 +54,18 @@ export const TodoItem: React.FC<Props> = ({
     const checkedTodo = todos.find(todo => todo.id === idTodo);
 
     if (checkedTodo) {
+      const newCompletedStatus = !toggleStatus?.completed;
+
       patchTodos(idTodo, {
         userId: checkedTodo.userId,
         title: checkedTodo.title,
-        completed: !toggleStatus?.completed,
+        completed: newCompletedStatus,
       })
         .catch(() => {
+          setTodos(prevTodos => prevTodos.map(todo => (todo.id === idTodo
+            ? { ...todo, completed: !newCompletedStatus }
+            : todo)));
+
           setIsError(true);
           setErrorText('Unable to update a todo');
         })
