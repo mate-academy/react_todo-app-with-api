@@ -10,7 +10,7 @@ and implement the ability to toggle and rename todos.
 ## Toggling a todo status
 
 Toggle the `completed` status on `TodoStatus` change:
-
+- Install Prettier Extention and use this [VSCode settings](https://mate-academy.github.io/fe-program/tools/vscode/settings.json) to enable format on save.
 - covered the todo with a loader overlay while waiting for API response;
 - the status should be changed on success;
 - show the `Unable to update a todo` notification in case of API error.
