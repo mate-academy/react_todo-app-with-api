@@ -117,11 +117,11 @@ export const TodoItem: React.FC<Props> = ({
       })
       .finally(() => {
         setHandleDeleteTodoId(pre => pre.filter(prevId => prevId !== idTodo));
-        setIsEdit(false);
         setTodoTitleEdit(trimmedTitle);
       }));
 
     setIsError(false);
+    setIsEdit(false);
   };
 
   const handleKeyUp = (
