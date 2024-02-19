@@ -17,7 +17,9 @@ export const Footer: React.FC = () => {
 
   const someTodosToggle = todos.some(todo => todo.completed);
   const notCompleted = todos.filter(todo => !todo.completed);
-  const itemsLeft = `${notCompleted.length} items left`;
+  const itemsLeft = notCompleted.length > 1
+    ? `${notCompleted.length} items left`
+    : '1 item left';
 
   const handleClearCompleted = () => {
     const completedTodos = todos.filter(todo => todo.completed);
