@@ -74,6 +74,7 @@ export const Header: React.FC = () => {
 
   const handleToggleAll = () => {
     const someCompleted = todos.some(todo => !todo.completed);
+    const allCompleted = todos.every(todo => !todo.completed);
 
     const newTodos = todos.map(todo => ({
       ...todo,
@@ -83,9 +84,11 @@ export const Header: React.FC = () => {
     setTodos(newTodos);
 
     setHandleDeleteTodoId(todos.map(todo => todo.id));
-    // const incompleteTodos = todos.filter(todo => !todo.completed);
+    const incompleteTodos = todos.filter(todo => !todo.completed);
+    // const preparedTodos = allCompleted ? todos : incompleteTodos;
+    const preparedTodos = allCompleted ? incompleteTodos : todos;
 
-    const promises = todos.map(todo => patchTodos(todo.id, {
+    const promises = preparedTodos.map(todo => patchTodos(todo.id, {
       userId: todo.userId,
       title: todo.title,
       completed: someCompleted,
