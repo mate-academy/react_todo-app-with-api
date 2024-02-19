@@ -70,11 +70,12 @@ export const TodoItem: React.FC<Props> = ({
           setErrorText('Unable to update a todo');
         })
         .finally(() => {
-          setIsError(false);
           setHandleDeleteTodoId(prev => prev.filter(
             prevId => prevId !== idTodo,
           ));
         });
+
+      setIsError(false);
     }
   };
 
