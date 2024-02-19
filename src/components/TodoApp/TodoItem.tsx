@@ -41,6 +41,11 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
   const handleResponse = (response: Promise<Todo>) => {
     const updatedTodos = [...todos];
 
+    dispatch({
+      type: 'showLoader',
+      todosIds: [...coveredTodoIds, id],
+    });
+
     response
       .then((newTodo) => {
         dispatch({
@@ -61,11 +66,6 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
   };
 
   const handleChageTodoStatus = () => {
-    dispatch({
-      type: 'showLoader',
-      todosIds: [...coveredTodoIds, id],
-    });
-
     handleResponse(updateTodo({
       ...todo,
       completed: !completed,
@@ -99,11 +99,6 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
 
   const handleSubmit = (event: React.FormEvent) => {
     event.preventDefault();
-
-    dispatch({
-      type: 'showLoader',
-      todosIds: [...coveredTodoIds, id],
-    });
 
     if (correctEditedTitle) {
       if (title === correctEditedTitle) {
