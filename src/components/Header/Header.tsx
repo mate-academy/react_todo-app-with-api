@@ -13,7 +13,6 @@ export const Header: React.FC = () => {
   const {
     setTodos,
     todos,
-    isError,
     setIsError,
     isFocused,
     setIsFocused,
@@ -32,7 +31,13 @@ export const Header: React.FC = () => {
     if (inputRef.current) {
       inputRef.current.focus();
     }
-  }, [todos, isError]);
+  }, [todos]);
+
+  useEffect(() => {
+    if (inputRef.current) {
+      inputRef.current.focus();
+    }
+  }, []);
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
