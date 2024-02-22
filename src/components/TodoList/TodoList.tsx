@@ -1,5 +1,5 @@
 import React, {
-  useMemo, useEffect, useState, useRef, useCallback,
+  useMemo, useEffect, useState, useRef,
 } from 'react';
 import { CSSTransition, TransitionGroup } from 'react-transition-group';
 import classNames from 'classnames';
@@ -25,7 +25,6 @@ type Props = {
   setUseToggle: (useToggle: boolean) => void;
   editTodo: number;
   setEditTodo: (editTodo: number) => void;
-  // setTodos: (todos: Todo[]) => void;
 };
 
 export const TodoList: React.FC<Props> = ({
@@ -59,30 +58,8 @@ export const TodoList: React.FC<Props> = ({
   }, [todos, filterType]);
 
   const [inputValue, setInputValue] = useState('');
-  // const [isEditing, setIsEditing] = useState(false);
 
   const inputRef = useRef<HTMLInputElement | null>(null);
-
-  const submitInput = useCallback((todo: Todo) => {
-    setEditTodo(-1);
-    inputRef.current?.blur();
-
-    if (inputValue === todo.title) {
-      return null;
-    }
-
-    if (inputValue.trim().length === 0) {
-      deleteTodo(todo.id);
-
-      return null;
-    }
-
-    return changeTodo(
-      todo.id,
-      inputValue.trim(),
-      todo.completed,
-    );
-  }, [todos, inputValue]);
 
   useEffect(() => {
     if (allChecked) {
@@ -170,7 +147,6 @@ export const TodoList: React.FC<Props> = ({
                 })
               }
               onDoubleClick={() => {
-                // setIsEditing(true);
                 setInputValue(todo.title);
                 setEditTodo(todo.id);
               }}
@@ -184,13 +160,12 @@ export const TodoList: React.FC<Props> = ({
                   id={todo.id.toString()}
                   checked={todo.completed}
                   onChange={() => {
-                    return changeTodo(
+                    changeTodo(
                       todo.id,
                       todo.title,
                       !todo.completed,
                     );
                   }}
-
                 />
               </label>
               {editTodo === todo.id
@@ -198,10 +173,15 @@ export const TodoList: React.FC<Props> = ({
                   <form
                     onSubmit={(event) => {
                       event.preventDefault();
-
-                      // console.log('submit');
-
-                      submitInput(todo);
+                      if (inputValue === todo.title) {
+                        setEditTodo(-1);
+                      } else {
+                        changeTodo(
+                          todo.id,
+                          inputValue.trim(),
+                          todo.completed,
+                        );
+                      }
                     }}
                   >
                     <input
@@ -215,14 +195,24 @@ export const TodoList: React.FC<Props> = ({
                       }}
                       ref={inputRef}
                       onBlur={() => {
-                        // setIsEditing(false);
-                        submitInput(todo);
+                        if (inputValue === todo.title) {
+                          setEditTodo(-1);
+                        }
+
+                        if (inputValue.trim().length === 0) {
+                          deleteTodo(todo.id);
+                        } else {
+                          changeTodo(
+                            todo.id,
+                            inputValue.trim(),
+                            todo.completed,
+                          );
+                        }
                       }}
                       onKeyUp={(event) => {
                         event.preventDefault();
 
                         if (event.key === 'Escape' || event.key === 'Esc') {
-                          // setIsEditing(false);
                           setEditTodo(-1);
                         }
                       }}

@@ -30,6 +30,16 @@ export const App: React.FC = () => {
 
   const inputRef = useRef<HTMLInputElement | null>(null);
 
+  let timeoutId: ReturnType<typeof setTimeout>;
+
+  const Error = (error: ErrorType) => {
+    setError(error);
+
+    timeoutId = setTimeout(() => {
+      setError('');
+    }, 3000);
+  };
+
   const getTodos = () => {
     return client.get<Todo[]>(`/todos?userId=${USER_ID}`);
   };
@@ -44,7 +54,7 @@ export const App: React.FC = () => {
     completed: boolean,
   ) => {
     return client.patch(
-      `/todoss/${todoId}`,
+      `/todos/${todoId}`,
       {
         title,
         completed,
@@ -60,23 +70,19 @@ export const App: React.FC = () => {
     });
   };
 
-  let timeoutId: ReturnType<typeof setTimeout>;
+  const addTodo = async (value: string) => {
+    setTempTodo({
+      id: 0,
+      userId: USER_ID,
+      title: value,
+      completed: false,
+    });
+    setError('');
 
-  const addTodo = async () => {
     try {
-      setTempTodo({
-        id: 0,
-        userId: USER_ID,
-        title: inputValue,
-        completed: false,
-      });
-      setError('');
-
-      const trimedTitle = inputValue.trim();
-
       const newTodo = await createTodo({
         userId: USER_ID,
-        title: trimedTitle,
+        title: value,
         completed: false,
       });
 
@@ -84,15 +90,11 @@ export const App: React.FC = () => {
         return ([...currrentTodos, newTodo]);
       });
 
-      setTempTodo(null);
       setInputValue('');
     } catch (error) {
-      setTempTodo(null);
-      setError(ErrorType.Add);
-      timeoutId = setTimeout(() => {
-        setError('');
-      }, 3000);
+      Error(ErrorType.Add);
     } finally {
+      setTempTodo(null);
       setShouldFocus(true);
     }
   };
@@ -108,10 +110,7 @@ export const App: React.FC = () => {
         return [...prev].filter(todo => todo.id !== todoId);
       });
     } catch {
-      setError(ErrorType.Delete);
-      timeoutId = setTimeout(() => {
-        setError('');
-      }, 3000);
+      Error(ErrorType.Delete);
     } finally {
       setActiveLoader([]);
     }
@@ -125,30 +124,40 @@ export const App: React.FC = () => {
     setActiveLoader(prev => {
       return [...prev, todoId];
     });
-    try {
-      await changeTodo(todoId, title, completed);
 
-      setTodos((prev) => {
-        return prev.map(currentTodo => {
-          if (currentTodo.id === todoId) {
-            return {
-              ...currentTodo,
-              title,
-              completed,
-            };
-          }
+    if (title.length === 0) {
+      deleteData(todoId);
+    } else {
+      try {
+        await changeTodo(todoId, title, completed);
 
-          return currentTodo;
+        setEditTodo(-1);
+
+        setTodos((prev) => {
+          return prev.map(currentTodo => {
+            if (currentTodo.id === todoId) {
+              return {
+                ...currentTodo,
+                title,
+                completed,
+              };
+            }
+
+            return currentTodo;
+          });
         });
-      });
-    } catch {
-      setError(ErrorType.Update);
-      timeoutId = setTimeout(() => {
-        setError('');
-      }, 3000);
-    } finally {
-      setActiveLoader([]);
-      setShouldFocus(false);
+      } catch {
+        Error(ErrorType.Update);
+
+        if (todos[editTodo].title !== title) {
+          setEditTodo(todoId);
+        }
+
+        setEditTodo(-1);
+      } finally {
+        setActiveLoader([]);
+        setShouldFocus(false);
+      }
     }
   };
 
@@ -157,11 +166,8 @@ export const App: React.FC = () => {
       const todosFromServer = await getTodos();
 
       setTodos(todosFromServer);
-    } catch (error) {
-      setError(ErrorType.Load);
-      timeoutId = setTimeout(() => {
-        setError('');
-      }, 3000);
+    } catch {
+      Error(ErrorType.Load);
     }
   };
 
@@ -218,17 +224,11 @@ export const App: React.FC = () => {
           <form
             onSubmit={(event) => {
               event.preventDefault();
+              const value = inputValue.trim();
 
-              if (inputValue.trim().length === 0) {
-                setError(ErrorType.Empty);
-                timeoutId = setTimeout(() => {
-                  setError('');
-                }, 3000);
-
-                return null;
-              }
-
-              return addTodo();
+              return value.length > 0
+                ? addTodo(value)
+                : Error(ErrorType.Empty);
             }}
           >
             <input
@@ -240,9 +240,6 @@ export const App: React.FC = () => {
               ref={inputRef}
               onChange={(event) => {
                 setInputValue(event.target.value);
-                // if (inputRef.current) {
-                //   inputRef.current.value = event.target.value;
-                // }
               }}
               disabled={!!tempTodo}
             />
