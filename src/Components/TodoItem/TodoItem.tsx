@@ -1,10 +1,4 @@
-import React, {
-  useCallback,
-  useContext,
-  useEffect,
-  useRef,
-  useState,
-} from 'react';
+import React, { useContext, useEffect, useRef, useState } from 'react';
 import cn from 'classnames';
 import { Todo } from '../../Types/Todo';
 import { TodosContext } from '../Store/Store';
@@ -22,7 +16,8 @@ export const TodoItem: React.FC<Props> = React.memo(({ todo }) => {
     setErrorMessage,
     addProcessing,
     removeProcessing,
-    focus,
+    deleteTodo,
+    updateTodo,
   } = useContext(TodosContext);
 
   const [isEditing, setIsEditing] = useState(false);
@@ -33,49 +28,19 @@ export const TodoItem: React.FC<Props> = React.memo(({ todo }) => {
     setEditTitle(e.target.value);
   };
 
-  const handleUpdateTodo = useCallback(
-    (updatedTodo: Todo) => {
-      setTodos(current =>
-        current.map(t => (t.id === updatedTodo.id ? updatedTodo : t)),
-      );
-    },
-    [setTodos],
-  );
-
-  const handleDeleteTodo = async () => {
-    setErrorMessage('');
-    addProcessing(todo.id);
-
-    try {
-      await client.delete(`/${todo.id}`);
-
-      setTodos(current => current.filter(t => t.id !== todo.id));
-    } catch {
-      setErrorMessage('Unable to delete a todo');
-    } finally {
-      removeProcessing(todo.id);
-      focus.current?.focus();
-    }
+  const handleDeleteTodo = () => {
+    deleteTodo(todo.id);
   };
 
-  const handleCheckbox = async () => {
-    addProcessing(todo.id);
-    setErrorMessage('');
-
-    try {
-      const updatedTodo = { ...todo, completed: !todo.completed };
-
-      await client.patch(`/${todo.id}`, { completed: !todo.completed });
-
-      handleUpdateTodo(updatedTodo);
-    } catch {
-      setErrorMessage('Unable to update a todo');
-    } finally {
-      removeProcessing(todo.id);
-    }
+  const handleCheckbox = () => {
+    updateTodo({ ...todo, completed: !todo.completed });
   };
 
   const applyEditing = async () => {
+    if (editTitle.trim() === todo.title) {
+      setIsEditing(false);
+    }
+
     if (editTitle.trim().length === 0) {
       handleDeleteTodo();
 
@@ -84,12 +49,16 @@ export const TodoItem: React.FC<Props> = React.memo(({ todo }) => {
 
     if (editTitle.trim() !== todo.title && editTitle.length !== 0) {
       addProcessing(todo.id);
-
       try {
         const updatedTodo = { ...todo, title: editTitle.trim() };
 
         await client.patch(`/${todo.id}`, { title: editTitle.trim() });
-        handleUpdateTodo(updatedTodo);
+        setTodos(current =>
+          current.map(upTodo =>
+            upTodo.id === updatedTodo.id ? updatedTodo : upTodo,
+          ),
+        );
+        setIsEditing(false);
       } catch {
         setErrorMessage('Unable to update a todo');
         removeProcessing(todo.id);
@@ -99,12 +68,10 @@ export const TodoItem: React.FC<Props> = React.memo(({ todo }) => {
         removeProcessing(todo.id);
       }
     }
-
-    setIsEditing(false);
   };
 
-  const handleEditSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleEditSubmit = (event: React.FormEvent) => {
+    event.preventDefault();
     applyEditing();
   };
 
@@ -116,7 +83,7 @@ export const TodoItem: React.FC<Props> = React.memo(({ todo }) => {
   };
 
   useEffect(() => {
-    if (isEditing || (isEditing && errorMessage)) {
+    if ((isEditing && errorMessage) || isEditing) {
       todoField.current?.focus();
     }
   }, [isEditing, errorMessage]);

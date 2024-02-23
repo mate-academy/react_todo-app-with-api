@@ -16,8 +16,7 @@ export const Header: React.FC<Props> = React.memo(() => {
     creating,
     setCreating,
     focus,
-    addProcessing,
-    removeProcessing,
+    updateTodo,
   } = useContext(TodosContext);
 
   const hasToggle = todos.length > 0;
@@ -70,32 +69,14 @@ export const Header: React.FC<Props> = React.memo(() => {
       });
   };
 
-  const handleToggleAll = async () => {
+  const handleToggleAll = () => {
     const todosToToggle = todos.filter(
       todo => todo.completed === !hasActiveTodos,
     );
 
-    todosToToggle.map(todo => addProcessing(todo.id));
-    setErrorMessage('');
-
-    try {
-      await Promise.all(
-        todosToToggle.map(todo =>
-          client.patch<Todo>(`/${todo.id}`, { completed: hasActiveTodos }),
-        ),
-      );
-
-      const updatedTodos = todos.map(todo => ({
-        ...todo,
-        completed: hasActiveTodos,
-      }));
-
-      setTodos(updatedTodos);
-    } catch {
-      setErrorMessage('Unable to updated a todo');
-    } finally {
-      todosToToggle.map(todo => removeProcessing(todo.id));
-    }
+    todosToToggle.forEach(todo =>
+      updateTodo({ ...todo, completed: hasActiveTodos }),
+    );
   };
 
   useEffect(() => {

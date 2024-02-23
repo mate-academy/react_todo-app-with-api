@@ -2,19 +2,9 @@ import React, { useContext, useMemo } from 'react';
 import cn from 'classnames';
 import { TodosContext } from '../Store/Store';
 import { FilterParams } from '../../Types/FilterParams';
-import { client } from '../../utils/fetchClient';
 
 export const Footer: React.FC = React.memo(() => {
-  const {
-    todos,
-    setTodos,
-    filter,
-    setFilter,
-    setErrorMessage,
-    addProcessing,
-    removeProcessing,
-    focus,
-  } = useContext(TodosContext);
+  const { todos, filter, setFilter, deleteTodo } = useContext(TodosContext);
 
   const itemsLeft = useMemo(() => {
     return todos.filter(todo => !todo.completed).length;
@@ -25,47 +15,9 @@ export const Footer: React.FC = React.memo(() => {
   }, [todos]);
 
   const handleClearCompleted = async () => {
-    setErrorMessage('');
     const completedTodos = todos.filter(todo => todo.completed);
 
-    completedTodos.map(todo => addProcessing(todo.id));
-    // completedTodos.forEach(async todo => {
-    //   try {
-    //     await client.delete(`/${todo.id}`);
-    //     setTodos(current => current.filter(upTodo => !upTodo.completed));
-    //     // setTodos(todos.filter(upTodo => !upTodo.completed));
-    //   } catch {
-    //     setErrorMessage('Unable to delete a todo');
-    //   } finally {
-    //     completedTodos.map(upTodo => removeProcessing(upTodo.id));
-    //     focus.current?.focus();
-    //   }
-    // });
-    try {
-      await Promise.all(
-        completedTodos.map(todo => client.delete(`/${todo.id}`)),
-      );
-
-      setTodos(todos.filter(todo => !todo.completed));
-    } catch {
-      setErrorMessage('Unable to delete a todo');
-    } finally {
-      completedTodos.map(todo => removeProcessing(todo.id));
-      focus.current?.focus();
-    }
-    // try {
-    //   await Promise.allSettled(
-    //     completedTodos.map(todo => client.delete(`/${todo.id}`)),
-    //   );
-
-    //   // setTodos(todos.filter(todo => !todo.completed));
-    //   setTodos(current => current.filter(upTodo => !upTodo.completed));
-    // } catch {
-    //   setErrorMessage('Unable to delete a todo');
-    // } finally {
-    //   completedTodos.map(todo => removeProcessing(todo.id));
-    //   focus.current?.focus();
-    // }
+    completedTodos.forEach(todo => deleteTodo(todo.id));
   };
 
   return (

@@ -1,6 +1,7 @@
 import React, {
   MutableRefObject,
   SetStateAction,
+  useCallback,
   useEffect,
   useMemo,
   useRef,
@@ -29,6 +30,9 @@ type TodosContextType = {
   addProcessing: (id: number) => void;
   removeProcessing: (idToRemove: number) => void;
   focus: MutableRefObject<HTMLInputElement | null>;
+  deleteTodo: (todoId: number) => void;
+  // updateTodo: (updatedTodo: Todo) => Promise<void>;
+  updateTodo: (updatedTodo: Todo) => void;
 };
 
 export const TodosContext = React.createContext<TodosContextType>({
@@ -46,6 +50,9 @@ export const TodosContext = React.createContext<TodosContextType>({
   addProcessing: () => {},
   removeProcessing: () => {},
   focus: null as unknown as React.MutableRefObject<HTMLInputElement | null>,
+  deleteTodo: () => {},
+  // updateTodo: () => Promise.resolve(),
+  updateTodo: () => {},
 });
 
 type Props = {
@@ -93,6 +100,39 @@ export const TodosProvider: React.FC<Props> = ({ children }) => {
     setIsProcessing(current => current.filter(id => id !== idToRemove));
   };
 
+  const deleteTodo = useCallback(async (todoId: number) => {
+    setErrorMessage('');
+    addProcessing(todoId);
+
+    return client
+      .delete(`/${todoId}`)
+      .then(() => {
+        setTodos(current => current.filter(todo => todo.id !== todoId));
+      })
+      .catch(() => setErrorMessage('Unable to delete a todo'))
+      .finally(() => {
+        removeProcessing(todoId);
+        focus.current?.focus();
+      });
+  }, []);
+
+  const updateTodo = useCallback(async (updatedTodo: Todo) => {
+    setErrorMessage('');
+    addProcessing(updatedTodo.id);
+
+    return client
+      .patch(`/${updatedTodo.id}`, updatedTodo)
+      .then(() => {
+        setTodos(current =>
+          current.map(todo =>
+            todo.id === updatedTodo.id ? updatedTodo : todo,
+          ),
+        );
+      })
+      .catch(() => setErrorMessage('Unable to update a todo'))
+      .finally(() => removeProcessing(updatedTodo.id));
+  }, []);
+
   const value = useMemo(
     () => ({
       todos,
@@ -109,8 +149,19 @@ export const TodosProvider: React.FC<Props> = ({ children }) => {
       addProcessing,
       removeProcessing,
       focus,
+      deleteTodo,
+      updateTodo,
     }),
-    [todos, errorMessage, filter, tempItem, creating, isProcessing],
+    [
+      todos,
+      errorMessage,
+      filter,
+      tempItem,
+      creating,
+      isProcessing,
+      deleteTodo,
+      updateTodo,
+    ],
   );
 
   return (
