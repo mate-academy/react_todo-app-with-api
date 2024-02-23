@@ -1,5 +1,12 @@
+/* eslint-disable @typescript-eslint/no-shadow */
 /* eslint-disable jsx-a11y/control-has-associated-label */
-import React, { useCallback, useContext, useEffect, useState } from 'react';
+import React, {
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useState,
+} from 'react';
 import cn from 'classnames';
 import { TodosContext, USERS_URL, USER_ID } from '../Store/Store';
 import { Todo } from '../../Types/Todo';
@@ -19,9 +26,13 @@ export const Header: React.FC<Props> = React.memo(() => {
     updateTodo,
   } = useContext(TodosContext);
 
-  const hasToggle = todos.length > 0;
-  const activeTodos = todos.filter(todo => !todo.completed);
-  const hasActiveTodos = activeTodos.length > 0;
+  const { hasToggle, activeTodos, hasActiveTodos } = useMemo(() => {
+    const hasToggle = todos.length > 0;
+    const activeTodos = todos.filter(todo => !todo.completed);
+    const hasActiveTodos = activeTodos.length > 0;
+
+    return { hasToggle, activeTodos, hasActiveTodos };
+  }, [todos]);
 
   const [title, setTitle] = useState('');
 
