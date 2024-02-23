@@ -1,26 +1,44 @@
-/* eslint-disable max-len */
+/* eslint-disable prettier/prettier */
 /* eslint-disable jsx-a11y/control-has-associated-label */
-import React from 'react';
-import { UserWarning } from './UserWarning';
-
-const USER_ID = 0;
+import React, { useContext } from 'react';
+import cn from 'classnames';
+import { Header } from './Components/Header/Header';
+import { Section } from './Components/Section/Section';
+import { TodosContext } from './Components/Store/Store';
+import { Footer } from './Components/Footer/Footer';
 
 export const App: React.FC = () => {
-  if (!USER_ID) {
-    return <UserWarning />;
-  }
+  const {
+    todos, errorMessage, setErrorMessage, creating,
+  } = useContext(TodosContext);
 
   return (
-    <section className="section container">
-      <p className="title is-4">
-        Copy all you need from the prev task:
-        <br />
-        <a href="https://github.com/mate-academy/react_todo-app-add-and-delete#react-todo-app-add-and-delete">
-          React Todo App - Add and Delete
-        </a>
-      </p>
+    <div className={cn('todoapp', { 'has-error': true })}>
+      <h1 className="todoapp__title">todos</h1>
 
-      <p className="subtitle">Styles are already copied</p>
-    </section>
+      <div className="todoapp__content">
+        <Header />
+        <Section />
+        {(todos.length > 0 || creating) && <Footer />}
+      </div>
+
+      <div
+        data-cy="ErrorNotification"
+        className={cn(
+          'notification is-danger is-light has-text-weight-normal',
+          { hidden: !errorMessage },
+        )}
+      >
+        <button
+          data-cy="HideErrorButton"
+          type="button"
+          className="delete"
+          onClick={() => setErrorMessage('')}
+          disabled={!errorMessage}
+          style={errorMessage ? { cursor: 'pointer' } : { cursor: 'default' }}
+        />
+        {errorMessage && <span>{errorMessage}</span>}
+      </div>
+    </div>
   );
 };
