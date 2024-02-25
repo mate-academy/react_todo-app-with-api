@@ -12,7 +12,7 @@ export const Footer: React.FC = () => {
     () => todos.filter(({ completed }) => completed).map(({ id }) => id),
     [todos],
   );
-  const hasActive = useMemo(
+  const activeTodosCount = useMemo(
     () =>
       todos.filter(({ completed }) => {
         return !completed;
