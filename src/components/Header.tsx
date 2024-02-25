@@ -2,7 +2,7 @@ import React, { useContext, useEffect, useRef, useState } from 'react';
 import classNames from 'classnames';
 import { TodoContext } from '../context/TodoContext';
 import { Error } from '../types/ErrorMessage';
-import * as TodoService from '../api/todos';
+import * as todoService from '../api/todos';
 import { USER_ID } from '../types/userId';
 
 export const Header: React.FC = () => {
@@ -14,9 +14,9 @@ export const Header: React.FC = () => {
     tempTodo,
     addTodo,
     updateTodo,
-    handleSetTempTodo,
-    handleSetErrorMessage,
-    handleSetUpdatingIds,
+    setTempTodo,
+    setErrorMessage,
+    SetUpdatingIds,
   } = useContext(TodoContext);
 
   const isNotAllComplete = todos.some(({ completed }) => !completed);
@@ -29,7 +29,7 @@ export const Header: React.FC = () => {
 
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    handleSetErrorMessage(Error.none);
+    setErrorMessage(Error.none);
 
     const newTodo = {
       title: newTitle.trim(),
@@ -38,37 +38,39 @@ export const Header: React.FC = () => {
     };
 
     if (!newTitle.trim()) {
-      handleSetErrorMessage(Error.emptyTitle);
+      setErrorMessage(Error.emptyTitle);
 
       return;
     }
 
     setDisableInput(true);
 
-    handleSetTempTodo({ ...newTodo, id: 0 });
-    TodoService.addTodo(newTodo)
+    setTempTodo({ ...newTodo, id: 0 });
+    todoService
+      .addTodo(newTodo)
       .then(todo => {
         addTodo(todo);
         setNewTitle('');
       })
-      .catch(() => handleSetErrorMessage(Error.addTodo))
+      .catch(() => setErrorMessage(Error.addTodo))
       .finally(() => {
         setDisableInput(false);
-        handleSetTempTodo(null);
+        setTempTodo(null);
       });
   };
 
   const handleToggleAllTodos = () => {
-    handleSetErrorMessage(Error.none);
+    setErrorMessage(Error.none);
 
     todos.forEach(todo => {
       if (todo.completed !== isNotAllComplete) {
-        handleSetUpdatingIds(todo.id);
+        SetUpdatingIds(todo.id);
 
-        TodoService.updateTodo({ ...todo, completed: isNotAllComplete })
+        todoService
+          .updateTodo({ ...todo, completed: isNotAllComplete })
           .then(() => updateTodo({ ...todo, completed: isNotAllComplete }))
-          .catch(() => handleSetErrorMessage(Error.updateTodo))
-          .finally(() => handleSetUpdatingIds(null));
+          .catch(() => setErrorMessage(Error.updateTodo))
+          .finally(() => SetUpdatingIds(null));
       }
     });
   };

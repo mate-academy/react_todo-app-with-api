@@ -3,7 +3,7 @@ import classNames from 'classnames';
 import { TodoContext } from '../context/TodoContext';
 import { Todo } from '../types/Todo';
 import { Error } from '../types/ErrorMessage';
-import * as TodoService from '../api/todos';
+import * as todoService from '../api/todos';
 import { EditTodoForm } from './EditTodoForm';
 
 type Props = {
@@ -17,26 +17,28 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
     updatingIds,
     deleteTodo,
     updateTodo,
-    handleSetErrorMessage,
-    handleSetUpdatingIds,
+    setErrorMessage,
+    SetUpdatingIds,
   } = useContext(TodoContext);
 
   const handleDeleteTodo = (deleteId: number) => {
-    handleSetUpdatingIds(deleteId);
+    SetUpdatingIds(deleteId);
 
-    TodoService.deleteTodo(deleteId)
+    todoService
+      .deleteTodo(deleteId)
       .then(() => deleteTodo(deleteId))
-      .catch(() => handleSetErrorMessage(Error.deleteTodo))
-      .finally(() => handleSetUpdatingIds(null));
+      .catch(() => setErrorMessage(Error.deleteTodo))
+      .finally(() => SetUpdatingIds(null));
   };
 
   const handleToggleTodo = (updatedTodo: Omit<Todo, 'userId'>) => {
-    handleSetUpdatingIds(updatedTodo.id);
+    SetUpdatingIds(updatedTodo.id);
 
-    TodoService.updateTodo(updatedTodo)
+    todoService
+      .updateTodo(updatedTodo)
       .then(() => updateTodo(updatedTodo))
-      .catch(() => handleSetErrorMessage(Error.updateTodo))
-      .finally(() => handleSetUpdatingIds(null));
+      .catch(() => setErrorMessage(Error.updateTodo))
+      .finally(() => SetUpdatingIds(null));
   };
 
   const handleEditMode = (value: boolean) => {

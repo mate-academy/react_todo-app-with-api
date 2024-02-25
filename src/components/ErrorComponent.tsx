@@ -4,7 +4,7 @@ import { TodoContext } from '../context/TodoContext';
 import { Error } from '../types/ErrorMessage';
 
 export const ErrorComponent: React.FC = () => {
-  const { errorMessage, handleSetErrorMessage } = useContext(TodoContext);
+  const { errorMessage, setErrorMessage } = useContext(TodoContext);
 
   return (
     <div
@@ -22,7 +22,7 @@ export const ErrorComponent: React.FC = () => {
         type="button"
         className="delete"
         aria-label="delete"
-        onClick={() => handleSetErrorMessage(Error.none)}
+        onClick={() => setErrorMessage(Error.none)}
       />
       {errorMessage}
     </div>

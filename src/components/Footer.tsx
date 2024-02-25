@@ -2,17 +2,17 @@ import React, { useContext, useMemo } from 'react';
 import { TodoFilter } from './TodoFilter';
 import { TodoContext } from '../context/TodoContext';
 import { Error } from '../types/ErrorMessage';
-import * as TodoService from '../api/todos';
+import * as todoService from '../api/todos';
 
 export const Footer: React.FC = () => {
-  const { todos, deleteTodo, handleSetErrorMessage, handleSetUpdatingIds } =
+  const { todos, deleteTodo, setErrorMessage, SetUpdatingIds } =
     useContext(TodoContext);
 
   const completedIds: number[] = useMemo(
     () => todos.filter(({ completed }) => completed).map(({ id }) => id),
     [todos],
   );
-  const hasActive = useMemo(
+  const activeTodosCount = useMemo(
     () =>
       todos.filter(({ completed }) => {
         return !completed;
@@ -20,22 +20,23 @@ export const Footer: React.FC = () => {
     [todos],
   );
   const handleDeleteComplTodos = () => {
-    handleSetErrorMessage(Error.none);
+    setErrorMessage(Error.none);
 
     completedIds.forEach(id => {
-      handleSetUpdatingIds(id);
+      SetUpdatingIds(id);
 
-      TodoService.deleteTodo(id)
+      todoService
+        .deleteTodo(id)
         .then(() => deleteTodo(id))
-        .catch(() => handleSetErrorMessage(Error.deleteTodo))
-        .finally(() => handleSetUpdatingIds(null));
+        .catch(() => setErrorMessage(Error.deleteTodo))
+        .finally(() => SetUpdatingIds(null));
     });
   };
 
   return (
     <footer className="todoapp__footer" data-cy="Footer">
       <span className="todo-count" data-cy="TodosCounter">
-        {`${hasActive} items left`}
+        {`${activeTodosCount} items left`}
       </span>
 
       <TodoFilter />

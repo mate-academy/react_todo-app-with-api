@@ -4,12 +4,10 @@ import { Status } from '../types/Status';
 import { Error } from '../types/ErrorMessage';
 import { getTodos } from '../api/todos';
 import { wait } from '../utils/fetchClient';
-import { getFilteredTodos } from '../utils/getFilteredTodos';
 import { USER_ID } from '../types/userId';
 
 type ContextProps = {
   todos: Todo[];
-  filteredTodos: Todo[];
   filter: Status;
   tempTodo: Todo | null;
   errorMessage: Error | null;
@@ -17,15 +15,14 @@ type ContextProps = {
   addTodo: (newTodo: Todo) => void;
   deleteTodo: (todoId: number) => void;
   updateTodo: (todo: Omit<Todo, 'userId'>) => void;
-  handleSetTempTodo: (newTodo: Todo | null) => void;
-  handleSetErrorMessage: (newError: Error) => void;
-  handleSetUpdatingIds: (id: number | null) => void;
-  filterChange: (newStatus: Status) => void;
+  setTempTodo: (newTodo: Todo | null) => void;
+  setErrorMessage: (newError: Error) => void;
+  SetUpdatingIds: (id: number | null) => void;
+  setFilter: (newStatus: Status) => void;
 };
 
 export const TodoContext = React.createContext<ContextProps>({
   todos: [],
-  filteredTodos: [],
   filter: Status.all,
   tempTodo: null,
   errorMessage: Error.none,
@@ -33,10 +30,10 @@ export const TodoContext = React.createContext<ContextProps>({
   addTodo: () => {},
   deleteTodo: () => {},
   updateTodo: () => {},
-  handleSetTempTodo: () => {},
-  handleSetErrorMessage: () => {},
-  handleSetUpdatingIds: () => {},
-  filterChange: () => {},
+  setTempTodo: () => {},
+  setErrorMessage: () => {},
+  SetUpdatingIds: () => {},
+  setFilter: () => {},
 });
 
 type Props = {
@@ -48,7 +45,7 @@ export const GlobalProvider: React.FC<Props> = ({ children }) => {
   const [errorMessage, setErrorMessage] = useState<Error | null>(null);
   const [filter, setFilter] = useState(Status.all);
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
-  const [updatingIds, setUpdatingIds] = useState<number[]>([]);
+  const [updatingIds, setUpdatingIds] = useState<number[] | []>([]);
 
   useEffect(() => {
     getTodos(USER_ID)
@@ -63,8 +60,6 @@ export const GlobalProvider: React.FC<Props> = ({ children }) => {
   useEffect(() => {
     wait(3000).then(() => setErrorMessage(Error.none));
   }, [errorMessage]);
-
-  const filteredTodos = getFilteredTodos(todos, filter);
 
   const addTodo = useCallback(
     (newTodo: Todo) => {
@@ -97,15 +92,7 @@ export const GlobalProvider: React.FC<Props> = ({ children }) => {
     [setTodos],
   );
 
-  const handleSetTempTodo = (newTodo: Todo | null) => {
-    setTempTodo(newTodo);
-  };
-
-  const handleSetErrorMessage = (newError: Error) => {
-    setErrorMessage(newError);
-  };
-
-  const handleSetUpdatingIds = (id: number | null) => {
+  const SetUpdatingIds = (id: number | null) => {
     if (id) {
       setUpdatingIds(currentIds => [...currentIds, id]);
     } else {
@@ -113,13 +100,8 @@ export const GlobalProvider: React.FC<Props> = ({ children }) => {
     }
   };
 
-  const filterChange = (newFilter: Status) => {
-    setFilter(newFilter);
-  };
-
   const todosValue = {
     todos,
-    filteredTodos,
     filter,
     tempTodo,
     errorMessage,
@@ -127,10 +109,10 @@ export const GlobalProvider: React.FC<Props> = ({ children }) => {
     addTodo,
     deleteTodo,
     updateTodo,
-    handleSetErrorMessage,
-    handleSetTempTodo,
-    handleSetUpdatingIds,
-    filterChange,
+    setErrorMessage,
+    setTempTodo,
+    SetUpdatingIds,
+    setFilter,
   };
 
   return (

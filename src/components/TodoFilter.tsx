@@ -4,7 +4,7 @@ import { Status } from '../types/Status';
 import { TodoContext } from '../context/TodoContext';
 
 export const TodoFilter: React.FC = () => {
-  const { filter, filterChange } = useContext(TodoContext);
+  const { filter, setFilter } = useContext(TodoContext);
 
   return (
     <nav className="filter" data-cy="Filter">
@@ -14,7 +14,7 @@ export const TodoFilter: React.FC = () => {
           selected: filter === Status.all,
         })}
         data-cy="FilterLinkAll"
-        onClick={() => filterChange(Status.all)}
+        onClick={() => setFilter(Status.all)}
       >
         All
       </a>
@@ -25,7 +25,7 @@ export const TodoFilter: React.FC = () => {
           selected: filter === Status.active,
         })}
         data-cy="FilterLinkActive"
-        onClick={() => filterChange(Status.active)}
+        onClick={() => setFilter(Status.active)}
       >
         Active
       </a>
@@ -36,7 +36,7 @@ export const TodoFilter: React.FC = () => {
           selected: filter === Status.completed,
         })}
         data-cy="FilterLinkCompleted"
-        onClick={() => filterChange(Status.completed)}
+        onClick={() => setFilter(Status.completed)}
       >
         Completed
       </a>

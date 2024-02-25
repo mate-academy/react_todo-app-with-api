@@ -3,9 +3,12 @@ import { CSSTransition, TransitionGroup } from 'react-transition-group';
 import { TodoContext } from '../context/TodoContext';
 import { TodoItem } from './TodoItem';
 import { TempTodo } from './TempTodo';
+import { getFilteredTodos } from '../utils/getFilteredTodos';
 
 export const TodoList: React.FC = () => {
-  const { filteredTodos, tempTodo } = useContext(TodoContext);
+  const { todos, filter, tempTodo } = useContext(TodoContext);
+
+  const filteredTodos = getFilteredTodos(todos, filter);
 
   return (
     <section className="todoapp__main" data-cy="TodoList">

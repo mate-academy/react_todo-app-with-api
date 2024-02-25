@@ -3,7 +3,7 @@ import classNames from 'classnames';
 import { Todo } from '../types/Todo';
 import { TodoContext } from '../context/TodoContext';
 import { Error } from '../types/ErrorMessage';
-import * as TodoService from '../api/todos';
+import * as todoService from '../api/todos';
 
 type Props = {
   todo: Todo;
@@ -22,12 +22,8 @@ export const EditTodoForm: React.FC<Props> = ({ todo, onEdit }) => {
     }
   }, [isLoading]);
 
-  const {
-    deleteTodo,
-    updateTodo,
-    handleSetErrorMessage,
-    handleSetUpdatingIds,
-  } = useContext(TodoContext);
+  const { deleteTodo, updateTodo, setErrorMessage, SetUpdatingIds } =
+    useContext(TodoContext);
 
   const handlerKey = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Escape') {
@@ -36,7 +32,7 @@ export const EditTodoForm: React.FC<Props> = ({ todo, onEdit }) => {
   };
 
   const handleTitleChange = () => {
-    handleSetErrorMessage(Error.none);
+    setErrorMessage(Error.none);
     setIsLoading(true);
 
     if (newTitle.trim() === title) {
@@ -44,30 +40,32 @@ export const EditTodoForm: React.FC<Props> = ({ todo, onEdit }) => {
     }
 
     if (!newTitle.trim()) {
-      handleSetUpdatingIds(id);
+      SetUpdatingIds(id);
 
-      TodoService.deleteTodo(id)
+      todoService
+        .deleteTodo(id)
         .then(() => {
           deleteTodo(id);
           onEdit(false);
         })
-        .catch(() => handleSetErrorMessage(Error.deleteTodo))
+        .catch(() => setErrorMessage(Error.deleteTodo))
         .finally(() => {
-          handleSetUpdatingIds(null);
+          SetUpdatingIds(null);
           setIsLoading(false);
         });
 
       return;
     }
 
-    TodoService.updateTodo({ id, title: newTitle.trim(), completed })
+    todoService
+      .updateTodo({ id, title: newTitle.trim(), completed })
       .then(() => {
         updateTodo({ id, title: newTitle.trim(), completed });
         onEdit(false);
       })
-      .catch(() => handleSetErrorMessage(Error.updateTodo))
+      .catch(() => setErrorMessage(Error.updateTodo))
       .finally(() => {
-        handleSetUpdatingIds(null);
+        SetUpdatingIds(null);
         setIsLoading(false);
       });
   };
