@@ -99,7 +99,6 @@ export const GlobalProvider: React.FC<Props> = ({ children }) => {
       setUpdatingIds([]);
     }
   };
-  
 
   const todosValue = {
     todos,
