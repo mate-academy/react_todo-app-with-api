@@ -15,7 +15,7 @@ export const TodoList: React.FC = () => {
       .catch(() => {
         notifyError('Unable to load todos');
       });
-  });
+  }, []); // eslint-disable-line
 
   const visibleTodos = filteredTodos(todos, filter);
 
