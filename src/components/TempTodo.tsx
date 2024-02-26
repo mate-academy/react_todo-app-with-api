@@ -11,7 +11,7 @@ export const TempTodo: React.FC = () => {
       </label>
 
       <span data-cy="TodoTitle" className="todo__title">
-        {tempTodo?.title}
+        {tempTodo && tempTodo.title}
       </span>
 
       <button type="button" className="todo__remove" data-cy="TodoDelete">

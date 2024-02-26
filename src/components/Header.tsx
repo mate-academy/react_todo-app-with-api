@@ -24,7 +24,9 @@ export const Header: React.FC = () => {
   const inputRef = useRef<HTMLInputElement | null>(null);
 
   useEffect(() => {
-    inputRef.current?.focus();
+    if (inputRef.current) {
+      inputRef.current.focus();
+    }
   }, [todos.length, tempTodo]);
 
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
