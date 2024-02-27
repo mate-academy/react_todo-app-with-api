@@ -1,4 +1,4 @@
-import { useState, useContext } from 'react';
+import { useState, useContext, useRef, useEffect } from 'react';
 import cn from 'classnames';
 import { Todo } from '../Types/Todo';
 import { DispatchContext, StateContext } from './TodosContext';
@@ -14,6 +14,13 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
   const isLoading = loading.isLoading && loading.todoIds.includes(todo.id);
   const [isEditing, setIsEditing] = useState(false);
   const [newTitle, setNewTitle] = useState(todo.title);
+  const titleField = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    if (isEditing && titleField.current) {
+      titleField.current.focus();
+    }
+  }, [isEditing]);
 
   const handlerDoubleClick = () => {
     setIsEditing(true);
@@ -159,6 +166,7 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
             onChange={handleTitleChange}
             onBlur={handleEditTitle}
             onKeyUp={handleKeyUp}
+            ref={titleField}
           />
         </form>
       ) : (
