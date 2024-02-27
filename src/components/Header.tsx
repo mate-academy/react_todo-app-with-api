@@ -21,7 +21,7 @@ export const Header = () => {
   const handleFormSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
-    if (!title) {
+    if (!title.trim()) {
       dispatch({
         type: 'errorMessage',
         payload: 'Title should not be empty',
@@ -36,6 +36,22 @@ export const Header = () => {
       userId: USER_ID,
       id: +Date.now(),
     };
+
+    dispatch({
+      type: 'setLoading',
+      payload: {
+        isLoading: true,
+        todoIds: [0],
+      },
+    });
+
+    dispatch({
+      type: 'addTempTodo',
+      payload: {
+        ...newTodo,
+        id: 0,
+      },
+    });
 
     createPost(newTodo)
       .then(() => {
@@ -54,12 +70,30 @@ export const Header = () => {
           type: 'errorMessage',
           payload: 'Unable to add a todo',
         });
+      })
+      .finally(() => {
+        dispatch({
+          type: 'setLoading',
+          payload: {
+            isLoading: false,
+          },
+        });
+        dispatch({
+          type: 'addTempTodo',
+          payload: null,
+        });
       });
   };
 
   const handleChooseAll = () => {
     todos.forEach(todo => {
-      const updatedTodo = { ...todo, completed: !todo.completed };
+      let updatedTodo = { ...todo };
+
+      if (!todo.completed) {
+        updatedTodo = { ...todo, completed: true };
+      } else {
+        updatedTodo = { ...todo, completed: false };
+      }
 
       dispatch({
         type: 'setLoading',

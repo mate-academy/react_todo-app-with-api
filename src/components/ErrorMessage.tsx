@@ -28,11 +28,7 @@ export const ErrorMessage: React.FC<Props> = ({ errorMessage }) => {
         className="delete"
         onClick={handleRemoveError}
       />
-      {/* show only one message at a time */}
       {errorMessage}
-      {/* Unable to load todos
-      <br />
-      Unable to update a todo */}
     </div>
   );
 };

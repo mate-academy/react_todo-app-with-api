@@ -58,6 +58,14 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
   const handleChangeTodoStatus = () => {
     const updatedTodo = { ...todo, completed: !todo.completed };
 
+    dispatch({
+      type: 'setLoading',
+      payload: {
+        isLoading: true,
+        todoIds: [todo.id],
+      },
+    });
+
     updateTodo(updatedTodo)
       .then(() => {
         dispatch({
@@ -74,6 +82,14 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
           type: 'errorMessage',
           payload: 'Unable to update a todo',
         });
+      })
+      .finally(() => {
+        dispatch({
+          type: 'setLoading',
+          payload: {
+            isLoading: false,
+          },
+        });
       });
   };
 
@@ -85,6 +101,7 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
     if (newTitle === '') {
       handleDeleteTodo(todo.id);
     } else {
+      setNewTitle(newTitle.trim());
       const updatedTodo = { ...todo, title: newTitle };
 
       updateTodo(updatedTodo)

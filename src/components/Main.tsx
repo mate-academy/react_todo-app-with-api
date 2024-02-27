@@ -4,7 +4,7 @@ import { Todo } from '../Types/Todo';
 import { StateContext } from './TodosContext';
 
 export const Main: React.FC = () => {
-  const { todos, filterBy } = useContext(StateContext);
+  const { todos, filterBy, tempTodo } = useContext(StateContext);
 
   function filterTodos() {
     switch (filterBy) {
@@ -30,6 +30,7 @@ export const Main: React.FC = () => {
       {filteredTodos.map((todo: Todo) => (
         <TodoItem key={todo.id} todo={todo} />
       ))}
+      {tempTodo && <TodoItem todo={tempTodo} />}
     </section>
   );
 };

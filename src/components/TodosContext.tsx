@@ -13,13 +13,15 @@ type Action =
   | { type: 'hasError'; payload: boolean }
   | { type: 'setLoading'; payload: { isLoading: boolean; todoIds?: number[] } }
   | { type: 'filterBy'; payload: Status }
-  | { type: 'changeTodo'; payload: Todo };
+  | { type: 'changeTodo'; payload: Todo }
+  | { type: 'addTempTodo'; payload: Todo | null };
 
 type State = {
   todos: Todo[];
   errorMessage?: string;
   loading: { isLoading: boolean; todoIds: number[] };
   filterBy: Status;
+  tempTodo: Todo | null;
 };
 
 const initialState = {
@@ -30,6 +32,7 @@ const initialState = {
     todoIds: [],
   },
   filterBy: Status.ALL,
+  tempTodo: null,
 };
 
 export const StateContext = createContext<State>(initialState);
@@ -102,6 +105,12 @@ const reducer = (state: State, action: Action) => {
         ),
       };
 
+    case 'addTempTodo':
+      return {
+        ...state,
+        tempTodo: action.payload,
+      };
+
     default:
       return state;
   }
@@ -115,9 +124,18 @@ export const GlobalStateProvider: React.FC<Props> = ({ children }) => {
   const [state, dispatch] = useReducer(reducer, initialState);
 
   useEffect(() => {
-    getTodos(USER_ID).then(response =>
-      dispatch({ type: 'loadTodos', payload: response }),
-    );
+    getTodos(USER_ID)
+      .then(response => dispatch({ type: 'loadTodos', payload: response }))
+      .catch(() => {
+        dispatch({
+          type: 'hasError',
+          payload: true,
+        });
+        dispatch({
+          type: 'errorMessage',
+          payload: 'Unable to load todos',
+        });
+      });
   }, []);
 
   return (
