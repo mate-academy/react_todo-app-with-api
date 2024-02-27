@@ -5,8 +5,9 @@ import { createPost, updateTodo } from '../api/todos';
 
 export const Header = () => {
   const { todos } = useContext(StateContext);
-  const [title, setTitle] = useState('');
   const dispatch = useContext(DispatchContext);
+
+  const [title, setTitle] = useState('');
   const USER_ID = 56;
 
   const completedTodos = todos.filter(todo => todo.completed);
@@ -30,13 +31,6 @@ export const Header = () => {
       return;
     }
 
-    const newTodo = {
-      title,
-      completed: false,
-      userId: USER_ID,
-      id: +Date.now(),
-    };
-
     dispatch({
       type: 'setLoading',
       payload: {
@@ -48,16 +42,22 @@ export const Header = () => {
     dispatch({
       type: 'addTempTodo',
       payload: {
-        ...newTodo,
+        title,
+        completed: false,
         id: 0,
+        userId: USER_ID,
       },
     });
 
-    createPost(newTodo)
-      .then(() => {
+    createPost({
+      title,
+      completed: false,
+      userId: USER_ID,
+    })
+      .then(response => {
         dispatch({
           type: 'addTodo',
-          payload: newTodo,
+          payload: response,
         });
         setTitle('');
       })
@@ -66,6 +66,7 @@ export const Header = () => {
           type: 'hasError',
           payload: true,
         });
+
         dispatch({
           type: 'errorMessage',
           payload: 'Unable to add a todo',
@@ -78,6 +79,7 @@ export const Header = () => {
             isLoading: false,
           },
         });
+
         dispatch({
           type: 'addTempTodo',
           payload: null,
@@ -109,6 +111,7 @@ export const Header = () => {
             type: 'hasError',
             payload: true,
           });
+
           dispatch({
             type: 'errorMessage',
             payload: 'Unable to update a todo',

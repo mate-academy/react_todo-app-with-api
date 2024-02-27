@@ -26,7 +26,6 @@ export const Main: React.FC = () => {
 
   return (
     <section className="todoapp__main" data-cy="TodoList">
-      {/* This is a completed todo */}
       {filteredTodos.map((todo: Todo) => (
         <TodoItem key={todo.id} todo={todo} />
       ))}
