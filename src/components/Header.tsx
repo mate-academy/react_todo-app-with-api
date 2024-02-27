@@ -1,0 +1,124 @@
+/* eslint-disable jsx-a11y/control-has-associated-label */
+import { useContext, useState } from 'react';
+import { DispatchContext, StateContext } from './TodosContext';
+import { createPost, updateTodo } from '../api/todos';
+
+export const Header = () => {
+  const { todos } = useContext(StateContext);
+  const [title, setTitle] = useState('');
+  const dispatch = useContext(DispatchContext);
+  const USER_ID = 56;
+
+  const completedTodos = todos.filter(todo => todo.completed);
+  const notCompletedTodos = todos.filter(todo => !todo.completed);
+  const isAllCompleted = todos.every(todo => todo.completed);
+  const toggleAllTodos = isAllCompleted ? completedTodos : notCompletedTodos;
+
+  const handleTitleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setTitle(e.target.value);
+  };
+
+  const handleFormSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+
+    if (!title) {
+      dispatch({
+        type: 'errorMessage',
+        payload: 'Title should not be empty',
+      });
+
+      return;
+    }
+
+    const newTodo = {
+      title,
+      completed: false,
+      userId: USER_ID,
+      id: +Date.now(),
+    };
+
+    createPost(newTodo)
+      .then(() => {
+        dispatch({
+          type: 'addTodo',
+          payload: newTodo,
+        });
+        setTitle('');
+      })
+      .catch(() => {
+        dispatch({
+          type: 'hasError',
+          payload: true,
+        });
+        dispatch({
+          type: 'errorMessage',
+          payload: 'Unable to add a todo',
+        });
+      });
+  };
+
+  const handleChooseAll = () => {
+    todos.forEach(todo => {
+      const updatedTodo = { ...todo, completed: !todo.completed };
+
+      dispatch({
+        type: 'setLoading',
+        payload: {
+          isLoading: true,
+          todoIds: toggleAllTodos.map(item => item.id),
+        },
+      });
+
+      updateTodo(updatedTodo)
+        .then(() => {
+          dispatch({
+            type: 'changeTodo',
+            payload: updatedTodo,
+          });
+        })
+        .catch(() => {
+          dispatch({
+            type: 'hasError',
+            payload: true,
+          });
+          dispatch({
+            type: 'errorMessage',
+            payload: 'Unable to update a todo',
+          });
+        })
+        .finally(() => {
+          dispatch({
+            type: 'setLoading',
+            payload: {
+              isLoading: false,
+            },
+          });
+        });
+    });
+  };
+
+  return (
+    <header className="todoapp__header">
+      {/* this button should have `active` class only if all todos are completed */}
+      <button
+        type="button"
+        className="todoapp__toggle-all active"
+        data-cy="ToggleAllButton"
+        onClick={handleChooseAll}
+      />
+
+      {/* Add a todo on form submit */}
+      <form onSubmit={handleFormSubmit}>
+        <input
+          data-cy="NewTodoField"
+          type="text"
+          className="todoapp__new-todo"
+          placeholder="What needs to be done?"
+          value={title}
+          onChange={handleTitleChange}
+          ref={input => input?.focus()}
+        />
+      </form>
+    </header>
+  );
+};
