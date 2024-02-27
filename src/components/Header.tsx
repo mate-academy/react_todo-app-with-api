@@ -87,13 +87,7 @@ export const Header = () => {
 
   const handleChooseAll = () => {
     todos.forEach(todo => {
-      let updatedTodo = { ...todo };
-
-      if (!todo.completed) {
-        updatedTodo = { ...todo, completed: true };
-      } else {
-        updatedTodo = { ...todo, completed: false };
-      }
+      const updatedTodo = { ...todo, completed: !isAllCompleted };
 
       dispatch({
         type: 'setLoading',
