@@ -2,9 +2,14 @@ import { CSSTransition, TransitionGroup } from 'react-transition-group';
 import { useContext } from 'react';
 import { TodoItem } from './TodoItem';
 import { TodosContext } from './TodosContext';
+import { Todo } from '../types/Todo';
 
-export const TodoList: React.FC = () => {
-  const { visibleTodos, tempTodo } = useContext(TodosContext);
+type Props = {
+  visibleTodos: Todo[];
+};
+
+export const TodoList: React.FC<Props> = ({ visibleTodos }) => {
+  const { tempTodo } = useContext(TodosContext);
 
   return (
     <section className="todoapp__main" data-cy="TodoList">
@@ -28,32 +33,7 @@ export const TodoList: React.FC = () => {
             timeout={300}
             classNames="temp-item"
           >
-            <div data-cy="Todo" className="todo">
-              <label className="todo__status-label">
-                <input
-                  data-cy="TodoStatus"
-                  type="checkbox"
-                  className="todo__status"
-                />
-              </label>
-              <span data-cy="TodoTitle" className="todo__title">
-                {tempTodo.title}
-              </span>
-              <button
-                type="button"
-                className="todo__remove"
-                data-cy="TodoDelete"
-              >
-                ×
-              </button>
-              <div
-                data-cy="TodoLoader"
-                className="modal overlay is-active"
-              >
-                <div className="modal-background has-background-white-ter" />
-                <div className="loader" />
-              </div>
-            </div>
+            <TodoItem todo={tempTodo} />
           </CSSTransition>
         )}
       </TransitionGroup>

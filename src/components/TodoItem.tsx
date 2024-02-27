@@ -93,9 +93,8 @@ export const TodoItem: React.FC<Props> = ({
     <div
       key={todo.id}
       data-cy="Todo"
-      className={cn({
-        'todo completed': todo.completed,
-        todo: !todo.completed,
+      className={cn('todo', {
+        completed: todo.completed,
       })}
       onDoubleClick={startEditing}
     >
@@ -110,22 +109,20 @@ export const TodoItem: React.FC<Props> = ({
       </label>
 
       {editMode ? (
-        <>
-          <form>
-            <input
-              data-cy="TodoTitleField"
-              type="text"
-              className="todo__title-field"
-              placeholder="Empty todo will be deleted"
-              value={editedTitle}
-              onChange={handleTitleEditing}
-              ref={inputRef}
-              onBlur={finishEditing}
-              onKeyDown={handleEnterPress}
-              onKeyUp={handleEscPress}
-            />
-          </form>
-        </>
+        <form>
+          <input
+            data-cy="TodoTitleField"
+            type="text"
+            className="todo__title-field"
+            placeholder="Empty todo will be deleted"
+            value={editedTitle}
+            onChange={handleTitleEditing}
+            ref={inputRef}
+            onBlur={finishEditing}
+            onKeyDown={handleEnterPress}
+            onKeyUp={handleEscPress}
+          />
+        </form>
       ) : (
         <>
           <span data-cy="TodoTitle" className="todo__title">

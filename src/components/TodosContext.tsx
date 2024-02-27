@@ -2,17 +2,12 @@ import React, {
   Dispatch,
   SetStateAction, useCallback, useMemo, useRef, useState,
 } from 'react';
-import { Status, Todo } from '../types/Todo';
+import { Todo } from '../types/Todo';
 import * as postService from '../api/todos';
 
 type TodosContextType = {
   todos: Todo[];
   setTodos: Dispatch<SetStateAction<Todo[]>>;
-  selectedStatus: Status;
-  setSelectedStatus: Dispatch<SetStateAction<Status>>;
-  title: string,
-  setTitle: Dispatch<SetStateAction<string>>,
-  visibleTodos: Todo[],
   loadingTodos: boolean,
   setLoadingTodos: Dispatch<SetStateAction<boolean>>,
   errorMessage: string,
@@ -39,11 +34,6 @@ type TodosContextType = {
 export const TodosContext = React.createContext<TodosContextType>({
   todos: [],
   setTodos: () => {},
-  selectedStatus: Status.all,
-  setSelectedStatus: () => {},
-  title: '',
-  setTitle: () => {},
-  visibleTodos: [],
   loadingTodos: false,
   setLoadingTodos: () => {},
   errorMessage: '',
@@ -73,9 +63,6 @@ type Props = {
 
 export const TodosProvider: React.FC<Props> = ({ children }) => {
   const [todos, setTodos] = useState<Todo[]>([]);
-  const [selectedStatus, setSelectedStatus] = useState(Status.all);
-  const [title, setTitle] = useState('');
-
   const [loadingTodos, setLoadingTodos] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
   const [errorHidden, setErrorHidden] = useState(true);
@@ -84,19 +71,6 @@ export const TodosProvider: React.FC<Props> = ({ children }) => {
   const [selectedTodo, setSelectedTodo] = useState<Todo | null>(null);
   const [deleteLoading, setDeleteLoading] = useState(false);
   const [toggleAllLoading, setToggleAllLoading] = useState(false);
-
-  const visibleTodos = [...todos].filter(todo => {
-    switch (selectedStatus) {
-      case Status.active:
-        return !todo.completed;
-
-      case Status.completed:
-        return todo.completed;
-
-      default:
-        return true;
-    }
-  });
 
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -161,11 +135,6 @@ export const TodosProvider: React.FC<Props> = ({ children }) => {
   const values = useMemo(() => ({
     todos,
     setTodos,
-    selectedStatus,
-    setSelectedStatus,
-    title,
-    setTitle,
-    visibleTodos,
     loadingTodos,
     setLoadingTodos,
     errorMessage,
@@ -188,13 +157,11 @@ export const TodosProvider: React.FC<Props> = ({ children }) => {
     inputRef,
     focusInput,
   }), [
-    todos, setTodos, selectedStatus, title, visibleTodos,
-    loadingTodos, setLoadingTodos, errorMessage, setErrorMessage,
-    errorHidden, setErrorHidden, tempTodo, setTempTodo, loading,
-    setLoading, selectedTodo, setSelectedTodo, deleteTodo, updateTodo,
-    completedTodoIds, deleteLoading,
-    setDeleteLoading, toggleAllLoading, setToggleAllLoading, inputRef,
-    focusInput,
+    todos, setTodos, loadingTodos, setLoadingTodos, errorMessage,
+    setErrorMessage, errorHidden, setErrorHidden, tempTodo, setTempTodo,
+    loading, setLoading, selectedTodo, setSelectedTodo, deleteTodo, updateTodo,
+    completedTodoIds, deleteLoading, setDeleteLoading, toggleAllLoading,
+    setToggleAllLoading, inputRef, focusInput,
   ]);
 
   return (

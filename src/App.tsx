@@ -4,10 +4,11 @@ import React, {
   useCallback,
   useContext,
   useEffect,
+  useState,
 } from 'react';
 import { UserWarning } from './UserWarning';
 import * as postService from './api/todos';
-import { Todo } from './types/Todo';
+import { Status, Todo } from './types/Todo';
 import { TodoList } from './components/TodoList';
 import { TodoFilter } from './components/TodoFilter';
 import { TodosContext } from './components/TodosContext';
@@ -16,10 +17,26 @@ const USER_ID = 77;
 
 export const App: React.FC = () => {
   const {
-    todos, setTodos, title, setTitle, loadingTodos, setLoadingTodos,
+    todos, setTodos, loadingTodos, setLoadingTodos,
     errorMessage, setErrorMessage, errorHidden, setErrorHidden, tempTodo, setTempTodo,
     completedTodoIds, setDeleteLoading, setSelectedTodo, setToggleAllLoading, inputRef, focusInput,
   } = useContext(TodosContext);
+
+  const [selectedStatus, setSelectedStatus] = useState(Status.all);
+  const [title, setTitle] = useState('');
+
+  const visibleTodos = todos.filter(todo => {
+    switch (selectedStatus) {
+      case Status.active:
+        return !todo.completed;
+
+      case Status.completed:
+        return todo.completed;
+
+      default:
+        return true;
+    }
+  });
 
   // #region error handling
   const handleErrorHiding = useCallback(() => {
@@ -211,7 +228,7 @@ export const App: React.FC = () => {
           !loadingTodos
           && !!todos.length
           && (
-            <TodoList />
+            <TodoList visibleTodos={visibleTodos} />
           )
         }
         {!!todos.length && (
@@ -220,7 +237,10 @@ export const App: React.FC = () => {
               {`${activeTodos.length} items left`}
             </span>
 
-            <TodoFilter />
+            <TodoFilter
+              selectedStatus={selectedStatus}
+              setSelectedStatus={setSelectedStatus}
+            />
 
             <button
               type="button"
