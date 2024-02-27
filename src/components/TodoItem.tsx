@@ -123,6 +123,7 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
             type: 'hasError',
             payload: true,
           });
+
           dispatch({
             type: 'errorMessage',
             payload: 'Unable to update a todo',
@@ -133,14 +134,15 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
     setIsEditing(false);
   };
 
-  const handleKeyUp = (event: React.KeyboardEvent<HTMLInputElement>) => {
+  const handleKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
+    if (event.key === 'Enter') {
+      event.preventDefault();
+      handleEditTitle();
+    }
+
     if (event.key === 'Escape') {
       setNewTitle(todo.title);
       setIsEditing(false);
-    }
-
-    if (event.key === 'Enter') {
-      handleEditTitle();
     }
   };
 
@@ -169,8 +171,8 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
             placeholder="Empty todo will be deleted"
             value={newTitle}
             onChange={handleTitleChange}
+            onKeyDown={handleKeyDown}
             onBlur={handleEditTitle}
-            onKeyUp={handleKeyUp}
             ref={titleField}
           />
         </form>
