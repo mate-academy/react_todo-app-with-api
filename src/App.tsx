@@ -50,7 +50,6 @@ export const App: React.FC = () => {
   const activeTodos = todos.filter(todo => !todo.completed);
   const completedTodos = todos.filter(todo => todo.completed);
   const canToggleAll = todos.length > 0;
-  // const allTodosCompleted = todos.every((todo) => todo.completed);
 
   const handleToggleAllClick = () => {
     setSelectedTodo(null);
@@ -61,7 +60,7 @@ export const App: React.FC = () => {
     if (canToggleAll) {
       const hasIncompleteTodos = todos.some(todo => !todo.completed);
       const hasCompletedTodos = todos.some(todo => todo.completed);
-      const newStatus = hasIncompleteTodos; // true or false
+      const newStatus = hasIncompleteTodos;
       let todoUpdates = null;
 
       if (hasIncompleteTodos && hasCompletedTodos) {

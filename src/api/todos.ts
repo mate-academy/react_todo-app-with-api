@@ -33,4 +33,3 @@ export const editTodos = (todoUpdates: {
 
   return Promise.all(editPromise);
 };
-// Add more methods here

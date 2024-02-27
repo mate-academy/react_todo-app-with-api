@@ -107,6 +107,8 @@ export const TodosProvider: React.FC<Props> = ({ children }) => {
   }, []);
 
   const deleteTodo = useCallback((todoId: number) => {
+    setErrorHidden(true);
+    setErrorMessage('');
     setLoading(true);
     setTodos(currentTodos => currentTodos.filter(todo => todo.id !== todoId));
 

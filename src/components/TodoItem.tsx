@@ -2,7 +2,6 @@ import cn from 'classnames';
 import {
   useContext, useEffect, useRef, useState,
 } from 'react';
-// import { CSSTransition } from 'react-transition-group';
 import { Todo } from '../types/Todo';
 import { TodosContext } from './TodosContext';
 
