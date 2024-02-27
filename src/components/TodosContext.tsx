@@ -125,7 +125,9 @@ export const GlobalStateProvider: React.FC<Props> = ({ children }) => {
 
   useEffect(() => {
     getTodos(USER_ID)
-      .then(response => dispatch({ type: 'loadTodos', payload: response }))
+      .then(response =>
+        dispatch({ type: 'loadTodos', payload: response as Todo[] }),
+      )
       .catch(() => {
         dispatch({
           type: 'hasError',
