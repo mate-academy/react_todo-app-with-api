@@ -147,3 +147,23 @@
   transform: translateY(0);
   overflow: hidden;
 }
+
+.edit {
+  word-break: break-all;
+  transition: color 0.4s;
+  width: 100%;
+  padding: 11px 14px;
+  font-size: inherit;
+  line-height: inherit;
+  font-family: inherit;
+  font-weight: inherit;
+  color: inherit;
+  border: 1px solid #999;
+  box-shadow: inset 0 -1px 5px 0 rgba(0, 0, 0, 0.2);
+
+  &::placeholder {
+    font-style: italic;
+    font-weight: 300;
+    color: #e6e6e6;
+  }
+}
