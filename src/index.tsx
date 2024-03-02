@@ -13,4 +13,4 @@ const Root = () => (
   </AuthProvider>
 );
 
-createRoot(document.getElementById('root') as HTMLDivElement).render(<App />);
+createRoot(document.getElementById('root') as HTMLDivElement).render(<Root />);

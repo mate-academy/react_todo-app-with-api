@@ -15,9 +15,5 @@ export const AuthProvider: React.FC<Props> = ({ children }) => {
     return <AuthForm onLogin={setUser} />;
   }
 
-  return (
-    <AuthContext.Provider value={user}>
-      {children}
-    </AuthContext.Provider>
-  );
+  return <AuthContext.Provider value={user}>{children}</AuthContext.Provider>;
 };

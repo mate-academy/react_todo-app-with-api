@@ -4,9 +4,7 @@
 /* eslint-disable jsx-a11y/label-has-associated-control */
 import classNames from 'classnames';
 import { CSSTransition, TransitionGroup } from 'react-transition-group';
-import React, {
-  useContext, useEffect, useRef, useState,
-} from 'react';
+import React, { useContext, useEffect, useRef, useState } from 'react';
 import * as todoAPI from './api/todos';
 import { AuthContext } from './components/Auth/AuthContext';
 import { TodoItem } from './components/TodoItem';
@@ -54,7 +52,8 @@ export const App: React.FC = () => {
 
     showError('');
 
-    todoAPI.getTodos(user.id)
+    todoAPI
+      .getTodos(user.id)
       .then(setTodos)
       .catch(() => showError('Unable to load todos'));
   }, [user?.id]);
@@ -84,11 +83,12 @@ export const App: React.FC = () => {
     showError('');
     setCreating(true);
 
-    todoAPI.addTodo({
-      title: title.trim(),
-      completed: false,
-      userId: user.id,
-    })
+    todoAPI
+      .addTodo({
+        title: title.trim(),
+        completed: false,
+        userId: user.id,
+      })
       .then(createdTodo => {
         setTodos(current => [...current, createdTodo]);
         setTitle('');
@@ -101,7 +101,8 @@ export const App: React.FC = () => {
     addProcessing(todoId);
     showError('');
 
-    return todoAPI.deleteTodo(todoId)
+    return todoAPI
+      .deleteTodo(todoId)
       .then(() => {
         setTodos(current => current.filter(todo => todo.id !== todoId));
       })
@@ -119,11 +120,14 @@ export const App: React.FC = () => {
     addProcessing(updatedTodo.id);
     showError('');
 
-    return todoAPI.updateTodo(updatedTodo)
+    return todoAPI
+      .updateTodo(updatedTodo)
       .then(() => {
-        setTodos(current => current.map(
-          todo => (todo.id === updatedTodo.id ? updatedTodo : todo),
-        ));
+        setTodos(current =>
+          current.map(todo =>
+            todo.id === updatedTodo.id ? updatedTodo : todo,
+          ),
+        );
       })
       .catch(error => {
         showError('Unable to update a todo');
@@ -192,11 +196,7 @@ export const App: React.FC = () => {
         <section className="todoapp__main" data-cy="TodoList">
           <TransitionGroup>
             {visibleTodos.map(todo => (
-              <CSSTransition
-                key={todo.id}
-                timeout={300}
-                classNames="item"
-              >
+              <CSSTransition key={todo.id} timeout={300} classNames="item">
                 <TodoItem
                   todo={todo}
                   isProcessed={processings.includes(todo.id)}
@@ -207,11 +207,7 @@ export const App: React.FC = () => {
             ))}
 
             {creating && (
-              <CSSTransition
-                key={0}
-                timeout={300}
-                classNames="temp-item"
-              >
+              <CSSTransition key={0} timeout={300} classNames="temp-item">
                 <TodoItem
                   todo={{
                     id: Math.random(),
@@ -237,7 +233,9 @@ export const App: React.FC = () => {
                 data-cy="FilterLinkAll"
                 href="#/"
                 onClick={() => setType('all')}
-                className={classNames('filter__link', { selected: type === 'all' })}
+                className={classNames('filter__link', {
+                  selected: type === 'all',
+                })}
               >
                 All
               </a>
@@ -246,7 +244,9 @@ export const App: React.FC = () => {
                 data-cy="FilterLinkActive"
                 href="#/active"
                 onClick={() => setType('active')}
-                className={classNames('filter__link', { selected: type === 'active' })}
+                className={classNames('filter__link', {
+                  selected: type === 'active',
+                })}
               >
                 Active
               </a>
@@ -255,7 +255,9 @@ export const App: React.FC = () => {
                 data-cy="FilterLinkCompleted"
                 href="#/completed"
                 onClick={() => setType('completed')}
-                className={classNames('filter__link', { selected: type === 'completed' })}
+                className={classNames('filter__link', {
+                  selected: type === 'completed',
+                })}
               >
                 Completed
               </a>
@@ -276,9 +278,12 @@ export const App: React.FC = () => {
 
       <div
         data-cy="ErrorNotification"
-        className={classNames('notification is-danger is-light has-text-weight-normal', {
-          hidden: !errorMessage,
-        })}
+        className={classNames(
+          'notification is-danger is-light has-text-weight-normal',
+          {
+            hidden: !errorMessage,
+          },
+        )}
       >
         <button
           data-cy="HideErrorButton"

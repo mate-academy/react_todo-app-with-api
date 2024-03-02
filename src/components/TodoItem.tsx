@@ -4,7 +4,7 @@ import { Todo } from '../types/Todo';
 
 export type Props = {
   todo: Todo;
-  isProcessed: boolean,
+  isProcessed: boolean;
   onUpdate?: (todo: Todo) => Promise<void>;
   onDelete?: () => Promise<void>;
 };
@@ -66,8 +66,7 @@ export const TodoItem: React.FC<Props> = ({
           className="todo__status"
           checked={todo.completed}
           onChange={() => {
-            onUpdate({ ...todo, completed: !todo.completed })
-              .catch(() => {});
+            onUpdate({ ...todo, completed: !todo.completed }).catch(() => {});
           }}
         />
       </label>
