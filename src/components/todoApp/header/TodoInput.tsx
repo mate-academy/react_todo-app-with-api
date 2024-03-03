@@ -91,6 +91,8 @@ export const TodoInput: React.FC = () => {
     };
 
     setDisabledInput(true);
+    dispatch({ type: 'setTempTodo', payload: todo });
+
     addTodo(todo)
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       .then((response: any) => {
@@ -117,7 +119,6 @@ export const TodoInput: React.FC = () => {
           dispatch({ type: 'setError', payload: null });
         }, 3000);
       });
-    dispatch({ type: 'setTempTodo', payload: todo });
   };
 
   return (
