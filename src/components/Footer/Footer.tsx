@@ -1,21 +1,13 @@
-import React, { useMemo } from 'react';
+import React, { useContext, useMemo } from 'react';
 import classNames from 'classnames';
-import { Todo } from '../../types/Todo';
 import { TypeOfFiltering } from '../../types/TypeOfFiltering';
+import { TodoContext } from '../../contexts/TodoContext';
 
-type Props = {
-  todos: Todo[],
-  setFilterType: (x: TypeOfFiltering) => void,
-  filterType: TypeOfFiltering,
-  onDelete: (id: number) => void,
-};
+export const Footer: React.FC = () => {
+  const {
+    todos, deleteData, filterType, setFilterType,
+  } = useContext(TodoContext);
 
-export const Footer: React.FC<Props> = ({
-  todos,
-  setFilterType: setTypeOfFiltering,
-  filterType: typeOfFiltering,
-  onDelete: deleteTodos,
-}) => {
   const notCompletedTodosCount = useMemo(() => {
     return todos.filter(todo => !todo.completed).length;
   }, [todos]);
@@ -41,11 +33,11 @@ export const Footer: React.FC<Props> = ({
           className={
             classNames(
               'filter__link',
-              { selected: typeOfFiltering === TypeOfFiltering.All },
+              { selected: filterType === TypeOfFiltering.All },
             )
           }
           onClick={() => {
-            setTypeOfFiltering(TypeOfFiltering.All);
+            setFilterType(TypeOfFiltering.All);
           }}
         >
           {TypeOfFiltering.All}
@@ -58,11 +50,11 @@ export const Footer: React.FC<Props> = ({
             classNames(
               'filter__link',
               {
-                selected: typeOfFiltering === TypeOfFiltering.Active,
+                selected: filterType === TypeOfFiltering.Active,
               },
             )
           }
-          onClick={() => setTypeOfFiltering(TypeOfFiltering.Active)}
+          onClick={() => setFilterType(TypeOfFiltering.Active)}
         >
           {TypeOfFiltering.Active}
         </a>
@@ -73,10 +65,10 @@ export const Footer: React.FC<Props> = ({
           className={
             classNames(
               'filter__link',
-              { selected: typeOfFiltering === TypeOfFiltering.Comleted },
+              { selected: filterType === TypeOfFiltering.Comleted },
             )
           }
-          onClick={() => setTypeOfFiltering(TypeOfFiltering.Comleted)}
+          onClick={() => setFilterType(TypeOfFiltering.Comleted)}
         >
           {TypeOfFiltering.Comleted}
         </a>
@@ -88,7 +80,7 @@ export const Footer: React.FC<Props> = ({
         className="todoapp__clear-completed"
         disabled={isDisabled}
         onClick={() => {
-          return completedTodos.forEach(todo => deleteTodos(todo.id));
+          return completedTodos.forEach(todo => deleteData(todo.id));
         }}
       >
         Clear completed

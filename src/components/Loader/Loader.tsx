@@ -3,12 +3,11 @@ import classNames from 'classnames';
 import { Todo } from '../../types/Todo';
 
 type Props = {
-  todo?: Todo,
+  todo: Todo,
   activeLoader?: number[],
-  tempTodo?: Todo | null,
 };
 
-export const Loader: React.FC<Props> = ({ todo, activeLoader, tempTodo }) => {
+export const Loader: React.FC<Props> = ({ todo, activeLoader }) => {
   return (
     <div
       data-cy="TodoLoader"
@@ -17,7 +16,8 @@ export const Loader: React.FC<Props> = ({ todo, activeLoader, tempTodo }) => {
           'modal',
           'overlay',
           {
-            'is-active': activeLoader?.find(id => id === todo?.id) || tempTodo,
+            'is-active': activeLoader?.find(id => id === todo?.id)
+              || todo.id === 0,
           },
         )
       }
