@@ -2,7 +2,6 @@
 /* eslint-disable jsx-a11y/control-has-associated-label */
 import React, { useEffect, useMemo, useState } from 'react';
 import { UserWarning } from './UserWarning';
-import { client } from './utils/fetchClient';
 import { Todo } from './types/Todo';
 import { ErrorMessage } from './components/ErrorMessage';
 import { Footer } from './components/Footer';
@@ -11,6 +10,7 @@ import { TodoError } from './types/enums/TodoError';
 import { TodoFilter } from './types/enums/TodosFilter';
 import { TodoHeader } from './components/TodoHeader/TodoHeader';
 import { TodosContext } from './utils/context';
+import { getTodosFromServer } from './api/todos';
 
 const USER_ID = '41';
 
@@ -34,8 +34,10 @@ export const App: React.FC = () => {
     switch (currentFilter) {
       case TodoFilter.Active:
         return todos.filter(todo => !todo.completed);
+
       case TodoFilter.Completed:
         return todos.filter(todo => todo.completed);
+
       default:
         return todos;
     }
@@ -46,8 +48,7 @@ export const App: React.FC = () => {
   };
 
   useEffect(() => {
-    client
-      .get(`/todos?userId=${USER_ID}`)
+    getTodosFromServer(+USER_ID)
       .then(todosFromServer => {
         setTodos(todosFromServer as Todo[]);
       })
@@ -88,11 +89,7 @@ export const App: React.FC = () => {
             />
           )}
         </div>
-        <ErrorMessage
-          isErrorVisible={isErrorVisible}
-          errorMessage={errorMessage}
-          setIsErrorVisible={setIsErrorVisible}
-        />
+        <ErrorMessage/>
       </TodosContext.Provider>
     </div>
   );

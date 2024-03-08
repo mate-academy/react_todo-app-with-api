@@ -1,8 +1,8 @@
 import { useContext, useEffect, useRef, useState } from 'react';
 import { TodoError } from '../../types/enums/TodoError';
-import { client } from '../../utils/fetchClient';
 import { Todo } from '../../types/Todo';
 import { TodosContext } from '../../utils/context';
+import { editTodoOnServer, postNewTodoOnServer } from '../../api/todos';
 
 type Props = {
   setTempTodo: (a: Todo | null) => void;
@@ -54,8 +54,7 @@ export const TodoHeader: React.FC<Props> = ({ setTempTodo }) => {
     setIsWaiting(true);
     setTempTodo(newTodo);
 
-    client
-      .post('/todos', newTodo)
+    postNewTodoOnServer(newTodo)
       .then(createdTodo => {
         setTodos((pre: Todo[]) => [...pre, createdTodo as Todo]);
         setTodoInput('');
@@ -75,10 +74,9 @@ export const TodoHeader: React.FC<Props> = ({ setTempTodo }) => {
     if (todos.every(todo => todo.completed)) {
       setTodosIdsWithActiveLoader(todos.map(todo => todo.id));
       todos.forEach(todo => {
-        client
-          .patch(`/todos/${todo.id}`, {
-            completed: false,
-          })
+        editTodoOnServer(todo.id, {
+          completed: false,
+        })
           .catch(() => {
             setIsErrorVisible(true);
             setErrorMessage(TodoError.UnableToUpdate);
@@ -99,10 +97,9 @@ export const TodoHeader: React.FC<Props> = ({ setTempTodo }) => {
       setTodosIdsWithActiveLoader(notCompletedTodos.map(todo => todo.id));
 
       notCompletedTodos.forEach(todo => {
-        client
-          .patch(`/todos/${todo.id}`, {
-            completed: !todo.completed,
-          })
+        editTodoOnServer(todo.id, {
+          completed: !todo.completed,
+        })
           .catch(() => {
             setIsErrorVisible(true);
             setErrorMessage(TodoError.UnableToUpdate);

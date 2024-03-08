@@ -2,8 +2,8 @@ import classNames from 'classnames';
 import React, { useContext } from 'react';
 import { TodoFilter } from '../../types/enums/TodosFilter';
 import { TodosContext } from '../../utils/context';
-import { client } from '../../utils/fetchClient';
 import { TodoError } from '../../types/enums/TodoError';
+import { deleteTodoFromServer } from '../../api/todos';
 
 type Props = {
   filterChange: (filter: TodoFilter) => void;
@@ -20,14 +20,15 @@ export const Footer: React.FC<Props> = ({ filterChange, currentFilter }) => {
     setTodosIdsWithActiveLoader,
   } = useContext(TodosContext);
 
+  const isAnyTodoCompleted = () => todos.some(todo => todo.completed);
+
   const handledClearAllCompleted = () => {
     const allCompletedTodos = todos.filter(todo => todo.completed);
     const allCompletedTodosId = allCompletedTodos.map(todo => todo.id);
 
     setTodosIdsWithActiveLoader(allCompletedTodosId);
     allCompletedTodos.forEach(todo => {
-      client
-        .delete(`/todos/${todo.id}`)
+      deleteTodoFromServer(todo.id)
         .catch(() => {
           setIsErrorVisible(true);
           setErrorMessage(TodoError.UnableToDelete);
@@ -82,7 +83,7 @@ export const Footer: React.FC<Props> = ({ filterChange, currentFilter }) => {
         </a>
       </nav>
 
-      {todos.some(todo => todo.completed) && (
+      {isAnyTodoCompleted() && (
         <button
           type="button"
           className="todoapp__clear-completed"

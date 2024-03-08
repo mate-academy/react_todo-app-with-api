@@ -1,9 +1,9 @@
 import classNames from 'classnames';
 import { useContext, useState, useCallback, useRef, useEffect } from 'react';
 import { Todo } from '../../types/Todo';
-import { client } from '../../utils/fetchClient';
 import { TodosContext } from '../../utils/context';
 import { TodoError } from '../../types/enums/TodoError';
+import { deleteTodoFromServer, editTodoOnServer } from '../../api/todos';
 
 type Props = {
   todo: Todo;
@@ -24,18 +24,17 @@ export const TodoComponent: React.FC<Props> = ({ todo, isTempTodo }) => {
     setTodosIdsWithActiveLoader,
   } = useContext(TodosContext);
 
-  const inputRef = useRef(null);
+  const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    if (isEditing) {
+    if (isEditing && inputRef.current) {
       inputRef.current.focus();
     }
   }, [isEditing]);
 
   const deleteTodo = useCallback(() => {
     setTodosIdsWithActiveLoader(prevIds => [...prevIds, todo.id]);
-    client
-      .delete(`/todos/${todo.id}`)
+    deleteTodoFromServer(todo.id)
       .then(() => {
         setTodos(todos.filter(el => el.id !== todo.id));
       })
@@ -58,17 +57,16 @@ export const TodoComponent: React.FC<Props> = ({ todo, isTempTodo }) => {
   const editTodo = useCallback(
     (parameter: string, value: string | boolean) => {
       setTodosIdsWithActiveLoader((prevIds: number[]) => [...prevIds, id]);
-      client
-        .patch(`/todos/${id}`, {
-          [parameter]: value,
-        })
+      editTodoOnServer(id, {
+        [parameter]: value,
+      })
         .then((changedTodo: any) => {
           const preparedTodos = todos.map(item => {
             if (item.id === changedTodo.id) {
-              return { ...todo, [parameter]: changedTodo[parameter] };
+              return { ...item, [parameter]: changedTodo[parameter] };
             }
 
-            return todo;
+            return item;
           });
 
           setTodos(preparedTodos);

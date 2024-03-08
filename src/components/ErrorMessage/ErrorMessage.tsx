@@ -2,14 +2,10 @@ import classNames from 'classnames';
 import { useContext, useEffect } from 'react';
 import { TodosContext } from '../../utils/context';
 
-type Props = {
-  isErrorVisible: boolean;
-  errorMessage: string;
-  setIsErrorVisible: (a: boolean) => void;
-};
+export const ErrorMessage: React.FC = () => {
+  const { isErrorVisible, setIsErrorVisible, errorMessage } =
+    useContext(TodosContext);
 
-export const ErrorMessage: React.FC<Props> = ({ errorMessage }) => {
-  const { isErrorVisible, setIsErrorVisible } = useContext(TodosContext);
   const handleCloseErrorOnClick = () => {
     setIsErrorVisible(!isErrorVisible);
   };
@@ -27,7 +23,7 @@ export const ErrorMessage: React.FC<Props> = ({ errorMessage }) => {
       data-cy="ErrorNotification"
       className={classNames(
         'notification is-danger is-light has-text-weight-normal',
-        { hidden: isErrorVisible === false },
+        { hidden: !isErrorVisible },
       )}
     >
       <button
