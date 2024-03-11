@@ -7,10 +7,9 @@ interface Props {
   todo: Todo;
   todos: Todo[];
   setTodos: (value: React.SetStateAction<Todo[]>) => void;
-  isLoading: number[];
-  setIsLoading: React.Dispatch<React.SetStateAction<number[]>>;
+  loadingTodoIds: number[];
+  setLoadingTodoIds: React.Dispatch<React.SetStateAction<number[]>>;
   setError: (value: React.SetStateAction<string>) => void;
-  setIsErrorShown: React.Dispatch<React.SetStateAction<boolean>>;
   onTodoFocus: () => void;
 }
 
@@ -18,10 +17,9 @@ export const TodoItem: React.FC<Props> = ({
   todo,
   todos,
   setTodos,
-  isLoading,
-  setIsLoading,
+  loadingTodoIds,
+  setLoadingTodoIds,
   setError,
-  setIsErrorShown,
   onTodoFocus,
 }) => {
   const [editedInput, setEditedInput] = useState('');
@@ -29,7 +27,7 @@ export const TodoItem: React.FC<Props> = ({
   const currentEditField: RefObject<HTMLInputElement> = useRef(null);
 
   async function editData() {
-    setIsLoading([todo.id]);
+    setLoadingTodoIds([todo.id]);
     try {
       if (editedInput.trim()) {
         if (editedInput !== todo.title) {
@@ -57,7 +55,6 @@ export const TodoItem: React.FC<Props> = ({
           setTodos(todos.filter((t: Todo) => t.id !== todo.id));
         } catch {
           setError('Unable to delete a todo');
-          setIsErrorShown(true);
           setTodos(todos);
         }
       }
@@ -65,60 +62,49 @@ export const TodoItem: React.FC<Props> = ({
       setIsEdited(false);
     } catch {
       setError('Unable to update a todo');
-      setIsErrorShown(true);
       setTodos(todos);
     } finally {
-      setIsLoading([]);
+      setLoadingTodoIds([]);
     }
   }
 
-  const handleRemove = (todoId: number) => {
-    async function getDeleted() {
-      setIsLoading([todoId]);
+  const handleRemove = async (todoId: number) => {
+    setLoadingTodoIds([todoId]);
 
-      try {
-        await deleteTodo(todoId);
-        setTodos(todos.filter(t => t.id !== todoId));
-      } catch {
-        setTodos(todos);
-        setError('Unable to delete a todo');
-        setIsErrorShown(true);
-      } finally {
-        setIsLoading([]);
-      }
+    try {
+      await deleteTodo(todoId);
+      setTodos(todos.filter(t => t.id !== todoId));
+    } catch {
+      setTodos(todos);
+      setError('Unable to delete a todo');
+    } finally {
+      setLoadingTodoIds([]);
     }
-
-    getDeleted();
   };
 
-  const handleToggle = () => {
-    setIsLoading([todo.id]);
+  const handleToggle = async () => {
+    setLoadingTodoIds([todo.id]);
 
-    async function updatedTodos() {
-      try {
-        await patchTodos(todo.id, { ...todo, completed: !todo.completed });
-        setTodos(
-          todos.map((t: Todo) => {
-            if (t.id === todo.id) {
-              return {
-                ...t,
-                completed: !t.completed,
-              };
-            }
+    try {
+      await patchTodos(todo.id, { ...todo, completed: !todo.completed });
+      setTodos(
+        todos.map((t: Todo) => {
+          if (t.id === todo.id) {
+            return {
+              ...t,
+              completed: !t.completed,
+            };
+          }
 
-            return t;
-          }),
-        );
-      } catch {
-        setError('Unable to update a todo');
-        setIsErrorShown(true);
-        setTodos(todos);
-      } finally {
-        setIsLoading([]);
-      }
+          return t;
+        }),
+      );
+    } catch {
+      setError('Unable to update a todo');
+      setTodos(todos);
+    } finally {
+      setLoadingTodoIds([]);
     }
-
-    updatedTodos();
   };
 
   const handleIsEdited = () => {
@@ -171,11 +157,7 @@ export const TodoItem: React.FC<Props> = ({
       </label>
 
       {isEdited ? (
-        // eslint-disable-next-line
-        <form
-          onSubmit={handleEditSubmission}
-          onKeyDown={handleCloseEditField}
-        >
+        <form onSubmit={handleEditSubmission}>
           <input
             data-cy="TodoTitleField"
             type="text"
@@ -185,6 +167,7 @@ export const TodoItem: React.FC<Props> = ({
             onChange={handleInput}
             value={editedInput}
             onBlur={handleEditSubmission}
+            onKeyDown={handleCloseEditField}
           />
         </form>
       ) : (
@@ -207,7 +190,7 @@ export const TodoItem: React.FC<Props> = ({
       <div
         data-cy="TodoLoader"
         className={cn('modal overlay', {
-          'is-active': isLoading.includes(todo.id),
+          'is-active': loadingTodoIds.includes(todo.id),
         })}
       >
         <div className="modal-background has-background-white-ter" />

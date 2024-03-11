@@ -5,10 +5,9 @@ interface Props {
   todos: Todo[];
   setTodos: (value: React.SetStateAction<Todo[]>) => void;
   filteredTodos: Todo[];
-  isLoading: number[];
-  setIsLoading: React.Dispatch<React.SetStateAction<number[]>>;
+  loadingTodoIds: number[];
+  setLoadingTodoIds: React.Dispatch<React.SetStateAction<number[]>>;
   setError: (value: React.SetStateAction<string>) => void;
-  setIsErrorShown: React.Dispatch<React.SetStateAction<boolean>>;
   onTodoFocus: () => void;
 }
 
@@ -16,10 +15,9 @@ export const TodoList: React.FC<Props> = ({
   todos,
   setTodos,
   filteredTodos,
-  isLoading,
-  setIsLoading,
+  loadingTodoIds,
+  setLoadingTodoIds,
   setError,
-  setIsErrorShown,
   onTodoFocus,
 }) => {
   return (
@@ -29,10 +27,9 @@ export const TodoList: React.FC<Props> = ({
           todo={todo}
           todos={todos}
           setTodos={setTodos}
-          isLoading={isLoading}
-          setIsLoading={setIsLoading}
+          loadingTodoIds={loadingTodoIds}
+          setLoadingTodoIds={setLoadingTodoIds}
           setError={setError}
-          setIsErrorShown={setIsErrorShown}
           onTodoFocus={onTodoFocus}
           key={todo.id}
         />

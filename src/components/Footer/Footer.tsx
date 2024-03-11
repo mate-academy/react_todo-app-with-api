@@ -1,67 +1,42 @@
 import cn from 'classnames';
-import { Tabs } from '../../types/Tabs';
 import { Todo } from '../../types/Todo';
 import { deleteTodo } from '../../api/todos';
+import { Filters } from '../../types/Filters';
 
 interface Props {
+  handleFilters: (filter: Filters) => Todo[];
   todos: Todo[];
   setTodos: (value: React.SetStateAction<Todo[]>) => void;
-  selectedTab: Tabs;
-  setFilteredTodos: (value: React.SetStateAction<Todo[]>) => void;
-  setSelectedTab: (value: React.SetStateAction<Tabs>) => void;
-  setIsLoading: React.Dispatch<React.SetStateAction<number[]>>;
+  selectedFilter: Filters;
+  setLoadingTodoIds: React.Dispatch<React.SetStateAction<number[]>>;
   setError: (value: React.SetStateAction<string>) => void;
-  setIsErrorShown: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
 export const Footer: React.FC<Props> = ({
+  handleFilters,
   todos,
   setTodos,
-  selectedTab,
-  setFilteredTodos,
-  setSelectedTab,
-  setIsLoading,
+  selectedFilter,
+  setLoadingTodoIds,
   setError,
-  setIsErrorShown,
 }) => {
   const todosLeft = todos.filter(todo => !todo.completed).length;
   const thereAreCompleted = todos.some(todo => todo.completed);
 
-  const handleTabs = (tab: Tabs) => {
-    switch (tab) {
-      case Tabs.Active:
-        setFilteredTodos(todos.filter(todo => !todo.completed));
-        setSelectedTab(Tabs.Active);
-        break;
-      case Tabs.Completed:
-        setFilteredTodos(todos.filter(todo => todo.completed));
-        setSelectedTab(Tabs.Completed);
-        break;
-      default:
-        setFilteredTodos(todos);
-        setSelectedTab(Tabs.All);
+  const handleRemoveCompleted = async () => {
+    const completedIds = todos.filter(t => t.completed).map(t => t.id);
+
+    setLoadingTodoIds(completedIds);
+    try {
+      const deletePromises = completedIds.map(deleteTodo);
+
+      await Promise.all(deletePromises);
+      setTodos(todos.filter(t => !t.completed));
+    } catch {
+      setError('Unable to delete a todo');
+    } finally {
+      setLoadingTodoIds([]);
     }
-  };
-
-  const handleRemoveCompleted = () => {
-    async function removeCompleted() {
-      const completedIds = todos.filter(t => t.completed).map(t => t.id);
-
-      setIsLoading(completedIds);
-      try {
-        const deletePromises = completedIds.map(deleteTodo);
-
-        await Promise.all(deletePromises);
-        setTodos(todos.filter(t => !t.completed));
-      } catch {
-        setError('Unable to delete a todo');
-        setIsErrorShown(true);
-      } finally {
-        setIsLoading([]);
-      }
-    }
-
-    removeCompleted();
   };
 
   return (
@@ -76,10 +51,10 @@ export const Footer: React.FC<Props> = ({
         <a
           href="#/"
           className={cn('filter__link', {
-            selected: selectedTab === Tabs.All,
+            selected: selectedFilter === Filters.All,
           })}
           data-cy="FilterLinkAll"
-          onClick={() => handleTabs(Tabs.All)}
+          onClick={() => handleFilters(Filters.All)}
         >
           All
         </a>
@@ -87,10 +62,10 @@ export const Footer: React.FC<Props> = ({
         <a
           href="#/active"
           className={cn('filter__link', {
-            selected: selectedTab === Tabs.Active,
+            selected: selectedFilter === Filters.Active,
           })}
           data-cy="FilterLinkActive"
-          onClick={() => handleTabs(Tabs.Active)}
+          onClick={() => handleFilters(Filters.Active)}
         >
           Active
         </a>
@@ -98,26 +73,25 @@ export const Footer: React.FC<Props> = ({
         <a
           href="#/completed"
           className={cn('filter__link', {
-            selected: selectedTab === Tabs.Completed,
+            selected: selectedFilter === Filters.Completed,
           })}
           data-cy="FilterLinkCompleted"
-          onClick={() => handleTabs(Tabs.Completed)}
+          onClick={() => handleFilters(Filters.Completed)}
         >
           Completed
         </a>
       </nav>
 
-      {/* this button should be disabled if there are no completed todos */}
-      {thereAreCompleted && (
-        <button
-          type="button"
-          className="todoapp__clear-completed"
-          data-cy="ClearCompletedButton"
-          onClick={handleRemoveCompleted}
-        >
-          Clear completed
-        </button>
-      )}
+      <button
+        type="button"
+        className={cn('todoapp__clear-completed', {
+          invisible: !thereAreCompleted,
+        })}
+        data-cy="ClearCompletedButton"
+        onClick={handleRemoveCompleted}
+      >
+        Clear completed
+      </button>
     </footer>
   );
 };

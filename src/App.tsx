@@ -1,51 +1,66 @@
 /* eslint-disable jsx-a11y/control-has-associated-label */
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import cn from 'classnames';
 import { UserWarning } from './UserWarning';
 import { USER_ID, getTodos, patchTodos, postTodos } from './api/todos';
 import { Todo } from './types/Todo';
 import { TodoList } from './components/TodoList';
-import { Tabs } from './types/Tabs';
 import { Footer } from './components/Footer';
+import { Filters } from './types/Filters';
 
 export const App: React.FC = () => {
   const [todos, setTodos] = useState<Todo[]>([]);
-  const [filteredTodos, setFilteredTodos] = useState<Todo[]>([]);
   const [input, setInput] = useState('');
-  const [formKey, setFormKey] = useState(0);
-  const [selectedTab, setSelectedTab] = useState(Tabs.All);
+  const [selectedFilter, setSelectedFilter] = useState(Filters.All);
   const [error, setError] = useState('');
-  const [isErrorShown, setIsErrorShown] = useState(false);
-  const [isLoading, setIsLoading] = useState<number[]>([]); // ids of the changed todos
+  const [loadingTodoIds, setLoadingTodoIds] = useState<number[]>([]); // ids of the changed todos
 
   const areAllCompleted = todos.every(todo => todo.completed);
   const todoFocus: React.RefObject<HTMLInputElement> = useRef(null);
 
+  const handleFilters = (filter: Filters) => {
+    switch (filter) {
+      case Filters.Active:
+        setSelectedFilter(Filters.Active);
+
+        return todos.filter(todo => !todo.completed);
+      case Filters.Completed:
+        setSelectedFilter(Filters.Completed);
+
+        return todos.filter(todo => todo.completed);
+      default:
+        setSelectedFilter(Filters.All);
+
+        return todos;
+    }
+  };
+
+  const filteredTodos = useMemo(() => {
+    return handleFilters(selectedFilter);
+  }, [todos, selectedFilter]);
+
   useEffect(() => {
-    async function getFetchedTodos() {
+    async function fetchTodos() {
       try {
         const fetchedTodos = await getTodos();
 
         setTodos(fetchedTodos);
       } catch {
         setError('Unable to load todos');
-        setIsErrorShown(true);
       }
     }
 
-    getFetchedTodos();
+    fetchTodos();
   }, []);
 
-  useEffect(() => setFilteredTodos(todos), [todos]);
-
-  useEffect(() => todoFocus.current?.focus(), [todos, isLoading]);
+  useEffect(() => todoFocus.current?.focus(), [todos, loadingTodoIds]);
 
   if (!USER_ID) {
     return <UserWarning />;
   }
 
   if (error) {
-    setTimeout(() => setIsErrorShown(false), 3000);
+    setTimeout(() => setError(''), 3000);
   }
 
   const handleTodoInputFocus = () => todoFocus.current?.focus();
@@ -54,90 +69,78 @@ export const App: React.FC = () => {
     setInput(event.target.value);
   };
 
-  const handleOnSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+  const handleOnSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
-    async function getFetchedTodos() {
-      const newTodo = {
-        userId: USER_ID,
-        title: input,
-        completed: false,
-      };
-      let fetchedTodos;
-      const id = new Date().getTime();
+    const newTodo = {
+      userId: USER_ID,
+      title: input,
+      completed: false,
+    };
+    const id = new Date().getTime();
 
-      try {
-        if (input.trim()) {
-          setIsLoading([id]);
-          setTodos([
-            ...todos,
-            {
-              id,
-              ...newTodo,
-            },
-          ]);
-          fetchedTodos = await postTodos(newTodo);
-          setTodos([...todos, fetchedTodos]);
-          setInput('');
-        } else {
-          setError('Title should not be empty');
-          setIsErrorShown(true);
-        }
-      } catch {
-        setError('Unable to add a todo');
-        setIsErrorShown(true);
-        setTodos(todos);
-      } finally {
-        setIsLoading([]);
-      }
+    if (!input.trim()) {
+      setError('Title should not be empty');
+
+      return;
     }
 
-    getFetchedTodos();
-    setFormKey(n => n + 1);
+    try {
+      if (input.trim()) {
+        setLoadingTodoIds([id]);
+        setTodos([
+          ...todos,
+          {
+            id,
+            ...newTodo,
+          },
+        ]);
+        const todo = await postTodos(newTodo);
+
+        setTodos([...todos, todo]);
+        setInput('');
+      }
+    } catch {
+      setError('Unable to add a todo');
+      setTodos(todos);
+    } finally {
+      setLoadingTodoIds([]);
+    }
   };
 
-  const handleCrossThemAll = () => {
-    const todosToChange = todos.filter(t => !t.completed);
+  const handleCrossThemAll = async () => {
+    let todosToChange;
 
-    async function crossThemAll() {
-      if (areAllCompleted) {
-        setIsLoading(todos.map(t => t.id));
-      } else {
-        setIsLoading(todosToChange.map(t => t.id));
-      }
-
-      let todosPromise;
-
-      if (areAllCompleted) {
-        todosPromise = todos.map(t => {
-          return patchTodos(t.id, { ...t, completed: false });
-        });
-      } else {
-        todosPromise = todosToChange.map(t => {
-          return patchTodos(t.id, { ...t, completed: true });
-        });
-      }
-
-      try {
-        await Promise.all(todosPromise);
-        if (areAllCompleted) {
-          setTodos(todos.map(t => ({ ...t, completed: false })));
-        } else {
-          setTodos(todos.map(t => ({ ...t, completed: true })));
-        }
-      } catch {
-        setError('Unable to update todos');
-        setIsErrorShown(true);
-        setTodos(todos);
-      } finally {
-        setIsLoading([]);
-      }
+    if (areAllCompleted) {
+      todosToChange = todos.map(t => ({ ...t, completed: false }));
+    } else {
+      todosToChange = todos
+        .filter(t => !t.completed)
+        .map(t => ({ ...t, completed: true }));
     }
 
-    crossThemAll();
+    setLoadingTodoIds(todosToChange.map(t => t.id));
+
+    const todosPromise = todosToChange.map(t => {
+      return patchTodos(t.id, { ...t, completed: false });
+    });
+
+    try {
+      await Promise.all(todosPromise);
+      if (areAllCompleted) {
+        setTodos(todosToChange);
+      } else {
+        setTodos(todos.map(t => ({ ...t, completed: true })));
+      }
+    } catch {
+      setError('Unable to update todos');
+      setTodos(todos);
+    } finally {
+      setLoadingTodoIds([]);
+    }
   };
 
-  const handleHideError = () => setIsErrorShown(false);
+  const handleHideError = () => setError('');
 
   return (
     <div className="todoapp">
@@ -154,7 +157,7 @@ export const App: React.FC = () => {
             onClick={handleCrossThemAll}
           />
 
-          <form onSubmit={handleOnSubmit} key={formKey}>
+          <form onSubmit={handleOnSubmit}>
             <input
               data-cy="NewTodoField"
               value={input}
@@ -171,23 +174,20 @@ export const App: React.FC = () => {
           todos={todos}
           setTodos={setTodos}
           filteredTodos={filteredTodos}
-          isLoading={isLoading}
-          setIsLoading={setIsLoading}
+          loadingTodoIds={loadingTodoIds}
+          setLoadingTodoIds={setLoadingTodoIds}
           setError={setError}
-          setIsErrorShown={setIsErrorShown}
           onTodoFocus={handleTodoInputFocus}
         />
 
         {!!todos?.length && (
           <Footer
+            handleFilters={handleFilters}
             todos={todos}
             setTodos={setTodos}
-            selectedTab={selectedTab}
-            setFilteredTodos={setFilteredTodos}
-            setSelectedTab={setSelectedTab}
-            setIsLoading={setIsLoading}
+            selectedFilter={selectedFilter}
+            setLoadingTodoIds={setLoadingTodoIds}
             setError={setError}
-            setIsErrorShown={setIsErrorShown}
           />
         )}
       </div>
@@ -197,7 +197,7 @@ export const App: React.FC = () => {
         className={cn(
           'notification is-danger is-light has-text-weight-normal',
           {
-            hidden: !isErrorShown,
+            hidden: !error,
           },
         )}
       >

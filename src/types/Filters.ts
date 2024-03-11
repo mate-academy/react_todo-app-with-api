@@ -1,4 +1,4 @@
-export enum Tabs {
+export enum Filters {
   All,
   Active,
   Completed,
