@@ -45,12 +45,11 @@
     cursor: pointer;
 
     &.active {
-      color: #737373;
+      color: #22b001;
     }
 
     &::before {
-      content: "❯";
-      transform: translateY(2px) rotate(90deg);
+      content: "✓";
       line-height: 0;
     }
   }
