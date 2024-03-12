@@ -1,9 +1,9 @@
 import classNames from 'classnames';
+import { useMemo } from 'react';
 import { useTodos } from '../../Store';
 import { Status } from '../../types/FilterStatus';
 import { deleteTodo } from '../../api/todos';
 import { ErrorMessages } from '../../types/ErrorMessages';
-import { useMemo } from 'react';
 
 export const Footer = () => {
   const {
