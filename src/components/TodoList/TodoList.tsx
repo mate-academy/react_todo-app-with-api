@@ -1,8 +1,9 @@
+import React from 'react';
 import { useTodos } from '../../Store';
 import { getFilteredTodos } from '../../services/getFilteredTodos';
 import { TodoItem } from '../TodoItem';
 
-export const Todolist = () => {
+export const Todolist = React.memo(() => {
   const { todos, filterStatus } = useTodos();
 
   const filteredTodos = getFilteredTodos(todos, filterStatus);
@@ -14,4 +15,4 @@ export const Todolist = () => {
       ))}
     </div>
   );
-};
+});

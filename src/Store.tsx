@@ -131,7 +131,7 @@ export const TodosProvider: React.FC<Props> = ({ children }) => {
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
-    if (todoTitle.trim() === '') {
+    if (!todoTitle.trim()) {
       setErrorMessage(ErrorMessages.TitleShouldNotBeEmpty);
       clearError();
 

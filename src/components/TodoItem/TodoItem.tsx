@@ -52,7 +52,7 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
         [todoId]: true,
       }));
 
-      if (editedTitle.trim() === '') {
+      if (!editedTitle.trim()) {
         deleteTodo(todoId);
       } else {
         setIsEditing(false);
@@ -83,7 +83,7 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
   };
 
   const handleBlur = () => {
-    if (editedTitle.trim() === '') {
+    if (!editedTitle.trim()) {
       deleteTodo(todo.id);
     } else {
       setIsEditing(false);

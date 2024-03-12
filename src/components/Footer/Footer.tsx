@@ -3,6 +3,7 @@ import { useTodos } from '../../Store';
 import { Status } from '../../types/FilterStatus';
 import { deleteTodo } from '../../api/todos';
 import { ErrorMessages } from '../../types/ErrorMessages';
+import { useMemo } from 'react';
 
 export const Footer = () => {
   const {
@@ -14,8 +15,13 @@ export const Footer = () => {
     clearError,
   } = useTodos();
 
-  const remainingTodos = todos.filter(todo => !todo.completed).length;
-  const hasCompletedTodos = todos.some(todo => todo.completed);
+  const remainingTodos = useMemo(() => {
+    return todos.filter(todo => !todo.completed).length;
+  }, [todos]);
+
+  const hasCompletedTodos = useMemo(() => {
+    return todos.some(todo => todo.completed);
+  }, [todos]);
 
   const handleClearCompleted = () => {
     todos.forEach(todo => {
@@ -34,7 +40,7 @@ export const Footer = () => {
 
   return (
     <>
-      {todos.length > 0 && (
+      {!!todos.length && (
         <footer className="todoapp__footer" data-cy="Footer">
           <span className="todo-count" data-cy="TodosCounter">
             {remainingTodos} items left
