@@ -1,12 +1,36 @@
 import classNames from 'classnames';
 import { useTodos } from '../../Store';
 import { Status } from '../../types/FilterStatus';
+import { deleteTodo } from '../../api/todos';
+import { ErrorMessages } from '../../types/ErrorMessages';
 
 export const Footer = () => {
-  const { todos, filterStatus, setFilterStatus } = useTodos();
+  const {
+    todos,
+    setTodos,
+    filterStatus,
+    setFilterStatus,
+    setErrorMessage,
+    clearError,
+  } = useTodos();
 
   const remainingTodos = todos.filter(todo => !todo.completed).length;
   const hasCompletedTodos = todos.some(todo => todo.completed);
+
+  const handleClearCompleted = () => {
+    todos.forEach(todo => {
+      if (todo.completed) {
+        deleteTodo(todo.id)
+          .then(() => {
+            setTodos(prevTodos => prevTodos.filter(t => t.id !== todo.id));
+          })
+          .catch(() => {
+            setErrorMessage(ErrorMessages.UnableToDeleteaTodo);
+            clearError();
+          });
+      }
+    });
+  };
 
   return (
     <>
@@ -56,6 +80,7 @@ export const Footer = () => {
             className="todoapp__clear-completed"
             data-cy="ClearCompletedButton"
             disabled={!hasCompletedTodos}
+            onClick={handleClearCompleted}
           >
             Clear completed
           </button>
