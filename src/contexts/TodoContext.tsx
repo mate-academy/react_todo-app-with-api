@@ -192,6 +192,8 @@ export const TodoProvider: React.FC<Props> = ({ children }) => {
           setEditTodo(todoId);
         }
 
+        // setEditTodo(todoId);
+
         setEditTodo(-1);
       } finally {
         setActiveLoader([]);
