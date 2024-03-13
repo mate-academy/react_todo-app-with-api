@@ -52,7 +52,7 @@ export const TodoItem = React.memo(({ todo }: { todo: Todo }) => {
           return;
         }
 
-        if (inputText.trim()) {
+        if (!inputText.trim()) {
           handleDelete();
         } else {
           const updatedTodo = {
