@@ -69,11 +69,11 @@ export const TodosProvider: React.FC<Props> = ({ children }) => {
 
   const filteredTodos = getFilteredTodos(todos, filterStatus);
 
-  function clearError() {
+  const clearError = () => {
     wait(3000).then(() => setErrorMessage(''));
   }
 
-  function addTodo({
+  const addTodo = ({
     title,
     completed,
     userId,
@@ -81,7 +81,7 @@ export const TodosProvider: React.FC<Props> = ({ children }) => {
     title: string;
     completed: boolean;
     userId: number;
-  }) {
+  }) => {
     setIsSubmitting(true);
 
     setTempTodo({
@@ -106,7 +106,7 @@ export const TodosProvider: React.FC<Props> = ({ children }) => {
       });
   }
 
-  function deleteTodo(todoId: number) {
+  const deleteTodo = (todoId: number) => {
     setIsLoading(true);
     setCurrentTodoId(todoId);
 
@@ -190,30 +190,30 @@ export const TodosProvider: React.FC<Props> = ({ children }) => {
       });
   }, []);
 
+  const todosContextValues = {
+    todos,
+    setTodos,
+    tempTodo,
+    setTempTodo,
+    todoTitle,
+    setTodoTitle,
+    filterStatus,
+    setFilterStatus,
+    errorMessage,
+    setErrorMessage,
+    filteredTodos,
+    isSubmitting,
+    clearError,
+    handleChange,
+    handleSubmit,
+    handleChangeStatus,
+    currentTodoId,
+    deleteTodo,
+    isLoading,
+  };
+
   return (
-    <TodosContext.Provider
-      value={{
-        todos,
-        setTodos,
-        tempTodo,
-        setTempTodo,
-        todoTitle,
-        setTodoTitle,
-        filterStatus,
-        setFilterStatus,
-        errorMessage,
-        setErrorMessage,
-        filteredTodos,
-        isSubmitting,
-        clearError,
-        handleChange,
-        handleSubmit,
-        handleChangeStatus,
-        currentTodoId,
-        deleteTodo,
-        isLoading,
-      }}
-    >
+    <TodosContext.Provider value={todosContextValues}>
       {children}
     </TodosContext.Provider>
   );

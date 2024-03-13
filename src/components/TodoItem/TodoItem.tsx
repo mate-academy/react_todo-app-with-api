@@ -11,6 +11,8 @@ type Props = {
 };
 
 export const TodoItem: React.FC<Props> = ({ todo }) => {
+  const { id, title, completed } = todo;
+
   const {
     handleChangeStatus,
     isLoading,
@@ -21,7 +23,7 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
   } = useTodos();
 
   const [isEditing, setIsEditing] = useState(false);
-  const [editedTitle, setEditedTitle] = useState(todo.title);
+  const [editedTitle, setEditedTitle] = useState(title);
   const [submittingState, setSubmittingState] = useState<{
     [key: string]: boolean;
   }>({});
@@ -36,7 +38,7 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
 
   const handleDoubleClick = () => {
     setIsEditing(true);
-    setEditedTitle(todo.title);
+    setEditedTitle(title);
   };
 
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -44,7 +46,7 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
   };
 
   const handleKeyUp = (event: React.KeyboardEvent<HTMLInputElement>) => {
-    const todoId = todo.id;
+    const todoId = id;
 
     if (event.key === 'Enter') {
       setSubmittingState(prevState => ({
@@ -77,14 +79,14 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
           }));
         });
     } else if (event.key === 'Escape') {
-      setEditedTitle(todo.title);
+      setEditedTitle(title);
       setIsEditing(false);
     }
   };
 
   const handleBlur = () => {
     if (!editedTitle.trim()) {
-      deleteTodo(todo.id);
+      deleteTodo(id);
     } else {
       setIsEditing(false);
     }
@@ -94,7 +96,7 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
     <div
       data-cy="Todo"
       className={classNames('todo', {
-        completed: todo.completed,
+        completed: completed,
       })}
     >
       <label className="todo__status-label">
@@ -102,8 +104,8 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
           data-cy="TodoStatus"
           type="checkbox"
           className="todo__status"
-          checked={todo.completed}
-          onChange={() => handleChangeStatus(todo.id)}
+          checked={completed}
+          onChange={() => handleChangeStatus(id)}
         />
       </label>
 
@@ -121,7 +123,7 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
             type="button"
             className="todo__remove"
             data-cy="TodoDelete"
-            onClick={() => deleteTodo(todo.id)}
+            onClick={() => deleteTodo(id)}
             disabled={isLoading}
           >
             ×
@@ -140,14 +142,14 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
         />
       )}
 
-      {submittingState[todo.id] && (
+      {submittingState[id] && (
         <div data-cy="TodoLoader" className="modal overlay is-active">
           <div className="modal-background has-background-white-ter" />
           <div className="loader" />
         </div>
       )}
 
-      {isLoading && currentTodoId === todo.id && (
+      {isLoading && currentTodoId === id && (
         <div data-cy="TodoLoader" className="modal overlay is-active">
           <div className="modal-background has-background-white-ter" />
           <div className="loader" />

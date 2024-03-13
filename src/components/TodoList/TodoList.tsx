@@ -1,12 +1,18 @@
-import React from 'react';
+import { useMemo } from 'react';
 import { useTodos } from '../../Store';
 import { getFilteredTodos } from '../../services/getFilteredTodos';
 import { TodoItem } from '../TodoItem';
 
-export const Todolist = React.memo(() => {
+export const Todolist = () => {
   const { todos, filterStatus } = useTodos();
 
-  const filteredTodos = getFilteredTodos(todos, filterStatus);
+  const memoizedTodos = useMemo(() => todos, [todos]);
+  const memoizedFilterStatus = useMemo(() => filterStatus, [filterStatus]);
+
+  const filteredTodos = useMemo(() =>
+    getFilteredTodos(memoizedTodos, memoizedFilterStatus),
+    [memoizedTodos, memoizedFilterStatus]
+  );
 
   return (
     <div className="todo-list" data-cy="todosList">
@@ -15,4 +21,4 @@ export const Todolist = React.memo(() => {
       ))}
     </div>
   );
-});
+};
