@@ -1,3 +1,4 @@
+/* eslint-disable prettier/prettier */
 import React, { ReactNode, createContext, useEffect, useReducer } from 'react';
 import { Todo } from '../types/Todo';
 import { Status } from '../types/Status';
@@ -148,7 +149,7 @@ const getLocalStorege = () => {
 
 export const TodosContext = createContext(initialState);
 export const DispatchContext = createContext<(action: Action) => void>(
-  () => {},
+  () => { },
 );
 
 type Props = {
@@ -167,7 +168,9 @@ export const Store: React.FC<Props> = ({ children }) => {
 
   return (
     <DispatchContext.Provider value={dispatch}>
-      <TodosContext.Provider value={state}>{children}</TodosContext.Provider>
+      <TodosContext.Provider value={state}>
+        {children}
+      </TodosContext.Provider>
     </DispatchContext.Provider>
   );
 };
