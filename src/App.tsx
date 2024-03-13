@@ -18,6 +18,7 @@ export const App: React.FC = () => {
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
   const [addingTodoId, setAddingTodoId] = useState<number | null>(null);
   const [isUpdating, setIsUpdating] = useState<boolean>(false);
+  const [updatingTodoId, setUpdatingTodoId] = useState<number | null>(null);
 
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -68,6 +69,7 @@ export const App: React.FC = () => {
       };
 
       setIsUpdating(true);
+      setUpdatingTodoId(id);
 
       updateTodo(updatedTodo)
         .then(() => {
@@ -80,6 +82,7 @@ export const App: React.FC = () => {
         })
         .finally(() => {
           setIsUpdating(false);
+          setUpdatingTodoId(null);
         });
     }
   };
@@ -142,6 +145,8 @@ export const App: React.FC = () => {
           setError={setError}
           isUpdating={isUpdating}
           setIsUpdating={setIsUpdating}
+          updatingTodoId={updatingTodoId}
+          setUpdatingTodoId={setUpdatingTodoId}
         />
         {tempTodo && (
           <TodoItem
@@ -154,6 +159,8 @@ export const App: React.FC = () => {
             setError={setError}
             isUpdating={isUpdating}
             setIsUpdating={setIsUpdating}
+            updatingTodoId={updatingTodoId}
+            setUpdatingTodoId={setUpdatingTodoId}
           />
         )}
 

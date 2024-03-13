@@ -13,6 +13,8 @@ type TodoItemProps = {
   setError: (error: string) => void;
   isUpdating: boolean;
   setIsUpdating: (isUpdating: boolean) => void;
+  updatingTodoId: number | null;
+  setUpdatingTodoId: (updatingTodoId: number | null) => void;
 };
 
 export const TodoItem: React.FC<TodoItemProps> = ({
@@ -25,6 +27,8 @@ export const TodoItem: React.FC<TodoItemProps> = ({
   handleUpdate,
   isUpdating,
   setIsUpdating,
+  updatingTodoId,
+  setUpdatingTodoId,
 }) => {
   const [isEditing, setIsEditing] = useState<boolean>(false);
   const [editTitle, setEditTitle] = useState<string>('');
@@ -67,6 +71,7 @@ export const TodoItem: React.FC<TodoItemProps> = ({
         updatedTodo.title = editTitle.trim();
 
         setIsUpdating(true);
+        setUpdatingTodoId(id);
 
         updateTodo(updatedTodo)
           .then(() => {
@@ -79,6 +84,7 @@ export const TodoItem: React.FC<TodoItemProps> = ({
           })
           .finally(() => {
             setIsUpdating(false);
+            setUpdatingTodoId(null);
           });
     }
   };
@@ -157,7 +163,8 @@ export const TodoItem: React.FC<TodoItemProps> = ({
       <div
         data-cy="TodoLoader"
         className={cn('modal overlay', {
-          'is-active': id === addingTodoId || isUpdating,
+          'is-active':
+            id === addingTodoId || (isUpdating && id === updatingTodoId),
         })}
       >
         <div className="modal-background has-background-white-ter" />

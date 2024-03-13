@@ -11,6 +11,8 @@ type TodoListProps = {
   setError: (error: string) => void;
   isUpdating: boolean;
   setIsUpdating: (isUpdating: boolean) => void;
+  updatingTodoId: number | null;
+  setUpdatingTodoId: (updatingTodoId: number | null) => void;
 };
 
 export const TodoList: React.FC<TodoListProps> = ({
@@ -23,6 +25,8 @@ export const TodoList: React.FC<TodoListProps> = ({
   setError,
   isUpdating,
   setIsUpdating,
+  updatingTodoId,
+  setUpdatingTodoId,
 }) => {
   return (
     <section className="todoapp__main" data-cy="TodoList">
@@ -38,6 +42,8 @@ export const TodoList: React.FC<TodoListProps> = ({
           setError={setError}
           isUpdating={isUpdating}
           setIsUpdating={setIsUpdating}
+          updatingTodoId={updatingTodoId}
+          setUpdatingTodoId={setUpdatingTodoId}
         />
       ))}
     </section>
