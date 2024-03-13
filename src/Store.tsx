@@ -71,7 +71,7 @@ export const TodosProvider: React.FC<Props> = ({ children }) => {
 
   const clearError = () => {
     wait(3000).then(() => setErrorMessage(''));
-  }
+  };
 
   const addTodo = ({
     title,
@@ -104,7 +104,7 @@ export const TodosProvider: React.FC<Props> = ({ children }) => {
       .finally(() => {
         setIsSubmitting(false);
       });
-  }
+  };
 
   const deleteTodo = (todoId: number) => {
     setIsLoading(true);
@@ -122,7 +122,7 @@ export const TodosProvider: React.FC<Props> = ({ children }) => {
       .finally(() => {
         setIsLoading(false);
       });
-  }
+  };
 
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setTodoTitle(event.target.value);

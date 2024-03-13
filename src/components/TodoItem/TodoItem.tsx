@@ -96,7 +96,7 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
     <div
       data-cy="Todo"
       className={classNames('todo', {
-        completed: completed,
+        completed,
       })}
     >
       <label className="todo__status-label">

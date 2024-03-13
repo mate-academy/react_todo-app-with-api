@@ -9,9 +9,9 @@ export const Todolist = () => {
   const memoizedTodos = useMemo(() => todos, [todos]);
   const memoizedFilterStatus = useMemo(() => filterStatus, [filterStatus]);
 
-  const filteredTodos = useMemo(() =>
-    getFilteredTodos(memoizedTodos, memoizedFilterStatus),
-    [memoizedTodos, memoizedFilterStatus]
+  const filteredTodos = useMemo(
+    () => getFilteredTodos(memoizedTodos, memoizedFilterStatus),
+    [memoizedTodos, memoizedFilterStatus],
   );
 
   return (
