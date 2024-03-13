@@ -114,7 +114,9 @@ export const App: React.FC = () => {
     todos.map(todo =>
       updateTodos({ ...todo, completed: !allCompleted })
         .then(() => {
-          setTodos(todos.map(t => ({ ...t, completed: !allCompleted })));
+          setTodos(
+            todos.map(prevTodo => ({ ...prevTodo, completed: !allCompleted })),
+          );
         })
         .catch(() => {
           setErrorMessage('Unable to update a todo');

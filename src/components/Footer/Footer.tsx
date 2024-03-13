@@ -23,7 +23,6 @@ export const Footer: React.FC<Props> = ({
         {`${itemsLeft} items left`}
       </span>
 
-      {/* Active link should have the 'selected' class */}
       <nav className="filter" data-cy="Filter">
         <a
           href="#/"

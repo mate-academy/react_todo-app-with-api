@@ -68,7 +68,7 @@ export const TodoItem: React.FC<Props> = ({
       });
   };
 
-  const onChangeTittle = (event: React.FormEvent<HTMLFormElement>) => {
+  const onChangeTitle = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
     if (editTitle.trim().length === 0) {
@@ -155,7 +155,7 @@ export const TodoItem: React.FC<Props> = ({
         )}
 
         {isEdit && (
-          <form onSubmit={onChangeTittle}>
+          <form onSubmit={onChangeTitle}>
             <input
               type="text"
               className="todo__title-field edit "
