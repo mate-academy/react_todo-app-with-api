@@ -73,6 +73,7 @@ export const TodoItem: React.FC<Props> = ({
       .finally(() => {
         setLoading(false);
         setAddTodoId(null);
+        setIsEdit(false);
       });
   };
 
