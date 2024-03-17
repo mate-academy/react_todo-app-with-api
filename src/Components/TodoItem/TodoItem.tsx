@@ -1,5 +1,5 @@
 import classNames from 'classnames';
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Todo } from '../../types/Todo';
 import { USER_ID, editTodo } from '../../api/todos';
 
@@ -28,34 +28,42 @@ export default function TodoItem({
   const [editedTitle, setEditedTitle] = useState<string>('');
   const [editing, setEditing] = useState(false);
   const { id, title, completed } = todo;
+  const editInputRef = useRef<HTMLInputElement>(null);
 
-  function updateTodo(): Promise<void> {
+  useEffect(() => {
+    if (editInputRef.current) {
+      editInputRef.current.focus();
+    }
+  }, [editing]);
+
+  const updateTodo = async () => {
     setErrorMessage('');
 
-    return editTodo({
-      id,
-      userId: USER_ID,
-      title: editedTitle.trim(),
-      completed,
-    })
-      .then(updatedTodo => {
-        const newTodos = [...todos];
-        const index = newTodos.findIndex(t => t.id === updatedTodo.id);
+    try {
+      const updatedTodo = await editTodo({
+        id,
+        userId: USER_ID,
+        title: editedTitle.trim(),
+        completed,
+      });
 
-        if (updatedTodo.title.length < 1) {
-          deleteSingleTodo(updatedTodo.id);
-          focusInput();
-        }
+      if (updatedTodo.title.trim().length < 1) {
+        deleteSingleTodo(updatedTodo.id);
+        focusInput();
+      } else {
+        const newTodos = todos.map(t =>
+          t.id === updatedTodo.id ? updatedTodo : t,
+        );
 
-        newTodos.splice(index, 1, updatedTodo);
         setTodos(newTodos);
-      })
-      .catch(error => {
-        setErrorMessage('Unable to edit a todo');
-        throw error;
-      })
-      .finally(() => setEditing(false));
-  }
+      }
+    } catch (error) {
+      setErrorMessage('Unable to edit a todo');
+      editInputRef.current?.focus();
+    } finally {
+      setEditing(false);
+    }
+  };
 
   const handleDoubleClick = () => {
     setEditing(true);
@@ -82,6 +90,7 @@ export default function TodoItem({
           {editing ? (
             <form onBlur={updateTodo}>
               <input
+                ref={editInputRef}
                 data-cy="TodoTitleField"
                 type="text"
                 value={editedTitle}
