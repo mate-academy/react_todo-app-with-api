@@ -1,3 +1,4 @@
+/* eslint-disable react/jsx-no-bind */
 /* eslint-disable max-len */
 /* eslint-disable jsx-a11y/control-has-associated-label */
 import React, { useEffect, useRef, useState } from 'react';
@@ -5,6 +6,7 @@ import classNames from 'classnames';
 import { UserWarning } from './UserWarning';
 import { USER_ID, createTodos, deleteTodo, getTodos } from './api/todos';
 import { Todo } from './types/Todo';
+import TodoList from './Components/TodoList/TodoList';
 
 enum FilterTypes {
   All = 'all',
@@ -83,9 +85,10 @@ export const App: React.FC = () => {
     return <UserWarning />;
   }
 
-  function deleteSingleTodo(id: number) {
+  function deleteSingleTodo(id: number): Promise<void> {
     setdeletingId(id);
-    deleteTodo(id)
+
+    return deleteTodo(id)
       .then(() => {
         setTodos(currentTodos => currentTodos.filter(todo => todo.id !== id));
         setdeletingId(null);
@@ -167,7 +170,6 @@ export const App: React.FC = () => {
             data-cy="ToggleAllButton"
           />
 
-          {/* Add a todo on form submit */}
           <form onSubmit={handleSubmit}>
             <input
               ref={inputRef}
@@ -181,87 +183,17 @@ export const App: React.FC = () => {
             />
           </form>
         </header>
-
-        <section className="todoapp__main" data-cy="TodoList">
-          {filteredTodos.map(({ id, title, completed }) => (
-            <div key={id}>
-              <div
-                data-cy="Todo"
-                className={classNames('todo', {
-                  completed,
-                })}
-              >
-                <label className="todo__status-label">
-                  <input
-                    data-cy="TodoStatus"
-                    type="checkbox"
-                    className="todo__status"
-                    checked={completed}
-                  />
-                </label>
-                <span data-cy="TodoTitle" className="todo__title">
-                  {title.trim()}
-                </span>
-                <button
-                  type="button"
-                  className="todo__remove"
-                  data-cy="TodoDelete"
-                  onClick={() => {
-                    deleteSingleTodo(id);
-                  }}
-                >
-                  ×
-                </button>
-                <div
-                  data-cy="TodoLoader"
-                  className={classNames('modal overlay', {
-                    'is-active': deletingId === id,
-                  })}
-                >
-                  <div className="modal-background has-background-white-ter" />
-                  <div className="loader" />
-                </div>
-              </div>
-            </div>
-          ))}
-
-          {tempTodo && (
-            <div>
-              <div
-                data-cy="Todo"
-                className={classNames('todo', {
-                  completed: tempTodo.completed,
-                })}
-              >
-                <label className="todo__status-label">
-                  <input
-                    data-cy="TodoStatus"
-                    type="checkbox"
-                    className="todo__status"
-                    checked={tempTodo.completed}
-                  />
-                </label>
-                <span data-cy="TodoTitle" className="todo__title">
-                  {tempTodo.title.trim()}
-                </span>
-                <button
-                  type="button"
-                  className="todo__remove"
-                  data-cy="TodoDelete"
-                  onClick={() => {
-                    deleteSingleTodo(tempTodo.id);
-                  }}
-                >
-                  ×
-                </button>
-                <div data-cy="TodoLoader" className="modal overlay is-active">
-                  <div className="modal-background has-background-white-ter" />
-                  <div className="loader" />
-                </div>
-              </div>
-            </div>
-          )}
-        </section>
+        <TodoList
+          focusInput={focusInput}
+          todos={filteredTodos}
+          setTodos={setTodos}
+          tempTodo={tempTodo}
+          deletingId={deletingId}
+          setTempTodo={setTempTodo}
+          // errorMessage={errorMessage}
+          setErrorMessage={setErrorMessage}
+          deleteSingleTodo={deleteSingleTodo}
+        />
 
         {todos.length > 0 && (
           <footer className="todoapp__footer" data-cy="Footer">

@@ -12,6 +12,14 @@ export const createTodos = ({ title, completed, userId }: Omit<Todo, 'id'>) => {
   return client.post<Todo>(`/todos`, { title, completed, userId });
 };
 
+export const editTodo = ({ title, completed, userId, id }: Todo) => {
+  return client.patch<Todo>(`/todos/${id}`, {
+    title,
+    completed,
+    userId,
+  });
+};
+
 export const deleteTodo = (id: number) => {
   return client.delete(`/todos/${id}`);
 };
