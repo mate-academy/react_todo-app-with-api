@@ -32,12 +32,17 @@ export default function TodoItem({
   function updateTodo(): Promise<void> {
     setErrorMessage('');
 
-    return editTodo({ id, userId: USER_ID, title: editedTitle, completed })
+    return editTodo({
+      id,
+      userId: USER_ID,
+      title: editedTitle.trim(),
+      completed,
+    })
       .then(updatedTodo => {
         const newTodos = [...todos];
         const index = newTodos.findIndex(t => t.id === updatedTodo.id);
 
-        if (updatedTodo.title.length === 0) {
+        if (updatedTodo.title.length < 1) {
           deleteSingleTodo(updatedTodo.id);
           focusInput();
         }
