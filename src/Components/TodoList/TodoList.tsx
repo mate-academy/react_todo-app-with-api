@@ -8,7 +8,7 @@ interface Props {
   // errorMessage: string;
   setErrorMessage: (message: string) => void;
   tempTodo: Todo | null;
-  setTempTodo: (todo: Todo | null) => void;
+  // setTempTodo: (todo: Todo | null) => void;
   deletingId: number | null;
   focusInput: () => void;
   deleteSingleTodo: (id: number) => void;
@@ -22,7 +22,7 @@ export default function TodoList({
   focusInput,
   deleteSingleTodo,
   // errorMessage,
-  setTempTodo,
+  // setTempTodo,
   setErrorMessage,
 }: Props) {
   return (
@@ -32,7 +32,7 @@ export default function TodoList({
           focusInput={focusInput}
           // tempTodo={tempTodo}
           setTodos={setTodos}
-          setTempTodo={setTempTodo}
+          // setTempTodo={setTempTodo}
           todos={todos}
           deleteSingleTodo={deleteSingleTodo}
           setErrorMessage={setErrorMessage}

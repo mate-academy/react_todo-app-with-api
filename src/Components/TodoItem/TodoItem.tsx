@@ -8,7 +8,7 @@ interface Props {
   todos: Todo[];
   deletingId: number | null;
   deleteSingleTodo: (id: number) => void;
-  setTempTodo: (todo: Todo | null) => void;
+  // setTempTodo: (todo: Todo | null) => void;
   focusInput: () => void;
   // errorMessage: string;
   setErrorMessage: (message: string) => void;
@@ -18,7 +18,7 @@ export default function TodoItem({
   todo,
   setTodos,
   focusInput,
-  setTempTodo,
+  // setTempTodo,
   todos,
   deletingId,
   deleteSingleTodo,
