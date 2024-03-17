@@ -43,6 +43,7 @@ export const App: React.FC = () => {
   const inputRef = useRef<HTMLInputElement | null>(null);
   const activeTodosLength = todos.length - completedTodos.length;
   const allCompletedTodos = todos.length - unCompletedTodos.length;
+  const allCompleted = todos.every(todo => todo.completed);
 
   const focusInput = () => {
     setTimeout(() => {
@@ -156,19 +157,31 @@ export const App: React.FC = () => {
     focusInput();
   };
 
+  const handleToggleAll = () => {
+    const newArrayOfTodos = todos.map(todo => ({
+      ...todo,
+      completed: !allCompletedTodos,
+    }));
+
+    setTodos(newArrayOfTodos);
+  };
+
   return (
     <div className="todoapp">
       <h1 className="todoapp__title">todos</h1>
 
       <div className="todoapp__content">
         <header className="todoapp__header">
-          <button
-            type="button"
-            className={classNames('todoapp__toggle-all', {
-              active: allCompletedTodos,
-            })}
-            data-cy="ToggleAllButton"
-          />
+          {todos.length > 0 && (
+            <button
+              onClick={() => handleToggleAll()}
+              type="button"
+              className={classNames('todoapp__toggle-all', {
+                active: allCompleted,
+              })}
+              data-cy="ToggleAllButton"
+            />
+          )}
 
           <form onSubmit={handleSubmit}>
             <input
@@ -189,8 +202,6 @@ export const App: React.FC = () => {
           setTodos={setTodos}
           tempTodo={tempTodo}
           deletingId={deletingId}
-          // setTempTodo={setTempTodo}
-          // errorMessage={errorMessage}
           setErrorMessage={setErrorMessage}
           deleteSingleTodo={deleteSingleTodo}
         />

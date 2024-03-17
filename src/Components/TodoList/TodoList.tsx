@@ -5,10 +5,8 @@ import { Todo } from '../../types/Todo';
 interface Props {
   todos: Todo[];
   setTodos: (todos: Todo[]) => void;
-  // errorMessage: string;
   setErrorMessage: (message: string) => void;
   tempTodo: Todo | null;
-  // setTempTodo: (todo: Todo | null) => void;
   deletingId: number | null;
   focusInput: () => void;
   deleteSingleTodo: (id: number) => void;
@@ -21,8 +19,6 @@ export default function TodoList({
   deletingId,
   focusInput,
   deleteSingleTodo,
-  // errorMessage,
-  // setTempTodo,
   setErrorMessage,
 }: Props) {
   return (
@@ -30,9 +26,7 @@ export default function TodoList({
       {todos.map(todo => (
         <TodoItem
           focusInput={focusInput}
-          // tempTodo={tempTodo}
           setTodos={setTodos}
-          // setTempTodo={setTempTodo}
           todos={todos}
           deleteSingleTodo={deleteSingleTodo}
           setErrorMessage={setErrorMessage}
@@ -70,7 +64,10 @@ export default function TodoList({
             >
               ×
             </button>
-            <div data-cy="TodoLoader" className="modal overlay is-active">
+            <div
+              data-cy="TodoLoader"
+              className={classNames('modal overlay', { 'is-active': tempTodo })}
+            >
               <div className="modal-background has-background-white-ter" />
               <div className="loader" />
             </div>

@@ -1,5 +1,7 @@
+/* eslint-disable jsx-a11y/no-noninteractive-element-interactions */
+/* eslint-disable jsx-a11y/click-events-have-key-events */
+import React, { useEffect, useRef, useState, useCallback } from 'react';
 import classNames from 'classnames';
-import { useEffect, useRef, useState } from 'react';
 import { Todo } from '../../types/Todo';
 import { USER_ID, editTodo } from '../../api/todos';
 
@@ -8,36 +10,65 @@ interface Props {
   todos: Todo[];
   deletingId: number | null;
   deleteSingleTodo: (id: number) => void;
-  // setTempTodo: (todo: Todo | null) => void;
   focusInput: () => void;
-  // errorMessage: string;
   setErrorMessage: (message: string) => void;
   setTodos: (todos: Todo[]) => void;
 }
+
 export default function TodoItem({
   todo,
   setTodos,
   focusInput,
-  // setTempTodo,
   todos,
   deletingId,
   deleteSingleTodo,
-  // errorMessage,
   setErrorMessage,
 }: Props) {
   const [editedTitle, setEditedTitle] = useState<string>('');
   const [editing, setEditing] = useState(false);
   const { id, title, completed } = todo;
+  const [updatingId, setUpdatingId] = useState<number | null>(null);
   const editInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    if (editInputRef.current) {
+    if (editInputRef.current && editing) {
       editInputRef.current.focus();
     }
   }, [editing]);
 
-  const updateTodo = async () => {
+  const updateStatus = useCallback(() => {
+    const todowithUpdatedStatus = {
+      id,
+      userId: USER_ID,
+      title,
+      completed: !completed,
+    };
+
+    setUpdatingId(id);
+    editTodo(todowithUpdatedStatus)
+      .then(updatedOne => {
+        const updatedTodos = [...todos];
+        const index = updatedTodos.findIndex(t => t.id === updatedOne.id);
+
+        updatedTodos.splice(index, 1, updatedOne);
+        setTodos(updatedTodos);
+        setUpdatingId(null);
+      })
+      .catch(() => {
+        setErrorMessage('Unable to update a todo');
+      })
+      .finally(() => {
+        setUpdatingId(null);
+      });
+  }, [completed, id, title, todos, setTodos, setErrorMessage]);
+
+  const updateTodo = useCallback(async () => {
     setErrorMessage('');
+    setUpdatingId(id);
+
+    if (editedTitle === title) {
+      setEditing(false);
+    }
 
     try {
       const updatedTodo = await editTodo({
@@ -49,6 +80,7 @@ export default function TodoItem({
 
       if (updatedTodo.title.trim().length < 1) {
         deleteSingleTodo(updatedTodo.id);
+        setEditing(false);
         focusInput();
       } else {
         const newTodos = todos.map(t =>
@@ -56,18 +88,62 @@ export default function TodoItem({
         );
 
         setTodos(newTodos);
+        setEditing(false);
+        setUpdatingId(null);
       }
     } catch (error) {
       setErrorMessage('Unable to edit a todo');
       editInputRef.current?.focus();
-    } finally {
-      setEditing(false);
     }
-  };
+  }, [
+    id,
+    editedTitle,
+    completed,
+    todos,
+    title,
+    setTodos,
+    deleteSingleTodo,
+    focusInput,
+    setErrorMessage,
+  ]);
 
-  const handleDoubleClick = () => {
+  const handleEditFormSubmit = useCallback(
+    (e: React.FormEvent<HTMLFormElement>) => {
+      e.preventDefault();
+      updateTodo();
+    },
+    [updateTodo],
+  );
+
+  const handleInputChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      setEditedTitle(e.target.value);
+    },
+    [],
+  );
+
+  const handleDoubleClick = useCallback(() => {
     setEditing(true);
-  };
+  }, []);
+
+  const handleKeyUp = useCallback(
+    (e: React.KeyboardEvent<HTMLInputElement>) => {
+      if (e.key === 'Escape') {
+        setEditing(false);
+      }
+    },
+    [setEditing],
+  );
+
+  const handleKeydown = useCallback(
+    (e: React.KeyboardEvent<HTMLInputElement>) => {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        updateTodo();
+      }
+    },
+    [updateTodo],
+  );
 
   return (
     <div>
@@ -79,7 +155,7 @@ export default function TodoItem({
             editing,
           })}
         >
-          <label className="todo__status-label">
+          <label onClick={updateStatus} className="todo__status-label">
             <input
               data-cy="TodoStatus"
               type="checkbox"
@@ -88,13 +164,16 @@ export default function TodoItem({
             />
           </label>
           {editing ? (
-            <form onBlur={updateTodo}>
+            <form onSubmit={handleEditFormSubmit}>
               <input
                 ref={editInputRef}
+                onBlur={updateTodo}
+                onKeyUp={handleKeyUp}
+                onKeyDown={handleKeydown}
                 data-cy="TodoTitleField"
                 type="text"
                 value={editedTitle}
-                onChange={e => setEditedTitle(e.target.value)}
+                onChange={handleInputChange}
                 className="todo__title-field edit "
                 placeholder="Empty todo will be deleted"
               />
@@ -123,7 +202,7 @@ export default function TodoItem({
           <div
             data-cy="TodoLoader"
             className={classNames('modal overlay', {
-              'is-active': deletingId === id,
+              'is-active': deletingId === id || updatingId === id,
             })}
           >
             <div className="modal-background has-background-white-ter" />
