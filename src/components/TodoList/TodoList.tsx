@@ -9,21 +9,6 @@ import './TodoList.scss';
 import { TodoItem } from '../TodoItem';
 import { TodoContext } from '../../contexts/TodoContext';
 
-// type Props = {
-//   todos: Todo[];
-//   tempTodo: Todo | null;
-//   filterType: TypeOfFiltering;
-//   onDelete: (id: number) => void;
-//   onChange: (
-//     id: number,
-//     title: string,
-//     completed: boolean,
-//   ) => void;
-//   activeLoader: number[];
-//   editTodo: number;
-//   setEditTodo: (editTodo: number) => void;
-// };
-
 export const TodoList: React.FC = () => {
   const {
     todos,

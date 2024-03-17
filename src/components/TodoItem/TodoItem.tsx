@@ -14,7 +14,6 @@ export const TodoItem: React.FC<Props> = ({
   todo,
 }) => {
   const inputRef = useRef<HTMLInputElement | null>(null);
-  // const [editTodo, setEditTodo] = useState<number>(-1);
 
   const {
     editTodo,
@@ -25,6 +24,43 @@ export const TodoItem: React.FC<Props> = ({
   } = useContext(TodoContext);
 
   const [inputValue, setInputValue] = useState('');
+
+  const blurHendler = () => {
+    if (inputValue === todo.title) {
+      setEditTodo(-1);
+    }
+
+    if (inputValue.trim().length === 0) {
+      deleteTodo(todo.id);
+    } else {
+      changeData(
+        todo.id,
+        inputValue.trim(),
+        todo.completed,
+      );
+    }
+  };
+
+  const keyUpHendler = (event: React.KeyboardEvent<HTMLInputElement>) => {
+    event.preventDefault();
+
+    if (event.key === 'Escape' || event.key === 'Esc') {
+      setEditTodo(-1);
+    }
+  };
+
+  const submitHendler = (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    if (inputValue === todo.title) {
+      setEditTodo(-1);
+    } else {
+      changeData(
+        todo.id,
+        inputValue.trim(),
+        todo.completed,
+      );
+    }
+  };
 
   useEffect(() => {
     if (editTodo) {
@@ -66,18 +102,7 @@ export const TodoItem: React.FC<Props> = ({
       {editTodo === todo.id
         ? (
           <form
-            onSubmit={(event) => {
-              event.preventDefault();
-              if (inputValue === todo.title) {
-                setEditTodo(-1);
-              } else {
-                changeData(
-                  todo.id,
-                  inputValue.trim(),
-                  todo.completed,
-                );
-              }
-            }}
+            onSubmit={event => submitHendler(event)}
           >
             <input
               data-cy="TodoTitleField"
@@ -89,28 +114,8 @@ export const TodoItem: React.FC<Props> = ({
                 setInputValue(event.target.value);
               }}
               ref={inputRef}
-              onBlur={() => {
-                if (inputValue === todo.title) {
-                  setEditTodo(-1);
-                }
-
-                if (inputValue.trim().length === 0) {
-                  deleteTodo(todo.id);
-                } else {
-                  changeData(
-                    todo.id,
-                    inputValue.trim(),
-                    todo.completed,
-                  );
-                }
-              }}
-              onKeyUp={(event) => {
-                event.preventDefault();
-
-                if (event.key === 'Escape' || event.key === 'Esc') {
-                  setEditTodo(-1);
-                }
-              }}
+              onBlur={blurHendler}
+              onKeyUp={(event) => keyUpHendler(event)}
             />
           </form>
         )
@@ -126,9 +131,7 @@ export const TodoItem: React.FC<Props> = ({
               data-cy="TodoDelete"
               type="button"
               className="todo__remove"
-              onClick={() => {
-                return deleteTodo(todo.id);
-              }}
+              onClick={() => deleteTodo(todo.id)}
             >
               x
             </button>

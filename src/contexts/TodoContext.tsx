@@ -61,19 +61,21 @@ export const TodoProvider: React.FC<Props> = ({ children }) => {
     return client.get<Todo[]>(`/todos?userId=${USER_ID}`);
   };
 
-  const fetchData = async () => {
-    try {
-      const todosFromServer = await getTodos();
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const todosFromServer = await getTodos();
 
-      setTodos(todosFromServer);
-    } catch {
-      Error(ErrorType.Load);
-    }
-  };
+        setTodos(todosFromServer);
+      } catch {
+        Error(ErrorType.Load);
+      }
+    };
+
+    fetchData();
+  }, []);
 
   useEffect(() => {
-    fetchData();
-
     return () => {
       clearTimeout(timeoutId);
     };
@@ -191,8 +193,6 @@ export const TodoProvider: React.FC<Props> = ({ children }) => {
         if (todos[editTodo].title !== title) {
           setEditTodo(todoId);
         }
-
-        // setEditTodo(todoId);
 
         setEditTodo(-1);
       } finally {

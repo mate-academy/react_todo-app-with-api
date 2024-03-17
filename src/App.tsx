@@ -7,6 +7,7 @@ import { TodoContext } from './contexts/TodoContext';
 import { ErrorType } from './types/ErrorType';
 import { TodoList } from './components/TodoList';
 import { Footer } from './components/Footer';
+import { ErrorComponent } from './components/ErrorComponent';
 
 export const App: React.FC = () => {
   const {
@@ -14,7 +15,6 @@ export const App: React.FC = () => {
     tempTodo,
     changeData,
     dataError,
-    setError,
     Error,
     addTodo,
     inputValue,
@@ -32,7 +32,44 @@ export const App: React.FC = () => {
     } else {
       inputRef.current?.blur();
     }
-  }, [dataError, todos]);
+  }, [dataError, todos, shouldFocus]);
+
+  const handlerOnClick = () => {
+    toggleActive = !toggleActive;
+
+    if (toggleActive) {
+      todos.forEach(currentTodo => {
+        if (currentTodo.completed === false) {
+          changeData(
+            currentTodo.id,
+            currentTodo.title,
+            true,
+          );
+        }
+      });
+    }
+
+    if (!toggleActive) {
+      todos.forEach(currentTodo => {
+        if (currentTodo.completed === true) {
+          changeData(
+            currentTodo.id,
+            currentTodo.title,
+            false,
+          );
+        }
+      });
+    }
+  };
+
+  const submitHendler = (event:React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    const value = inputValue.trim();
+
+    return value.length > 0
+      ? addTodo(value)
+      : Error(ErrorType.Empty);
+  };
 
   return (
     <div className="todoapp">
@@ -48,45 +85,12 @@ export const App: React.FC = () => {
                 'todoapp__toggle-all',
                 { active: todos.every(currentTodo => currentTodo.completed) },
               )}
-              onClick={() => {
-                toggleActive = !toggleActive;
-
-                if (toggleActive) {
-                  todos.forEach(currentTodo => {
-                    if (currentTodo.completed === false) {
-                      changeData(
-                        currentTodo.id,
-                        currentTodo.title,
-                        true,
-                      );
-                    }
-                  });
-                }
-
-                if (!toggleActive) {
-                  todos.forEach(currentTodo => {
-                    if (currentTodo.completed === true) {
-                      changeData(
-                        currentTodo.id,
-                        currentTodo.title,
-                        false,
-                      );
-                    }
-                  });
-                }
-              }}
+              onClick={handlerOnClick}
             />
           )}
 
           <form
-            onSubmit={(event) => {
-              event.preventDefault();
-              const value = inputValue.trim();
-
-              return value.length > 0
-                ? addTodo(value)
-                : Error(ErrorType.Empty);
-            }}
+            onSubmit={(event) => submitHendler(event)}
           >
             <input
               data-cy="NewTodoField"
@@ -112,24 +116,7 @@ export const App: React.FC = () => {
         )}
       </div>
 
-      <div
-        data-cy="ErrorNotification"
-        className={classNames(
-          'notification',
-          'is-danger',
-          'is-light',
-          'has-text-weight-normal',
-          { hidden: !dataError },
-        )}
-      >
-        <button
-          data-cy="HideErrorButton"
-          type="button"
-          className="delete"
-          onClick={() => setError('')}
-        />
-        {dataError}
-      </div>
+      <ErrorComponent />
     </div>
   );
 };
