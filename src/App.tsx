@@ -189,7 +189,7 @@ export const App: React.FC = () => {
           setTodos={setTodos}
           tempTodo={tempTodo}
           deletingId={deletingId}
-          setTempTodo={setTempTodo}
+          // setTempTodo={setTempTodo}
           // errorMessage={errorMessage}
           setErrorMessage={setErrorMessage}
           deleteSingleTodo={deleteSingleTodo}
