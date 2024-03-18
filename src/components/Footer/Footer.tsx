@@ -5,7 +5,10 @@ import { TodoContext } from '../../contexts/TodoContext';
 
 export const Footer: React.FC = () => {
   const {
-    todos, deleteData, filterType, setFilterType,
+    todos,
+    deleteData,
+    filterType,
+    setFilterType,
   } = useContext(TodoContext);
 
   const notCompletedTodosCount = useMemo(() => {
