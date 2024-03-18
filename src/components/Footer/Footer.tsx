@@ -3,11 +3,11 @@ import classNames from 'classnames';
 import { TypeOfFiltering } from '../../types/TypeOfFiltering';
 import { TodoContext } from '../../contexts/TodoContext';
 
-export const Footer: React.FC = () => {
+export const Footer: React.FC
+= () => {
   const {
     todos, deleteData, filterType, setFilterType,
-  }
-    = useContext(TodoContext);
+  } = useContext(TodoContext);
 
   const notCompletedTodosCount = useMemo(() => {
     return todos.filter(todo => !todo.completed).length;
