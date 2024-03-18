@@ -25,6 +25,7 @@ export default function TodoList({
     <section className="todoapp__main" data-cy="TodoList">
       {todos.map(todo => (
         <TodoItem
+          key={todo.id}
           focusInput={focusInput}
           setTodos={setTodos}
           todos={todos}

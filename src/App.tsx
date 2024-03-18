@@ -1,10 +1,15 @@
 /* eslint-disable react/jsx-no-bind */
-/* eslint-disable max-len */
 /* eslint-disable jsx-a11y/control-has-associated-label */
 import React, { useEffect, useRef, useState } from 'react';
 import classNames from 'classnames';
 import { UserWarning } from './UserWarning';
-import { USER_ID, createTodos, deleteTodo, getTodos } from './api/todos';
+import {
+  USER_ID,
+  createTodos,
+  deleteTodo,
+  editTodo,
+  getTodos,
+} from './api/todos';
 import { Todo } from './types/Todo';
 import TodoList from './Components/TodoList/TodoList';
 
@@ -42,8 +47,7 @@ export const App: React.FC = () => {
   const unCompletedTodos = todos.filter(todo => !todo.completed);
   const inputRef = useRef<HTMLInputElement | null>(null);
   const activeTodosLength = todos.length - completedTodos.length;
-  const allCompletedTodos = todos.length - unCompletedTodos.length;
-  const allCompleted = todos.every(todo => todo.completed);
+  const [allCompleted, setAllCompleted] = useState(false);
 
   const focusInput = () => {
     setTimeout(() => {
@@ -69,6 +73,11 @@ export const App: React.FC = () => {
 
   useEffect(() => {
     setFilteredTodos(prepareGoods(todos, filteringType));
+
+    const newAllCompleted =
+      todos.length > 0 && todos.every(todo => todo.completed);
+
+    setAllCompleted(newAllCompleted);
   }, [todos, filteringType]);
 
   useEffect(() => {
@@ -157,13 +166,46 @@ export const App: React.FC = () => {
     focusInput();
   };
 
-  const handleToggleAll = () => {
-    const newArrayOfTodos = todos.map(todo => ({
-      ...todo,
-      completed: !allCompletedTodos,
-    }));
+  const handleToggleAll = async () => {
+    try {
+      let updatedTodos;
 
-    setTodos(newArrayOfTodos);
+      const uncompletedExist = todos.some(todo => !todo.completed);
+
+      if (uncompletedExist) {
+        updatedTodos = await Promise.all(
+          todos.map(async todo => {
+            if (!todo.completed) {
+              const updatedTodo = { ...todo, completed: true };
+
+              await editTodo(updatedTodo);
+
+              return updatedTodo;
+            }
+
+            return todo;
+          }),
+        );
+      } else {
+        updatedTodos = await Promise.all(
+          todos.map(async todo => {
+            const updatedTodo = { ...todo, completed: false };
+
+            await editTodo(updatedTodo);
+
+            return updatedTodo;
+          }),
+        );
+      }
+
+      const newAllCompleted = updatedTodos.every(todo => todo.completed);
+
+      setTodos(updatedTodos);
+      setAllCompleted(newAllCompleted);
+    } catch (error) {
+      setErrorMessage('Error updating todos:');
+      throw error;
+    }
   };
 
   return (

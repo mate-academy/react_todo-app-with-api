@@ -1086,16 +1086,16 @@ describe('', () => {
         todos.assertTitle(0, 'CSS');
       });
 
-      // it('should show a todo on success when selected an oposite filter', () => {
-      //   page.mockUpdate(257334).as('updateRequest');
+      it('should show a todo on success when selected an oposite filter', () => {
+        page.mockUpdate(257334).as('updateRequest');
 
-      //   todos.statusToggler(0).click();
-      //   filter.link('active').click();
-      //   cy.wait('@updateRequest');
+        todos.statusToggler(0).click();
+        filter.link('active').click();
+        cy.wait('@updateRequest');
 
-      //   todos.assertCount(3);
-      //   todos.assertTitle(0, 'HTML');
-      // });
+        todos.assertCount(3);
+        todos.assertTitle(0, 'HTML');
+      });
 
       it('should not hide a todo on fail', () => {
         // to prevent Cypress from failing the test on uncaught exception

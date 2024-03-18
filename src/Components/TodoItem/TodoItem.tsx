@@ -24,9 +24,9 @@ export default function TodoItem({
   deleteSingleTodo,
   setErrorMessage,
 }: Props) {
+  const { id, title, completed } = todo;
   const [editedTitle, setEditedTitle] = useState<string>('');
   const [editing, setEditing] = useState(false);
-  const { id, title, completed } = todo;
   const [updatingId, setUpdatingId] = useState<number | null>(null);
   const editInputRef = useRef<HTMLInputElement>(null);
 
@@ -81,6 +81,7 @@ export default function TodoItem({
       if (updatedTodo.title.trim().length < 1) {
         deleteSingleTodo(updatedTodo.id);
         setEditing(false);
+        setUpdatingId(null);
         focusInput();
       } else {
         const newTodos = todos.map(t =>
@@ -94,6 +95,9 @@ export default function TodoItem({
     } catch (error) {
       setErrorMessage('Unable to edit a todo');
       editInputRef.current?.focus();
+      setUpdatingId(null);
+    } finally {
+      setUpdatingId(null);
     }
   }, [
     id,
@@ -123,8 +127,9 @@ export default function TodoItem({
   );
 
   const handleDoubleClick = useCallback(() => {
+    setEditedTitle(title);
     setEditing(true);
-  }, []);
+  }, [title]);
 
   const handleKeyUp = useCallback(
     (e: React.KeyboardEvent<HTMLInputElement>) => {
