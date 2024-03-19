@@ -10,4 +10,4 @@ module.exports = {
     }],
     'operator-linebreak': 0,
   },
-};
+
