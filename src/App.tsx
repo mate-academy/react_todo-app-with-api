@@ -48,7 +48,7 @@ export const App: React.FC = () => {
   const inputRef = useRef<HTMLInputElement | null>(null);
   const activeTodosLength = todos.length - completedTodos.length;
   const [allCompleted, setAllCompleted] = useState(false);
-
+const filteredTodos= prepareGoods(todos, filteringType);
   const focusInput = () => {
     setTimeout(() => {
       inputRef.current?.focus();
