@@ -208,7 +208,7 @@ export const App: React.FC = () => {
         <header className="todoapp__header">
           {todos.length > 0 && (
             <button
-              onClick={() => handleToggleAll()}
+              onClick={handleToggleAll}
               type="button"
               className={classNames('todoapp__toggle-all', {
                 active: allCompleted,
