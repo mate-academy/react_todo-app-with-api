@@ -12,7 +12,10 @@ export interface Action {
   payload?: number | Todo | Todo[];
 }
 
-const reducer = (state: Todo[], action: Action) => {
+const reducer: React.Reducer<Todo[], Action> = (
+  state: Todo[],
+  action: Action,
+) => {
   switch (action.type) {
     case Filtering.Add:
       return [...state, action.payload as Todo];
@@ -37,7 +40,7 @@ const reducer = (state: Todo[], action: Action) => {
         return todo;
       });
     case Filtering.Fetch:
-      return action.payload;
+      return action.payload as Todo[];
     default:
       return state;
   }
@@ -75,7 +78,7 @@ export const useCustomReducer = () => {
     dispatch({ type: Filtering.ChengeInput, payload: todo });
   };
 
-  const fetchData = (dataFromServer: Todo) => {
+  const fetchData = (dataFromServer: Todo[]) => {
     dispatch({ type: Filtering.Fetch, payload: dataFromServer });
   };
 

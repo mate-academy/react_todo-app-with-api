@@ -1,5 +1,5 @@
 export interface Todo {
-  id?: number;
+  id: number;
   userId?: number;
   title: string;
   completed: boolean;
@@ -10,4 +10,11 @@ export interface ChangeTodo {
   userId?: number;
   title?: string;
   completed?: boolean;
+}
+
+export interface AddingTodo {
+  id?: number;
+  userId?: number;
+  title: string;
+  completed: boolean;
 }

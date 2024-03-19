@@ -12,7 +12,6 @@ interface Props {
 export const Footer: React.FC<Props> = ({ filterType }) => {
   const {
     reducer,
-    loading,
     handleSetFilterType,
     handleSetLoading,
     handleSetError,
@@ -21,12 +20,12 @@ export const Footer: React.FC<Props> = ({ filterType }) => {
   const { state, remove } = reducer;
 
   const itemsLeft = `${state.length - state.filter((elem: Todo) => elem.completed).length} items left`;
-  const hasCompletedItems = state.find(elem => elem.completed);
+  const hasCompletedItems = state.find((elem: Todo) => elem.completed);
 
   const deleteAllCompleted = () => {
-    state.forEach(todo => {
+    handleSetLoading(state.filter(elem => elem.completed));
+    state.forEach((todo: Todo) => {
       if (todo.completed) {
-        handleSetLoading([...loading, todo.id as number]);
         deleteTodo(todo.id as number)
           .then(() => {
             remove(todo.id as number);
@@ -38,7 +37,7 @@ export const Footer: React.FC<Props> = ({ filterType }) => {
             setTimeout(() => {
               focusField();
             }, 0);
-            handleSetLoading(loading.filter(elem => elem !== todo.id));
+            handleSetLoading([]);
           });
       }
     });

@@ -6,14 +6,13 @@ import React, {
   useEffect,
   useState,
 } from 'react';
-import { Todo } from '../../types/Todo';
+import { AddingTodo, Todo } from '../../types/Todo';
 import { MyContext, MyContextData } from '../context/myContext';
 import { USER_ID, addTodo, updateTodo } from '../../api/todos';
 
 export const CustomHeader: React.FC = () => {
   const {
     reducer,
-    loading,
     query,
     inputRef,
     focusField,
@@ -24,7 +23,7 @@ export const CustomHeader: React.FC = () => {
   } = useContext(MyContext) as MyContextData;
 
   const { state, addItem, toggle } = reducer;
-  const allTodosCompleted = state.every(elem => elem.completed);
+  const allTodosCompleted = state.every((elem: Todo) => elem.completed);
   const [isAdding, setIsAdding] = useState(false);
 
   useEffect(() => {
@@ -36,7 +35,7 @@ export const CustomHeader: React.FC = () => {
     handleSetError('');
 
     if (query.trim() !== '') {
-      const obj: Todo = {
+      const obj: AddingTodo = {
         title: query.trim(),
         userId: USER_ID,
         completed: false,
@@ -69,26 +68,24 @@ export const CustomHeader: React.FC = () => {
   const toggleAll = () => {
     let completedStatus = false;
 
-    if (state.find(todo => !todo.completed)) {
+    if (state.find((todo: Todo) => !todo.completed)) {
       completedStatus = true;
     }
 
-    state.forEach(todo => {
-      handleSetLoading([...loading, todo.id as number]);
-      updateTodo(todo.id as number, { completed: completedStatus })
+    handleSetLoading([...state]);
+    state.forEach((todo: Todo) => {
+      // handleSetLoading([...loading, todo]);
+      updateTodo(todo.id, { completed: completedStatus })
         .then(() => {
-          handleSetLoading(loading.filter(elem => elem !== todo.id));
+          handleSetLoading([]);
 
           // toggling the todo only if it needded
           if (todo.completed !== completedStatus) {
-            toggle(todo.id as number);
+            toggle(todo.id);
           }
         })
         .catch(() => {
           handleSetError('Unable to update a todo');
-        })
-        .finally(() => {
-          handleSetLoading(loading.filter(elem => elem !== todo.id));
         });
     });
   };

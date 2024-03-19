@@ -1,4 +1,5 @@
 import React, {
+  Dispatch,
   ReactNode,
   RefObject,
   createContext,
@@ -16,10 +17,8 @@ interface Reducer {
   addItem: (todo: Todo) => void;
   toggle: (id: number) => void;
   remove: (id: number) => void;
-  clearCompleted: () => void;
-  toggleAll: () => void;
   changeInput: (todo: Todo) => void;
-  dispatch: React.Dispatch<Action>;
+  dispatch: Dispatch<Action>;
   fetchData: (arg: Todo[]) => void;
 }
 
@@ -29,15 +28,14 @@ export interface MyContextData {
   inputRef: RefObject<HTMLInputElement>;
   tempTodo: Todo | null;
   reducer: Reducer;
-  loading: number[] | [];
-  DeleteAllCompleted: () => void;
+  loading: Todo[] | [];
   fitlerType: Filtering;
   focusField: () => void;
   handleSetFilterType: (arg: Filtering) => void;
   createTempTodo: (arg: boolean) => void;
   handleSetError: (arg: string) => void;
   handleSetQuery: (arg: string) => void;
-  handleSetLoading: (arg: number[]) => void;
+  handleSetLoading: (arg: Todo[]) => void;
 }
 
 interface Props {
@@ -52,7 +50,7 @@ export const MyProvider: React.FC<Props> = ({ children }) => {
   const [query, setQuery] = useState('');
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
-  const [loading, setLoading] = useState<number[] | []>([]);
+  const [loading, setLoading] = useState<Todo[] | []>([]);
   const reducer = useCustomReducer();
 
   const handleSetError = (e: string) => {
@@ -67,7 +65,7 @@ export const MyProvider: React.FC<Props> = ({ children }) => {
     setFilterType(type);
   };
 
-  const handleSetLoading = (arg: number[]) => {
+  const handleSetLoading = (arg: Todo[]) => {
     setLoading([...arg]);
   };
 

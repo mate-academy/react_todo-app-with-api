@@ -6,7 +6,6 @@ import { deleteTodo, updateTodo } from '../../api/todos';
 
 interface Props {
   todo: Todo | null;
-  // loading: number[] | [];
 }
 
 export const TodoItem: React.FC<Props> = ({ todo }) => {
@@ -22,15 +21,15 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
     return null;
   }
 
-  const { id, completed, title } = todo as Todo;
-  const isLoading = id === 0 || !!loading.find(elem => elem === id);
+  const { id, completed, title } = todo;
+  const isLoading = id === 0 || !!loading.find(elem => elem.id === todo.id);
   const oldTitle = title;
 
   const handleClick = () => {
-    handleSetLoading([...loading, id as number]);
-    deleteTodo(id as number)
+    handleSetLoading([...loading, todo]);
+    deleteTodo(id)
       .then(() => {
-        remove(id as number);
+        remove(id);
       })
       .catch(() => {
         handleSetError('Unable to delete a todo');
@@ -39,23 +38,23 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
         setTimeout(() => {
           focusField();
         }, 0);
-        handleSetLoading(loading.filter(elem => elem !== id));
+        handleSetLoading(loading.filter(elem => elem.id !== id));
       });
   };
 
   const handleToggle = () => {
-    handleSetLoading([...loading, id as number]);
+    handleSetLoading([...loading, todo]);
 
-    updateTodo(id as number, { completed: !completed })
+    updateTodo(id, { completed: !completed })
       .then(() => {
-        handleSetLoading(loading.filter(elem => elem !== id));
-        toggle(id as number);
+        handleSetLoading(loading.filter(elem => elem.id !== id));
+        toggle(id);
       })
       .catch(() => {
         handleSetError('Unable to update a todo');
       })
       .finally(() => {
-        handleSetLoading(loading.filter(elem => elem !== id));
+        handleSetLoading(loading.filter(elem => elem.id !== id));
       });
   };
 
@@ -74,20 +73,20 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
       completed,
     };
 
-    if (mainTitle.trim() === '') {
+    if ((mainTitle as string).trim() === '') {
       handleClick();
     }
 
-    handleSetLoading([...loading, id as number]);
+    handleSetLoading([...loading, todo]);
     setIsActive(false);
-    updateTodo(id as number, { title: mainTitle })
+    updateTodo(id, { title: mainTitle })
       .then(() => {
-        handleSetLoading(loading.filter(elem => elem !== id));
+        handleSetLoading(loading.filter(elem => elem.id !== id));
       })
       .catch(() => {
         handleSetError('Enable to update a todo');
       })
-      .finally(() => handleSetLoading(loading.filter(elem => elem !== id)));
+      .finally(() => handleSetLoading(loading.filter(elem => elem.id !== id)));
     setIsActive(false);
 
     changeInput(obj as Todo);
