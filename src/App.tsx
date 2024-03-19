@@ -71,14 +71,6 @@ export const App: React.FC = () => {
     }
   }, []);
 
-  useEffect(() => {
-    setFilteredTodos(prepareGoods(todos, filteringType));
-
-    const newAllCompleted =
-      todos.length > 0 && todos.every(todo => todo.completed);
-
-    setAllCompleted(newAllCompleted);
-  }, [todos, filteringType]);
 
   useEffect(() => {
     const timeoutId = setTimeout(() => {
