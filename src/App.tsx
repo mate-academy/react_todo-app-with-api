@@ -286,7 +286,7 @@ export const App: React.FC = () => {
               className="todoapp__clear-completed"
               data-cy="ClearCompletedButton"
               disabled={todos.length === unCompletedTodos.length}
-              onClick={() => clearCompletedTodo()}
+              onClick={clearCompletedTodo}
             >
               Clear completed
             </button>
