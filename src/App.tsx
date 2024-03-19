@@ -34,7 +34,7 @@ function prepareGoods(todos: Todo[], filteringType: FilterTypes): Todo[] {
 
 export const App: React.FC = () => {
   const [todos, setTodos] = useState<Todo[]>([]);
-  const [filteredTodos, setFilteredTodos] = useState<Todo[]>([]);
+  
   const [errorMessage, setErrorMessage] = useState<string>('');
   const [filteringType, setFilteringType] = useState<FilterTypes>(
     FilterTypes.All,
