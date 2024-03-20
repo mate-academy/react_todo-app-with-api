@@ -32,7 +32,7 @@ function prepareGoods(todos: Todo[], filteringType: FilterTypes): Todo[] {
 
 export const App: React.FC = () => {
   const [todos, setTodos] = useState<Todo[]>([]);
-  const [filteredTodos, setFilteredTodos] = useState<Todo[]>([]);
+  
   const [errorMessage, setErrorMessage] = useState<string>('');
   const [filteringType, setFilteringType] = useState<FilterTypes>(
     FilterTypes.All,
@@ -45,8 +45,8 @@ export const App: React.FC = () => {
   const unCompletedTodos = todos.filter(todo => !todo.completed);
   const inputRef = useRef<HTMLInputElement | null>(null);
   const activeTodosLength = todos.length - completedTodos.length;
-  const [allCompleted, setAllCompleted] = useState(false);
-
+  const allTodosCompleted = todos.length > 0 && todos.every(todo => todo.completed)
+const filteredTodos= prepareGoods(todos, filteringType);
   const focusInput = () => {
     setTimeout(() => {
       inputRef.current?.focus();
@@ -69,14 +69,6 @@ export const App: React.FC = () => {
     }
   }, []);
 
-  useEffect(() => {
-    setFilteredTodos(prepareGoods(todos, filteringType));
-
-    const newAllCompleted =
-      todos.length > 0 && todos.every(todo => todo.completed);
-
-    setAllCompleted(newAllCompleted);
-  }, [todos, filteringType]);
 
   useEffect(() => {
     const timeoutId = setTimeout(() => {
@@ -194,7 +186,7 @@ export const App: React.FC = () => {
         <header className="todoapp__header">
           {todos.length > 0 && (
             <button
-              onClick={() => handleToggleAll()}
+              onClick={handleToggleAll}
               type="button"
               className={classNames('todoapp__toggle-all', {
                 active: allCompleted,
@@ -272,7 +264,7 @@ export const App: React.FC = () => {
               className="todoapp__clear-completed"
               data-cy="ClearCompletedButton"
               disabled={todos.length === unCompletedTodos.length}
-              onClick={() => clearCompletedTodo()}
+              onClick={clearCompletedTodo}
             >
               Clear completed
             </button>
