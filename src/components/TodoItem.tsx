@@ -16,6 +16,7 @@ export const TodoItem: React.FC<Props> = ({ todo, temp = false }) => {
   const { todos, setTodos, titleField } = context;
   const { setError, setErrorMessage, delTodoFromState } = context;
   const [newTitle, setNewTitle] = useState('');
+
   const [isEditing, setIsEditing] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
