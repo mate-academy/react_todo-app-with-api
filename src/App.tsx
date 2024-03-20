@@ -20,15 +20,13 @@ enum FilterTypes {
 }
 
 function prepareGoods(todos: Todo[], filteringType: FilterTypes): Todo[] {
-  const allTodos = [...todos];
-
   switch (filteringType) {
     case FilterTypes.Active:
-      return allTodos.filter(todo => todo.completed === false);
+      return todos.filter(todo => todo.completed === false);
     case FilterTypes.Completed:
-      return allTodos.filter(todo => todo.completed === true);
+      return todos.filter(todo => todo.completed === true);
     default:
-      return allTodos;
+      return todos;
   }
 }
 
@@ -168,35 +166,15 @@ export const App: React.FC = () => {
 
   const handleToggleAll = async () => {
     try {
-      let updatedTodos;
+      const updatedTodos = await Promise.all(
+        todos.map(async todo => {
+          const updatedTodo = { ...todo, completed: !allCompleted };
 
-      const uncompletedExist = todos.some(todo => !todo.completed);
+          await editTodo(updatedTodo);
 
-      if (uncompletedExist) {
-        updatedTodos = await Promise.all(
-          todos.map(async todo => {
-            if (!todo.completed) {
-              const updatedTodo = { ...todo, completed: true };
-
-              await editTodo(updatedTodo);
-
-              return updatedTodo;
-            }
-
-            return todo;
-          }),
-        );
-      } else {
-        updatedTodos = await Promise.all(
-          todos.map(async todo => {
-            const updatedTodo = { ...todo, completed: false };
-
-            await editTodo(updatedTodo);
-
-            return updatedTodo;
-          }),
-        );
-      }
+          return updatedTodo;
+        }),
+      );
 
       const newAllCompleted = updatedTodos.every(todo => todo.completed);
 
