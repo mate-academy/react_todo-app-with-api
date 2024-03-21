@@ -118,13 +118,13 @@ export const App: FC = () => {
         completedTodos.map(el => removeTodo(el.id)),
       );
 
-      for (let i = 0; i < deletedTodosId.length; i += 1) {
-        if (deletedTodosId[i].status === 'fulfilled') {
-          removedTodosId.push(completedTodos[i].id);
+      deletedTodosId.forEach((todo, index) => {
+        if (todo.status === 'fulfilled') {
+          removedTodosId.push(completedTodos[index].id);
         } else {
           setErrorMessage('Unable to delete a todo');
         }
-      }
+      });
 
       setTodos(todos.filter(todo => !removedTodosId.includes(todo.id)));
     } catch (err) {
@@ -164,13 +164,13 @@ export const App: FC = () => {
           listOfSendingTodos.map(el => editTodo(el)),
         );
 
-        for (let i = 0; i < editedTodosResponseArr.length; i += 1) {
-          if (editedTodosResponseArr[i].status === 'fulfilled') {
-            uncompletedTodosId.push(listOfSendingTodos[i].id);
+        editedTodosResponseArr.forEach((todoResponse, index) => {
+          if (todoResponse.status === 'fulfilled') {
+            uncompletedTodosId.push(listOfSendingTodos[index].id);
           } else {
             setErrorMessage('Unable to edit a todo');
           }
-        }
+        });
 
         setTodos(
           todos.map(todo => {
@@ -254,7 +254,7 @@ export const App: FC = () => {
       <h1 className="todoapp__title">todos</h1>
       <div className="todoapp__content">
         <header className="todoapp__header">
-          {todos.length > 0 && (
+          {!!todos.length && (
             <button
               type="button"
               className={cn('todoapp__toggle-all', {

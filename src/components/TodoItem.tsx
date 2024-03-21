@@ -24,11 +24,7 @@ export const TodoItem: FC<Props> = ({
   const [newTodoTitle, setNewTodoTitle] = useState(todo.title);
 
   useEffect(() => {
-    if (todo.loading === undefined) {
-      setIsLoading(false);
-    } else {
-      setIsLoading(todo.loading);
-    }
+    setIsLoading(false);
   }, [todo]);
 
   const deleteReqById = (todoId: number) => {
@@ -102,7 +98,7 @@ export const TodoItem: FC<Props> = ({
 
     setIsLoading(true);
 
-    if (e.key === 'Enter' && newTodoTitle.trim() === '') {
+    if (e.key === 'Enter' && !newTodoTitle.trim()) {
       deleteReqById(todo.id);
     } else if (e.key === 'Enter') {
       saveNewTodoTitle();
