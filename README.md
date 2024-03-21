@@ -20,7 +20,7 @@ Add the ability to toggle the completed status of all the todos with the `toggle
 - `toggleAll` button should have `active` class only if all the todos are completed;
 - `toggleAll` click changes its status to the opposite one, and sets this new status to all the todos;
 - it should work the same as several individual updates of the todos which statuses were actually changed;
-- do send requests for the todos that were not changed;
+- do not send requests for the todos that were not changed;
 
 ## Renaming a todo
 
