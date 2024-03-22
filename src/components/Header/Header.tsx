@@ -73,12 +73,14 @@ export const Header: React.FC = () => {
 
   const handlerCompleteAll = () => {
     if (todos.some(todo => todo.completed === false)) {
+      const activeTodos = todos.filter(todo => !todo.completed);
+
       const updateTodo = todos.map(todo => ({
         ...todo,
         completed: true,
       }));
 
-      todos.map(todo => updatedComplet(todo));
+      activeTodos.map(todo => updatedComplet(todo));
 
       setTodos(updateTodo);
     } else {

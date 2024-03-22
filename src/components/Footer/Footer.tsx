@@ -21,10 +21,8 @@ export const Footer: React.FC = () => {
           currentTodos.filter(post => post.id !== todoId),
         );
       })
-      .catch(error => {
+      .catch(() => {
         setErrorMessage('Unable to delete a todo');
-        setTodos(todos);
-        throw error;
       })
       .finally(() => {
         if (todoInput) {
@@ -34,8 +32,11 @@ export const Footer: React.FC = () => {
   };
 
   const handleTodoCleaning = () => {
-    todos.map(todo => todo.completed && handleDelete(todo.id));
-    setTodos(todos.filter(todo => !todo.completed));
+    const completedTodos = todos.filter(todo => todo.completed);
+
+    completedTodos.forEach(todo => handleDelete(todo.id));
+    // todos.map(todo => todo.completed && handleDelete(todo.id));
+    // setTodos(todos.filter(todo => !todo.completed));
   };
 
   return (

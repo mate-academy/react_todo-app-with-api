@@ -3,14 +3,13 @@ import classNames from 'classnames';
 import { Todo } from '../../types/Todo';
 import { TodoContext } from '../Store/TodoContext';
 import { deleteTodos, updateTodos } from '../../api/todos';
-import { Loader } from '../Loader/Loader';
 
 type Props = {
   todo: Todo;
 };
 
 export const TodoItem: React.FC<Props> = ({ todo }) => {
-  const { todos, setTodos, setErrorMessage } = useContext(TodoContext);
+  const { setTodos, setErrorMessage } = useContext(TodoContext);
   const { completed, title, id } = todo;
   const [handleDeleteTodoId, setHandleDeleteTodoId] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
@@ -28,7 +27,7 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
   useEffect(() => {
     const todoInput = document.getElementById('todoInput');
 
-    if ((handleDeleteTodoId || todo) && todoInput) {
+    if (todo && todoInput) {
       todoInput.focus();
     }
 
@@ -41,18 +40,21 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
 
   const handleDelete = (todoId: number) => {
     setHandleDeleteTodoId(todoId);
+    setIsLoading(true);
     deleteTodos(todoId)
       .then(() => {
         setTodos(currentTodos =>
           currentTodos.filter(post => post.id !== todoId),
         );
       })
-      .catch(() => {
-        setErrorMessage('Unable to delete a todo');
-      })
-      .finally(() => {
-        setIsLoading(false);
+      .then(() => {
         setIsEdit(false);
+        setIsLoading(false);
+      })
+      .catch(() => {
+        setIsLoading(false);
+        console.log('fail', isLoading);
+        setErrorMessage('Unable to delete a todo');
       });
   };
 
@@ -72,12 +74,14 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
           ),
         );
       })
-      .catch(() => {
+      .catch(error => {
         setErrorMessage('Unable to update a todo');
+        throw error;
       })
+      .then(() => setIsEdit(false))
       .finally(() => {
         setIsLoading(false);
-        setIsEdit(false);
+        // setIsEdit(false);
       });
   };
 
@@ -136,13 +140,24 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
 
     updateTodos(post.id, updatedTodo)
       .then(() => {
-        setTodos(
-          todos.map(elem => {
-            return elem.id === todo.id
-              ? { ...elem, completed: !elem.completed }
-              : elem;
-          }),
+        // setTodos( //2
+        //   todos.map(elem => {
+        //     return elem.id === todo.id
+        //       ? { ...elem, completed: !elem.completed }
+        //       : elem;
+        //   }),
+        // );
+        setTodos(currentTodos =>
+          currentTodos.map(elemt =>
+            elemt.id === todo.id
+              ? { ...elemt, completed: !elemt.completed }
+              : elemt,
+          ),
         );
+      })
+      .catch(error => {
+        setErrorMessage('Unable to update a todo');
+        throw error;
       })
       .finally(() => setIsLoading(false));
   };
@@ -225,9 +240,7 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
     /* This is a completed todo */
     <div
       data-cy="Todo"
-      className={classNames('todo', {
-        completed,
-      })}
+      className={classNames('todo', { completed })}
       onDoubleClick={() => setIsEdit(true)}
     >
       <label className="todo__status-label">
@@ -235,8 +248,9 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
           data-cy="TodoStatus"
           type="checkbox"
           className="todo__status"
-          defaultChecked={completed}
+          checked={completed}
           onClick={handlerCompleted}
+          disabled={isLoading}
         />
       </label>
 
@@ -269,6 +283,7 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
             className="todo__remove"
             data-cy="TodoDelete"
             onClick={() => handleDelete(todo.id)}
+            disabled={isLoading}
           >
             ×
           </button>
@@ -276,18 +291,18 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
       )}
 
       {/* 'is-active' class puts this modal on top of the todo */}
-      {isLoading || handleDeleteTodoId === todo.id ? <Loader /> : null}
-      {/* {(isLoading || handleDeleteTodoId === todo.id) && (
-        <div
-          data-cy="TodoLoader"
-          className={classNames('modal overlay', {
-            'is-active': isLoading || handleDeleteTodoId === todo.id,
-          })}
-        >
-          <div className="modal-background has-background-white-ter" />
-          <div className="loader" />
-        </div>
-      )} */}
+      {/* {isLoading || handleDeleteTodoId === todo.id ? <Loader /> : null} */}
+
+      <div
+        data-cy="TodoLoader"
+        className={classNames('modal overlay', {
+          // 'is-active': selectedTodo.includes(id),
+          'is-active': isLoading || handleDeleteTodoId === todo.id,
+        })}
+      >
+        <div className="modal-background has-background-white-ter" />
+        <div className="loader" />
+      </div>
     </div>
   );
 };
