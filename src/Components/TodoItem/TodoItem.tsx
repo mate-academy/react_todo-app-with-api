@@ -47,10 +47,10 @@ export default function TodoItem({
     setUpdatingId(id);
     editTodo(todowithUpdatedStatus)
       .then(updatedOne => {
-        const updatedTodos = [...todos];
-        const index = updatedTodos.findIndex(t => t.id === updatedOne.id);
+        const updatedTodos = todos.map(t =>
+          t.id === updatedOne.id ? updatedOne : t,
+        );
 
-        updatedTodos.splice(index, 1, updatedOne);
         setTodos(updatedTodos);
         setUpdatingId(null);
       })

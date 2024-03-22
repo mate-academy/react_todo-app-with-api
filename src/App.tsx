@@ -32,7 +32,6 @@ function prepareGoods(todos: Todo[], filteringType: FilterTypes): Todo[] {
 
 export const App: React.FC = () => {
   const [todos, setTodos] = useState<Todo[]>([]);
-  
   const [errorMessage, setErrorMessage] = useState<string>('');
   const [filteringType, setFilteringType] = useState<FilterTypes>(
     FilterTypes.All,
@@ -45,8 +44,9 @@ export const App: React.FC = () => {
   const unCompletedTodos = todos.filter(todo => !todo.completed);
   const inputRef = useRef<HTMLInputElement | null>(null);
   const activeTodosLength = todos.length - completedTodos.length;
-  const allTodosCompleted = todos.length > 0 && todos.every(todo => todo.completed)
-const filteredTodos= prepareGoods(todos, filteringType);
+  const allTodosCompleted =
+    todos.length > 0 && todos.every(todo => todo.completed);
+  const filteredTodos = prepareGoods(todos, filteringType);
   const focusInput = () => {
     setTimeout(() => {
       inputRef.current?.focus();
@@ -68,7 +68,6 @@ const filteredTodos= prepareGoods(todos, filteringType);
       getAllTodos();
     }
   }, []);
-
 
   useEffect(() => {
     const timeoutId = setTimeout(() => {
@@ -160,7 +159,7 @@ const filteredTodos= prepareGoods(todos, filteringType);
     try {
       const updatedTodos = await Promise.all(
         todos.map(async todo => {
-          const updatedTodo = { ...todo, completed: !allCompleted };
+          const updatedTodo = { ...todo, completed: !allTodosCompleted };
 
           await editTodo(updatedTodo);
 
@@ -168,10 +167,7 @@ const filteredTodos= prepareGoods(todos, filteringType);
         }),
       );
 
-      const newAllCompleted = updatedTodos.every(todo => todo.completed);
-
       setTodos(updatedTodos);
-      setAllCompleted(newAllCompleted);
     } catch (error) {
       setErrorMessage('Error updating todos:');
       throw error;
@@ -189,7 +185,7 @@ const filteredTodos= prepareGoods(todos, filteringType);
               onClick={handleToggleAll}
               type="button"
               className={classNames('todoapp__toggle-all', {
-                active: allCompleted,
+                active: allTodosCompleted,
               })}
               data-cy="ToggleAllButton"
             />
