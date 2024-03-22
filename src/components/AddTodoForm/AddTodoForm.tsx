@@ -49,7 +49,7 @@ export const AddTodoForm: React.FC = () => {
         });
 
       const tempTodo = {
-        id: 0,
+        id: -1,
         ...newTodo,
       };
 
