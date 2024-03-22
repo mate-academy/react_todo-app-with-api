@@ -47,13 +47,13 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
   };
 
   const changeCompleteStatus = () => {
-    todoService.updateTodo(todo).then(currentTodo => {
-      setTodos(prevtodos =>
-        prevtodos.map(task =>
-          task.id === todo.id ? { ...task, completed: !task.completed } : task,
-        ),
-      );
-    });
+    todoService
+      .updateTodo({ ...todo, completed: !todo.completed })
+      .then(updatedTodo => {
+        setTodos(prevtodos =>
+          prevtodos.map(task => (task.id === todo.id ? updatedTodo : task)),
+        );
+      });
   };
 
   // const changeTodoTitle = (updateTodo: Todo) => {
@@ -160,3 +160,7 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
 
 //   setTodos(todos.filter(task => task.id !== todo.id));
 // })
+
+// prevtodos.map(task =>
+//   task.id === todo.id ? { ...task, completed: !task.completed } : task,
+// ),
