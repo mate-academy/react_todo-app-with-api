@@ -35,8 +35,6 @@ export const Footer: React.FC = () => {
     const completedTodos = todos.filter(todo => todo.completed);
 
     completedTodos.forEach(todo => handleDelete(todo.id));
-    // todos.map(todo => todo.completed && handleDelete(todo.id));
-    // setTodos(todos.filter(todo => !todo.completed));
   };
 
   return (

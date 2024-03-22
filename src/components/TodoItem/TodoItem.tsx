@@ -53,7 +53,6 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
       })
       .catch(() => {
         setIsLoading(false);
-        console.log('fail', isLoading);
         setErrorMessage('Unable to delete a todo');
       });
   };
@@ -81,54 +80,8 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
       .then(() => setIsEdit(false))
       .finally(() => {
         setIsLoading(false);
-        // setIsEdit(false);
       });
   };
-
-  // const updatedComplet = (id: number) => {
-  //   const updatedTodo: Todo = {
-  //     id: id,
-  //     userId: 260,
-  //     title: title.trim(),
-  //     completed: !completed,
-  //   };
-
-  //   return updateTodos(id, updatedTodo)
-  //     // .then((response) =>{
-  //     //   return response.id
-  //     // }
-  //     // )
-  //     .finally(() => setIsLoading(false));
-  //   // return updateTodos(id, updatedTodo)
-  //   //   .then(() => {
-  //   //     setIsLoading(false);
-  //   //     console.log('post', id);
-  //   //   })
-  //   //   .catch(() => setErrorMessage('Unable to update todo'));
-  //   // setTodos(
-  //   //   todos.map(elem =>{
-  //   //     console.log(id, elem.id)
-  //   //     return id === elem.id
-  //   //       ? { ...elem, completed: !elem.completed }
-  //   //       : elem
-  //   //     }
-  //   //   ),
-  //   // ),
-  // };
-
-  // const handlerCompleted = () => {
-  //   setIsLoading(true);
-  //   updatedComplet(todo.id)
-  //     .then((response) =>
-  //     setTodos(
-  //       todos.map(elem => {
-  //         console.log('elem', elem.id === todo.id)
-  //         return elem.id === todo.id ? { ...elem, completed: !elem.completed } : elem
-  //       }
-  //       ),
-  //     ),
-  //   );
-  // };
 
   const updatedComplet = (post: Todo) => {
     const updatedTodo: Todo = {
@@ -140,13 +93,6 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
 
     updateTodos(post.id, updatedTodo)
       .then(() => {
-        // setTodos( //2
-        //   todos.map(elem => {
-        //     return elem.id === todo.id
-        //       ? { ...elem, completed: !elem.completed }
-        //       : elem;
-        //   }),
-        // );
         setTodos(currentTodos =>
           currentTodos.map(elemt =>
             elemt.id === todo.id
@@ -165,40 +111,6 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
   const handlerCompleted = async () => {
     setIsLoading(true);
     updatedComplet(todo);
-
-    // try {
-    //   setIsLoading(true);
-    //   await updatedComplet(todo);
-    // } catch {
-    //   console.log('error');
-    // } finally {
-    //   await setTodos(
-    //     todos.map(elem => {
-    //       console.log('elem', elem.id === todo.id);
-
-    //       return elem.id === todo.id
-    //         ? { ...elem, completed: !elem.completed }
-    //         : elem;
-    //     }),
-    //   );
-    // }
-
-    // const updatedTodos = [...todos];
-    // const currentTodoIndex = updatedTodos.findIndex(
-    //   (elem: Todo) => elem.id === todo.id,
-    // );
-
-    // if (currentTodoIndex !== -1) {
-    //   const newCompelte = !updatedTodos[currentTodoIndex].completed;
-
-    //   updatedTodos[currentTodoIndex] = {
-    //     ...updatedTodos[currentTodoIndex],
-    //     completed: newCompelte,
-    //   };
-    //   updatedTodos.splice(currentTodoIndex, 1, updatedTodos[currentTodoIndex]);
-
-    //   setTodos(updatedTodos);
-    // }
   };
 
   const handleEdit = () => {
