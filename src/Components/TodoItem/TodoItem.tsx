@@ -36,31 +36,19 @@ export default function TodoItem({
     }
   }, [editing]);
 
-  const updateStatus = useCallback(() => {
-    const todowithUpdatedStatus = {
-      id,
-      userId: USER_ID,
-      title,
-      completed: !completed,
-    };
+  const updateCompletedById = (todoId: number) => {
+    const updatedList = todos.map(editedTodo => {
+      const updatedTodo = { ...editedTodo };
 
-    setUpdatingId(id);
-    editTodo(todowithUpdatedStatus)
-      .then(updatedOne => {
-        const updatedTodos = todos.map(t =>
-          t.id === updatedOne.id ? updatedOne : t,
-        );
+      if (updatedTodo.id === todoId) {
+        updatedTodo.completed = !updatedTodo.completed;
+      }
 
-        setTodos(updatedTodos);
-        setUpdatingId(null);
-      })
-      .catch(() => {
-        setErrorMessage('Unable to update a todo');
-      })
-      .finally(() => {
-        setUpdatingId(null);
-      });
-  }, [completed, id, title, todos, setTodos, setErrorMessage]);
+      return updatedTodo;
+    });
+
+    setTodos(updatedList);
+  };
 
   const updateTodo = useCallback(async () => {
     setErrorMessage('');
@@ -160,14 +148,17 @@ export default function TodoItem({
             editing,
           })}
         >
-          <label onClick={updateStatus} className="todo__status-label">
+          <label className="todo__status-label" htmlFor={`todo-checkbox-${id}`}>
             <input
+              id={`todo-checkbox-${id}`}
               data-cy="TodoStatus"
               type="checkbox"
               className="todo__status"
               checked={completed}
+              onChange={() => updateCompletedById(id)}
             />
           </label>
+
           {editing ? (
             <form onSubmit={handleEditFormSubmit}>
               <input
