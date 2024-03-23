@@ -1,20 +1,71 @@
 /* eslint-disable jsx-a11y/label-has-associated-control */
 // eslint-disable jsx-a11y/label-has-associated-control
-import React, { useContext } from 'react';
+import React, { useContext, useState } from 'react';
 import classNames from 'classnames';
 import { Todo } from '../types/Todo';
 import { TodosContext } from './Todos-Context';
-import { USER_ID } from '../api/todos';
+import { USER_ID, updateTodo } from '../api/todos';
 // eslint-disable-next-line no-redeclare
 
 interface PropsItem {
   todo: Todo;
 }
 export const TodoItem: React.FC<PropsItem> = ({ todo }) => {
+  const [isInput, setIsInput] = useState<boolean>(false);
+  const [rewrite, setRewrite] = useState('');
   // eslint-disable-next-line max-len, prettier/prettier
-  const { loading, handleCompleted, todoDeleteButton, deletingTodos } =
-    useContext(TodosContext);
+  const {
+    loading,
+    handleCompleted,
+    todoDeleteButton,
+    deletingTodos,
+    todos,
+    setTodos,
+  } = useContext(TodosContext);
   const { title, completed, id } = todo;
+
+  const handleDoobleClickInput = () => {
+    setIsInput(prev => !prev);
+  };
+
+  const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    event.preventDefault();
+    setRewrite(event.target.value);
+  };
+
+  const handlerInput = () => {
+    if (rewrite.trim() !== '') {
+      const upTodos = todos.map(item => {
+        if (item.id === todo.id) {
+          return { ...item, title: rewrite };
+        }
+
+        return item;
+      });
+
+      setTodos(upTodos);
+    } else {
+      const upTodos = todos.filter(item => item.id !== todo.id);
+
+      setTodos(upTodos);
+    }
+
+    updateTodo({ id, title: rewrite, completed });
+    if (rewrite.length === 0) {
+      todoDeleteButton(USER_ID, id);
+    }
+
+    setIsInput(false);
+  };
+
+  const pushKey = (event: React.KeyboardEvent<HTMLInputElement>) => {
+    if (event.key === 'Enter') {
+      handlerInput();
+      setIsInput(false);
+    } else if (event.key === 'Escape') {
+      setIsInput(false);
+    }
+  };
 
   return (
     <div
@@ -32,10 +83,15 @@ export const TodoItem: React.FC<PropsItem> = ({ todo }) => {
           onChange={() => handleCompleted(id)}
         />
       </label>
-
-      <span data-cy="TodoTitle" className="todo__title">
-        {title}
-      </span>
+      {!isInput && (
+        <span
+          data-cy="TodoTitle"
+          className="todo__title"
+          onDoubleClick={handleDoobleClickInput}
+        >
+          {title}
+        </span>
+      )}
 
       <button
         type="button"
@@ -45,15 +101,22 @@ export const TodoItem: React.FC<PropsItem> = ({ todo }) => {
       >
         ×
       </button>
-      <form>
-        <input
-          data-cy="TodoTitleField"
-          type="text"
-          className="todo__title-field"
-          placeholder="Empty todo will be deleted"
-          value="Todo is being edited now"
-        />
-      </form>
+      {isInput && (
+        <form>
+          <input
+            data-cy="TodoTitleField"
+            type="text"
+            className="todo__title-field"
+            placeholder="Empty todo will be deleted"
+            defaultValue={title}
+            onChange={handleChange}
+            onDoubleClick={handleDoobleClickInput}
+            onKeyDown={pushKey}
+            onBlur={handlerInput}
+          />
+        </form>
+      )}
+
       <div
         data-cy="TodoLoader"
         className={classNames('modal overlay', {
