@@ -137,6 +137,8 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
 //   setLoader(false);
 // };
 
+
+
 // варіант ментора
 
 // const deleteTodo = async () => {

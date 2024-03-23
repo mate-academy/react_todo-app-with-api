@@ -80,3 +80,7 @@ export const TodoProvider: React.FC<Props> = ({ children }) => {
     <TodoContext.Provider value={value}> {children} </TodoContext.Provider>
   );
 };
+
+// const handleLoadingChange = (loadingStatus: boolean) => {
+//   setIsLoading(loadingStatus);
+// };
