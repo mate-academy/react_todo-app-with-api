@@ -140,8 +140,8 @@ export const TodoContextProvider: React.FC<PropsContext> = ({ children }) => {
     newStateTodos.forEach(todo => {
       addTodos(todo);
       updateTodo(todo);
+      setDeletingTodos([id]);
     });
-
     setTodos(newStateTodos);
   };
 

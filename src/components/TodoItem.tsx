@@ -15,7 +15,6 @@ export const TodoItem: React.FC<PropsItem> = ({ todo }) => {
   const [rewrite, setRewrite] = useState('');
   // eslint-disable-next-line max-len, prettier/prettier
   const {
-    loading,
     handleCompleted,
     todoDeleteButton,
     deletingTodos,
