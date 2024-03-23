@@ -21,6 +21,7 @@ export const TodoItem: React.FC<PropsItem> = ({ todo }) => {
     deletingTodos,
     todos,
     setTodos,
+    setDeletingTodos,
   } = useContext(TodosContext);
   const { title, completed, id } = todo;
 
@@ -51,11 +52,16 @@ export const TodoItem: React.FC<PropsItem> = ({ todo }) => {
     }
 
     updateTodo({ id, title: rewrite, completed });
+    setDeletingTodos([id]);
+    setIsInput(false);
+
     if (rewrite.length === 0) {
       todoDeleteButton(USER_ID, id);
     }
 
-    setIsInput(false);
+    updateTodo({ id, title: rewrite, completed }).finally(() => {
+      setDeletingTodos(prev => prev.filter(item => item !== id));
+    });
   };
 
   const pushKey = (event: React.KeyboardEvent<HTMLInputElement>) => {
@@ -123,11 +129,7 @@ export const TodoItem: React.FC<PropsItem> = ({ todo }) => {
           'is-active': deletingTodos.includes(id),
         })}
       >
-        <div
-          className={classNames('modal-background has-background-white-ter', {
-            'is-active': loading,
-          })}
-        />
+        <div className="modal-background has-background-white-ter" />
         <div className="loader" />
       </div>
     </div>

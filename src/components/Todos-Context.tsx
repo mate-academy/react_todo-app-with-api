@@ -7,7 +7,13 @@ import React, {
   useState,
 } from 'react';
 import { Todo } from '../types/Todo';
-import { USER_ID, deleteTodos, getTodos } from '../api/todos';
+import {
+  USER_ID,
+  addTodos,
+  deleteTodos,
+  getTodos,
+  updateTodo,
+} from '../api/todos';
 import { UserWarning } from '../UserWarning';
 import { Status, filterTodo } from '../utils/TodosFilter';
 
@@ -129,6 +135,11 @@ export const TodoContextProvider: React.FC<PropsContext> = ({ children }) => {
       }
 
       return todo;
+    });
+
+    newStateTodos.forEach(todo => {
+      addTodos(todo);
+      updateTodo(todo);
     });
 
     setTodos(newStateTodos);
