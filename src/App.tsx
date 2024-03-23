@@ -13,14 +13,14 @@ export const App: React.FC = () => {
   return (
     <section className="section container">
       <p className="title is-4">
-        Copy all you need from the prev task:
+        uyhh Copy all you need from the prev task: kgvglhb;iujh
         <br />
         <a href="https://github.com/mate-academy/react_todo-app-add-and-delete#react-todo-app-add-and-delete">
-          React Todo App - Add and Delete
+          hgfg React Todo App - Add and Delete hvhv,
         </a>
       </p>
 
-      <p className="subtitle">Styles are already copied</p>
+      <p className="subtitle">Styles are already copied hbhbh;</p>
     </section>
   );
 };
