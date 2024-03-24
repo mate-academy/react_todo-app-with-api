@@ -7,13 +7,7 @@ import React, {
   useState,
 } from 'react';
 import { Todo } from '../types/Todo';
-import {
-  USER_ID,
-  addTodos,
-  deleteTodos,
-  getTodos,
-  updateTodo,
-} from '../api/todos';
+import { USER_ID, deleteTodos, getTodos, updateTodo } from '../api/todos';
 import { UserWarning } from '../UserWarning';
 import { Status, filterTodo } from '../utils/TodosFilter';
 
@@ -129,29 +123,67 @@ export const TodoContextProvider: React.FC<PropsContext> = ({ children }) => {
   }
 
   const handleCompleted = (id: number) => {
-    const newStateTodos = newTodo.map(todo => {
-      if (todo.id === id) {
-        return { ...todo, completed: !todo.completed };
-      }
+    const todo = newTodo.find(t => t.id === id);
 
-      return todo;
-    });
+    if (!todo) {
+      return;
+    }
 
-    newStateTodos.forEach(todo => {
-      addTodos(todo);
-      updateTodo(todo);
-      setDeletingTodos([id]);
-    });
-    setTodos(newStateTodos);
+    const todoCopy = { ...todo };
+
+    setDeletingTodos([id]);
+
+    todoCopy.completed = !todoCopy.completed;
+
+    updateTodo(todoCopy)
+      .then(t => {
+        setTodos(prevTodos => {
+          return prevTodos.map(prevTodo => {
+            if (prevTodo.id === t.id) {
+              return t;
+            }
+
+            return prevTodo;
+          });
+        });
+      })
+      .catch(() => {
+        setErrorMessage('Unable to update a todo');
+      })
+      .finally(() => {
+        // eslint-disable-next-line @typescript-eslint/no-shadow
+        setDeletingTodos(prevIds => prevIds.filter(prevIds => prevIds !== id));
+      });
   };
 
   const handleCompleteAll = () => {
     const hasIncomplete = todos.some(todo => !todo.completed);
-
     const newStateTodos = todos.map(todo => ({
       ...todo,
       completed: !!hasIncomplete,
     }));
+
+    Promise.all(
+      newStateTodos.map(todo => {
+        return updateTodo({
+          id: todo.id,
+          title: todo.title,
+          completed: todo.completed,
+        });
+      }),
+    )
+      .then(updatedTodos => {
+        setTodos(prevTodos => {
+          return prevTodos.map(prevTodo => {
+            const updatedTodo = updatedTodos.find(t => t.id === prevTodo.id);
+
+            return updatedTodo ? updatedTodo : prevTodo;
+          });
+        });
+      })
+      .catch(() => {
+        setErrorMessage('Unable to update a todo');
+      });
 
     setTodos(newStateTodos);
   };
