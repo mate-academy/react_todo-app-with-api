@@ -1,6 +1,6 @@
 /* eslint-disable jsx-a11y/label-has-associated-control */
 // eslint-disable jsx-a11y/label-has-associated-control
-import React, { useContext, useState } from 'react';
+import React, { useContext, useEffect, useRef, useState } from 'react';
 import classNames from 'classnames';
 import { Todo } from '../types/Todo';
 import { TodosContext } from './Todos-Context';
@@ -13,6 +13,7 @@ interface PropsItem {
 export const TodoItem: React.FC<PropsItem> = ({ todo }) => {
   const [isInput, setIsInput] = useState<boolean>(false);
   const [rewrite, setRewrite] = useState('');
+  const inputTwo = useRef<HTMLInputElement>(null);
   // eslint-disable-next-line max-len, prettier/prettier
   const {
     handleCompleted,
@@ -72,6 +73,12 @@ export const TodoItem: React.FC<PropsItem> = ({ todo }) => {
     }
   };
 
+  useEffect(() => {
+    if (isInput && inputTwo?.current) {
+      inputTwo.current.focus();
+    }
+  }, [isInput]);
+
   return (
     <div
       data-cy="Todo"
@@ -97,15 +104,17 @@ export const TodoItem: React.FC<PropsItem> = ({ todo }) => {
           {title}
         </span>
       )}
+      {!isInput && (
+        <button
+          type="button"
+          className="todo__remove"
+          data-cy="TodoDelete"
+          onClick={() => todoDeleteButton(USER_ID, id)}
+        >
+          ×
+        </button>
+      )}
 
-      <button
-        type="button"
-        className="todo__remove"
-        data-cy="TodoDelete"
-        onClick={() => todoDeleteButton(USER_ID, id)}
-      >
-        ×
-      </button>
       {isInput && (
         <form>
           <input
@@ -118,6 +127,7 @@ export const TodoItem: React.FC<PropsItem> = ({ todo }) => {
             onDoubleClick={handleDoobleClickInput}
             onKeyDown={pushKey}
             onBlur={handlerInput}
+            ref={inputTwo}
           />
         </form>
       )}

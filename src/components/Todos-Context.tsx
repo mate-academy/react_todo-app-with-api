@@ -157,18 +157,20 @@ export const TodoContextProvider: React.FC<PropsContext> = ({ children }) => {
   };
 
   const handleCompleteAll = () => {
-    const hasIncomplete = todos.some(todo => !todo.completed);
-    const newStateTodos = todos.map(todo => ({
-      ...todo,
-      completed: !!hasIncomplete,
-    }));
+    const completedTodo = todos.some(t => t.completed);
+    const notCompletedTodo = todos.some(t => !t.completed);
+    let todosToUpdate = todos;
+
+    if (completedTodo && notCompletedTodo) {
+      todosToUpdate = todos.filter(todo => !todo.completed);
+    }
 
     Promise.all(
-      newStateTodos.map(todo => {
+      todosToUpdate.map(todo => {
         return updateTodo({
           id: todo.id,
           title: todo.title,
-          completed: todo.completed,
+          completed: !todo.completed,
         });
       }),
     )
@@ -184,8 +186,6 @@ export const TodoContextProvider: React.FC<PropsContext> = ({ children }) => {
       .catch(() => {
         setErrorMessage('Unable to update a todo');
       });
-
-    setTodos(newStateTodos);
   };
 
   const handleErrorMessage = () => {
