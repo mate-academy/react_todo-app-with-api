@@ -19,9 +19,9 @@ export const TodoItem: React.FC<PropsItem> = ({ todo }) => {
     handleCompleted,
     todoDeleteButton,
     deletingTodos,
-    todos,
     setTodos,
     setDeletingTodos,
+    setErrorMessage,
   } = useContext(TodosContext);
   const { title, completed, id } = todo;
 
@@ -35,33 +35,32 @@ export const TodoItem: React.FC<PropsItem> = ({ todo }) => {
   };
 
   const handlerInput = () => {
-    if (rewrite.trim() !== '') {
-      const upTodos = todos.map(item => {
-        if (item.id === todo.id) {
-          return { ...item, title: rewrite };
-        }
+    if (rewrite.trim() !== '' && rewrite.trim() !== title) {
+      setDeletingTodos(prevTodos => [...prevTodos, id]);
+      updateTodo({ id, title: rewrite.trim(), completed })
+        .then(todo1 => {
+          setTodos(prevTodos =>
+            prevTodos.map(t => {
+              if (t.id === id) {
+                return todo1;
+              }
 
-        return item;
-      });
+              return t;
+            }),
+          );
+        })
+        .catch(() => {
+          setErrorMessage('Unable to update a todo');
+          setIsInput(true);
+        })
+        .finally(() => {
+          setDeletingTodos(prevTodos => prevTodos.filter(t => t !== id));
+        });
 
-      setTodos(upTodos);
-    } else {
-      const upTodos = todos.filter(item => item.id !== todo.id);
-
-      setTodos(upTodos);
+      return;
     }
 
-    updateTodo({ id, title: rewrite, completed });
-    setDeletingTodos([id]);
-    setIsInput(false);
-
-    if (rewrite.length === 0) {
-      todoDeleteButton(USER_ID, id);
-    }
-
-    updateTodo({ id, title: rewrite, completed }).finally(() => {
-      setDeletingTodos(prev => prev.filter(item => item !== id));
-    });
+    todoDeleteButton(USER_ID, id);
   };
 
   const pushKey = (event: React.KeyboardEvent<HTMLInputElement>) => {
@@ -116,7 +115,7 @@ export const TodoItem: React.FC<PropsItem> = ({ todo }) => {
       )}
 
       {isInput && (
-        <form>
+        <form onSubmit={e => e.preventDefault()}>
           <input
             data-cy="TodoTitleField"
             type="text"
@@ -125,7 +124,7 @@ export const TodoItem: React.FC<PropsItem> = ({ todo }) => {
             defaultValue={title}
             onChange={handleChange}
             onDoubleClick={handleDoobleClickInput}
-            onKeyDown={pushKey}
+            onKeyUp={pushKey}
             onBlur={handlerInput}
             ref={inputTwo}
           />
