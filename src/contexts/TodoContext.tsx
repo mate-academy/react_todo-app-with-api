@@ -1,5 +1,5 @@
 import React, {
-  useState, useEffect,
+  useState, useEffect, useCallback, useRef,
 } from 'react';
 import { TodoContextType } from '../types/TodoContextType';
 import { Todo } from '../types/Todo';
@@ -47,15 +47,15 @@ export const TodoProvider: React.FC<Props> = ({ children }) => {
   const [editTodo, setEditTodo] = useState<number>(-1);
   const [inputValue, setInputValue] = useState('');
 
-  let timeoutId: ReturnType<typeof setTimeout>;
+  const timeoutId = useRef<NodeJS.Timeout | null>(null);
 
-  const Error = (error: ErrorType) => {
+  const Error = useCallback((error: ErrorType) => {
     setError(error);
 
-    timeoutId = setTimeout(() => {
+    timeoutId.current = setTimeout(() => {
       setError('');
     }, 3000);
-  };
+  }, []);
 
   const getTodos = () => {
     return client.get<Todo[]>(`/todos?userId=${USER_ID}`);
@@ -75,9 +75,11 @@ export const TodoProvider: React.FC<Props> = ({ children }) => {
     fetchData();
 
     return () => {
-      clearTimeout(timeoutId);
+      if (timeoutId.current !== null) {
+        clearTimeout(timeoutId.current);
+      }
     };
-  }, []);
+  }, [Error]);
 
   if (!USER_ID) {
     return <UserWarning />;

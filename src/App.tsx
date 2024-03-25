@@ -1,7 +1,5 @@
 /* eslint-disable jsx-a11y/control-has-associated-label */
-import React, {
-  useContext, useRef, useEffect,
-} from 'react';
+import React, { useContext, useRef, useEffect } from 'react';
 import classNames from 'classnames';
 import { TodoContext } from './contexts/TodoContext';
 import { ErrorType } from './types/ErrorType';
@@ -40,11 +38,7 @@ export const App: React.FC = () => {
     if (toggleActive) {
       todos.forEach(currentTodo => {
         if (currentTodo.completed === false) {
-          changeData(
-            currentTodo.id,
-            currentTodo.title,
-            true,
-          );
+          changeData(currentTodo.id, currentTodo.title, true);
         }
       });
     }
@@ -52,11 +46,7 @@ export const App: React.FC = () => {
     if (!toggleActive) {
       todos.forEach(currentTodo => {
         if (currentTodo.completed === true) {
-          changeData(
-            currentTodo.id,
-            currentTodo.title,
-            false,
-          );
+          changeData(currentTodo.id, currentTodo.title, false);
         }
       });
     }

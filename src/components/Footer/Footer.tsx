@@ -21,7 +21,7 @@ export const Footer:React.FC = () => {
       return 's';
     }
 
-    return '';
+    return 's';
   };
 
   const isDisabled = useMemo(() => {
