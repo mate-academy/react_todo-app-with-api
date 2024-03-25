@@ -13,6 +13,7 @@ interface PropsItem {
 export const TodoItem: React.FC<PropsItem> = ({ todo }) => {
   const [isInput, setIsInput] = useState<boolean>(false);
   const [rewrite, setRewrite] = useState('');
+  const [lastInputValue, setLastInputValue] = useState('');
   const inputTwo = useRef<HTMLInputElement>(null);
   // eslint-disable-next-line max-len, prettier/prettier
   const {
@@ -32,12 +33,16 @@ export const TodoItem: React.FC<PropsItem> = ({ todo }) => {
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     event.preventDefault();
     setRewrite(event.target.value);
+    setLastInputValue(event.target.value);
   };
 
   const handlerInput = () => {
-    if (rewrite.trim() !== '' && rewrite.trim() !== title) {
+    const trimmedRewrite =
+      rewrite.trim() !== '' ? rewrite.trim() : lastInputValue.trim();
+
+    if (trimmedRewrite !== '' && trimmedRewrite !== title) {
       setDeletingTodos(prevTodos => [...prevTodos, id]);
-      updateTodo({ id, title: rewrite.trim(), completed })
+      updateTodo({ id, title: trimmedRewrite, completed })
         .then(todo1 => {
           setTodos(prevTodos =>
             prevTodos.map(t => {
@@ -45,13 +50,18 @@ export const TodoItem: React.FC<PropsItem> = ({ todo }) => {
                 return todo1;
               }
 
+              setIsInput(false);
+
               return t;
             }),
           );
         })
         .catch(() => {
-          setErrorMessage('Unable to update a todo');
           setIsInput(true);
+          setErrorMessage('Unable to update a todo');
+          if (rewrite.trim() === '') {
+            setIsInput(true);
+          }
         })
         .finally(() => {
           setDeletingTodos(prevTodos => prevTodos.filter(t => t !== id));
@@ -61,10 +71,20 @@ export const TodoItem: React.FC<PropsItem> = ({ todo }) => {
     }
 
     todoDeleteButton(USER_ID, id);
+
+    if (rewrite.trim() === '') {
+      setIsInput(true);
+    }
   };
 
   const pushKey = (event: React.KeyboardEvent<HTMLInputElement>) => {
     if (event.key === 'Enter') {
+      setIsInput(true);
+      if (rewrite.trim() === '') {
+        setIsInput(true);
+      }
+
+      inputTwo.current?.focus();
       handlerInput();
       setIsInput(false);
     } else if (event.key === 'Escape') {
