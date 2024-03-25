@@ -34,18 +34,15 @@ export const AddTodoForm: React.FC = () => {
         .then(reponse => {
           setTodos(prevTodos => [...prevTodos, reponse]);
           setTitle('');
-          setTempTodo(null);
-          setLoadingTodoIds([]);
-          setIsFocusedInput(true);
         })
         .catch(() => {
           showError(Errors.AddTodo);
-          setTempTodo(null);
-          setLoadingTodoIds([]);
-          setIsFocusedInput(true);
         })
         .finally(() => {
           setIsSubmiting(false);
+          setTempTodo(null);
+          setLoadingTodoIds([]);
+          setIsFocusedInput(true);
         });
 
       const tempTodo = {

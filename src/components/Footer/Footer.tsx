@@ -18,10 +18,12 @@ export const Footer: React.FC = () => {
     try {
       await deleteTodo(todoId);
       setTodos(prevTodos => prevTodos.filter(t => t.id !== todoId));
-      setLoadingTodoIds([]);
     } catch (err) {
       showError(Errors.DeleteTodo);
-      setLoadingTodoIds([]);
+    } finally {
+      setLoadingTodoIds(prevLoadingTodosIds =>
+        prevLoadingTodosIds.filter(id => id !== todoId),
+      );
     }
   };
 
@@ -30,7 +32,10 @@ export const Footer: React.FC = () => {
       .filter(todo => todo.completed)
       .map(todo => todo.id);
 
-    setLoadingTodoIds(completedTodoIds);
+    setLoadingTodoIds(prevLoadingTodosIds => [
+      ...prevLoadingTodosIds,
+      ...completedTodoIds,
+    ]);
 
     const deletePromises = completedTodoIds.map(todoId =>
       handleDeleteTodo(todoId),

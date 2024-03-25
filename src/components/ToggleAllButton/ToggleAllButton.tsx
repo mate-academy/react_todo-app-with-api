@@ -26,7 +26,9 @@ export const ToggleAllButton: React.FC = () => {
     } catch (err) {
       showError(Errors.UpdateTodo);
     } finally {
-      setLoadingTodoIds([]);
+      setLoadingTodoIds(prevLoadingTodosIds =>
+        prevLoadingTodosIds.filter(id => id !== todoId),
+      );
     }
   };
 
@@ -35,7 +37,10 @@ export const ToggleAllButton: React.FC = () => {
     const todoIds = notCompleted.map(todo => todo.id);
     const newStatus = !isAllCompleted;
 
-    setLoadingTodoIds(todoIds);
+    setLoadingTodoIds(prevLoadingTodosIds => [
+      ...prevLoadingTodosIds,
+      ...todoIds,
+    ]);
     setIsAllCompleted(newStatus);
 
     const updatePromises = isAllCompleted
