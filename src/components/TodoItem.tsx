@@ -13,6 +13,7 @@ interface PropsItem {
 export const TodoItem: React.FC<PropsItem> = ({ todo }) => {
   const [isInput, setIsInput] = useState<boolean>(false);
   const [rewrite, setRewrite] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
   const inputTwo = useRef<HTMLInputElement>(null);
   // eslint-disable-next-line max-len, prettier/prettier
   const {
@@ -35,8 +36,9 @@ export const TodoItem: React.FC<PropsItem> = ({ todo }) => {
   };
 
   const handlerInput = () => {
-    if (rewrite.trim() !== '' && rewrite.trim() !== title) {
+    if (rewrite.trim() !== '' && rewrite.trim() !== title && !isLoading) {
       setDeletingTodos(prevTodos => [...prevTodos, id]);
+      setIsLoading(true);
       updateTodo({ id, title: rewrite.trim(), completed })
         .then(todo1 => {
           setTodos(prevTodos =>
@@ -48,15 +50,18 @@ export const TodoItem: React.FC<PropsItem> = ({ todo }) => {
               return t;
             }),
           );
+
+          setIsInput(false);
         })
         .catch(() => {
-          setIsInput(true);
+          // setIsInput(true);
           setErrorMessage('Unable to update a todo');
-          if (rewrite.trim() === '') {
-            setIsInput(true);
-          }
+          // if (rewrite.trim() === '') {
+          //   setIsInput(true);
+          // }
         })
         .finally(() => {
+          setIsLoading(false);
           setDeletingTodos(prevTodos => prevTodos.filter(t => t !== id));
         });
 
@@ -71,14 +76,7 @@ export const TodoItem: React.FC<PropsItem> = ({ todo }) => {
 
   const pushKey = (event: React.KeyboardEvent<HTMLInputElement>) => {
     if (event.key === 'Enter') {
-      setIsInput(true);
-      if (rewrite.trim() === '') {
-        setIsInput(true);
-      }
-
-      inputTwo.current?.focus();
       handlerInput();
-      setIsInput(false);
     } else if (event.key === 'Escape') {
       setIsInput(false);
     }
