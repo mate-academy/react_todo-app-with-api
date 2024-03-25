@@ -82,7 +82,10 @@ export const TodoItem: React.FC<Props> = ({
         setEditTodo(todo.id);
       }}
     >
-      <label className="todo__status-label">
+      <label
+        className="todo__status-label"
+        htmlFor={todo.id.toString()}
+      >
         <input
           data-cy="TodoStatus"
           type="checkbox"
@@ -133,7 +136,7 @@ export const TodoItem: React.FC<Props> = ({
               className="todo__remove"
               onClick={() => deleteTodo(todo.id)}
             >
-              x
+              X
             </button>
           </>
         )}

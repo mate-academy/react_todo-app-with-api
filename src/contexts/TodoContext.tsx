@@ -73,9 +73,7 @@ export const TodoProvider: React.FC<Props> = ({ children }) => {
     };
 
     fetchData();
-  }, []);
 
-  useEffect(() => {
     return () => {
       clearTimeout(timeoutId);
     };

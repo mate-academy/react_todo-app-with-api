@@ -16,6 +16,14 @@ export const Footer:React.FC = () => {
     return todos.filter(todo => !todo.completed).length;
   }, [todos]);
 
+  const addS = () => {
+    if (notCompletedTodosCount !== 1) {
+      return 's';
+    }
+
+    return '';
+  };
+
   const isDisabled = useMemo(() => {
     return !todos.find(todo => todo.completed);
   }, [todos]);
@@ -27,7 +35,7 @@ export const Footer:React.FC = () => {
   return (
     <footer className="todoapp__footer">
       <span className="todo-count" data-cy="TodosCounter">
-        {`${notCompletedTodosCount} items left`}
+        {`${notCompletedTodosCount} item${addS()} left`}
       </span>
 
       <nav className="filter" data-cy="Filter">

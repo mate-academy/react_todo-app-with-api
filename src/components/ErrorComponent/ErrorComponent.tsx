@@ -13,17 +13,17 @@ export const ErrorComponent: React.FC = () => {
         'is-danger',
         'is-light',
         'has-text-weight-normal',
-        { hidden: !dataError },
+        { hidden: dataError === '' },
       )}
     >
+      {dataError}
       <button
+        aria-label="X"
         data-cy="HideErrorButton"
         type="button"
         className="delete"
         onClick={() => setError('')}
-      >
-        {dataError}
-      </button>
+      />
     </div>
   );
 };
