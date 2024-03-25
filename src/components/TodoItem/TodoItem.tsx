@@ -77,14 +77,15 @@ export const TodoItem: React.FC<Props> = ({
           completed: todo.completed,
         })
       }
+      aria-label="set input value"
       onDoubleClick={() => {
         setInputValue(todo.title);
         setEditTodo(todo.id);
       }}
     >
       <label
-        className="todo__status-label"
         htmlFor={todo.id.toString()}
+        className="todo__status-label"
       >
         <input
           data-cy="TodoStatus"
