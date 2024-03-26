@@ -11,8 +11,9 @@ interface PropsItem {
   todo: Todo;
 }
 export const TodoItem: React.FC<PropsItem> = ({ todo }) => {
+  const { title, completed, id } = todo;
   const [isInput, setIsInput] = useState<boolean>(false);
-  const [rewrite, setRewrite] = useState('');
+  const [rewrite, setRewrite] = useState(title);
   const [isLoading, setIsLoading] = useState(false);
   const inputTwo = useRef<HTMLInputElement>(null);
   // eslint-disable-next-line max-len, prettier/prettier
@@ -24,10 +25,9 @@ export const TodoItem: React.FC<PropsItem> = ({ todo }) => {
     setDeletingTodos,
     setErrorMessage,
   } = useContext(TodosContext);
-  const { title, completed, id } = todo;
 
   const handleDoobleClickInput = () => {
-    setIsInput(prev => !prev);
+    setIsInput(true);
   };
 
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -36,6 +36,12 @@ export const TodoItem: React.FC<PropsItem> = ({ todo }) => {
   };
 
   const handlerInput = () => {
+    if (rewrite.trim() === title.trim()) {
+      setIsInput(false);
+
+      return;
+    }
+
     if (rewrite.trim() !== '' && rewrite.trim() !== title && !isLoading) {
       setDeletingTodos(prevTodos => [...prevTodos, id]);
       setIsLoading(true);
@@ -50,15 +56,10 @@ export const TodoItem: React.FC<PropsItem> = ({ todo }) => {
               return t;
             }),
           );
-
           setIsInput(false);
         })
         .catch(() => {
-          // setIsInput(true);
           setErrorMessage('Unable to update a todo');
-          // if (rewrite.trim() === '') {
-          //   setIsInput(true);
-          // }
         })
         .finally(() => {
           setIsLoading(false);
@@ -70,7 +71,6 @@ export const TodoItem: React.FC<PropsItem> = ({ todo }) => {
 
     if (rewrite.trim() === '') {
       todoDeleteButton(USER_ID, id);
-      setIsInput(false);
     }
   };
 
