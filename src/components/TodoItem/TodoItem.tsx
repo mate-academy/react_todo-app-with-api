@@ -10,16 +10,14 @@ type Props = {
 };
 
 const TodoItem: React.FC<Props> = ({ todo }) => {
-  const [selectedTodoId, setSelectedTodoId] = React.useState<number>(0);
-
   const {
     todos,
     setTodos,
-    isLoading,
     setIsLoading,
     handleError,
-    isAllDeleted,
     onDeleteTodo,
+    loadingTodosIDs,
+    setLoadingTodosIDs,
   } = useTodos();
 
   const [changedTodoTitle, setChangedTodoTitle] = React.useState(todo.title);
@@ -34,13 +32,12 @@ const TodoItem: React.FC<Props> = ({ todo }) => {
   }, [isEditing]);
 
   const handleDeleteTodo = () => {
-    setSelectedTodoId(todo.id);
     onDeleteTodo(todo.id);
   };
 
   const handleCheckbox = () => {
     setIsLoading(true);
-    setSelectedTodoId(todo.id);
+    setLoadingTodosIDs(prev => [...prev, todo.id]);
 
     updateTodo(todo.id, { completed: !todo.completed })
       .then(() => {
@@ -57,6 +54,7 @@ const TodoItem: React.FC<Props> = ({ todo }) => {
       })
       .finally(() => {
         setIsLoading(false);
+        setLoadingTodosIDs([]);
       });
   };
 
@@ -69,7 +67,7 @@ const TodoItem: React.FC<Props> = ({ todo }) => {
     }
 
     setIsLoading(true);
-    setSelectedTodoId(todo.id);
+    setLoadingTodosIDs(prev => [...prev, todo.id]);
 
     updateTodo(todo.id, { title: changedTodoTitle })
       .then(() => {
@@ -87,6 +85,7 @@ const TodoItem: React.FC<Props> = ({ todo }) => {
       })
       .finally(() => {
         setIsLoading(false);
+        setLoadingTodosIDs([]);
       });
 
     setIsEditing(false);
@@ -107,11 +106,6 @@ const TodoItem: React.FC<Props> = ({ todo }) => {
   const hadleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setChangedTodoTitle(event.target.value);
   };
-
-  // eslint-disable-next-line prettier/prettier
-  const isLoaderActive =
-    (isLoading && todo.id === selectedTodoId) ||
-    (todo.completed && isAllDeleted);
 
   return (
     <div
@@ -165,7 +159,7 @@ const TodoItem: React.FC<Props> = ({ todo }) => {
       <div
         data-cy="TodoLoader"
         className={cn('modal overlay', {
-          'is-active': isLoaderActive || todo.id === 0,
+          'is-active': loadingTodosIDs.includes(todo.id) || todo.id === 0,
         })}
       >
         <div className="modal-background has-background-white-ter" />

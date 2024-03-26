@@ -17,6 +17,7 @@ const TodoInput: React.FC = () => {
     setTempTodo,
     handleError,
     isAllDeleted,
+    setLoadingTodosIDs,
   } = useTodos();
 
   const [newTodoTitle, setNewTodoTitle] = React.useState('');
@@ -24,7 +25,6 @@ const TodoInput: React.FC = () => {
   const inputRef = useRef<HTMLInputElement>(null);
 
   const isAllSelected = todos.every(todo => todo.completed);
-  const isNotAllSelected = todos.every(todo => !todo.completed);
 
   useEffect(() => {
     if (inputRef.current) {
@@ -58,6 +58,7 @@ const TodoInput: React.FC = () => {
     };
 
     setIsLoading(true);
+    setLoadingTodosIDs(prev => [...prev, 0]);
 
     addTodo(newTodo)
       .then(data => {
@@ -70,6 +71,7 @@ const TodoInput: React.FC = () => {
       .finally(() => {
         setTempTodo(null);
         setIsLoading(false);
+        setLoadingTodosIDs([]);
       });
   };
 
@@ -82,6 +84,7 @@ const TodoInput: React.FC = () => {
 
   const handleUpdateCheckbox = (todoId: number, completed: boolean) => {
     setIsLoading(true);
+    setLoadingTodosIDs(prev => [...prev, todoId]);
 
     updateTodo(todoId, { completed: completed })
       .then(() => {
@@ -99,11 +102,12 @@ const TodoInput: React.FC = () => {
       .finally(() => {
         setIsLoading(false);
         setIsAllCompleted(!isAllCompleted);
+        setLoadingTodosIDs([]);
       });
   };
 
   const handleToggleAll = () => {
-    if (isAllSelected || isNotAllSelected) {
+    if (isAllSelected) {
       todos.forEach(todo => {
         handleUpdateCheckbox(todo.id, !todo.completed);
       });
