@@ -13,25 +13,28 @@ import { Todo } from './types/Todo';
 import { TodosFilter } from './components/TodosFilter/TodosFilter';
 import { FilterStatus } from './types/FilterStatus';
 import classNames from 'classnames';
+import { Errors } from './utils/Errors';
 
 export const App: React.FC = () => {
   const [todos, setTodos] = useState<Todo[]>([]);
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
   const [title, setTitle] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
-  const [isLoading, setIsLoading] = useState<boolean | string>(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [isToggleAllLoading, setIsToggleAllLoading] = useState(false);
+  const [isClearCompletedLoading, setIsClearCompletedLoading] = useState(false);
   const [disabledInput, setDisabledInput] = useState(false);
   const [filterStatus, setFilterStatus] = useState<FilterStatus>(
     FilterStatus.all,
   );
 
-  const ERROR_ADD_TODO = 'Unable to add a todo';
-  const ERROR_LOAD_TODO = 'Unable to load todos';
-  const ERROR_UPDATE_TODO = 'Unable to update a todo';
-  const ERROR_DELETE_TODO = 'Unable to delete a todo';
-  const ERROR_EMPTY_INPUT = 'Title should not be empty';
+  // const ERROR_ADD_TODO = 'Unable to add a todo';
+  // const ERROR_LOAD_TODO = 'Unable to load todos';
+  // const ERROR_UPDATE_TODO = 'Unable to update a todo';
+  // const ERROR_DELETE_TODO = 'Unable to delete a todo';
+  // const ERROR_EMPTY_INPUT = 'Title should not be empty';
 
-  const errorMessageAddTodo = errorMessage === ERROR_ADD_TODO;
+  const errorMessageAddTodo = errorMessage === Errors.ERROR_ADD_TODO;
 
   const allCompleted = todos.every(todo => todo.completed);
   const activeTodos = todos.filter(todo => !todo.completed);
@@ -47,7 +50,7 @@ export const App: React.FC = () => {
 
     getTodos()
       .then(setTodos)
-      .catch(() => setErrorMessage(ERROR_LOAD_TODO))
+      .catch(() => setErrorMessage(Errors.ERROR_LOAD_TODO))
       .finally(resetError);
   }, []);
 
@@ -78,7 +81,7 @@ export const App: React.FC = () => {
 
   const addTodo = async (newTitle: string) => {
     setTempTodo({ id: 0, title: newTitle, completed: false, userId: USER_ID });
-    setIsLoading('adding');
+    setIsLoading(true);
     setDisabledInput(true);
 
     return createTodo({
@@ -92,12 +95,6 @@ export const App: React.FC = () => {
       })
       .catch(error => {
         setTempTodo(null);
-
-        if (error instanceof Error) {
-          throw new Error(ERROR_ADD_TODO);
-        }
-
-        setErrorMessage((error as Error).message);
         throw error;
       })
       .finally(() => {
@@ -114,7 +111,7 @@ export const App: React.FC = () => {
       return Promise.resolve();
     }
 
-    setIsLoading('updating');
+    setIsLoading(true);
 
     try {
       const updatedTodo = await updateTodo(id, newTitle.trim());
@@ -125,7 +122,7 @@ export const App: React.FC = () => {
         ),
       );
     } catch (error) {
-      setErrorMessage(ERROR_UPDATE_TODO);
+      setErrorMessage(Errors.ERROR_UPDATE_TODO);
       throw error;
     } finally {
       resetError();
@@ -134,7 +131,7 @@ export const App: React.FC = () => {
   };
 
   const toggleTodo = async (id: number) => {
-    setIsLoading('toggling');
+    setIsLoading(true);
 
     try {
       const todo = todos.find(t => t.id === id);
@@ -146,7 +143,7 @@ export const App: React.FC = () => {
         ),
       );
     } catch (error) {
-      setErrorMessage(ERROR_UPDATE_TODO);
+      setErrorMessage(Errors.ERROR_UPDATE_TODO);
     } finally {
       resetError();
       setIsLoading(false);
@@ -154,13 +151,13 @@ export const App: React.FC = () => {
   };
 
   const removeTodo = async (id: number) => {
-    setIsLoading('deleting');
+    setIsLoading(true);
 
     return deleteTodos(id)
       .then(() => setTodos(todos.filter(todo => todo.id !== id)))
       .catch(() => {
         setTodos(todos);
-        setErrorMessage(ERROR_DELETE_TODO);
+        setErrorMessage(Errors.ERROR_DELETE_TODO);
       })
       .finally(() => {
         resetError();
@@ -173,30 +170,30 @@ export const App: React.FC = () => {
       .filter(todo => todo.completed)
       .map(todo => todo.id);
 
-    setIsLoading('completed');
+    setIsClearCompletedLoading(true);
 
     try {
       await Promise.all(
         completedTodosIds.map(async id => {
           try {
-            setIsLoading('completed');
+            setIsLoading(true);
             await deleteTodos(id);
             setTodos(prevTodos => prevTodos.filter(todo => todo.id !== id));
           } catch (error) {
-            setErrorMessage(ERROR_DELETE_TODO);
+            setErrorMessage(Errors.ERROR_DELETE_TODO);
           } finally {
             setIsLoading(false);
           }
         }),
       );
     } finally {
-      setIsLoading(false);
+      setIsClearCompletedLoading(false);
       resetError();
     }
   };
 
   const handleToggleAll = async () => {
-    setIsLoading('togglingAll');
+    setIsToggleAllLoading(true);
 
     const togglePromises = todos
       .filter(todo => todo.completed !== !allCompleted)
@@ -212,9 +209,9 @@ export const App: React.FC = () => {
 
       setTodos(updatedTodos);
     } catch (error) {
-      setErrorMessage(ERROR_UPDATE_TODO);
+      setErrorMessage(Errors.ERROR_UPDATE_TODO);
     } finally {
-      setIsLoading(false);
+      setIsToggleAllLoading(false);
       resetError();
     }
   };
@@ -224,10 +221,12 @@ export const App: React.FC = () => {
 
     try {
       if (title.trim()) {
-        await addTodo(title);
+        await addTodo(title).catch(() => {
+          throw new Error(Errors.ERROR_ADD_TODO);
+        });
         setTitle('');
       } else {
-        throw new Error(ERROR_EMPTY_INPUT);
+        throw new Error(Errors.ERROR_EMPTY_INPUT);
       }
     } catch (error) {
       setErrorMessage((error as Error).message);
@@ -275,6 +274,8 @@ export const App: React.FC = () => {
           isLoading={isLoading}
           renameTodo={renameTodo}
           toggleTodo={toggleTodo}
+          isClearCompletedLoading={isClearCompletedLoading}
+          isToggleAllLoading={isToggleAllLoading}
         />
 
         {!!todos.length && (

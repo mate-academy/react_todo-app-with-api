@@ -7,9 +7,11 @@ type Props = {
   todos: Todo[];
   removeTodo: (id: number) => Promise<void>;
   tempTodo: Todo | null;
-  isLoading?: boolean | string;
+  isLoading?: boolean;
   renameTodo: (id: number, newTitle: string) => Promise<void>;
-  toggleTodo: (id: number) => void;
+  toggleTodo: (id: number) => Promise<void>;
+  isToggleAllLoading: boolean;
+  isClearCompletedLoading: boolean;
 };
 
 export const TodoList: React.FC<Props> = ({
@@ -19,29 +21,38 @@ export const TodoList: React.FC<Props> = ({
   isLoading,
   renameTodo,
   toggleTodo,
+  isToggleAllLoading,
+  isClearCompletedLoading,
 }) => {
   const [deletingTodoId, setDeletingTodoId] = useState<number | null>(null);
   const [updatingTodoId, setUpdatingTodoId] = useState<number | null>(null);
   const [togglingTodoId, setTogglingTodoId] = useState<number | null>(null);
 
-  const handleRemoveTodo = (id: number) => {
+  const handleRemoveTodo = async (id: number) => {
     setDeletingTodoId(id);
+    await removeTodo(id);
 
-    return removeTodo(id);
+    return setDeletingTodoId(null);
   };
 
-  const handleUpdateTodo = (id: number, newTitle: string): Promise<void> => {
+  const handleUpdateTodo = async (
+    id: number,
+    newTitle: string,
+  ): Promise<void> => {
     setUpdatingTodoId(id);
+    await renameTodo(id, newTitle);
 
-    return renameTodo(id, newTitle);
+    return setUpdatingTodoId(null);
   };
 
-  const handleToggleTodo = (id: number) => {
+  const handleToggleTodo = async (id: number) => {
     setTogglingTodoId(id);
-    toggleTodo(id);
+    await toggleTodo(id);
+
+    return setTogglingTodoId(null);
   };
 
-  const allCompleted = todos.every(todo => todo.completed);
+  const isAllCompleted = todos.every(todo => todo.completed);
 
   return (
     <section className="todoapp__main" data-cy="TodoList">
@@ -53,13 +64,13 @@ export const TodoList: React.FC<Props> = ({
               todo={todo}
               removeTodo={handleRemoveTodo}
               isLoading={
-                (isLoading === 'deleting' && deletingTodoId === todo.id) ||
-                (isLoading === 'completed' && !todo.completed) ||
-                (isLoading === 'updating' && updatingTodoId === todo.id) ||
-                (isLoading === 'togglingAll' &&
-                  ((allCompleted && todo.completed) ||
-                    (!allCompleted && !todo.completed))) ||
-                (isLoading === 'toggling' && togglingTodoId === todo.id)
+                (isLoading && deletingTodoId === todo.id) ||
+                (isLoading && updatingTodoId === todo.id) ||
+                (isLoading && togglingTodoId === todo.id) ||
+                (isToggleAllLoading &&
+                  ((isAllCompleted && todo.completed) ||
+                    (!isAllCompleted && !todo.completed))) ||
+                (isClearCompletedLoading && todo.completed)
               }
               renameTodo={handleUpdateTodo}
               toggleTodo={handleToggleTodo}
@@ -71,7 +82,7 @@ export const TodoList: React.FC<Props> = ({
             <TodoItem
               todo={tempTodo}
               removeTodo={handleRemoveTodo}
-              isLoading={isLoading === 'adding'}
+              isLoading={tempTodo !== null}
               renameTodo={handleUpdateTodo}
               toggleTodo={() => {}}
             />
