@@ -16,8 +16,7 @@ export const ToggleAllButton: React.FC<Props> = ({ todos }) => {
   const uncompletedTodos = todos.filter(({ completed }) => !completed);
 
   const handleToggleAll = async () => {
-    const targetTodos =
-      uncompletedTodos.length === 0 ? todos : uncompletedTodos;
+    const targetTodos = uncompletedTodos.length ? uncompletedTodos : todos;
 
     const togglePromises = targetTodos.map(todo => {
       todosDispatch({
@@ -56,7 +55,7 @@ export const ToggleAllButton: React.FC<Props> = ({ todos }) => {
     <button
       type="button"
       className={classNames('todoapp__toggle-all', {
-        active: uncompletedTodos.length === 0,
+        active: !uncompletedTodos.length,
       })}
       onClick={handleToggleAll}
       data-cy="ToggleAllButton"

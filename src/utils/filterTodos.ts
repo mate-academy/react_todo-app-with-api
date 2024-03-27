@@ -8,9 +8,9 @@ export function filterTodos<T extends Todo>(
   return todos.filter(value => {
     switch (filterStatus) {
       case FilterStatus.Active:
-        return value.completed === false;
+        return !value.completed;
       case FilterStatus.Completed:
-        return value.completed === true;
+        return value.completed;
       case FilterStatus.All:
       default:
         return true;
