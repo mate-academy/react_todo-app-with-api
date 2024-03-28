@@ -23,6 +23,7 @@ export const TodosContextProvider: React.FC<Props> = ({ children }) => {
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
   const completedTodos = todos.filter(todo => todo.completed);
   const activeTodos = todos.filter(todo => !todo.completed);
+  const [isFocused, setIsFocused] = useState(false);
 
   function onDelete(todoId: number) {
     setLoadingTodoIds(prevLoadingTodoIds => [...prevLoadingTodoIds, todoId]);
@@ -58,6 +59,8 @@ export const TodosContextProvider: React.FC<Props> = ({ children }) => {
     tempTodo,
     setTempTodo,
     onDelete,
+    isFocused,
+    setIsFocused,
   };
 
   return (

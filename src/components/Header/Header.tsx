@@ -12,10 +12,12 @@ export const Header: React.FC = () => {
     setTodos,
     setTempTodo,
     setError,
-    loadingTodoIds,
+    // loadingTodoIds,
     setLoadingTodoIds,
     activeTodos,
     completedTodos,
+    isFocused,
+    setIsFocused,
   } = useTodosContext();
   const addTodoInputRef = useRef<HTMLInputElement>(null);
   const isClassActive = completedTodos.length > 0 && activeTodos.length === 0;
@@ -23,10 +25,11 @@ export const Header: React.FC = () => {
   const [isSubMit, setIsSubmit] = useState(false);
 
   useEffect(() => {
-    if (loadingTodoIds && addTodoInputRef.current) {
+    if (isFocused && addTodoInputRef.current) {
       addTodoInputRef.current.focus();
+      setIsFocused(false);
     }
-  }, [loadingTodoIds]);
+  }, [isFocused, setIsFocused]);
 
   const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setError(Errors.default);
@@ -62,6 +65,7 @@ export const Header: React.FC = () => {
         .then((response: Todo) => {
           setTodos((prevTodos: Todo[]) => [...prevTodos, response]);
           setTitle('');
+          setIsFocused(true);
         })
         .catch(() => {
           handleRequestError(Errors.addTodo, setError);
@@ -70,6 +74,7 @@ export const Header: React.FC = () => {
         .finally(() => {
           setIsSubmit(false);
           setTempTodo(null);
+          setIsFocused(true);
           setLoadingTodoIds(prevLoadingTodoIds =>
             prevLoadingTodoIds.filter(id => id !== tempTodo.id),
           );
@@ -80,6 +85,7 @@ export const Header: React.FC = () => {
   function handleComplietedAllTodos() {
     todos.map(todo => {
       setLoadingTodoIds(prev => [...prev, todo.id]);
+      setIsFocused(false);
       todoSevice
         .updateTodo(todo.id, { ...todo, completed: !todo.completed })
         .then(() => {

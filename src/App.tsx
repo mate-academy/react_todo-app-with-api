@@ -11,9 +11,10 @@ import { Footer } from './components/Footer/Footer';
 import { useTodosContext } from './utils/useTodosContext';
 
 export const App: React.FC = () => {
-  const { todos, setTodos, setError } = useTodosContext();
+  const { todos, setTodos, setError, setIsFocused } = useTodosContext();
 
   useEffect(() => {
+    setIsFocused(true);
     getTodos()
       .then(setTodos)
       .catch(() => handleRequestError(Errors.loadTodo, setError));

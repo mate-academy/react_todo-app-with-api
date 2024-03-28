@@ -17,4 +17,6 @@ export type TodoContext = {
   tempTodo: Todo | null;
   setTempTodo: Dispatch<SetStateAction<Todo | null>>;
   onDelete: (id: number) => void;
+  isFocused: boolean;
+  setIsFocused: (isFocused: boolean) => void;
 };
