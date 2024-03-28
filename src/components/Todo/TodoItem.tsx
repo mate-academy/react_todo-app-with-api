@@ -12,9 +12,17 @@ type Props = {
 };
 
 export const TodoItem: React.FC<Props> = ({ todo, deleteTodo }) => {
-  const { loadingTodoIds, setError, setTodos, onDelete } = useTodosContext();
+  const {
+    loadingTodoIds,
+    setError,
+    setTodos,
+    onDelete,
+    todos,
+    setLoadingTodoIds,
+  } = useTodosContext();
   const [isEdit, setIsEdit] = useState(false);
   const [changeTitle, setChangeTitle] = useState(todo.title);
+  // const [isTodoCheck, setIsTodoCheck] = useState(todo.completed);
 
   const changeInput = useRef<HTMLInputElement>(null);
 
@@ -62,6 +70,31 @@ export const TodoItem: React.FC<Props> = ({ todo, deleteTodo }) => {
     }
   };
 
+  function handleCheckbox() {
+    setLoadingTodoIds(prev => [...prev, todo.id]);
+
+    return todoSevice
+      .updateTodo(todo.id, { completed: !todo.completed })
+
+      .then(() => {
+        setTodos(
+          todos.map(prevTodo => {
+            return prevTodo.id === todo.id
+              ? { ...prevTodo, completed: !prevTodo.completed }
+              : prevTodo;
+          }),
+        );
+      })
+      .catch(error => {
+        handleRequestError(Errors.updateTodo, setError);
+        throw error;
+      })
+      .finally(() => {
+        setIsEdit(false);
+        setLoadingTodoIds([]);
+      });
+  }
+
   return (
     <div
       data-cy="Todo"
@@ -74,6 +107,7 @@ export const TodoItem: React.FC<Props> = ({ todo, deleteTodo }) => {
           type="checkbox"
           className="todo__status"
           checked={todo.completed}
+          onClick={() => handleCheckbox()}
         />
       </label>
       {isEdit ? (
