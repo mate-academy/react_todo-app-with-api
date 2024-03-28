@@ -22,7 +22,6 @@ export const TodoItem: React.FC<Props> = ({ todo, deleteTodo }) => {
   } = useTodosContext();
   const [isEdit, setIsEdit] = useState(false);
   const [changeTitle, setChangeTitle] = useState(todo.title);
-  // const [isTodoCheck, setIsTodoCheck] = useState(todo.completed);
 
   const changeInput = useRef<HTMLInputElement>(null);
 
@@ -34,12 +33,20 @@ export const TodoItem: React.FC<Props> = ({ todo, deleteTodo }) => {
 
   function updateTodo() {
     setError(Errors.default);
+    setLoadingTodoIds(prev => [...prev, todo.id]);
+
+    if (changeTitle === todo.title) {
+      setIsEdit(false);
+      setLoadingTodoIds([]);
+
+      return;
+    }
 
     return todoSevice
-      .updateTodo(todo.id, { title: changeTitle })
+      .updateTodo(todo.id, { title: changeTitle.trim() })
 
       .then(todoItem => {
-        if (!changeTitle) {
+        if (!changeTitle.trim().length) {
           onDelete(todo.id);
         }
 
@@ -48,15 +55,19 @@ export const TodoItem: React.FC<Props> = ({ todo, deleteTodo }) => {
           const index = newTodos.findIndex(t => t.id === todo.id);
 
           newTodos.splice(index, 1, todoItem);
+          setIsEdit(false);
 
           return newTodos;
         });
       })
       .catch(error => {
+        setIsEdit(true);
         handleRequestError(Errors.updateTodo, setError);
         throw error;
       })
-      .finally(() => setIsEdit(false));
+      .finally(() => {
+        setLoadingTodoIds([]);
+      });
   }
 
   const handleInputButtons = (event: React.KeyboardEvent<HTMLInputElement>) => {
@@ -67,6 +78,7 @@ export const TodoItem: React.FC<Props> = ({ todo, deleteTodo }) => {
     if (event.key === 'Escape') {
       setChangeTitle(todo.title);
       setIsEdit(false);
+      setLoadingTodoIds([]);
     }
   };
 

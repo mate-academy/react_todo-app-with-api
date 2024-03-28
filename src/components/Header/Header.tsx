@@ -82,24 +82,44 @@ export const Header: React.FC = () => {
     }
   };
 
-  function handleComplietedAllTodos() {
-    todos.map(todo => {
-      setLoadingTodoIds(prev => [...prev, todo.id]);
-      setIsFocused(false);
-      todoSevice
-        .updateTodo(todo.id, { ...todo, completed: !todo.completed })
-        .then(() => {
-          setTodos(todos.map(t => ({ ...t, completed: !todo.completed })));
-        })
-        .catch(error => {
-          handleRequestError(Errors.updateTodo, setError);
-          throw error;
-        })
-        .finally(() => {
-          setLoadingTodoIds([]);
-        });
-    });
+  const isAllSelected = todos.every(todo => todo.completed);
+
+  function handleComplietedAllTodos(todoId: number, completed: boolean) {
+    setLoadingTodoIds(prev => [...prev, todoId]);
+    setIsFocused(false);
+    todoSevice
+      .updateTodo(todoId, { completed: completed })
+      .then(() => {
+        setTodos((prevTodos: Todo[]) =>
+          prevTodos.map(prevTodo => {
+            return prevTodo.id === todoId
+              ? { ...prevTodo, completed: completed }
+              : prevTodo;
+          }),
+        );
+      })
+      .catch(error => {
+        handleRequestError(Errors.updateTodo, setError);
+        throw error;
+      })
+      .finally(() => {
+        setLoadingTodoIds([]);
+      });
   }
+
+  const handleToggleAll = () => {
+    if (isAllSelected) {
+      todos.forEach(todo => {
+        handleComplietedAllTodos(todo.id, !todo.completed);
+      });
+    } else {
+      todos.forEach(todo => {
+        if (!todo.completed) {
+          handleComplietedAllTodos(todo.id, true);
+        }
+      });
+    }
+  };
 
   return (
     <div>
@@ -107,7 +127,7 @@ export const Header: React.FC = () => {
         {todos.length !== 0 && (
           <button
             type="button"
-            onClick={handleComplietedAllTodos}
+            onClick={handleToggleAll}
             // onClick={ex}
             className={cn('todoapp__toggle-all', {
               active: isClassActive,
