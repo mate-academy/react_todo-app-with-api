@@ -8,9 +8,6 @@ import { TodoId } from '../types/TodoId';
 type State = {
   todos: Todo[];
   tempTodo: Todo | null;
-  isLoading: boolean;
-  isDeletingTodo: boolean;
-  isEditingProcessing: boolean;
   todosError: string;
   filterStatus: string;
   currentId: TodoId[];
@@ -27,9 +24,6 @@ type State = {
 const initialState: State = {
   todos: [],
   tempTodo: null,
-  isLoading: false,
-  isDeletingTodo: false,
-  isEditingProcessing: false,
   todosError: '',
   filterStatus: Status.All,
   currentId: [],
@@ -58,11 +52,7 @@ type Action =
   | { type: 'todos/loaded'; payload: Todo[] }
   | { type: 'todos/setTempTodo'; payload: Todo | null }
   | { type: 'todos/setFilterStatus'; payload: string }
-  | { type: 'rejected'; payload: string }
   | { type: 'todos/setError'; payload: string }
-  | { type: 'loading'; payload: boolean }
-  | { type: 'isDeletingTodo'; payload: boolean }
-  | { type: 'isEditingProcessing'; payload: boolean }
   | { type: 'todos/updateTodo'; payload: { id: TodoId; todo: Todo } }
   | { type: 'todos/setCurrentId'; payload: number | null };
 
@@ -99,17 +89,8 @@ function reducer(state: State, action: Action) {
         todos: state.todos.filter(todo => todo.id !== action.payload),
       };
 
-    case 'loading':
-      return { ...state, isLoading: action.payload };
-
-    case 'isEditingProcessing':
-      return { ...state, isEditingProcessing: action.payload };
-
-    case 'isDeletingTodo':
-      return { ...state, isDeletingTodo: action.payload };
-
     case 'todos/loaded':
-      return { ...state, isLoading: false, todos: action.payload };
+      return { ...state, todos: action.payload };
 
     case 'todos/setFilterStatus':
       return {
@@ -132,8 +113,6 @@ function reducer(state: State, action: Action) {
     case 'todos/setError':
       return { ...state, todosError: action.payload };
 
-    case 'rejected':
-      return { ...state, isLoading: false, todosError: action.payload };
     default:
       return state;
   }
@@ -141,35 +120,22 @@ function reducer(state: State, action: Action) {
 
 const TodosProvider: React.FC<Props> = ({ children }) => {
   const [state, dispatch] = useReducer(reducer, initialState);
-  const {
-    todos,
-    filterStatus,
-    isLoading,
-    todosError,
-    tempTodo,
-    currentId,
-    isEditingProcessing,
-    isDeletingTodo,
-  } = state;
+  const { todos, filterStatus, todosError, tempTodo, currentId } = state;
+
+  const handleSetError = (errorMessage: string) => {
+    dispatch({ type: 'todos/setError', payload: errorMessage });
+
+    wait(3000).then(() => dispatch({ type: 'todos/setError', payload: '' }));
+  };
 
   useEffect(() => {
     const fetchTodos = async () => {
-      dispatch({ type: 'loading', payload: true });
       try {
         const fetchedTodos = await getTodos();
 
         dispatch({ type: 'todos/loaded', payload: fetchedTodos });
       } catch {
-        dispatch({
-          type: 'rejected',
-          payload: 'Unable to load todos',
-        });
-
-        wait(3000).then(() =>
-          dispatch({ type: 'todos/setError', payload: '' }),
-        );
-      } finally {
-        dispatch({ type: 'loading', payload: false });
+        handleSetError('Unable to load todos');
       }
     };
 
@@ -196,18 +162,11 @@ const TodosProvider: React.FC<Props> = ({ children }) => {
     dispatch({ type: 'todos/setFilterStatus', payload: status });
   };
 
-  const handleSetError = (errorMessage: string) => {
-    dispatch({ type: 'todos/setError', payload: errorMessage });
-
-    wait(3000).then(() => dispatch({ type: 'todos/setError', payload: '' }));
-  };
-
   const handleToggleTodoCheck = async (
     todoId: TodoId,
     todo: Todo,
     toggleVal: boolean,
   ) => {
-    dispatch({ type: 'loading', payload: true });
     dispatch({ type: 'todos/setCurrentId', payload: todoId });
     try {
       await updateTodo(todoId, { ...todo, completed: toggleVal });
@@ -216,13 +175,11 @@ const TodosProvider: React.FC<Props> = ({ children }) => {
     } catch {
       handleSetError('Unable to update a todo');
     } finally {
-      dispatch({ type: 'loading', payload: false });
       dispatch({ type: 'todos/setCurrentId', payload: null });
     }
   };
 
   const handleDeletingTodo = async (todoId: TodoId) => {
-    dispatch({ type: 'isDeletingTodo', payload: true });
     dispatch({ type: 'todos/setCurrentId', payload: todoId });
     try {
       await deleteTodo(todoId);
@@ -231,7 +188,6 @@ const TodosProvider: React.FC<Props> = ({ children }) => {
     } catch {
       handleSetError('Unable to delete a todo');
     } finally {
-      dispatch({ type: 'isDeletingTodo', payload: false });
       dispatch({ type: 'todos/setCurrentId', payload: null });
     }
   };
@@ -242,12 +198,9 @@ const TodosProvider: React.FC<Props> = ({ children }) => {
         addTodo,
         todos,
         tempTodo,
-        isLoading,
         todosError,
         filterStatus,
         currentId,
-        isEditingProcessing,
-        isDeletingTodo,
         setTempTodo,
         handleDeleteTodo,
         handleFilterTodo,

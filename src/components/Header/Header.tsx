@@ -3,7 +3,7 @@ import { useTodos } from '../../context/TodosContext';
 import { TodosForm } from '../TodosForm';
 
 export const Header: React.FC = () => {
-  const { todos, handleToggleTodoCheck, isLoading } = useTodos();
+  const { todos, handleToggleTodoCheck } = useTodos();
 
   const isAllTodosActive = todos.every(todo => todo.completed);
 
@@ -23,7 +23,7 @@ export const Header: React.FC = () => {
 
   return (
     <header className="todoapp__header">
-      {!isLoading && !!todos.length && (
+      {!!todos.length && (
         <button
           onClick={handleToggleAllTodoCheck}
           aria-label="toggle all active todos"

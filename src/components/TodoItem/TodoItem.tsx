@@ -15,10 +15,7 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
   const [editValue, setEditValue] = useState(todo.title);
 
   const {
-    isLoading,
     currentId,
-    isEditingProcessing,
-    isDeletingTodo,
     handleToggleTodoCheck,
     handleDeletingTodo,
     handleUpdateTodo,
@@ -43,7 +40,6 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
     }
 
     if (editValue) {
-      dispatch({ type: 'isEditingProcessing', payload: true });
       dispatch({ type: 'todos/setCurrentId', payload: todo.id });
       setIsEditing(true);
       try {
@@ -54,7 +50,6 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
       } catch {
         handleSetError('Unable to update a todo');
       } finally {
-        dispatch({ type: 'isEditingProcessing', payload: false });
         dispatch({ type: 'todos/setCurrentId', payload: null });
       }
     } else {
@@ -68,9 +63,7 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
     }
   };
 
-  const isItemLoading =
-    currentId.includes(todo.id) &&
-    (isEditingProcessing || isLoading || isDeletingTodo);
+  const isItemLoading = currentId.includes(todo.id);
 
   return (
     <div

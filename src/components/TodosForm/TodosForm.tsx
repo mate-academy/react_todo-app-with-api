@@ -7,15 +7,14 @@ export const TodosForm: React.FC = () => {
   const inputRef = useRef<HTMLInputElement>(null);
   const [title, setTitle] = useState('');
   const [isAddingNewTodo, setIsAddingNewTodo] = useState(false);
-  const { isDeletingTodo, handleSetError, setTempTodo, addTodo, dispatch } =
-    useTodos();
+  const { handleSetError, setTempTodo, addTodo, currentId } = useTodos();
   const isEmptyTodo = !title.trim().length;
 
   useEffect(() => {
     if (inputRef.current) {
       inputRef.current.focus();
     }
-  }, [isAddingNewTodo, isDeletingTodo]);
+  }, [isAddingNewTodo, currentId]);
 
   const handleOnSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
@@ -35,7 +34,6 @@ export const TodosForm: React.FC = () => {
       };
 
       setTempTodo(tempTodo);
-      dispatch({ type: 'loading', payload: true });
       setIsAddingNewTodo(true);
       try {
         const response = await postTodos(newTodo);
@@ -46,7 +44,6 @@ export const TodosForm: React.FC = () => {
         handleSetError('Unable to add a todo');
       } finally {
         setTempTodo(null);
-        dispatch({ type: 'loading', payload: false });
         setIsAddingNewTodo(false);
       }
     }
