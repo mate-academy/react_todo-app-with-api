@@ -119,6 +119,7 @@ export const TodoItem: React.FC<Props> = ({ todo, deleteTodo }) => {
           data-cy="TodoTitleField"
           onKeyUp={handleInputButtons}
           ref={changeInput}
+          onBlur={updateTodo}
         />
       ) : (
         <>

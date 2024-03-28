@@ -77,12 +77,32 @@ export const Header: React.FC = () => {
     }
   };
 
+  function handleComplietedAllTodos() {
+    todos.map(todo => {
+      setLoadingTodoIds(prev => [...prev, todo.id]);
+      todoSevice
+        .updateTodo(todo.id, { ...todo, completed: !todo.completed })
+        .then(() => {
+          setTodos(todos.map(t => ({ ...t, completed: !todo.completed })));
+        })
+        .catch(error => {
+          handleRequestError(Errors.updateTodo, setError);
+          throw error;
+        })
+        .finally(() => {
+          setLoadingTodoIds([]);
+        });
+    });
+  }
+
   return (
     <div>
       <header className="todoapp__header">
         {todos.length !== 0 && (
           <button
             type="button"
+            onClick={handleComplietedAllTodos}
+            // onClick={ex}
             className={cn('todoapp__toggle-all', {
               active: isClassActive,
             })}

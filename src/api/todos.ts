@@ -15,6 +15,6 @@ export function deleteTodo(todoId: number) {
   return client.delete(`/todos/${todoId}`);
 }
 
-export function updateTodo(todoId: number, newTodo: Partial<Todo>) {
+export function updateTodo(todoId?: number, newTodo?: Partial<Todo>) {
   return client.patch<Todo>(`/todos/${todoId}`, newTodo);
 }
