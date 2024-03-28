@@ -6,6 +6,8 @@ import { Todo } from '../types/Todo';
 import { TypeOfFiltering } from '../types/TypeOfFiltering';
 import { ErrorType } from '../types/ErrorType';
 import { client } from '../utils/fetchClient';
+import { USER_ID } from '../constants/userId';
+import { ErrorCatcher } from '../ErrorCatcher';
 import { UserWarning } from '../UserWarning';
 
 export const TodoContext = React.createContext<TodoContextType>({
@@ -17,7 +19,7 @@ export const TodoContext = React.createContext<TodoContextType>({
   setFilterType: () => {},
   dataError: '',
   setError: () => {},
-  Error: () => {},
+  addError: () => {},
   addTodo: () => {},
   editTodo: -1,
   setEditTodo: () => {},
@@ -33,8 +35,6 @@ type Props = {
   children: React.ReactNode,
 };
 
-const USER_ID = 9940;
-
 export const TodoProvider: React.FC<Props> = ({ children }) => {
   const [todos, setTodos] = useState<Todo[]>([]);
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
@@ -49,7 +49,7 @@ export const TodoProvider: React.FC<Props> = ({ children }) => {
 
   const timeoutId = useRef<NodeJS.Timeout | null>(null);
 
-  const Error = useCallback((error: ErrorType) => {
+  const addError = useCallback((error: ErrorType) => {
     setError(error);
 
     timeoutId.current = setTimeout(() => {
@@ -68,7 +68,7 @@ export const TodoProvider: React.FC<Props> = ({ children }) => {
 
         setTodos(todosFromServer);
       } catch {
-        Error(ErrorType.Load);
+        addError(ErrorType.Load);
       }
     };
 
@@ -79,11 +79,7 @@ export const TodoProvider: React.FC<Props> = ({ children }) => {
         clearTimeout(timeoutId.current);
       }
     };
-  }, [Error]);
-
-  if (!USER_ID) {
-    return <UserWarning />;
-  }
+  }, [addError]);
 
   const deleteTodo = (todoId: number) => {
     return client.delete(`/todos/${todoId}`);
@@ -133,7 +129,7 @@ export const TodoProvider: React.FC<Props> = ({ children }) => {
 
       setInputValue('');
     } catch (error) {
-      Error(ErrorType.Add);
+      addError(ErrorType.Add);
     } finally {
       setTempTodo(null);
       setShouldFocus(true);
@@ -151,7 +147,7 @@ export const TodoProvider: React.FC<Props> = ({ children }) => {
         return [...prev].filter(todo => todo.id !== todoId);
       });
     } catch {
-      Error(ErrorType.Delete);
+      addError(ErrorType.Delete);
     } finally {
       setActiveLoader([]);
     }
@@ -188,7 +184,7 @@ export const TodoProvider: React.FC<Props> = ({ children }) => {
           });
         });
       } catch {
-        Error(ErrorType.Update);
+        addError(ErrorType.Update);
 
         if (todos[editTodo].title !== title) {
           setEditTodo(todoId);
@@ -202,6 +198,10 @@ export const TodoProvider: React.FC<Props> = ({ children }) => {
     }
   };
 
+  if (!USER_ID) {
+    return <UserWarning />;
+  }
+
   return (
     <TodoContext.Provider
       value={{
@@ -213,7 +213,7 @@ export const TodoProvider: React.FC<Props> = ({ children }) => {
         setFilterType,
         dataError,
         setError,
-        Error,
+        addError,
         addTodo,
         editTodo,
         setEditTodo,
@@ -225,7 +225,9 @@ export const TodoProvider: React.FC<Props> = ({ children }) => {
         setTodos,
       }}
     >
-      {children}
+      <ErrorCatcher USER_ID={USER_ID}>
+        {children}
+      </ErrorCatcher>
     </TodoContext.Provider>
   );
 };

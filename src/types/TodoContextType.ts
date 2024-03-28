@@ -15,7 +15,7 @@ export interface TodoContextType {
   setFilterType: (x: TypeOfFiltering) => void;
   dataError: ErrorType | string;
   setError: (x: ErrorType | '') => void;
-  Error: (error: ErrorType) => void;
+  addError: (error: ErrorType) => void;
   addTodo: (value: string) => void;
   editTodo: number;
   setEditTodo: (id: number) => void;

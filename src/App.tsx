@@ -13,7 +13,7 @@ export const App: React.FC = () => {
     tempTodo,
     changeData,
     dataError,
-    Error,
+    addError,
     addTodo,
     inputValue,
     setInputValue,
@@ -58,7 +58,7 @@ export const App: React.FC = () => {
 
     return value.length > 0
       ? addTodo(value)
-      : Error(ErrorType.Empty);
+      : addError(ErrorType.Empty);
   };
 
   return (
@@ -67,7 +67,7 @@ export const App: React.FC = () => {
 
       <div className="todoapp__content">
         <header className="todoapp__header">
-          {todos.length !== 0 && (
+          {!!todos.length && (
             <button
               type="button"
               data-cy="ToggleAllButton"
@@ -101,7 +101,7 @@ export const App: React.FC = () => {
           <TodoList />
         )}
 
-        {(todos.length !== 0) && (
+        {!!todos.length && (
           <Footer />
         )}
       </div>

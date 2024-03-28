@@ -13,7 +13,7 @@ export const ErrorComponent: React.FC = () => {
         'is-danger',
         'is-light',
         'has-text-weight-normal',
-        { hidden: dataError === '' },
+        { hidden: !dataError },
       )}
     >
       {dataError}
