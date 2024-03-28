@@ -14,8 +14,7 @@ export const TodosFilter: React.FC<Props> = ({
   <nav className="filter" data-cy="Filter">
     <a
       href="#/"
-      className={classNames({
-        filter__link: true,
+      className={classNames('filter__link', {
         selected: filterStatus === FilterStatus.all,
       })}
       data-cy="FilterLinkAll"
@@ -26,8 +25,7 @@ export const TodosFilter: React.FC<Props> = ({
 
     <a
       href="#/active"
-      className={classNames({
-        filter__link: true,
+      className={classNames('filter__link', {
         selected: filterStatus === FilterStatus.active,
       })}
       data-cy="FilterLinkActive"
@@ -38,8 +36,7 @@ export const TodosFilter: React.FC<Props> = ({
 
     <a
       href="#/completed"
-      className={classNames({
-        filter__link: true,
+      className={classNames('filter__link', {
         selected: filterStatus === FilterStatus.completed,
       })}
       data-cy="FilterLinkCompleted"
