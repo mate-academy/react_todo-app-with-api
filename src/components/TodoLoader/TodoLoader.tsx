@@ -8,8 +8,7 @@ type Props = {
 export const TodoLoader: React.FC<Props> = ({ isActive }) => (
   <div
     data-cy="TodoLoader"
-    className={classNames({
-      'modal overlay': true,
+    className={classNames('modal overlay', {
       'is-active': isActive,
     })}
   >

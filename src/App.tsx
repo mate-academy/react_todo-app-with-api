@@ -27,15 +27,7 @@ export const App: React.FC = () => {
   const [filterStatus, setFilterStatus] = useState<FilterStatus>(
     FilterStatus.all,
   );
-
-  // const ERROR_ADD_TODO = 'Unable to add a todo';
-  // const ERROR_LOAD_TODO = 'Unable to load todos';
-  // const ERROR_UPDATE_TODO = 'Unable to update a todo';
-  // const ERROR_DELETE_TODO = 'Unable to delete a todo';
-  // const ERROR_EMPTY_INPUT = 'Title should not be empty';
-
   const errorMessageAddTodo = errorMessage === Errors.ERROR_ADD_TODO;
-
   const allCompleted = todos.every(todo => todo.completed);
   const activeTodos = todos.filter(todo => !todo.completed);
   const completedTodos = todos.filter(todo => todo.completed);
@@ -68,10 +60,10 @@ export const App: React.FC = () => {
 
   const filteredTodos = todos.filter(todo => {
     switch (filterStatus) {
-      case 'active':
+      case FilterStatus.active:
         return !todo.completed;
 
-      case 'completed':
+      case FilterStatus.completed:
         return todo.completed;
 
       default:
@@ -244,8 +236,7 @@ export const App: React.FC = () => {
           {!!todosLength && (
             <button
               type="button"
-              className={classNames({
-                'todoapp__toggle-all': true,
+              className={classNames('todoapp__toggle-all', {
                 active: allCompleted,
               })}
               data-cy="ToggleAllButton"
@@ -304,10 +295,12 @@ export const App: React.FC = () => {
 
       <div
         data-cy="ErrorNotification"
-        className={classNames({
-          'notification is-danger is-light has-text-weight-normal': true,
-          hidden: !errorMessage.length,
-        })}
+        className={classNames(
+          'notification is-danger is-light has-text-weight-normal',
+          {
+            hidden: !errorMessage.length,
+          },
+        )}
       >
         <button data-cy="HideErrorButton" type="button" className="delete" />
         {errorMessage}
