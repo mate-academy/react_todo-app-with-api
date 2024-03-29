@@ -2,7 +2,6 @@ import { TodoItem } from '../Todo/TodoItem';
 import { useTodosContext } from '../../utils/useTodosContext';
 import { handleFilteredTodos } from '../../utils/handleFiltredTodos';
 import { CSSTransition, TransitionGroup } from 'react-transition-group';
-// import '../../styles/todoapp.scss';
 
 export const TodoList: React.FC = () => {
   const { todos, filterSelected, tempTodo, onDelete, setIsFocused } =

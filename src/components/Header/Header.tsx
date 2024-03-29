@@ -16,7 +16,6 @@ export const Header: React.FC = () => {
     activeTodos,
     completedTodos,
     isFocused,
-    // isEdit,
     setIsFocused,
   } = useTodosContext();
   const addTodoInputRef = useRef<HTMLInputElement>(null);

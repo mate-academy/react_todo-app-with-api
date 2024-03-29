@@ -50,7 +50,6 @@ export const TodoItem: React.FC<Props> = ({ todo, deleteTodo }) => {
 
     return todoSevice
       .updateTodo(todo.id, { title: changeTitle.trim() })
-
       .then(todoItem => {
         setTodos(currentTodos => {
           const newTodos = [...currentTodos];
