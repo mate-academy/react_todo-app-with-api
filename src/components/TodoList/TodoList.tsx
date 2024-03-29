@@ -1,6 +1,8 @@
 import { TodoItem } from '../Todo/TodoItem';
 import { useTodosContext } from '../../utils/useTodosContext';
 import { handleFilteredTodos } from '../../utils/handleFiltredTodos';
+import { CSSTransition, TransitionGroup } from 'react-transition-group';
+// import '../../styles/todoapp.scss';
 
 export const TodoList: React.FC = () => {
   const { todos, filterSelected, tempTodo, onDelete, setIsFocused } =
@@ -14,10 +16,18 @@ export const TodoList: React.FC = () => {
 
   return (
     <section className="todoapp__main" data-cy="TodoList">
-      {preparedTodos.map(todo => (
-        <TodoItem key={todo.id} todo={todo} deleteTodo={deleteTodo} />
-      ))}
-      {tempTodo && <TodoItem todo={tempTodo} deleteTodo={deleteTodo} />}
+      <TransitionGroup>
+        {preparedTodos.map(todo => (
+          <CSSTransition key={todo.id} timeout={300} classNames="item">
+            <TodoItem todo={todo} deleteTodo={deleteTodo} />
+          </CSSTransition>
+        ))}
+        {tempTodo && (
+          <CSSTransition key={0} timeout={300} classNames="temp-item">
+            <TodoItem todo={tempTodo} deleteTodo={deleteTodo} />
+          </CSSTransition>
+        )}
+      </TransitionGroup>
     </section>
   );
 };

@@ -18,6 +18,7 @@ export const TodoItem: React.FC<Props> = ({ todo, deleteTodo }) => {
     setTodos,
     onDelete,
     todos,
+    setIsFocused,
     setLoadingTodoIds,
   } = useTodosContext();
   const [isEdit, setIsEdit] = useState(false);
@@ -28,6 +29,7 @@ export const TodoItem: React.FC<Props> = ({ todo, deleteTodo }) => {
   useEffect(() => {
     if (isEdit && changeInput.current) {
       changeInput.current.focus();
+      setIsFocused(false);
     }
   }, [isEdit]);
 
@@ -62,6 +64,7 @@ export const TodoItem: React.FC<Props> = ({ todo, deleteTodo }) => {
       })
       .catch(error => {
         setIsEdit(true);
+        setIsFocused(false);
         handleRequestError(Errors.updateTodo, setError);
         throw error;
       })

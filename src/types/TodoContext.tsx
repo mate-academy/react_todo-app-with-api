@@ -19,4 +19,6 @@ export type TodoContext = {
   onDelete: (id: number) => void;
   isFocused: boolean;
   setIsFocused: (isFocused: boolean) => void;
+  // isEdit: boolean;
+  // setIsEdit: (isEdit: boolean) => void;
 };
