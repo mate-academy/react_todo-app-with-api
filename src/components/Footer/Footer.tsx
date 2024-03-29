@@ -5,10 +5,10 @@ export const Footer: React.FC = () => {
   const { todos, activeTodos, completedTodos, onDelete, setIsFocused } =
     useTodosContext();
 
-  function deleteTodo(todoId: number) {
+  const deleteTodo = (todoId: number) => {
     onDelete(todoId);
     setIsFocused(true);
-  }
+  };
 
   const handleDeleteCompleted = () => {
     todos.forEach(todo => {

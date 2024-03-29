@@ -7,10 +7,10 @@ export const TodoList: React.FC = () => {
     useTodosContext();
   const preparedTodos = handleFilteredTodos(todos, filterSelected);
 
-  function deleteTodo(todoId: number) {
+  const deleteTodo = (todoId: number) => {
     onDelete(todoId);
     setIsFocused(true);
-  }
+  };
 
   return (
     <section className="todoapp__main" data-cy="TodoList">

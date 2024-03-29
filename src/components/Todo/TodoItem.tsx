@@ -31,7 +31,7 @@ export const TodoItem: React.FC<Props> = ({ todo, deleteTodo }) => {
     }
   }, [isEdit]);
 
-  function updateTodo() {
+  const updateTodo = () => {
     setError(Errors.default);
     setLoadingTodoIds(prev => [...prev, todo.id]);
 
@@ -68,7 +68,7 @@ export const TodoItem: React.FC<Props> = ({ todo, deleteTodo }) => {
       .finally(() => {
         setLoadingTodoIds([]);
       });
-  }
+  };
 
   const handleInputButtons = (event: React.KeyboardEvent<HTMLInputElement>) => {
     if (event.key === 'Enter') {
@@ -82,7 +82,7 @@ export const TodoItem: React.FC<Props> = ({ todo, deleteTodo }) => {
     }
   };
 
-  function handleCheckbox() {
+  const handleCheckbox = () => {
     setLoadingTodoIds(prev => [...prev, todo.id]);
 
     return todoSevice
@@ -105,7 +105,7 @@ export const TodoItem: React.FC<Props> = ({ todo, deleteTodo }) => {
         setIsEdit(false);
         setLoadingTodoIds([]);
       });
-  }
+  };
 
   return (
     <div

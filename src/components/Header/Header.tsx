@@ -12,7 +12,6 @@ export const Header: React.FC = () => {
     setTodos,
     setTempTodo,
     setError,
-    // loadingTodoIds,
     setLoadingTodoIds,
     activeTodos,
     completedTodos,
@@ -23,6 +22,7 @@ export const Header: React.FC = () => {
   const isClassActive = completedTodos.length > 0 && activeTodos.length === 0;
   const [title, setTitle] = useState('');
   const [isSubMit, setIsSubmit] = useState(false);
+  const isAllSelected = todos.every(todo => todo.completed);
 
   useEffect(() => {
     if (isFocused && addTodoInputRef.current) {
@@ -70,7 +70,6 @@ export const Header: React.FC = () => {
         .catch(() => {
           handleRequestError(Errors.addTodo, setError);
         })
-
         .finally(() => {
           setIsSubmit(false);
           setTempTodo(null);
@@ -82,9 +81,7 @@ export const Header: React.FC = () => {
     }
   };
 
-  const isAllSelected = todos.every(todo => todo.completed);
-
-  function handleComplietedAllTodos(todoId: number, completed: boolean) {
+  const handleCompletedAllTodos = (todoId: number, completed: boolean) => {
     setLoadingTodoIds(prev => [...prev, todoId]);
     setIsFocused(false);
     todoSevice
@@ -105,17 +102,17 @@ export const Header: React.FC = () => {
       .finally(() => {
         setLoadingTodoIds([]);
       });
-  }
+  };
 
   const handleToggleAll = () => {
     if (isAllSelected) {
       todos.forEach(todo => {
-        handleComplietedAllTodos(todo.id, !todo.completed);
+        handleCompletedAllTodos(todo.id, !todo.completed);
       });
     } else {
       todos.forEach(todo => {
         if (!todo.completed) {
-          handleComplietedAllTodos(todo.id, true);
+          handleCompletedAllTodos(todo.id, true);
         }
       });
     }
@@ -128,7 +125,6 @@ export const Header: React.FC = () => {
           <button
             type="button"
             onClick={handleToggleAll}
-            // onClick={ex}
             className={cn('todoapp__toggle-all', {
               active: isClassActive,
             })}
