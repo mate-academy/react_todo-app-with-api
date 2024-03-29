@@ -2,16 +2,23 @@ import classNames from 'classnames';
 import { useEffect, useRef, useState } from 'react';
 import * as todoService from '../api/todos';
 import { Todo } from '../types/Todo';
+import React from 'react';
 
 type Props = {
   todos: Todo[];
   setTodos: React.Dispatch<React.SetStateAction<Todo[]>>;
-  error: React.Dispatch<React.SetStateAction<string>>;
-  setLoaderAdd:React.Dispatch<React.SetStateAction<boolean>>;
+  setError: React.Dispatch<React.SetStateAction<string>>;
+  setTempTodo: React.Dispatch<React.SetStateAction<Todo | null>>;
 };
-export const Header: React.FC<Props> = ({ error, todos, setTodos }) => {
+export const Header: React.FC<Props> = ({
+  setError,
+  todos,
+  setTodos,
+  setTempTodo,
+}) => {
   const [titleTodo, setTitleTodo] = useState('');
   const [selectAllTodos, setSelectAllTodos] = useState(false);
+  const [isAdding, setIsAdding] = useState(false);
   const selectAllTasks = () => {
     const allTodos = todos.map(todo => ({
       ...todo,
@@ -25,40 +32,48 @@ export const Header: React.FC<Props> = ({ error, todos, setTodos }) => {
   const titleField = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    if (titleField.current && todos) {
+    if (titleField.current) {
       titleField.current.focus();
     }
-  }, [todos]);
+  }, []);
 
-  function addTodos({ title, userId, completed }: Todo) {
-  setTimeout(() => {
-    setLoaderAdd(true);
-  }, 300);
+  function addTodo({ title, userId, completed }: Todo) {
+    const newTempTodo: Todo = {
+      id: Math.random(),
+      userId: todoService.USER_ID,
+      completed: false,
+      title,
+    };
+
+    setTempTodo(newTempTodo);
+    setIsAdding(true);
 
     todoService
       .createTodo({ title, userId, completed })
       .then(newTodos => {
         setTodos(currentTodos => [...currentTodos, newTodos]);
         setTitleTodo('');
+        setTempTodo(null);
+        setError('');
       })
       .catch(() => {
-        error('Unable to add a todo');
+        setError('Unable to add a todo');
         setTimeout(() => {
-          error('');
-        }, 4000);
+          setError('');
+        }, 3000);
       })
       .finally(() => {
-        setLoaderAdd(false);
+        setIsAdding(false);
       });
   }
 
   const handleSubmit = (event: React.FormEvent) => {
     event.preventDefault();
     if (!titleTodo.trim()) {
-      error('Title should not be empty');
+      setError('Title should not be empty');
       setTimeout(() => {
-        error('');
-      }, 4000);
+        setError('');
+      }, 3000);
     } else {
       const newTodo = {
         title: titleTodo,
@@ -66,9 +81,9 @@ export const Header: React.FC<Props> = ({ error, todos, setTodos }) => {
         completed: false,
         id: 0,
       };
-      addTodos(newTodo);
-      setTitleTodo('');
-      error('');
+
+      addTodo(newTodo);
+      setError('');
     }
   };
 
@@ -96,12 +111,9 @@ export const Header: React.FC<Props> = ({ error, todos, setTodos }) => {
           onChange={e => {
             setTitleTodo(e.target.value);
           }}
+          disabled={isAdding}
         />
       </form>
     </header>
   );
 };
-function setLoaderAdd(arg0: boolean) {
-  throw new Error('Function not implemented.');
-}
-

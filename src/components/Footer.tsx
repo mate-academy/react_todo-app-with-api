@@ -1,10 +1,11 @@
 import classNames from 'classnames';
 import { Status } from '../types/status';
 import { Todo } from '../types/Todo';
+import React from 'react';
 
 type Props = {
   todos: Todo[];
-  destroy: (id: number) => void;
+  handleDelete: (id: number) => void;
   handleChangeStatus: (
     status: Status,
     event: React.MouseEvent<HTMLAnchorElement>,
@@ -13,13 +14,13 @@ type Props = {
 };
 
 export const Footer: React.FC<Props> = ({
-  destroy,
+  handleDelete,
   handleChangeStatus,
   filterStatus,
   todos,
 }) => {
   const clearCompleted = () => {
-    todos.filter(todo => todo.completed).forEach(todo => destroy(todo.id));
+    todos.filter(todo => todo.completed).forEach(todo => handleDelete(todo.id));
   };
 
   const itemsActive = () => {
