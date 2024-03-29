@@ -29,7 +29,7 @@ export const TodosContextProvider: React.FC<Props> = ({ children }) => {
   const onDelete = (todoId: number) => {
     setLoadingTodoIds(prevLoadingTodoIds => [...prevLoadingTodoIds, todoId]);
 
-    todoSevice
+    return todoSevice
       .deleteTodo(todoId)
       .then(() => {
         setTodos(currentTodos =>

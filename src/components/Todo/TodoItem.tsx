@@ -44,14 +44,14 @@ export const TodoItem: React.FC<Props> = ({ todo, deleteTodo }) => {
       return;
     }
 
+    if (!changeTitle.trim().length) {
+      return onDelete(todo.id);
+    }
+
     return todoSevice
       .updateTodo(todo.id, { title: changeTitle.trim() })
 
       .then(todoItem => {
-        if (!changeTitle.trim().length) {
-          onDelete(todo.id);
-        }
-
         setTodos(currentTodos => {
           const newTodos = [...currentTodos];
           const index = newTodos.findIndex(t => t.id === todo.id);
@@ -62,11 +62,10 @@ export const TodoItem: React.FC<Props> = ({ todo, deleteTodo }) => {
           return newTodos;
         });
       })
-      .catch(error => {
+      .catch(() => {
         setIsEdit(true);
         setIsFocused(false);
         handleRequestError(Errors.updateTodo, setError);
-        throw error;
       })
       .finally(() => {
         setLoadingTodoIds([]);
