@@ -32,12 +32,12 @@ export const TodoApp: React.FC = () => {
   const preparedTodos = useMemo(() => {
     return todos.filter(todo => {
       switch (filter) {
-        case Filter.All:
-          return todo;
         case Filter.Active:
           return !todo.completed;
+
         case Filter.Completed:
           return todo.completed;
+
         default:
           return todo;
       }
@@ -70,7 +70,7 @@ export const TodoApp: React.FC = () => {
 
         <TodoList todos={preparedTodos} tempTodo={tempTodo} />
 
-        {todos.length !== 0 && <Footer setFilter={setFilter} filter={filter} />}
+        {!!todos.length && <Footer setFilter={setFilter} filter={filter} />}
       </div>
 
       <div

@@ -90,7 +90,7 @@ export const Header: React.FC<Props> = ({ setTempTodo }) => {
   };
 
   const toggledAllCompleted = useMemo(() => {
-    return !todos.some(todo => todo.completed === false);
+    return !todos.some(todo => !todo.completed);
   }, [todos]);
 
   const handleToggleAll = useCallback(() => {
@@ -114,7 +114,7 @@ export const Header: React.FC<Props> = ({ setTempTodo }) => {
 
   return (
     <header className="todoapp__header">
-      {todos.length > 0 && (
+      {!!todos.length && (
         <button
           type="button"
           className={classNames('todoapp__toggle-all', {
@@ -125,7 +125,6 @@ export const Header: React.FC<Props> = ({ setTempTodo }) => {
         />
       )}
 
-      {/* Add a todo on form submit */}
       <form onSubmit={handleSubmit}>
         <input
           ref={inputRef}
