@@ -22,7 +22,7 @@ export const App: React.FC = () => {
 
   const inputRef = useRef<HTMLInputElement | null>(null);
 
-  let toggleActive = todos.every(currentTodo => currentTodo.completed);
+  const toggleActive = !todos.every(currentTodo => currentTodo.completed);
 
   useEffect(() => {
     if (shouldFocus) {
@@ -33,8 +33,6 @@ export const App: React.FC = () => {
   }, [dataError, todos, shouldFocus]);
 
   const handlerOnClick = () => {
-    toggleActive = !toggleActive;
-
     if (toggleActive) {
       todos.forEach(currentTodo => {
         if (currentTodo.completed === false) {

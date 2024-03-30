@@ -106,7 +106,7 @@ export const TodoItem: React.FC<Props> = ({
       {editTodo === todo.id
         ? (
           <form
-            onSubmit={event => submitHendler(event)}
+            onSubmit={submitHendler}
           >
             <input
               data-cy="TodoTitleField"

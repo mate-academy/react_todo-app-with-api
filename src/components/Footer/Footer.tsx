@@ -11,14 +11,6 @@ export const Footer:React.FC = () => {
     return todos.filter(todo => !todo.completed).length;
   }, [todos]);
 
-  const addS = () => {
-    if (notCompletedTodosCount !== 1) {
-      return 's';
-    }
-
-    return 's';
-  };
-
   const isDisabled = useMemo(() => {
     return !todos.find(todo => todo.completed);
   }, [todos]);
@@ -27,10 +19,14 @@ export const Footer:React.FC = () => {
     return todos.filter(todo => todo.completed);
   }, [todos]);
 
+  const clearCompleted = () => {
+    return completedTodos.forEach(todo => deleteData(todo.id));
+  };
+
   return (
     <footer className="todoapp__footer">
       <span className="todo-count" data-cy="TodosCounter">
-        {`${notCompletedTodosCount} item${addS()} left`}
+        {`${notCompletedTodosCount} items left`}
       </span>
 
       <nav className="filter" data-cy="Filter">
@@ -86,9 +82,7 @@ export const Footer:React.FC = () => {
         type="button"
         className="todoapp__clear-completed"
         disabled={isDisabled}
-        onClick={() => {
-          return completedTodos.forEach(todo => deleteData(todo.id));
-        }}
+        onClick={clearCompleted}
       >
         Clear completed
       </button>

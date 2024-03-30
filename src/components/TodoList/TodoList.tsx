@@ -25,7 +25,6 @@ export const TodoList: React.FC = () => {
         case TypeOfFiltering.Comleted:
           return todo.completed;
 
-        case TypeOfFiltering.All:
         default:
           return todo;
       }
