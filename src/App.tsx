@@ -114,27 +114,30 @@ export const App: React.FC = () => {
 
   const toggleAll = async () => {
     try {
+      const isAnyUncompleted = todos.some(todo => !todo.completed);
+
+      const completedValue = isAnyUncompleted ? true : false;
+
       await Promise.all(
         todos.map(async todo => {
           try {
-            const completedValue = !areAllCompleted ? true : !todo.completed;
-
-            await setCompletedTodo({
-              id: todo.id,
-              completed: completedValue,
-            });
-
-            setTodos(prevTodos =>
-              prevTodos.map(prevTodo =>
-                prevTodo.id === todo.id
-                  ? { ...prevTodo, completed: completedValue }
-                  : prevTodo,
-              ),
-            );
+            if (todo.completed !== completedValue) {
+              await setCompletedTodo({
+                id: todo.id,
+                completed: completedValue,
+              });
+            }
           } catch {
             setError(Errors.Update);
           }
         }),
+      );
+
+      setTodos(prevTodos =>
+        prevTodos.map(prevTodo => ({
+          ...prevTodo,
+          completed: completedValue,
+        })),
       );
     } catch {
       setError(Errors.Update);
@@ -148,6 +151,23 @@ export const App: React.FC = () => {
       setTodos(prevTodos =>
         prevTodos.map(todo =>
           todo.id === id ? { ...todo, title: updatedTodo.title } : todo,
+        ),
+      );
+    } catch {
+      setError(Errors.Update);
+    }
+  };
+
+  const toggleCompleted = async (id: number) => {
+    try {
+      await setCompletedTodo({
+        id,
+        completed: !todos.find(todo => todo.id === id)?.completed,
+      });
+
+      setTodos(prevTodos =>
+        prevTodos.map(todo =>
+          todo.id === id ? { ...todo, completed: !todo.completed } : todo,
         ),
       );
     } catch {
@@ -181,6 +201,7 @@ export const App: React.FC = () => {
           <p className="todoapp__loading">Loading...</p>
         ) : (
           <TodoList
+            toggleCompleted={toggleCompleted}
             setError={setError}
             tempTodo={tempTodo}
             filteredTodo={filteredTodo}

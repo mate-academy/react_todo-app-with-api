@@ -9,6 +9,7 @@ type Props = {
   deleteCurrentTodo: (id: number) => void;
   editTodoTitle: (id: number, newTitle: string) => void;
   setError: (error: Errors | null) => void;
+  toggleCompleted: (id: number) => void;
 };
 
 export const TodoItem: React.FC<Props> = ({
@@ -19,6 +20,7 @@ export const TodoItem: React.FC<Props> = ({
   deleteCurrentTodo,
   editTodoTitle,
   setError,
+  toggleCompleted,
 }) => {
   const [loading, setLoading] = useState(false);
   const [editing, setEditing] = useState(false);
@@ -33,7 +35,6 @@ export const TodoItem: React.FC<Props> = ({
   };
 
   const handleSubmit = async () => {
-    // setEditing(false);
     const trimmedEditedTitle = editedTitle.trim();
 
     if (trimmedEditedTitle !== '' && trimmedEditedTitle !== title) {
@@ -73,6 +74,17 @@ export const TodoItem: React.FC<Props> = ({
     setEditedTitle(event.target.value);
   };
 
+  const changeCompleted = async () => {
+    setLoading(true);
+    try {
+      await toggleCompleted(id);
+    } catch {
+      setError(Errors.Update);
+    }
+
+    setLoading(false);
+  };
+
   return (
     <div
       key={id}
@@ -85,7 +97,8 @@ export const TodoItem: React.FC<Props> = ({
           data-cy="TodoStatus"
           type="checkbox"
           className="todo__status"
-          defaultChecked={completed}
+          checked={completed}
+          onChange={changeCompleted}
         />
       </label>
 

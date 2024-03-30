@@ -9,6 +9,7 @@ type Props = {
   tempTodo: Todo | null;
   editTodoTitle: (id: number, newTitle: string) => void;
   setError: (error: Errors | null) => void;
+  toggleCompleted: (id: number) => void;
 };
 
 export const TodoList: React.FC<Props> = ({
@@ -18,11 +19,13 @@ export const TodoList: React.FC<Props> = ({
   tempTodo,
   editTodoTitle,
   setError,
+  toggleCompleted,
 }) => {
   return (
     <section className="todoapp__main" data-cy="TodoList">
       {filteredTodo.map(({ title, completed, id }) => (
         <TodoItem
+          toggleCompleted={toggleCompleted}
           setError={setError}
           title={title}
           completed={completed}
@@ -36,6 +39,7 @@ export const TodoList: React.FC<Props> = ({
 
       {tempTodo && (
         <TodoItem
+          toggleCompleted={toggleCompleted}
           setError={setError}
           editTodoTitle={() => {}}
           title={tempTodo.title}
