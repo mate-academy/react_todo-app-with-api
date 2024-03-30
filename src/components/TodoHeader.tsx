@@ -5,6 +5,7 @@ type Props = {
   title: string;
   setTitle: (value: string) => void;
   inputRef: React.RefObject<HTMLInputElement>;
+  toggleAll: () => void;
 };
 
 export const TodoHeader: React.FC<Props> = ({
@@ -14,6 +15,7 @@ export const TodoHeader: React.FC<Props> = ({
   title,
   setTitle,
   inputRef,
+  toggleAll,
 }) => {
   const submitForm = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -27,6 +29,7 @@ export const TodoHeader: React.FC<Props> = ({
         type="button"
         className={`todoapp__toggle-all ${areAllCompleted ? 'active' : ''}`}
         data-cy="ToggleAllButton"
+        onClick={toggleAll}
       />
 
       <form onSubmit={submitForm}>

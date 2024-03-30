@@ -1,5 +1,11 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { USER_ID, deleteTodo, getTodos, postTodo } from './api/todos';
+import {
+  USER_ID,
+  deleteTodo,
+  getTodos,
+  postTodo,
+  setCompletedTodo,
+} from './api/todos';
 import { Todo } from './types/Todo';
 import { Errors } from './types/Error';
 import { Filter } from './types/Filter';
@@ -105,6 +111,35 @@ export const App: React.FC = () => {
     }
   };
 
+  const toggleAll = async () => {
+    try {
+      await Promise.all(
+        todos.map(async todo => {
+          try {
+            const completedValue = !areAllCompleted ? true : !todo.completed;
+
+            await setCompletedTodo({
+              id: todo.id,
+              completed: completedValue,
+            });
+
+            setTodos(prevTodos =>
+              prevTodos.map(prevTodo =>
+                prevTodo.id === todo.id
+                  ? { ...prevTodo, completed: completedValue }
+                  : prevTodo,
+              ),
+            );
+          } catch {
+            setError(Errors.Update);
+          }
+        }),
+      );
+    } catch {
+      setError(Errors.Update);
+    }
+  };
+
   useEffect(() => {
     if (inputRef.current) {
       inputRef.current.focus();
@@ -117,6 +152,7 @@ export const App: React.FC = () => {
 
       <div className="todoapp__content">
         <TodoHeader
+          toggleAll={toggleAll}
           inputRef={inputRef}
           title={title}
           setTitle={setTitle}
