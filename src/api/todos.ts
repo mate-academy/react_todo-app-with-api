@@ -15,6 +15,10 @@ export const setCompletedTodo = ({ id, completed }: Partial<Todo>) => {
   return client.patch<Todo>(`/todos/${id}`, { completed });
 };
 
+export const setTodoTitle = ({ id, title }: Partial<Todo>) => {
+  return client.patch<Todo>(`/todos/${id}`, { title });
+};
+
 export const postTodo = ({ userId, title, completed }: Partial<Todo>) => {
   return client.post<Todo>('/todos', { userId, title, completed });
 };

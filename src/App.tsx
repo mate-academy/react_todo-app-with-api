@@ -5,6 +5,7 @@ import {
   getTodos,
   postTodo,
   setCompletedTodo,
+  setTodoTitle,
 } from './api/todos';
 import { Todo } from './types/Todo';
 import { Errors } from './types/Error';
@@ -140,6 +141,20 @@ export const App: React.FC = () => {
     }
   };
 
+  const editTodoTitle = async (id: number, newTitle: string) => {
+    try {
+      const updatedTodo = await setTodoTitle({ id, title: newTitle });
+
+      setTodos(prevTodos =>
+        prevTodos.map(todo =>
+          todo.id === id ? { ...todo, title: updatedTodo.title } : todo,
+        ),
+      );
+    } catch {
+      setError(Errors.Update);
+    }
+  };
+
   useEffect(() => {
     if (inputRef.current) {
       inputRef.current.focus();
@@ -159,16 +174,19 @@ export const App: React.FC = () => {
           disabled={!!tempTodo}
           tempAddTodo={addNewTodo}
           areAllCompleted={areAllCompleted}
+          todoslength={todos.length}
         />
 
         {isLoading ? (
           <p className="todoapp__loading">Loading...</p>
         ) : (
           <TodoList
+            setError={setError}
             tempTodo={tempTodo}
             filteredTodo={filteredTodo}
             deleteCurrentTodo={deleteCurrentTodo}
             deleteTodoId={deleteTodoId}
+            editTodoTitle={editTodoTitle}
           />
         )}
 
