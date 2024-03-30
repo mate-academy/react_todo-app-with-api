@@ -11,10 +11,10 @@ import { TodoContext } from '../../context/TodoContext';
 import { deleteTodos, updateTodos } from '../../api/todos';
 import { Error } from '../../types/Error';
 
-type Props = {
+interface Props {
   todo: Todo;
   onEditing: (value: boolean) => void;
-};
+}
 
 export const EditForm: React.FC<Props> = ({ todo, onEditing }) => {
   const { id, title, completed } = todo;

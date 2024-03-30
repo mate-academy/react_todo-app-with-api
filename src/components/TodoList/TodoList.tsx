@@ -5,9 +5,9 @@ import { TodoContext } from '../../context/TodoContext';
 import { TodoItem } from '../TodoItem';
 import { TempTodo } from '../TempTodo/TempTodo';
 
-type Props = {
+interface Props {
   tempTodo: Todo | null;
-};
+}
 
 export const TodoList: React.FC<Props> = ({ tempTodo }) => {
   const { filteredTodos } = useContext(TodoContext);

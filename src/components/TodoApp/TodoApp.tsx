@@ -6,17 +6,12 @@ import { Header } from '../Header';
 import { TodoList } from '../TodoList';
 import { Error } from '../Error/Error';
 import { Footer } from '../Footer';
+import { getActiveTodosAmount } from '../../services/getActiveTodosAmount';
 
 export const TodoApp: React.FC = () => {
   const { todos, tempTodo } = useContext(TodoContext);
 
-  const activeTodosAmount = todos.reduce((acc, cur) => {
-    if (!cur.completed) {
-      return acc + 1;
-    }
-
-    return acc;
-  }, 0);
+  const activeTodosAmount = getActiveTodosAmount(todos);
 
   const completedTodosIds = todos
     .filter(({ completed }) => completed)
@@ -33,13 +28,9 @@ export const TodoApp: React.FC = () => {
       <div className="todoapp__content">
         <Header />
 
-        {(todos.length > 0 || !!tempTodo) && (
-          <TodoList
-            tempTodo={tempTodo}
-          />
-        )}
+        {(!!todos.length || !!tempTodo) && <TodoList tempTodo={tempTodo} />}
 
-        {todos.length > 0 && (
+        {!!todos.length && (
           <Footer
             activeTodosAmount={activeTodosAmount}
             completedTodosIds={completedTodosIds}

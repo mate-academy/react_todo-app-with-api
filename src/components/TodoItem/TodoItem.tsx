@@ -6,9 +6,9 @@ import { deleteTodos, updateTodos } from '../../api/todos';
 import { Error } from '../../types/Error';
 import { EditForm } from '../EditForm';
 
-type Props = {
+interface Props {
   todo: Todo;
-};
+}
 
 export const TodoItem: React.FC<Props> = ({ todo }) => {
   const {

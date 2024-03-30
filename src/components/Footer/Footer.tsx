@@ -4,10 +4,10 @@ import { deleteTodos } from '../../api/todos';
 import { Error } from '../../types/Error';
 import { TodoFilter } from '../TodoFilter';
 
-type Props = {
+interface Props {
   activeTodosAmount: number;
   completedTodosIds: number[];
-};
+}
 
 export const Footer: React.FC<Props> = ({
   activeTodosAmount,

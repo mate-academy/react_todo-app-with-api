@@ -23,9 +23,9 @@ export const TodoContext = React.createContext<TodoContextType>({
   handleSetTempTodo: () => { },
 });
 
-type Props = {
+interface Props {
   children: React.ReactNode
-};
+}
 
 export const TodoProvider: React.FC<Props> = ({ children }) => {
   const [todos, setTodos] = useState<Todo[]>([]);
