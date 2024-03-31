@@ -9,12 +9,14 @@ type Props = {
   setTodos: React.Dispatch<React.SetStateAction<Todo[]>>;
   setError: React.Dispatch<React.SetStateAction<string>>;
   setTempTodo: React.Dispatch<React.SetStateAction<Todo | null>>;
+  setLoaderAdd: React.Dispatch<React.SetStateAction<boolean>>;
 };
 export const Header: React.FC<Props> = ({
   setError,
   todos,
   setTodos,
   setTempTodo,
+  setLoaderAdd,
 }) => {
   const [titleTodo, setTitleTodo] = useState('');
   const [selectAllTodos, setSelectAllTodos] = useState(false);
@@ -45,6 +47,9 @@ export const Header: React.FC<Props> = ({
       title,
     };
 
+    setTimeout(() => {
+      setLoaderAdd(true);
+    }, 300);
     setTempTodo(newTempTodo);
     setIsAdding(true);
 
@@ -64,6 +69,7 @@ export const Header: React.FC<Props> = ({
       })
       .finally(() => {
         setIsAdding(false);
+        setLoaderAdd(false);
       });
   }
 
@@ -76,7 +82,7 @@ export const Header: React.FC<Props> = ({
       }, 3000);
     } else {
       const newTodo = {
-        title: titleTodo,
+        title: titleTodo.trim(),
         userId: todoService.USER_ID,
         completed: false,
         id: 0,

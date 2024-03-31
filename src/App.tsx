@@ -16,6 +16,7 @@ export const App: React.FC = () => {
   const [filterStatus, setFilterStatus] = useState(Status.All);
   const [isTodosLoaded, setIsTodosLoaded] = useState(false);
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
+  const [loaderAdd, setLoaderAdd] = useState(false);
 
   const handleChangeStatus = (
     status: Status,
@@ -82,6 +83,7 @@ export const App: React.FC = () => {
           setTodos={setTodos}
           setError={setErrorMessage}
           setTempTodo={setTempTodo}
+          setLoaderAdd={setLoaderAdd}
         />
         {isTodosLoaded && (
           <TodoList
@@ -91,6 +93,7 @@ export const App: React.FC = () => {
             handleDelete={handleDelete}
             error={setErrorMessage}
             tempTodo={tempTodo}
+            loader={loaderAdd}
           />
         )}
 

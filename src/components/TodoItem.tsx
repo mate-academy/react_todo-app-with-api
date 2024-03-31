@@ -15,6 +15,8 @@ type Props = {
   onDelete: (id: number) => void;
   onUpdate: (updatedTodo: Todo) => void;
   toggleTodoCompletion: (todoId: number) => void;
+  loader: boolean;
+  loaderId: number | null;
 };
 export const TodoItem: React.FC<Props> = ({
   todo,
@@ -22,11 +24,14 @@ export const TodoItem: React.FC<Props> = ({
   onDelete,
   onUpdate,
   toggleTodoCompletion,
+  loader,
+  loaderId,
 }) => {
-  const { title, userId, id, completed } = todo;
+  const { title, id, completed } = todo;
   const [isEditing, setIsEditing] = useState(false);
   const [editText, setEditText] = useState(todo.title);
   const editInputRef = useRef<HTMLInputElement>(null);
+  const [isLoaderActive, setIsLoaderActive] = useState(false);
 
   useEffect(() => {
     if (isEditing && editInputRef.current) {
@@ -46,9 +51,13 @@ export const TodoItem: React.FC<Props> = ({
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter') {
       e.preventDefault();
+      setTimeout(() => {
+        setIsLoaderActive(false);
+      }, 300);
       setIsEditing(false);
       setEditText(editText);
       onUpdate({ ...todo, title: editText });
+      setIsLoaderActive(true);
     } else if (e.key === 'Escape') {
       setIsEditing(false);
       setEditText(title);
@@ -89,7 +98,9 @@ export const TodoItem: React.FC<Props> = ({
           </form>
           <div
             data-cy="TodoLoader"
-            className={classNames('modal overlay', { 'is-active': !isEditing })}
+            className={classNames('modal overlay', {
+              'is-active': isLoading || loaderId === id || loader,
+            })}
           >
             <div className="modal-background has-background-white-ter" />
             <div className="loader" />
@@ -101,7 +112,7 @@ export const TodoItem: React.FC<Props> = ({
           className="todo__title"
           onDoubleClick={handleDoubleClick}
         >
-          {title}
+          {editText}
         </span>
       )}
 
@@ -118,7 +129,7 @@ export const TodoItem: React.FC<Props> = ({
       <div
         data-cy="TodoLoader"
         className={classNames('modal overlay', {
-          'is-active': userId === id || isLoading,
+          'is-active': loaderId === id || isLoading || isLoaderActive,
         })}
       >
         <div className="modal-background has-background-white-ter" />

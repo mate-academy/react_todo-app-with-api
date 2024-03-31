@@ -3,7 +3,7 @@
 import { Todo } from '../types/Todo';
 import * as todoService from '../api/todos';
 import { CSSTransition, TransitionGroup } from 'react-transition-group';
-import React from 'react';
+import React, { useState } from 'react';
 import { TodoItem } from './TodoItem';
 
 type Props = {
@@ -13,6 +13,7 @@ type Props = {
   handleDelete: (id: number) => void;
   error: React.Dispatch<React.SetStateAction<string>>;
   tempTodo: Todo | null;
+  loader: boolean;
 };
 
 export const TodoList: React.FC<Props> = ({
@@ -22,8 +23,11 @@ export const TodoList: React.FC<Props> = ({
   todos,
   setTodos,
   tempTodo,
+  loader,
 }) => {
+  const [loaderId, setLoaderId] = useState<number | null>(null);
   const toggleTodoCompletion = (todoId: number) => {
+    setLoaderId(todoId);
     const updatedTodos = todos.map(todo => {
       if (todoId === todo.id) {
         return {
@@ -36,6 +40,9 @@ export const TodoList: React.FC<Props> = ({
     });
 
     setTodos(updatedTodos);
+    setTimeout(() => {
+      setLoaderId(null);
+    }, 300);
   };
 
   const handleTodoUpdate = (updatedTodo: Todo) => {
@@ -46,6 +53,7 @@ export const TodoList: React.FC<Props> = ({
           const updatedIndex = currentTodos.findIndex(
             todo => todo.id === response.id,
           );
+
           const updatedTodos = [...currentTodos];
 
           updatedTodos[updatedIndex] = response;
@@ -71,6 +79,8 @@ export const TodoList: React.FC<Props> = ({
               toggleTodoCompletion={toggleTodoCompletion}
               onDelete={() => handleDelete(todo.id)}
               onUpdate={handleTodoUpdate}
+              loader={loader}
+              loaderId={loaderId}
             />
           </CSSTransition>
         ))}
@@ -82,6 +92,8 @@ export const TodoList: React.FC<Props> = ({
               toggleTodoCompletion={() => {}}
               onDelete={() => {}}
               onUpdate={() => {}}
+              loaderId={loaderId}
+              loader={loader}
             />
           </CSSTransition>
         )}
