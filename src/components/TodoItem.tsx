@@ -105,6 +105,12 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
     setIsEditing(false);
   };
 
+  const handleChangeField = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value.trim();
+
+    setEditingValue(value);
+  };
+
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter') {
       handleonBlur();
@@ -140,7 +146,7 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
             className="todo__title-field"
             ref={inputRef}
             value={editingValue}
-            onChange={e => setEditingValue(e.target.value)}
+            onChange={handleChangeField}
             onBlur={handleonBlur}
             onKeyDown={handleKeyDown}
           />
