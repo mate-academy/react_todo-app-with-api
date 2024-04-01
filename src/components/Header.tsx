@@ -93,7 +93,7 @@ export const Header: React.FC<Props> = ({ query, setQuery, setTempTodo }) => {
         updateTodo(todo.id, { ...todo, completed: !isActiveButton })
           .then(() => {
             dispatch({
-              type: ActionTypes.ToggleTodo,
+              type: ActionTypes.UpdateTodo,
               payload: { ...todo, completed: !isActiveButton },
             });
 

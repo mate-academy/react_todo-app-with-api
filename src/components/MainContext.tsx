@@ -13,7 +13,7 @@ type Action =
   | { type: ActionTypes.DeleteTodo; payload: number }
   | { type: ActionTypes.ClearCompleted; payload: Todo[] }
   | { type: ActionTypes.LoadingIdTodos; payload: number[] }
-  | { type: ActionTypes.ToggleTodo; payload: Todo };
+  | { type: ActionTypes.UpdateTodo; payload: Todo };
 
 type DispatchType = (action: Action) => void;
 
@@ -79,7 +79,7 @@ const reducer = (state: State, action: Action): State => {
         loadingIdTodos: action.payload,
       };
 
-    case ActionTypes.ToggleTodo:
+    case ActionTypes.UpdateTodo:
       return {
         ...state,
         todos: state.todos.map(todo =>
@@ -106,7 +106,7 @@ export const GlobalStateProvider: React.FC<Props> = ({ children }) => {
             errorMessage: '',
           },
         });
-      }, 2500);
+      }, 3000);
     }
 
     return () => clearTimeout(timeout);

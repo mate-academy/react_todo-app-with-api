@@ -14,14 +14,14 @@ interface Props {
 export const TodoItem: React.FC<Props> = ({ todo }) => {
   const dispatch = useContext(DispatchContext);
   const { loadingIdTodos } = useContext(StateContext);
+  const { id, title, completed } = todo;
   const [isLoader, setIsLoader] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
-  const [editingValue, setEditingValue] = useState(todo.title);
+  const [editingValue, setEditingValue] = useState(title);
   const inputRef = useRef<HTMLInputElement | null>(null);
 
-  const { id, title, completed } = todo;
-
   const isIncludesId = loadingIdTodos.includes(id);
+  const trimmedEditingValue = editingValue.trim();
 
   useEffect(() => {
     if (isEditing && inputRef.current) {
@@ -29,10 +29,10 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
     }
   }, [isEditing]);
 
-  const handleDeleteTodo = (idNumber: number) => {
+  const handleDeleteTodo = () => {
     setIsLoader(true);
 
-    deleteTodo(idNumber)
+    deleteTodo(id)
       .then(() => {
         dispatch({
           type: ActionTypes.DeleteTodo,
@@ -59,7 +59,7 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
     updateTodo(id, { ...todo, completed: e.target.checked })
       .then(item => {
         dispatch({
-          type: ActionTypes.ToggleTodo,
+          type: ActionTypes.UpdateTodo,
           payload: item,
         });
       })
@@ -76,45 +76,56 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
       });
   };
 
-  const handleonBlur = () => {
-    setEditingValue(editingValue);
-
-    if (editingValue !== todo.title) {
-      setIsLoader(true);
-
-      updateTodo(id, { ...todo, title: editingValue })
-        .then(item => {
-          dispatch({
-            type: ActionTypes.ToggleTodo,
-            payload: item,
-          });
-        })
-        .catch(() => {
-          dispatch({
-            type: ActionTypes.SetValuesByKeys,
-            payload: {
-              errorMessage: 'Unable to update a todo',
-            },
-          });
-        })
-        .finally(() => {
-          setIsLoader(false);
-        });
-    }
-
+  const handleEditCancel = () => {
+    setEditingValue(trimmedEditingValue);
     setIsEditing(false);
   };
 
-  const handleChangeField = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value.trim();
+  const handleOnBlur = () => {
+    switch (trimmedEditingValue) {
+      case title:
+        handleEditCancel();
+        break;
 
-    setEditingValue(value);
+      case '':
+        handleDeleteTodo();
+        break;
+
+      default:
+        setIsLoader(true);
+
+        dispatch({
+          type: ActionTypes.UpdateTodo,
+          payload: { ...todo, title: trimmedEditingValue },
+        });
+
+        updateTodo(id, { ...todo, title: trimmedEditingValue })
+          .then(item => {
+            dispatch({
+              type: ActionTypes.UpdateTodo,
+              payload: item,
+            });
+          })
+          .catch(() => {
+            setIsEditing(true);
+
+            dispatch({
+              type: ActionTypes.SetValuesByKeys,
+              payload: {
+                errorMessage: 'Unable to update a todo',
+              },
+            });
+          })
+          .finally(() => {
+            setIsLoader(false);
+          });
+
+        handleEditCancel();
+    }
   };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === 'Enter') {
-      handleonBlur();
-    } else if (e.key === 'Escape') {
+    if (e.key === 'Escape') {
       setIsEditing(false);
       setEditingValue(todo.title);
     }
@@ -139,15 +150,20 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
       </label>
 
       {isEditing ? (
-        <form>
+        <form
+          onSubmit={e => {
+            e.preventDefault();
+            handleOnBlur();
+          }}
+        >
           <input
             data-cy="TodoTitleField"
             type="text"
             className="todo__title-field"
             ref={inputRef}
             value={editingValue}
-            onChange={handleChangeField}
-            onBlur={handleonBlur}
+            onChange={e => setEditingValue(e.target.value)}
+            onBlur={handleOnBlur}
             onKeyDown={handleKeyDown}
           />
         </form>
@@ -166,7 +182,7 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
           type="button"
           className="todo__remove"
           data-cy="TodoDelete"
-          onClick={() => handleDeleteTodo(id)}
+          onClick={handleDeleteTodo}
         >
           ×
         </button>

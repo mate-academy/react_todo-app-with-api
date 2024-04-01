@@ -4,6 +4,6 @@ export enum ActionTypes {
   DeleteTodo = 'DeleteTodo',
   ClearCompleted = 'ClearCompleted',
   LoadingIdTodos = 'LoadingIdTodos',
-  ToggleTodo = 'ToggleTodo',
+  UpdateTodo = 'UpdateTodo',
   EditingTodo = 'EditingTodo',
 }
