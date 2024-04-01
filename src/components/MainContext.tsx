@@ -106,7 +106,7 @@ export const GlobalStateProvider: React.FC<Props> = ({ children }) => {
             errorMessage: '',
           },
         });
-      }, 3000);
+      }, 2500);
     }
 
     return () => clearTimeout(timeout);

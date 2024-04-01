@@ -121,15 +121,17 @@ export const Header: React.FC<Props> = ({ query, setQuery, setTempTodo }) => {
 
   return (
     <header className="todoapp__header">
-      <button
-        type="button"
-        className={classNames('todoapp__toggle-all', {
-          active: isActiveButton,
-        })}
-        data-cy="ToggleAllButton"
-        aria-label="Toggle all todos"
-        onClick={handleToggleAll}
-      />
+      {!!todos.length && (
+        <button
+          type="button"
+          className={classNames('todoapp__toggle-all', {
+            active: isActiveButton,
+          })}
+          data-cy="ToggleAllButton"
+          aria-label="Toggle all todos"
+          onClick={handleToggleAll}
+        />
+      )}
 
       <form onSubmit={handleSubmit}>
         <label htmlFor="newTodo">

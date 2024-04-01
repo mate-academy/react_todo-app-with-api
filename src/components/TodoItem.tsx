@@ -62,22 +62,23 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
           type: ActionTypes.ToggleTodo,
           payload: item,
         });
-
-        setIsLoader(false);
       })
       .catch(() => {
         dispatch({
           type: ActionTypes.SetValuesByKeys,
           payload: {
-            errorMessage: 'Unable to add a todo',
+            errorMessage: 'Unable to update a todo',
           },
         });
-
+      })
+      .finally(() => {
         setIsLoader(false);
       });
   };
 
   const handleonBlur = () => {
+    setEditingValue(editingValue);
+
     if (editingValue !== todo.title) {
       setIsLoader(true);
 
@@ -92,15 +93,16 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
           dispatch({
             type: ActionTypes.SetValuesByKeys,
             payload: {
-              errorMessage: 'Unable to add a todo',
+              errorMessage: 'Unable to update a todo',
             },
           });
         })
         .finally(() => {
           setIsLoader(false);
-          setIsEditing(false);
         });
     }
+
+    setIsEditing(false);
   };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {

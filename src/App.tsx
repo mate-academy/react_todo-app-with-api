@@ -35,7 +35,17 @@ export const App: React.FC = () => {
             errorMessage: 'Unable to load todos',
           },
         }),
-      );
+      )
+      .finally(() => {
+        setTimeout(() => {
+          dispatch({
+            type: ActionTypes.SetValuesByKeys,
+            payload: {
+              errorMessage: '',
+            },
+          });
+        }, 3000);
+      });
   }, [dispatch]);
 
   if (!USER_ID) {
