@@ -5,7 +5,6 @@ import {
   getTodos,
   postTodo,
   setCompletedTodo,
-  setTodoTitle,
 } from './api/todos';
 import { Todo } from './types/Todo';
 import { Errors } from './types/Error';
@@ -144,20 +143,6 @@ export const App: React.FC = () => {
     }
   };
 
-  const editTodoTitle = async (id: number, newTitle: string) => {
-    try {
-      const updatedTodo = await setTodoTitle({ id, title: newTitle });
-
-      setTodos(prevTodos =>
-        prevTodos.map(todo =>
-          todo.id === id ? { ...todo, title: updatedTodo.title } : todo,
-        ),
-      );
-    } catch {
-      setError(Errors.Update);
-    }
-  };
-
   const toggleCompleted = async (id: number) => {
     try {
       await setCompletedTodo({
@@ -173,6 +158,18 @@ export const App: React.FC = () => {
     } catch {
       setError(Errors.Update);
     }
+  };
+
+  const updateTodoTitle = (todoId: number, newTitle: string) => {
+    const updatedTodos = todos.map(todo => {
+      if (todo.id === todoId) {
+        return { ...todo, title: newTitle };
+      }
+
+      return todo;
+    });
+
+    setTodos(updatedTodos);
   };
 
   useEffect(() => {
@@ -207,7 +204,7 @@ export const App: React.FC = () => {
             filteredTodo={filteredTodo}
             deleteCurrentTodo={deleteCurrentTodo}
             deleteTodoId={deleteTodoId}
-            editTodoTitle={editTodoTitle}
+            updateTodoTitle={updateTodoTitle}
           />
         )}
 

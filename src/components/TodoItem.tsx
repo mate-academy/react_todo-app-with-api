@@ -1,6 +1,7 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Errors } from '../types/Error';
 import classNames from 'classnames';
+import { setTodoTitle } from '../api/todos';
 
 type Props = {
   title: string;
@@ -8,7 +9,7 @@ type Props = {
   completed: boolean;
   loader: boolean;
   deleteCurrentTodo: (id: number) => void;
-  editTodoTitle: (id: number, newTitle: string) => void;
+  updateTodoTitle: (todoId: number, newTitle: string) => void;
   setError: (error: Errors | null) => void;
   toggleCompleted: (id: number) => void;
 };
@@ -19,7 +20,7 @@ export const TodoItem: React.FC<Props> = ({
   completed,
   loader,
   deleteCurrentTodo,
-  editTodoTitle,
+  updateTodoTitle,
   setError,
   toggleCompleted,
 }) => {
@@ -41,14 +42,19 @@ export const TodoItem: React.FC<Props> = ({
     if (trimmedEditedTitle !== '' && trimmedEditedTitle !== title) {
       setLoading(true);
       try {
-        await editTodoTitle(id, trimmedEditedTitle);
-        setEditing(false);
+        await setTodoTitle({ id, title: trimmedEditedTitle });
+
+        updateTodoTitle(id, trimmedEditedTitle);
       } catch {
         setError(Errors.Update);
         setEditing(true);
-      }
+        setLoading(false);
+        setEditedTitle(title);
 
-      setLoading(false);
+        return;
+      } finally {
+        setLoading(false);
+      }
     } else if (trimmedEditedTitle === '') {
       deleteCurrentTodo(id);
 
@@ -86,6 +92,24 @@ export const TodoItem: React.FC<Props> = ({
     setLoading(false);
   };
 
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    if (editing && inputRef.current) {
+      inputRef.current.focus();
+    }
+  }, [editing]);
+
+  const handleBlur = async () => {
+    if (editing) {
+      await handleSubmit();
+    }
+
+    if (!loading && editing) {
+      setEditing(false);
+    }
+  };
+
   return (
     <div
       key={id}
@@ -105,6 +129,7 @@ export const TodoItem: React.FC<Props> = ({
 
       {editing ? (
         <input
+          ref={inputRef}
           type="text"
           data-cy="TodoTitleField"
           className="todo__title-field"
@@ -112,7 +137,7 @@ export const TodoItem: React.FC<Props> = ({
           autoFocus
           onChange={handleChange}
           onKeyUp={handleKeyUp}
-          onBlur={handleSubmit}
+          onBlur={handleBlur}
         />
       ) : (
         <>
@@ -136,7 +161,7 @@ export const TodoItem: React.FC<Props> = ({
 
       <div
         data-cy="TodoLoader"
-        className={classNames('modal', 'overlay', { 'is-active': loading })}
+        className={`modal overlay ${loading ? 'is-active' : ''}`}
       >
         <div className="modal-background has-background-white-ter" />
         <div className="loader" />

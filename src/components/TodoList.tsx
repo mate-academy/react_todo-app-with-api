@@ -7,7 +7,7 @@ type Props = {
   deleteCurrentTodo: (id: number) => void;
   deleteTodoId: number | null;
   tempTodo: Todo | null;
-  editTodoTitle: (id: number, newTitle: string) => void;
+  updateTodoTitle: (todoId: number, newTitle: string) => void;
   setError: (error: Errors | null) => void;
   toggleCompleted: (id: number) => void;
 };
@@ -17,7 +17,7 @@ export const TodoList: React.FC<Props> = ({
   deleteCurrentTodo,
   deleteTodoId,
   tempTodo,
-  editTodoTitle,
+  updateTodoTitle,
   setError,
   toggleCompleted,
 }) => {
@@ -33,7 +33,7 @@ export const TodoList: React.FC<Props> = ({
           id={id}
           loader={deleteTodoId === id}
           deleteCurrentTodo={deleteCurrentTodo}
-          editTodoTitle={editTodoTitle}
+          updateTodoTitle={updateTodoTitle}
         />
       ))}
 
@@ -41,7 +41,7 @@ export const TodoList: React.FC<Props> = ({
         <TodoItem
           toggleCompleted={toggleCompleted}
           setError={setError}
-          editTodoTitle={editTodoTitle}
+          updateTodoTitle={updateTodoTitle}
           title={tempTodo.title}
           completed={tempTodo.completed}
           id={tempTodo.id}
