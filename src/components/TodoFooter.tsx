@@ -1,6 +1,7 @@
 import { useMemo } from 'react';
 import { Filter } from '../types/Filter';
 import { Todo } from '../types/Todo';
+import classNames from 'classnames';
 
 type Props = {
   filter: Filter;
@@ -32,7 +33,9 @@ export const TodoFooter: React.FC<Props> = ({
       <nav className="filter" data-cy="Filter">
         <a
           href="#/"
-          className={`filter__link ${filter === Filter.All ? 'selected' : ''}`}
+          className={classNames('filter__link', {
+            selected: filter === Filter.All,
+          })}
           data-cy="FilterLinkAll"
           onClick={() => setFilter(Filter.All)}
         >
@@ -41,7 +44,9 @@ export const TodoFooter: React.FC<Props> = ({
 
         <a
           href="#/active"
-          className={`filter__link ${filter === Filter.Active ? 'selected' : ''}`}
+          className={classNames('filter__link', {
+            selected: filter === Filter.Active,
+          })}
           data-cy="FilterLinkActive"
           onClick={() => setFilter(Filter.Active)}
         >
@@ -50,7 +55,9 @@ export const TodoFooter: React.FC<Props> = ({
 
         <a
           href="#/completed"
-          className={`filter__link ${filter === Filter.Completed ? 'selected' : ''}`}
+          className={classNames('filter__link', {
+            selected: filter === Filter.Completed,
+          })}
           data-cy="FilterLinkCompleted"
           onClick={() => setFilter(Filter.Completed)}
         >

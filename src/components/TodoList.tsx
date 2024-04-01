@@ -41,7 +41,7 @@ export const TodoList: React.FC<Props> = ({
         <TodoItem
           toggleCompleted={toggleCompleted}
           setError={setError}
-          editTodoTitle={() => {}}
+          editTodoTitle={editTodoTitle}
           title={tempTodo.title}
           completed={tempTodo.completed}
           id={tempTodo.id}

@@ -1,3 +1,5 @@
+import classNames from 'classnames';
+
 type Props = {
   tempAddTodo: (title: string) => void;
   areAllCompleted: boolean;
@@ -30,7 +32,9 @@ export const TodoHeader: React.FC<Props> = ({
         <button
           aria-label="toggle"
           type="button"
-          className={`todoapp__toggle-all ${areAllCompleted ? 'active' : ''}`}
+          className={classNames('todoapp__toggle-all', {
+            active: areAllCompleted,
+          })}
           data-cy="ToggleAllButton"
           onClick={toggleAll}
         />

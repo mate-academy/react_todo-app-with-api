@@ -90,14 +90,14 @@ export const App: React.FC = () => {
   }, []);
 
   const clearCompleted = async () => {
-    const todoToClear: Todo[] = [];
+    const todoIdsToClear: number[] = [];
 
     try {
       for (const todo of todos) {
         if (todo.completed) {
           try {
             await deleteTodo(todo.id);
-            todoToClear.push(todo);
+            todoIdsToClear.push(todo.id);
           } catch {
             setError(Errors.Delete);
           }
@@ -105,7 +105,7 @@ export const App: React.FC = () => {
       }
 
       setTodos(prevState =>
-        prevState.filter(todo => !todoToClear.includes(todo)),
+        prevState.filter(todo => !todoIdsToClear.includes(todo.id)),
       );
     } catch {
       setError(Errors.Delete);
