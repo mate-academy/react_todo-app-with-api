@@ -1,7 +1,6 @@
 /* eslint-disable jsx-a11y/label-has-associated-control */
 /* eslint-disable jsx-a11y/control-has-associated-label */
 import { TodoList } from './components/TodoList';
-import { TodosFilter } from './components/TodoFilter';
 import { UserWarning } from './UserWarning';
 import * as todoService from './api/todos';
 import classNames from 'classnames';
@@ -10,8 +9,7 @@ import { Todo } from './types/Todo';
 import { Filter } from './types/Filter';
 import { Error } from './types/Error';
 import { wait } from './utils/fetchClient';
-import { TodoItem } from './components/TodoItem';
-import { CSSTransition } from 'react-transition-group';
+import { Footer } from './components/Footer/Footer';
 
 export const App: React.FC = () => {
   const [input, setInput] = useState('');
@@ -20,7 +18,6 @@ export const App: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [loadingTodoIds, setLoadingTodoIds] = useState<number[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [isEditing, setIsEditing] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
   const allChecked = todos.every((todo: Todo) => todo.completed);
@@ -28,7 +25,6 @@ export const App: React.FC = () => {
   const [serverError, setServerError] = useState(false);
   const titleField = useRef<HTMLInputElement>(null);
   const completedTodos = todos.filter((todo: Todo) => todo.completed);
-  const activeTodos = todos.filter((todo: Todo) => !todo.completed);
   const todosToToggle = todos.filter(todo => todo.completed === isActive);
 
   useEffect(() => {
@@ -70,10 +66,6 @@ export const App: React.FC = () => {
   if (!todoService.USER_ID) {
     return <UserWarning />;
   }
-
-  const handleFilterChange = (newFilter: Filter) => {
-    setFilter(newFilter);
-  };
 
   // eslint-disable-next-line react-hooks/rules-of-hooks
   const filterTodos = useCallback(
@@ -118,10 +110,6 @@ export const App: React.FC = () => {
       completed: false,
     });
 
-    if (tempTodo) {
-      setTodos(prevTodos => [...prevTodos, tempTodo]);
-    }
-
     return todoService
       .addTodo({
         userId: todoService.USER_ID,
@@ -129,10 +117,6 @@ export const App: React.FC = () => {
         completed: false,
       })
       .then(newTodo => {
-        setTodos(prevTodos =>
-          prevTodos.filter(todo => todo.id !== tempTodo?.id),
-        );
-
         setTodos(prevTodos => [...prevTodos, newTodo]);
         setInput('');
         setTempTodo(null);
@@ -205,6 +189,7 @@ export const App: React.FC = () => {
       .finally(() => {
         setLoadingTodoIds([]);
         setIsSubmitting(false);
+        setFilter(Filter.All);
       });
   };
 
@@ -337,41 +322,23 @@ export const App: React.FC = () => {
         </header>
 
         {!loading && (
-          <>
-            <TodoList
-              todos={filteredTodos}
-              loadingTodoIds={loadingTodoIds}
-              onDeleteTodo={handleDeleteTodo}
-              onEditTodo={handleEditTodo}
-              isEditing={isEditing}
-              setIsEditing={setIsEditing}
-              onCheckedTodo={handleCheckedTodo}
-              serverError={serverError}
-            />
-            {tempTodo !== null && (
-              <CSSTransition key={0} timeout={300} classNames="temp-item">
-                <TodoItem todo={tempTodo} />
-              </CSSTransition>
-            )}
-          </>
+          <TodoList
+            todos={filteredTodos}
+            tempTodo={tempTodo}
+            loadingTodoIds={loadingTodoIds}
+            onDeleteTodo={handleDeleteTodo}
+            onEditTodo={handleEditTodo}
+            onCheckedTodo={handleCheckedTodo}
+            serverError={serverError}
+          />
         )}
         {todos.length > 0 && (
-          <footer className="todoapp__footer" data-cy="Footer">
-            <span className="todo-count" data-cy="TodosCounter">
-              {activeTodos.length} items left
-            </span>
-
-            <TodosFilter filter={filter} onFilterChange={handleFilterChange} />
-            <button
-              type="button"
-              className="todoapp__clear-completed"
-              data-cy="ClearCompletedButton"
-              disabled={!completedTodos.length}
-              onClick={handleClearCompleted}
-            >
-              Clear completed
-            </button>
-          </footer>
+          <Footer
+            todos={todos}
+            filter={filter}
+            setFilter={setFilter}
+            handleClearCompleted={handleClearCompleted}
+          />
         )}
       </div>
 

@@ -3,13 +3,10 @@ import { Filter } from '../../types/Filter';
 
 type Props = {
   filter: Filter;
-  onFilterChange: (newFilter: Filter) => void;
+  setFilter: (newFilter: Filter) => void;
 };
 
-export const TodosFilter: React.FC<Props> = ({
-  filter,
-  onFilterChange = () => {},
-}) => {
+export const TodosFilter: React.FC<Props> = ({ filter, setFilter }) => {
   return (
     <nav className="filter" data-cy="Filter">
       <a
@@ -18,7 +15,7 @@ export const TodosFilter: React.FC<Props> = ({
           selected: filter === Filter.All,
         })}
         data-cy="FilterLinkAll"
-        onClick={() => onFilterChange(Filter.All)}
+        onClick={() => setFilter(Filter.All)}
       >
         All
       </a>
@@ -28,7 +25,7 @@ export const TodosFilter: React.FC<Props> = ({
         className={classNames('filter__link', {
           selected: filter === Filter.Active,
         })}
-        onClick={() => onFilterChange(Filter.Active)}
+        onClick={() => setFilter(Filter.Active)}
         data-cy="FilterLinkActive"
       >
         Active
@@ -39,7 +36,7 @@ export const TodosFilter: React.FC<Props> = ({
         className={classNames('filter__link', {
           selected: filter === Filter.Completed,
         })}
-        onClick={() => onFilterChange(Filter.Completed)}
+        onClick={() => setFilter(Filter.Completed)}
         data-cy="FilterLinkCompleted"
       >
         Completed

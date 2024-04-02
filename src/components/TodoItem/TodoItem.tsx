@@ -8,8 +8,6 @@ type Props = {
   onDelete?: (todoId: number) => void;
   onloadingTodoIds?: number[];
   onEdit?: (currentTodo: Todo) => void;
-  isEditingTodo?: boolean;
-  setIsEditingTodo?: (isEditing: boolean) => void;
   onChecked?: (currentTodo: Todo) => void;
   errorFromServer?: boolean;
 };
@@ -19,13 +17,12 @@ export const TodoItem: React.FC<Props> = ({
   onloadingTodoIds = [],
   onDelete = () => {},
   onEdit = () => {},
-  isEditingTodo,
-  setIsEditingTodo = () => {},
   onChecked = () => {},
   errorFromServer,
 }) => {
   const [title, setTitle] = useState(todo.title);
   const [editedTodo, setEditedTodo] = useState<Todo | null>(null);
+  const [isEditing, setIsEditing] = useState(false);
   const titleField = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -49,7 +46,7 @@ export const TodoItem: React.FC<Props> = ({
 
           return;
         } else if (title.trim() === todo.title) {
-          setIsEditingTodo(false);
+          setIsEditing(false);
 
           return;
         } else {
@@ -64,7 +61,7 @@ export const TodoItem: React.FC<Props> = ({
       }
     } catch (error) {
       setEditedTodo(todo);
-      setIsEditingTodo(true);
+      setIsEditing(true);
       throw error;
     }
   };
@@ -74,7 +71,7 @@ export const TodoItem: React.FC<Props> = ({
       if (!title.trim()) {
         await onDelete(todo.id);
       } else if (title.trim() === todo.title) {
-        setIsEditingTodo(false);
+        setIsEditing(false);
         setEditedTodo(null);
 
         return;
@@ -83,13 +80,13 @@ export const TodoItem: React.FC<Props> = ({
       }
     } catch (error) {
       setEditedTodo(todo);
-      setIsEditingTodo(true);
+      setIsEditing(true);
     }
   };
 
   const handleEditSuccess = () => {
     setEditedTodo(null);
-    setIsEditingTodo(false);
+    setIsEditing(false);
   };
 
   const handleKeyPress = async (
@@ -118,7 +115,7 @@ export const TodoItem: React.FC<Props> = ({
       })}
       onDoubleClick={() => {
         setEditedTodo(todo);
-        setIsEditingTodo(true);
+        setIsEditing(true);
       }}
       onBlur={handleBlur}
     >
@@ -132,7 +129,7 @@ export const TodoItem: React.FC<Props> = ({
         />
       </label>
 
-      {editedTodo && isEditingTodo ? (
+      {editedTodo && isEditing ? (
         <form>
           <input
             ref={titleField}
