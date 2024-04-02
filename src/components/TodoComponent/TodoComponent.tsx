@@ -1,5 +1,3 @@
-/* eslint-disable jsx-a11y/no-static-element-interactions */
-/* eslint-disable jsx-a11y/click-events-have-key-events */
 import React, {
   useContext, useEffect, useRef, useState,
 } from 'react';
@@ -77,7 +75,6 @@ export const TodoComponent: React.FC<Props> = (props) => {
   function saveEditedTodo() {
     const value = newTitle.trim();
 
-    // eslint-disable-next-line no-extra-boolean-cast
     if (!!value && value !== todo.title) {
       setUpdating(true);
 

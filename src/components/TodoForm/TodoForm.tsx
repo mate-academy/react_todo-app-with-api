@@ -12,8 +12,12 @@ interface Props {
 }
 
 export const TodoForm: React.FC<Props> = (props) => {
-  // eslint-disable-next-line object-curly-newline
-  const { setError, addTodo, handleTempTodo, todos } = props;
+  const {
+    setError,
+    addTodo,
+    handleTempTodo,
+    todos,
+  } = props;
 
   const [newTitle, setNewTitle] = useState('');
   const [disableInput, setDisableInput] = useState(false);
