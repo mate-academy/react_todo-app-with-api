@@ -5,11 +5,11 @@ import '@fortawesome/fontawesome-free/css/all.css';
 import './styles/index.scss';
 
 import { App } from './App';
-import { TodosProvider } from './TodoContext/TodoProvider';
+import { TodoProvider } from './contexts/TodoContext';
 
 createRoot(document.getElementById('root') as HTMLDivElement)
   .render(
-    <TodosProvider>
+    <TodoProvider>
       <App />
-    </TodosProvider>,
+    </TodoProvider>,
   );
