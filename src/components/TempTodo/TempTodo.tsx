@@ -9,11 +9,13 @@ type Props = {
 };
 
 export const TempTodo: React.FC<Props> = ({ todo }) => {
+  const { title, completed } = todo;
+
   return (
     <div
       data-cy="Todo"
       className={classNames('todo', {
-        completed: todo.completed,
+        completed: completed,
       })}
     >
       <label className="todo__status-label">
@@ -21,14 +23,14 @@ export const TempTodo: React.FC<Props> = ({ todo }) => {
           data-cy="TodoStatus"
           type="checkbox"
           className="todo__status"
-          checked={todo.completed}
+          checked={completed}
         />
       </label>
 
-      <Loader isLoading={true} />
+      <Loader isLoading />
 
       <span data-cy="TodoTitle" className="todo__title">
-        {todo.title}
+        {title}
       </span>
     </div>
   );

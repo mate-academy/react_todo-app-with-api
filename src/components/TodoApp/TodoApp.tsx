@@ -52,7 +52,7 @@ export const TodoApp: React.FC = () => {
           'is-danger',
           'is-light',
           'has-text-weight-normal',
-          { hidden: errorMessage === '' },
+          { hidden: !errorMessage },
         )}
       >
         <button
