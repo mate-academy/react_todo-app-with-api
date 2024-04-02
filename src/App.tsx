@@ -4,12 +4,22 @@ import { TodoList } from './components/TodoList';
 import { UserWarning } from './UserWarning';
 import * as todoService from './api/todos';
 import classNames from 'classnames';
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { Todo } from './types/Todo';
 import { Filter } from './types/Filter';
 import { Error } from './types/Error';
 import { wait } from './utils/fetchClient';
 import { Footer } from './components/Footer/Footer';
+
+const filterTodos = (currentTodos: Todo[], currentFilter: Filter) => {
+  if (currentFilter === Filter.Active) {
+    return currentTodos.filter((todo: Todo) => !todo.completed);
+  } else if (currentFilter === Filter.Completed) {
+    return currentTodos.filter((todo: Todo) => todo.completed);
+  } else {
+    return currentTodos;
+  }
+};
 
 export const App: React.FC = () => {
   const [input, setInput] = useState('');
@@ -68,23 +78,9 @@ export const App: React.FC = () => {
   }
 
   // eslint-disable-next-line react-hooks/rules-of-hooks
-  const filterTodos = useCallback(
-    (currentTodos: Todo[], currentFilter: Filter) => {
-      if (currentFilter === Filter.Active) {
-        return currentTodos.filter((todo: Todo) => !todo.completed);
-      } else if (currentFilter === Filter.Completed) {
-        return currentTodos.filter((todo: Todo) => todo.completed);
-      } else {
-        return currentTodos;
-      }
-    },
-    [],
-  );
-
-  // eslint-disable-next-line react-hooks/rules-of-hooks
   const filteredTodos = useMemo(() => {
     return filterTodos(todos, filter);
-  }, [filterTodos, filter, todos]);
+  }, [filter, todos]);
 
   const handleTitleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setInput(event.target.value);
