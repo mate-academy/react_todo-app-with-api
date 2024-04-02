@@ -1,4 +1,3 @@
-/* eslint-disable jsx-a11y/control-has-associated-label */
 import React, { useEffect } from 'react';
 import classNames from 'classnames';
 
@@ -14,8 +13,7 @@ export const ErrorNotification: React.FC<Props> = (props) => {
     const timerId = setTimeout(setErrorHide, 3000);
 
     return () => clearTimeout(timerId);
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [errorMessage]);
+  }, [errorMessage, setErrorHide]);
 
   return (
     <div
@@ -32,6 +30,7 @@ export const ErrorNotification: React.FC<Props> = (props) => {
         type="button"
         className="delete"
         onClick={setErrorHide}
+        aria-label="Hide Error"
       />
 
       {errorMessage}
