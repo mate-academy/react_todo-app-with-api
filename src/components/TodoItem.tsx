@@ -89,76 +89,82 @@ export const TodoItem: React.FC<Props> = ({
     [setTodos, inputFieldRef, setErrorMessage],
   );
 
-  const handleTodoTitleChange = useCallback((e: React.FormEvent) => {
-    e.preventDefault();
-    const trimmedTitle = todoTitle.trim();
-  
-    if (!trimmedTitle) {
-      setIsLoading(true);
-      setErrorMessage(ErrorMessage.noError);
+  const handleTodoTitleChange = useCallback(
+    (e: React.FormEvent) => {
+      e.preventDefault();
+      const trimmedTitle = todoTitle.trim();
 
-      deleteTodo(todo.id)
-        .then(() => {
+      if (!trimmedTitle) {
+        setIsLoading(true);
+        setErrorMessage(ErrorMessage.noError);
+
+        deleteTodo(todo.id)
+          .then(() => {
+            setTodos(prevTodos => {
+              return prevTodos.filter(prevTodo => prevTodo.id !== todo.id);
+            });
+            setIsEditing(false);
+
+            if (inputFieldRef?.current) {
+              inputFieldRef.current.focus();
+            }
+          })
+          .catch(() => setErrorMessage(ErrorMessage.delete))
+          .finally(() => {
+            setIsLoading(false);
+          });
+
+        return;
+      }
+
+      if (trimmedTitle === todo.title) {
+        setIsEditing(false);
+
+        return;
+      }
+
+      setErrorMessage(ErrorMessage.noError);
+      setIsLoading(true);
+
+      patchTodo({
+        ...todo,
+        title: trimmedTitle,
+      })
+        .then(patchedTodo => {
           setTodos(prevTodos => {
-            return prevTodos.filter(prevTodo => prevTodo.id !== todo.id);
+            return prevTodos.map(prevTodo => {
+              return prevTodo.id === patchedTodo.id ? patchedTodo : prevTodo;
+            });
           });
           setIsEditing(false);
-
-          if (inputFieldRef?.current) {
-            inputFieldRef.current.focus();
-          }
         })
-        .catch(() => setErrorMessage(ErrorMessage.delete))
+        .catch(() => setErrorMessage(ErrorMessage.update))
         .finally(() => {
           setIsLoading(false);
         });
+    },
+    [
+      inputFieldRef,
+      setErrorMessage,
+      todo,
+      todoTitle,
+      setIsEditing,
+      setIsLoading,
+      setTodos,
+    ],
+  );
 
-      return;
-    }
-
-    if (trimmedTitle === todo.title) {
-      setIsEditing(false);
-
-      return;
-    }
-
-    setIsLoading(true);
-    setErrorMessage(ErrorMessage.noError);
-
-    patchTodo({
-      ...todo,
-      title: trimmedTitle,
-    })
-      .then(patchedTodo => {
-        setTodos(prevTodos => {
-          return prevTodos.map(prevTodo => {
-            return prevTodo.id === patchedTodo.id ? patchedTodo : prevTodo;
-          });
-        });
+  const handleTodoTitleChangeCancel = useCallback(
+    (e: React.KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        setTodoTitle(todo.title);
         setIsEditing(false);
-      })
-      .catch(() => setErrorMessage(ErrorMessage.update))
-      .finally(() => {
-        setIsLoading(false);
-      });
-  }, [
-    inputFieldRef,
-    setErrorMessage,
-    todo,
-    todoTitle,
-    setIsEditing,
-    setIsLoading,
-    setTodos
-  ]);
 
-  const handleTodoTitleChangeCancel = useCallback((e: React.KeyboardEvent) => {
-    if (e.key === 'Escape') {
-      setTodoTitle(todo.title);
-      setIsEditing(false);
-
-      return;
-    }
-  }, [todo]);
+        return;
+      }
+    },
+    [todo],
+  );
 
   return (
     <div
