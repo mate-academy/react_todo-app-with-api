@@ -75,6 +75,12 @@
       font-weight: 300;
       color: #e6e6e6;
     }
+
+    &:focus {
+      box-shadow: 0px 0px 2px 3px rgba(115, 189, 111, 1);
+    }
+
+    outline: none;
   }
 
   &__main {
