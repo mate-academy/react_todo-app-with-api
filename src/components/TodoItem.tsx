@@ -41,7 +41,7 @@ export const TodoItem: React.FC<Props> = ({
   }, [editing]);
 
   const handleDoubleClick = () => {
-    setEditedTitle(title.trim());
+    setEditedTitle(title.trim().replace(/\s+/g, ' '));
     setEditing(true);
   };
 
