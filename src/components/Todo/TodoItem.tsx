@@ -50,24 +50,30 @@ export const TodoItem: React.FC<Props> = ({ todo, deleteTodo }) => {
 
     return todoSevice
       .updateTodo(todo.id, { title: changeTitle.trim() })
-      .then(todoItem => {
-        setTodos(currentTodos => {
-          const newTodos = [...currentTodos];
-          const index = newTodos.findIndex(t => t.id === todo.id);
 
-          newTodos.splice(index, 1, todoItem);
+      .then(updatedTodoItem => {
+        setTodos(currentTodos => {
+          const updatedTodos = currentTodos.map(currentTodo => {
+            if (currentTodo.id === updatedTodoItem.id) {
+              return updatedTodoItem;
+            }
+
+            return currentTodo;
+          });
+
           setIsEdit(false);
 
-          return newTodos;
+          return updatedTodos;
         });
       })
+
       .catch(() => {
         setIsEdit(true);
         setIsFocused(false);
         handleRequestError(Errors.updateTodo, setError);
       })
       .finally(() => {
-        setLoadingTodoIds([]);
+        setLoadingTodoIds(prev => prev.filter(id => id !== todo.id));
       });
   };
 
@@ -79,7 +85,7 @@ export const TodoItem: React.FC<Props> = ({ todo, deleteTodo }) => {
     if (event.key === 'Escape') {
       setChangeTitle(todo.title);
       setIsEdit(false);
-      setLoadingTodoIds([]);
+      setLoadingTodoIds(prev => prev.filter(id => id !== todo.id));
     }
   };
 
@@ -98,13 +104,12 @@ export const TodoItem: React.FC<Props> = ({ todo, deleteTodo }) => {
           }),
         );
       })
-      .catch(error => {
+      .catch(() => {
         handleRequestError(Errors.updateTodo, setError);
-        throw error;
       })
       .finally(() => {
         setIsEdit(false);
-        setLoadingTodoIds([]);
+        setLoadingTodoIds(prev => prev.filter(id => id !== todo.id));
       });
   };
 

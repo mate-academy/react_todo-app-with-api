@@ -65,7 +65,6 @@ export const Header: React.FC = () => {
         .then((response: Todo) => {
           setTodos((prevTodos: Todo[]) => [...prevTodos, response]);
           setTitle('');
-          setIsFocused(true);
         })
         .catch(() => {
           handleRequestError(Errors.addTodo, setError);
@@ -95,9 +94,8 @@ export const Header: React.FC = () => {
           }),
         );
       })
-      .catch(error => {
+      .catch(() => {
         handleRequestError(Errors.updateTodo, setError);
-        throw error;
       })
       .finally(() => {
         setLoadingTodoIds([]);
