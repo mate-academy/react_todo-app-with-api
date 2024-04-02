@@ -24,6 +24,8 @@ export const TodoItem: React.FC<Props> = ({
   setError,
   toggleCompleted,
 }) => {
+  const inputRef = useRef<HTMLInputElement>(null);
+
   const [loading, setLoading] = useState(false);
   const [editing, setEditing] = useState(false);
   const [editedTitle, setEditedTitle] = useState(title);
@@ -32,6 +34,12 @@ export const TodoItem: React.FC<Props> = ({
     setLoading(loader);
   }, [loader]);
 
+  useEffect(() => {
+    if (editing && inputRef.current) {
+      inputRef.current.focus();
+    }
+  }, [editing]);
+
   const handleDoubleClick = () => {
     setEditing(true);
   };
@@ -39,29 +47,26 @@ export const TodoItem: React.FC<Props> = ({
   const handleSubmit = async () => {
     const trimmedEditedTitle = editedTitle.trim();
 
-    if (trimmedEditedTitle !== '' && trimmedEditedTitle !== title) {
+    try {
       setLoading(true);
-      try {
-        await setTodoTitle({ id, title: trimmedEditedTitle });
 
+      if (trimmedEditedTitle !== '' && trimmedEditedTitle !== title) {
+        await setTodoTitle({ id, title: trimmedEditedTitle });
         updateTodoTitle(id, trimmedEditedTitle);
-      } catch {
-        setError(Errors.Update);
-        setEditing(true);
-        setLoading(false);
-        setEditedTitle(title);
+      } else if (trimmedEditedTitle === '') {
+        deleteCurrentTodo(id);
 
         return;
-      } finally {
-        setLoading(false);
       }
-    } else if (trimmedEditedTitle === '') {
-      deleteCurrentTodo(id);
 
-      return;
+      setEditing(false);
+    } catch {
+      setError(Errors.Update);
+      setEditing(true);
+      setEditedTitle(title);
+    } finally {
+      setLoading(false);
     }
-
-    setEditing(false);
   };
 
   const handleCancel = () => {
@@ -82,23 +87,16 @@ export const TodoItem: React.FC<Props> = ({
   };
 
   const changeCompleted = async () => {
-    setLoading(true);
     try {
+      setLoading(true);
+
       await toggleCompleted(id);
     } catch {
       setError(Errors.Update);
+    } finally {
+      setLoading(false);
     }
-
-    setLoading(false);
   };
-
-  const inputRef = useRef<HTMLInputElement>(null);
-
-  useEffect(() => {
-    if (editing && inputRef.current) {
-      inputRef.current.focus();
-    }
-  }, [editing]);
 
   const handleBlur = async () => {
     if (editing) {

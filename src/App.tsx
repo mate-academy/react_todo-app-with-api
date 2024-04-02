@@ -16,6 +16,8 @@ import { TodoFooter } from './components/TodoFooter';
 import { ErrorNotification } from './components/ErrorNotification';
 
 export const App: React.FC = () => {
+  const inputRef = useRef<HTMLInputElement>(null);
+
   const [todos, setTodos] = useState<Todo[]>([]);
   const [error, setError] = useState<Errors | null>(null);
   const [filter, setFilter] = useState<Filter>(Filter.All);
@@ -25,24 +27,28 @@ export const App: React.FC = () => {
   const [title, setTitle] = useState('');
   const filteredTodo = filterTodo(todos, filter);
 
-  const inputRef = useRef<HTMLInputElement>(null);
-
   useEffect(() => {
     const getData = async () => {
-      setIsLoading(true);
       try {
+        setIsLoading(true);
         const todosFromServer = await getTodos();
 
         setTodos(todosFromServer);
       } catch {
         setError(Errors.Load);
+      } finally {
+        setIsLoading(false);
       }
-
-      setIsLoading(false);
     };
 
     getData();
   }, []);
+
+  useEffect(() => {
+    if (inputRef.current) {
+      inputRef.current.focus();
+    }
+  }, [tempTodo, todos]);
 
   const areAllCompleted = todos.every(todo => todo.completed);
 
@@ -91,17 +97,24 @@ export const App: React.FC = () => {
   const clearCompleted = async () => {
     const todoIdsToClear: number[] = [];
 
+    const deletePromises: Promise<void>[] = [];
+
     try {
       for (const todo of todos) {
         if (todo.completed) {
-          try {
-            await deleteTodo(todo.id);
-            todoIdsToClear.push(todo.id);
-          } catch {
-            setError(Errors.Delete);
-          }
+          deletePromises.push(
+            deleteTodo(todo.id)
+              .then(() => {
+                todoIdsToClear.push(todo.id);
+              })
+              .catch(() => {
+                setError(Errors.Delete);
+              }),
+          );
         }
       }
+
+      await Promise.all(deletePromises);
 
       setTodos(prevState =>
         prevState.filter(todo => !todoIdsToClear.includes(todo.id)),
@@ -114,23 +127,22 @@ export const App: React.FC = () => {
   const toggleAll = async () => {
     try {
       const isAnyUncompleted = todos.some(todo => !todo.completed);
-
       const completedValue = isAnyUncompleted ? true : false;
 
-      await Promise.all(
-        todos.map(async todo => {
-          try {
-            if (todo.completed !== completedValue) {
-              await setCompletedTodo({
-                id: todo.id,
-                completed: completedValue,
-              });
-            }
-          } catch {
-            setError(Errors.Update);
+      const updatePromises = todos.map(async todo => {
+        try {
+          if (todo.completed !== completedValue) {
+            await setCompletedTodo({
+              id: todo.id,
+              completed: completedValue,
+            });
           }
-        }),
-      );
+        } catch {
+          setError(Errors.Update);
+        }
+      });
+
+      await Promise.all(updatePromises);
 
       setTodos(prevTodos =>
         prevTodos.map(prevTodo => ({
@@ -171,12 +183,6 @@ export const App: React.FC = () => {
 
     setTodos(updatedTodos);
   };
-
-  useEffect(() => {
-    if (inputRef.current) {
-      inputRef.current.focus();
-    }
-  }, [tempTodo, todos]);
 
   return (
     <div className="todoapp">
