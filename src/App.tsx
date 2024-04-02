@@ -23,9 +23,13 @@ export const App: React.FC = () => {
   const [isEditing, setIsEditing] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
+  const allChecked = todos.every((todo: Todo) => todo.completed);
+  const [isActive, setIsActive] = useState(allChecked);
+  const [serverError, setServerError] = useState(false);
   const titleField = useRef<HTMLInputElement>(null);
   const completedTodos = todos.filter((todo: Todo) => todo.completed);
   const activeTodos = todos.filter((todo: Todo) => !todo.completed);
+  const todosToToggle = todos.filter(todo => todo.completed === isActive);
 
   useEffect(() => {
     setLoading(true);
@@ -42,10 +46,14 @@ export const App: React.FC = () => {
   }, []);
 
   useEffect(() => {
-    if (!isEditing && titleField.current) {
+    if (titleField.current) {
       return titleField.current.focus();
     }
-  }, [isSubmitting, isEditing]);
+  }, [isSubmitting]);
+
+  useEffect(() => {
+    setIsActive(allChecked);
+  }, [allChecked]);
 
   useEffect(() => {
     let timeoutId = 0;
@@ -144,7 +152,7 @@ export const App: React.FC = () => {
     setLoadingTodoIds(prev => [...prev, todoId]);
 
     return todoService
-      .deleteTodos(todoId)
+      .deleteTodo(todoId)
       .then(() =>
         setTodos(prevTodos =>
           prevTodos.filter((todo: Todo) => todo.id !== todoId),
@@ -156,8 +164,8 @@ export const App: React.FC = () => {
         throw error;
       })
       .finally(() => {
-        setIsSubmitting(false);
         setLoadingTodoIds(prev => prev.filter(id => id !== todoId));
+        setIsSubmitting(false);
       });
   };
 
@@ -168,7 +176,7 @@ export const App: React.FC = () => {
     const deletePromises = completedTodos.map(todo => {
       setLoadingTodoIds(prev => [...prev, todo.id]);
 
-      return todoService.deleteTodos(todo.id);
+      return todoService.deleteTodo(todo.id);
     });
 
     Promise.allSettled(deletePromises)
@@ -206,23 +214,19 @@ export const App: React.FC = () => {
     setLoadingTodoIds(prev => [...prev, currentTodo.id]);
 
     return todoService
-      .updateTodos(currentTodo)
+      .updateTodo(currentTodo.id, currentTodo.title.trim())
       .then(updatedTodo => {
-        if (currentTodo.title === updatedTodo.title) {
-          setTodos(todos);
-        }
-
         setTodos(prevTodos =>
           prevTodos.map(todo =>
-            todo.id === updatedTodo.id
-              ? { ...updatedTodo, title: input }
-              : todo,
+            todo.id === updatedTodo.id ? updatedTodo : todo,
           ),
         );
+        setServerError(false);
       })
       .catch(error => {
         setTodos(todos);
         setErrorMessage(Error.UnableToUpdate);
+        setServerError(true);
         throw error;
       })
       .finally(() => {
@@ -237,13 +241,11 @@ export const App: React.FC = () => {
     setLoadingTodoIds(prev => [...prev, currentTodo.id]);
 
     return todoService
-      .updateTodos(currentTodo)
+      .toggleTodo(currentTodo.id, !currentTodo.completed)
       .then(updatedTodo => {
         setTodos(prevTodos =>
           prevTodos.map(todo =>
-            todo.id === updatedTodo.id
-              ? { ...updatedTodo, completed: !updatedTodo.completed }
-              : todo,
+            todo.id === updatedTodo.id ? updatedTodo : todo,
           ),
         );
       })
@@ -258,6 +260,48 @@ export const App: React.FC = () => {
       });
   };
 
+  const handleCheckedAllTodos = () => {
+    setErrorMessage('');
+    setIsSubmitting(true);
+
+    const editingPromises = todosToToggle.map(todo => {
+      setLoadingTodoIds(prev => [...prev, todo.id]);
+
+      return todoService.toggleTodo(todo.id, !todo.completed);
+    });
+
+    Promise.allSettled(editingPromises)
+      .then(results => {
+        const togglingIds: number[] = [];
+
+        results.forEach((result, index) => {
+          if (result.status === 'fulfilled') {
+            togglingIds.push(todosToToggle[index].id);
+          } else {
+            setErrorMessage(Error.UnableToUpdate);
+          }
+        });
+        setTodos(prevTodos =>
+          prevTodos.map(todo =>
+            togglingIds.includes(todo.id)
+              ? { ...todo, completed: !todo.completed }
+              : todo,
+          ),
+        );
+      })
+      .catch(error => {
+        setTodos(todos);
+        setIsActive(!isActive);
+        setErrorMessage(Error.UnableToUpdate);
+        throw error;
+      })
+      .finally(() => {
+        setLoadingTodoIds([]);
+        setIsActive(!isActive);
+        setIsSubmitting(false);
+      });
+  };
+
   const handleCloseErrorMessage = () => {
     setErrorMessage('');
   };
@@ -268,13 +312,16 @@ export const App: React.FC = () => {
 
       <div className="todoapp__content">
         <header className="todoapp__header">
-          <button
-            type="button"
-            className={classNames('todoapp__toggle-all ', {
-              active: todos.every((todo: Todo) => todo.completed),
-            })}
-            data-cy="ToggleAllButton"
-          />
+          {todos.length > 0 && (
+            <button
+              type="button"
+              className={classNames('todoapp__toggle-all ', {
+                active: allChecked,
+              })}
+              data-cy="ToggleAllButton"
+              onClick={handleCheckedAllTodos}
+            />
+          )}
           <form onSubmit={submit}>
             <input
               ref={titleField}
@@ -299,6 +346,7 @@ export const App: React.FC = () => {
               isEditing={isEditing}
               setIsEditing={setIsEditing}
               onCheckedTodo={handleCheckedTodo}
+              serverError={serverError}
             />
             {tempTodo !== null && (
               <CSSTransition key={0} timeout={300} classNames="temp-item">

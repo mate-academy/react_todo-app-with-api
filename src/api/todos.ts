@@ -11,10 +11,14 @@ export const addTodo = ({ userId, title, completed }: Omit<Todo, 'id'>) => {
   return client.post<Todo>(`/todos/`, { userId, title, completed });
 };
 
-export const deleteTodos = (todoId: number) => {
+export const deleteTodo = (todoId: number) => {
   return client.delete(`/todos/${todoId}`);
 };
 
-export const updateTodos = ({ id, userId, title, completed }: Todo) => {
-  return client.patch<Todo>(`todos/${id}`, { userId, title, completed });
+export const updateTodo = (id: number, title: string) => {
+  return client.patch<Todo>(`/todos/${id}`, { title });
+};
+
+export const toggleTodo = (id: number, completed: boolean) => {
+  return client.patch<Todo>(`/todos/${id}`, { completed });
 };

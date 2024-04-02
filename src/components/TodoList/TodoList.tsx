@@ -10,6 +10,7 @@ type Props = {
   isEditing?: boolean;
   setIsEditing?: (isEditing: boolean) => void;
   onCheckedTodo?: (currentTodo: Todo) => void;
+  serverError?: boolean;
 };
 
 export const TodoList: React.FC<Props> = ({
@@ -20,6 +21,7 @@ export const TodoList: React.FC<Props> = ({
   isEditing = false,
   setIsEditing = () => {},
   onCheckedTodo = () => {},
+  serverError,
 }) => {
   return (
     <section className="todoapp__main" data-cy="TodoList">
@@ -35,6 +37,7 @@ export const TodoList: React.FC<Props> = ({
                 isEditingTodo={isEditing}
                 setIsEditingTodo={setIsEditing}
                 onChecked={onCheckedTodo}
+                errorFromServer={serverError}
               />
             </CSSTransition>
           );

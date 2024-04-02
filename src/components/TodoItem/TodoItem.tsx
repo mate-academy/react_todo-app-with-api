@@ -11,6 +11,7 @@ type Props = {
   isEditingTodo?: boolean;
   setIsEditingTodo?: (isEditing: boolean) => void;
   onChecked?: (currentTodo: Todo) => void;
+  errorFromServer?: boolean;
 };
 
 export const TodoItem: React.FC<Props> = ({
@@ -21,69 +22,92 @@ export const TodoItem: React.FC<Props> = ({
   isEditingTodo,
   setIsEditingTodo = () => {},
   onChecked = () => {},
+  errorFromServer,
 }) => {
   const [title, setTitle] = useState(todo.title);
-  const [completed, setCompleted] = useState(todo.completed);
   const [editedTodo, setEditedTodo] = useState<Todo | null>(null);
   const titleField = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    if (isEditingTodo && editedTodo && titleField.current) {
+    if (editedTodo && titleField.current) {
       return titleField.current.focus();
     }
-  }, [isEditingTodo, editedTodo]);
+  }, [editedTodo]);
 
   const editTitle = (event: React.ChangeEvent<HTMLInputElement>) => {
     setTitle(event.target.value);
   };
 
-  const toggleChecked = async () => {
-    try {
-      onChecked({ ...todo, completed: !completed });
-      setCompleted(!completed);
-    } catch {
-      setCompleted(completed);
-    }
-  };
-
-  const handleSubmitChanges = (
+  const handleSubmitChanges = async (
     event: React.KeyboardEvent<HTMLInputElement>,
   ) => {
-    if (event.key === 'Enter') {
-      event.preventDefault();
-      if (!title.trim()) {
-        onDelete(todo.id);
+    try {
+      if (event.key === 'Enter') {
+        event.preventDefault();
+        if (!title.trim()) {
+          await onDelete(todo.id);
 
-        return;
-      } else {
-        onEdit({ ...todo, title });
+          return;
+        } else if (title.trim() === todo.title) {
+          setIsEditingTodo(false);
+
+          return;
+        } else {
+          await onEdit({ ...todo, title });
+        }
       }
 
-      setEditedTodo(null);
-      setIsEditingTodo(false);
-    }
-
-    if (event.key === 'Escape') {
-      if (editedTodo) {
-        setTitle(editedTodo.title);
-        setEditedTodo(null);
+      if (event.key === 'Escape') {
+        if (editedTodo) {
+          setTitle(todo.title);
+        }
       }
-
-      setIsEditingTodo(false);
+    } catch (error) {
+      setEditedTodo(todo);
+      setIsEditingTodo(true);
+      throw error;
     }
   };
 
-  const handleInputBlur = () => {
-    if (!title.trim()) {
-      onDelete(todo.id);
+  const handleInputBlur = async () => {
+    try {
+      if (!title.trim()) {
+        await onDelete(todo.id);
+      } else if (title.trim() === todo.title) {
+        setIsEditingTodo(false);
+        setEditedTodo(null);
 
-      return;
-    } else {
-      onEdit({ ...todo, title });
+        return;
+      } else if (editedTodo) {
+        await onEdit({ ...todo, title });
+      }
+    } catch (error) {
+      setEditedTodo(todo);
+      setIsEditingTodo(true);
     }
+  };
 
+  const handleEditSuccess = () => {
     setEditedTodo(null);
     setIsEditingTodo(false);
+  };
+
+  const handleKeyPress = async (
+    event: React.KeyboardEvent<HTMLInputElement>,
+  ) => {
+    await handleSubmitChanges(event);
+
+    if ((event.key === 'Enter' || event.key === 'Escape') && !errorFromServer) {
+      handleEditSuccess();
+    }
+  };
+
+  const handleBlur = async () => {
+    await handleInputBlur();
+
+    if (!errorFromServer) {
+      handleEditSuccess();
+    }
   };
 
   return (
@@ -96,15 +120,15 @@ export const TodoItem: React.FC<Props> = ({
         setEditedTodo(todo);
         setIsEditingTodo(true);
       }}
-      onBlur={handleInputBlur}
+      onBlur={handleBlur}
     >
       <label className="todo__status-label">
         <input
-          checked={completed}
+          checked={todo.completed}
           data-cy="TodoStatus"
           type="checkbox"
           className="todo__status"
-          onChange={toggleChecked}
+          onChange={() => onChecked(todo)}
         />
       </label>
 
@@ -118,13 +142,13 @@ export const TodoItem: React.FC<Props> = ({
             placeholder="Empty todo will be deleted"
             value={title}
             onChange={editTitle}
-            onKeyDown={handleSubmitChanges}
+            onKeyDown={handleKeyPress}
           />
         </form>
       ) : (
         <>
           <span data-cy="TodoTitle" className="todo__title">
-            {title}
+            {title.trim()}
           </span>
 
           <button
