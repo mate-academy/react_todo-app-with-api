@@ -21,6 +21,7 @@ export const App: React.FC = () => {
     getTodos(USER_ID)
       .then(setTodos)
       .catch(() => setErrorMessage('Unable to load todos'));
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (

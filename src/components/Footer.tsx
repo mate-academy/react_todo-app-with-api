@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import { useCallback, useContext } from 'react';
 import classNames from 'classnames';
 import { deleteTodo } from '../api/todos';

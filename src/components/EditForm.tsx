@@ -8,11 +8,11 @@ import { Todo } from '../types/Todo';
 import { deleteTodo, updateTodo } from '../api/todos';
 import { TodosContext } from '../TodosContext';
 
-type Props = {
+interface Props {
   todo: Todo
   onEditMode: (value: boolean) => void
   setLoading: (value: boolean) => void
-};
+}
 
 export const EditForm: React.FC<Props> = ({ todo, onEditMode, setLoading }) => {
   const [newTitle, setNewTitle] = useState(todo.title);

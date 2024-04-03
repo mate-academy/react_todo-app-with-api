@@ -7,12 +7,7 @@ import { TodosContext } from '../TodosContext';
 import { USER_ID } from '../constants';
 import { createTodo, updateTodo } from '../api/todos';
 import { Todo } from '../types/Todo';
-
-export const getNextId = (todos: Todo[]) => {
-  const ids = todos.map((todo) => todo.id);
-
-  return Math.max(...ids) + 1;
-};
+import { getNextId } from './commonFunction';
 
 export const Header: React.FC = () => {
   const [title, setTitle] = useState('');
@@ -55,7 +50,7 @@ export const Header: React.FC = () => {
       };
 
       setTempTodo({
-        id: 0,
+        id: getNextId(todos),
         ...newTodo,
       });
 
