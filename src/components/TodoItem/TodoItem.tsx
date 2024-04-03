@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import cn from 'classnames';
 import { Todo } from '../../types/Todo';
 import { useTodos } from '../TodosProvider';
@@ -11,8 +11,15 @@ type Props = {
 export const TodoItem: React.FC<Props> = ({ todo }) => {
   const [editing, setEditing] = useState(false);
   const [editedTitle, setEditedTitle] = useState(todo.title);
-  const { deleteTodo, selectedTodoIds, updateTodo, setErrorMessage } =
+  const { deleteTodo, selectedTodoIds, setErrorMessage, updateTodo } =
     useTodos();
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    if (editing && inputRef.current) {
+      inputRef.current.focus();
+    }
+  }, [editing]);
 
   const handleDoubleClick = () => {
     setEditing(true);
@@ -31,50 +38,96 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
     }
   };
 
+  const handleUpdateTodo = async () => {
+    const updatedTodo = { ...todo, title: editedTitle.trim() };
+
+    try {
+      await updateTodo(updatedTodo);
+      setEditing(false);
+    } catch (error) {
+      setErrorMessage(errorMessages.unableToUpdateTodo);
+    }
+  };
+
+  const handleDeleteTodo = () => {
+    deleteTodo(todo.id);
+    setEditing(false);
+  };
+
   const handleKeyUp = (event: React.KeyboardEvent<HTMLInputElement>) => {
     event.preventDefault();
+    const trimmedTitle = editedTitle.trim();
 
-    if (event.key === 'Enter' || event.key === 'Escape') {
-      if (event.key === 'Enter') {
-        const updatedTodo = { ...todo, title: editedTitle };
-
-        updateTodo(updatedTodo);
+    if (event.key === 'Enter') {
+      if (trimmedTitle === todo.title) {
+        setEditing(false);
+      } else if (trimmedTitle !== '') {
+        handleUpdateTodo();
+      } else {
+        handleDeleteTodo();
       }
-
+    } else if (event.key === 'Escape') {
       setEditing(false);
     }
   };
 
-  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+    const trimmedTitle = editedTitle.trim();
 
-    const updatedTodo = { ...todo, title: editedTitle };
+    if (trimmedTitle === todo.title) {
+      setEditing(false);
+    } else if (trimmedTitle !== '') {
+      handleUpdateTodo();
+    } else {
+      handleDeleteTodo();
+    }
+  };
 
-    updateTodo(updatedTodo);
+  const handleEditTodoOnBlur = (todoId: number) => {
+    const trimmedTitle = editedTitle.trim();
 
-    setEditing(false);
+    if (trimmedTitle !== '') {
+      handleUpdateTodo();
+    } else {
+      handleDeleteTodo();
+    }
   };
 
   return (
     <div
       data-cy="Todo"
-      className={`todo ${cn({
+      className={cn('todo', {
         completed: todo.completed,
-      })}`}
+      })}
       key={todo.id}
       onDoubleClick={handleDoubleClick}
     >
       {editing ? (
-        <form onSubmit={handleSubmit}>
-          <input
-            data-cy="TodoTitleField"
-            type="text"
-            value={editedTitle}
-            onChange={e => setEditedTitle(e.target.value)}
-            className="todo__title-field"
-            placeholder="Empty todo will be deleted"
-            onKeyUp={handleKeyUp}
-          />
+        <>
+          <label className="todo__status-label">
+            <input
+              data-cy="TodoStatus"
+              type="checkbox"
+              className="todo__status"
+              checked={todo.completed}
+              onChange={handleToggleTodo}
+              aria-label="Todo status"
+              onBlur={() => handleEditTodoOnBlur(todo.id)}
+            />
+          </label>
+          <form onSubmit={handleSubmit}>
+            <input
+              ref={inputRef}
+              data-cy="TodoTitleField"
+              type="text"
+              value={editedTitle}
+              className="todo__title-field"
+              placeholder="Empty todo will be deleted"
+              onChange={e => setEditedTitle(e.target.value)}
+              onKeyUp={handleKeyUp}
+            />
+          </form>
           <div
             data-cy="TodoLoader"
             className={cn('modal overlay', {
@@ -84,7 +137,7 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
             <div className="modal-background has-background-white-ter" />
             <div className="loader" />
           </div>
-        </form>
+        </>
       ) : (
         <>
           <label className="todo__status-label">
@@ -97,11 +150,9 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
               aria-label="Todo status"
             />
           </label>
-
           <span data-cy="TodoTitle" className="todo__title">
             {todo.title}
           </span>
-
           <button
             type="button"
             className="todo__remove"
@@ -110,7 +161,6 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
           >
             ×
           </button>
-
           <div
             data-cy="TodoLoader"
             className={cn('modal overlay', {
