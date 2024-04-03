@@ -3,13 +3,7 @@ import { useCallback, useContext, useState } from 'react';
 import { ErrorMessage, Todo } from '../types';
 import { USER_ID, addTodo, patchTodo } from '../api/todos';
 import { TEMP_ITEM_ID } from '../utils';
-import {
-  InputFieldRefContext,
-  SetErrorMessageContext,
-  SetIsChangingStatusContext,
-  SetTodosContext,
-  TodosContext,
-} from '../Contexts';
+import { SetErrorMessageContext, TodosContext } from '../Contexts';
 
 type Props = {
   setTempTodo: (tempTodo: Todo | null) => void;
@@ -21,16 +15,16 @@ export const Header: React.FC<Props> = ({
   toggledAllCompleted,
 }) => {
   const [title, setTitle] = useState('');
-
-  const todos = useContext(TodosContext);
-  const setTodos = useContext(SetTodosContext);
-  const inputFieldRef = useContext(InputFieldRefContext);
+  const { todosContext, setTodosContext } = useContext(TodosContext);
   const setErrorMessage = useContext(SetErrorMessageContext);
-  const setIsChangingStatus = useContext(SetIsChangingStatusContext);
 
+  const { todos, inputFieldRef } = todosContext;
   const handleToggleAllStatusClick = useCallback(() => {
     setErrorMessage(ErrorMessage.noError);
-    setIsChangingStatus(true);
+    setTodosContext(prevTodosContext => ({
+      ...prevTodosContext,
+      isChangingStatus: true,
+    }));
 
     const updatedTodosPromises = todos.map(async todo => {
       if (todo.completed === !toggledAllCompleted) {
@@ -54,14 +48,19 @@ export const Header: React.FC<Props> = ({
     });
 
     Promise.all(updatedTodosPromises)
-      .then(updatedTodos => setTodos(updatedTodos))
-      .finally(() => setIsChangingStatus(false));
+      .then(updatedTodos => setTodosContext(prevTodos => ({
+        ...prevTodos,
+        todos: updatedTodos,
+      })))
+      .finally(() => setTodosContext(prevTodos => ({
+        ...prevTodos,
+        isChangingStatus: false,
+      })));
   }, [
     todos,
-    setIsChangingStatus,
     toggledAllCompleted,
-    setTodos,
     setErrorMessage,
+    setTodosContext
   ]);
 
   const submitTodo = (e: React.FormEvent) => {
@@ -85,15 +84,18 @@ export const Header: React.FC<Props> = ({
       inputFieldRef.current.disabled = true;
     }
 
+    setErrorMessage(ErrorMessage.noError);
     setTempTodo({
       ...todoToAdd,
       id: TEMP_ITEM_ID,
     });
-    setErrorMessage(ErrorMessage.noError);
 
     addTodo(todoToAdd)
       .then(todo => {
-        setTodos(prevTodos => prevTodos.concat(todo));
+        setTodosContext(prevTodosContext => ({
+          ...prevTodosContext,
+          todos: todos.concat(todo),
+        }));
         setTitle('');
       })
       .catch(() => setErrorMessage(ErrorMessage.add))

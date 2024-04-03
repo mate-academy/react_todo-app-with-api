@@ -14,22 +14,18 @@ import { Header } from './Header';
 import { Footer } from './Footer';
 import {
   ErrorMessageContext,
-  InputFieldRefContextProvider,
-  IsChangingStatusContextProvider,
-  IsDeletingCompletedContextProvider,
   SetErrorMessageContext,
-  SetTodosContext,
   TodosContext,
 } from '../Contexts';
 
 export const TodoApp: React.FC = () => {
   const [filterBy, setFilterBy] = useState('All');
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
-
-  const todos = useContext(TodosContext);
-  const setTodos = useContext(SetTodosContext);
+  const { todosContext, setTodosContext } = useContext(TodosContext);
   const errorMessage = useContext(ErrorMessageContext);
   const setErrorMessage = useContext(SetErrorMessageContext);
+
+  const { todos } = todosContext;
 
   const toggledAllCompleted = useMemo(() => {
     return !todos.some(todo => !todo.completed);
@@ -50,15 +46,16 @@ export const TodoApp: React.FC = () => {
 
   useEffect(() => {
     getTodos()
-      .then(setTodos)
+      .then(todosFromServer => setTodosContext(prevTodosContext => (
+        {
+          ...prevTodosContext,
+          todos: todosFromServer,
+        })),
+      )
       .catch(() => {
         setErrorMessage(ErrorMessage.load);
       });
-  }, [setTodos, setErrorMessage]);
-
-  useEffect(() => {
-    setErrorMessage(ErrorMessage.noError);
-  }, [todos, setErrorMessage]);
+  }, [setTodosContext, setErrorMessage]);
 
   useEffect(() => {
     let timeoutId: NodeJS.Timeout;
@@ -88,27 +85,20 @@ export const TodoApp: React.FC = () => {
     <div className="todoapp">
       <h1 className="todoapp__title">todos</h1>
       <div className="todoapp__content">
-        <IsChangingStatusContextProvider>
-          <InputFieldRefContextProvider>
-            <Header
-              setTempTodo={setTempTodo}
+        <Header
+          setTempTodo={setTempTodo}
+          toggledAllCompleted={toggledAllCompleted}
+        />
+        {(todos.length !== 0 || tempTodo !== null) && (
+          <>
+            <TodoList
+              todosToShow={todosToShow}
+              tempTodo={tempTodo}
               toggledAllCompleted={toggledAllCompleted}
             />
-            {(todos.length !== 0 || tempTodo !== null) && (
-              <IsDeletingCompletedContextProvider>
-                <TodoList
-                  todosToShow={todosToShow}
-                  tempTodo={tempTodo}
-                  toggledAllCompleted={toggledAllCompleted}
-                />
-                <Footer
-                  filterBy={filterBy}
-                  handleFilterClick={handleFilterClick}
-                />
-              </IsDeletingCompletedContextProvider>
-            )}
-          </InputFieldRefContextProvider>
-        </IsChangingStatusContextProvider>
+            <Footer filterBy={filterBy} handleFilterClick={handleFilterClick} />
+          </>
+        )}
       </div>
       {/* DON'T use conditional rendering to hide the notification */}
       {/* Add the 'hidden' class to hide the message smoothly */}

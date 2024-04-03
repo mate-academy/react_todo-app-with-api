@@ -3,13 +3,7 @@ import cn from 'classnames';
 import { ErrorMessage, Todo } from '../types';
 import { deleteTodo, patchTodo } from '../api/todos';
 import { TEMP_ITEM_ID } from '../utils';
-import {
-  InputFieldRefContext,
-  IsChangingStatusContext,
-  IsDeletingCompletedContext,
-  SetErrorMessageContext,
-  SetTodosContext,
-} from '../Contexts';
+import { SetErrorMessageContext, TodosContext } from '../Contexts';
 
 type Props = {
   todo: Todo;
@@ -23,12 +17,10 @@ export const TodoItem: React.FC<Props> = ({
   const [isLoading, setIsLoading] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [todoTitle, setTodoTitle] = useState(todo.title);
-
-  const setTodos = useContext(SetTodosContext);
-  const inputFieldRef = useContext(InputFieldRefContext);
+  const { todosContext, setTodosContext } = useContext(TodosContext);
   const setErrorMessage = useContext(SetErrorMessageContext);
-  const isDeletingCompleted = useContext(IsDeletingCompletedContext);
-  const isChangingStatus = useContext(IsChangingStatusContext);
+
+  const { isChangingStatus, isDeletingCompleted, inputFieldRef } = todosContext;
 
   useEffect(() => {
     if (
@@ -42,41 +34,53 @@ export const TodoItem: React.FC<Props> = ({
     }
   }, [todo, toggledAllCompleted, isDeletingCompleted, isChangingStatus]);
 
-  const handleStatusChange = useCallback(
-    (todoChanged: Todo) => {
-      setIsLoading(true);
-      setErrorMessage(ErrorMessage.noError);
+  const startTodoDeletion = useCallback((todoId: number) => {
+    setIsLoading(true);
+    setErrorMessage(ErrorMessage.noError);
 
-      patchTodo({
-        ...todoChanged,
-        completed: !todoChanged.completed,
+    return deleteTodo(todoId)
+      .then(() => {
+        setTodosContext(prevTodosContext => ({
+          ...prevTodosContext,
+          todos: prevTodosContext.todos.filter(prevTodo => {
+            return prevTodo.id !== todoId;
+          })
+        }));
+      });
+  }, [setTodosContext, setErrorMessage]);
+
+  const startTodoPatching = useCallback((updatedTodo: Todo) => {
+    setIsLoading(true);
+    setErrorMessage(ErrorMessage.noError);
+
+    return patchTodo(updatedTodo)
+      .then(patchedTodo => {
+        setTodosContext(prevTodosContext => ({
+          ...prevTodosContext,
+          todos: prevTodosContext.todos.map(prevTodo => {
+            return prevTodo.id === patchedTodo.id ? patchedTodo : prevTodo;
+          }),
+        }));
+      });
+  }, [setTodosContext, setErrorMessage]);
+
+  const handleStatusChange = useCallback(
+    (updatedTodo: Todo) => {
+      startTodoPatching({
+        ...updatedTodo,
+        completed: !updatedTodo.completed,
       })
-        .then(patchedTodo => {
-          setTodos(prevTodos => {
-            return prevTodos.map(prevTodo => {
-              return prevTodo.id === patchedTodo.id ? patchedTodo : prevTodo;
-            });
-          });
-        })
         .catch(() => setErrorMessage(ErrorMessage.update))
         .finally(() => {
           setIsLoading(false);
         });
     },
-    [setTodos, setErrorMessage],
+    [startTodoPatching, setErrorMessage],
   );
 
   const handleTodoDelete = useCallback(
     (todoId: number) => {
-      setIsLoading(true);
-      setErrorMessage(ErrorMessage.noError);
-
-      deleteTodo(todoId)
-        .then(() => {
-          setTodos(prevTodos => {
-            return prevTodos.filter(prevTodo => prevTodo.id !== todoId);
-          });
-        })
+      startTodoDeletion(todoId)
         .catch(() => setErrorMessage(ErrorMessage.delete))
         .finally(() => {
           if (inputFieldRef?.current) {
@@ -86,7 +90,7 @@ export const TodoItem: React.FC<Props> = ({
           setIsLoading(false);
         });
     },
-    [setTodos, inputFieldRef, setErrorMessage],
+    [startTodoDeletion, inputFieldRef, setErrorMessage],
   );
 
   const handleTodoTitleChange = useCallback(
@@ -95,24 +99,10 @@ export const TodoItem: React.FC<Props> = ({
       const trimmedTitle = todoTitle.trim();
 
       if (!trimmedTitle) {
-        setIsLoading(true);
-        setErrorMessage(ErrorMessage.noError);
-
-        deleteTodo(todo.id)
-          .then(() => {
-            setTodos(prevTodos => {
-              return prevTodos.filter(prevTodo => prevTodo.id !== todo.id);
-            });
-            setIsEditing(false);
-
-            if (inputFieldRef?.current) {
-              inputFieldRef.current.focus();
-            }
-          })
+        startTodoDeletion(todo.id)
+          .then(() => setIsEditing(false))
           .catch(() => setErrorMessage(ErrorMessage.delete))
-          .finally(() => {
-            setIsLoading(false);
-          });
+          .finally(() => setIsLoading(false));
 
         return;
       }
@@ -123,34 +113,22 @@ export const TodoItem: React.FC<Props> = ({
         return;
       }
 
-      setErrorMessage(ErrorMessage.noError);
-      setIsLoading(true);
-
-      patchTodo({
+      startTodoPatching({
         ...todo,
         title: trimmedTitle,
       })
-        .then(patchedTodo => {
-          setTodos(prevTodos => {
-            return prevTodos.map(prevTodo => {
-              return prevTodo.id === patchedTodo.id ? patchedTodo : prevTodo;
-            });
-          });
-          setIsEditing(false);
-        })
+        .then(() => setIsEditing(false))
         .catch(() => setErrorMessage(ErrorMessage.update))
         .finally(() => {
           setIsLoading(false);
         });
     },
     [
-      inputFieldRef,
       setErrorMessage,
       todo,
       todoTitle,
-      setIsEditing,
-      setIsLoading,
-      setTodos,
+      startTodoDeletion,
+      startTodoPatching
     ],
   );
 
