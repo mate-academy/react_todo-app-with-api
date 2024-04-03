@@ -11,8 +11,8 @@ export const addTodos = (data: Omit<Todo, 'id'>) => {
   return client.post<Todo>(`/todos`, data);
 };
 
-export const updateTodos = (data: Todo) => {
-  return client.patch<Todo>(`/todos`, data);
+export const updateTodos = (todoId: number, data: Partial<Todo>) => {
+  return client.patch<Todo>(`/todos/${todoId}`, data);
 };
 
 export const deleteTodos = (todoId: number) => {

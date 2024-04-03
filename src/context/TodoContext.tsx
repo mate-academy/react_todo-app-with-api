@@ -3,7 +3,7 @@ import { Todo } from '../types/Todo';
 import { Errors } from '../enums/Errors';
 import { FilterOptions } from '../enums/FilterOptions';
 import { getFilteredTodos } from '../helpers/getFilteredTodos';
-import { deleteTodos } from '../api/todos';
+import { deleteTodos, updateTodos } from '../api/todos';
 import { getErrors } from '../helpers/getErorrs';
 
 export type TodoContext = {
@@ -23,6 +23,10 @@ export type TodoContext = {
   setLoadingTodoIds: Dispatch<SetStateAction<number[]>>;
   shouldFocus: boolean;
   setShouldFocus: Dispatch<SetStateAction<boolean>>;
+  handleCompletedAllTodos: (
+    todoId: number,
+    completed: boolean,
+  ) => Promise<Todo>;
 };
 
 export const TodosContext = createContext<TodoContext | undefined>(undefined);
@@ -62,6 +66,12 @@ export const TodosContextProvider: React.FC<Props> = ({ children }) => {
       });
   }
 
+  const handleCompletedAllTodos = (todoId: number, completed: boolean) => {
+    setLoadingTodoIds(prev => [...prev, todoId]);
+
+    return updateTodos(todoId, { completed: completed });
+  };
+
   const contextValues = {
     todos,
     setTodos,
@@ -79,6 +89,7 @@ export const TodosContextProvider: React.FC<Props> = ({ children }) => {
     setLoadingTodoIds,
     shouldFocus,
     setShouldFocus,
+    handleCompletedAllTodos,
   };
 
   return (

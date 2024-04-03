@@ -18,11 +18,13 @@ export const TodoForm = () => {
     loadingTodoIds,
     shouldFocus,
     setShouldFocus,
+    handleCompletedAllTodos,
   } = useTodosContext();
   const addTodoInputRef = useRef<HTMLInputElement>(null);
   const [title, setTitle] = useState('');
 
   const isClassActive = completedTodos.length > 0 && activeTodos.length === 0;
+  const isAllSelected = todos.every(todo => todo.completed);
 
   const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setErrorMessage(null);
@@ -77,6 +79,44 @@ export const TodoForm = () => {
     }
   }, [shouldFocus]);
 
+  const handleToggleAll = async () => {
+    if (isAllSelected) {
+      Promise.all(todos.map(todo => handleCompletedAllTodos(todo.id, false)))
+        .then(() => {
+          setTodos(
+            todos.map(prevTodo => {
+              return { ...prevTodo, completed: false };
+            }),
+          );
+        })
+        .catch(() => {
+          getErrors(Errors.UpdateTodo, setErrorMessage);
+        })
+        .finally(() => {
+          setLoadingTodoIds([]);
+        });
+    } else {
+      const todosToUpdate = todos
+        .filter(todo => !todo.completed)
+        .map(todo => handleCompletedAllTodos(todo.id, true));
+
+      Promise.all(todosToUpdate)
+        .then(() => {
+          setTodos(
+            todos.map(prevTodo => {
+              return { ...prevTodo, completed: true };
+            }),
+          );
+        })
+        .catch(() => {
+          getErrors(Errors.UpdateTodo, setErrorMessage);
+        })
+        .finally(() => {
+          setLoadingTodoIds([]);
+        });
+    }
+  };
+
   return (
     <header className="todoapp__header">
       {todos.length !== 0 && (
@@ -86,6 +126,7 @@ export const TodoForm = () => {
             active: isClassActive,
           })}
           data-cy="ToggleAllButton"
+          onClick={handleToggleAll}
         />
       )}
 
