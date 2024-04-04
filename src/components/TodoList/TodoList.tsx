@@ -1,6 +1,6 @@
 import React from 'react';
-import { TodoItem } from '../TodoItem';
 import { useTodos } from '../TodosProvider';
+import { TodoItem } from '../TodoItem';
 
 export const TodoList: React.FC = React.memo(function TodoList() {
   const { filteredTodos, tempTodo } = useTodos();
@@ -10,7 +10,7 @@ export const TodoList: React.FC = React.memo(function TodoList() {
       {filteredTodos.map(todo => (
         <TodoItem key={todo.id} todo={todo} />
       ))}
-      {tempTodo && <TodoItem key={tempTodo?.id} todo={tempTodo} />}
+      {tempTodo && <TodoItem key={tempTodo.id} todo={tempTodo} />}
     </>
   );
 });

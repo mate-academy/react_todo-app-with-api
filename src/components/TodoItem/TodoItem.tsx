@@ -7,7 +7,6 @@ import { errorMessages } from '../ErrorNotification';
 type Props = {
   todo: Todo;
 };
-
 export const TodoItem: React.FC<Props> = ({ todo }) => {
   const [editing, setEditing] = useState(false);
   const [editedTitle, setEditedTitle] = useState(todo.title);
@@ -18,55 +17,48 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
   const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    if (editing && inputRef.current) {
+    if (editing && inputRef.current && inputFocused) {
       inputRef.current.focus();
     }
-  }, [editing]);
-
-  const handleDoubleClick = () => {
-    setInputFocused(true);
-    setEditing(true);
-  };
+  }, [editing, inputFocused]);
 
   const handleToggleTodo = async () => {
     try {
-      const updatedTodo = {
-        ...todo,
-        completed: !todo.completed,
-      };
+      const updatedTodo = { ...todo, completed: !todo.completed };
 
-      updateTodo(updatedTodo);
-    } catch (error) {
-      setErrorMessage(errorMessages.unableToUpdateTodo);
-    }
-  };
-
-  const handleUpdateTodo = async () => {
-    const updatedTodo = { ...todo, title: editedTitle.trim() };
-
-    try {
       await updateTodo(updatedTodo);
-      setEditing(false);
     } catch (error) {
-      setEditing(true);
-      if (updatedTodo.title.length === 0) {
-        // console.log('error :>> ', error);
-        setErrorMessage('error');
-      }
-
       setErrorMessage(errorMessages.unableToUpdateTodo);
     }
   };
 
-  const handleDeleteTodo = () => {
-    deleteTodo(todo.id);
-    // setEditing(false);
+  const handleUpdateOrDelete = async (action: 'update' | 'delete') => {
+    const trimmedTitle = editedTitle.trim();
+    const actionFunctions = {
+      update: async () => {
+        const updatedTodo = { ...todo, title: trimmedTitle };
 
-    if (inputRef.current) {
-      setInputFocused(true);
-      setEditing(true);
-      inputRef.current.focus();
-    }
+        try {
+          await updateTodo(updatedTodo);
+          setEditing(false);
+        } catch (error) {
+          setEditing(true);
+          setErrorMessage(errorMessages.unableToUpdateTodo);
+        }
+      },
+
+      delete: async () => {
+        try {
+          await deleteTodo(todo.id);
+          setEditing(false);
+        } catch (error) {
+          setEditing(true);
+          setErrorMessage(errorMessages.unableToDeleteTodo);
+        }
+      },
+    };
+
+    await actionFunctions[action]();
   };
 
   const handleKeyUp = (event: React.KeyboardEvent<HTMLInputElement>) => {
@@ -77,9 +69,9 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
       if (trimmedTitle === todo.title) {
         setEditing(false);
       } else if (trimmedTitle !== '') {
-        handleUpdateTodo();
+        handleUpdateOrDelete('update');
       } else {
-        handleDeleteTodo();
+        handleUpdateOrDelete('delete');
       }
     } else if (event.key === 'Escape') {
       setEditing(false);
@@ -90,12 +82,10 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
     event.preventDefault();
     const trimmedTitle = editedTitle.trim();
 
-    if (trimmedTitle === todo.title) {
-      setEditing(false);
-    } else if (trimmedTitle !== '') {
-      handleUpdateTodo();
-    } else {
-      handleDeleteTodo();
+    if (editing && trimmedTitle !== '' && trimmedTitle !== todo.title) {
+      await handleUpdateOrDelete('update');
+    } else if (!editing) {
+      await handleUpdateOrDelete('delete');
     }
   };
 
@@ -103,12 +93,17 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
     const trimmedTitle = editedTitle.trim();
 
     if (trimmedTitle !== '') {
-      handleUpdateTodo();
+      setEditing(false);
+      handleUpdateOrDelete('update');
     } else {
-      handleDeleteTodo();
+      setEditing(true);
+      handleUpdateOrDelete('delete');
     }
+  };
 
-    setEditing(false);
+  const handleDoubleClick = () => {
+    setInputFocused(true);
+    setEditing(true);
   };
 
   return (
