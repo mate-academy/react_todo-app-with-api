@@ -30,14 +30,6 @@ export const TodoItem = ({
   const [editing, setEditing] = useState(false);
   const isActive = id === 0 || deleteTodoByID === id || isLoading === true;
 
-  // useEffect(() => {
-  //   const input = document.querySelector('input') as HTMLInputElement;
-
-  //   if (editing) {
-  //     input.focus();
-  //   }
-  // }, [editing]);
-
   const changeCompleted = async () => {
     setIsLoading(true);
     try {
