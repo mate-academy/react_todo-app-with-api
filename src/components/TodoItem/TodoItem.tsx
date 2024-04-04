@@ -11,17 +11,25 @@ type Props = {
 export const TodoItem: React.FC<Props> = ({ todo }) => {
   const [editing, setEditing] = useState(false);
   const [editedTitle, setEditedTitle] = useState(todo.title);
-  const { deleteTodo, selectedTodoIds, setErrorMessage, updateTodo } =
-    useTodos();
+  const [inputFocused, setInputFocused] = useState(false);
+
+  const {
+    deleteTodo,
+    selectedTodoIds,
+    setErrorMessage,
+    updateTodo,
+    errorMessage,
+  } = useTodos();
   const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     if (editing && inputRef.current) {
       inputRef.current.focus();
     }
-  }, [editing]);
+  }, [editing, errorMessage]);
 
   const handleDoubleClick = () => {
+    setInputFocused(true);
     setEditing(true);
   };
 
@@ -45,20 +53,32 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
       await updateTodo(updatedTodo);
       setEditing(false);
     } catch (error) {
+      setEditing(true);
+      if (updatedTodo.title.length === 0) {
+        // console.log('error :>> ', error);
+        setErrorMessage('error');
+      }
+
       setErrorMessage(errorMessages.unableToUpdateTodo);
     }
   };
 
   const handleDeleteTodo = () => {
     deleteTodo(todo.id);
-    setEditing(false);
+    // setEditing(false);
+
+    if (inputRef.current) {
+      setInputFocused(true);
+      setEditing(true);
+      inputRef.current.focus();
+    }
   };
 
   const handleKeyUp = (event: React.KeyboardEvent<HTMLInputElement>) => {
-    event.preventDefault();
     const trimmedTitle = editedTitle.trim();
 
     if (event.key === 'Enter') {
+      event.preventDefault();
       if (trimmedTitle === todo.title) {
         setEditing(false);
       } else if (trimmedTitle !== '') {
@@ -84,7 +104,7 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
     }
   };
 
-  const handleEditTodoOnBlur = (todoId: number) => {
+  const handleEditTodoOnBlur = () => {
     const trimmedTitle = editedTitle.trim();
 
     if (trimmedTitle !== '') {
@@ -92,6 +112,8 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
     } else {
       handleDeleteTodo();
     }
+
+    setEditing(false);
   };
 
   return (
@@ -103,7 +125,7 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
       key={todo.id}
       onDoubleClick={handleDoubleClick}
     >
-      {editing ? (
+      {editing && inputFocused ? (
         <>
           <label className="todo__status-label">
             <input
@@ -113,7 +135,6 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
               checked={todo.completed}
               onChange={handleToggleTodo}
               aria-label="Todo status"
-              onBlur={() => handleEditTodoOnBlur(todo.id)}
             />
           </label>
           <form onSubmit={handleSubmit}>
@@ -126,6 +147,7 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
               placeholder="Empty todo will be deleted"
               onChange={e => setEditedTitle(e.target.value)}
               onKeyUp={handleKeyUp}
+              onBlur={() => handleEditTodoOnBlur()}
             />
           </form>
           <div

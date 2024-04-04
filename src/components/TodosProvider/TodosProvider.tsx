@@ -127,7 +127,9 @@ export const TodosProvider: FC<Props> = ({ children }) => {
       );
     } catch (error) {
       setSelectedTodoIds(ids => ids.filter(id => id !== todoId));
+
       setErrorMessage(errorMessages.unableToDeleteTodo);
+      throw error;
     } finally {
       setSelectedTodoIds(ids => ids.filter(id => id !== todoId));
     }
