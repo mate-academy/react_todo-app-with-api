@@ -13,20 +13,15 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
   const [editedTitle, setEditedTitle] = useState(todo.title);
   const [inputFocused, setInputFocused] = useState(false);
 
-  const {
-    deleteTodo,
-    selectedTodoIds,
-    setErrorMessage,
-    updateTodo,
-    errorMessage,
-  } = useTodos();
+  const { deleteTodo, selectedTodoIds, setErrorMessage, updateTodo } =
+    useTodos();
   const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     if (editing && inputRef.current) {
       inputRef.current.focus();
     }
-  }, [editing, errorMessage]);
+  }, [editing]);
 
   const handleDoubleClick = () => {
     setInputFocused(true);

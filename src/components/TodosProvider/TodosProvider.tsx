@@ -72,7 +72,7 @@ export const TodosProvider: FC<Props> = ({ children }) => {
         setTodos(data);
       })
       .catch(() => {
-        setErrorMessage('Unable to load todos');
+        setErrorMessage(errorMessages.unableToLoadTodos);
       })
       .finally(() => setIsLoadingData(false));
   }, []);
