@@ -22,7 +22,7 @@ export const TodoItem: FC<Props> = ({ todo }) => {
     setTextToEdit(e.target.value);
   };
 
-  const handleRename = async () => {
+  const handleRename = () => {
     const newText = textToEdit.trim();
 
     if (newText === todo.title) {

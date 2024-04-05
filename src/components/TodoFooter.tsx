@@ -5,7 +5,7 @@ import { TodoFilter } from './TodoFilter';
 export const TodoFooter: FC = () => {
   const { todos, removeTodo } = useTodos();
   const isClearButtonActive = todos.some(todo => todo.completed);
-  const countActive = todos.filter(todo => !todo.completed).length;
+  const activeTodosCount = todos.filter(todo => !todo.completed).length;
 
   const clearAllCompleted = () => {
     todos
@@ -18,7 +18,7 @@ export const TodoFooter: FC = () => {
   return (
     <footer className="todoapp__footer" data-cy="Footer">
       <span className="todo-count" data-cy="TodosCounter">
-        {countActive} items left
+        {activeTodosCount} items left
       </span>
 
       <TodoFilter />

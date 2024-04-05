@@ -28,8 +28,9 @@ export const TodoHeader: FC = () => {
 
   const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    const trimmedQuery = query.trim();
 
-    if (!query.trim()) {
+    if (!trimmedQuery) {
       setError(Error.TITLE_IS_EMPTY);
 
       return;
@@ -37,7 +38,7 @@ export const TodoHeader: FC = () => {
 
     const newTodo = {
       id: 0,
-      title: query.trim(),
+      title: trimmedQuery,
       completed: false,
       userId: USER_ID,
     };
