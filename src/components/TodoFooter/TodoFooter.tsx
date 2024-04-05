@@ -26,7 +26,7 @@ export const TodoFooter: React.FC = () => {
         type="button"
         className="todoapp__clear-completed"
         data-cy="ClearCompletedButton"
-        onClick={() => clearAllCompleted()}
+        onClick={clearAllCompleted}
         disabled={!isClearButtonActive}
       >
         Clear completed

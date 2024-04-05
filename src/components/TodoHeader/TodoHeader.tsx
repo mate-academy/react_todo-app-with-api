@@ -25,7 +25,8 @@ export const TodoHeader: React.FC = () => {
     }
   }, [isLoading]);
 
-  const isQueryValid = !!query.trim();
+  const trimmedQuery = query.trim();
+  const isQueryValid = !!trimmedQuery;
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -38,7 +39,7 @@ export const TodoHeader: React.FC = () => {
 
     const newTodo = {
       id: 0,
-      title: query.trim(),
+      title: trimmedQuery,
       completed: false,
       userId: USER_ID,
     };

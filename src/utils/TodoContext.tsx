@@ -50,8 +50,8 @@ export const TodosProvider: FC<Props> = ({ children }) => {
   const [filter, setFilter] = useState<Filter>(Filter.ALL);
   const [query, setQuery] = useState('');
   const [error, setError] = useState<ErrorMessage>(ErrorMessage.NO_ERRORS);
-  const [isLoading, setIsLoading] = React.useState(false);
-  const [loadingTodosIDs, setLoadingTodosIDs] = React.useState<number[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [loadingTodosIDs, setLoadingTodosIDs] = useState<number[]>([]);
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
 
   const addTodo = (newTodo: Omit<Todo, 'id'>) => {

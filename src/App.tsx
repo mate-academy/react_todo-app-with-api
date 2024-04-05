@@ -9,7 +9,7 @@ import { TodoError } from './components/TodoError';
 
 export const App: React.FC = () => {
   const { todos } = useTodos();
-  const isTodos = todos.length > 0;
+  const isTodosExist = todos.length > 0;
 
   if (!USER_ID) {
     return <UserWarning />;
@@ -22,9 +22,12 @@ export const App: React.FC = () => {
       <div className="todoapp__content">
         <TodoHeader />
 
-        {isTodos && <TodoList />}
-
-        {isTodos && <TodoFooter />}
+        {isTodosExist && (
+          <>
+            <TodoList />
+            <TodoFooter />
+          </>
+        )}
       </div>
 
       <TodoError />
