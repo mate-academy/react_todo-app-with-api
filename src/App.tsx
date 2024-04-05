@@ -102,13 +102,12 @@ export const App: React.FC = () => {
       .then(todoFromServer => {
         setTodos(currentTodos => [...currentTodos, todoFromServer]);
         setTitle('');
-        setTempTodo(null);
       })
       .catch(() => {
         setErrorMessage(Errors.AddError);
-        setTempTodo(null);
       })
       .finally(() => {
+        setTempTodo(null);
         setIsInputDisabled(false);
       });
   };

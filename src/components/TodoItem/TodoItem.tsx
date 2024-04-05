@@ -2,14 +2,13 @@ import React, { useContext, useEffect, useRef, useState } from 'react';
 import cn from 'classnames';
 import * as todoService from '../../api/todos';
 import { Todo } from '../../types/Todo';
-import { TempTodo } from '../../types/TempTodo';
 import { TodoContext } from '../../context/TodoContext';
 import { Errors } from '../../types/Errors';
 import { delay } from '../../utils/delay';
 import { focusInputField } from '../../utils/focusInputField';
 
 type Props = {
-  todo: Todo | TempTodo;
+  todo: Todo;
 };
 
 export const TodoItem: React.FC<Props> = ({ todo }) => {
@@ -121,75 +120,73 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
   };
 
   return (
-    <>
+    <div
+      data-cy="Todo"
+      className={cn('todo', {
+        completed: todo.completed,
+      })}
+    >
+      <label className="todo__status-label">
+        <input
+          data-cy="TodoStatus"
+          type="checkbox"
+          className="todo__status"
+          onChange={() =>
+            updateTodo({ ...todo, completed: !todo.completed } as Todo)
+          }
+          checked={todo.completed}
+        />
+      </label>
+
+      {isEditing ? (
+        <form
+          onSubmit={e => {
+            e.preventDefault();
+          }}
+        >
+          <input
+            data-cy="TodoTitleField"
+            type="text"
+            className="todo__title-field"
+            placeholder="Empty todo will be deleted"
+            ref={editInputRef}
+            value={editTitle}
+            onChange={e => setEditTitle(e.target.value)}
+            onBlur={handleSave}
+            onKeyUp={handleKeyUp}
+          />
+        </form>
+      ) : (
+        <>
+          <span
+            data-cy="TodoTitle"
+            className="todo__title"
+            onDoubleClick={handleDoubleClick}
+          >
+            {editTitle}
+          </span>
+
+          <button
+            type="button"
+            className="todo__remove"
+            data-cy="TodoDelete"
+            onClick={() => deleteTodoItem(todo.id)}
+          >
+            ×
+          </button>
+        </>
+      )}
+
       <div
-        data-cy="Todo"
-        className={cn('todo', {
-          completed: todo.completed,
+        data-cy="TodoLoader"
+        className={cn('modal', 'overlay', {
+          'is-active':
+            todo.id === 0 || isLoading || updatingTodos.includes(todo.id),
         })}
       >
-        <label className="todo__status-label">
-          <input
-            data-cy="TodoStatus"
-            type="checkbox"
-            className="todo__status"
-            onChange={() =>
-              updateTodo({ ...todo, completed: !todo.completed } as Todo)
-            }
-            checked={todo.completed}
-          />
-        </label>
-
-        {isEditing ? (
-          <form
-            onSubmit={e => {
-              e.preventDefault();
-            }}
-          >
-            <input
-              data-cy="TodoTitleField"
-              type="text"
-              className="todo__title-field"
-              placeholder="Empty todo will be deleted"
-              ref={editInputRef}
-              value={editTitle}
-              onChange={e => setEditTitle(e.target.value)}
-              onBlur={handleSave}
-              onKeyUp={handleKeyUp}
-            />
-          </form>
-        ) : (
-          <>
-            <span
-              data-cy="TodoTitle"
-              className="todo__title"
-              onDoubleClick={handleDoubleClick}
-            >
-              {editTitle}
-            </span>
-
-            <button
-              type="button"
-              className="todo__remove"
-              data-cy="TodoDelete"
-              onClick={() => deleteTodoItem(todo.id)}
-            >
-              ×
-            </button>
-          </>
-        )}
-
-        <div
-          data-cy="TodoLoader"
-          className={cn('modal', 'overlay', {
-            'is-active':
-              todo.id === 0 || isLoading || updatingTodos.includes(todo.id),
-          })}
-        >
-          <div className="modal-background has-background-white-ter" />
-          <div className="loader" />
-        </div>
+        <div className="modal-background has-background-white-ter" />
+        <div className="loader" />
       </div>
-    </>
+    </div>
   );
 };

@@ -3,7 +3,6 @@ import * as todoService from '../api/todos';
 import { filterByTodoStatus } from '../utils/filterTodoByStatus';
 import { Errors } from '../types/Errors';
 import { Status } from '../types/Status';
-import { TempTodo } from '../types/TempTodo';
 import { Todo } from '../types/Todo';
 import { USER_ID } from '../variables/UserID';
 
@@ -13,7 +12,7 @@ interface ContextProps {
   errorMessage: Errors | '';
   filterStatus: Status;
   isInputDisabled: boolean;
-  tempTodo: TempTodo | null;
+  tempTodo: Todo | null;
   updatingTodos: number[];
   filterByTodoStatus: (todoItems: Todo[], values: Status) => Todo[];
   setTodos: (v: Todo[] | ((n: Todo[]) => Todo[])) => void;
