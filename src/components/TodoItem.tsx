@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Todo } from '../types/Todo';
 import classNames from 'classnames';
-import { useTodos } from '../utils/TodoContext';
+import { useTodos } from '../contexts/TodoContext';
 import { deleteTodo, updateTitleTodo } from '../api/todos';
 import { ErrorMessages } from '../types/ErrorMessages';
 

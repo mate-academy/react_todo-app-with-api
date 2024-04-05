@@ -1,9 +1,8 @@
 import React from 'react';
 import { ErrorMessages } from '../types/ErrorMessages';
 import { USER_ID } from '../api/todos';
-import { useTodos } from '../utils/TodoContext';
+import { useTodos } from '../contexts/TodoContext';
 import classNames from 'classnames';
-import { Todo } from '../types/Todo';
 
 export const Header: React.FC = () => {
   const {
@@ -14,6 +13,8 @@ export const Header: React.FC = () => {
     showError,
     todos,
     changeCompleteTodo,
+    selectAllCompleted,
+    selectAllUncompleted,
   } = useTodos();
 
   const handleAddTodo = (event: React.FormEvent) => {
@@ -33,9 +34,6 @@ export const Header: React.FC = () => {
 
     createTodo(newTodo);
   };
-
-  const selectAllUncompleted = todos.filter((todo: Todo) => !todo.completed);
-  const selectAllCompleted = todos.filter((todo: Todo) => todo.completed);
 
   const toggleCompletedAll = () => {
     if (!!selectAllUncompleted.length) {

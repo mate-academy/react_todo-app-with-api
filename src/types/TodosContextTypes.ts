@@ -23,4 +23,6 @@ export interface TodosContextType {
   removeTodo: (id: number) => void;
   createTodo: (newTodo: Omit<Todo, 'id'>) => void;
   changeCompleteTodo: (todo: Todo) => void;
+  selectAllUncompleted: Todo[];
+  selectAllCompleted: Todo[];
 }

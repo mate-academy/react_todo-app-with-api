@@ -1,11 +1,11 @@
 import { Filter } from './Filter';
-import { useTodos } from '../utils/TodoContext';
+import { useTodos } from '../contexts/TodoContext';
 
 export const Footer: React.FC = () => {
-  const { todos, removeTodo } = useTodos();
-  const todosLeft = todos.filter(todo => !todo.completed).length;
+  const { todos, removeTodo, selectAllUncompleted } = useTodos();
   const isCompletedTodos = todos.some(todo => todo.completed);
 
+  const todosLeft = selectAllUncompleted.length;
   const isSingleItemLeft = todosLeft === 1;
 
   const clearCompletedTodos = () => {

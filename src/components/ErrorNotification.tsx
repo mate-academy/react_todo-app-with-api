@@ -1,6 +1,6 @@
 import React from 'react';
 import classNames from 'classnames';
-import { useTodos } from '../utils/TodoContext';
+import { useTodos } from '../contexts/TodoContext';
 
 export const ErrorNotification: React.FC = () => {
   const { errorMessage, clearError } = useTodos();

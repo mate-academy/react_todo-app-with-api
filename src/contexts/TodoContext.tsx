@@ -25,6 +25,8 @@ const TodosContext = createContext<TodosContextType>({
   removeTodo: () => {},
   createTodo: () => {},
   changeCompleteTodo: () => {},
+  selectAllUncompleted: [],
+  selectAllCompleted: [],
 });
 
 type Props = {
@@ -39,6 +41,9 @@ export const TodosProvider: React.FC<Props> = ({ children }) => {
   const [filter, setFilter] = useState<FilterOptions>(FilterOptions.All);
   const [title, setTitle] = useState('');
   const [loadingTodosIds, setLoadingTodosIds] = useState<number[]>([]);
+
+  const selectAllUncompleted = todos.filter((todo: Todo) => !todo.completed);
+  const selectAllCompleted = todos.filter((todo: Todo) => todo.completed);
 
   const clearError = () => setErrorMessage(null);
 
@@ -97,7 +102,7 @@ export const TodosProvider: React.FC<Props> = ({ children }) => {
       .catch(() => showError(ErrorMessages.DeleteTodo))
       .finally(() => {
         setLoadingTodosIds(prevTodosIds =>
-          prevTodosIds.filter(todoId => todoId !== 0),
+          prevTodosIds.filter(todoId => todoId === 0),
         );
         setIsLoading(false);
       });
@@ -150,6 +155,8 @@ export const TodosProvider: React.FC<Props> = ({ children }) => {
         removeTodo,
         createTodo,
         changeCompleteTodo,
+        selectAllUncompleted,
+        selectAllCompleted,
       }}
     >
       {children}

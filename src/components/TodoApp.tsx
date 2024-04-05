@@ -3,7 +3,7 @@ import { ErrorNotification } from './ErrorNotification';
 import { TodoList } from './TodoList';
 import { Footer } from './Footer';
 import { Header } from './Header';
-import { useTodos } from '../utils/TodoContext';
+import { useTodos } from '../contexts/TodoContext';
 
 export const TodoApp: React.FC = () => {
   const { todos } = useTodos();
