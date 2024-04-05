@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React from 'react';
 import { FilterStatus } from '../../types/FilterStatus';
 import classNames from 'classnames';
 import { useTodosContext } from '../../context/TodoContext';
@@ -8,10 +8,7 @@ export const TodoFooter: React.FC = () => {
 
   const completedTodos = todos.filter(todo => todo.completed);
 
-  const leftTodos = useMemo(
-    () => todos.filter(todo => !todo.completed).length,
-    [todos],
-  );
+  const leftTodos = todos.filter(todo => !todo.completed).length;
 
   const onHandleDeleteCompleted = () => {
     completedTodos.forEach(todo => {
