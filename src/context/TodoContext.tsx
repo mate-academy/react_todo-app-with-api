@@ -108,6 +108,7 @@ export const TodosProvider: React.FC<Props> = ({ children }) => {
     addTodo(trimmedTitle)
       .then(addedTodo => {
         setTodos(prevTodos => [...prevTodos, addedTodo]);
+        setShouldClearInput(true);
       })
       .catch(() => {
         setErrorMessage(ErrorStatus.AddTodoError);
