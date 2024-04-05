@@ -44,7 +44,7 @@ export const TodoCreatingForm: React.FC = () => {
     }
   };
 
-  const allTodoComplited = todos.every(todo => todo.completed);
+  const allTodoCompleted = todos.every(todo => todo.completed);
 
   const handleToggleAll = async () => {
     try {
@@ -79,7 +79,7 @@ export const TodoCreatingForm: React.FC = () => {
       {todos.length > 0 && (
         <button
           type="button"
-          className={cn('todoapp__toggle-all', { active: allTodoComplited })}
+          className={cn('todoapp__toggle-all', { active: allTodoCompleted })}
           data-cy="ToggleAllButton"
           onClick={handleToggleAll}
         />

@@ -116,18 +116,18 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
       key={todo.id}
       onDoubleClick={handleDoubleClick}
     >
+      <label className="todo__status-label">
+        <input
+          data-cy="TodoStatus"
+          type="checkbox"
+          className="todo__status"
+          checked={todo.completed}
+          onChange={handleToggleTodo}
+          aria-label="Todo status"
+        />
+      </label>
       {isEditing && inputFocused ? (
         <>
-          <label className="todo__status-label">
-            <input
-              data-cy="TodoStatus"
-              type="checkbox"
-              className="todo__status"
-              checked={todo.completed}
-              onChange={handleToggleTodo}
-              aria-label="Todo status"
-            />
-          </label>
           <form onSubmit={handleSubmit}>
             <input
               ref={inputRef}
@@ -153,7 +153,7 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
         </>
       ) : (
         <>
-          <label className="todo__status-label">
+          {/* <label className="todo__status-label">
             <input
               data-cy="TodoStatus"
               type="checkbox"
@@ -162,7 +162,7 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
               onChange={handleToggleTodo}
               aria-label="Todo status"
             />
-          </label>
+          </label> */}
           <span data-cy="TodoTitle" className="todo__title">
             {todo.title}
           </span>
