@@ -12,9 +12,9 @@ interface Props {
   isInputDisabled: boolean;
   todos: Todo[];
   onUpdateTodo: (patchTodo: Todo, title: string) => void;
-  setLoading: (loading: string | number | number[] | null) => void;
-
-  errorMessage: string;
+  setLoading: (loading: string | number | null) => void;
+  headerError: boolean;
+  setLoadAll: (loadAll: number[]) => void;
 }
 
 const Header: React.FC<Props> = ({
@@ -25,7 +25,8 @@ const Header: React.FC<Props> = ({
   todos,
   onUpdateTodo,
   setLoading,
-  errorMessage,
+  headerError,
+  setLoadAll,
 }) => {
   const [title, setTitle] = useState('');
   const [isShouldFocus, setIsShouldFocus] = useState(false);
@@ -33,7 +34,7 @@ const Header: React.FC<Props> = ({
 
   useEffect(() => {
     inputRef.current?.focus();
-  }, [todos, errorMessage]);
+  }, [todos, headerError]);
   const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setTitle(event.target.value);
   };
@@ -54,7 +55,7 @@ const Header: React.FC<Props> = ({
   const handleCheckboxChange = () => {
     const allTodos = todos.map(todo => todo.id);
 
-    setLoading(allTodos);
+    setLoadAll(allTodos);
 
     if (isAllCompleted) {
       todos.forEach(todo => {

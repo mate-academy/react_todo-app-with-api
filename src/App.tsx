@@ -18,10 +18,10 @@ export const App: React.FC = () => {
   const [errorMessage, setErrorMessage] = useState<string>('');
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
   const [isInputDisabled, setIsInputDisabled] = useState(false);
-  const [loading, setLoading] = useState<number | number[] | string | null>(
-    null,
-  );
+  const [headerError, setHeaderError] = useState(false);
+  const [loading, setLoading] = useState<number | string | null>(null);
   const [isShouldFocusInput, setIsShouldFocusInput] = useState(false);
+  const [loadAll, setLoadAll] = useState<number[]>([]);
 
   useEffect(() => {
     postService
@@ -81,9 +81,11 @@ export const App: React.FC = () => {
         setTodos(prevTodos => [...prevTodos, createdTodo]);
         setIsShouldFocusInput(true);
         setTitle('');
+        setHeaderError(false);
       })
       .catch(() => {
         handleError('Unable to add a todo', setErrorMessage);
+        setHeaderError(true);
       })
       .finally(() => {
         setIsInputDisabled(false);
@@ -139,6 +141,7 @@ export const App: React.FC = () => {
       handleError('Unable to update a todo', setErrorMessage);
     } finally {
       setLoading(null);
+      setLoadAll([]);
     }
   };
 
@@ -175,7 +178,8 @@ export const App: React.FC = () => {
           todos={todos}
           onUpdateTodo={updateTodo}
           setLoading={setLoading}
-          errorMessage={errorMessage}
+          headerError={headerError}
+          setLoadAll={setLoadAll}
         />
         <TodoList
           todos={filteredTodos}
@@ -185,6 +189,7 @@ export const App: React.FC = () => {
           loading={loading}
           setLoading={setLoading}
           setErrorMessage={setErrorMessage}
+          loadAll={loadAll}
         />
         {todos.length > 0 && (
           <Footer

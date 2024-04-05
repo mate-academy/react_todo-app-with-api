@@ -8,8 +8,9 @@ interface Props {
   updateTodo: (patchTodo: Todo, title: string) => Promise<void>;
   tempTodo: Todo | null;
   loading: string | number | number[] | null;
-  setLoading: (loading: string | number | number[] | null) => void;
+  setLoading: (loading: string | number | null) => void;
   setErrorMessage: (message: string) => void;
+  loadAll: number[];
 }
 
 const TodoList: React.FC<Props> = ({
@@ -20,6 +21,7 @@ const TodoList: React.FC<Props> = ({
   loading,
   setLoading,
   setErrorMessage,
+  loadAll,
 }) => {
   return (
     <section className="todoapp__main" data-cy="TodoList">
@@ -32,6 +34,7 @@ const TodoList: React.FC<Props> = ({
           loading={loading}
           setLoading={setLoading}
           setErrorMessage={setErrorMessage}
+          loadAll={loadAll}
         />
       ))}
 
@@ -43,6 +46,7 @@ const TodoList: React.FC<Props> = ({
           loading={loading}
           setLoading={setLoading}
           setErrorMessage={setErrorMessage}
+          loadAll={loadAll}
         />
       )}
     </section>

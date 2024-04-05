@@ -9,8 +9,9 @@ interface Props {
   onDeleteTodo?: (id: number) => void;
   onUpdateTodo: (patchTodo: Todo, title: string) => Promise<void>;
   loading: string | number | number[] | null;
-  setLoading: (loading: string | number | number[] | null) => void;
+  setLoading: (loading: string | number | null) => void;
   setErrorMessage: (message: string) => void;
+  loadAll: number[];
 }
 
 const TodoItem: React.FC<Props> = ({
@@ -20,6 +21,7 @@ const TodoItem: React.FC<Props> = ({
   loading,
   setLoading,
   setErrorMessage,
+  loadAll,
 }) => {
   const [isEditing, setIsEditing] = useState(false);
   const [editedTitle, setEditedTitle] = useState(todo.title);
@@ -49,7 +51,6 @@ const TodoItem: React.FC<Props> = ({
 
     if (trimmedTitle === todo.title) {
       setIsEditing(false);
-      setLoading(null);
 
       return;
     }
@@ -71,11 +72,6 @@ const TodoItem: React.FC<Props> = ({
     }
   };
 
-  const handleSaveEdit = async (event: React.FormEvent<HTMLFormElement>) => {
-    event?.preventDefault();
-    saveEdit();
-  };
-
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter') {
       if (editedTitle !== todo.title) {
@@ -86,6 +82,11 @@ const TodoItem: React.FC<Props> = ({
     } else if (e.key === 'Escape') {
       setIsEditing(false);
     }
+  };
+
+  const handleBlur = () => {
+    saveEdit();
+    setIsEditing(false);
   };
 
   return (
@@ -108,7 +109,7 @@ const TodoItem: React.FC<Props> = ({
         />
       </label>
       {isEditing ? (
-        <form onSubmit={handleSaveEdit}>
+        <form onSubmit={e => e.preventDefault()}>
           <input
             ref={inputRef}
             data-cy="TodoTitleField"
@@ -117,7 +118,7 @@ const TodoItem: React.FC<Props> = ({
             placeholder="Empty todo will be deleted"
             value={editedTitle}
             onChange={handleTitleChange}
-            onBlur={saveEdit}
+            onBlur={handleBlur}
             onKeyDown={handleKeyDown}
           />
         </form>
@@ -135,9 +136,7 @@ const TodoItem: React.FC<Props> = ({
         data-cy="TodoLoader"
         className={cn('modal', 'overlay', {
           'is-active':
-            !todo.id ||
-            loading === todo.id ||
-            (Array.isArray(loading) && loading.includes(todo.id)),
+            !todo.id || loading === todo.id || loadAll.includes(todo.id),
         })}
       >
         <div className="modal-background has-background-white-ter" />
