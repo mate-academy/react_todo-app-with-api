@@ -8,7 +8,7 @@ interface Props {
   todo: Todo;
   loadingTodosIds: number[];
   deleteTodo: (id: number) => Promise<void>;
-  updtTodo: (todo: Todo, data: Partial<Todo>) => Promise<Todo>;
+  updtTodo: (id: number, data: Partial<Todo>) => Promise<Todo>;
   setLoadingTodosIds: (todos: number[]) => void;
 }
 
@@ -20,7 +20,6 @@ export const TodoItem: React.FC<Props> = ({
   setLoadingTodosIds,
 }) => {
   const { title, completed } = todo;
-  const [edit, setEdit] = useState(false);
   const [editTodo, setEditTodo] = useState<Todo | null>(null);
 
   const handleChangeCheckbox = () => {
@@ -30,13 +29,12 @@ export const TodoItem: React.FC<Props> = ({
       completed: !completed,
     };
 
-    updtTodo(todo, changeValue).finally(() =>
+    updtTodo(todo.id, changeValue).finally(() =>
       setLoadingTodosIds(loadingTodosIds.filter(ids => ids !== todo.id)),
     );
   };
 
   const handleOnDoubleClick = () => {
-    setEdit(true);
     setEditTodo(todo);
   };
 
@@ -66,13 +64,13 @@ export const TodoItem: React.FC<Props> = ({
         />
       </label>
 
-      {edit ? (
+      {editTodo ? (
         <EditForm
           editTodo={editTodo}
           loadingTodosIds={loadingTodosIds}
-          setEdit={setEdit}
           updtTodo={updtTodo}
           deleteTodo={deleteTodo}
+          setEditTodo={setEditTodo}
           setLoadingTodosIds={setLoadingTodosIds}
           todo={todo}
         />

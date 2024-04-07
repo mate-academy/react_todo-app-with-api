@@ -32,13 +32,10 @@ export const TodoApp: React.FC = () => {
   const preparedTodos = handleFilteredTodos(todos, filterSelected);
   const activeTodos = handleFilteredTodos(todos, FilteredTodos.active);
   const completedTodos = handleFilteredTodos(todos, FilteredTodos.completed);
+  const isAllSelected = todos.every(todo => todo.completed);
 
   const clearErrorMessage = () => {
     setErrorMessage(null);
-  };
-
-  const showError = (error: Errors) => {
-    setErrorMessage(error);
   };
 
   useEffect(() => {
@@ -54,7 +51,7 @@ export const TodoApp: React.FC = () => {
 
     getTodos()
       .then(setTodos)
-      .catch(() => showError(Errors.LoadTodos));
+      .catch(() => setErrorMessage(Errors.LoadTodos));
   }, []);
 
   const addTodo = (newTodo: Omit<Todo, 'id'>) => {
@@ -62,44 +59,70 @@ export const TodoApp: React.FC = () => {
       .then(todo => {
         setTodos(currentTodos => [...currentTodos, todo]);
       })
-      .catch(error => {
-        showError(Errors.AddTodo);
-        throw error;
-      });
+      .catch(() => setErrorMessage(Errors.AddTodo));
   };
 
   const delTodo: (id: number) => Promise<void> = (id: number) => {
+    setLoadingTodosIds([id]);
+
     return deleteTodo(id)
       .then(() => {
         setTodos(currentTodos => currentTodos.filter(todo => todo.id !== id));
         setFocusInput(true);
       })
-      .catch((error: unknown) => {
-        showError(Errors.DeleteTodo);
-        throw error;
+      .catch(() => {
+        setErrorMessage(Errors.DeleteTodo);
+      })
+      .finally(() => {
+        setLoadingTodosIds([]);
       });
   };
 
-  const updtTodo: (updatedTodo: Todo, data: Partial<Todo>) => Promise<Todo> = (
-    updatedTodo: Todo,
+  const updtTodo: (id: number, data: Partial<Todo>) => Promise<Todo> = (
+    id: number,
     data: Partial<Todo>,
   ) => {
-    return updateTodo(updatedTodo, data)
+    return updateTodo(id, data)
       .then(updtdTodo => {
         setTodos(currentTodos => {
           const newTodos = [...currentTodos];
-          const index = newTodos.findIndex(post => post.id === updatedTodo.id);
+          const index = newTodos.findIndex(post => post.id === id);
 
           newTodos.splice(index, 1, updtdTodo);
 
           return newTodos;
         });
 
-        return updatedTodo;
+        return updtdTodo;
       })
       .catch(error => {
-        showError(Errors.UpdateTodo);
+        setErrorMessage(Errors.UpdateTodo);
         throw error;
+      });
+  };
+
+  const handleToggleAll = () => {
+    setLoadingTodosIds(todos.map(todo => todo.id));
+
+    let todosToUpdate;
+
+    if (isAllSelected) {
+      todosToUpdate = todos.map(todo =>
+        updtTodo(todo.id, { completed: false }),
+      );
+    } else {
+      todosToUpdate = todos
+        .filter(todo => !todo.completed)
+        .map(todo => updtTodo(todo.id, { completed: true }));
+    }
+
+    Promise.all(todosToUpdate)
+      .catch(error => {
+        setErrorMessage(Errors.UpdateTodo);
+        throw error;
+      })
+      .finally(() => {
+        setLoadingTodosIds([]);
       });
   };
 
@@ -117,9 +140,9 @@ export const TodoApp: React.FC = () => {
           setFocusInput={setFocusInput}
           focusInput={focusInput}
           clearErrorMessage={clearErrorMessage}
-          updtTodo={updtTodo}
-          setTodos={setTodos}
           setLoadingTodosIds={setLoadingTodosIds}
+          handleToggleAll={handleToggleAll}
+          isAllSelected={isAllSelected}
         />
 
         <TodoList

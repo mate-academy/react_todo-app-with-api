@@ -2,6 +2,7 @@ import classNames from 'classnames';
 import React, { useEffect } from 'react';
 import { Todo } from '../types/Todo';
 import { Errors } from '../enums/Errors';
+import { USER_ID } from '../api/todos';
 
 interface Props {
   todos: Todo[];
@@ -13,8 +14,8 @@ interface Props {
   setFocusInput: (bool: boolean) => void;
   focusInput: boolean;
   clearErrorMessage: () => void;
-  updtTodo: (todo: Todo, data: Partial<Todo>) => Promise<Todo>;
-  setTodos: React.Dispatch<React.SetStateAction<Todo[]>>;
+  handleToggleAll: () => void;
+  isAllSelected: boolean;
 }
 
 export const TodoHeader: React.FC<Props> = ({
@@ -27,11 +28,10 @@ export const TodoHeader: React.FC<Props> = ({
   setFocusInput,
   focusInput,
   clearErrorMessage,
-  updtTodo,
-  setTodos,
+  handleToggleAll,
+  isAllSelected,
 }) => {
   const [newTodoTitle, setNewTodoTitle] = React.useState('');
-  const isAllSelected = todos.every(todo => todo.completed);
 
   const inputField = React.useRef<HTMLInputElement>(null);
 
@@ -65,14 +65,14 @@ export const TodoHeader: React.FC<Props> = ({
     }
 
     const newTodo = {
-      userId: 11946,
+      userId: USER_ID,
       title: newTodoTitle.trim(),
       completed: false,
     };
 
     const tempTodo = {
       id: 0,
-      userId: 11946,
+      userId: USER_ID,
       title: newTodoTitle.trim(),
       completed: false,
     };
@@ -90,48 +90,6 @@ export const TodoHeader: React.FC<Props> = ({
         setLoadingTodosIds(loadingTodosIds.filter(id => id !== tempTodo.id));
         setFocusInput(true);
       });
-  };
-
-  const handleToggleAll = () => {
-    setLoadingTodosIds(todos.map(todo => todo.id));
-
-    if (isAllSelected) {
-      Promise.all(todos.map(todo => updtTodo(todo, { completed: false })))
-        .then(() => {
-          setTodos(
-            todos.map(prevTodo => {
-              return { ...prevTodo, completed: false };
-            }),
-          );
-        })
-        .catch(error => {
-          setErrorMessage(Errors.UpdateTodo);
-          throw error;
-        })
-        .finally(() => {
-          setLoadingTodosIds([]);
-        });
-    } else {
-      const todosToUpdate = todos
-        .filter(todo => !todo.completed)
-        .map(todo => updtTodo(todo, { completed: true }));
-
-      Promise.all(todosToUpdate)
-        .then(() => {
-          setTodos(
-            todos.map(prevTodo => {
-              return { ...prevTodo, completed: true };
-            }),
-          );
-        })
-        .catch(error => {
-          setErrorMessage(Errors.UpdateTodo);
-          throw error;
-        })
-        .finally(() => {
-          setLoadingTodosIds([]);
-        });
-    }
   };
 
   return (

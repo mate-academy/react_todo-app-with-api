@@ -4,22 +4,22 @@ import { Loader } from './Loader';
 
 type Props = {
   editTodo: Todo | null;
-  setEdit: (edit: boolean) => void;
-  updtTodo: (todo: Todo, data: Partial<Todo>) => Promise<Todo>;
+  updtTodo: (id: number, data: Partial<Todo>) => Promise<Todo>;
   deleteTodo: (id: number) => Promise<void>;
   setLoadingTodosIds: (todos: number[]) => void;
   loadingTodosIds: number[];
   todo: Todo;
+  setEditTodo: (todo: Todo | null) => void;
 };
 
 export const EditForm: React.FC<Props> = ({
   editTodo,
-  setEdit,
   updtTodo,
   deleteTodo,
   setLoadingTodosIds,
   loadingTodosIds,
   todo,
+  setEditTodo,
 }) => {
   const [newValue, setNewValue] = useState(editTodo?.title || '');
   const editField = useRef<HTMLInputElement>(null);
@@ -34,19 +34,19 @@ export const EditForm: React.FC<Props> = ({
     event.preventDefault();
 
     if (prevValue === newValue) {
-      setEdit(false);
+      setEditTodo(null);
 
       return;
     }
 
     if (editTodo) {
       setLoadingTodosIds([...loadingTodosIds, editTodo.id]);
-      updtTodo(editTodo, { title: newValue?.trim() })
+      updtTodo(editTodo.id, { title: newValue?.trim() })
         .then(() => {
-          setEdit(false);
+          setEditTodo(null);
         })
         .catch(() => {
-          setEdit(true);
+          setEditTodo(todo);
         })
         .finally(() =>
           setLoadingTodosIds(loadingTodosIds.filter(id => id !== editTodo.id)),
@@ -71,13 +71,13 @@ export const EditForm: React.FC<Props> = ({
   };
 
   const onKeyEscape = () => {
-    setEdit(false);
+    setEditTodo(null);
   };
 
   const onKeyEnter = (event: React.KeyboardEvent) => {
     event.preventDefault();
 
-    if (newValue?.trim().length === 0) {
+    if (!newValue?.trim().length) {
       setLoadingTodosIds([...loadingTodosIds, editTodo?.id || 0]);
 
       if (editTodo) {

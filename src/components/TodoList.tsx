@@ -6,7 +6,7 @@ interface Props {
   loadingTodosIds: number[];
   tempTodo: null | Todo;
   deleteTodo: (id: number) => Promise<void>;
-  updtTodo: (todo: Todo, data: Partial<Todo>) => Promise<Todo>;
+  updtTodo: (id: number, data: Partial<Todo>) => Promise<Todo>;
   setLoadingTodosIds: (todos: number[]) => void;
 }
 
