@@ -26,8 +26,6 @@ export const TodoItem: React.FC<Props> = ({
 
   const { completed, id } = todo;
 
-  // const isLoading = changingIDs.includes(id);
-
   const handleSubmit = (event: React.FormEvent) => {
     event.preventDefault();
 

@@ -34,6 +34,11 @@ export const App: React.FC = () => {
 
   const handleChangingFilterBy = (value: FilterBy) => setFilterBy(value);
 
+  const prepareToAction = (id: number) => {
+    setErrorMessage(null);
+    setChangingIDs(curIDs => [...curIDs, id]);
+  };
+
   const visibleTodos = getFilteredTodos(todos, filterBy);
 
   const activeTodosCount: number = todos.filter(todo => !todo.completed).length;
@@ -51,7 +56,6 @@ export const App: React.FC = () => {
       return;
     }
 
-    setErrorMessage(null);
     setIsDisabled(true);
 
     const newTodo = {
@@ -62,7 +66,8 @@ export const App: React.FC = () => {
     };
 
     setTempTodo(newTodo);
-    setChangingIDs(curIDs => [...curIDs, newTodo.id]);
+
+    prepareToAction(newTodo.id);
 
     createTodo(newTodo)
       .then(createdTodo => {
@@ -111,8 +116,7 @@ export const App: React.FC = () => {
   };
 
   const toggleTodo = (id: number, completed: boolean) => {
-    setErrorMessage(null);
-    setChangingIDs(curIDs => [...curIDs, id]);
+    prepareToAction(id);
 
     updateTodo(id, { completed: !completed })
       .then(updatedTodo => {
@@ -143,8 +147,7 @@ export const App: React.FC = () => {
   };
 
   const handleRenameTodo = (id: number, title: string) => {
-    setErrorMessage(null);
-    setChangingIDs(curIDs => [...curIDs, id]);
+    prepareToAction(id);
 
     return updateTodo(id, { title })
       .then(updatedTodo => {
