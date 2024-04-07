@@ -24,6 +24,7 @@ export const App: React.FC = () => {
   const [isDisabled, setIsDisabled] = useState(false);
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
   const [processingIds, setProcessingIds] = React.useState<number[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
 
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -49,6 +50,7 @@ export const App: React.FC = () => {
     }
 
     setIsDisabled(true);
+    setIsLoading(true);
 
     try {
       const newTodo = {
@@ -65,11 +67,13 @@ export const App: React.FC = () => {
 
       setTodos(prevTodos => [...prevTodos, newCreatedTodo]);
       setTitle('');
+      setIsLoading(false);
     } catch {
       showErrorMessage('Unable to add a todo');
     } finally {
       setIsDisabled(false);
       setTempTodo(null);
+      setIsLoading(false);
     }
   };
 
@@ -159,7 +163,7 @@ export const App: React.FC = () => {
 
   useEffect(() => {
     inputRef.current?.focus();
-  }, [todos, error]);
+  }, [todos, isLoading]);
 
   if (!USER_ID) {
     return <UserWarning />;
