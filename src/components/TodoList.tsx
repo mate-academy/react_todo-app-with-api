@@ -8,7 +8,7 @@ interface Props {
   changingIDs: number[];
   onDelete: (id: number) => Promise<void>;
   onToggle: (id: number, completed: boolean) => void;
-  onRename: (id: number, titel: string) => Promise<void>;
+  onRename: (id: number, title: string) => Promise<void>;
   onEmptyTitleDelete: () => void;
 }
 
