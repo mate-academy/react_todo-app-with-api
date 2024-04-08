@@ -43,7 +43,7 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
     e: React.KeyboardEvent<HTMLInputElement>,
   ) => {
     if (e.key === 'Enter') {
-      await handleRename();
+      handleRename();
     }
 
     if (e.key === 'Escape') {

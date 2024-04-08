@@ -21,7 +21,12 @@ export const TodoError: React.FC = () => {
         hidden: !error,
       })}
     >
-      <button data-cy="HideErrorButton" type="button" className="delete" />
+      <button
+        data-cy="HideErrorButton"
+        type="button"
+        className="delete"
+        onClick={() => setError(ErrorMessage.NO_ERRORS)}
+      />
       {error}
     </div>
   );

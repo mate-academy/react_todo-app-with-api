@@ -17,28 +17,28 @@ import {
 } from '../api/todos';
 import { ErrorMessage } from '../types/ErrorMessage';
 
-const initialTodos: Todo[] = [];
+const noop = () => {};
 
 const TodosContext = createContext<TodosContextType>({
-  todos: initialTodos,
+  todos: [],
   filter: Filter.ALL,
-  addTodo: () => {},
-  removeTodo: () => {},
-  renameTodo: () => {},
-  toggleTodo: () => {},
-  toggleAllTodos: () => {},
-  setTodos: () => {},
-  setFilter: () => {},
+  addTodo: noop,
+  removeTodo: noop,
+  renameTodo: noop,
+  toggleTodo: noop,
+  toggleAllTodos: noop,
+  setTodos: noop,
+  setFilter: noop,
   query: '',
-  setQuery: () => {},
+  setQuery: noop,
   error: ErrorMessage.NO_ERRORS,
-  setError: () => {},
+  setError: noop,
   isLoading: false,
-  setIsLoading: () => {},
+  setIsLoading: noop,
   tempTodo: null,
-  setTempTodo: () => {},
+  setTempTodo: noop,
   loadingTodosIDs: [],
-  setLoadingTodosIDs: () => {},
+  setLoadingTodosIDs: noop,
 });
 
 type Props = {
@@ -85,7 +85,7 @@ export const TodosProvider: FC<Props> = ({ children }) => {
       })
       .finally(() => {
         setIsLoading(false);
-        setLoadingTodosIDs(prev => prev.filter(todoId => todoId !== id));
+        setLoadingTodosIDs([]);
       });
   };
 
@@ -133,7 +133,7 @@ export const TodosProvider: FC<Props> = ({ children }) => {
   const renameTodo = (
     id: number,
     newTitle: string,
-    setEditingTodoId: (id: number | null) => {},
+    callback: (id: number | null) => {},
   ) => {
     setIsLoading(true);
     setLoadingTodosIDs(prev => [...prev, id]);
@@ -145,7 +145,7 @@ export const TodosProvider: FC<Props> = ({ children }) => {
             prev.id === id ? { ...prev, title: newTitle } : prev,
           ),
         );
-        setEditingTodoId(null);
+        callback(null);
       })
       .catch(() => {
         setError(ErrorMessage.UPDATE_TODO_ERROR);
@@ -157,17 +157,18 @@ export const TodosProvider: FC<Props> = ({ children }) => {
   };
 
   useEffect(() => {
-    const fetchTodos = async () => {
+    const fetchTodos = () => {
       setIsLoading(true);
-      try {
-        const fetchedTodos = await getTodos();
-
-        setTodos(fetchedTodos);
-      } catch {
-        setError(ErrorMessage.UNABLE_LOAD_TODOS);
-      } finally {
-        setIsLoading(false);
-      }
+      getTodos()
+        .then(fetchedTodos => {
+          setTodos(fetchedTodos);
+        })
+        .catch(() => {
+          setError(ErrorMessage.UNABLE_LOAD_TODOS);
+        })
+        .finally(() => {
+          setIsLoading(false);
+        });
     };
 
     fetchTodos();

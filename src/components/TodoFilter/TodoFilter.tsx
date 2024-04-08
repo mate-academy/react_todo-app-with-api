@@ -12,7 +12,7 @@ export const TodoFilter: React.FC = () => {
       {filterMenu.map(filterOption => (
         <a
           key={filterOption}
-          href={filterOption === Filter.ALL ? '#/' : `#/` + filterOption}
+          href={filterOption === Filter.ALL ? '#/' : `#/${filterOption}`}
           data-cy={`FilterLink${filterOption}`}
           className={cn('filter__link', {
             selected: filter === filterOption,
