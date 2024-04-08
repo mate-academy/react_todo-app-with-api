@@ -13,6 +13,7 @@ type Props = {
   isLoading: boolean;
   todos: Todo[];
   onError: (error: Errors) => void;
+  setLoadingTodoIds: (ids: number[]) => void;
 };
 
 export const Header: React.FC<Props> = ({
@@ -24,14 +25,17 @@ export const Header: React.FC<Props> = ({
   isLoading,
   todos,
   onError,
+  setLoadingTodoIds,
 }) => {
   const isEveryTodoctive =
     todos.every(todo => todo.completed) && !!todos.length;
 
   const handleToggleAll = async () => {
+    const filteredTasks = todos.filter(todo => !todo.completed);
+    const unfinishedTasks = filteredTasks.length ? filteredTasks : todos;
+
     try {
-      const filteredTasks = todos.filter(todo => !todo.completed);
-      const unfinishedTasks = filteredTasks.length ? filteredTasks : todos;
+      setLoadingTodoIds([...unfinishedTasks.map(task => task.id)]);
 
       const updatingStatus = unfinishedTasks.map(todo =>
         updateTodo(todo.id, { ...todo, completed: !todo.completed }),
@@ -42,6 +46,8 @@ export const Header: React.FC<Props> = ({
       newTodos.map(newTodo => onUpdateTodos(newTodo as Todo));
     } catch {
       onError(Errors.Update);
+    } finally {
+      setLoadingTodoIds([]);
     }
   };
 

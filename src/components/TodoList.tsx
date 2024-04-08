@@ -8,7 +8,7 @@ type Props = {
   onDeleteTodo: (todoId: number) => void;
   onUpdateTodos: (newTodo: Todo) => void;
   tempTodo: Todo | null;
-  deletedTodoIds: number[];
+  loadingTodoIds: number[];
   onError: (error: Errors) => void;
 };
 
@@ -16,7 +16,7 @@ export const TodoList: React.FC<Props> = ({
   filteredTodos,
   onDeleteTodo,
   onUpdateTodos,
-  deletedTodoIds,
+  loadingTodoIds,
   tempTodo,
   onError,
 }) => {
@@ -27,7 +27,7 @@ export const TodoList: React.FC<Props> = ({
           key={todo.id}
           todo={todo}
           onDeleteTodo={onDeleteTodo}
-          deletedTodoIds={deletedTodoIds}
+          loadingTodoIds={loadingTodoIds}
           onUpdateTodos={onUpdateTodos}
           onError={onError}
         />

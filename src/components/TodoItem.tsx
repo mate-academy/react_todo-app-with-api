@@ -8,7 +8,7 @@ type Props = {
   todo: Todo;
   onDeleteTodo?: (todoId: number) => void;
   onUpdateTodos?: (newTodo: Todo) => void;
-  deletedTodoIds?: number[];
+  loadingTodoIds?: number[];
   onError?: (error: Errors) => void;
 };
 
@@ -17,7 +17,7 @@ export const TodoItem: React.FC<Props> = ({
   onDeleteTodo = () => {},
   onError = () => {},
   onUpdateTodos = () => {},
-  deletedTodoIds,
+  loadingTodoIds,
 }) => {
   const [editTitle, setEditTitle] = useState(todo.title);
   const [isLoading, setIsLoading] = useState(false);
@@ -25,7 +25,7 @@ export const TodoItem: React.FC<Props> = ({
 
   const inputField = useRef<HTMLInputElement | null>(null);
 
-  const isIncludesId = deletedTodoIds?.includes(todo.id);
+  const isIncludesId = loadingTodoIds?.includes(todo.id);
 
   useEffect(() => {
     if (isEditing) {

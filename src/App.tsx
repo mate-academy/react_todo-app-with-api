@@ -19,7 +19,7 @@ export const App: React.FC = () => {
   const [errorMessage, setErrorMessage] = useState<Errors>(Errors.Default);
   const [status, setStatus] = useState<Status>(Status.All);
   const [isLoading, setIsLoading] = useState(false);
-  const [deletedTodoIds, setDeletedTodoIds] = useState<number[]>([]);
+  const [loadingTodoIds, setLoadingTodoIds] = useState<number[]>([]);
 
   const focusInput = useRef<HTMLInputElement>(null);
 
@@ -66,7 +66,7 @@ export const App: React.FC = () => {
   };
 
   const removeTodo = (todoId: number) => {
-    setDeletedTodoIds(prevIds => [...prevIds, todoId]);
+    setLoadingTodoIds(prevIds => [...prevIds, todoId]);
 
     return deleteTodo(todoId)
       .then(() => {
@@ -78,12 +78,8 @@ export const App: React.FC = () => {
         handleError(Errors.Delete);
       })
       .finally(() => {
-        setDeletedTodoIds(prevIds => prevIds.filter(id => id !== todoId));
+        setLoadingTodoIds(prevIds => prevIds.filter(id => id !== todoId));
       });
-  };
-
-  const handleSetStatus = (field: Status) => {
-    setStatus(field);
   };
 
   const handleSubmit = (event: React.FormEvent) => {
@@ -132,12 +128,13 @@ export const App: React.FC = () => {
           newTitle={newTitle}
           isLoading={isLoading}
           todos={todos}
+          setLoadingTodoIds={(ids: number[]) => setLoadingTodoIds(ids)}
         />
 
         <TodoList
           filteredTodos={filteredTodos}
           onDeleteTodo={removeTodo}
-          deletedTodoIds={deletedTodoIds}
+          loadingTodoIds={loadingTodoIds}
           onUpdateTodos={updateTodos}
           tempTodo={tempTodo}
           onError={handleError}
@@ -145,7 +142,7 @@ export const App: React.FC = () => {
 
         {!!todos.length && (
           <Footer
-            onFilter={handleSetStatus}
+            onFilter={field => setStatus(field)}
             onDeleteTodo={removeTodo}
             currentFilterStatus={status}
             todos={todos}
