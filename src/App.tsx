@@ -1,26 +1,79 @@
-/* eslint-disable max-len */
-/* eslint-disable jsx-a11y/control-has-associated-label */
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { UserWarning } from './UserWarning';
-
-const USER_ID = 0;
+import { USER_ID, getTodos } from './api/todos';
+import { ErrorMessages, StatusFilterValue } from './types/Todo';
+import { TodoList } from './components/TodoList/TodoList';
+import { ErrorMessage } from './components/ErrorMessage/ErrorMessage';
+import { Footer } from './components/Footer/Footer';
+import { getPreparedTodos } from './utils/helpers';
+import { NewTodoForm } from './components/NewTodoForm/NewTodoForm';
+import { useTodos } from './utils/hooks';
+import classNames from 'classnames';
 
 export const App: React.FC = () => {
+  const { error, setError, displayError, todos, setTodos, toggleTodo } =
+    useTodos();
+  const [statusFilter, setStatusFilter] = useState<StatusFilterValue>(
+    StatusFilterValue.All,
+  );
+
+  const preparedTodos = getPreparedTodos(todos, statusFilter);
+
+  useEffect(() => {
+    getTodos()
+      .then(setTodos)
+      .catch(() => {
+        displayError(ErrorMessages.TodosLoad);
+      });
+  }, [displayError, setError, setTodos]);
+
   if (!USER_ID) {
     return <UserWarning />;
   }
 
-  return (
-    <section className="section container">
-      <p className="title is-4">
-        Copy all you need from the prev task:
-        <br />
-        <a href="https://github.com/mate-academy/react_todo-app-add-and-delete#react-todo-app-add-and-delete">
-          React Todo App - Add and Delete
-        </a>
-      </p>
+  const activeTodos = todos.filter(todo => !todo.completed);
+  const completedTodos = todos.filter(todo => todo.completed);
 
-      <p className="subtitle">Styles are already copied</p>
-    </section>
+  const toggleAll = () => {
+    if (activeTodos.length !== 0) {
+      activeTodos.forEach(activeTodo => toggleTodo(activeTodo));
+    } else {
+      completedTodos.forEach(completedTodo => toggleTodo(completedTodo));
+    }
+  };
+
+  return (
+    <div className="todoapp">
+      <h1 className="todoapp__title">todos</h1>
+
+      <div className="todoapp__content">
+        <header className="todoapp__header">
+          {todos.length > 0 && (
+            <button
+              type="button"
+              className={classNames('todoapp__toggle-all', {
+                active: activeTodos.length === 0,
+              })}
+              data-cy="ToggleAllButton"
+              onClick={toggleAll}
+            />
+          )}
+          <NewTodoForm
+            onTodoCreated={newTodo => {
+              setTodos(currentTodos => [...currentTodos, newTodo]);
+            }}
+          />
+        </header>
+        {preparedTodos.length > 0 && <TodoList todos={preparedTodos} />}
+        {todos.length > 0 && (
+          <Footer
+            setStatusFilter={setStatusFilter}
+            todos={todos}
+            statusFilter={statusFilter}
+          />
+        )}
+      </div>
+      <ErrorMessage message={error} setError={setError} />
+    </div>
   );
 };
