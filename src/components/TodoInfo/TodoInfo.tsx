@@ -11,9 +11,9 @@ type Props = {
 };
 
 export const TodoInfo: React.FC<Props> = ({ todo, isLoadingItem = false }) => {
-  const { removeTodo, handleCheck, updateTodo } = useTodos();
-  const [isLoading, setIsLoading] = useState(isLoadingItem);
+  const { removeTodo, toggleOne, updateTodo } = useTodos();
   const [isEditing, setIsEditing] = useState(false);
+  const [isLoading, setIsLoading] = useState(isLoadingItem);
   const [title, setTitle] = useState(todo.title);
 
   const inputRef = useRef<HTMLInputElement | null>(null);
@@ -23,11 +23,22 @@ export const TodoInfo: React.FC<Props> = ({ todo, isLoadingItem = false }) => {
     await removeTodo(todo.id);
   };
 
+  const handleToggle = async (todoToggle: Todo) => {
+    setIsLoading(true);
+
+    try {
+      await toggleOne(todoToggle);
+    } catch (error) {
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   useEffect(() => {
     if (!isLoading && isEditing) {
       inputRef.current?.focus();
     }
-  }, [isLoading, isEditing]);
+  }, [isEditing, isLoading]);
 
   const inputId = `todo-status-${todo.id}`;
 
@@ -45,8 +56,11 @@ export const TodoInfo: React.FC<Props> = ({ todo, isLoadingItem = false }) => {
       return;
     }
 
+    setIsEditing(false);
+
     try {
       setIsLoading(true);
+
       await updateTodo({ ...todo, title: trimmedInput });
       setIsEditing(false);
     } catch (error) {
@@ -57,24 +71,9 @@ export const TodoInfo: React.FC<Props> = ({ todo, isLoadingItem = false }) => {
     }
   }
 
-  const handleToggle = async (toggleTodo: Todo) => {
-    setIsLoading(true);
-    try {
-      await handleCheck(toggleTodo);
-    } catch (error) {
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
     setIsLoading(true);
-
-    await saveEditedTodo();
-  };
-
-  const handleBlur = async () => {
     await saveEditedTodo();
   };
 
@@ -101,7 +100,7 @@ export const TodoInfo: React.FC<Props> = ({ todo, isLoadingItem = false }) => {
             className="todo__title-field"
             placeholder="Empty todo will be deleted"
             value={title}
-            onBlur={handleBlur}
+            onBlur={handleSubmit}
             onChange={e => setTitle(e.target.value)}
             onKeyUp={event => {
               if (event.key === 'Escape') {

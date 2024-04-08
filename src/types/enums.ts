@@ -11,6 +11,7 @@ export enum State {
 }
 
 export enum TodoError {
+  NoError = '',
   UnableToLoad = 'Unable to load todos',
   NoTitle = 'Title should not be empty',
   UnableToAdd = 'Unable to add a todo',

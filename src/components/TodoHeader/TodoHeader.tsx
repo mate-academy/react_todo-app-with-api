@@ -5,7 +5,7 @@ import { useTodos } from '../context/TodosContext';
 
 export const TodoHeader = () => {
   const { todos, toggleAll } = useTodos();
-  const allCompleted = todos.every(todo => todo.completed);
+  const isAllCompleted = todos.every(todo => todo.completed);
 
   return (
     <header className="todoapp__header">
@@ -13,7 +13,7 @@ export const TodoHeader = () => {
         <button
           type="button"
           className={cn('todoapp__toggle-all', {
-            active: allCompleted,
+            active: isAllCompleted,
           })}
           data-cy="ToggleAllButton"
           onClick={toggleAll}

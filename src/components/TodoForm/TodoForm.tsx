@@ -4,7 +4,7 @@ import { useError } from '../context/ErrorContext';
 import { TodoError } from '../../types/enums';
 
 export const TodoForm: React.FC = () => {
-  const { addTodo, isLoading, setIsLoading, removeTodo } = useTodos();
+  const { addTodo, tempTodo, removeTodo } = useTodos();
   const [inputTodo, setInputTodo] = useState('');
 
   const { setErrorMessage } = useError();
@@ -12,15 +12,14 @@ export const TodoForm: React.FC = () => {
   const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    if (!isLoading) {
+    if (!tempTodo) {
       inputRef.current?.focus();
     }
-  }, [isLoading, removeTodo]);
+  }, [tempTodo, removeTodo]);
 
   const handleSumbmitTodo = async (event: React.FormEvent) => {
     event.preventDefault();
-    setErrorMessage(null);
-    setIsLoading(true);
+    setErrorMessage(TodoError.NoError);
 
     const trimmedInput = inputTodo.trim();
 
@@ -38,13 +37,16 @@ export const TodoForm: React.FC = () => {
         completed: false,
       };
 
+      setErrorMessage(TodoError.NoError);
+
       await addTodo(newTodo);
       setInputTodo('');
-    } catch (error) {
-      throw error;
+    } catch {
+      setErrorMessage(TodoError.UnableToAdd);
+
+      inputRef.current?.focus();
     } finally {
       inputRef.current?.focus();
-      setIsLoading(false);
     }
   };
 
@@ -59,7 +61,7 @@ export const TodoForm: React.FC = () => {
         value={inputTodo}
         onChange={event => setInputTodo(event.target.value)}
         ref={inputRef}
-        disabled={isLoading}
+        disabled={tempTodo !== null}
       />
     </form>
   );

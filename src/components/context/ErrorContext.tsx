@@ -6,7 +6,6 @@ import React, {
   useState,
 } from 'react';
 import { TodoError } from '../../types/enums';
-
 interface ErrorContextType {
   errorMessage: TodoError | null;
   setErrorMessage: Dispatch<SetStateAction<TodoError | null>>;

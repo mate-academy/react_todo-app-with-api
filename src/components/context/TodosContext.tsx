@@ -1,37 +1,45 @@
-import React, { useContext, useEffect, useMemo, useState } from 'react';
+import React, {
+  Dispatch,
+  SetStateAction,
+  useContext,
+  useEffect,
+  useMemo,
+  useState,
+} from 'react';
 
 import * as todosServices from '../../api/api';
 import { useError } from './ErrorContext';
 import { Status, TodoError } from '../../types/enums';
 import { Todo } from '../../types/Todo';
+import { USER_ID } from '../../utils/todos';
 
 interface TodosContextType {
   todos: Todo[];
   statusTodo: Status;
   tempTodo: Todo | null;
-  isLoading: boolean;
-  setIsLoading: (isLoading: boolean) => void;
+  isProcessing: number[];
+  setIsProcessing: Dispatch<SetStateAction<number[]>>;
   setTempTodo: (_todo: Todo) => void;
   removeTodo: (_todoId: number) => Promise<void>;
   updateTodo: (_updatedTodo: Todo) => Promise<void>;
   addTodo: (_todo: Todo) => Promise<void>;
-  handleCheck: (_updatedTodo: Todo) => void;
-  handleClearCompleted: () => Promise<void>;
+  toggleOne: (_updatedTodo: Todo) => void;
+  handleClearCompleted: () => void;
   toggleAll: () => void;
   setStatusTodo: (_statusTodo: Status) => void;
 }
 
-const contextValue = {
+const contextValue: TodosContextType = {
   todos: [],
   statusTodo: Status.All,
   tempTodo: null,
-  isLoading: false,
-  setIsLoading: () => {},
+  isProcessing: [],
+  setIsProcessing: () => {},
   setTempTodo: () => {},
   removeTodo: async () => {},
   updateTodo: async () => {},
   addTodo: async () => {},
-  handleCheck: async () => {},
+  toggleOne: async () => {},
   handleClearCompleted: async () => {},
   toggleAll: () => {},
   setStatusTodo: () => {},
@@ -47,9 +55,11 @@ export const TodosProvider: React.FC<Props> = ({ children }) => {
   const [todos, setTodos] = useState<Todo[]>([]);
   const [statusTodo, setStatusTodo] = useState(Status.All);
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
-
+  const [isProcessing, setIsProcessing] = useState<number[]>([]);
   const { setErrorMessage } = useError();
+
+  const activeTodos = todos.filter(todo => !todo.completed);
+  const completedTodos = todos.filter(todo => todo.completed);
 
   useEffect(() => {
     const fetchTodos = async () => {
@@ -66,7 +76,8 @@ export const TodosProvider: React.FC<Props> = ({ children }) => {
   }, [setErrorMessage]);
 
   const addTodo = async ({ title, completed, userId }: Todo) => {
-    setErrorMessage(null);
+    setIsProcessing(prev => [...prev, 0]);
+    setErrorMessage(TodoError.NoError);
 
     setTempTodo({
       id: 0,
@@ -79,7 +90,7 @@ export const TodosProvider: React.FC<Props> = ({ children }) => {
       const newTodo = await todosServices.postTodos({
         title,
         completed,
-        userId,
+        userId: USER_ID,
       });
 
       setTempTodo(null);
@@ -94,19 +105,21 @@ export const TodosProvider: React.FC<Props> = ({ children }) => {
   };
 
   const removeTodo = async (todoId: number) => {
-    setIsLoading(true);
+    setIsProcessing(prevIds => [...prevIds, todoId]);
+
     try {
       await todosServices.deleteTodos(todoId);
       setTodos(currTodos => currTodos.filter(todo => todo.id !== todoId));
+      setIsProcessing(prevIds => prevIds.filter(id => id !== todoId));
     } catch (error) {
       setErrorMessage(TodoError.UnableToDelete);
       throw error;
-    } finally {
-      setIsLoading(false);
     }
   };
 
   const updateTodo = async (updatedTodo: Todo) => {
+    setIsProcessing(prevIds => [...prevIds, updatedTodo.id]);
+
     try {
       const todoEdited = await todosServices.updateTodo(updatedTodo);
 
@@ -117,80 +130,44 @@ export const TodosProvider: React.FC<Props> = ({ children }) => {
       setErrorMessage(TodoError.UnableUpdate);
       throw error;
     } finally {
-      setIsLoading(false);
+      setIsProcessing(prevIds => prevIds.filter(id => id !== updatedTodo.id));
     }
   };
 
-  const handleCheck = async (updatedTodo: Todo) => {
-    setIsLoading(true);
-    try {
-      await updateTodo({ ...updatedTodo, completed: !updatedTodo.completed });
-    } catch (error) {
-      setErrorMessage(TodoError.UnableUpdate);
-      throw error;
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const toggleAll = async () => {
-    const allCompleted = todos.every(todo => todo.completed);
-    const activeTodos = todos.filter(todo => !todo.completed);
-    const completedTodos = todos.filter(todo => todo.completed);
-    const todosToToggle = allCompleted ? completedTodos : activeTodos;
-    const togglePromise = todosToToggle.map(todo =>
-      todosServices.updateTodo({
-        ...todo,
-        completed: !allCompleted,
-      }),
-    );
-
-    setIsLoading(true);
+  const toggleOne = async (toggledTodo: Todo) => {
+    setErrorMessage(TodoError.NoError);
+    setIsProcessing(prevIds => [...prevIds, toggledTodo.id]);
 
     try {
-      setIsLoading(true);
+      const toggled = await todosServices.updateTodo({
+        ...toggledTodo,
+        completed: !toggledTodo.completed,
+      });
 
-      await Promise.all(togglePromise);
-      setTodos(
-        todos.map(todo => ({
-          ...todo,
-          completed: !allCompleted,
-        })),
-      );
-    } catch (error) {
-      setErrorMessage(TodoError.UnableUpdate);
-      throw error;
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const handleClearCompleted = async () => {
-    const completedTodos = todos.filter(todo => todo.completed);
-    const failedDeletions: Todo[] = [];
-
-    for (const todo of completedTodos) {
-      try {
-        await todosServices.deleteTodos(todo.id);
-        setIsLoading(false);
-      } catch (error) {
-        setTodos(todos);
-        failedDeletions.push(todo);
-        setErrorMessage(TodoError.UnableToDelete);
-      }
-    }
-
-    if (failedDeletions.length === 0) {
-      setTodos(todos.filter(todo => !todo.completed));
-    } else {
-      setTodos(
-        todos.filter(
-          todo =>
-            !completedTodos.includes(todo) || failedDeletions.includes(todo),
+      setTodos(prevTodos =>
+        prevTodos.map(todo =>
+          toggled.id === todo.id
+            ? { ...todo, completed: !todo.completed }
+            : todo,
         ),
       );
-      setErrorMessage(TodoError.UnableToDelete);
+    } catch {
+      setErrorMessage(TodoError.UnableUpdate);
+    } finally {
+      setIsProcessing(prevIds => prevIds.filter(id => id !== toggledTodo.id));
     }
+  };
+
+  const toggleAll = () => {
+    if (activeTodos.length !== 0) {
+      activeTodos.forEach(todo => toggleOne(todo));
+    } else {
+      completedTodos.forEach(todo => toggleOne(todo));
+    }
+  };
+
+  const handleClearCompleted = () => {
+    completedTodos.forEach(todo => removeTodo(todo.id));
   };
 
   const contextValueMemo = useMemo(
@@ -198,15 +175,15 @@ export const TodosProvider: React.FC<Props> = ({ children }) => {
       todos,
       statusTodo,
       tempTodo,
-      isLoading,
-      setIsLoading,
+      isProcessing,
+      setIsProcessing,
       setTempTodo,
       removeTodo,
       addTodo,
       updateTodo,
-      handleCheck,
-      handleClearCompleted,
+      toggleOne,
       toggleAll,
+      handleClearCompleted,
       setStatusTodo,
     }),
     [todos, statusTodo, tempTodo],
