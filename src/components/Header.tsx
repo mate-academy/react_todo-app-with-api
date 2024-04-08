@@ -27,7 +27,6 @@ export const Header: React.FC<Props> = ({
 
   useEffect(() => {
     inputRef.current?.focus();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [tempTodo]);
 
   return (
