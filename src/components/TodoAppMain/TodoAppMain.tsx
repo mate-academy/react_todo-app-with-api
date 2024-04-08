@@ -36,7 +36,6 @@ export const TodoAppMain: React.FC<Props> = ({
       <TodoItem
         todo={tempTodo}
         isTempTodo={true}
-        isUpdating={false}
         onTodoDelete={onTodoDelete}
         onTodoCheck={onTodoCheck}
         onTodoUpdate={onTodoUpdate}

@@ -26,6 +26,7 @@ export const TodoItem: React.FC<Props> = ({
 
   const handleDoubleClick = () => {
     setIsEditing(true);
+    setTitleInput(todo.title);
   };
 
   const handleSubmit = () => {
@@ -33,16 +34,18 @@ export const TodoItem: React.FC<Props> = ({
 
     const normalizedTitle = titleInput.trim();
 
+
     if (normalizedTitle) {
-      onTodoUpdate({
-        ...todo,
-        title: normalizedTitle,
-      });
+      if (normalizedTitle !== todo.title) {
+        onTodoUpdate({
+          ...todo,
+          title: normalizedTitle,
+        });
+      }
     } else {
       onTodoDelete(todo.id);
     }
   };
-
   const handleKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
     const { key } = event;
 
