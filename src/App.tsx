@@ -49,6 +49,7 @@ export const App: React.FC = () => {
       .catch(() => {
         handleError(ErrorTypes.OneMessage);
       });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const removeTodo = (todoId: number) => {
@@ -120,9 +121,9 @@ export const App: React.FC = () => {
     const filteredTodos = todos.filter(todo => todo.completed !== completed);
 
     const updateRequests = todos.map(todo => {
-      if (todo.completed !== completed) {
-        return updateTodo(todo.id, todo.title, completed);
-      }
+      return todo.completed !== completed
+        ? updateTodo(todo.id, todo.title, completed)
+        : null;
     });
 
     filteredTodos.forEach(todo => {
