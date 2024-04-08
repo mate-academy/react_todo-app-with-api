@@ -1,10 +1,15 @@
 import { Todo } from '../types/Todo';
-import React from 'react';
+import React, { useMemo } from 'react';
 import { TodoItem } from './TodoItems';
 import { useTodosContext } from '../context/TodoContext';
+import { getFilteredTodos } from '../getFilteredTodos/getFilteredTodos';
 
 export const Todos: React.FC = () => {
-  const { tempTodo, preparedTodos } = useTodosContext();
+  const { todos, tempTodo, status } = useTodosContext();
+
+  const preparedTodos = useMemo(() => {
+    return getFilteredTodos(todos, status);
+  }, [todos, status]);
 
   return (
     <>

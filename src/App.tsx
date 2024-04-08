@@ -1,18 +1,16 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { TodoList } from './components/TodoList';
 import { Footer } from './components/Footer';
 import { ErrorNotification } from './components/ErrorNotification';
 import { USER_ID, postTodo, updateTodo } from './api/todos';
 import { UserWarning } from './UserWarning';
 import { useTodosContext } from './context/TodoContext';
-import { ErrorList } from './types/ErrorList';
+import { ErrorMessages } from './types/ErrorMessages';
 import { Todo } from './types/Todo';
 import classNames from 'classnames';
 
 export const App: React.FC = () => {
   const {
-    contextInputRef,
-    focusInput,
     query,
     setQuery,
     todos,
@@ -20,25 +18,34 @@ export const App: React.FC = () => {
     errorMessage,
     handleError,
     setTempTodo,
+    processingIds,
   } = useTodosContext();
 
   const [isLoading, setIsLoading] = useState(false);
-  const itemsLeft = todos.filter(todo => !todo.completed).length;
+  const completedTodos = todos.filter(todo => todo.completed);
+  const activeTodos = todos.filter(todo => !todo.completed);
+  const isClassActive = !!completedTodos.length && !activeTodos.length;
+
+  const contextInputRef = useRef<HTMLInputElement | null>(null);
+
+  const focusInput = () => {
+    contextInputRef.current?.focus();
+  };
 
   useEffect(() => {
     focusInput();
-  }, [isLoading]);
+  }, [todos.length, processingIds.length, isLoading]);
 
   if (!USER_ID) {
     return <UserWarning />;
   }
 
-  const handleQuerySubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+  const handleQuerySubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const trimedQuery = query.trim();
 
     if (!trimedQuery.length) {
-      handleError(ErrorList.EmptyTitle);
+      handleError(ErrorMessages.EmptyTitle);
 
       return;
     }
@@ -53,13 +60,14 @@ export const App: React.FC = () => {
 
     setTempTodo({ ...newItem, id: 0 });
 
-    postTodo({ ...newItem })
+    postTodo(newItem)
       .then(todo => {
         setTodos(prevTodos => [...prevTodos, todo]);
         setQuery('');
       })
       .catch(() => {
-        handleError(ErrorList.AddTodo);
+        handleError(ErrorMessages.AddTodo);
+        contextInputRef.current?.focus();
       })
       .finally(() => {
         setTempTodo(null);
@@ -71,34 +79,23 @@ export const App: React.FC = () => {
     setQuery(event.target.value);
   };
 
-  const handleCheckAllFilter = (currentTodos: Todo[]) => {
-    const updateTodoCompleted = currentTodos.map(currentTodo => {
-      return {
-        ...currentTodo,
-        completed: !currentTodo.completed,
-      };
-    });
-
-    const updatedMainTodos = todos.map(todo => {
-      const updatedTodo = updateTodoCompleted.find(
-        value => value.id === todo.id,
-      );
-
-      return updatedTodo ? updatedTodo : todo;
-    });
-
-    currentTodos.map(currentTodo => {
+  const toggleAllTodosCompletionStatus = (currentTodos: Todo[]) => {
+    currentTodos.forEach(currentTodo => {
       const newTodo = {
         ...currentTodo,
         completed: !currentTodo.completed,
       };
 
       updateTodo(currentTodo.id, newTodo)
-        .then(() => {
-          setTodos(updatedMainTodos);
+        .then(updatedTodo => {
+          setTodos(prevTodos =>
+            prevTodos.map(prevTodo =>
+              prevTodo.id === updatedTodo.id ? updatedTodo : prevTodo,
+            ),
+          );
         })
         .catch(() => {
-          handleError(ErrorList.UpdateTodo);
+          handleError(ErrorMessages.UpdateTodo);
         })
         .finally(() => {
           focusInput();
@@ -107,21 +104,15 @@ export const App: React.FC = () => {
     });
   };
 
-  const handleCheckAll = async () => {
+  const handleCheckAll = () => {
     setIsLoading(true);
 
-    const filteredTodosByCompleted = todos.filter(todo => !todo.completed);
-
-    if (filteredTodosByCompleted.length > 0) {
-      handleCheckAllFilter(filteredTodosByCompleted);
+    if (activeTodos.length > 0) {
+      toggleAllTodosCompletionStatus(activeTodos);
     } else {
-      handleCheckAllFilter(todos);
+      toggleAllTodosCompletionStatus(todos);
     }
   };
-
-  const completedTodos = todos.filter(todo => todo.completed);
-  const activeTodos = todos.filter(todo => !todo.completed);
-  const isClassActive = !!completedTodos.length && !activeTodos.length;
 
   return (
     <div className="todoapp">
@@ -136,7 +127,7 @@ export const App: React.FC = () => {
                 active: isClassActive,
               })}
               data-cy="ToggleAllButton"
-              onClick={() => handleCheckAll()}
+              onClick={handleCheckAll}
             />
           )}
 
@@ -156,7 +147,7 @@ export const App: React.FC = () => {
 
         <TodoList />
 
-        {!!todos.length && <Footer itemsLeft={itemsLeft} />}
+        {!!todos.length && <Footer itemsLeft={activeTodos} />}
       </div>
 
       <ErrorNotification errorMessage={errorMessage} />

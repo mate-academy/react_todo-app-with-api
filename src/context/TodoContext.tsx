@@ -4,46 +4,43 @@ import React, {
   createContext,
   useContext,
   useEffect,
-  useMemo,
-  useRef,
   useState,
 } from 'react';
 import { Todo } from '../types/Todo';
-import { ErrorList } from '../types/ErrorList';
+import { ErrorMessages } from '../types/ErrorMessages';
 import { Status } from '../types/Status';
 import { wait } from '../utils/fetchClient';
 import { deleteTodo, getTodos } from '../api/todos';
 
-export type TodoContext = {
+export type TodosContextType = {
   todos: Todo[];
-  preparedTodos: Todo[];
   setTodos: React.Dispatch<React.SetStateAction<Todo[]>>;
   tempTodo: Todo | null;
   setTempTodo: Dispatch<SetStateAction<Todo | null>>;
-  errorMessage: ErrorList | string;
-  setErrorMessage: Dispatch<SetStateAction<ErrorList | string>>;
+  errorMessage: ErrorMessages | string;
+  setErrorMessage: Dispatch<SetStateAction<ErrorMessages | string>>;
   status: Status;
   setStatus: (value: Status) => void;
   handleError: (value: string) => void;
   query: string;
   setQuery: (value: string) => void;
-
   isLoading: boolean;
   setIsLoading: (value: boolean) => void;
-  focusInput: () => void;
   handleDeleteTodo: (ItemId: number) => void;
+  handleDeleteTodoFooter: (ItemId: number) => void;
   processingIds: number[];
   setProcessingIds: (value: number[]) => void;
-  contextInputRef: React.MutableRefObject<HTMLInputElement | null>;
 };
 
-export const TodosContext = createContext<TodoContext | undefined>(undefined);
+export const TodosContext = createContext<TodosContextType | undefined>(
+  undefined,
+);
 
 export const useTodosContext = () => {
   const context = useContext(TodosContext);
 
   if (context === undefined) {
-    throw new Error('Error');
+    throw new Error('useTodosContext outside the TodosProvider access scope');
   }
 
   return context;
@@ -55,14 +52,13 @@ type Props = {
 
 export const TodosProvider: React.FC<Props> = ({ children }) => {
   const [todos, setTodos] = useState<Todo[]>([]);
-  const [errorMessage, setErrorMessage] = useState<ErrorList | string>('');
+  const [errorMessage, setErrorMessage] = useState<ErrorMessages | string>('');
   const [status, setStatus] = useState<Status>(Status.All);
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
   const [query, setQuery] = useState<string>('');
 
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [processingIds, setProcessingIds] = useState<number[]>([]);
-  const contextInputRef = useRef<HTMLInputElement | null>(null);
 
   const handleError = (message: string) => {
     setErrorMessage(message);
@@ -71,52 +67,34 @@ export const TodosProvider: React.FC<Props> = ({ children }) => {
   };
 
   useEffect(() => {
-    contextInputRef.current?.focus();
     getTodos()
       .then(setTodos)
       .catch(() => {
-        handleError(ErrorList.LoadTodos);
+        handleError(ErrorMessages.LoadTodos);
       });
   }, []);
 
-  const focusInput = () => {
-    contextInputRef.current?.focus();
-  };
-
   const handleDeleteTodo = (ItemId: number) => {
-    setProcessingIds(prevIds => [...prevIds, ItemId]);
-    setIsLoading(true);
-
     deleteTodo(ItemId)
       .then(() => {
         setTodos(prevTodos => prevTodos.filter(values => values.id !== ItemId));
       })
       .catch(() => {
-        handleError(ErrorList.DeleteTodo);
-      })
-      .finally(() => {
-        setIsLoading(false);
-        focusInput();
-        setProcessingIds(prevIds => prevIds.filter(id => id !== ItemId));
+        handleError(ErrorMessages.DeleteTodo);
       });
   };
 
-  const preparedTodos = useMemo(() => {
-    switch (status) {
-      case Status.Active:
-        return todos.filter(todo => !todo.completed);
-      case Status.Completed:
-        return todos.filter(todo => todo.completed);
-      default:
-        return todos;
-    }
-  }, [status, todos]);
+  const handleDeleteTodoFooter = (ItemId: number) => {
+    setProcessingIds(prevIds => [...prevIds, ItemId]);
+
+    handleDeleteTodo(ItemId);
+    setProcessingIds(prevIds => prevIds.filter(id => id !== ItemId));
+  };
 
   const value = {
     tempTodo,
     setTempTodo,
     handleError,
-    preparedTodos,
     todos,
     setTodos,
     errorMessage,
@@ -125,14 +103,12 @@ export const TodosProvider: React.FC<Props> = ({ children }) => {
     setStatus,
     query,
     setQuery,
-
     isLoading,
     setIsLoading,
-    focusInput,
     handleDeleteTodo,
+    handleDeleteTodoFooter,
     processingIds,
     setProcessingIds,
-    contextInputRef,
   };
 
   return (

@@ -1,4 +1,4 @@
-export enum ErrorList {
+export enum ErrorMessages {
   LoadTodos = 'Unable to load todos',
   EmptyTitle = 'Title should not be empty',
   AddTodo = 'Unable to add a todo',
