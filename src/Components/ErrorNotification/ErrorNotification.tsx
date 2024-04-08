@@ -2,7 +2,7 @@ import cn from 'classnames';
 
 type Props = {
   messageError: string;
-  setMessageError: (message: string) => void;
+  setMessageError: (errorMsg: string) => void;
 };
 
 export const ErrorNotification: React.FC<Props> = ({

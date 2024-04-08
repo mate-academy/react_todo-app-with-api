@@ -70,8 +70,7 @@ export const App: React.FC = () => {
       return;
     }
 
-    const newTodo: Todo = {
-      id: todos.length + 1,
+    const newTodo: Omit<Todo, 'id'> = {
       completed: false,
       userId: USER_ID,
       title: normalizedTitle,
@@ -82,8 +81,8 @@ export const App: React.FC = () => {
     setTempTodo(temporaryTodo);
 
     postTodos(newTodo)
-      .then(() => {
-        setTodos(prev => [...prev, newTodo]);
+      .then(response => {
+        setTodos(prev => [...prev, response]);
         setTempTodo(null);
         setNewTitle('');
       })

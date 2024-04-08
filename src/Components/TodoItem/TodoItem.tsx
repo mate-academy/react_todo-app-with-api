@@ -45,19 +45,6 @@ export const TodoItem: React.FC<Props> = ({
     setIsTitleEditing(isHasError);
   }, [isHasError]);
 
-  useEffect(() => {
-    const handleKeyUp = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') {
-        setIsTitleEditing(false);
-        document.removeEventListener('keyup', handleKeyUp);
-      }
-    };
-
-    if (isTitleEditing) {
-      document.addEventListener('keyup', handleKeyUp);
-    }
-  }, [isTitleEditing]);
-
   const handleChange = () => {
     onUpdateTodo(todo);
   };
@@ -129,13 +116,13 @@ export const TodoItem: React.FC<Props> = ({
   };
 
   const handleOnBlur = () => {
-    if (todoEditingId !== null) {
+    if (todoEditingId) {
       setEditedTitle(prev => prev.trim());
 
       handleUpdateTodoTitle({
         ...todo,
         title: editedTitle.trim(),
-      } as Todo);
+      });
 
       if (!isHasError) {
         setIsTitleEditing(false);
@@ -149,6 +136,7 @@ export const TodoItem: React.FC<Props> = ({
   };
 
   const isOnLoading = !todo.id || todoIdsInLoading.includes(todo.id);
+  const isEditing = !isTitleEditing || todoEditingId !== todo.id;
 
   return (
     <div
@@ -167,7 +155,7 @@ export const TodoItem: React.FC<Props> = ({
         />
       </label>
 
-      {!isTitleEditing || todoEditingId !== todo.id ? (
+      {isEditing ? (
         <span
           data-cy="TodoTitle"
           className="todo__title"
@@ -190,6 +178,7 @@ export const TodoItem: React.FC<Props> = ({
             onKeyUp={event => {
               if (event.key === 'Escape') {
                 setIsTitleEditing(false);
+                setEditedTitle(todo.title);
               }
             }}
           />
