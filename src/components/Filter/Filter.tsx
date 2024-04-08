@@ -11,16 +11,14 @@ type Props = {
 export const Filter: React.FC<Props> = ({ filterOption, onFilter }) => {
   return (
     <nav className="filter" data-cy="Filter">
-      {Object.values(FilterOptions).map(option => {
-        return (
-          <FilterOption
-            key={option}
-            filterOption={filterOption}
-            onFilter={onFilter}
-            optionName={option}
-          />
-        );
-      })}
+      {Object.values(FilterOptions).map(option => (
+        <FilterOption
+          key={option}
+          filterOption={filterOption}
+          onFilter={onFilter}
+          optionName={option}
+        />
+      ))}
     </nav>
   );
 };

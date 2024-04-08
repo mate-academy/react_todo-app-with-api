@@ -1,4 +1,4 @@
-import React, { Fragment, useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import classNames from 'classnames';
 
 import { Todo } from '../../types/Todo';
@@ -15,15 +15,15 @@ type Props = {
 export const TodoItem: React.FC<Props> = ({
   todo,
   isShowLoader,
-  onDelete = () => {},
-  onUpdateStatus = () => {},
-  onUpdateTitle = () => Promise.resolve(),
+  onDelete,
+  onUpdateStatus,
+  onUpdateTitle,
   inputRef,
 }) => {
   const [isEditing, setIsEditing] = useState(false);
   const [newTitle, setNewTitle] = useState(todo.title);
 
-  const handleSubmit = async (event: React.FormEvent) => {
+  const handleSubmit = (event: React.FormEvent) => {
     event.preventDefault();
 
     const normalizedTitle = newTitle.trim();
@@ -35,19 +35,23 @@ export const TodoItem: React.FC<Props> = ({
     }
 
     if (!normalizedTitle) {
-      onDelete(todo.id);
+      if (onDelete) {
+        onDelete(todo.id);
+      }
 
       return;
     }
 
-    try {
-      await onUpdateTitle({ ...todo, title: normalizedTitle });
-
-      setIsEditing(false);
-    } catch (error) {
-      if (inputRef) {
-        inputRef.current?.focus();
-      }
+    if (onUpdateTitle) {
+      onUpdateTitle({ ...todo, title: normalizedTitle })
+        .then(() => {
+          setIsEditing(false);
+        })
+        .catch(() => {
+          if (inputRef) {
+            inputRef.current?.focus();
+          }
+        });
     }
   };
 
@@ -68,14 +72,16 @@ export const TodoItem: React.FC<Props> = ({
           type="checkbox"
           className="todo__status"
           checked={todo.completed}
-          onChange={() =>
-            onUpdateStatus({ ...todo, completed: !todo.completed })
-          }
+          onChange={() => {
+            if (onUpdateStatus) {
+              onUpdateStatus({ ...todo, completed: !todo.completed });
+            }
+          }}
         />
       </label>
 
       {!isEditing && (
-        <Fragment>
+        <>
           <span
             data-cy="TodoTitle"
             className="todo__title"
@@ -96,7 +102,7 @@ export const TodoItem: React.FC<Props> = ({
           >
             ×
           </button>
-        </Fragment>
+        </>
       )}
 
       {isEditing && (

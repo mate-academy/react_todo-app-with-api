@@ -16,11 +16,7 @@ export const Form: React.FC<Props> = ({
   inputRef,
 }) => {
   return (
-    <form
-      onSubmit={event => {
-        onSubmit(event);
-      }}
-    >
+    <form onSubmit={onSubmit}>
       <input
         data-cy="NewTodoField"
         type="text"

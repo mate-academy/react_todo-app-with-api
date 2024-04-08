@@ -16,7 +16,7 @@ import { FilterOptions } from './types/FilterOptions';
 import { Header } from './components/Header/Header';
 import { Footer } from './components/Footer/Footer';
 import { Error } from './components/Error/Error';
-import { Main } from './components/Main/Main';
+import { TodoList } from './components/TodoList/TodoList';
 import { TodoItem } from './components/TodoItem/TodoItem';
 
 export const App: React.FC = () => {
@@ -213,7 +213,7 @@ export const App: React.FC = () => {
           isButtonActive={isAllTodosCompleted}
           onChangeStatus={handleChangeStatus}
         />
-        <Main
+        <TodoList
           todos={visibleTodos}
           onDelete={handleTodoDelete}
           processingTodoIds={processingTodoIds}

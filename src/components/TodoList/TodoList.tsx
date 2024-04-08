@@ -12,7 +12,7 @@ type Props = {
   inputRef: React.RefObject<HTMLInputElement>;
 };
 
-export const Main: React.FC<Props> = ({
+export const TodoList: React.FC<Props> = ({
   todos,
   onDelete,
   processingTodoIds,
