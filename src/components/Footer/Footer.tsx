@@ -72,7 +72,7 @@ export const Footer: React.FC = () => {
   );
 };
 
-// const clearTodo = () => {
+// const clearTodos = () => {
 //   const completedTodos = todos.filter(todo => todo.completed);
 
 //   completedTodos.forEach(todo => removeTodo(todo.id));

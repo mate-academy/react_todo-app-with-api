@@ -3,7 +3,12 @@ import cn from 'classnames';
 import { TodoContext } from '../../context/TodoContext';
 import * as todoService from '../../api/todos';
 import { USER_ID } from '../../api/todos';
+// import { Todo } from '../../types/Todo';
 import { Errors } from '../../types/Errors';
+
+// type Props = {
+//   todo: Todo;
+// };
 
 export const Header: React.FC = () => {
   const { todos, setTodos, setErrorMessage, setTempTodo, titleField } =
@@ -11,7 +16,7 @@ export const Header: React.FC = () => {
   const [newTodoTitle, setNewTodoTitle] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const allTodosAreCompleted = todos.every(todo => todo.completed === true);
+  const allTodosAreCompleted = todos.every(task => task.completed === true);
 
   useEffect(() => {
     if (titleField && titleField.current) {
@@ -71,17 +76,55 @@ export const Header: React.FC = () => {
     }
   };
 
+  const getTododsToUpdate = tasks => {
+    const hasSomeActiveTodos = tasks.some(t => t.completed === false);
+
+    if (hasSomeActiveTodos) {
+      return todos.filter(t => t.completed === false);
+    }
+
+    return todos;
+  };
+
+  const changeAllTodosStatus = () => {
+    const todosToUpdate = getTododsToUpdate(todos);
+
+    todosToUpdate.forEach(currentTodo => {
+      todoService
+        .updateTodo({ ...currentTodo, completed: !currentTodo.completed })
+        .then(updatedTodo => {
+          setTodos(prevtodos =>
+            prevtodos.map(task =>
+              task.id === updatedTodo.id ? updatedTodo : task,
+            ),
+          );
+          // eslint-disable-next-line
+          console.log(updatedTodo);
+        })
+        .catch(() => {
+          setErrorMessage(Errors.UpdateError);
+          setTimeout(() => {
+            setErrorMessage('');
+          }, 3000);
+        }); // .finally(() => {});
+    });
+  };
+
   return (
     <header className="todoapp__header">
       {/* this button should have `active` class only if all todos are completed */}
-      <button
-        type="button"
-        className={cn('todoapp__toggle-all', {
-          active: allTodosAreCompleted,
-        })}
-        data-cy="ToggleAllButton"
-        aria-label="toggleAllButton"
-      />
+      {todos.length > 0 && (
+        <button
+          type="button"
+          className={cn('todoapp__toggle-all', {
+            active: allTodosAreCompleted,
+          })}
+          data-cy="ToggleAllButton"
+          aria-label="toggleAllButton"
+          onClick={changeAllTodosStatus}
+          // onClick={getTododsToUpdate}
+        />
+      )}
 
       {/* Add a todo on form submit */}
       <form onSubmit={addTodo}>
@@ -129,3 +172,20 @@ export const Header: React.FC = () => {
 //     setErrorMessage('');
 //   }, 3000);
 // })
+
+// const changeStatus = () => {
+//   const todosToUpdate = todos.filter(t => t.completed);
+//   const notAllCompleted = todos.some(t => !t.completed);
+
+//   if (notAllCompleted) {
+//     setTodos(prevTodos =>
+//       prevTodos.map(task => ({ ...task, completed: true })),
+//     );
+//   } else {
+//     setTodos(prevTodos =>
+//       prevTodos.map(task => ({ ...task, completed: false })),
+//     );
+//   }
+
+//   changeAllTodosStatus(todosToUpdate);
+// };
