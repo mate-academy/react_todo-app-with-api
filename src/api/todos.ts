@@ -11,14 +11,10 @@ export const deleteTodo = (postId: number) => {
   return client.delete(`/todos/${postId}`);
 };
 
-export const createTodo = ({
-  title,
-  userId,
-  completed = false,
-}: Omit<Todo, 'id'>) => {
-  return client.post<Todo>(`/todos/`, { title, userId, completed });
+export const createTodo = (newTodo: Omit<Todo, 'id'>) => {
+  return client.post<Todo>(`/todos/`, newTodo);
 };
 
-export const updateTodo = ({ id, userId, title, completed }: Todo) => {
-  return client.patch(`/todos/${id}`, { id, userId, title, completed });
+export const updateTodo = (todo: Todo) => {
+  return client.patch(`/todos/${todo.id}`, todo);
 };

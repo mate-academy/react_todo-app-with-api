@@ -77,43 +77,34 @@ export const TodosProvider: FC<Props> = ({ children }) => {
       .finally(() => setIsLoadingData(false));
   }, []);
 
-  const createNewTodo = useCallback(
-    async (title: string) => {
-      try {
-        setIsLoading(true);
-        setSelectedTodoIds([...selectedTodoIds, todoService.USER_ID]);
+  const createNewTodo = useCallback(async (title: string) => {
+    try {
+      setIsLoading(true);
+      setSelectedTodoIds(prevIds => [...prevIds, todoService.USER_ID]);
 
-        setTempTodo({
-          id: todoService.USER_ID,
-          userId: todoService.USER_ID,
-          title,
-          completed: false,
-        });
+      const newTodo = {
+        id: todoService.USER_ID,
+        userId: todoService.USER_ID,
+        title,
+        completed: false,
+      };
 
-        const newTodo = await todoService.createTodo({
-          userId: todoService.USER_ID,
-          title,
-          completed: false,
-        });
+      setTempTodo({ ...newTodo });
 
-        setNewTodoTitle('');
+      const createdTodo = await todoService.createTodo(newTodo);
 
-        setTodos(currentTodos => [...currentTodos, newTodo]);
-      } catch (error) {
-        setSelectedTodoIds((ids: number[]) =>
-          ids.filter(id => id !== todoService.USER_ID),
-        );
-        setErrorMessage(errorMessages.unableToAddTodo);
-      } finally {
-        setIsLoading(false);
-        setSelectedTodoIds((ids: number[]) =>
-          ids.filter(id => id !== todoService.USER_ID),
-        );
-        setTempTodo(null);
-      }
-    },
-    [selectedTodoIds],
-  );
+      setNewTodoTitle('');
+      setTodos(prevTodos => [...prevTodos, createdTodo]);
+    } catch (error) {
+      setErrorMessage(errorMessages.unableToAddTodo);
+    } finally {
+      setSelectedTodoIds(prevIds =>
+        prevIds.filter(id => id !== todoService.USER_ID),
+      );
+      setIsLoading(false);
+      setTempTodo(null);
+    }
+  }, []);
 
   const deleteTodo = useCallback(async (todoId: number) => {
     setErrorMessage('');
@@ -157,18 +148,13 @@ export const TodosProvider: FC<Props> = ({ children }) => {
       const todo = await todoService.updateTodo(updatingTodo);
 
       setTodos(currentTodos => {
-        const newTodos = [...currentTodos];
-        const index = newTodos.findIndex(
-          todoItem => todoItem.id === updatingTodo.id,
-        );
+        return currentTodos.map(todoItem => {
+          if (todoItem.id === updatingTodo.id) {
+            return todo as Todo;
+          }
 
-        if (index !== -1) {
-          newTodos.splice(index, 1, todo as Todo);
-        } else {
-          setErrorMessage(errorMessages.unableToUpdateTodo);
-        }
-
-        return newTodos;
+          return todoItem;
+        });
       });
     } catch (error) {
       setErrorMessage(errorMessages.unableToUpdateTodo);

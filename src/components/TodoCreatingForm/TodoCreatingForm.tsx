@@ -2,6 +2,7 @@ import React, { useEffect, useRef } from 'react';
 import cn from 'classnames';
 import { useTodos } from '../TodosProvider';
 import { errorMessages } from '../ErrorNotification';
+import * as todoService from '../../api/todos';
 
 export const TodoCreatingForm: React.FC = () => {
   const {
@@ -50,7 +51,7 @@ export const TodoCreatingForm: React.FC = () => {
     try {
       const notCompletedTodos = todos.filter(todo => !todo.completed);
 
-      if (notCompletedTodos) {
+      if (notCompletedTodos.length > 0) {
         await Promise.all(
           notCompletedTodos.map(todo =>
             updateTodo({
@@ -59,15 +60,19 @@ export const TodoCreatingForm: React.FC = () => {
             }),
           ),
         );
-      }
+      } else {
+        const isNewTodoNotCompleted = todos.some(
+          todo => todo.id === todoService.USER_ID && !todo.completed,
+        );
 
-      if (!notCompletedTodos.length) {
-        const updatedTodos = todos.map(todo => ({
-          ...todo,
-          completed: !todo.completed,
-        }));
+        if (!isNewTodoNotCompleted) {
+          const updatedTodos = todos.map(todo => ({
+            ...todo,
+            completed: !todo.completed,
+          }));
 
-        await Promise.all(updatedTodos.map(updateTodo));
+          await Promise.all(updatedTodos.map(updateTodo));
+        }
       }
     } catch (error) {
       setErrorMessage(errorMessages.unableToUpdateTodo);

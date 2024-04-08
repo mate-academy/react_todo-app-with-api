@@ -3,10 +3,21 @@ import { Filter } from '../Filter';
 import { useTodos } from '../TodosProvider';
 
 export const Footer: React.FC = () => {
-  const { todos, clearCompletedTodos } = useTodos();
+  const { todos, clearCompletedTodos, setSelectedTodoIds } = useTodos();
 
   const quantityTodos = todos.filter(todo => !todo.completed).length;
   const hasOnlyNotCompletedTodos = todos.every(todo => !todo.completed);
+
+  const handleClearCompleted = async () => {
+    setSelectedTodoIds(
+      todos.filter(todo => todo.completed).map(todo => todo.id),
+    );
+    try {
+      await clearCompletedTodos();
+    } finally {
+      setSelectedTodoIds([]);
+    }
+  };
 
   return (
     <footer className="todoapp__footer" data-cy="Footer">
@@ -20,7 +31,7 @@ export const Footer: React.FC = () => {
         type="button"
         className="todoapp__clear-completed"
         data-cy="ClearCompletedButton"
-        onClick={clearCompletedTodos}
+        onClick={handleClearCompleted}
         disabled={hasOnlyNotCompletedTodos}
       >
         Clear completed

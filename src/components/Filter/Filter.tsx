@@ -15,10 +15,10 @@ export const Filter: React.FC = () => {
           className={cn('filter__link', {
             selected: filterStatus === status,
           })}
-          data-cy={`FilterLink${status.charAt(0).toUpperCase() + status.slice(1)}`}
+          data-cy={`FilterLink${status}`}
           onClick={() => setFilterStatus(status as FilterStatus)}
         >
-          {status.charAt(0).toUpperCase() + status.slice(1)}
+          {status}
         </a>
       ))}
     </nav>

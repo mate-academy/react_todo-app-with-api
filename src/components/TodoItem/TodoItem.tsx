@@ -33,48 +33,31 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
     }
   };
 
-  const handleUpdateOrDelete = async (action: 'update' | 'delete') => {
+  const handleUpdateTodo = async () => {
     const trimmedTitle = editedTitle.trim();
-    const actionFunctions = {
-      update: async () => {
-        const updatedTodo = { ...todo, title: trimmedTitle };
+    const updatedTodo = { ...todo, title: trimmedTitle };
 
-        try {
-          await updateTodo(updatedTodo);
-          setIsEditing(false);
-        } catch (error) {
-          setIsEditing(true);
-          setErrorMessage(errorMessages.unableToUpdateTodo);
-        }
-      },
+    try {
+      await updateTodo(updatedTodo);
+      setIsEditing(false);
+    } catch (error) {
+      setIsEditing(true);
+      setErrorMessage(errorMessages.unableToUpdateTodo);
+    }
+  };
 
-      delete: async () => {
-        try {
-          await deleteTodo(todo.id);
-          setIsEditing(false);
-        } catch (error) {
-          setIsEditing(true);
-          setErrorMessage(errorMessages.unableToDeleteTodo);
-        }
-      },
-    };
-
-    await actionFunctions[action]();
+  const handleDeleteTodo = async () => {
+    try {
+      await deleteTodo(todo.id);
+      setIsEditing(false);
+    } catch (error) {
+      setIsEditing(true);
+      setErrorMessage(errorMessages.unableToDeleteTodo);
+    }
   };
 
   const handleKeyUp = (event: React.KeyboardEvent<HTMLInputElement>) => {
-    const trimmedTitle = editedTitle.trim();
-
-    if (event.key === 'Enter') {
-      event.preventDefault();
-      if (trimmedTitle === todo.title) {
-        setIsEditing(false);
-      } else if (trimmedTitle !== '') {
-        handleUpdateOrDelete('update');
-      } else {
-        handleUpdateOrDelete('delete');
-      }
-    } else if (event.key === 'Escape') {
+    if (event.key === 'Escape') {
       setIsEditing(false);
     }
   };
@@ -83,10 +66,17 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
     event.preventDefault();
     const trimmedTitle = editedTitle.trim();
 
-    if (isEditing && trimmedTitle !== '' && trimmedTitle !== todo.title) {
-      await handleUpdateOrDelete('update');
-    } else if (!isEditing) {
-      await handleUpdateOrDelete('delete');
+    if (isEditing) {
+      if (trimmedTitle === todo.title) {
+        setIsEditing(false);
+      }
+
+      if (trimmedTitle !== '' && trimmedTitle !== todo.title) {
+        await handleUpdateTodo();
+      } else if (trimmedTitle === '') {
+        setIsEditing(false);
+        await handleDeleteTodo();
+      }
     }
   };
 
@@ -95,10 +85,10 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
 
     if (trimmedTitle !== '') {
       setIsEditing(false);
-      handleUpdateOrDelete('update');
+      handleUpdateTodo();
     } else {
       setIsEditing(true);
-      handleUpdateOrDelete('delete');
+      handleDeleteTodo();
     }
   };
 
@@ -153,16 +143,6 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
         </>
       ) : (
         <>
-          {/* <label className="todo__status-label">
-            <input
-              data-cy="TodoStatus"
-              type="checkbox"
-              className="todo__status"
-              checked={todo.completed}
-              onChange={handleToggleTodo}
-              aria-label="Todo status"
-            />
-          </label> */}
           <span data-cy="TodoTitle" className="todo__title">
             {todo.title}
           </span>
