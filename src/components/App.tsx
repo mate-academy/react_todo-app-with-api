@@ -1,5 +1,4 @@
 import React, { useState, useEffect, useRef } from 'react';
-import cn from 'classnames';
 
 import {
   USER_ID,
@@ -15,6 +14,7 @@ import { ErrorNotification } from './ErrorNotification';
 import { Errors } from '../types/Errors';
 import { FilterBy } from '../types/FiilterBy';
 import { getFilteredTodos } from '../utils/getFilteredTodos';
+import { Header } from './Header';
 
 export const App: React.FC = () => {
   const inputRef = useRef<HTMLInputElement>(null);
@@ -43,7 +43,6 @@ export const App: React.FC = () => {
 
   const activeTodosCount: number = todos.filter(todo => !todo.completed).length;
   const hasCompletedTodo: boolean = todos.some(todo => todo.completed);
-  const areAllTodosCompleted: boolean = todos.every(todo => todo.completed);
 
   const handleSubmit = (event: React.FormEvent) => {
     event?.preventDefault();
@@ -84,6 +83,9 @@ export const App: React.FC = () => {
         setChangingIDs(curIDs => curIDs.filter(curID => curID !== newTodo.id));
       });
   };
+
+  const handleTyping = (event: React.ChangeEvent<HTMLInputElement>) =>
+    setTitleText(event.target.value);
 
   const handleDeletingTodo = (id: number) => {
     setErrorMessage(null);
@@ -174,65 +176,36 @@ export const App: React.FC = () => {
       });
   }, []);
 
-  useEffect(() => {
-    if (!errorMessage) {
-      return;
-    }
-
-    const timerID = setTimeout(() => setErrorMessage(null), 3000);
-
-    return () => clearTimeout(timerID);
-  }, [errorMessage, isDisabled]);
-
-  useEffect(() => {
-    inputRef.current?.focus();
-  }, [tempTodo]);
-
   return (
     <div className="todoapp">
       <h1 className="todoapp__title">todos</h1>
 
       <div className="todoapp__content">
-        <header className="todoapp__header">
-          {todos.length !== 0 && (
-            <button
-              data-cy="ToggleAllButton"
-              type="button"
-              className={cn('todoapp__toggle-all', {
-                active: areAllTodosCompleted,
-              })}
-              onClick={toggleAllTodos}
-            />
-          )}
-
-          <form onSubmit={event => handleSubmit(event)}>
-            <input
-              data-cy="NewTodoField"
-              type="text"
-              disabled={isDisabled}
-              ref={inputRef}
-              value={titleText}
-              className="todoapp__new-todo"
-              placeholder="What needs to be done?"
-              onChange={event => setTitleText(event.target.value)}
-            />
-          </form>
-        </header>
+        <Header
+          inputRef={inputRef}
+          todos={todos}
+          tempTodo={tempTodo}
+          isDisabled={isDisabled}
+          onSubmit={handleSubmit}
+          titleText={titleText}
+          onType={handleTyping}
+          toggleAllTodos={toggleAllTodos}
+        />
 
         {todos.length > 0 && (
           <>
             <TodoList
               todos={visibleTodos}
               tempTodo={tempTodo}
-              onDelete={handleDeletingTodo}
-              onRename={handleRenameTodo}
               changingIDs={changingIDs}
+              onDelete={handleDeletingTodo}
               onToggle={toggleTodo}
+              onRename={handleRenameTodo}
               onEmptyTitleDelete={handleEmptyTitleDelete}
             />
 
             <Footer
-              onFilterClick={handleChangingFilterBy}
+              onFilterByChoose={handleChangingFilterBy}
               activeTodosCount={activeTodosCount}
               onClearCompleted={handleClearingCompletedTodos}
               selectedFilterBy={filterBy}
@@ -244,7 +217,7 @@ export const App: React.FC = () => {
 
       <ErrorNotification
         errorMessage={errorMessage}
-        onDeleteClick={handleClearingError}
+        onDeleteError={handleClearingError}
       />
     </div>
   );

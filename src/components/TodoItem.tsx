@@ -13,10 +13,10 @@ interface Props {
 
 export const TodoItem: React.FC<Props> = ({
   todo,
-  onDelete = () => {},
   changingIDs,
+  onDelete = () => Promise.resolve(),
   onToggle = () => {},
-  onRename = () => {},
+  onRename = () => Promise.resolve(),
   onEmptyTitleDelete = () => {},
 }) => {
   const inputRef = useRef<HTMLInputElement>(null);
@@ -41,13 +41,13 @@ export const TodoItem: React.FC<Props> = ({
 
     if (!normalizedTitle) {
       onEmptyTitleDelete();
-      onDelete(id)?.catch(() => inputRef.current?.focus());
+      onDelete(id).catch(() => inputRef.current?.focus());
 
       return;
     }
 
     onRename(id, normalizedTitle)
-      ?.then(() => {
+      .then(() => {
         setIsEditing(false);
       })
       .catch(() => inputRef.current?.focus());

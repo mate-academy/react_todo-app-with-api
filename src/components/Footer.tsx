@@ -3,7 +3,7 @@ import { FilterBy } from '../types/FiilterBy';
 import cn from 'classnames';
 
 interface Props {
-  onFilterClick: (value: FilterBy) => void;
+  onFilterByChoose: (value: FilterBy) => void;
   activeTodosCount: number;
   onClearCompleted: () => void;
   selectedFilterBy: FilterBy;
@@ -11,7 +11,7 @@ interface Props {
 }
 
 export const Footer: React.FC<Props> = ({
-  onFilterClick,
+  onFilterByChoose,
   activeTodosCount,
   onClearCompleted,
   selectedFilterBy,
@@ -31,7 +31,7 @@ export const Footer: React.FC<Props> = ({
             selected: selectedFilterBy === filterBy,
           })}
           data-cy={`FilterLink${filterBy}`}
-          onClick={() => onFilterClick(filterBy)}
+          onClick={() => onFilterByChoose(filterBy)}
         >
           {filterBy}
         </a>
