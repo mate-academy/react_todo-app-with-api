@@ -3,7 +3,7 @@ import { TodosContextType } from '../types/TodosContextTypes';
 import { Todo } from '../types/Todo';
 import { ErrorMessages } from '../types/ErrorMessages';
 import { FilterOptions } from '../types/FilterOptions';
-import { addTodo, deleteTodo, getTodos, updateStatusTodo } from '../api/todos';
+import { addTodo, deleteTodo, getTodos, updateTodo } from '../api/todos';
 
 const TodosContext = createContext<TodosContextType>({
   todos: [],
@@ -116,7 +116,7 @@ export const TodosProvider: React.FC<Props> = ({ children }) => {
 
     const selectedTodo = todos.find(selected => todo.id === selected.id);
 
-    updateStatusTodo(id, completed)
+    updateTodo(id, { completed: !completed })
       .then(() => {
         setTodos(prevTodos =>
           prevTodos.map(prev =>

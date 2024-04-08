@@ -15,10 +15,14 @@ export const deleteTodo = (todoId: number) => {
   return client.delete(`/todos/${todoId}`);
 };
 
-export const updateStatusTodo = (id: number, status: boolean) => {
-  return client.patch<Todo>(`/todos/${id}`, { completed: !status });
-};
+// export const updateStatusTodo = (id: number, status: boolean) => {
+//   return client.patch<Todo>(`/todos/${id}`, { completed: !status });
+// };
 
-export const updateTitleTodo = (id: number, newTitle: string) => {
-  return client.patch<Todo>(`/todos/${id}`, { title: newTitle });
+// export const updateTitleTodo = (id: number, newTitle: string) => {
+//   return client.patch<Todo>(`/todos/${id}`, { title: newTitle });
+// };
+
+export const updateTodo = (todoId: number, data: Partial<Todo>) => {
+  return client.patch<Todo>(`/todos/${todoId}`, data);
 };

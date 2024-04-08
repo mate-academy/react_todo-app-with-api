@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Todo } from '../types/Todo';
 import classNames from 'classnames';
 import { useTodos } from '../contexts/TodoContext';
-import { deleteTodo, updateTitleTodo } from '../api/todos';
+import { deleteTodo, updateTodo } from '../api/todos';
 import { ErrorMessages } from '../types/ErrorMessages';
 
 type Props = {
@@ -58,7 +58,7 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
       return;
     }
 
-    updateTitleTodo(id, editedText)
+    updateTodo(id, { title: editedText })
       .then(response => setTodos(prevTodos => [...prevTodos, response]))
       .catch(() => {
         showError(ErrorMessages.UpdateTodo);

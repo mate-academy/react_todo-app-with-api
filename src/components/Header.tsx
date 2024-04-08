@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 import { ErrorMessages } from '../types/ErrorMessages';
 import { USER_ID } from '../api/todos';
 import { useTodos } from '../contexts/TodoContext';
@@ -16,6 +16,14 @@ export const Header: React.FC = () => {
     selectAllCompleted,
     selectAllUncompleted,
   } = useTodos();
+
+  const inputAutoFocus = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    if (inputAutoFocus.current) {
+      inputAutoFocus.current.focus();
+    }
+  }, [isLoading]);
 
   const handleAddTodo = (event: React.FormEvent) => {
     event.preventDefault();
