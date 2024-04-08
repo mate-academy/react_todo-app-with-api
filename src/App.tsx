@@ -15,23 +15,24 @@ import { Footer } from './Components/Footer/Footer';
 import { FilterStatus } from './types/FilterStatus';
 import { getFilteredTodos } from './utils/getFilteredTodos';
 import { ErrorNotification } from './Components/ErrorNotification';
-import { getRandomNumberId } from './utils/getRandomNumberId';
-import { getCountOfCompletedTodos } from './utils/getCountOfCompletedTodos';
 import { ErrorMessage } from './types/ErrorMessage';
 
 export const App: React.FC = () => {
-  const [newTitle, setNewTitle] = useState<string>('');
   const [todos, setTodos] = useState<Todo[]>([]);
-  const [filterBy, setFilterBy] = useState<FilterStatus>(FilterStatus.All);
-  const [errorMessage, setErrorMessage] = useState<ErrorMessage | string>('');
-  const [isLoading, setIsLoading] = useState<boolean>(false);
+
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
+  const [filterBy, setFilterBy] = useState<FilterStatus>(FilterStatus.All);
+
+  const [isLoading, setIsLoading] = useState<boolean>(false);
   const [todoIdsInLoading, setTodoIdsInLoading] = useState<number[]>([]);
+  const [errorMessage, setErrorMessage] = useState<ErrorMessage | string>('');
+
+  const [newTitle, setNewTitle] = useState<string>('');
   const [todoEditingId, setTodoEditingId] = useState<number | null>(null);
 
   const inputRef = useRef<HTMLInputElement>(null);
 
-  const handlerErrorShow = (error: string): void => {
+  const handleErrorShow = (error: string) => {
     setErrorMessage(error);
     setTimeout(() => {
       setErrorMessage('');
@@ -39,14 +40,10 @@ export const App: React.FC = () => {
   };
 
   useEffect(() => {
-    if (inputRef.current) {
-      inputRef.current.focus();
-    }
-
     getTodos()
       .then(setTodos)
       .catch(() => {
-        handlerErrorShow(ErrorMessage.LoadError);
+        handleErrorShow(ErrorMessage.LoadError);
       })
       .finally(() => {
         setTempTodo(null);
@@ -61,20 +58,20 @@ export const App: React.FC = () => {
     }
   }, [isLoading]);
 
-  const handlerAddTodo = (event: React.FormEvent) => {
+  const handleAddTodo = (event: React.FormEvent) => {
     event.preventDefault();
     setIsLoading(true);
     const normalizedTitle = newTitle.trim();
 
     if (!normalizedTitle) {
-      handlerErrorShow(ErrorMessage.TitleError);
+      handleErrorShow(ErrorMessage.TitleError);
       setIsLoading(false);
 
       return;
     }
 
     const newTodo: Todo = {
-      id: getRandomNumberId(),
+      id: todos.length + 1,
       completed: false,
       userId: USER_ID,
       title: normalizedTitle,
@@ -91,7 +88,7 @@ export const App: React.FC = () => {
         setNewTitle('');
       })
       .catch(() => {
-        handlerErrorShow(ErrorMessage.AddingError);
+        handleErrorShow(ErrorMessage.AddingError);
         setTempTodo(null);
       })
       .finally(() => {
@@ -100,19 +97,17 @@ export const App: React.FC = () => {
       });
   };
 
-  const handlerDeleteTodo = (todoId: number) => {
+  const handleDeleteTodo = (todoId: number) => {
     setIsLoading(true);
     setTodoIdsInLoading(prev => [...prev, todoId]);
     deleteTodos(todoId)
       .then(() => {
-        {
-          setTodos(prevTodo =>
-            prevTodo.filter((todo: Todo) => todo.id !== todoId),
-          );
-        }
+        setTodos(prevTodo =>
+          prevTodo.filter((todo: Todo) => todo.id !== todoId),
+        );
       })
       .catch(() => {
-        handlerErrorShow(ErrorMessage.DeletingError);
+        handleErrorShow(ErrorMessage.DeletingError);
       })
       .finally(() => {
         setIsLoading(false);
@@ -122,7 +117,7 @@ export const App: React.FC = () => {
       });
   };
 
-  const handlerUpdateTodo = async (updatedTodo: Todo) => {
+  const handleUpdateTodo = async (updatedTodo: Todo) => {
     const updatedField: Todo = {
       ...updatedTodo,
       completed: !updatedTodo.completed,
@@ -143,7 +138,7 @@ export const App: React.FC = () => {
         );
       })
       .catch(() => {
-        handlerErrorShow(ErrorMessage.UpdatingError);
+        handleErrorShow(ErrorMessage.UpdatingError);
       })
       .finally(() => {
         setTodoIdsInLoading(prev =>
@@ -152,39 +147,40 @@ export const App: React.FC = () => {
       });
   };
 
-  const handlerDeleteCompletedTodos = () => {
+  const handleDeleteCompletedTodos = () => {
     todos.forEach(todo => {
       if (todo.completed) {
-        handlerDeleteTodo(todo.id);
+        handleDeleteTodo(todo.id);
       }
     });
   };
 
-  const handlerSetFilter = (filterSet: FilterStatus): void => {
+  const handleSetFilter = (filterSet: FilterStatus): void => {
     setFilterBy(filterSet);
   };
 
-  const handlerErrorMessage = (message: string): void => {
+  const handleErrorMessage = (message: string): void => {
     setErrorMessage(message);
   };
 
-  const handlerToggler = () => {
+  const handleToggler = () => {
     const activeTodos: Todo[] = todos.filter(todo => !todo.completed);
 
     if (activeTodos.length) {
       activeTodos.forEach(todo => {
-        handlerUpdateTodo(todo);
+        handleUpdateTodo(todo);
       });
     } else {
       todos.forEach(todo => {
-        handlerUpdateTodo(todo);
+        handleUpdateTodo(todo);
       });
     }
   };
 
   const visibleTodos = getFilteredTodos(todos, filterBy);
-  const counterTodos = getCountOfCompletedTodos(todos);
+  const counterTodos = todos.filter(todo => todo.completed).length;
   const countOfActiveTodos = todos.length - counterTodos;
+  const isEveryTodoCompleted = todos.every(todo => todo.completed);
 
   if (!USER_ID) {
     return <UserWarning />;
@@ -200,14 +196,15 @@ export const App: React.FC = () => {
             <button
               type="button"
               className={cn('todoapp__toggle-all', {
-                active: todos.every(todo => todo.completed),
+                active: isEveryTodoCompleted,
               })}
               data-cy="ToggleAllButton"
-              onClick={handlerToggler}
+              onClick={handleToggler}
             />
           )}
-          <form onSubmit={handlerAddTodo}>
+          <form onSubmit={handleAddTodo}>
             <input
+              autoFocus
               ref={inputRef}
               data-cy="NewTodoField"
               type="text"
@@ -224,12 +221,12 @@ export const App: React.FC = () => {
           <TodoList
             currentTodos={visibleTodos}
             temporaryTodo={tempTodo}
-            onDeleteTodo={handlerDeleteTodo}
-            onUpdateTodo={handlerUpdateTodo}
+            onDeleteTodo={handleDeleteTodo}
+            onUpdateTodo={handleUpdateTodo}
             todoIdsInLoading={todoIdsInLoading}
             onSetTodoIdsInLoading={setTodoIdsInLoading}
             onSetTodo={setTodos}
-            onHandleErrorShow={handlerErrorShow}
+            onHandleErrorShow={handleErrorShow}
             todoEditingId={todoEditingId}
             onSetTodoEditingId={setTodoEditingId}
           />
@@ -237,18 +234,18 @@ export const App: React.FC = () => {
 
         {!!todos.length && (
           <Footer
-            onSetFilter={handlerSetFilter}
+            onSetFilter={handleSetFilter}
             completedTodoCounts={counterTodos}
             activeTodoCounts={countOfActiveTodos}
             selectedFilter={filterBy}
-            onDeleteCompletedPosts={handlerDeleteCompletedTodos}
+            onDeleteCompletedPosts={handleDeleteCompletedTodos}
           />
         )}
       </div>
 
       <ErrorNotification
         messageError={errorMessage}
-        setMessageError={handlerErrorMessage}
+        setMessageError={handleErrorMessage}
       />
     </div>
   );

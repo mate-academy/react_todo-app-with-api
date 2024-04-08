@@ -62,7 +62,7 @@ export const TodoItem: React.FC<Props> = ({
     onUpdateTodo(todo);
   };
 
-  const handlerUpdateTodoTitle = async (updatedTodo: Todo) => {
+  const handleUpdateTodoTitle = async (updatedTodo: Todo) => {
     onSetTodoIdsInLoading((prev: number[]) => [...prev, updatedTodo.id]);
 
     if (!updatedTodo.title) {
@@ -118,21 +118,21 @@ export const TodoItem: React.FC<Props> = ({
     onSetTodoEditingId(todo.id);
     setEditedTitle(prev => prev.trim());
 
-    await handlerUpdateTodoTitle({
+    await handleUpdateTodoTitle({
       ...todo,
       title: editedTitle.trim(),
-    } as Todo);
+    });
 
     if (!isHasError) {
       setIsTitleEditing(false);
     }
   };
 
-  const handleOnBlur = async () => {
+  const handleOnBlur = () => {
     if (todoEditingId !== null) {
       setEditedTitle(prev => prev.trim());
 
-      await handlerUpdateTodoTitle({
+      handleUpdateTodoTitle({
         ...todo,
         title: editedTitle.trim(),
       } as Todo);
@@ -142,6 +142,13 @@ export const TodoItem: React.FC<Props> = ({
       }
     }
   };
+
+  const handleDoubleClick = () => {
+    setIsTitleEditing(true);
+    onSetTodoEditingId(todo.id);
+  };
+
+  const isOnLoading = !todo.id || todoIdsInLoading.includes(todo.id);
 
   return (
     <div
@@ -164,10 +171,7 @@ export const TodoItem: React.FC<Props> = ({
         <span
           data-cy="TodoTitle"
           className="todo__title"
-          onDoubleClick={() => {
-            setIsTitleEditing(true);
-            onSetTodoEditingId(todo.id);
-          }}
+          onDoubleClick={handleDoubleClick}
         >
           {todo.title}
         </span>
@@ -182,6 +186,11 @@ export const TodoItem: React.FC<Props> = ({
             value={editedTitle}
             onChange={event => {
               setEditedTitle(event.target.value);
+            }}
+            onKeyUp={event => {
+              if (event.key === 'Escape') {
+                setIsTitleEditing(false);
+              }
             }}
           />
         </form>
@@ -202,7 +211,7 @@ export const TodoItem: React.FC<Props> = ({
       <div
         data-cy="TodoLoader"
         className={cn('modal', 'overlay', {
-          'is-active': !todo.id || todoIdsInLoading.includes(todo.id),
+          'is-active': isOnLoading,
         })}
       >
         <div className="modal-background has-background-white-ter" />

@@ -1,4 +1,3 @@
-/* eslint-disable jsx-a11y/label-has-associated-control */
 import { TodoItem } from '../TodoItem/TodoItem';
 import { Todo } from '../../types/Todo';
 
@@ -10,7 +9,7 @@ type Props = {
   onUpdateTodo: (updatedTodo: Todo) => void;
   onSetTodoIdsInLoading: React.Dispatch<React.SetStateAction<number[]>>;
   onSetTodo: React.Dispatch<React.SetStateAction<Todo[]>>;
-  onHandleErrorShow: (_: string) => void;
+  onHandleErrorShow: (errorMsg: string) => void;
   todoEditingId: number | null;
   onSetTodoEditingId: React.Dispatch<React.SetStateAction<number | null>>;
 };
