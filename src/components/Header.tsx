@@ -25,19 +25,13 @@ export const Header: React.FC<Props> = ({
   todos,
   onError,
 }) => {
-  let isEveryTodoctive = todos.every(todo => todo.completed);
+  const isEveryTodoctive =
+    todos.every(todo => todo.completed) && !!todos.length;
 
-  if (!todos.length) {
-    isEveryTodoctive = false;
-  }
-
-  const handletoggleAll = async () => {
+  const handleToggleAll = async () => {
     try {
-      let unfinishedTasks = todos.filter(todo => !todo.completed);
-
-      if (!unfinishedTasks.length) {
-        unfinishedTasks = todos;
-      }
+      const filteredTasks = todos.filter(todo => !todo.completed);
+      const unfinishedTasks = filteredTasks.length ? filteredTasks : todos;
 
       const updatingStatus = unfinishedTasks.map(todo =>
         updateTodo(todo.id, { ...todo, completed: !todo.completed }),
@@ -60,7 +54,7 @@ export const Header: React.FC<Props> = ({
             active: isEveryTodoctive,
           })}
           data-cy="ToggleAllButton"
-          onClick={handletoggleAll}
+          onClick={handleToggleAll}
         />
       )}
       <form onSubmit={onSubmit}>

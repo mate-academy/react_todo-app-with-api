@@ -25,12 +25,10 @@ export const App: React.FC = () => {
 
   const isErrorAddTodo = errorMessage === Errors.Add;
 
-  const handleClearError = () => setErrorMessage(Errors.Default);
-
   const handleError = (error: Errors) => {
     setErrorMessage(error);
 
-    wait(3000).then(() => handleClearError());
+    wait(3000).then(() => setErrorMessage(Errors.Default));
   };
 
   useEffect(() => {
@@ -45,9 +43,10 @@ export const App: React.FC = () => {
     focusInput.current?.focus();
   }, [isErrorAddTodo, todos.length]);
 
-  const filteredTodos = useMemo(() => {
-    return getFilterTodos(todos, status);
-  }, [todos, status]);
+  const filteredTodos = useMemo(
+    () => getFilterTodos(todos, status),
+    [todos, status],
+  );
 
   const addTodo = async (creatNewTodo: Omit<Todo, 'id'>) => {
     setTempTodo({ ...creatNewTodo, id: 0 });
@@ -107,10 +106,6 @@ export const App: React.FC = () => {
     addTodo(newTodo);
   };
 
-  const handelSetNewTitle = (value: string) => {
-    setNewTitle(value);
-  };
-
   const updateTodos = (updatedTodo: Todo) => {
     setTodos(prevTodos =>
       prevTodos.map(prevTodo =>
@@ -131,7 +126,7 @@ export const App: React.FC = () => {
         <Header
           inputRef={focusInput}
           onSubmit={handleSubmit}
-          onChange={handelSetNewTitle}
+          onChange={value => setNewTitle(value)}
           onUpdateTodos={updateTodos}
           onError={handleError}
           newTitle={newTitle}
@@ -161,7 +156,7 @@ export const App: React.FC = () => {
 
       <ErrorNotification
         errorMessage={errorMessage}
-        onDeleteError={handleClearError}
+        onDeleteError={() => setErrorMessage(Errors.Default)}
       />
     </div>
   );

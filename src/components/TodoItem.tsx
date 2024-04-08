@@ -16,8 +16,8 @@ export const TodoItem: React.FC<Props> = ({
   todo,
   onDeleteTodo = () => {},
   onError = () => {},
+  onUpdateTodos = () => {},
   deletedTodoIds,
-  onUpdateTodos,
 }) => {
   const [editTitle, setEditTitle] = useState(todo.title);
   const [isLoading, setIsLoading] = useState(false);
@@ -33,7 +33,7 @@ export const TodoItem: React.FC<Props> = ({
     }
   }, [isEditing]);
 
-  const handleToggleComplet = async (value: boolean) => {
+  const handleToggleStatus = async (value: boolean) => {
     try {
       setIsLoading(true);
 
@@ -42,9 +42,7 @@ export const TodoItem: React.FC<Props> = ({
         completed: value,
       });
 
-      if (onUpdateTodos) {
-        onUpdateTodos(updatedTodo as Todo);
-      }
+      onUpdateTodos(updatedTodo as Todo);
     } catch {
       onError(Errors.Update);
     } finally {
@@ -76,19 +74,13 @@ export const TodoItem: React.FC<Props> = ({
         title: newTitle,
       });
 
-      if (onUpdateTodos) {
-        setIsEditing(false);
-        onUpdateTodos(newTodo as Todo);
-      }
+      setIsEditing(false);
+      onUpdateTodos(newTodo as Todo);
     } catch {
       onError(Errors.Update);
     } finally {
       setIsLoading(false);
     }
-  };
-
-  const handleEditTodo = () => {
-    setIsEditing(true);
   };
 
   const handleKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
@@ -115,7 +107,7 @@ export const TodoItem: React.FC<Props> = ({
           type="checkbox"
           className="todo__status"
           checked={todo.completed}
-          onChange={e => handleToggleComplet(e.target.checked)}
+          onChange={e => handleToggleStatus(e.target.checked)}
         />
       </label>
 
@@ -138,7 +130,7 @@ export const TodoItem: React.FC<Props> = ({
           <span
             data-cy="TodoTitle"
             className="todo__title"
-            onDoubleClick={handleEditTodo}
+            onDoubleClick={() => setIsEditing(true)}
           >
             {todo.title}
           </span>
