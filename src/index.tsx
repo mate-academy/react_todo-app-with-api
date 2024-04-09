@@ -10,5 +10,5 @@ import { TodoContextProvider } from './utils/TodoContext';
 createRoot(document.getElementById('root') as HTMLDivElement).render(
   <TodoContextProvider>
     <App />
-  </TodoContextProvider>
+  </TodoContextProvider>,
 );

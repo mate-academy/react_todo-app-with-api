@@ -5,15 +5,22 @@ import classNames from 'classnames';
 import { ErrText } from '../types/ErrText';
 
 export const TodoHeader: React.FC = () => {
-  const { todos, onAdd, setErrMessage, loading, setLoading } = useTodos();
+  const {
+    todos,
+    onAdd,
+    setErrMessage,
+    loading,
+    setLoading,
+    toggleAllCompleted,
+  } = useTodos();
   const [todoInput, setTodoInput] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const isAllCompleted = todos.every(todo => todo.completed);
   const inputRef = useRef<HTMLInputElement | null>(null);
 
   useEffect(() => {
-    if (!loading && inputRef.current) {
-      inputRef.current.focus();
+    if (!loading) {
+      inputRef.current?.focus();
     }
   }, [loading, submitting, onAdd]);
 
@@ -57,6 +64,7 @@ export const TodoHeader: React.FC = () => {
           active: isAllCompleted,
         })}
         data-cy="ToggleAllButton"
+        onClick={() => toggleAllCompleted()}
       />
 
       <form onSubmit={handleSubmit}>

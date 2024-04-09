@@ -1,6 +1,6 @@
-import { ErrText } from "./ErrText";
-import { Status } from "./Status";
-import { Todo } from "./Todo";
+import { ErrText } from './ErrText';
+import { Status } from './Status';
+import { Todo } from './Todo';
 
 export interface TodoContextTypes {
   todos: Todo[];
@@ -11,7 +11,9 @@ export interface TodoContextTypes {
   setErrMessage: React.Dispatch<React.SetStateAction<ErrText>>;
   onDelete: (todoId: number) => Promise<void>;
   onAdd: ({ title, completed, userId }: Todo) => Promise<void>;
+  onUpdate: (updatedTodo: Todo) => Promise<void>;
   toggleCompleted: (currentTodo: Todo) => void;
+  toggleAllCompleted: () => void;
   loading: boolean;
   setLoading: React.Dispatch<React.SetStateAction<boolean>>;
   tempTodo: Todo | null;

@@ -1,6 +1,5 @@
-import { Status } from "../types/Status";
-import { Todo } from "../types/Todo";
-
+import { Status } from '../types/Status';
+import { Todo } from '../types/Todo';
 
 export const getVisibleTodos = (todos: Todo[], status: Status) => {
   switch (status) {
