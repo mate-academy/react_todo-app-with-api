@@ -36,14 +36,15 @@ export const App: React.FC = () => {
   };
 
   const filteredTodos = filterTodos(todos, filter);
-  const handelFilter = (filterValue: SortField) => {
+  const handleFilter = (filterValue: SortField) => {
     setFilter(filterValue);
   };
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+    const normalizedTitle = title.trim();
 
-    if (!title.trim()) {
+    if (!normalizedTitle) {
       showErrorMessage('Title should not be empty');
 
       return;
@@ -55,7 +56,7 @@ export const App: React.FC = () => {
     try {
       const newTodo = {
         userId: USER_ID,
-        title: title.trim(),
+        title: normalizedTitle,
         completed: false,
       };
 
@@ -197,7 +198,7 @@ export const App: React.FC = () => {
           <Footer
             todos={todos}
             filter={filter}
-            handelFilter={handelFilter}
+            handleFilter={handleFilter}
             handleClearCompleted={handleClearCompleted}
           />
         )}

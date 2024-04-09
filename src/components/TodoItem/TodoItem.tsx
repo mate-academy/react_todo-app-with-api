@@ -16,7 +16,6 @@ export const TodoItem: React.FC<Props> = ({
   renameTodo,
   processingIds,
 }) => {
-  //const [currentTodo, setCurrentTodo] = useState<number | null>(null);
   const [newTitle, setNewTitle] = useState(todo.title);
   const [editing, setEditing] = useState(false);
 

@@ -6,13 +6,13 @@ import './Footer.scss';
 type Props = {
   todos: Todo[];
   filter: SortField;
-  handelFilter: (filter: SortField) => void;
+  handleFilter: (filter: SortField) => void;
   handleClearCompleted: () => void;
 };
 export const Footer: React.FC<Props> = ({
   todos,
   filter,
-  handelFilter,
+  handleFilter,
   handleClearCompleted,
 }) => {
   const clearSelected = todos.some(todo => todo.completed);
@@ -35,7 +35,7 @@ export const Footer: React.FC<Props> = ({
                 selected: filter === filterOption,
               })}
               data-cy={`FilterLink${filterOption}`}
-              onClick={() => handelFilter(filterOption)}
+              onClick={() => handleFilter(filterOption)}
             >
               {filterOption}
             </a>
