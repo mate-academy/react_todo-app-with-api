@@ -81,6 +81,8 @@ export const Header: React.FC<Props> = ({
 
     if (!normalisedTitle) {
       handleError(ErrorTypes.titleErr, setErrorMessage);
+
+      return;
     } else {
       const tempTodoId = tempTodo
         ? tempTodo.id + 1

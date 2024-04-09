@@ -27,6 +27,24 @@ export const App: React.FC = () => {
     return <UserWarning />;
   }
 
+  const shouldRenderFooter = todos.length > 0 || tempTodo;
+
+  const handleChangeFilter = (newFilter: FilterTypes) => {
+    setFilterBy(newFilter);
+  };
+
+  const footerComponent = shouldRenderFooter && (
+    <Footer
+      filterBy={filterBy}
+      setFilterBy={handleChangeFilter}
+      todos={todos}
+      setLoading={setLoading}
+      setTodos={setTodos}
+      setIsFocused={setIsFocused}
+      setErrorMessage={setErrorMessage}
+    />
+  );
+
   return (
     <div className="todoapp">
       <h1 className="todoapp__title">todos</h1>
@@ -42,6 +60,7 @@ export const App: React.FC = () => {
           setTempTodo={setTempTodo}
           tempTodo={tempTodo}
         />
+
         <TodoList
           todos={prepareVisibleTodos(todos, filterBy)}
           loading={loading}
@@ -51,17 +70,8 @@ export const App: React.FC = () => {
           tempTodo={tempTodo}
           setIsFocused={setIsFocused}
         />
-        {(todos.length > 0 || tempTodo) && (
-          <Footer
-            filterBy={filterBy}
-            setFilterBy={setFilterBy}
-            todos={todos}
-            setLoading={setLoading}
-            setTodos={setTodos}
-            setIsFocused={setIsFocused}
-            setErrorMessage={setErrorMessage}
-          />
-        )}
+
+        {footerComponent}
       </div>
 
       <div

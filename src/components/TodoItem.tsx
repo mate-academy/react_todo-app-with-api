@@ -32,7 +32,7 @@ export const TodoItem: React.FC<Props> = ({
     todo.title !== selectedTodo?.title ||
     selectedTodo?.completed !== todo.completed;
 
-  const [isDoubleClicked, setIsDoubleClicked] = useState<boolean>(false);
+  const [isDoubleClicked, setIsDoubleClicked] = useState(false);
 
   useEffect(() => {
     const handleEsc = (event: { key: string }) => {
@@ -98,6 +98,17 @@ export const TodoItem: React.FC<Props> = ({
     }
   };
 
+  const handleChange = (event: ChangeEvent<HTMLInputElement>) => {
+    const newtodo = {
+      ...todo,
+      completed: !todo.completed,
+    };
+
+    onFormSubmit(event, newtodo);
+  };
+
+  const shouldRenderEditForm = selectedTodo?.id === todo.id && isDoubleClicked;
+
   return (
     <div data-cy="Todo" className={cn('todo', { completed: todo.completed })}>
       <label aria-label="todo-status" className="todo__status-label">
@@ -106,18 +117,11 @@ export const TodoItem: React.FC<Props> = ({
           type="checkbox"
           className="todo__status"
           checked={todo.completed}
-          onChange={event => {
-            const newtodo = {
-              ...todo,
-              completed: !todo.completed,
-            };
-
-            onFormSubmit(event, newtodo);
-          }}
+          onChange={handleChange}
         />
       </label>
 
-      {selectedTodo?.id === todo.id && isDoubleClicked ? (
+      {shouldRenderEditForm ? (
         <form onSubmit={onFormSubmit} onBlur={onFormSubmit}>
           <input
             data-cy="TodoTitleField"
@@ -146,6 +150,7 @@ export const TodoItem: React.FC<Props> = ({
           {todo.title}
         </span>
       )}
+
       {!isDoubleClicked && (
         <button
           type="button"
