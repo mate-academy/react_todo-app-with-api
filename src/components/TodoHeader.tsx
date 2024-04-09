@@ -58,14 +58,16 @@ export const TodoHeader: React.FC = () => {
 
   return (
     <header className="todoapp__header">
-      <button
-        type="button"
-        className={classNames('todoapp__toggle-all', {
-          active: isAllCompleted,
-        })}
-        data-cy="ToggleAllButton"
-        onClick={() => toggleAllCompleted()}
-      />
+      {!!todos.length && (
+        <button
+          type="button"
+          className={classNames('todoapp__toggle-all', {
+            active: isAllCompleted,
+          })}
+          data-cy="ToggleAllButton"
+          onClick={() => toggleAllCompleted()}
+        />
+      )}
 
       <form onSubmit={handleSubmit}>
         <input

@@ -11,7 +11,7 @@ export const TodoFooter: React.FC = () => {
 
   const handleCompleted = async () => {
     try {
-      await Promise.all(completedTodos.map(todo => onDelete(todo.id)));
+      await Promise.allSettled(completedTodos.map(todo => onDelete(todo.id)));
     } catch {
       setErrMessage(ErrText.DeleteErr);
     } finally {
@@ -43,6 +43,7 @@ export const TodoFooter: React.FC = () => {
           className={classNames('filter__link', {
             selected: status === Status.Active,
           })}
+          data-cy="FilterLinkActive"
           onClick={() => setStatus(Status.Active)}
         >
           Active
