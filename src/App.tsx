@@ -23,9 +23,13 @@ export const App: React.FC = () => {
       <div className="todoapp__content">
         <Header />
 
-        {filteredTodos.length > 0 && <TodoList />}
+        {filteredTodos.length > 0 && (
+          <>
+            <TodoList />
 
-        <Footer />
+            <Footer />
+          </>
+        )}
       </div>
 
       {errorMessage && <ErrorNotification />}
