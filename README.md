@@ -1,12 +1,12 @@
-# React Todo App
-Developed a dynamic Todo App using React and TypeScript, integrating it with a backend API.
+# JavaScript 2048 Game
+Created a fully functional 2048 game using JavaScript. Implemented core game mechanics to provide an enjoyable gaming experience.
 
 # DEMO
-For demo of this project you can visit [DEMO link](https://pivkopa.github.io/react_todo-app-with-api/)
+For demo of this project you can visit [DEMO link](https://pivkopa.github.io/js_2048_game/)
 
 # Technologies used:
-- React
-- TypeScript
+- Javascript
+- HTML/CSS
 
 # How to get started
 Clone this repository, install dependencies, and launch this project.
