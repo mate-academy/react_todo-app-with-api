@@ -36,26 +36,6 @@ export const App: React.FC = () => {
     setTimeout(() => setErrorMessage(null), 3000);
   }, []);
 
-  // useEffect(() => {
-  //   const input = document.querySelector('input') as HTMLInputElement;
-
-  //   if (input) {
-  //     input.focus();
-  //   }
-
-  //   if (!title.trim()) {
-  //     if (input) {
-  //       input.focus();
-  //     }
-  //   }
-  // }, [tempTodo, todos, title]);
-
-  // const setFocusOnInput = () => {
-  //   const input = document.querySelector('input') as HTMLInputElement;
-
-  //   input.focus();
-  // };
-
   const addNewTodo = () => {
     const trimmedTitle = title.trim();
 
