@@ -45,6 +45,7 @@ export const HeaderInput = ({
           value={title}
           className="todoapp__new-todo"
           placeholder="What needs to be done?"
+          ref={input => input && input.focus()}
           onChange={event => {
             setTitle(event.target.value);
           }}

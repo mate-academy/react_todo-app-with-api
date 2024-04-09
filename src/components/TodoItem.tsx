@@ -2,7 +2,7 @@
 import classNames from 'classnames';
 import { Errors } from '../types/Types';
 import { useState } from 'react';
-import { deleteTodo, setTodoTitle } from '../api/todos';
+import { /* deleteTodo, */ setTodoTitle } from '../api/todos';
 
 type TodoItemProps = {
   title: string;
@@ -51,15 +51,13 @@ export const TodoItem = ({
     const editedTitleTrimmed = editedTitle.trim();
 
     try {
-      if (editedTitleTrimmed !== '' && editedTitleTrimmed !== title) {
+      if (editedTitleTrimmed !== title) {
         await setTodoTitle({ id, title: editedTitleTrimmed });
         updateTodoTitle(id, editedTitleTrimmed);
-      } else if (editedTitleTrimmed === '') {
-        deleteTodo(id);
       }
     } catch {
       setErrorMessage(Errors.Update);
-      setEditedTitle(title);
+      setEditing(true);
     } finally {
       setIsLoading(false);
     }
@@ -70,12 +68,19 @@ export const TodoItem = ({
     setEditing(false);
   };
 
-  const handleKeyUp = (event: React.KeyboardEvent<HTMLInputElement>) => {
+  const handleKeyUp = async (event: React.KeyboardEvent<HTMLInputElement>) => {
     if (event.key === 'Enter') {
-      if (editedTitle.trim() === title.trim()) {
+      if (editedTitle.trim() === '') {
+        try {
+          setIsLoading(true);
+          deleteCurrentTodo(id);
+        } catch {
+          setErrorMessage(Errors.Delete);
+        } finally {
+          setIsLoading(false);
+        }
+      } else if (editedTitle.trim() === title.trim()) {
         setEditing(false);
-      } else if (editedTitle.trim() === '') {
-        deleteCurrentTodo(id);
       } else {
         handleSubmit();
       }
@@ -90,10 +95,9 @@ export const TodoItem = ({
 
   const handleBlur = async () => {
     if (editedTitle.trim() === '') {
+      await handleSubmit();
       deleteCurrentTodo(id);
-    }
-
-    if (editing) {
+    } else {
       await handleSubmit();
     }
 

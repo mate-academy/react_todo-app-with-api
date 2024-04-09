@@ -1,13 +1,20 @@
 /* eslint-disable max-len */
 /* eslint-disable jsx-a11y/control-has-associated-label */
-import React, { useCallback, useEffect, useState } from 'react';
+import { useState } from 'react';
+import { useCallback } from 'react';
+import { useEffect } from 'react';
 import { UserWarning } from './UserWarning';
 import classNames from 'classnames';
-import { getTodos, postTodo, deleteTodo, setCompletedTodo } from './api/todos';
+import { getTodos } from './api/todos';
+import { postTodo } from './api/todos';
+import { deleteTodo } from './api/todos';
+import { setCompletedTodo } from './api/todos';
 import { Footer } from './components/Footer';
 import { HeaderInput } from './components/HeaderInput';
 import { TodoList } from './components/TodoList';
-import { Todo, Errors, SelectedTasks } from './types/Types';
+import { Todo } from './types/Types';
+import { Errors } from './types/Types';
+import { SelectedTasks } from './types/Types';
 
 const USER_ID = 398;
 
@@ -29,25 +36,25 @@ export const App: React.FC = () => {
     setTimeout(() => setErrorMessage(null), 3000);
   }, []);
 
-  useEffect(() => {
-    if (errorMessage) {
-      setTimeout(() => setErrorMessage(null), 3000);
-    }
-  }, [errorMessage]);
+  // useEffect(() => {
+  //   const input = document.querySelector('input') as HTMLInputElement;
 
-  useEffect(() => {
-    const input = document.querySelector('input') as HTMLInputElement;
+  //   if (input) {
+  //     input.focus();
+  //   }
 
-    if (input) {
-      input.focus();
-    }
+  //   if (!title.trim()) {
+  //     if (input) {
+  //       input.focus();
+  //     }
+  //   }
+  // }, [tempTodo, todos, title]);
 
-    if (!title.trim()) {
-      if (input) {
-        input.focus();
-      }
-    }
-  }, [tempTodo, todos, title]);
+  // const setFocusOnInput = () => {
+  //   const input = document.querySelector('input') as HTMLInputElement;
+
+  //   input.focus();
+  // };
 
   const addNewTodo = () => {
     const trimmedTitle = title.trim();
@@ -93,10 +100,6 @@ export const App: React.FC = () => {
       })
       .finally(() => setDeleteTodoByID(null));
   }, []);
-
-  /*   const updateCurrentTodo = async () => {
-
-  } */
 
   const toggleCompleted = async (id: number) => {
     try {
