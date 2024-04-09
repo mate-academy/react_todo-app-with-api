@@ -105,23 +105,22 @@ export const App: React.FC = () => {
     }
   }
 
-  function renameTodo(updatedTodo: Todo) {
-    setProcessingIds(prevIds => [...prevIds, updatedTodo.id]);
+  function renameTodo(todoToRename: Todo) {
+    showErrorMessage('');
+    setProcessingIds(prevIds => [...prevIds, todoToRename.id]);
 
     return todosService
-      .upDateTodos(updatedTodo)
-      .then(todo => {
-        setTodos(currentTodos => {
-          const newTodos = [...currentTodos];
-          const index = newTodos.findIndex(tod => tod.id === updatedTodo.id);
-
-          newTodos.splice(index, 1, todo);
-
-          return newTodos;
-        });
+      .upDateTodos(todoToRename)
+      .then(updatedTodo => {
+        setTodos(prevTodos =>
+          prevTodos.map(todo =>
+            todo.id === updatedTodo.id ? updatedTodo : todo,
+          ),
+        );
       })
       .catch(error => {
         showErrorMessage('Unable to update a todo');
+
         throw error;
       })
       .finally(() => setProcessingIds([]));
