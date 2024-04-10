@@ -22,7 +22,7 @@ export const App: React.FC = () => {
   const [todoTitle, setTodoTitle] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
-  const [deletedTodoId, setDeletedTodoId] = useState<number>(0);
+  const [changingTodoId, setChangingTodoId] = useState<number>(0);
   const [toggleAll, setToggleAll] = useState<boolean>(false);
 
   const inputAutoFocus = useRef<HTMLInputElement>(null);
@@ -91,7 +91,7 @@ export const App: React.FC = () => {
 
   const removeTodo = (todoId: number) => {
     setIsSubmitting(true);
-    setDeletedTodoId(todoId);
+    setChangingTodoId(todoId);
 
     return deleteTodo(todoId)
       .then(() => {
@@ -105,12 +105,13 @@ export const App: React.FC = () => {
       })
       .finally(() => {
         setIsSubmitting(false);
-        setDeletedTodoId(0);
+        setChangingTodoId(0);
       });
   };
 
   const updateTodo = (updatedTodo: Todo) => {
     setIsSubmitting(true);
+    setChangingTodoId(updatedTodo.id);
 
     return patchTodo(updatedTodo)
       .then(todo => {
@@ -131,6 +132,7 @@ export const App: React.FC = () => {
       })
       .finally(() => {
         setIsSubmitting(false);
+        setChangingTodoId(0);
       });
   };
 
@@ -217,7 +219,7 @@ export const App: React.FC = () => {
             <TodoList
               todos={filteredTodos}
               isSubmitting={isSubmitting}
-              deletedTodoId={deletedTodoId}
+              changingTodoId={changingTodoId}
               handleRemoveTodo={removeTodo}
               handleUpdateTodo={updateTodo}
             />
@@ -225,7 +227,7 @@ export const App: React.FC = () => {
             {tempTodo && (
               <TodoElement
                 todo={tempTodo}
-                deletedTodoId={deletedTodoId}
+                changingTodoId={changingTodoId}
                 handleRemoveTodo={removeTodo}
                 isSubmitting={isSubmitting}
                 handleUpdateTodo={updateTodo}

@@ -5,7 +5,7 @@ import { TodoElement } from './TodoElement';
 type Props = {
   todos: Todo[];
   isSubmitting: boolean;
-  deletedTodoId: number;
+  changingTodoId: number;
   handleRemoveTodo: (todoId: number) => void;
   handleUpdateTodo: (todo: Todo) => void;
 };
@@ -13,7 +13,7 @@ type Props = {
 export const TodoList: React.FC<Props> = ({
   todos,
   isSubmitting,
-  deletedTodoId,
+  changingTodoId,
   handleRemoveTodo,
   handleUpdateTodo,
 }) => {
@@ -23,7 +23,7 @@ export const TodoList: React.FC<Props> = ({
         <TodoElement
           todo={todo}
           isSubmitting={isSubmitting}
-          deletedTodoId={deletedTodoId}
+          changingTodoId={changingTodoId}
           handleRemoveTodo={handleRemoveTodo}
           handleUpdateTodo={handleUpdateTodo}
           key={todo.id}

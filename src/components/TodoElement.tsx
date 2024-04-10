@@ -5,7 +5,7 @@ import { Todo } from '../types/Todo';
 type Props = {
   todo: Todo;
   isSubmitting: boolean;
-  deletedTodoId: number;
+  changingTodoId: number;
   handleRemoveTodo: (todoId: number) => void;
   handleUpdateTodo: (todo: Todo) => void;
 };
@@ -13,7 +13,7 @@ type Props = {
 export const TodoElement: React.FC<Props> = ({
   todo,
   isSubmitting,
-  deletedTodoId,
+  changingTodoId,
   handleRemoveTodo,
   handleUpdateTodo,
 }) => {
@@ -115,7 +115,7 @@ export const TodoElement: React.FC<Props> = ({
         className={classNames('modal', 'overlay', {
           'is-active':
             (isSubmitting && todo.id === 0) ||
-            (isSubmitting && todo.id === deletedTodoId),
+            (isSubmitting && todo.id === changingTodoId),
         })}
       >
         <div className="modal-background has-background-white-ter" />
