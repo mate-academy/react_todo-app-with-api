@@ -4,16 +4,16 @@ import { FilterBy } from '../enums/FilterBy';
 import { State } from '../types/State';
 import { Action } from '../types/Action';
 import { Todo } from '../types/Todo';
-
+export const SUCCESS_MESSAGE = 'SUCCESS';
 const initialState: State = {
   todos: [],
   sortBy: FilterBy.All,
-  status: 'SUCCESS',
+  status: SUCCESS_MESSAGE,
 };
 
-const newTodo = (title: string): Todo => {
+const newTodo = (title: string, id: number): Todo => {
   return {
-    id: +new Date(),
+    id,
     userId: USER_ID,
     title,
     completed: false,
@@ -46,7 +46,7 @@ function reducer(state: State, action: Action) {
     case 'RESET_STATUS':
       return {
         ...state,
-        status: 'SUCCESS',
+        status: SUCCESS_MESSAGE,
       };
     case 'DELETE_TODO':
       return {
@@ -79,7 +79,10 @@ function reducer(state: State, action: Action) {
     case 'ADD_NEW_TODO':
       return {
         ...state,
-        todos: [...state.todos, newTodo(action.payload.title.trim())],
+        todos: [
+          ...state.todos,
+          newTodo(action.payload.title.trim(), action.payload.id),
+        ],
       };
     case 'REMOVE_LOCAL_TODO':
       return {

@@ -1,6 +1,10 @@
 import classNames from 'classnames';
 import { useContext, useEffect, useState } from 'react';
-import { DispatchContext, StateContext } from '../../store/Store';
+import {
+  DispatchContext,
+  SUCCESS_MESSAGE,
+  StateContext,
+} from '../../store/Store';
 
 export const ErrorNotification = () => {
   const { status } = useContext(StateContext);
@@ -8,7 +12,7 @@ export const ErrorNotification = () => {
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   useEffect(() => {
-    if (status !== 'SUCCESS') {
+    if (status !== SUCCESS_MESSAGE) {
       setErrorMessage(status);
     }
 

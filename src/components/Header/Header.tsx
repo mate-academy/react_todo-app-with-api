@@ -22,6 +22,18 @@ export const Header: React.FC<Props> = ({ setTempTodo }) => {
   const dispatch = useContext(DispatchContext);
   const [disabledInput, setDisabledInput] = useState<boolean>(false);
 
+  const handleMaxId = (): number => {
+    const getIDs: number[] = todos.map(e => e.id);
+
+    if (!getIDs.length) {
+      return 1;
+    }
+
+    return Math.max(...getIDs) + 1;
+  };
+
+  const currentId = handleMaxId();
+
   useEffect(() => {
     if (inputRef.current) {
       inputRef.current.focus();
@@ -75,9 +87,12 @@ export const Header: React.FC<Props> = ({ setTempTodo }) => {
 
     setDisabledInput(true);
     setTempTodo({ id: 0, userId: USER_ID, title: value, completed: false });
-    createTodo({ title: value })
+    createTodo({ title: value, id: currentId })
       .then(() => {
-        dispatch({ type: 'ADD_NEW_TODO', payload: { title: value } });
+        dispatch({
+          type: 'ADD_NEW_TODO',
+          payload: { title: value, id: currentId },
+        });
         setDisabledInput(false);
         setValue('');
       })

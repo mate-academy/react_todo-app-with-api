@@ -4,7 +4,7 @@ export type Action =
   | { type: 'SHOW_ALL' }
   | { type: 'SHOW_ERROR_MESSAGE'; payload: { message: string } }
   | { type: 'LOAD_TODOS'; payload: Todo[] }
-  | { type: 'ADD_NEW_TODO'; payload: { title: string } }
+  | { type: 'ADD_NEW_TODO'; payload: { title: string; id: number } }
   | { type: 'DELETE_TODO'; payload: { id: number } }
   | { type: 'SHOW_ACTIVE' }
   | { type: 'RESET_STATUS' }
