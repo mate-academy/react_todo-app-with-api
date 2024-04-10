@@ -49,23 +49,28 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
       handleDeleteTodo();
     }
 
-    if (todo.title === value) {
+    if (todo.title === value.trim()) {
       setIsEdit(false);
 
       return;
     }
 
-    setIsEdit(false);
+    setValue(text => text.trim());
     setIsDeleting(true);
+
     updateTodo({ ...todo, title: value })
       .then(() => {
-        setIsDeleting(false);
+        setIsEdit(false);
       })
       .catch(() => {
+        setIsEdit(true);
         dispatch({
           type: 'SHOW_ERROR_MESSAGE',
           payload: { message: 'Unable to update a todo' },
         });
+      })
+      .finally(() => {
+        setIsDeleting(false);
       });
   };
 
@@ -94,6 +99,7 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
   const handleButtonChange = (e: React.KeyboardEvent) => {
     if (e.key === 'Escape') {
       setValue(todo.title);
+      setIsEdit(false);
     }
   };
 
@@ -128,7 +134,12 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
             />
           </form>
 
-          <div data-cy="TodoLoader" className="modal overlay">
+          <div
+            data-cy="TodoLoader"
+            className={classNames('modal', 'overlay', {
+              'is-active': isDeleting,
+            })}
+          >
             <div className="modal-background has-background-white-ter" />
             <div className="loader" />
           </div>

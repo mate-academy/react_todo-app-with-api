@@ -7,6 +7,7 @@ export type Action =
   | { type: 'ADD_NEW_TODO'; payload: { title: string } }
   | { type: 'DELETE_TODO'; payload: { id: number } }
   | { type: 'SHOW_ACTIVE' }
+  | { type: 'RESET_STATUS' }
   | { type: 'TOGGLE_TODO'; payload: { id: number } }
   | { type: 'REMOVE_LOCAL_TODO'; payload: { id: number } }
   | { type: 'MAKE_COMPLETED_TODOS' }

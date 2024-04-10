@@ -1,10 +1,10 @@
 import classNames from 'classnames';
 import { useContext, useEffect, useState } from 'react';
-import { StateContext } from '../../store/Store';
+import { DispatchContext, StateContext } from '../../store/Store';
 
 export const ErrorNotification = () => {
   const { status } = useContext(StateContext);
-
+  const dispatch = useContext(DispatchContext);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   useEffect(() => {
@@ -12,10 +12,13 @@ export const ErrorNotification = () => {
       setErrorMessage(status);
     }
 
-    setTimeout(() => {
+    const timeout = setTimeout(() => {
       setErrorMessage(null);
+      dispatch({ type: 'RESET_STATUS' });
     }, 3000);
-  }, [status]);
+
+    return () => clearTimeout(timeout);
+  }, [dispatch, status]);
 
   return (
     <div

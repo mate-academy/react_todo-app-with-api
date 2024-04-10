@@ -43,6 +43,11 @@ function reducer(state: State, action: Action) {
           return todo;
         }),
       };
+    case 'RESET_STATUS':
+      return {
+        ...state,
+        status: 'SUCCESS',
+      };
     case 'DELETE_TODO':
       return {
         ...state,

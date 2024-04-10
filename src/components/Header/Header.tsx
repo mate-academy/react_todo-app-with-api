@@ -34,7 +34,7 @@ export const Header: React.FC<Props> = ({ setTempTodo }) => {
     if (checkItemsHandler) {
       await Promise.all(
         todos.map(todo => {
-          updateTodo({ ...todo, completed: false })
+          updateTodo({ ...todo, completed: !todo.completed })
             .then(() => dispatch({ type: 'MAKE_COMPLETED_TODOS' }))
             .catch(() => {
               dispatch({
@@ -47,14 +47,16 @@ export const Header: React.FC<Props> = ({ setTempTodo }) => {
     } else {
       await Promise.all(
         todos.map(todo => {
-          updateTodo({ ...todo, completed: true })
-            .then(() => dispatch({ type: 'MAKE_UNCOMPLETED_TODOS' }))
-            .catch(() => {
-              dispatch({
-                type: 'SHOW_ERROR_MESSAGE',
-                payload: { message: 'Unable to update a todo' },
+          if (!todo.completed) {
+            updateTodo({ ...todo, completed: !todo.completed })
+              .then(() => dispatch({ type: 'MAKE_UNCOMPLETED_TODOS' }))
+              .catch(() => {
+                dispatch({
+                  type: 'SHOW_ERROR_MESSAGE',
+                  payload: { message: 'Unable to update a todo' },
+                });
               });
-            });
+          }
         }),
       );
     }
