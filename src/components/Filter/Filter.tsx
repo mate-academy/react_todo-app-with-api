@@ -2,28 +2,22 @@ import { useContext } from 'react';
 import { DispatchContext, StateContext } from '../../store/Store';
 import classNames from 'classnames';
 import { FilterBy } from '../../enums/FilterBy';
+import { Action } from '../../types/Action';
 
 export const Filter = () => {
   const { sortBy } = useContext(StateContext);
+
   const dispatch = useContext(DispatchContext);
 
-  const handleShowAll = () => {
-    dispatch({ type: 'SHOW_ALL' });
-  };
-
-  const handleShowCompleted = () => {
-    dispatch({ type: 'SHOW_COMPLETED' });
-  };
-
-  const handleShowActive = () => {
-    dispatch({ type: 'SHOW_ACTIVE' });
+  const handleAction = (action: Action) => {
+    dispatch(action);
   };
 
   return (
     <nav className="filter" data-cy="Filter">
       <a
         href="#/"
-        onClick={handleShowAll}
+        onClick={() => handleAction({ type: 'SHOW_ALL' })}
         className={classNames('filter__link', {
           selected: sortBy === FilterBy.All,
         })}
@@ -34,7 +28,7 @@ export const Filter = () => {
 
       <a
         href="#/active"
-        onClick={handleShowActive}
+        onClick={() => handleAction({ type: 'SHOW_ACTIVE' })}
         className={classNames('filter__link', {
           selected: sortBy === FilterBy.Active,
         })}
@@ -45,7 +39,7 @@ export const Filter = () => {
 
       <a
         href="#/completed"
-        onClick={handleShowCompleted}
+        onClick={() => handleAction({ type: 'SHOW_COMPLETED' })}
         className={classNames('filter__link', {
           selected: sortBy === FilterBy.Completed,
         })}

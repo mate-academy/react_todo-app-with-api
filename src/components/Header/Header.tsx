@@ -1,4 +1,5 @@
 import {
+  ChangeEvent,
   Dispatch,
   SetStateAction,
   useContext,
@@ -10,16 +11,21 @@ import { DispatchContext, StateContext } from '../../store/Store';
 import { USER_ID, createTodo, updateTodo } from '../../api/todos';
 import { Todo } from '../../types/Todo';
 import classNames from 'classnames';
+import { Action } from '../../types/Action';
 
 type Props = {
   setTempTodo: Dispatch<SetStateAction<Todo | null>>;
 };
 
 export const Header: React.FC<Props> = ({ setTempTodo }) => {
-  const [value, setValue] = useState<string>('');
+  const [value, setValue] = useState('');
+
   const { todos } = useContext(StateContext);
+
   const inputRef = useRef<HTMLInputElement>(null);
+
   const dispatch = useContext(DispatchContext);
+
   const [disabledInput, setDisabledInput] = useState<boolean>(false);
 
   const handleMaxId = (): number => {
@@ -38,39 +44,34 @@ export const Header: React.FC<Props> = ({ setTempTodo }) => {
     if (inputRef.current) {
       inputRef.current.focus();
     }
-  }, [todos.length, disabledInput]);
+  }, [disabledInput, todos.length]);
 
   const checkItemsHandler = todos.every(todo => todo.completed);
 
-  const toggleTodos = async () => {
+  const updateTodoStatus = (todo: Todo, action: Action) => {
+    updateTodo({ ...todo, completed: !todo.completed })
+      .then(() => {
+        dispatch(action);
+      })
+      .catch(() => {
+        dispatch({
+          type: 'SHOW_ERROR_MESSAGE',
+          payload: { message: 'Unable to update a todo' },
+        });
+      });
+  };
+
+  const toggleTodos = () => {
     if (checkItemsHandler) {
-      await Promise.all(
-        todos.map(todo => {
-          updateTodo({ ...todo, completed: !todo.completed })
-            .then(() => dispatch({ type: 'MAKE_COMPLETED_TODOS' }))
-            .catch(() => {
-              dispatch({
-                type: 'SHOW_ERROR_MESSAGE',
-                payload: { message: 'Unable to update a todo' },
-              });
-            });
-        }),
-      );
+      todos.forEach(todo => {
+        updateTodoStatus(todo, { type: 'MAKE_COMPLETED_TODOS' });
+      });
     } else {
-      await Promise.all(
-        todos.map(todo => {
-          if (!todo.completed) {
-            updateTodo({ ...todo, completed: !todo.completed })
-              .then(() => dispatch({ type: 'MAKE_UNCOMPLETED_TODOS' }))
-              .catch(() => {
-                dispatch({
-                  type: 'SHOW_ERROR_MESSAGE',
-                  payload: { message: 'Unable to update a todo' },
-                });
-              });
-          }
-        }),
-      );
+      todos.forEach(todo => {
+        if (!todo.completed) {
+          updateTodoStatus(todo, { type: 'MAKE_UNCOMPLETED_TODOS' });
+        }
+      });
     }
   };
 
@@ -108,9 +109,12 @@ export const Header: React.FC<Props> = ({ setTempTodo }) => {
       });
   };
 
+  const textHandlerChange = (event: ChangeEvent<HTMLInputElement>) => {
+    setValue(event.target.value);
+  };
+
   return (
     <header className="todoapp__header">
-      {/* this button should have `active` class only if all todos are completed */}
       {todos.length > 0 && (
         <button
           type="button"
@@ -122,7 +126,6 @@ export const Header: React.FC<Props> = ({ setTempTodo }) => {
         />
       )}
 
-      {/* Add a todo on form submit */}
       <form onSubmit={handleSubmitForm}>
         <input
           ref={inputRef}
@@ -130,7 +133,7 @@ export const Header: React.FC<Props> = ({ setTempTodo }) => {
           type="text"
           value={value}
           disabled={disabledInput}
-          onChange={e => setValue(e.target.value)}
+          onChange={textHandlerChange}
           className="todoapp__new-todo"
           placeholder="What needs to be done?"
         />

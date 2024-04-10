@@ -5,15 +5,13 @@ export const handleFilteredTodos = (
   todosFromServer: Todo[],
   filter: FilterBy,
 ) => {
-  let preparedTodos = [...todosFromServer];
-
   if (filter === FilterBy.Active) {
-    preparedTodos = preparedTodos.filter(todo => !todo.completed);
+    return todosFromServer.filter(todo => !todo.completed);
   }
 
   if (filter === FilterBy.Completed) {
-    preparedTodos = preparedTodos.filter(todo => todo.completed);
+    return todosFromServer.filter(todo => todo.completed);
   }
 
-  return preparedTodos;
+  return todosFromServer;
 };

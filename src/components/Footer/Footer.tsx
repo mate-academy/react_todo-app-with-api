@@ -5,9 +5,13 @@ import { deleteTodo } from '../../api/todos';
 
 export const Footer: React.FC = () => {
   const { todos } = useContext(StateContext);
+
   const dispatch = useContext(DispatchContext);
+
   const getUnCompletedTodos = todos.filter(todo => !todo.completed);
+
   const getCompletedTodos = todos.filter(todo => todo.completed);
+
   const handleDeletionTodos = async () => {
     await Promise.all(
       getCompletedTodos.map(async todo => {
@@ -37,7 +41,7 @@ export const Footer: React.FC = () => {
         className="todoapp__clear-completed"
         data-cy="ClearCompletedButton"
         onClick={handleDeletionTodos}
-        disabled={Boolean(!getCompletedTodos.length)}
+        disabled={!getCompletedTodos.length}
       >
         Clear completed
       </button>

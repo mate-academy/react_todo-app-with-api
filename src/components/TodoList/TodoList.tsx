@@ -15,9 +15,10 @@ export const TodoList: React.FC<Props> = ({ tempTodo }) => {
 
   return (
     <section className="todoapp__main" data-cy="TodoList">
-      {filteredTodos.map(todo => {
-        return <TodoItem key={todo.id} todo={todo} />;
-      })}
+      {filteredTodos.map(todo => (
+        <TodoItem key={todo.id} todo={todo} />
+      ))}
+
       {tempTodo && <TodoItem todo={tempTodo} />}
     </section>
   );

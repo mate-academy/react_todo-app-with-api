@@ -1,5 +1,3 @@
-/* eslint-disable jsx-a11y/label-has-associated-control */
-/* eslint-disable jsx-a11y/control-has-associated-label */
 import React, { useContext, useState } from 'react';
 import { UserWarning } from './UserWarning';
 import { USER_ID } from './api/todos';
@@ -25,9 +23,12 @@ export const App: React.FC = () => {
 
       <div className="todoapp__content">
         <Header setTempTodo={setTempTodo} />
+
         <TodoList tempTodo={tempTodo} />
+
         {!!todos.length && <Footer />}
       </div>
+
       <ErrorNotification />
     </div>
   );

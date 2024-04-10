@@ -6,20 +6,27 @@ import { Todo } from '../../types/Todo';
 import { useContext, useRef, useState } from 'react';
 import { DispatchContext } from '../../store/Store';
 import { deleteTodo, updateTodo } from '../../api/todos';
+import { RenamingForm } from '../RenamingForm/RenamingForm';
 
 type Props = {
   todo: Todo;
 };
 
 export const TodoItem: React.FC<Props> = ({ todo }) => {
+  const { id, title, completed } = todo;
+
   const dispatch = useContext(DispatchContext);
-  const [isDeleting, setIsDeleting] = useState<boolean>(false);
-  const [value, setValue] = useState(todo.title);
+
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+
+  const [value, setValue] = useState(title);
+
   const [isEdit, setIsEdit] = useState(false);
+
   const inputElem = useRef<HTMLInputElement>(null);
 
   const handleDeleteTodo = () => {
-    setIsDeleting(true);
+    setIsLoading(true);
     deleteTodo(todo.id)
       .then(() => {
         dispatch({ type: 'DELETE_TODO', payload: { id: todo.id } });
@@ -31,7 +38,7 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
         });
       })
       .finally(() => {
-        setIsDeleting(false);
+        setIsLoading(false);
       });
   };
 
@@ -49,14 +56,14 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
       handleDeleteTodo();
     }
 
-    if (todo.title === value.trim()) {
+    if (title === value.trim()) {
       setIsEdit(false);
 
       return;
     }
 
     setValue(text => text.trim());
-    setIsDeleting(true);
+    setIsLoading(true);
 
     updateTodo({ ...todo, title: value })
       .then(() => {
@@ -70,15 +77,15 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
         });
       })
       .finally(() => {
-        setIsDeleting(false);
+        setIsLoading(false);
       });
   };
 
   const updateChecked = (updatedTodo: Todo) => {
-    setIsDeleting(true);
+    setIsLoading(true);
     updateTodo({ ...todo, completed: !updatedTodo.completed, title: value })
       .then(() => {
-        dispatch({ type: 'TOGGLE_TODO', payload: { id: todo.id } });
+        dispatch({ type: 'TOGGLE_TODO', payload: { id } });
       })
       .catch(() => {
         dispatch({
@@ -87,7 +94,7 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
         });
       })
       .finally(() => {
-        setIsDeleting(false);
+        setIsLoading(false);
       });
   };
 
@@ -98,7 +105,7 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
 
   const handleButtonChange = (e: React.KeyboardEvent) => {
     if (e.key === 'Escape') {
-      setValue(todo.title);
+      setValue(title);
       setIsEdit(false);
     }
   };
@@ -106,55 +113,24 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
   return (
     <>
       {isEdit ? (
-        <div
-          data-cy="Todo"
-          className={classNames('todo', { completed: todo.completed })}
-        >
-          <label className="todo__status-label">
-            <input
-              data-cy="TodoStatus"
-              type="checkbox"
-              checked={todo.completed}
-              className="todo__status"
-            />
-          </label>
-
-          {/* This form is shown instead of the title and remove button */}
-          <form onSubmit={handleSubmit}>
-            <input
-              ref={inputElem}
-              data-cy="TodoTitleField"
-              type="text"
-              className="todo__title-field"
-              placeholder="Empty todo will be deleted"
-              value={value}
-              onKeyUp={handleButtonChange}
-              onBlur={handlerBlur}
-              onChange={e => setValue(e.target.value)}
-            />
-          </form>
-
-          <div
-            data-cy="TodoLoader"
-            className={classNames('modal', 'overlay', {
-              'is-active': isDeleting,
-            })}
-          >
-            <div className="modal-background has-background-white-ter" />
-            <div className="loader" />
-          </div>
-        </div>
+        <RenamingForm
+          handleButtonChange={handleButtonChange}
+          handleSubmit={handleSubmit}
+          handlerBlur={handlerBlur}
+          isLoading={isLoading}
+          todo={todo}
+          value={value}
+          setValue={setValue}
+          inputElem={inputElem}
+        />
       ) : (
-        <div
-          data-cy="Todo"
-          className={classNames('todo', { completed: todo.completed })}
-        >
+        <div data-cy="Todo" className={classNames('todo', { completed })}>
           <label className="todo__status-label">
             <input
               data-cy="TodoStatus"
               type="checkbox"
               className="todo__status"
-              checked={todo.completed}
+              checked={completed}
               onChange={() => updateChecked(todo)}
             />
           </label>
@@ -179,7 +155,7 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
           <div
             data-cy="TodoLoader"
             className={classNames('modal', 'overlay', {
-              'is-active': isDeleting || todo.id === 0,
+              'is-active': isLoading || id === 0,
             })}
           >
             <div className="modal-background has-background-white-ter" />

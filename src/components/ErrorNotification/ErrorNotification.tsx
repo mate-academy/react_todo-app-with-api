@@ -8,8 +8,14 @@ import {
 
 export const ErrorNotification = () => {
   const { status } = useContext(StateContext);
+
   const dispatch = useContext(DispatchContext);
+
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+
+  const handleHideErrorMeassage = () => {
+    setErrorMessage(null);
+  };
 
   useEffect(() => {
     if (status !== SUCCESS_MESSAGE) {
@@ -39,7 +45,7 @@ export const ErrorNotification = () => {
         data-cy="HideErrorButton"
         type="button"
         className="delete"
-        onClick={() => setErrorMessage(null)}
+        onClick={handleHideErrorMeassage}
       />
       {errorMessage}
     </div>
