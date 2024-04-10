@@ -16,11 +16,7 @@ export const Footer: React.FC = () => {
     setMessageError,
   } = useContext(TodosContext);
 
-  const [navClicked, setNavClicked] = useState({
-    all: true,
-    active: false,
-    compleated: false,
-  });
+  const [todosStatus, setTodosStatus] = useState(FilterStatus.All);
 
   const disabledClearCompletedButton =
     todos.filter(todo => todo.id !== TEMPORARY_TODO_ID).length - activeCount <=
@@ -30,17 +26,17 @@ export const Footer: React.FC = () => {
     switch (status) {
       case FilterStatus.Active:
         setFilter(FilterStatus.Active);
-        setNavClicked({ all: false, active: true, compleated: false });
+        setTodosStatus(FilterStatus.Active);
         break;
 
       case FilterStatus.Completed:
         setFilter(FilterStatus.Completed);
-        setNavClicked({ all: false, active: false, compleated: true });
+        setTodosStatus(FilterStatus.Completed);
         break;
 
       case FilterStatus.All:
         setFilter(FilterStatus.All);
-        setNavClicked({ all: true, active: false, compleated: false });
+        setTodosStatus(FilterStatus.All);
         break;
 
       default:
@@ -91,7 +87,7 @@ export const Footer: React.FC = () => {
           <a
             href="#/"
             className={classNames('filter__link', {
-              selected: navClicked.all,
+              selected: todosStatus === FilterStatus.All,
             })}
             data-cy="FilterLinkAll"
             onClick={() => handleVisible(FilterStatus.All)}
@@ -102,7 +98,7 @@ export const Footer: React.FC = () => {
           <a
             href="#/active"
             className={classNames('filter__link', {
-              selected: navClicked.active,
+              selected: todosStatus === FilterStatus.Active,
             })}
             data-cy="FilterLinkActive"
             onClick={() => handleVisible(FilterStatus.Active)}
@@ -113,7 +109,7 @@ export const Footer: React.FC = () => {
           <a
             href="#/completed"
             className={classNames('filter__link', {
-              selected: navClicked.compleated,
+              selected: todosStatus === FilterStatus.Completed,
             })}
             data-cy="FilterLinkCompleted"
             onClick={() => handleVisible(FilterStatus.Completed)}

@@ -16,7 +16,7 @@ export const Header: React.FC = () => {
     inputRef.current?.focus();
   }, [todos.length, todoTitle]);
 
-  const AddNewTodo = (
+  const newTodo = (
     title: string,
     completed = false,
     userId = USER_ID,
@@ -36,7 +36,7 @@ export const Header: React.FC = () => {
     ]);
 
     return addTodo({ title, completed, userId })
-      .then(newTodo => setTodos([...todos, newTodo]))
+      .then(todo => setTodos([...todos, todo]))
       .catch(error => {
         setMessageError(Errors.CantAdd);
         setTodos(todos.filter(todo => todo.id !== TEMPORARY_TODO_ID));
@@ -59,7 +59,7 @@ export const Header: React.FC = () => {
       return;
     }
 
-    AddNewTodo(todoTitle.trim()).then(() => setTodoTitle(''));
+    newTodo(todoTitle.trim()).then(() => setTodoTitle(''));
   };
 
   const isAllComplited = todos.every(todo => todo.completed);
