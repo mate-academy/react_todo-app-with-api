@@ -7,6 +7,7 @@ type Props = {
   isSubmitting: boolean;
   deletedTodoId: number;
   handleRemoveTodo: (todoId: number) => void;
+  handleUpdateTodo: (todo: Todo) => void;
 };
 
 export const TodoElement: React.FC<Props> = ({
@@ -14,8 +15,15 @@ export const TodoElement: React.FC<Props> = ({
   isSubmitting,
   deletedTodoId,
   handleRemoveTodo,
+  handleUpdateTodo,
 }) => {
   const { title, completed } = todo;
+
+  const handleToggleTodo = () => {
+    const updatedTodo = { ...todo, completed: !completed };
+
+    handleUpdateTodo(updatedTodo);
+  };
 
   return (
     <div
@@ -23,7 +31,7 @@ export const TodoElement: React.FC<Props> = ({
       className={classNames('todo', { completed: completed })}
     >
       {/* eslint-disable-next-line jsx-a11y/label-has-associated-control */}
-      <label className="todo__status-label">
+      <label className="todo__status-label" onClick={handleToggleTodo}>
         <input
           data-cy="TodoStatus"
           type="checkbox"

@@ -3,7 +3,13 @@
 import React, { useEffect, useRef, useState } from 'react';
 import classNames from 'classnames';
 import { UserWarning } from './UserWarning';
-import { USER_ID, createTodo, deleteTodo, getTodos } from './api/todos';
+import {
+  USER_ID,
+  createTodo,
+  deleteTodo,
+  getTodos,
+  patchTodo,
+} from './api/todos';
 import { Todo } from './types/Todo';
 import { TodoList } from './components/TodoList';
 import { Filter } from './types/Filter';
@@ -17,6 +23,7 @@ export const App: React.FC = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
   const [deletedTodoId, setDeletedTodoId] = useState<number>(0);
+  const [toggleAll, setToggleAll] = useState<boolean>(false);
 
   const inputAutoFocus = useRef<HTMLInputElement>(null);
 
@@ -102,6 +109,31 @@ export const App: React.FC = () => {
       });
   };
 
+  const updateTodo = (updatedTodo: Todo) => {
+    setIsSubmitting(true);
+
+    return patchTodo(updatedTodo)
+      .then(todo => {
+        setTodos(currentTodos => {
+          const newTodos = [...currentTodos];
+          const index = newTodos.findIndex(
+            currentTodo => currentTodo.id === updatedTodo.id,
+          );
+
+          newTodos.splice(index, 1, todo as Todo);
+
+          return newTodos;
+        });
+      })
+      .catch(err => {
+        setError('Unable to update a todo');
+        throw err;
+      })
+      .finally(() => {
+        setIsSubmitting(false);
+      });
+  };
+
   const handleFromSubmit = (event: React.FormEvent) => {
     event.preventDefault();
 
@@ -133,6 +165,26 @@ export const App: React.FC = () => {
     }
   };
 
+  const handleToggleAllClick = async () => {
+    const newToggleAll = !toggleAll;
+
+    setToggleAll(newToggleAll);
+
+    try {
+      await Promise.all(
+        todos.map(todo =>
+          updateTodo({
+            ...todo,
+            completed: newToggleAll,
+          }),
+        ),
+      );
+    } catch {
+      setError('Unable to update todos');
+      setToggleAll(!newToggleAll);
+    }
+  };
+
   return (
     <div className="todoapp">
       <h1 className="todoapp__title">todos</h1>
@@ -141,8 +193,9 @@ export const App: React.FC = () => {
         <header className="todoapp__header">
           <button
             type="button"
-            className="todoapp__toggle-all active"
+            className={classNames('todoapp__toggle-all', { active: toggleAll })}
             data-cy="ToggleAllButton"
+            onClick={handleToggleAllClick}
           />
 
           <form onSubmit={handleFromSubmit}>
@@ -166,6 +219,7 @@ export const App: React.FC = () => {
               isSubmitting={isSubmitting}
               deletedTodoId={deletedTodoId}
               handleRemoveTodo={removeTodo}
+              handleUpdateTodo={updateTodo}
             />
 
             {tempTodo && (
@@ -174,6 +228,7 @@ export const App: React.FC = () => {
                 deletedTodoId={deletedTodoId}
                 handleRemoveTodo={removeTodo}
                 isSubmitting={isSubmitting}
+                handleUpdateTodo={updateTodo}
               />
             )}
 

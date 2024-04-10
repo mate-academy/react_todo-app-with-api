@@ -7,6 +7,7 @@ type Props = {
   isSubmitting: boolean;
   deletedTodoId: number;
   handleRemoveTodo: (todoId: number) => void;
+  handleUpdateTodo: (todo: Todo) => void;
 };
 
 export const TodoList: React.FC<Props> = ({
@@ -14,6 +15,7 @@ export const TodoList: React.FC<Props> = ({
   isSubmitting,
   deletedTodoId,
   handleRemoveTodo,
+  handleUpdateTodo,
 }) => {
   return (
     <section className="todoapp__main" data-cy="TodoList">
@@ -23,6 +25,7 @@ export const TodoList: React.FC<Props> = ({
           isSubmitting={isSubmitting}
           deletedTodoId={deletedTodoId}
           handleRemoveTodo={handleRemoveTodo}
+          handleUpdateTodo={handleUpdateTodo}
           key={todo.id}
         />
       ))}
