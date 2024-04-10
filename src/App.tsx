@@ -28,7 +28,7 @@ export const App: React.FC = () => {
   const activeTodos = todos.filter(todo => !todo.completed);
   const completedTodos = todos.filter(todo => todo.completed);
 
-  const titleFild = useRef<HTMLInputElement>(null);
+  const titleField = useRef<HTMLInputElement>(null);
 
   const handleError = (message: string) => {
     setErrorMessage(message);
@@ -47,7 +47,7 @@ export const App: React.FC = () => {
 
   useEffect(() => {
     if (!tempTodo) {
-      titleFild.current?.focus();
+      titleField.current?.focus();
     }
   }, [tempTodo]);
 
@@ -62,7 +62,7 @@ export const App: React.FC = () => {
       })
       .finally(() => {
         setLoadingIds(prevIds => prevIds.filter(prevId => prevId !== id));
-        titleFild.current?.focus();
+        titleField.current?.focus();
       });
   };
 
@@ -94,9 +94,7 @@ export const App: React.FC = () => {
 
     createTodos(normalizedTitle)
       .then(newTodo => {
-        setTodos(currentTodos => {
-          return [...currentTodos, newTodo];
-        });
+        setTodos(currentTodos => [...currentTodos, newTodo]);
         setTodoTitle('');
       })
       .catch(() => {
@@ -153,7 +151,7 @@ export const App: React.FC = () => {
           ),
         );
       })
-      .catch((error) => {
+      .catch(error => {
         handleError('Unable to update a todo');
 
         throw error;
@@ -173,7 +171,6 @@ export const App: React.FC = () => {
             <button
               data-cy="ToggleAllButton"
               type="button"
-              // todoapp__toggle-all
               className={cn('todoapp__toggle-all', {
                 active: activeTodos.length === 0,
               })}
@@ -187,7 +184,7 @@ export const App: React.FC = () => {
               type="text"
               className="todoapp__new-todo"
               placeholder="What needs to be done?"
-              ref={titleFild}
+              ref={titleField}
               value={todoTitle}
               onChange={e => setTodoTitle(e.target.value)}
               disabled={tempTodo !== null}
