@@ -58,7 +58,7 @@ export const App: React.FC = () => {
     };
 
     fetchTodos();
-  }, [dispatch]);
+  }, [dispatch, handleErrorMessage]);
 
   useEffect(() => {
     inputRef.current?.focus();
