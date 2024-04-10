@@ -27,7 +27,7 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
     }
   }, [isEditing]);
 
-  const handleChecker = (itemID: number) => {
+  const updateTodoCompleteValue = (itemID: number) => {
     setIsLoading(true);
 
     const newTodo = {
@@ -58,7 +58,9 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
     if (trimedQueryEditing === todo.title) {
       setIsLoading(false);
       setIsEditing(false);
-    } else if (trimedQueryEditing) {
+    }
+
+    if (trimedQueryEditing) {
       const newTodo = {
         ...todo,
         title: trimedQueryEditing,
@@ -81,7 +83,9 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
           inputTodoRef.current?.focus();
           setIsLoading(false);
         });
-    } else {
+    }
+
+    if (!trimedQueryEditing) {
       handleDeleteTodo(todo.id);
     }
   };
@@ -111,6 +115,11 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
     setIsEditing(false);
   };
 
+  const handleClickOnRemoveButton = () => {
+    handleDeleteTodo(todo.id);
+    setIsLoading(true);
+  };
+
   return (
     <div
       data-cy="Todo"
@@ -122,7 +131,7 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
           type="checkbox"
           className="todo__status"
           checked={todo.completed}
-          onChange={() => handleChecker(todo.id)}
+          onChange={() => updateTodoCompleteValue(todo.id)}
         />
       </label>
       {isEditing ? (
@@ -152,10 +161,7 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
             type="button"
             className="todo__remove"
             data-cy="TodoDelete"
-            onClick={() => {
-              handleDeleteTodo(todo.id);
-              setIsLoading(true);
-            }}
+            onClick={handleClickOnRemoveButton}
           >
             ×
           </button>
