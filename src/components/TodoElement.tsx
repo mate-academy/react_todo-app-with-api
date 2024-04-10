@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import classNames from 'classnames';
 import { Todo } from '../types/Todo';
 
@@ -17,6 +17,9 @@ export const TodoElement: React.FC<Props> = ({
   handleRemoveTodo,
   handleUpdateTodo,
 }) => {
+  const [isEditing, setIsEditing] = useState<boolean>(false);
+  const [editText, setEditText] = useState(todo.title);
+
   const { title, completed } = todo;
 
   const handleToggleTodo = () => {
@@ -25,33 +28,87 @@ export const TodoElement: React.FC<Props> = ({
     handleUpdateTodo(updatedTodo);
   };
 
+  const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setEditText(event.target.value);
+  };
+
+  const handleKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
+    if (event.key === 'Enter') {
+      if (editText.trim() === '') {
+        handleRemoveTodo(todo.id);
+      } else {
+        handleUpdateTodo({ ...todo, title: editText });
+      }
+
+      setIsEditing(false);
+    } else if (event.key === 'Escape') {
+      setEditText(todo.title);
+      setIsEditing(false);
+    }
+  };
+
+  const handleBlur = () => {
+    if (editText.trim() === '') {
+      handleRemoveTodo(todo.id);
+    } else {
+      handleUpdateTodo({ ...todo, title: editText });
+    }
+
+    setIsEditing(false);
+  };
+
   return (
     <div
       data-cy="Todo"
       className={classNames('todo', { completed: completed })}
     >
       {/* eslint-disable-next-line jsx-a11y/label-has-associated-control */}
-      <label className="todo__status-label" onClick={handleToggleTodo}>
+      <label className="todo__status-label">
         <input
           data-cy="TodoStatus"
           type="checkbox"
           className="todo__status"
+          onClick={handleToggleTodo}
           defaultChecked={completed}
         />
       </label>
 
-      <span data-cy="TodoTitle" className="todo__title">
-        {title}
-      </span>
+      {!isEditing ? (
+        <>
+          <span
+            data-cy="TodoTitle"
+            className="todo__title"
+            onDoubleClick={() => {
+              setIsEditing(true);
+            }}
+          >
+            {title}
+          </span>
 
-      <button
-        type="button"
-        className="todo__remove"
-        data-cy="TodoDelete"
-        onClick={() => handleRemoveTodo(todo.id)}
-      >
-        ×
-      </button>
+          <button
+            type="button"
+            className="todo__remove"
+            data-cy="TodoDelete"
+            onClick={() => handleRemoveTodo(todo.id)}
+          >
+            ×
+          </button>
+        </>
+      ) : (
+        <form>
+          <input
+            data-cy="TodoTitleField"
+            type="text"
+            className="todo__title-field"
+            placeholder="Empty todo will be deleted"
+            value={editText}
+            onKeyDown={handleKeyDown}
+            onChange={handleChange}
+            onBlur={handleBlur}
+            autoFocus
+          />
+        </form>
+      )}
 
       <div
         data-cy="TodoLoader"
