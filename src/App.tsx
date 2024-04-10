@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import cn from 'classnames';
 
 import { UserWarning } from './UserWarning';
 import { USER_ID } from './api/todos';
@@ -11,6 +10,7 @@ import * as postService from './api/todos';
 import { Todo } from './types/Todo';
 import { handleError } from './components/Error';
 import { filterTodos } from './utils/TodoHelpers/FilterTodos';
+import ErrorNotification from './components/ErrorNotification';
 
 export const App: React.FC = () => {
   const [todos, setTodos] = useState<Todo[]>([]);
@@ -19,20 +19,19 @@ export const App: React.FC = () => {
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
   const [isInputDisabled, setIsInputDisabled] = useState(false);
   const [headerError, setHeaderError] = useState(false);
-  const [loading, setLoading] = useState<number | string | null>(null);
+  const [, setLoading] = useState<number | string | null>(null);
   const [isShouldFocusInput, setIsShouldFocusInput] = useState(false);
-  const [loadAll, setLoadAll] = useState<number[]>([]);
+  const [loadingTodoIds, setLoadingTodoIds] = useState<number[]>([]);
 
   useEffect(() => {
     postService
       .getTodos()
-      .then(fetchedTodos => {
-        setTodos(fetchedTodos);
-      })
+      .then(setTodos)
       .catch(() => {
         handleError('Unable to load todos', setErrorMessage);
       });
   }, []);
+
   useEffect(() => {
     if (isShouldFocusInput) {
       setIsShouldFocusInput(false);
@@ -64,7 +63,6 @@ export const App: React.FC = () => {
       title: trimmedTitle,
       completed: false,
       userId: USER_ID,
-      status: status,
     };
 
     const fakeTodo: Todo = {
@@ -95,6 +93,8 @@ export const App: React.FC = () => {
 
   const deleteTodo = (id: number) => {
     setLoading(id);
+    setLoadingTodoIds(prevIds => [...prevIds, id]);
+
     postService
       .deleteTodo(id)
       .then(() => {
@@ -104,8 +104,10 @@ export const App: React.FC = () => {
         handleError('Unable to delete a todo', setErrorMessage);
       })
       .finally(() => {
-        setTempTodo(null);
         setLoading(null);
+        setLoadingTodoIds(prevIds =>
+          prevIds.filter(currentId => currentId !== id),
+        );
       });
   };
 
@@ -119,6 +121,7 @@ export const App: React.FC = () => {
     }
 
     setLoading(patchTodo.id);
+    setLoadingTodoIds(prevIds => [...prevIds, patchTodo.id]);
 
     try {
       const updatedTask = await postService.updateTodo(patchTodo);
@@ -141,7 +144,9 @@ export const App: React.FC = () => {
       handleError('Unable to update a todo', setErrorMessage);
     } finally {
       setLoading(null);
-      setLoadAll([]);
+      setLoadingTodoIds(prevIds =>
+        prevIds.filter(currentId => currentId !== patchTodo.id),
+      );
     }
   };
 
@@ -151,6 +156,8 @@ export const App: React.FC = () => {
       .map(duty => duty.id);
 
     completedTodoIds.forEach(id => {
+      setLoadingTodoIds(prevIds => [...prevIds, id]);
+
       postService
         .deleteTodo(id)
         .then(() => {
@@ -160,6 +167,11 @@ export const App: React.FC = () => {
         })
         .catch(() => {
           handleError('Unable to delete a todo', setErrorMessage);
+        })
+        .finally(() => {
+          setLoadingTodoIds(prevIds =>
+            prevIds.filter(currentId => currentId !== id),
+          );
         });
     });
   };
@@ -179,17 +191,16 @@ export const App: React.FC = () => {
           onUpdateTodo={updateTodo}
           setLoading={setLoading}
           headerError={headerError}
-          setLoadAll={setLoadAll}
+          setLoadingTodoIds={setLoadingTodoIds}
         />
         <TodoList
           todos={filteredTodos}
           onDeleteTodo={deleteTodo}
           updateTodo={updateTodo}
           tempTodo={tempTodo}
-          loading={loading}
           setLoading={setLoading}
           setErrorMessage={setErrorMessage}
-          loadAll={loadAll}
+          loadingTodoIds={loadingTodoIds}
         />
         {todos.length > 0 && (
           <Footer
@@ -202,23 +213,10 @@ export const App: React.FC = () => {
           />
         )}
       </div>
-      <div
-        data-cy="ErrorNotification"
-        className={cn(
-          'notification is-danger is-light has-text-weight-normal',
-          {
-            hidden: !errorMessage,
-          },
-        )}
-      >
-        <button
-          data-cy="HideErrorButton"
-          type="button"
-          className="delete"
-          onClick={() => setErrorMessage('')}
-        />
-        {errorMessage}
-      </div>
+      <ErrorNotification
+        errorMessage={errorMessage}
+        setErrorMessage={setErrorMessage}
+      />
     </div>
   );
 };

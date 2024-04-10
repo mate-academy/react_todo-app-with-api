@@ -8,32 +8,29 @@ interface Props {
   todo: Todo;
   onDeleteTodo?: (id: number) => void;
   onUpdateTodo: (patchTodo: Todo, title: string) => Promise<void>;
-  loading: string | number | number[] | null;
   setLoading: (loading: string | number | null) => void;
   setErrorMessage: (message: string) => void;
-  loadAll: number[];
+  loadingTodoIds: number[];
 }
 
 const TodoItem: React.FC<Props> = ({
   todo,
   onDeleteTodo = () => {},
   onUpdateTodo,
-  loading,
   setLoading,
   setErrorMessage,
-  loadAll,
+  loadingTodoIds,
 }) => {
   const [isEditing, setIsEditing] = useState(false);
   const [editedTitle, setEditedTitle] = useState(todo.title);
   const inputRef = useRef<HTMLInputElement>(null);
+
   const handleEditToggle = () => {
     setIsEditing(true);
     setEditedTitle(todo.title);
-    setTimeout(() => {
-      if (inputRef.current) {
-        inputRef.current.focus();
-      }
-    }, 0);
+    if (inputRef.current) {
+      inputRef.current.focus();
+    }
   };
 
   const handleTitleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -89,6 +86,15 @@ const TodoItem: React.FC<Props> = ({
     setIsEditing(false);
   };
 
+  const handleStatusChange = () => {
+    const updatedTodo: Todo = {
+      ...todo,
+      completed: !todo.completed,
+    };
+
+    onUpdateTodo(updatedTodo, todo.title);
+  };
+
   return (
     <div data-cy="Todo" className={cn('todo', { completed: todo.completed })}>
       <label className="todo__status-label" htmlFor={`TodoStatus-${todo.id}`}>
@@ -98,14 +104,7 @@ const TodoItem: React.FC<Props> = ({
           type="checkbox"
           className="todo__status"
           checked={todo.completed}
-          onChange={() => {
-            const updatedTodo: Todo = {
-              ...todo,
-              completed: !todo.completed,
-            };
-
-            onUpdateTodo(updatedTodo, todo.title);
-          }}
+          onChange={handleStatusChange}
         />
       </label>
       {isEditing ? (
@@ -135,8 +134,7 @@ const TodoItem: React.FC<Props> = ({
       <div
         data-cy="TodoLoader"
         className={cn('modal', 'overlay', {
-          'is-active':
-            !todo.id || loading === todo.id || loadAll.includes(todo.id),
+          'is-active': !todo.id || loadingTodoIds.includes(todo.id),
         })}
       >
         <div className="modal-background has-background-white-ter" />

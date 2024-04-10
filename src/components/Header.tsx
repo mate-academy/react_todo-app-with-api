@@ -14,7 +14,7 @@ interface Props {
   onUpdateTodo: (patchTodo: Todo, title: string) => void;
   setLoading: (loading: string | number | null) => void;
   headerError: boolean;
-  setLoadAll: (loadAll: number[]) => void;
+  setLoadingTodoIds: (loadingTodoIds: number[]) => void;
 }
 
 const Header: React.FC<Props> = ({
@@ -26,7 +26,7 @@ const Header: React.FC<Props> = ({
   onUpdateTodo,
   setLoading,
   headerError,
-  setLoadAll,
+  setLoadingTodoIds,
 }) => {
   const [title, setTitle] = useState('');
   const [isShouldFocus, setIsShouldFocus] = useState(false);
@@ -35,6 +35,7 @@ const Header: React.FC<Props> = ({
   useEffect(() => {
     inputRef.current?.focus();
   }, [todos, headerError]);
+
   const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setTitle(event.target.value);
   };
@@ -53,34 +54,38 @@ const Header: React.FC<Props> = ({
   }
 
   const handleCheckboxChange = () => {
-    const allTodos = todos.map(todo => todo.id);
+    const activeTodos = todos.filter(todo => !todo.completed);
 
-    setLoadAll(allTodos);
+    let todosToUpdate: Todo[] = [];
+
+    if (activeTodos.length > 0) {
+      todosToUpdate = activeTodos;
+    } else {
+      todosToUpdate = todos;
+    }
+
+    const loadingIds = todosToUpdate.map(todo => todo.id);
+
+    setLoadingTodoIds(loadingIds);
+
+    let targetStatus: Status;
 
     if (isAllCompleted) {
-      todos.forEach(todo => {
-        const updatedTodo = {
-          ...todo,
-          completed: false,
-          status: Status.Active,
-        };
-
-        onUpdateTodo(updatedTodo, updatedTodo.title);
-      });
+      targetStatus = Status.Active;
     } else {
-      todos
-        .filter(todo => !todo.completed)
-        .forEach(todo => {
-          setLoading(todo.id);
-          const updatedTodo = {
-            ...todo,
-            completed: true,
-            status: Status.Completed,
-          };
-
-          onUpdateTodo(updatedTodo, updatedTodo.title);
-        });
+      targetStatus = Status.Completed;
     }
+
+    todosToUpdate.forEach(todo => {
+      setLoading(todo.id);
+      const updatedTodo = {
+        ...todo,
+        completed: !todo.completed,
+        status: targetStatus,
+      };
+
+      onUpdateTodo(updatedTodo, updatedTodo.title);
+    });
   };
 
   return (

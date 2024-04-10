@@ -12,14 +12,9 @@ export const postTodo = (data: Omit<Todo, 'id'>) => {
 };
 
 export const updateTodo = (updatedTodo: Todo) => {
-  const { id, title, completed, status, userId } = updatedTodo;
+  const { id, ...rest } = updatedTodo;
 
-  return client.patch<Todo>(`/todos/${id}`, {
-    title,
-    completed,
-    status,
-    userId,
-  });
+  return client.patch<Todo>(`/todos/${id}`, rest);
 };
 
 export const deleteTodo = (id: number) => {
