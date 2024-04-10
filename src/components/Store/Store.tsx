@@ -1,12 +1,6 @@
 import React from 'react';
 import { createContext, useContext, useEffect, useMemo, useState } from 'react';
-import {
-  USER_ID,
-  createTodos,
-  deleteTodos,
-  getTodos,
-  updateTodos,
-} from '../../api/todos';
+import * as todoService from '../../api/todos';
 import { Todo } from '../../types/Todo';
 import { FilterBy } from '../../types/FilterBy';
 
@@ -19,16 +13,22 @@ type TodoContextType = {
   setFilter: (filter: FilterBy) => void;
   tempTodo: Todo | null;
   setTempTodo: (todo: Todo | null) => void;
-  isLoading: boolean;
-  setIsLoading: (type: boolean) => void;
   query: string;
   setQuery: (text: string) => void;
-  handleChangeQuery: (event: React.ChangeEvent<HTMLInputElement>) => void;
-  handleSubmit: (e: React.FormEvent<HTMLFormElement>) => void;
-  deleteData: (userId: number) => void;
-  handleClearCompleted: () => void;
-  handleUpdateTodo: (todo: Todo) => void;
   todos: Todo[];
+  isDisabled: boolean;
+  todosActive: number[] | null;
+  setIsDisabled: (sow: boolean) => void;
+  deleteTodo: (type: number) => void;
+  updateData: (todo: Todo) => void;
+  handleCompleteAll: () => void;
+  handleComplete: () => void;
+  completeTodos: Todo[];
+  activeTodos: Todo[];
+  addTodo: (newTodo: Todo) => Promise<void>;
+  renameTodo: (newTodo: Todo) => Promise<void>;
+  errorMessages: (error: string) => void;
+  setTodosActive: (todos: number[]) => void;
 };
 
 const TodoContext = createContext<TodoContextType | undefined>(undefined);
@@ -43,92 +43,116 @@ export const TodosProvider: React.FC<Props> = ({ children }) => {
   const [filter, setFilter] = useState(FilterBy.ALL);
   const [query, setQuery] = useState('');
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
+  const [isDisabled, setIsDisabled] = useState(false);
+  const [todosActive, setTodosActive] = useState<number[]>([]);
 
-  const loadData = async () => {
-    try {
-      const todo = await getTodos();
+  const completeTodos = todos.filter(todo => todo.completed);
+  const activeTodos = todos.filter(todo => !todo.completed);
 
-      setTodos(todo);
-    } catch {
-      setErrorMessage('Unable to load todos');
-    } finally {
-      setIsLoading(false);
+  function errorMessages(error: string) {
+    setErrorMessage(error);
+    setTimeout(() => {
+      setErrorMessage('');
+    }, 3000);
+  }
+
+  useEffect(() => {
+    if (todoService.USER_ID) {
+      todoService
+        .getTodos()
+        .then(setTodos)
+        .catch(() => errorMessages('Unable to load todos'));
     }
-  };
+  }, []);
 
-  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
+  function addTodo(newTodo: Todo) {
+    setTodosActive(prev => [...prev, newTodo.id]);
 
-    if (!query.trim() || query === '') {
-      setErrorMessage('Title should not be empty');
-
-      return;
-    }
-
-    try {
-      const newTodo = {
-        userId: USER_ID,
-        title: query.trim(),
-        completed: false,
-      };
-
-      setTempTodo({
-        id: 0,
-        ...newTodo,
+    return todoService
+      .createTodos(newTodo)
+      .then(newTodos => {
+        setTodos(current => {
+          return [...current, newTodos];
+        });
+      })
+      .finally(() => {
+        setTodosActive([]);
       });
+  }
 
-      const response = await createTodos(newTodo);
+  function deleteTodo(todoId: number) {
+    errorMessages('');
+    setTodosActive(prevIds => [...prevIds, todoId]);
 
-      setTodos(prev => [...prev, response]);
-      setQuery('');
-    } catch {
-      setErrorMessage('Unable to add a todo');
-    } finally {
-      setTempTodo(null);
-      setIsLoading(false);
-    }
-  };
-
-  const deleteData = async (userId: number) => {
-    setIsLoading(true);
-
-    try {
-      await deleteTodos(userId);
-      setTodos(prev => prev.filter(todo => todo.id !== userId));
-    } catch {
-      setErrorMessage('Unable to delete a todo');
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const handleClearCompleted = () => {
-    const completedIds = todos
-      .filter(todo => todo.completed)
-      .map(todo => todo.id);
-
-    completedIds.forEach(id => deleteData(id));
-
-    setTodos(prev => prev.filter(todo => !todo.completed));
-  };
-
-  const handleUpdateTodo = async (updatedTodo: Todo) => {
-    const response = await updateTodos(updatedTodo);
-
-    try {
-      setIsLoading(true);
-      setTodos(prev =>
-        prev.map(
-          todo => (todo.id === updatedTodo.id ? response : todo) as Todo,
+    todoService
+      .deleteTodos(todoId)
+      .then(() =>
+        setTodos(currentTodos =>
+          currentTodos.filter(todo => todo.id !== todoId),
         ),
-      );
-    } catch {
-      setErrorMessage('Unable to update a todo');
-    } finally {
-      setIsLoading(false);
+      )
+      .catch(() => {
+        errorMessages('Unable to delete a todo');
+      })
+      .finally(() => {
+        setTodosActive(prevIds => prevIds.filter(id => id !== todoId));
+      });
+  }
+
+  function updateData(todoUpdate: Todo) {
+    setErrorMessage('');
+    setTodosActive(prev => [...prev, todoUpdate.id]);
+
+    todoService
+      .updateTodos({
+        ...todoUpdate,
+        completed: !todoUpdate.completed,
+      })
+      .then(updatedTodo => {
+        setTodos(prev =>
+          prev.map(todo => (todo.id === updatedTodo.id ? updatedTodo : todo)),
+        );
+      })
+      .catch(() => errorMessages('Unable to update a todo'))
+      .finally(() => {
+        setTodosActive(prev => prev.filter(id => id !== todoUpdate.id));
+      });
+  }
+
+  const handleCompleteAll = () => {
+    if (activeTodos.length !== 0) {
+      activeTodos.forEach(todo => updateData(todo));
+    } else {
+      completeTodos.forEach(todo => updateData(todo));
     }
   };
+
+  function handleComplete() {
+    completeTodos.forEach(todo => {
+      deleteTodo(todo.id);
+    });
+  }
+
+  function renameTodo(todoToRename: Todo) {
+    errorMessages('');
+    setTodosActive(prevIds => [...prevIds, todoToRename.id]);
+
+    return todoService
+      .updateTodos(todoToRename)
+      .then(updatedTodo => {
+        setTodos(prevTodos =>
+          prevTodos.map(todo =>
+            todo.id === updatedTodo.id ? updatedTodo : todo,
+          ),
+        );
+      })
+      .catch(error => {
+        errorMessages('Unable to update a todo');
+
+        throw error;
+      })
+      .finally(() => setTodosActive([]));
+  }
 
   const filteredTodos = useMemo(() => {
     let preparedTodos = [...todos];
@@ -147,41 +171,37 @@ export const TodosProvider: React.FC<Props> = ({ children }) => {
     return preparedTodos;
   }, [todos, filter]);
 
-  const handleChangeQuery = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setQuery(event.target.value);
-  };
-
-  useEffect(() => {
-    loadData();
-  }, []);
-
-  const contextValue = useMemo(
-    () => ({
-      todos,
-      errorMessage,
-      filter,
-      setFilter,
-      filteredTodos,
-      setTodos,
-      setErrorMessage,
-      tempTodo,
-      setTempTodo,
-      isLoading,
-      setIsLoading,
-      query,
-      setQuery,
-      handleChangeQuery,
-      handleSubmit,
-      deleteData,
-      handleClearCompleted,
-      handleUpdateTodo,
-    }),
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [todos, errorMessage, filter, filteredTodos, tempTodo, isLoading, query],
-  );
-
   return (
-    <TodoContext.Provider value={contextValue}>{children}</TodoContext.Provider>
+    <TodoContext.Provider
+      value={{
+        todos,
+        errorMessage,
+        filter,
+        setFilter,
+        filteredTodos,
+        setTodos,
+        setErrorMessage,
+        tempTodo,
+        setTempTodo,
+        query,
+        setQuery,
+        todosActive,
+        isDisabled,
+        setIsDisabled,
+        handleCompleteAll,
+        handleComplete,
+        deleteTodo,
+        updateData,
+        completeTodos,
+        activeTodos,
+        addTodo,
+        renameTodo,
+        errorMessages,
+        setTodosActive,
+      }}
+    >
+      {children}
+    </TodoContext.Provider>
   );
 };
 

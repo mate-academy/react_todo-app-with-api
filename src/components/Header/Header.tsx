@@ -1,34 +1,86 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
+import cn from 'classnames';
 import { useTodos } from '../Store/Store';
+import { USER_ID } from '../../api/todos';
 
 const Header: React.FC = () => {
-  const { handleSubmit, query, handleChangeQuery, handleUpdateTodo, todos } =
-    useTodos();
-
-  const inputRef = useRef<HTMLInputElement>(null);
-
-  const handleChangeCompleted = () => {
-    const allCompleted = todos.every(todo => todo.completed);
-    const updatedTodos = todos.map(todo => ({
-      ...todo,
-      completed: !allCompleted,
-    }));
-
-    updatedTodos.forEach(todo => handleUpdateTodo(todo));
-  };
+  const {
+    todos,
+    activeTodos,
+    handleCompleteAll,
+    setIsDisabled,
+    setTempTodo,
+    addTodo,
+    isDisabled,
+    errorMessages,
+  } = useTodos();
+  const [title, setTitle] = useState('');
+  const titleRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    inputRef.current?.focus();
-  }, []);
+    titleRef.current?.focus();
+  }, [activeTodos.length, errorMessages]);
+
+  const handleTitleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setTitle(event.target.value);
+  };
+
+  const handleSubmit = (event: React.FormEvent) => {
+    event.preventDefault();
+
+    const normalisedTitle = title.trim();
+
+    if (!normalisedTitle.trim()) {
+      errorMessages('Title should not be empty');
+
+      return;
+    }
+
+    setIsDisabled(true);
+
+    const tempTodo = {
+      userId: USER_ID,
+      completed: false,
+      title: normalisedTitle,
+    };
+
+    const newTodo = {
+      userId: USER_ID,
+      completed: false,
+      title: normalisedTitle,
+      id: +new Date(),
+    };
+
+    setTempTodo({
+      id: 0,
+      ...tempTodo,
+    });
+
+    addTodo(newTodo)
+      .then(() => {
+        setTitle('');
+      })
+      .catch(() => {
+        errorMessages('Unable to add a todo');
+      })
+      .finally(() => {
+        setIsDisabled(false);
+        setTempTodo(null);
+      });
+  };
 
   return (
     <header className="todoapp__header">
-      <button
-        type="button"
-        className="todoapp__toggle-all active"
-        data-cy="ToggleAllButton"
-        onClick={handleChangeCompleted}
-      />
+      {todos.length > 0 && (
+        <button
+          type="button"
+          className={cn('todoapp__toggle-all', {
+            active: activeTodos.length === 0,
+          })}
+          data-cy="ToggleAllButton"
+          onClick={handleCompleteAll}
+        />
+      )}
 
       <form onSubmit={handleSubmit}>
         <input
@@ -36,9 +88,10 @@ const Header: React.FC = () => {
           type="text"
           className="todoapp__new-todo"
           placeholder="What needs to be done?"
-          value={query}
-          onChange={handleChangeQuery}
-          ref={inputRef}
+          value={title}
+          onChange={handleTitleChange}
+          ref={titleRef}
+          disabled={isDisabled}
         />
       </form>
     </header>

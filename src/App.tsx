@@ -10,7 +10,7 @@ import Header from './components/Header/Header';
 import { useTodos } from './components/Store/Store';
 
 export const App: React.FC = () => {
-  const { filteredTodos, errorMessage } = useTodos();
+  const { filteredTodos, todos } = useTodos();
 
   if (!USER_ID) {
     return <UserWarning />;
@@ -23,16 +23,12 @@ export const App: React.FC = () => {
       <div className="todoapp__content">
         <Header />
 
-        {filteredTodos.length > 0 && (
-          <>
-            <TodoList />
+        {filteredTodos.length > 0 && <TodoList />}
 
-            <Footer />
-          </>
-        )}
+        {todos.length > 0 && <Footer />}
       </div>
 
-      {errorMessage && <ErrorNotification />}
+      <ErrorNotification />
     </div>
   );
 };

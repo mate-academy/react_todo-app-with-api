@@ -4,19 +4,19 @@ import { useTodos } from '../Store/Store';
 import { FilterBy } from '../../types/FilterBy';
 
 const Footer: React.FC = () => {
-  const { filter, setFilter, filteredTodos, handleClearCompleted } = useTodos();
+  const { filter, setFilter, todos, handleComplete } = useTodos();
 
   const handleChangeType = (filters: FilterBy) => () => {
     setFilter(filters);
   };
 
-  const itemsLeft = filteredTodos.filter(todo => !todo.completed);
-  const completedLeft = filteredTodos.some(todo => todo.completed);
+  const completeTodos = todos.every(todo => !todo.completed);
+  const activeTodos = todos.filter(todo => !todo.completed);
 
   return (
     <footer className="todoapp__footer" data-cy="Footer">
       <span className="todo-count" data-cy="TodosCounter">
-        {`${itemsLeft.length} items left`}
+        {`${activeTodos.length} items left`}
       </span>
 
       <nav className="filter" data-cy="Filter">
@@ -58,8 +58,8 @@ const Footer: React.FC = () => {
         type="button"
         className="todoapp__clear-completed"
         data-cy="ClearCompletedButton"
-        onClick={handleClearCompleted}
-        disabled={!completedLeft}
+        onClick={handleComplete}
+        disabled={completeTodos}
       >
         Clear completed
       </button>
