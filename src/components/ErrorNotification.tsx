@@ -18,6 +18,8 @@ const ErrorNotification: React.FC<ErrorNotificationProps> = ({
 
       return () => clearTimeout(timer);
     }
+
+    return;
   }, [errorMessage, setErrorMessage]);
 
   if (!errorMessage) {

@@ -19,7 +19,6 @@ export const App: React.FC = () => {
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
   const [isInputDisabled, setIsInputDisabled] = useState(false);
   const [headerError, setHeaderError] = useState(false);
-  const [, setLoading] = useState<number | string | null>(null);
   const [isShouldFocusInput, setIsShouldFocusInput] = useState(false);
   const [loadingTodoIds, setLoadingTodoIds] = useState<number[]>([]);
 
@@ -71,7 +70,6 @@ export const App: React.FC = () => {
     };
 
     setTempTodo(fakeTodo);
-    setLoading(trimmedTitle);
 
     postService
       .postTodo(newTodo)
@@ -92,7 +90,6 @@ export const App: React.FC = () => {
   };
 
   const deleteTodo = (id: number) => {
-    setLoading(id);
     setLoadingTodoIds(prevIds => [...prevIds, id]);
 
     postService
@@ -104,7 +101,6 @@ export const App: React.FC = () => {
         handleError('Unable to delete a todo', setErrorMessage);
       })
       .finally(() => {
-        setLoading(null);
         setLoadingTodoIds(prevIds =>
           prevIds.filter(currentId => currentId !== id),
         );
@@ -120,7 +116,6 @@ export const App: React.FC = () => {
       return;
     }
 
-    setLoading(patchTodo.id);
     setLoadingTodoIds(prevIds => [...prevIds, patchTodo.id]);
 
     try {
@@ -143,7 +138,6 @@ export const App: React.FC = () => {
     } catch (error) {
       handleError('Unable to update a todo', setErrorMessage);
     } finally {
-      setLoading(null);
       setLoadingTodoIds(prevIds =>
         prevIds.filter(currentId => currentId !== patchTodo.id),
       );
@@ -189,7 +183,6 @@ export const App: React.FC = () => {
           isInputDisabled={isInputDisabled}
           todos={todos}
           onUpdateTodo={updateTodo}
-          setLoading={setLoading}
           headerError={headerError}
           setLoadingTodoIds={setLoadingTodoIds}
         />
@@ -198,7 +191,6 @@ export const App: React.FC = () => {
           onDeleteTodo={deleteTodo}
           updateTodo={updateTodo}
           tempTodo={tempTodo}
-          setLoading={setLoading}
           setErrorMessage={setErrorMessage}
           loadingTodoIds={loadingTodoIds}
         />

@@ -1,7 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import cn from 'classnames';
 import { Todo } from '../types/Todo';
-import { Status } from '../types/Status';
 
 interface Props {
   onAddTodo: (title: string, setTitle: (title: string) => void) => void;
@@ -12,7 +11,6 @@ interface Props {
   isInputDisabled: boolean;
   todos: Todo[];
   onUpdateTodo: (patchTodo: Todo, title: string) => void;
-  setLoading: (loading: string | number | null) => void;
   headerError: boolean;
   setLoadingTodoIds: (loadingTodoIds: number[]) => void;
 }
@@ -24,7 +22,6 @@ const Header: React.FC<Props> = ({
   isInputDisabled,
   todos,
   onUpdateTodo,
-  setLoading,
   headerError,
   setLoadingTodoIds,
 }) => {
@@ -68,20 +65,10 @@ const Header: React.FC<Props> = ({
 
     setLoadingTodoIds(loadingIds);
 
-    let targetStatus: Status;
-
-    if (isAllCompleted) {
-      targetStatus = Status.Active;
-    } else {
-      targetStatus = Status.Completed;
-    }
-
     todosToUpdate.forEach(todo => {
-      setLoading(todo.id);
       const updatedTodo = {
         ...todo,
         completed: !todo.completed,
-        status: targetStatus,
       };
 
       onUpdateTodo(updatedTodo, updatedTodo.title);

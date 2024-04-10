@@ -1,4 +1,3 @@
-/* eslint-disable jsx-a11y/label-has-associated-control */
 import React, { useState, useRef } from 'react';
 import { Todo } from '../types/Todo';
 import cn from 'classnames';
@@ -8,7 +7,6 @@ interface Props {
   todo: Todo;
   onDeleteTodo?: (id: number) => void;
   onUpdateTodo: (patchTodo: Todo, title: string) => Promise<void>;
-  setLoading: (loading: string | number | null) => void;
   setErrorMessage: (message: string) => void;
   loadingTodoIds: number[];
 }
@@ -17,7 +15,6 @@ const TodoItem: React.FC<Props> = ({
   todo,
   onDeleteTodo = () => {},
   onUpdateTodo,
-  setLoading,
   setErrorMessage,
   loadingTodoIds,
 }) => {
@@ -57,15 +54,11 @@ const TodoItem: React.FC<Props> = ({
       title: trimmedTitle,
     };
 
-    setLoading(todo.id);
-
     try {
       await onUpdateTodo(updatedTodo, trimmedTitle);
     } catch (error) {
       handleError('Unable to update a todo', setErrorMessage);
       setIsEditing(true);
-    } finally {
-      setLoading(null);
     }
   };
 
@@ -97,9 +90,8 @@ const TodoItem: React.FC<Props> = ({
 
   return (
     <div data-cy="Todo" className={cn('todo', { completed: todo.completed })}>
-      <label className="todo__status-label" htmlFor={`TodoStatus-${todo.id}`}>
+      <label className="todo__status-label" aria-label="Todo status">
         <input
-          id={`TodoStatus-${todo.id}`}
           data-cy="TodoStatus"
           type="checkbox"
           className="todo__status"

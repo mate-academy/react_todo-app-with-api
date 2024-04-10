@@ -7,7 +7,6 @@ interface Props {
   onDeleteTodo: (id: number) => void;
   updateTodo: (patchTodo: Todo, title: string) => Promise<void>;
   tempTodo: Todo | null;
-  setLoading: (loading: string | number | null) => void;
   setErrorMessage: (message: string) => void;
   loadingTodoIds: number[];
 }
@@ -17,7 +16,6 @@ const TodoList: React.FC<Props> = ({
   onDeleteTodo,
   updateTodo,
   tempTodo,
-  setLoading,
   setErrorMessage,
   loadingTodoIds,
 }) => {
@@ -29,7 +27,6 @@ const TodoList: React.FC<Props> = ({
           key={todo.id}
           onDeleteTodo={onDeleteTodo}
           onUpdateTodo={updateTodo}
-          setLoading={setLoading}
           setErrorMessage={setErrorMessage}
           loadingTodoIds={loadingTodoIds}
         />
@@ -40,7 +37,6 @@ const TodoList: React.FC<Props> = ({
           todo={tempTodo}
           key={tempTodo.id}
           onUpdateTodo={updateTodo}
-          setLoading={setLoading}
           setErrorMessage={setErrorMessage}
           loadingTodoIds={loadingTodoIds}
         />
