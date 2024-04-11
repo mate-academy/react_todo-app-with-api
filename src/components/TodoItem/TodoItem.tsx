@@ -30,7 +30,7 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
   const renameTodo = (todoToRename: Todo, newTitle: string) => {
     setLoadingTodosIds(prev => [...prev, todoToRename.id]);
 
-    return updateTodo({
+    updateTodo({
       ...todoToRename,
       title: newTitle,
     })
@@ -100,7 +100,7 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
       {isEditing ? (
         <form onSubmit={handleSubmit}>
           <input
-            data-cy="TodoInput"
+            data-cy="TodoTitleField"
             type="text"
             className="todo__title-field"
             ref={todoEditRef}
