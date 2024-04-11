@@ -4,7 +4,9 @@ import { FilterBy } from '../enums/FilterBy';
 import { State } from '../types/State';
 import { Action } from '../types/Action';
 import { Todo } from '../types/Todo';
+
 export const SUCCESS_MESSAGE = 'SUCCESS';
+
 const initialState: State = {
   todos: [],
   sortBy: FilterBy.All,

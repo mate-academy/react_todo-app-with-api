@@ -38,7 +38,6 @@ export const RenamingForm: React.FC<Props> = ({
         />
       </label>
 
-      {/* This form is shown instead of the title and remove button */}
       <form onSubmit={handleSubmit}>
         <input
           ref={inputElem}

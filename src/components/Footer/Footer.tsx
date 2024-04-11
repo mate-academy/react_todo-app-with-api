@@ -2,6 +2,8 @@ import { useContext } from 'react';
 import { Filter } from '../Filter/Filter';
 import { DispatchContext, StateContext } from '../../store/Store';
 import { deleteTodo } from '../../api/todos';
+import { Todo } from '../../types/Todo';
+import { Action } from '../../types/Action';
 
 export const Footer: React.FC = () => {
   const { todos } = useContext(StateContext);
@@ -12,21 +14,26 @@ export const Footer: React.FC = () => {
 
   const getCompletedTodos = todos.filter(todo => todo.completed);
 
-  const handleDeletionTodos = async () => {
-    await Promise.all(
-      getCompletedTodos.map(async todo => {
-        await deleteTodo(todo.id)
-          .then(() => {
-            dispatch({ type: 'REMOVE_LOCAL_TODO', payload: { id: todo.id } });
-          })
-          .catch(() => {
-            dispatch({
-              type: 'SHOW_ERROR_MESSAGE',
-              payload: { message: 'Unable to delete a todo' },
-            });
-          });
-      }),
-    );
+  const deleteTodoHelper = (todo: Todo, action: Action) => {
+    deleteTodo(todo.id)
+      .then(() => {
+        dispatch(action);
+      })
+      .catch(() => {
+        dispatch({
+          type: 'SHOW_ERROR_MESSAGE',
+          payload: { message: 'Unable to delete a todo' },
+        });
+      });
+  };
+
+  const handleDeleteTodo = () => {
+    getCompletedTodos.forEach(todo => {
+      deleteTodoHelper(todo, {
+        type: 'REMOVE_LOCAL_TODO',
+        payload: { id: todo.id },
+      });
+    });
   };
 
   return (
@@ -40,7 +47,7 @@ export const Footer: React.FC = () => {
         type="button"
         className="todoapp__clear-completed"
         data-cy="ClearCompletedButton"
-        onClick={handleDeletionTodos}
+        onClick={handleDeleteTodo}
         disabled={!getCompletedTodos.length}
       >
         Clear completed
