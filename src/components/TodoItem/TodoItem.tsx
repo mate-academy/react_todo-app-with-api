@@ -27,26 +27,28 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
   const [editTitle, setEditTitle] = useState(title);
   const isLoading = loadingTodosIds.includes(id);
 
-  const renameTodo = (todoToRename: Todo, newTitle: string) => {
+  const renameTodo = async (todoToRename: Todo, newTitle: string) => {
     setLoadingTodosIds(prev => [...prev, todoToRename.id]);
 
-    updateTodo({
-      ...todoToRename,
-      title: newTitle,
-    })
-      .then(updatedTodo => {
-        setTodos(currentTodos =>
-          currentTodos.map(currentTodo =>
-            currentTodo.id === updatedTodo.id ? updatedTodo : currentTodo,
-          ),
-        );
-      })
-      .catch(() => {
-        onErrors(Errors.UpdateTodo, setErrorMessage);
-      })
-      .finally(() => {
-        setLoadingTodosIds([]);
+    try {
+      await updateTodo({
+        ...todo,
+        title: newTitle,
       });
+
+      setTodos(currentTodos =>
+        currentTodos.map(currentTodo =>
+          currentTodo.id === todoToRename.id
+            ? { ...currentTodo, title: newTitle }
+            : currentTodo,
+        ),
+      );
+    } catch (error) {
+      onErrors(Errors.UpdateTodo, setErrorMessage);
+      throw error;
+    } finally {
+      setLoadingTodosIds([]);
+    }
   };
 
   const handleSubmit = async (event: React.FormEvent) => {
