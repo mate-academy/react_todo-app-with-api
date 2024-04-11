@@ -1,53 +1,42 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { useTodos } from '../context/TodosContext';
 import { useError } from '../context/ErrorContext';
 import { TodoError } from '../../types/enums';
+import { USER_ID } from '../../utils/todos';
 
 export const TodoForm: React.FC = () => {
-  const { addTodo, tempTodo, removeTodo } = useTodos();
-  const [inputTodo, setInputTodo] = useState('');
+  const { addTodo, setTempTodo, inputTodo, setInputTodo, isLoading } =
+    useTodos();
 
   const { setErrorMessage } = useError();
 
   const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    if (!tempTodo) {
+    if (inputRef.current) {
       inputRef.current?.focus();
     }
-  }, [tempTodo, removeTodo]);
+  }, [isLoading]);
 
-  const handleSumbmitTodo = async (event: React.FormEvent) => {
+  const handleSumbmitTodo = (event: React.FormEvent) => {
     event.preventDefault();
-    setErrorMessage(TodoError.NoError);
-
     const trimmedInput = inputTodo.trim();
 
-    try {
-      if (!trimmedInput) {
-        setErrorMessage(TodoError.NoTitle);
+    if (!trimmedInput) {
+      setErrorMessage(TodoError.NoTitle);
 
-        return;
-      }
-
-      const newTodo = {
-        id: 0,
-        userId: 1,
-        title: trimmedInput,
-        completed: false,
-      };
-
-      setErrorMessage(TodoError.NoError);
-
-      await addTodo(newTodo);
-      setInputTodo('');
-    } catch {
-      setErrorMessage(TodoError.UnableToAdd);
-
-      inputRef.current?.focus();
-    } finally {
-      inputRef.current?.focus();
+      return;
     }
+
+    const newTodo = {
+      id: 0,
+      userId: USER_ID,
+      title: trimmedInput,
+      completed: false,
+    };
+
+    setTempTodo(newTodo);
+    addTodo(newTodo);
   };
 
   return (
@@ -61,7 +50,7 @@ export const TodoForm: React.FC = () => {
         value={inputTodo}
         onChange={event => setInputTodo(event.target.value)}
         ref={inputRef}
-        disabled={tempTodo !== null}
+        disabled={isLoading}
       />
     </form>
   );

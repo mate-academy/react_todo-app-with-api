@@ -3,78 +3,47 @@ import cn from 'classnames';
 import { useTodos } from '../context/TodosContext';
 
 import { Todo } from '../../types/Todo';
-import { useEffect, useRef, useState } from 'react';
+import { useState } from 'react';
 
 type Props = {
   todo: Todo;
-  isLoadingItem?: boolean;
 };
 
-export const TodoInfo: React.FC<Props> = ({ todo, isLoadingItem = false }) => {
-  const { removeTodo, toggleOne, updateTodo } = useTodos();
-  const [isEditing, setIsEditing] = useState(false);
-  const [isLoading, setIsLoading] = useState(isLoadingItem);
+export const TodoInfo: React.FC<Props> = ({ todo }) => {
+  const { removeTodo, toggleOne, updateTodo, loadingTodoIds } = useTodos();
+  const [idEditing, setIdEditing] = useState<number | null>(null);
   const [title, setTitle] = useState(todo.title);
 
-  const inputRef = useRef<HTMLInputElement | null>(null);
-
-  const handleRemove = async () => {
-    setIsLoading(true);
-    await removeTodo(todo.id);
-  };
-
-  const handleToggle = async (todoToggle: Todo) => {
-    setIsLoading(true);
-
-    try {
-      await toggleOne(todoToggle);
-    } catch (error) {
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    if (!isLoading && isEditing) {
-      inputRef.current?.focus();
-    }
-  }, [isEditing, isLoading]);
+  const isLoadingItem = loadingTodoIds.includes(todo.id) || todo.id === 0;
 
   const inputId = `todo-status-${todo.id}`;
 
-  async function saveEditedTodo() {
+  function saveEditedTodo() {
     const trimmedInput = title.trim();
 
-    if (trimmedInput === todo.title || !trimmedInput) {
-      if (!trimmedInput) {
-        await handleRemove();
-      }
-
-      setIsEditing(false);
-      setTitle(todo.title);
+    if (trimmedInput === todo.title) {
+      setIdEditing(null);
 
       return;
     }
 
-    setIsEditing(false);
-
-    try {
-      setIsLoading(true);
-
-      await updateTodo({ ...todo, title: trimmedInput });
-      setIsEditing(false);
-    } catch (error) {
-      setIsEditing(true);
-      inputRef.current?.focus();
-    } finally {
-      setIsLoading(false);
+    if (!trimmedInput) {
+      removeTodo(todo.id);
+    } else {
+      updateTodo({ ...todo, title: trimmedInput }, async () =>
+        setIdEditing(null),
+      );
     }
   }
 
-  const handleSubmit = async (event: React.FormEvent) => {
-    event.preventDefault();
-    setIsLoading(true);
-    await saveEditedTodo();
+  const handleKeyUp = async (event: React.KeyboardEvent) => {
+    if (event.key === 'Escape') {
+      setIdEditing(null);
+    }
+
+    if (event.key === 'Enter') {
+      await saveEditedTodo();
+    }
   };
 
   return (
@@ -87,35 +56,33 @@ export const TodoInfo: React.FC<Props> = ({ todo, isLoadingItem = false }) => {
           type="checkbox"
           className="todo__status"
           checked={todo.completed}
-          defaultValue={title}
-          onChange={() => handleToggle(todo)}
+          onChange={() => toggleOne(todo.id)}
         />
       </label>
-      {isEditing && (
-        <form onSubmit={handleSubmit}>
+      {idEditing && (
+        <form onSubmit={e => e.preventDefault()}>
           <input
             data-cy="TodoTitleField"
             type="text"
-            ref={inputRef}
             className="todo__title-field"
             placeholder="Empty todo will be deleted"
             value={title}
-            onBlur={handleSubmit}
+            onBlur={saveEditedTodo}
             onChange={e => setTitle(e.target.value)}
-            onKeyUp={event => {
-              if (event.key === 'Escape') {
-                setIsEditing(false);
-              }
-            }}
+            onKeyUp={event => handleKeyUp(event)}
+            autoFocus
           />
         </form>
       )}
-      {!isEditing && (
+      {!idEditing && (
         <>
           <span
             data-cy="TodoTitle"
             className="todo__title"
-            onDoubleClick={() => setIsEditing(true)}
+            onDoubleClick={() => {
+              setIdEditing(todo.id);
+              setTitle(todo.title);
+            }}
           >
             {todo.title}
           </span>
@@ -123,7 +90,7 @@ export const TodoInfo: React.FC<Props> = ({ todo, isLoadingItem = false }) => {
             type="button"
             className="todo__remove"
             data-cy="TodoDelete"
-            onClick={handleRemove}
+            onClick={() => removeTodo(todo.id)}
           >
             ×
           </button>
@@ -131,7 +98,7 @@ export const TodoInfo: React.FC<Props> = ({ todo, isLoadingItem = false }) => {
       )}
       <div
         data-cy="TodoLoader"
-        className={cn('modal overlay', { 'is-active': isLoading })}
+        className={cn('modal overlay', { 'is-active': isLoadingItem })}
       >
         <div className="modal-background has-background-white-ter" />
         <div className="loader" />
