@@ -27,9 +27,9 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
 
   const handleDeleteTodo = () => {
     setIsLoading(true);
-    deleteTodo(todo.id)
+    deleteTodo(id)
       .then(() => {
-        dispatch({ type: 'DELETE_TODO', payload: { id: todo.id } });
+        dispatch({ type: 'DELETE_TODO', payload: { id } });
       })
       .catch(() => {
         dispatch({

@@ -26,6 +26,9 @@ export const RenamingForm: React.FC<Props> = ({
   setValue,
 }) => {
   const { completed } = todo;
+  const handleEditingInput = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setValue(e.target.value);
+  };
 
   return (
     <div data-cy="Todo" className={classNames('todo', { completed })}>
@@ -48,7 +51,7 @@ export const RenamingForm: React.FC<Props> = ({
           value={value}
           onKeyUp={handleButtonChange}
           onBlur={handlerBlur}
-          onChange={e => setValue(e.target.value)}
+          onChange={handleEditingInput}
         />
       </form>
 
