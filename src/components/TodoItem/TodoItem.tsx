@@ -49,7 +49,7 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
       });
   };
 
-  const handleSubmit = (event: React.FormEvent) => {
+  const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
     const trimmedTitle = editTitle.trim();
 
@@ -65,14 +65,18 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
       return;
     }
 
-    renameTodo(todo, trimmedTitle);
-    setIsEditing(false);
+    try {
+      await renameTodo(todo, trimmedTitle);
+      setIsEditing(false);
+    } catch (error) {
+      todoEditRef.current?.focus();
+    }
   };
 
   const handleKeyUp = (event: React.KeyboardEvent<HTMLInputElement>) => {
     if (event.key === 'Escape') {
-      setIsEditing(false);
       setEditTitle(title);
+      setIsEditing(false);
     }
   };
 
