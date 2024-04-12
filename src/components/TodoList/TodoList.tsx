@@ -16,12 +16,12 @@ export const TodoList: React.FC<Props> = ({ todos }) => {
       <TransitionGroup>
         {todos.map(todo => (
           <CSSTransition key={todo.id} timeout={300} classNames={'item'}>
-            <TodoItem key={todo.id} todo={todo} />
+            <TodoItem todo={todo} />
           </CSSTransition>
         ))}
         {tempTodo && (
-          <CSSTransition key={0} timeout={300} classNames={'temp-item'}>
-            <TodoItem key={tempTodo.id} todo={tempTodo} />
+          <CSSTransition timeout={300} classNames="temp-item">
+            <TodoItem todo={tempTodo} />
           </CSSTransition>
         )}
       </TransitionGroup>
