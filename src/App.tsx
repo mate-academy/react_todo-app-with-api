@@ -35,7 +35,7 @@ export const App: React.FC = () => {
   const completedTodos = todos.filter(todo => todo.completed);
 
   const toggleAll = () => {
-    if (activeTodos.length !== 0) {
+    if (activeTodos.length) {
       activeTodos.forEach(activeTodo => toggleTodo(activeTodo));
     } else {
       completedTodos.forEach(completedTodo => toggleTodo(completedTodo));
@@ -48,11 +48,11 @@ export const App: React.FC = () => {
 
       <div className="todoapp__content">
         <header className="todoapp__header">
-          {todos.length > 0 && (
+          {!!todos.length && (
             <button
               type="button"
               className={classNames('todoapp__toggle-all', {
-                active: activeTodos.length === 0,
+                active: !activeTodos.length,
               })}
               data-cy="ToggleAllButton"
               onClick={toggleAll}
@@ -64,8 +64,8 @@ export const App: React.FC = () => {
             }}
           />
         </header>
-        {preparedTodos.length > 0 && <TodoList todos={preparedTodos} />}
-        {todos.length > 0 && (
+        {!!preparedTodos.length && <TodoList todos={preparedTodos} />}
+        {!!todos.length && (
           <Footer
             setStatusFilter={setStatusFilter}
             todos={todos}

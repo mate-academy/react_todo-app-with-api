@@ -47,7 +47,6 @@ export const NewTodoForm: React.FC<Props> = ({ onTodoCreated }) => {
       .then(newAddedTodo => {
         onTodoCreated(newAddedTodo);
         setTitle('');
-        setIsLoading(false);
       })
       .catch(() => {
         displayError(ErrorMessages.AddTodo);

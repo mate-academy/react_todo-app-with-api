@@ -10,16 +10,16 @@ type Props = {
 
 export const Todo: React.FC<Props> = ({ todo, isActive = false }) => {
   const { handleDeleteTodo, toggleTodo, renameTodo } = useTodos();
-  const [editing, setEditing] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
   const [title, setTitle] = useState(todo.title);
 
   const titleField = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    if (editing) {
+    if (isEditing) {
       titleField?.current?.focus();
     }
-  }, [editing]);
+  }, [isEditing]);
 
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
@@ -27,7 +27,7 @@ export const Todo: React.FC<Props> = ({ todo, isActive = false }) => {
     const normalizedTitle = title.trim();
 
     if (normalizedTitle === todo.title) {
-      setEditing(false);
+      setIsEditing(false);
 
       return;
     }
@@ -41,9 +41,16 @@ export const Todo: React.FC<Props> = ({ todo, isActive = false }) => {
     try {
       await renameTodo(todo, normalizedTitle);
 
-      setEditing(false);
+      setIsEditing(false);
     } catch (error) {
       titleField.current?.focus();
+    }
+  };
+
+  const handleKeyUp = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Escape') {
+      setIsEditing(false);
+      setTitle(todo.title);
     }
   };
 
@@ -63,7 +70,7 @@ export const Todo: React.FC<Props> = ({ todo, isActive = false }) => {
         />
       </label>
 
-      {editing ? (
+      {isEditing ? (
         <form onSubmit={handleSubmit}>
           <input
             data-cy="TodoTitleField"
@@ -74,12 +81,7 @@ export const Todo: React.FC<Props> = ({ todo, isActive = false }) => {
             onChange={e => setTitle(e.target.value)}
             ref={titleField}
             onBlur={handleSubmit}
-            onKeyUp={e => {
-              if (e.key === 'Escape') {
-                setEditing(false);
-                setTitle(todo.title);
-              }
-            }}
+            onKeyUp={handleKeyUp}
           />
         </form>
       ) : (
@@ -88,7 +90,7 @@ export const Todo: React.FC<Props> = ({ todo, isActive = false }) => {
             data-cy="TodoTitle"
             className="todo__title"
             onDoubleClick={() => {
-              setEditing(true);
+              setIsEditing(true);
               setTitle(todo.title);
             }}
           >
