@@ -119,7 +119,6 @@ export const TodoProvider: React.FC<Props> = ({ children }) => {
     dispatch({ type: 'setTempTodo', payload: todo });
   };
 
-  // Interact with todos
   const setTodos = (newTodos: Todo[]) => {
     dispatch({ type: 'setTodos', payload: newTodos });
   };

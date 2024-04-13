@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useContext, useState } from 'react';
 import { Todo } from '../../types/Todo';
 import classNames from 'classnames';
 import { TodoContext } from '../../TodoContext';
@@ -10,6 +10,7 @@ type Props = {
 
 export const TodoInfo: React.FC<Props> = ({ todo, isLoading = false }) => {
   const { updateTodo, deleteTodo } = useContext(TodoContext);
+
   const [beingEdited, setBeingEdited] = useState(false);
   const [loading, setLoading] = useState(isLoading);
   const [title, setTitle] = useState(todo.title);
@@ -65,7 +66,7 @@ export const TodoInfo: React.FC<Props> = ({ todo, isLoading = false }) => {
     });
   };
 
-  const handleKeyup = (event: KeyboardEvent) => {
+  const handleKeyup = (event: React.KeyboardEvent<HTMLInputElement>) => {
     if (event.key === 'Escape') {
       setBeingEdited(false);
       setTitle(todo.title);
@@ -73,18 +74,6 @@ export const TodoInfo: React.FC<Props> = ({ todo, isLoading = false }) => {
       updateTodoTitle();
     }
   };
-
-  useEffect(() => {
-    if (beingEdited) {
-      document.addEventListener('keyup', handleKeyup);
-
-      return () => {
-        document.removeEventListener('keyup', handleKeyup);
-      };
-    }
-
-    return;
-  });
 
   return (
     <>
@@ -135,6 +124,7 @@ export const TodoInfo: React.FC<Props> = ({ todo, isLoading = false }) => {
               value={title}
               onChange={handleTitleOnChange}
               onBlur={updateTodoTitle}
+              onKeyUp={handleKeyup}
             />
           </form>
         )}

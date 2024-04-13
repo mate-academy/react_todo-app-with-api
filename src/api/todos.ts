@@ -18,8 +18,6 @@ export const addTodo = (title: string) => {
 };
 
 export const updateTodo = ({ id, title, userId, completed }: Todo) => {
-  console.log(123);
-
   return client.patch<Todo>(`/todos/${id}`, {
     title,
     userId,
