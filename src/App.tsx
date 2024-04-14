@@ -10,21 +10,7 @@ import { Todolist } from './components/Todolist';
 import { Error } from './components/Error';
 import { Header } from './components/Header';
 import { Errors } from './types/Errors';
-
-function getFilterTodos(todos: Todo[], filterField: Status) {
-  const filterTodos = todos.filter(todo => {
-    switch (filterField) {
-      case Status.Active:
-        return !todo.completed;
-      case Status.Completed:
-        return todo.completed;
-      default:
-        return todo;
-    }
-  });
-
-  return filterTodos;
-}
+import { getFilterTodos } from './utils/Filter';
 
 export const App: React.FC = () => {
   const [todos, setTodos] = useState<Todo[]>([]);
@@ -69,7 +55,7 @@ export const App: React.FC = () => {
       setIsLoading(true);
       const newTodo = await creatTodo(creatNewTodo);
 
-      setTodos(currentTodos => [...currentTodos, newTodo] as Todo[]);
+      setTodos(currentTodos => [...currentTodos, newTodo]);
       setNewTitle('');
     } catch {
       handleError(Errors.Add);
@@ -156,11 +142,11 @@ export const App: React.FC = () => {
 
         {!!todos.length && (
           <Footer
-            onFilter={field => setStatus(field)}
+            onFilterChange={field => setStatus(field)}
             onDeleteTodo={removeTodo}
             currentFilterStatus={status}
             todos={todos}
-            onError={handleError}
+            setError={handleError}
           />
         )}
       </div>

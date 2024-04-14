@@ -1,5 +1,5 @@
 import React from 'react';
-import { TodoItem } from './Item';
+import { TodoItem } from './TodoItem';
 import { Todo } from '../types/Todo';
 import { Errors } from '../types/Errors';
 

@@ -6,19 +6,19 @@ import { Filter } from './Filter';
 import { Errors } from '../types/Errors';
 
 type Props = {
-  onFilter: (value: Status) => void;
+  onFilterChange: (value: Status) => void;
   currentFilterStatus: Status;
   todos: Todo[];
   onDeleteTodo: (todoId: number) => Promise<unknown>;
-  onClearError: (error: Errors) => void;
+  setError: (error: Errors) => void;
 };
 
 export const Footer: React.FC<Props> = ({
-  onFilter,
+  onFilterChange,
   currentFilterStatus,
   todos,
   onDeleteTodo,
-  onClearError,
+  setError,
 }) => {
   const uncompletedTodos = todos.filter(item => !item.completed);
 
@@ -30,7 +30,7 @@ export const Footer: React.FC<Props> = ({
     try {
       await Promise.all(completedTodos.map(todo => onDeleteTodo(todo.id)));
     } catch {
-      onClearError(Errors.Delete);
+      setError(Errors.Delete);
     }
   }
 
@@ -40,7 +40,10 @@ export const Footer: React.FC<Props> = ({
         {`${uncompletedTodos.length} items left`}
       </span>
 
-      <Filter onFilter={onFilter} currentFilterStatus={currentFilterStatus} />
+      <Filter
+        onFilter={onFilterChange}
+        currentFilterStatus={currentFilterStatus}
+      />
       <button
         type="button"
         className="todoapp__clear-completed"

@@ -23,7 +23,7 @@ export const Filter: React.FC<FilterProps> = ({
           })}
           data-cy={`FilterLink${field}`}
         >
-          {field.toUpperCase()}
+          {field}
         </a>
       ))}
     </nav>
