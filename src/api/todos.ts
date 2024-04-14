@@ -15,10 +15,6 @@ export const deleteTodo = (todoId: number) => {
   return client.delete(`/todos/${todoId}`);
 };
 
-// export const deleteTodo = (todoId: number) => {
-//   return client.delete<Todo[]>(`/todos/${todoId}`);
-// };
-
 export const updateTodo = ({
   id,
   userId,

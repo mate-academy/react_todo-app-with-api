@@ -56,7 +56,6 @@ export const Footer: React.FC = () => {
 
           <Filter />
 
-          {/* this button should be disabled if there are no completed todos */}
           <button
             type="button"
             className="todoapp__clear-completed"
@@ -71,46 +70,3 @@ export const Footer: React.FC = () => {
     </footer>
   );
 };
-
-// const clearTodos = () => {
-//   const completedTodos = todos.filter(todo => todo.completed);
-
-//   completedTodos.forEach(todo => removeTodo(todo.id));
-// };
-
-/*
-  const cleanCompletedTodos = () => {
-    setLoader(true);
-
-    todos.map(todo => {
-      if (todo.completed) {
-        todoService
-          .deleteTodo(todo.id)
-          .then(() => {
-            setTodos(todos.filter(task => !task.completed));
-          })
-          .catch(() => {
-            setErrorMessage(Errors.DeleteError);
-            setTimeout(() => {
-              setErrorMessage('');
-            }, 2000);
-          })
-          .finally(() => {
-            setLoader(false);
-          });
-      }
-    });
-
-    setTodos(todos.filter(todo => todo.completed === false));
-  };
-*/
-
-/*
-.catch(() => {
-      setErrorMessage('');
-      setTimeout(() => {
-        setErrorMessage('');
-      }, 3000);
-      setErrorMessage(Errors.DeleteError);
-    })
-*/

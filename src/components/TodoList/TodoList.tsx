@@ -30,15 +30,3 @@ export const TodoList: React.FC = () => {
     </section>
   );
 };
-
-/*
-    <>
-      <section className="todoapp__main" data-cy="TodoList">
-        {tempTodo ? (
-          <TodoItem todo={tempTodo} />
-        ) : (
-          filteredTodos.map(todo => <TodoItem todo={todo} key={todo.id} />)
-        )}
-      </section>
-    </>
-*/

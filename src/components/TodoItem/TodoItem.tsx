@@ -44,10 +44,6 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
     setEditedTitle(event.target.value);
   };
 
-  const hideInput = () => {
-    setIsEditing(false);
-  };
-
   const removeTodo = () => {
     setLocalLoader(true);
     setDeletedTodoId(todo.id);
@@ -73,10 +69,16 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
       });
   };
 
-  const editingTodo = (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    setLocalLoader(true);
+  const updatingTodo = () => {
     const trimedTitle = editedTitle.trim();
+
+    if (trimedTitle === todo.title) {
+      setIsEditing(false);
+
+      return;
+    }
+
+    setLocalLoader(true);
 
     if (trimedTitle.length) {
       todoService
@@ -91,8 +93,8 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
           });
 
           setTodos(result);
-          setEditedTitle(todo.title);
-          hideInput();
+          setEditedTitle(editedTitle);
+          setIsEditing(false);
         })
         .catch(() => {
           setErrorMessage(Errors.UpdateError);
@@ -106,9 +108,24 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
               titleField.current.focus();
             }
           }, 0);
-          // setEditedTitle(todo.title);
           setLocalLoader(false);
         });
+    } else {
+      removeTodo();
+    }
+  };
+
+  const hideInput = () => {
+    setIsEditing(false);
+    updatingTodo();
+  };
+
+  const editingTodo = (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    const trimedTitle = editedTitle.trim();
+
+    if (trimedTitle.length) {
+      updatingTodo();
     } else {
       removeTodo();
     }
@@ -168,7 +185,6 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
             type="text"
             className="todo__title-field"
             placeholder="Empty todo will be deleted"
-            // value="Todo is being edited now"
             onChange={handleTitleChange}
             onKeyUp={stopEditingTodo}
             onBlur={hideInput}
@@ -197,9 +213,6 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
         </>
       )}
 
-      {/* overlay will cover the todo while it is being deleted or updated */}
-
-      {/* 'is-active' class puts in className this modal on top of the todo */}
       <div
         data-cy="TodoLoader"
         className={cn('modal overlay', {
@@ -212,40 +225,3 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
     </div>
   );
 };
-
-/* This form is shown instead of the title and remove button */
-
-// const deleteTodo = () => {
-//   setLoader(true);
-//   todoService.deleteTodo(todo.id);
-//   setTodos(todos.filter(task => task.id !== todo.id));
-//   setLoader(false);
-// };
-
-// варіант ментора
-
-// const deleteTodo = async () => {
-//   setLoader(true);
-//   await todoService.deleteTodo(todo.id);
-//   setTodos(todos.filter(task => task.id !== todo.id));
-//   setLoader(false);
-// };
-
-// .catch(() => {
-//         setErrorMessage(Errors.DeleteError);
-//         setTimeout(() => {
-//           setErrorMessage('');
-//         }, 3000);
-//       })
-
-// .then((response: any) => {
-//   if (!response.ok) {
-//     throw new Error(Errors.DeleteError);
-//   }
-
-//   setTodos(todos.filter(task => task.id !== todo.id));
-// })
-
-// prevtodos.map(task =>
-//   task.id === todo.id ? { ...task, completed: !task.completed } : task,
-// ),

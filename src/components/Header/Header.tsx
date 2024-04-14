@@ -3,12 +3,8 @@ import cn from 'classnames';
 import { TodoContext } from '../../context/TodoContext';
 import * as todoService from '../../api/todos';
 import { USER_ID } from '../../api/todos';
-// import { Todo } from '../../types/Todo';
 import { Errors } from '../../types/Errors';
-
-// type Props = {
-//   todo: Todo;
-// };
+import { Todo } from '../../types/Todo';
 
 export const Header: React.FC = () => {
   const { todos, setTodos, setErrorMessage, setTempTodo, titleField } =
@@ -22,7 +18,7 @@ export const Header: React.FC = () => {
     if (titleField && titleField.current) {
       titleField.current.focus();
     }
-  }, []);
+  }, [titleField]);
 
   const handleTitleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setNewTodoTitle(event.target.value);
@@ -76,7 +72,7 @@ export const Header: React.FC = () => {
     }
   };
 
-  const getTododsToUpdate = tasks => {
+  const getTododsToUpdate = (tasks: Todo[]) => {
     const hasSomeActiveTodos = tasks.some(t => t.completed === false);
 
     if (hasSomeActiveTodos) {
@@ -98,21 +94,18 @@ export const Header: React.FC = () => {
               task.id === updatedTodo.id ? updatedTodo : task,
             ),
           );
-          // eslint-disable-next-line
-          console.log(updatedTodo);
         })
         .catch(() => {
           setErrorMessage(Errors.UpdateError);
           setTimeout(() => {
             setErrorMessage('');
           }, 3000);
-        }); // .finally(() => {});
+        });
     });
   };
 
   return (
     <header className="todoapp__header">
-      {/* this button should have `active` class only if all todos are completed */}
       {todos.length > 0 && (
         <button
           type="button"
@@ -122,11 +115,9 @@ export const Header: React.FC = () => {
           data-cy="ToggleAllButton"
           aria-label="toggleAllButton"
           onClick={changeAllTodosStatus}
-          // onClick={getTododsToUpdate}
         />
       )}
 
-      {/* Add a todo on form submit */}
       <form onSubmit={addTodo}>
         <input
           data-cy="NewTodoField"
@@ -142,50 +133,3 @@ export const Header: React.FC = () => {
     </header>
   );
 };
-
-// if (isDuplicate) {
-//   setErrorMessage('This title already exists');
-// }
-
-// .catch((error: any) => {
-//    setErrorMessage(Errors.AddError);
-//    setTimeout(() => {
-//       setErrorMessage('');
-//    }, 3000);
-//    throw error;
-// })
-
-// const handleTitleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-//   if (errorMessage) {
-//     setErrorMessage('');
-//   }
-
-//   setNewTodoTitle(event.target.value);
-// };
-
-// eslint-disable-next-line
-// console.log('finnaly');
-
-// .catch(() => {
-//   setErrorMessage(Errors.AddError);
-//   setTimeout(() => {
-//     setErrorMessage('');
-//   }, 3000);
-// })
-
-// const changeStatus = () => {
-//   const todosToUpdate = todos.filter(t => t.completed);
-//   const notAllCompleted = todos.some(t => !t.completed);
-
-//   if (notAllCompleted) {
-//     setTodos(prevTodos =>
-//       prevTodos.map(task => ({ ...task, completed: true })),
-//     );
-//   } else {
-//     setTodos(prevTodos =>
-//       prevTodos.map(task => ({ ...task, completed: false })),
-//     );
-//   }
-
-//   changeAllTodosStatus(todosToUpdate);
-// };
