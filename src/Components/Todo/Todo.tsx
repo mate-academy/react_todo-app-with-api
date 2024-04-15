@@ -64,8 +64,10 @@ export const Todo: React.FC<Props> = ({ todo }) => {
   };
 
   const cancelEditing = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === 'Escape') {
-      dispatch({ type: Actions.updateTodo, id: todo.id, title: todo.title });
+    if (
+      e.key === 'Escape' ||
+      (e.key === 'Enter' && todo.title === changedValue)
+    ) {
       setChangedValue(todo.title);
       setIsEditing(prev => !prev);
 
@@ -76,6 +78,7 @@ export const Todo: React.FC<Props> = ({ todo }) => {
   const handleUpdateTodo = (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
+
     if (changedValue.length > 1) {
       updateTodo({ id: todo.id, data: { title: changedValue } })
         .then(response => {
@@ -86,6 +89,8 @@ export const Todo: React.FC<Props> = ({ todo }) => {
             id: responseTodo.id,
             title: responseTodo.title.trim(),
           });
+
+          setIsEditing(prev => !prev);
         })
         .catch(() => {
           dispatch({
@@ -99,8 +104,6 @@ export const Todo: React.FC<Props> = ({ todo }) => {
     } else {
       handleDelete();
     }
-
-    setIsEditing(prev => !prev);
   };
 
   useEffect(() => {
@@ -161,8 +164,6 @@ export const Todo: React.FC<Props> = ({ todo }) => {
           </button>
         </>
       )}
-
-      {/* overlay will cover the todo while it is being deleted or updated */}
       <div
         data-cy="TodoLoader"
         className={classNames('modal overlay', {

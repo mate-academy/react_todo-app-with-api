@@ -41,7 +41,6 @@ export const ErrorNotification: React.FC = () => {
         className="delete"
         onClick={hideErrorMessage}
       />
-      {/* show only one message at a time +*/}
       {errorLoad}
     </div>
   );

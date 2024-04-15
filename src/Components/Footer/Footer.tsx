@@ -46,11 +46,7 @@ export const Footer: React.FC = () => {
         <span className="todo-count" data-cy="TodosCounter">
           {isActiveTodos.length} items left
         </span>
-
-        {/* Active link should have the 'selected' class + */}
         <Filters />
-
-        {/* this button should be disabled if there are no completed todos + */}
         <button
           type="button"
           className="todoapp__clear-completed"
