@@ -7,18 +7,24 @@ import { Errors } from '../../types/Errors';
 import { Todo } from '../../types/Todo';
 
 export const Header: React.FC = () => {
-  const { todos, setTodos, setErrorMessage, setTempTodo, titleField } =
-    useContext(TodoContext);
+  const {
+    todos,
+    setTodos,
+    setErrorMessage,
+    setTempTodo,
+    titleField,
+    tempTodo,
+  } = useContext(TodoContext);
   const [newTodoTitle, setNewTodoTitle] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const allTodosAreCompleted = todos.every(task => task.completed === true);
 
   useEffect(() => {
-    if (titleField && titleField.current) {
-      titleField.current.focus();
+    if ((titleField && titleField.current) || !tempTodo) {
+      titleField.current?.focus();
     }
-  }, [titleField]);
+  }, [titleField, tempTodo]);
 
   const handleTitleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setNewTodoTitle(event.target.value);
@@ -57,12 +63,6 @@ export const Header: React.FC = () => {
         .finally(() => {
           setIsSubmitting(false);
           setTempTodo(null);
-
-          setTimeout(() => {
-            if (titleField.current) {
-              titleField.current.focus();
-            }
-          }, 0);
         });
     } else {
       setErrorMessage(Errors.EmptyTitle);

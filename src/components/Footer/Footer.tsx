@@ -1,4 +1,4 @@
-import React, { useContext } from 'react';
+import React, { useContext, useEffect } from 'react';
 import * as todoService from '../../api/todos';
 import { Filter } from '../Filter';
 import { TodoContext } from '../../context/TodoContext';
@@ -14,6 +14,12 @@ export const Footer: React.FC = () => {
   const uncompletedTodos = todos.filter(todo => todo.completed === false);
 
   const hasEnoughCompletedTodo = todos.some(todo => todo.completed === true);
+
+  useEffect(() => {
+    if (titleField && titleField.current) {
+      titleField.current?.focus();
+    }
+  }, [titleField]);
 
   const removeTodos = (completedTodos: Todo[]) => {
     completedTodos.forEach(todo => {
@@ -31,6 +37,7 @@ export const Footer: React.FC = () => {
         })
         .finally(() => {
           setMultiLoader(false);
+
           setTimeout(() => {
             if (titleField.current) {
               titleField.current.focus();

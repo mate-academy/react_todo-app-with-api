@@ -4,7 +4,6 @@ import { UserWarning } from './UserWarning';
 import { USER_ID } from './api/todos';
 import { TodoProvider } from './context/TodoContext';
 import { Container } from './components/Container/Container';
-import { Error } from './components/Error';
 
 export const App: React.FC = () => {
   if (!USER_ID) {
@@ -17,7 +16,6 @@ export const App: React.FC = () => {
 
       <TodoProvider>
         <Container />
-        <Error />
       </TodoProvider>
     </div>
   );
