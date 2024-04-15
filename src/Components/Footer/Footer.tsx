@@ -1,4 +1,4 @@
-import React, { useContext, useMemo, useState } from 'react';
+import React, { useContext, useMemo } from 'react';
 import { Filters } from '../Filters';
 import { Actions, DispatchContext, StateContext } from '../../Store';
 import { Todo } from '../../types/Todo';
@@ -7,7 +7,6 @@ import { deleteTodos } from '../../api/todos';
 export const Footer: React.FC = () => {
   const { todos } = useContext(StateContext);
   const dispatch = useContext(DispatchContext);
-  const [errorsIds] = useState<number[]>([]);
   const isActiveTodos = useMemo(() => {
     return todos.filter((todo: Todo) => !todo.completed);
   }, [todos]);
@@ -30,7 +29,6 @@ export const Footer: React.FC = () => {
               type: Actions.setErrorLoad,
               payload: 'Unable to delete a todo',
             });
-            errorsIds.push(id);
             throw error;
           })
           .finally(() => {
