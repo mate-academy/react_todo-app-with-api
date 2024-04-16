@@ -9,10 +9,10 @@ type Props = {
   todo: Todo;
   onDelete?: () => void;
   loading?: boolean;
-  setEditId?: (arg0: number) => void;
-  handleSubmitEdit?: (arg0: React.FormEvent<HTMLFormElement>) => void;
+  setEditId?: (id: number) => void;
+  handleSubmitEdit?: (event: React.FormEvent<HTMLFormElement>) => void;
   handleCancelEdit?: () => void;
-  setEditTitle?: (arg0: string) => void;
+  setEditTitle?: (title: string) => void;
 };
 export const TodoItem: React.FC<Props> = ({
   todo,

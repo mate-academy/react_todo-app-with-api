@@ -180,7 +180,7 @@ export const App: React.FC = () => {
           </form>
         </header>
 
-        {todos.length === 0 ? null : (
+        {!!todos.length && (
           <>
             <section className="todoapp__main" data-cy="TodoList">
               {visibleTodos.map(todo => (
@@ -242,7 +242,7 @@ export const App: React.FC = () => {
                 </a>
               </nav>
 
-              {completedTodos.length > 0 && (
+              {!!completedTodos.length && (
                 <button
                   type="button"
                   className="todoapp__clear-completed"
