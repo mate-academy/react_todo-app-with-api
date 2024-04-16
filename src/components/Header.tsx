@@ -5,7 +5,7 @@ import classNames from 'classnames';
 type Props = {
   onSubmit: (e: FormEvent) => void;
   onChange: (value: string) => void;
-  toggleTodoCompletion: (todoId: number) => void;
+  toggleAllTodosCompletion: (todoId: number) => void;
   todos: Todo[];
   inputRef: Ref<HTMLInputElement> | null;
   title: string;
@@ -15,7 +15,7 @@ type Props = {
 export const Header: React.FC<Props> = ({
   onSubmit,
   onChange,
-  toggleTodoCompletion,
+  toggleAllTodosCompletion,
   todos,
   title,
   isLoading,
@@ -25,7 +25,7 @@ export const Header: React.FC<Props> = ({
 
   // request to the server and changing the state
   const toggleAllTodosOnServer = async () => {
-    await Promise.all(todos.map(todo => toggleTodoCompletion(todo.id)));
+    await Promise.all(todos.map(todo => toggleAllTodosCompletion(todo.id)));
   };
 
   const handleToggleAll = async () => {
