@@ -17,13 +17,19 @@ export const Header: React.FC<Props> = ({
   onChange,
   toggleTodoCompletion,
   todos,
-  inputRef,
   title,
   isLoading,
+  inputRef,
 }) => {
   const allTodosCompleted = todos.every(todo => todo.completed);
-  const handleToggleAll = () => {
-    todos.forEach(todo => toggleTodoCompletion(todo.id));
+
+  // request to the server and changing the state
+  const toggleAllTodosOnServer = async () => {
+    await Promise.all(todos.map(todo => toggleTodoCompletion(todo.id)));
+  };
+
+  const handleToggleAll = async () => {
+    await toggleAllTodosOnServer();
   };
 
   return (

@@ -16,7 +16,7 @@ export const deleteTodo = (userId: number) => {
 };
 
 export const updateTodo = ({ id, userId, title, completed }: Todo) => {
-  return client.post<Todo>(`/todos/${id}`, { id, userId, title, completed });
+  return client.patch<Todo>(`/todos/${id}`, { id, userId, title, completed });
 };
 
 // Add more methods here

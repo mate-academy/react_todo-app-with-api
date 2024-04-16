@@ -125,11 +125,10 @@ export const App: React.FC = () => {
 
       // Updating the status of todos
       setTodos(updatedTodos);
-
       const updatedTodo = updatedTodos.find(todo => todo.id === todoId);
 
       if (updatedTodo) {
-       await updateTodo(updatedTodo);
+        await updateTodo(updatedTodo);
       }
 
       // get a new state of the filter
@@ -145,6 +144,8 @@ export const App: React.FC = () => {
       setFilterStatus(newFilterStatus);
     } catch (errors) {
       setError('Unable to toggle todo completion');
+    } finally {
+      setError(null);
     }
   };
 

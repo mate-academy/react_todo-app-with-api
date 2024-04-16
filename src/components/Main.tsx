@@ -4,6 +4,7 @@ import classNames from 'classnames';
 import { Todo } from '../types/Todo';
 import { TempTodo } from './TempTodo';
 
+
 type Props = {
   filteredTodos: Todo[];
   toggleTodoCompletion: (todoId: number) => void;
@@ -22,11 +23,11 @@ export const Main: React.FC<Props> = ({
   return (
     <section className="todoapp__main" data-cy="TodoList">
       {/* This is a completed todo */}
-      {filteredTodos.map(({title, id, completed}) => (
+      {filteredTodos.map(({ title, id, completed }) => (
         <div
           key={id}
           data-cy="Todo"
-          className={classNames('todo', {completed: completed})}
+          className={classNames('todo', { completed: completed })}
         >
           <label className="todo__status-label">
             <input
@@ -54,7 +55,9 @@ export const Main: React.FC<Props> = ({
           {/* overlay will cover the todo while it is being deleted or updated */}
           <div
             data-cy="TodoLoader"
-            className={classNames('modal overlay', {'is-active': loadingTodoIds.includes(id)})}
+            className={classNames('modal overlay', {
+              'is-active': loadingTodoIds.includes(id),
+            })}
           >
             <div className="modal-background has-background-white-ter" />
             <div className="loader" />
@@ -70,4 +73,4 @@ export const Main: React.FC<Props> = ({
       )}
     </section>
   );
-}
+};
