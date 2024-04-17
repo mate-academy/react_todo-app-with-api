@@ -15,6 +15,7 @@ import { Todo } from './types/Todo';
 import { Status } from './types/Status';
 import { ErrorType } from './types/ErrorType';
 import { Errors } from './components/todoapp_error';
+import classNames from 'classnames';
 
 type TempTodo = {
   id: number;
@@ -35,8 +36,7 @@ export const App: React.FC = () => {
   const [isUpdating, setIsUpdating] = useState<number[] | []>([]);
   const [isEditing, setIsEditing] = useState<number | null>(null);
   const [newTitle, setNewTitle] = useState('');
-  const completedTodos = tasks.filter(todo => todo.completed);
-  // const activeTodos = tasks.filter(todo => !todo.completed);
+  const completedTodos = tasks?.filter(todo => todo.completed);
   const inputRef = useRef<HTMLInputElement>(null);
 
   const errorType: ErrorType = {
@@ -83,7 +83,12 @@ export const App: React.FC = () => {
       return Promise.reject();
     }
 
-    setTempTodo({ id: 0, completed: false, title: taskTitle, userId: USER_ID });
+    setTempTodo({
+      id: 0,
+      completed: false,
+      title: taskTitle,
+      userId: USER_ID,
+    });
 
     return addTodo({
       userId: USER_ID,
@@ -204,7 +209,6 @@ export const App: React.FC = () => {
 
     const updatedTodo = { ...todoToUpdate, title: newTitl };
 
-    // Aktualizacja stanu zmienionego tytułu
     const updatedTasks = tasks.map(todo =>
       todo.id === id ? { ...todo, title: newTitle } : todo,
     );
@@ -305,7 +309,9 @@ export const App: React.FC = () => {
             <nav className="filter" data-cy="Filter">
               <a
                 href="#/"
-                className="filter__link selected"
+                className={classNames('filter__link', {
+                  selected: status === Status.all,
+                })}
                 data-cy="FilterLinkAll"
                 onClick={() => setStatus(Status.all)}
               >
@@ -314,7 +320,9 @@ export const App: React.FC = () => {
 
               <a
                 href="#/active"
-                className="filter__link"
+                className={classNames('filter__link', {
+                  selected: status === Status.active,
+                })}
                 data-cy="FilterLinkActive"
                 onClick={() => setStatus(Status.active)}
               >
@@ -323,7 +331,9 @@ export const App: React.FC = () => {
 
               <a
                 href="#/completed"
-                className="filter__link"
+                className={classNames('filter__link', {
+                  selected: status === Status.completed,
+                })}
                 data-cy="FilterLinkCompleted"
                 onClick={() => setStatus(Status.completed)}
               >
