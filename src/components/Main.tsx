@@ -14,7 +14,7 @@ type Props = {
   tempTodo: Todo | null;
   newTodo: Todo | null;
   handleSave: (todoId: number, newTitle: string) => void;
-  handleKeyUp: (e: React.KeyboardEvent<HTMLInputElement>) => void;
+  // handleKeyUp: (e: React.KeyboardEvent<HTMLInputElement>) => void;
   loading: boolean;
   editing: boolean;
 };
@@ -27,7 +27,7 @@ export const Main: React.FC<Props> = ({
   handleSave,
   tempTodo,
   newTodo,
-  handleKeyUp,
+  // handleKeyUp,
 }) => {
   return (
     <section className="todoapp__main" data-cy="TodoList">
@@ -84,7 +84,7 @@ export const Main: React.FC<Props> = ({
           onSave={handleSave}
           toggleTodoCompletion={toggleTodoCompletion}
           loading={Boolean()}
-          handleKeyUp={handleKeyUp}
+          // handleKeyUp={handleKeyUp}
         />
       )}
     </section>

@@ -25,7 +25,6 @@ export const App: React.FC = () => {
   const [newTodo, setNewTodo] = useState<Todo | null>(null);
   const [editing, setEditing] = useState(false);
   const [loading, setLoading] = useState(Boolean);
-  const [newTitle, setNewTitle] = useState(title);
 
   const filteredTodos = todos.filter(todo => {
     switch (filterStatus) {
@@ -225,14 +224,14 @@ export const App: React.FC = () => {
     }
   };
 
-  const handleKeyUp = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === 'Enter') {
-      onSave(todos[0].id, newTitle);
-    } else if (e.key === 'Escape') {
-      setEditing(false);
-      setNewTitle(title);
-    }
-  };
+  // const handleKeyUp = (e: React.KeyboardEvent<HTMLInputElement>) => {
+  //   if (e.key === 'Enter') {
+  //     onSave(todos[0].id, newTitle);
+  //   } else if (e.key === 'Escape') {
+  //     setEditing(false);
+  //     setNewTitle(title);
+  //   }
+  // };
 
   const onDelete = async (todoId: number) => {
     try {
@@ -272,7 +271,7 @@ export const App: React.FC = () => {
           tempTodo={tempTodo}
           newTodo={newTodo}
           handleSave={onSave}
-          handleKeyUp={handleKeyUp}
+          // handleKeyUp={handleKeyUp}
           editing={editing}
           loading={loading}
         />
