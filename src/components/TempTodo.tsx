@@ -2,34 +2,16 @@
 /* eslint-disable */
 import classNames from 'classnames';
 import { Todo } from '../types/Todo';
-import { useState } from 'react';
 
 type Props = {
   todo: Todo;
   deleteSingleTodo: (todoId: number) => void;
-  onSave: (todoId: number, newTitle: string) => void;
 };
 
 export const TempTodo: React.FC<Props> = ({
   todo,
   deleteSingleTodo,
-  onSave,
 }) => {
-  const [editing, setEditing] = useState(false);
-  const [newTitle, setNewTitle] = useState(todo.title);
-
-  const handleDoubleClick = () => {
-    setEditing(true);
-  };
-
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setNewTitle(e.target.value);
-  };
-
-  const handleSave = () => {
-    onSave(todo.id, newTitle);
-    setEditing(false);
-  };
 
   const { title, id, completed } = todo;
 
@@ -37,24 +19,19 @@ export const TempTodo: React.FC<Props> = ({
     <section className="todoapp__main" data-cy="TodoList">
       {/* This is a completed todo */}
       <div
-        onDoubleClick={handleDoubleClick}
         key={id}
         data-cy="Todo"
         className={classNames('todo', { completed: completed })}
       >
         <label className="todo__status-label">
-          {editing && (
             <input
               data-cy="TodoStatus"
               type="checkbox"
               className="todo__status"
-              value={newTitle}
+              value={title}
               checked={completed}
-              // onChange={() => {}}
-              onChange={handleChange}
-              onBlur={handleSave}
+              onChange={() => {}}
             />
-          )}
         </label>
 
         <span data-cy="TodoTitle" className="todo__title">

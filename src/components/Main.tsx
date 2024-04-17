@@ -3,6 +3,7 @@
 import classNames from 'classnames';
 import { Todo } from '../types/Todo';
 import { TempTodo } from './TempTodo';
+import { NewTodo } from './NewTodo';
 
 
 type Props = {
@@ -11,6 +12,11 @@ type Props = {
   deleteSingleTodo: (todoId: number) => void;
   loadingTodoIds: number[];
   tempTodo: Todo | null;
+  newTodo: Todo | null;
+  handleSave: (todoId: number, newTitle: string) => void;
+  handleKeyUp: (e: React.KeyboardEvent<HTMLInputElement>) => void;
+  loading: boolean;
+  editing: boolean;
 };
 
 export const Main: React.FC<Props> = ({
@@ -18,7 +24,10 @@ export const Main: React.FC<Props> = ({
   toggleTodoCompletion,
   loadingTodoIds,
   deleteSingleTodo,
+  handleSave,
   tempTodo,
+  newTodo,
+  handleKeyUp,
 }) => {
   return (
     <section className="todoapp__main" data-cy="TodoList">
@@ -66,9 +75,16 @@ export const Main: React.FC<Props> = ({
       ))}
 
       {tempTodo && ( // Render the tempTodo if it exists
-        <TempTodo
-          todo={tempTodo}
-          deleteSingleTodo={deleteSingleTodo}
+        <TempTodo todo={tempTodo} deleteSingleTodo={deleteSingleTodo} />
+      )}
+
+      {newTodo && (
+        <NewTodo
+          todo={newTodo}
+          onSave={handleSave}
+          toggleTodoCompletion={toggleTodoCompletion}
+          loading={Boolean()}
+          handleKeyUp={handleKeyUp}
         />
       )}
     </section>

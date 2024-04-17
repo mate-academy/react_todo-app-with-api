@@ -22,6 +22,10 @@ export const App: React.FC = () => {
   const [filterStatus, setFilterStatus] = useState<TodoStatus>(TodoStatus.All);
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
   const [loadingTodoIds, setLoadingTodoIds] = useState<number[]>([]);
+  const [newTodo, setNewTodo] = useState<Todo | null>(null);
+  const [editing, setEditing] = useState(false);
+  const [loading, setLoading] = useState(Boolean);
+  const [newTitle, setNewTitle] = useState(title);
 
   const filteredTodos = todos.filter(todo => {
     switch (filterStatus) {
@@ -186,6 +190,61 @@ export const App: React.FC = () => {
     }
   };
 
+  const onSave = async (todoId: number, newTitle: string) => {
+    try {
+      setLoading(true);
+
+      if (newTitle.trim() === title.trim()) {
+        onDelete(todoId);
+        setEditing(false);
+      } else {
+        onSave(todoId, newTitle);
+      }
+
+      // Update the todo with the new title
+      await updateTodo({
+        id: todoId,
+        title: newTitle.trim(),
+        completed: false,
+        userId: USER_ID,
+      });
+
+      setNewTodo({
+        id: todoId,
+        title: newTitle.trim(),
+        completed: false,
+        userId: USER_ID,
+      });
+
+      setEditing(false);
+      setTitle(newTitle.trim());
+    } catch (error) {
+      setError('Unable to update a todo');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleKeyUp = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter') {
+      onSave(todos[0].id, newTitle);
+    } else if (e.key === 'Escape') {
+      setEditing(false);
+      setNewTitle(title);
+    }
+  };
+
+  const onDelete = async (todoId: number) => {
+    try {
+      setLoading(true);
+      await deleteTodo(todoId);
+    } catch (error) {
+      setError('Unable to delete a todo');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   if (!USER_ID) {
     return <UserWarning />;
   }
@@ -211,6 +270,11 @@ export const App: React.FC = () => {
           loadingTodoIds={loadingTodoIds}
           deleteSingleTodo={deleteSingleTodo}
           tempTodo={tempTodo}
+          newTodo={newTodo}
+          handleSave={onSave}
+          handleKeyUp={handleKeyUp}
+          editing={editing}
+          loading={loading}
         />
 
         {!!todos.length && (
