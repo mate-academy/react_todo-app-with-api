@@ -116,8 +116,20 @@ export const App: React.FC = () => {
   };
 
   // The function is responsible for changing the task status
-  const toggleTodoCompletion = () => {
+  const toggleTodoCompletion = async (todoId: number) => {
     try {
+      // get a link to the task by its 'id'
+      const updatedTodos = todos.map(todo =>
+        todo.id === todoId ? { ...todo, completed: !todo.completed } : todo,
+      );
+
+      // Updating the status of todos
+      setTodos(updatedTodos);
+      const updatedTodo = updatedTodos.find(todo => todo.id === todoId);
+
+      if (updatedTodo) {
+        await updateTodo(updatedTodo);
+      }
       // get a new state of the filter
       let newFilterStatus: TodoStatus = TodoStatus.All;
 
@@ -136,24 +148,24 @@ export const App: React.FC = () => {
     }
   };
 
-  const toggleAllTodosCompletion = async (todoId: number) => {
-    try {
-            // get a link to the task by its 'id'
-      const updatedTodos = todos.map(todo =>
-        todo.id === todoId ? { ...todo, completed: !todo.completed } : todo,
-      );
+  // const toggleAllTodosCompletion = async (todoId: number) => {
+  //   try {
+  //     // get a link to the task by its 'id'
+  //     const updatedTodos = todos.map(todo =>
+  //       todo.id === todoId ? { ...todo, completed: !todo.completed } : todo,
+  //     );
 
-      // Updating the status of todos
-      setTodos(updatedTodos);
-      const updatedTodo = updatedTodos.find(todo => todo.id === todoId);
+  //     // Updating the status of todos
+  //     setTodos(updatedTodos);
+  //     const updatedTodo = updatedTodos.find(todo => todo.id === todoId);
 
-      if (updatedTodo) {
-        await updateTodo(updatedTodo);
-      }
-    } catch (error) {
-       setError('Unable to toggle todo completion');
-    }
-  }
+  //     if (updatedTodo) {
+  //       await updateTodo(updatedTodo);
+  //     }
+  //   } catch (error) {
+  //      setError('Unable to toggle todo completion');
+  //   }
+  // }
 
   const clearCompletedTodos = async () => {
     try {
@@ -190,7 +202,7 @@ export const App: React.FC = () => {
           isLoading={isLoading}
           inputRef={inputRef}
           title={title}
-          toggleAllTodosCompletion={toggleAllTodosCompletion}
+          toggleTodoCompletion={toggleTodoCompletion}
         />
 
         <Main
