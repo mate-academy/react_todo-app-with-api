@@ -2,7 +2,6 @@
 /* eslint-disable */
 import classNames from 'classnames';
 import { Todo } from '../types/Todo';
-import { useState } from 'react';
 
 type Props = {
   todo: Todo;
@@ -14,17 +13,12 @@ type Props = {
 
 export const NewTodo: React.FC<Props> = ({
   todo,
-  toggleTodoCompletion,
+  // toggleTodoCompletion,
   onSave,
   loading,
   handleKeyUp,
 }) => {
   const { title, id, completed } = todo;
-  const [editing, setEditing] = useState(false);
-
-  const doubleClick = () => {
-    setEditing(true);
-  }
 
   return (
     <section className="todoapp__main" data-cy="TodoList">
@@ -33,9 +27,8 @@ export const NewTodo: React.FC<Props> = ({
         key={id}
         data-cy="Todo"
         className={classNames('todo', { completed: completed })}
-        onDoubleClick={doubleClick}
       >
-        {editing ? (
+        <label className="todo__status-label">
           <input
             data-cy="TodoStatus"
             type="checkbox"
@@ -45,19 +38,10 @@ export const NewTodo: React.FC<Props> = ({
             onKeyUp={handleKeyUp}
             autoFocus
           />
-        ) : (
-          <label className="todo__status-label">
-            <input
-              data-cy="TodoStatus"
-              type="checkbox"
-              className="todo__status"
-              checked={completed}
-              onChange={() => toggleTodoCompletion(id)}
-            />
-          </label>
-        )}
-
-        <span data-cy="TodoTitle" className="todo__title">
+        </label>
+        <span
+          data-cy="TodoTitle"
+          className="todo__title"        >
           {title}
         </span>
 

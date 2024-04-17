@@ -1,4 +1,4 @@
-import React, { FormEvent, Ref } from 'react';
+import React, { FormEvent, Ref, useState } from 'react';
 import { Todo } from '../types/Todo';
 import classNames from 'classnames';
 
@@ -21,6 +21,12 @@ export const Header: React.FC<Props> = ({
   isLoading,
   inputRef,
 }) => {
+  const [editing, setEditing] = useState(false);
+
+  const doubleClick = () => {
+    setEditing(true);
+  };
+
   const allTodosCompleted = todos.every(todo => todo.completed);
 
   // request to the server and changing the state
@@ -47,18 +53,22 @@ export const Header: React.FC<Props> = ({
       )}
 
       {/* Add a todo on form submit */}
-      <form onSubmit={onSubmit}>
-        <input
-          ref={inputRef}
-          data-cy="NewTodoField"
-          type="text"
-          value={title}
-          className="todoapp__new-todo"
-          placeholder="What needs to be done?"
-          onChange={e => onChange(e.target.value)}
-          disabled={isLoading}
-        />
-      </form>
+      {editing ? (
+        <form onSubmit={onSubmit}>
+          <input
+            ref={inputRef}
+            data-cy="NewTodoField"
+            type="text"
+            value={title}
+            className="todoapp__new-todo"
+            placeholder="What needs to be done?"
+            onChange={e => onChange(e.target.value)}
+            disabled={isLoading}
+          />
+        </form>
+      ) : (
+        <div onDoubleClick={doubleClick}>{title}</div>
+      )}
     </header>
   );
 };
