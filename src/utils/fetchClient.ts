@@ -9,10 +9,10 @@ function wait(delay: number) {
 
 type RequestMethod = 'GET' | 'POST' | 'PATCH' | 'DELETE';
 
-function request<T, D>(
+function request<T>(
   url: string,
-  method: RequestMethod,
-  data: D,
+  method: RequestMethod = 'GET',
+  data?: any,
 ): Promise<T> {
   const options: RequestInit = { method };
 
@@ -36,7 +36,7 @@ function request<T, D>(
 
 export const client = {
   get: <T>(url: string) => request<T>(url),
-  post: <T, D>(url: string, data: D) => request<T, D>(url, 'POST', data),
-  patch: <T, D>(url: string, data: D) => request<T, D>(url, 'PATCH', data),
-  delete: <T>(url: string) => request<T>(url, 'DELETE'),
+  post: <T>(url: string, data: any) => request<T>(url, 'POST', data),
+  patch: <T>(url: string, data: any) => request<T>(url, 'PATCH', data),
+  delete: (url: string) => request(url, 'DELETE'),
 };
