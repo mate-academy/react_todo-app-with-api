@@ -8,21 +8,21 @@ type Props = {
   todo: Todo;
   onSave: (todoId: number, newTitle: string) => void;
   toggleTodoCompletion: (todoId: number) => void;
-  loading: boolean;
-  // handleKeyUp: (e: React.KeyboardEvent<HTMLInputElement>) => void;
+  deleteSingleTodo: (todoId: number) => void;
+  loadingTodoIds: number[];
 };
 
-export const NewTodo: React.FC<Props> = ({
+export const TodoItem: React.FC<Props> = ({
   todo,
-  // toggleTodoCompletion,
+  toggleTodoCompletion,
   onSave,
-  loading,
-  // handleKeyUp,
+  deleteSingleTodo,
+  loadingTodoIds,
 }) => {
   const { title, id, completed } = todo;
   const [editing, setEditing] = useState(false);
   const [newTitle, setNewTitle] = useState(title);
-
+  const [loading, setLoading] = useState(Boolean);
 
   const handleDoubleClick = () => {
     setEditing(true);
@@ -30,8 +30,18 @@ export const NewTodo: React.FC<Props> = ({
 
   const handleSave = () => {
     onSave(id, newTitle);
+    setLoading(false);
     setEditing(false);
   };
+
+  // const handleKeyUp = (e: React.KeyboardEvent<HTMLInputElement>) => {
+  //   if (e.key === 'Enter') {
+  //     onSave(todo.id, newTitle);
+  //   } else if (e.key === 'Escape') {
+  //     setEditing(false);
+  //     setNewTitle(title);
+  //   }
+  // };
 
   return (
     <section className="todoapp__main" data-cy="TodoList">
@@ -46,6 +56,9 @@ export const NewTodo: React.FC<Props> = ({
           onKeyUp={e => {
             if (e.key === 'Enter') {
               handleSave();
+            } else if (e.key === 'Escape') {
+              setEditing(false);
+              setNewTitle(title);
             }
           }}
           autoFocus
@@ -54,8 +67,7 @@ export const NewTodo: React.FC<Props> = ({
         <div
           key={id}
           data-cy="Todo"
-            className={classNames('todo', { completed: completed })}
-            onDoubleClick={handleDoubleClick}
+          className={classNames('todo', { completed: completed })}
         >
           <label className="todo__status-label">
             <input
@@ -63,28 +75,36 @@ export const NewTodo: React.FC<Props> = ({
               type="checkbox"
               className="todo__status"
               checked={completed}
-              onChange={() => onSave}
-              // onKeyUp={handleKeyUp}
+              onChange={() => toggleTodoCompletion(id)}
               autoFocus
             />
           </label>
-          <span data-cy="TodoTitle" className="todo__title">
+          <span
+            data-cy="TodoTitle"
+            className="todo__title"
+            onDoubleClick={handleDoubleClick}
+          >
             {title}
           </span>
 
           {/* Remove button appears only on hover */}
-          {/* <button
-          type="button"
-          className="todo__remove"
-          data-cy="TodoDelete"
-          onClick={() => deleteSingleTodo(id)}
-        >
-          ×
-        </button> */}
+          <button
+            type="button"
+            className="todo__remove"
+            data-cy="TodoDelete"
+            onClick={() => deleteSingleTodo(id)}
+          >
+            ×
+          </button>
 
           {/* overlay will cover the todo while it is being deleted or updated */}
           {loading && (
-            <div data-cy="TodoLoader" className="modal overlay is-active">
+            <div
+              data-cy="TodoLoader"
+              className={classNames('modal overlay', {
+                'is-active': loadingTodoIds.includes(id),
+              })}
+            >
               <div className="modal-background has-background-white-ter" />
               <div className="loader" />
             </div>

@@ -5,9 +5,9 @@ import { UserWarning } from './UserWarning';
 import { USER_ID, createTodos, deleteTodo, getTodos, updateTodo } from './api/todos';
 import { Todo } from './types/Todo';
 import { Header } from './components/Header';
-import { Main } from './components/Main';
 import { Footer } from './components/Footer';
 import classNames from 'classnames';
+import { TodoList } from './components/TodoList';
 
 export enum TodoStatus {
   All = 'all',
@@ -22,9 +22,6 @@ export const App: React.FC = () => {
   const [filterStatus, setFilterStatus] = useState<TodoStatus>(TodoStatus.All);
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
   const [loadingTodoIds, setLoadingTodoIds] = useState<number[]>([]);
-  const [newTodo, setNewTodo] = useState<Todo | null>(null);
-  const [editing, setEditing] = useState(false);
-  const [loading, setLoading] = useState(Boolean);
 
   const filteredTodos = todos.filter(todo => {
     switch (filterStatus) {
@@ -121,54 +118,37 @@ export const App: React.FC = () => {
   // The function is responsible for changing the task status
   const toggleTodoCompletion = async (todoId: number) => {
     try {
-      // get a link to the task by its 'id'
-      const updatedTodos = todos.map(todo =>
-        todo.id === todoId ? { ...todo, completed: !todo.completed } : todo,
-      );
+        const updatedTodo = todos.find(todo => todo.id === todoId);
 
-      // Updating the status of todos
-      setTodos(updatedTodos);
-      const updatedTodo = updatedTodos.find(todo => todo.id === todoId);
+        if (updatedTodo) {
+         await updateTodo(updatedTodo);
+        }
 
-      if (updatedTodo) {
-        await updateTodo(updatedTodo);
-      }
-      // get a new state of the filter
-      let newFilterStatus: TodoStatus = TodoStatus.All;
+            setTodos(prevTodos => {
+              const updatedTodos = prevTodos.map(todo =>
+                todo.id === todoId
+                  ? { ...todo, completed: !todo.completed }
+                  : todo,
+              );
 
-      if (filterStatus === TodoStatus.Completed) {
-        newFilterStatus = TodoStatus.Completed;
-      } else if (filterStatus === TodoStatus.Active) {
-        newFilterStatus = TodoStatus.All;
-      }
+              let newFilterStatus: TodoStatus = TodoStatus.All;
 
-      // update the filter status
-      setFilterStatus(newFilterStatus);
+              if (filterStatus === TodoStatus.Completed) {
+                newFilterStatus = TodoStatus.Completed;
+              } else if (filterStatus === TodoStatus.Active) {
+                newFilterStatus = TodoStatus.All;
+              }
+
+              setFilterStatus(newFilterStatus);
+
+              return updatedTodos;
+            });
     } catch (errors) {
       setError('Unable to toggle todo completion');
     } finally {
       setError(null);
     }
   };
-
-  // const toggleAllTodosCompletion = async (todoId: number) => {
-  //   try {
-  //     // get a link to the task by its 'id'
-  //     const updatedTodos = todos.map(todo =>
-  //       todo.id === todoId ? { ...todo, completed: !todo.completed } : todo,
-  //     );
-
-  //     // Updating the status of todos
-  //     setTodos(updatedTodos);
-  //     const updatedTodo = updatedTodos.find(todo => todo.id === todoId);
-
-  //     if (updatedTodo) {
-  //       await updateTodo(updatedTodo);
-  //     }
-  //   } catch (error) {
-  //      setError('Unable to toggle todo completion');
-  //   }
-  // }
 
   const clearCompletedTodos = async () => {
     try {
@@ -191,58 +171,41 @@ export const App: React.FC = () => {
 
   const onSave = async (todoId: number, newTitle: string) => {
     try {
-      setLoading(true);
-
       if (newTitle.trim() === title.trim()) {
         onDelete(todoId);
-        setEditing(false);
       } else {
-        onSave(todoId, newTitle);
+        await updateTodo({
+          id: todoId,
+          title: newTitle.trim(),
+          completed: false,
+          userId: USER_ID,
+        });
+
+        updateTodo(todo).then(updatedTodo =>
+          setTodos(prev =>
+            prev.map(prevTodo => {
+              if (prevTodo.id === todoId) {
+                return updatedTodo;
+              }
+              return prevTodo;
+            }),
+          ),
+        );
+
+        setTitle(newTitle.trim());
       }
-
-      // Update the todo with the new title
-      await updateTodo({
-        id: todoId,
-        title: newTitle.trim(),
-        completed: false,
-        userId: USER_ID,
-      });
-
-      setNewTodo({
-        id: todoId,
-        title: newTitle.trim(),
-        completed: false,
-        userId: USER_ID,
-      });
-
-      setEditing(false);
-      setTitle(newTitle.trim());
     } catch (error) {
       setError('Unable to update a todo');
-    } finally {
-      setLoading(false);
     }
   };
 
-  // const handleKeyUp = (e: React.KeyboardEvent<HTMLInputElement>) => {
-  //   if (e.key === 'Enter') {
-  //     onSave(todos[0].id, newTitle);
-  //   } else if (e.key === 'Escape') {
-  //     setEditing(false);
-  //     setNewTitle(title);
-  //   }
-  // };
-
-  const onDelete = async (todoId: number) => {
-    try {
-      setLoading(true);
-      await deleteTodo(todoId);
-    } catch (error) {
-      setError('Unable to delete a todo');
-    } finally {
-      setLoading(false);
-    }
-  };
+    const onDelete = async (todoId: number) => {
+      try {
+        await deleteTodo(todoId);
+      } catch (error) {
+        setError('Unable to delete a todo');
+      }
+    };
 
   if (!USER_ID) {
     return <UserWarning />;
@@ -263,17 +226,13 @@ export const App: React.FC = () => {
           toggleTodoCompletion={toggleTodoCompletion}
         />
 
-        <Main
+        <TodoList
           filteredTodos={filteredTodos}
           toggleTodoCompletion={toggleTodoCompletion}
           loadingTodoIds={loadingTodoIds}
           deleteSingleTodo={deleteSingleTodo}
           tempTodo={tempTodo}
-          newTodo={newTodo}
           handleSave={onSave}
-          // handleKeyUp={handleKeyUp}
-          editing={editing}
-          loading={loading}
         />
 
         {!!todos.length && (
