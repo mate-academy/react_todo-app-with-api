@@ -58,7 +58,7 @@ export const TodoList = ({
             <div
               data-cy="TodoLoader"
               className={classNames('modal overlay ', {
-                'is-active': tempTodo.id === 0,
+                'is-active': true,
               })}
             >
               <div className="modal-background has-background-white-ter" />
