@@ -76,53 +76,42 @@ export const App: React.FC = () => {
     setErrorMessage(errorMsg);
   };
 
-  const addNewTodo = () => {
-    if (!taskTitle.trim()) {
-      handleError(errorType.empty);
+  const addNewTodo = async (creatNewTodo: Todo) => {
+    setTempTodo({ ...creatNewTodo, id: 0 });
 
-      return Promise.reject();
+    try {
+      setIsSubmitting(true);
+      const newTodo = await addTodo(creatNewTodo);
+
+      setTasks(currentTodos => [...currentTodos, newTodo]);
+      setTaskTitle('');
+    } catch {
+      handleError(errorType.add);
+    } finally {
+      setTempTodo(null);
+      setIsSubmitting(false);
+      focusInput();
     }
-
-    setTempTodo({
-      id: 0,
-      completed: false,
-      title: taskTitle,
-      userId: USER_ID,
-    });
-
-    return addTodo({
-      userId: USER_ID,
-      title: taskTitle,
-      completed: false,
-    })
-      .then(newTodo => {
-        setTasks(currentTodos => [...currentTodos, newTodo]);
-        setTempTodo(null);
-        setTaskTitle('');
-        setIsSubmitting(false);
-      })
-      .catch(error => {
-        setErrorMessage(errorType.add);
-        setTempTodo(null);
-        throw error;
-      })
-      .finally(() => {
-        focusInput();
-      });
   };
 
   const handleSubmit = (event: { preventDefault: () => void }) => {
     event.preventDefault();
-    setIsSubmitting(true);
+    const title = taskTitle.trim();
 
-    if (!taskTitle.trim()) {
-      setErrorMessage(errorType.empty);
-      setIsSubmitting(false);
+    if (!title) {
+      handleError(errorType.empty);
 
       return;
     }
 
-    addNewTodo();
+    const newTodo = {
+      title,
+      userId: USER_ID,
+      completed: false,
+      id: 0,
+    };
+
+    addNewTodo(newTodo);
   };
 
   const handleAllCompleted = () => {
