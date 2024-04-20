@@ -10,6 +10,7 @@ import { Status } from './enums/status';
 import { Title } from './Title';
 import { Error } from './Error';
 import { Loader } from './Loader';
+import { Form } from './Form';
 
 export const App: React.FC = () => {
   const [isLoading, setIsLoading] = useState<number[]>([]);
@@ -111,11 +112,17 @@ export const App: React.FC = () => {
         newTodo = { ...todoToUpdate, title: trimedTitle };
       }
 
-      await patchTodo(newTodo).then(async () => {
-        const loadTodos = getTodos();
+      await patchTodo(newTodo).then(response =>
+        setTodos(prevState => {
+          if (prevState.find(todo => todo.id === response.id)) {
+            return prevState.map(todo =>
+              todo.id === response.id ? response : todo,
+            );
+          }
 
-        setTodos(await loadTodos);
-      });
+          return [...prevState];
+        }),
+      );
     } catch {
       setVisibleErr(true);
       setErrMessage('Unable to update a todo');
@@ -263,22 +270,16 @@ export const App: React.FC = () => {
                 />
               )}
               {isEdited === todo.id && (
-                <form onSubmit={event => handleEditSubmit(event, todo)}>
-                  <input
-                    data-cy="TodoTitleField"
-                    type="text"
-                    className="todo__title-field"
-                    placeholder={todo.title}
-                    value={editedTitle}
-                    onChange={event => setEditedTitle(event.target.value)}
-                    onKeyUp={handleKeyUpInputEdit}
-                    onBlur={() => {
-                      setIsEdited(null);
-                      handleEditedTitle(todo);
-                    }}
-                    ref={editSelectedInput}
-                  />
-                </form>
+                <Form
+                  todo={todo}
+                  handleEditSubmit={handleEditSubmit}
+                  setEditedTitle={setEditedTitle}
+                  editedTitle={editedTitle}
+                  handleKeyUpInputEdit={handleKeyUpInputEdit}
+                  editSelectedInput={editSelectedInput}
+                  setIsEdited={setIsEdited}
+                  handleEditedTitle={handleEditedTitle}
+                />
               )}
 
               <Loader todoId={todo.id} isLoading={isLoading} />

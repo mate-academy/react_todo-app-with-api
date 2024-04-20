@@ -31,17 +31,9 @@ export const Footer = ({
     try {
       const completedTodos = todos.filter(todo => todo.completed);
 
-      completedTodos.map(todo => {
-        removeTodo(todo);
-
-        // setIsLoading(state => [...state, todo.id]);
-
-        // deleteTodo(todo.id).then(() =>
-        //   setTodos(prevTodos =>
-        //     prevTodos.filter(prevTodo => !prevTodo.completed),
-        //   ),
-        // );
-      });
+      for (const todo of completedTodos) {
+        await removeTodo(todo);
+      }
     } catch {
       setErrMessage('An error occurred while deleting completed todos');
     } finally {

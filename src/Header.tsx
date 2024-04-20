@@ -4,7 +4,7 @@ import { useEffect, useRef } from 'react';
 import { getTodos, patchTodo } from './api/todos';
 
 type Props = {
-  isLoading: number[] | null;
+  isLoading: number[];
   handleSubmit: (event: React.FormEvent) => void;
   setErrMessage: React.Dispatch<React.SetStateAction<string>>;
   setTodos: React.Dispatch<React.SetStateAction<Todo[]>>;
@@ -64,12 +64,14 @@ export const Header = ({
 
   return (
     <header className="todoapp__header">
-      <button
-        type="button"
-        className={cn('todoapp__toggle-all ', { active: isAllActive })}
-        data-cy="ToggleAllButton"
-        onClick={handleChangeCompleted}
-      />
+      {isLoading.length === 0 && todos.length > 0 && (
+        <button
+          type="button"
+          className={cn('todoapp__toggle-all ', { active: isAllActive })}
+          data-cy="ToggleAllButton"
+          onClick={handleChangeCompleted}
+        />
+      )}
 
       <form onSubmit={handleSubmit}>
         <input
