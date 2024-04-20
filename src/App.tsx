@@ -22,6 +22,8 @@ export const App: React.FC = () => {
   const [filterStatus, setFilterStatus] = useState<TodoStatus>(TodoStatus.All);
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
   const [loadingTodoIds, setLoadingTodoIds] = useState<number[]>([]);
+  // const [formSubmitting, setFormSubmitting] = useState(false);
+
 
   const filteredTodos = todos.filter(todo => {
     switch (filterStatus) {
@@ -84,7 +86,6 @@ export const App: React.FC = () => {
         completed: false,
         userId: USER_ID,
       });
-
       // function 'createTodos', sends a request to the server and creates a new 'todo'
       const newTodo = await createTodos({
         title: title.trim(),
@@ -102,47 +103,36 @@ export const App: React.FC = () => {
     }
   };
 
-  const deleteSingleTodo = async (userId: number) => {
-
+  const deleteSingleTodo = async (todoId: number) => {
     try {
-      setLoadingTodoIds(prevLoading => [...prevLoading, userId]); // Set download status for selected todo
-      await deleteTodo(userId);
-      setTodos(currentTodo => currentTodo.filter(todo => todo.id !== userId));
+      setLoadingTodoIds(prevLoading => [...prevLoading, todoId]); // Set download status for selected todo
+      await deleteTodo(todoId);
+      setTodos(currentTodo => currentTodo.filter(todo => todo.id !== todoId));
     } catch (errors) {
       setError('Unable to delete a todo');
     } finally {
-      setLoadingTodoIds(prevLoading => prevLoading.filter(id => id !== userId)); // Clearing the download status after the operation
+      setLoadingTodoIds(prevLoading => prevLoading.filter(id => id !== todoId)); // Clearing the download status after the operation
     }
   };
 
   // The function is responsible for changing the task status
   const toggleTodoCompletion = async (todoId: number) => {
     try {
-        const updatedTodo = todos.find(todo => todo.id === todoId);
+      const updatedTodo = todos.find(todo => todo.id === todoId);
 
-        if (updatedTodo) {
-         await updateTodo(updatedTodo);
-        }
+      if (updatedTodo) {
+        await updateTodo(updatedTodo);
+      }
 
-            setTodos(prevTodos => {
-              const updatedTodos = prevTodos.map(todo =>
-                todo.id === todoId
-                  ? { ...todo, completed: !todo.completed }
-                  : todo,
-              );
+      setTodos(prevTodos => {
+        const updatedTodos = prevTodos.map(todo =>
+          todo.id === todoId
+            ? { ...todo, completed: !todo.completed }
+            : todo,
+        );
 
-              let newFilterStatus: TodoStatus = TodoStatus.All;
-
-              if (filterStatus === TodoStatus.Completed) {
-                newFilterStatus = TodoStatus.Completed;
-              } else if (filterStatus === TodoStatus.Active) {
-                newFilterStatus = TodoStatus.All;
-              }
-
-              setFilterStatus(newFilterStatus);
-
-              return updatedTodos;
-            });
+        return updatedTodos;
+      });
     } catch (errors) {
       setError('Unable to toggle todo completion');
     } finally {
@@ -169,43 +159,31 @@ export const App: React.FC = () => {
     }
   };
 
-  const onSave = async (todoId: number, newTitle: string) => {
+  const onSave = async (todoId: number, newTitle: string, completed: boolean) => {
+    setLoadingTodoIds(prevLoading => [...prevLoading, todoId]);
+
     try {
-      if (newTitle.trim() === title.trim()) {
-        onDelete(todoId);
-      } else {
-        await updateTodo({
-          id: todoId,
-          title: newTitle.trim(),
-          completed: false,
-          userId: USER_ID,
-        });
-
-        updateTodo(todo).then(updatedTodo =>
-          setTodos(prev =>
-            prev.map(prevTodo => {
-              if (prevTodo.id === todoId) {
-                return updatedTodo;
-              }
-              return prevTodo;
-            }),
-          ),
-        );
-
-        setTitle(newTitle.trim());
-      }
+      await updateTodo({
+        id: todoId,
+        title: newTitle.trim(),
+        completed: completed,
+        userId: USER_ID,
+      }).then(updatedTodo =>
+        setTodos(prev =>
+          prev.map(prevTodo => {
+            if (prevTodo.id === todoId) {
+              return updatedTodo;
+            }
+            return prevTodo;
+          }),
+        ),
+      );
     } catch (error) {
       setError('Unable to update a todo');
+    } finally {
+      setLoadingTodoIds(prevLoading => prevLoading.filter(id => id !== todoId));
     }
   };
-
-    const onDelete = async (todoId: number) => {
-      try {
-        await deleteTodo(todoId);
-      } catch (error) {
-        setError('Unable to delete a todo');
-      }
-    };
 
   if (!USER_ID) {
     return <UserWarning />;
@@ -224,6 +202,7 @@ export const App: React.FC = () => {
           inputRef={inputRef}
           title={title}
           toggleTodoCompletion={toggleTodoCompletion}
+          // formSubmitting={formSubmitting}
         />
 
         <TodoList

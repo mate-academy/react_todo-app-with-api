@@ -6,7 +6,7 @@ import { useState } from 'react';
 
 type Props = {
   todo: Todo;
-  onSave: (todoId: number, newTitle: string) => void;
+  onSave: (todoId: number, newTitle: string, completed: boolean) => void;
   toggleTodoCompletion: (todoId: number) => void;
   deleteSingleTodo: (todoId: number) => void;
   loadingTodoIds: number[];
@@ -22,26 +22,20 @@ export const TodoItem: React.FC<Props> = ({
   const { title, id, completed } = todo;
   const [editing, setEditing] = useState(false);
   const [newTitle, setNewTitle] = useState(title);
-  const [loading, setLoading] = useState(Boolean);
 
   const handleDoubleClick = () => {
     setEditing(true);
   };
 
   const handleSave = () => {
-    onSave(id, newTitle);
-    setLoading(false);
+    if (newTitle.trim() === '') {
+      deleteSingleTodo(todo.id);
+    } else
+      if (newTitle.trim() !== title.trim()) {
+        onSave(id, newTitle, completed);
+    }
     setEditing(false);
   };
-
-  // const handleKeyUp = (e: React.KeyboardEvent<HTMLInputElement>) => {
-  //   if (e.key === 'Enter') {
-  //     onSave(todo.id, newTitle);
-  //   } else if (e.key === 'Escape') {
-  //     setEditing(false);
-  //     setNewTitle(title);
-  //   }
-  // };
 
   return (
     <section className="todoapp__main" data-cy="TodoList">
@@ -49,7 +43,7 @@ export const TodoItem: React.FC<Props> = ({
       {editing ? (
         <input
           type="text"
-          className="todo__title"
+          className="todo__title-field"
           value={newTitle}
           onChange={e => setNewTitle(e.target.value)}
           onBlur={handleSave}
@@ -68,6 +62,7 @@ export const TodoItem: React.FC<Props> = ({
           key={id}
           data-cy="Todo"
           className={classNames('todo', { completed: completed })}
+          onDoubleClick={handleDoubleClick}
         >
           <label className="todo__status-label">
             <input
@@ -79,11 +74,7 @@ export const TodoItem: React.FC<Props> = ({
               autoFocus
             />
           </label>
-          <span
-            data-cy="TodoTitle"
-            className="todo__title"
-            onDoubleClick={handleDoubleClick}
-          >
+          <span data-cy="TodoTitle" className="todo__title">
             {title}
           </span>
 
@@ -98,17 +89,15 @@ export const TodoItem: React.FC<Props> = ({
           </button>
 
           {/* overlay will cover the todo while it is being deleted or updated */}
-          {loading && (
-            <div
-              data-cy="TodoLoader"
-              className={classNames('modal overlay', {
-                'is-active': loadingTodoIds.includes(id),
-              })}
-            >
-              <div className="modal-background has-background-white-ter" />
-              <div className="loader" />
-            </div>
-          )}
+          <div
+            data-cy="TodoLoader"
+            className={classNames('modal overlay', {
+              'is-active': loadingTodoIds.includes(id),
+            })}
+          >
+            <div className="modal-background has-background-white-ter" />
+            <div className="loader" />
+          </div>
         </div>
       )}
     </section>

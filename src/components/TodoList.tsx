@@ -10,7 +10,7 @@ type Props = {
   deleteSingleTodo: (todoId: number) => void;
   toggleTodoCompletion: (todoId: number) => void;
   tempTodo: Todo | null;
-  handleSave: (todoId: number, newTitle: string) => void;
+  handleSave: (todoId: number, newTitle: string, completed: boolean) => void;
   loadingTodoIds: number[];
 };
 

@@ -10,6 +10,7 @@ type Props = {
   inputRef: Ref<HTMLInputElement> | null;
   title: string;
   isLoading: boolean;
+  // formSubmitting: boolean;
 };
 
 export const Header: React.FC<Props> = ({
@@ -20,12 +21,28 @@ export const Header: React.FC<Props> = ({
   title,
   isLoading,
   inputRef,
+  // formSubmitting,
 }) => {
+  // const [formSubmitting, setFormSubmitting] = useState(false);
   const allTodosCompleted = todos.every(todo => todo.completed);
+
+  // const handleFormSubmit = async (e: FormEvent) => {
+  //   setFormSubmitting(true);
+  //   await onSubmit(e);
+  //   setFormSubmitting(false);
+  // };
 
   // request to the server and changing the state
   const toggleAllTodosOnServer = async () => {
-    await Promise.all(todos.map(todo => toggleTodoCompletion(todo.id)));
+    let todosToUpdate: Todo[] = [];
+
+    if (todos.every(todo => todo.completed)) {
+      todosToUpdate = todos;
+    } else {
+      todosToUpdate = todos.filter(todo => !todo.completed);
+    }
+
+    await Promise.all(todosToUpdate.map(todo => toggleTodoCompletion(todo.id)));
   };
 
   const handleToggleAll = async () => {
@@ -43,6 +60,7 @@ export const Header: React.FC<Props> = ({
           })}
           data-cy="ToggleAllButton"
           onClick={handleToggleAll}
+          disabled={isLoading}
         />
       )}
 
