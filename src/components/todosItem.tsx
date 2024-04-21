@@ -1,10 +1,9 @@
 /* eslint-disable jsx-a11y/label-has-associated-control */
 
-import { useContext, useState } from 'react';
+import { useContext, useEffect, useRef } from 'react';
 import { Todo } from '../types/Todo';
 import { TodosContext } from './todosContext';
 import classNames from 'classnames';
-import { updateTodo } from '../api/todos';
 
 /* eslint-disable jsx-a11y/control-has-associated-label */
 interface ItemProps {
@@ -15,44 +14,18 @@ export const TodosItem: React.FC<ItemProps> = ({ item }) => {
   const {
     allId,
     setAllId,
+    updatedValue,
+    setUpdatedValue,
     handleDeleteTodo,
     handleUpdateTodoStatus,
-    setErrorMessage,
-    setTodos,
+    handleUpdateTodoTitle,
+    tempEdition,
+    setTempEdition,
+    isEditingOn,
+    setIsEditingOn,
   } = useContext(TodosContext);
 
-  const [isEditingOn, setIsEditingOn] = useState(false);
-  const [updatedValue, setUpdatedValue] = useState(item.title);
-
-  const handleUpdateTodoTitle = (clickedTodo: Todo) => {
-    const updatedTodo = {
-      ...clickedTodo,
-      title: updatedValue,
-    };
-
-    setAllId(prevAllId => [...prevAllId, updatedTodo.id]);
-
-    updateTodo(updatedTodo)
-      .then(response => {
-        setTodos(prevTodos => {
-          const newTodos = [...prevTodos];
-
-          const index = newTodos.findIndex(todo => todo.id === response.id);
-
-          newTodos.splice(index, 1, updatedTodo);
-
-          return newTodos;
-        });
-      })
-      .catch(() => {
-        setTimeout(() => {
-          setErrorMessage('Unable to update a todo');
-        }, 3000);
-      })
-      .finally(() => {
-        setAllId([]);
-      });
-  };
+  // const [isEditingOn, setIsEditingOn] = useState(false);
 
   const isTodoCompletedClass = classNames({
     todo: true,
@@ -70,24 +43,66 @@ export const TodosItem: React.FC<ItemProps> = ({ item }) => {
   };
 
   const submitEditind = () => {
-    setIsEditingOn(false);
+    // setIsEditingOn(false);
 
     if (updatedValue.trim() === '') {
       handleDeleteTodo(item.id);
     } else {
+      setTempEdition({
+        ...item,
+        title: updatedValue,
+      });
+      setAllId([...allId, item.id]);
       handleUpdateTodoTitle(item);
     }
   };
 
-  const handleEnterEdit = (event: React.KeyboardEvent<HTMLInputElement>) => {
-    if (event.key !== 'Enter') {
+  const handleOnBlur = () => {
+    if (item.title !== updatedValue) {
+      submitEditind();
+    } else {
+      setIsEditingOn(false);
+    }
+  };
+
+  const handleKeyUp = (event: React.KeyboardEvent<HTMLInputElement>) => {
+    if (event.key !== 'Enter' && event.key !== 'Escape') {
+      return;
+    } else if (event.key === 'Enter' && item.title === updatedValue) {
+      setIsEditingOn(false);
+
+      return;
+    } else if (event.key === 'Escape') {
+      setIsEditingOn(false);
+
+      return;
+    } else if (event.key === 'Enter' && item.title !== updatedValue) {
+      submitEditind();
+    } else {
       return;
     }
 
     event.preventDefault();
-
-    submitEditind();
   };
+
+  const handleDoubleClick = () => {
+    setUpdatedValue(item.title);
+    setIsEditingOn(true);
+  };
+
+  const showThisTitle = () => {
+    return allId.includes(item.id) && tempEdition
+      ? tempEdition.title
+      : item.title;
+  };
+
+  const editElement = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    if (editElement.current && isEditingOn) {
+      editElement.current.focus();
+    }
+  }, [isEditingOn]);
 
   return (
     <>
@@ -105,11 +120,11 @@ export const TodosItem: React.FC<ItemProps> = ({ item }) => {
         {!isEditingOn && (
           <>
             <span
-              onDoubleClick={() => setIsEditingOn(true)}
+              onDoubleClick={() => handleDoubleClick()}
               data-cy="TodoTitle"
               className="todo__title"
             >
-              {item.title}
+              {showThisTitle()}
             </span>
 
             <button
@@ -126,15 +141,15 @@ export const TodosItem: React.FC<ItemProps> = ({ item }) => {
         {isEditingOn && (
           <form>
             <input
-              autoFocus
               data-cy="TodoTitleField"
               type="text"
               className="todo__title-field"
               placeholder="Empty todo will be deleted"
               value={updatedValue}
-              onBlur={() => submitEditind()}
-              onKeyDown={handleEnterEdit}
+              onBlur={handleOnBlur}
+              onKeyDown={handleKeyUp}
               onChange={handleEditOnChange}
+              ref={editElement}
             />
           </form>
         )}

@@ -17,6 +17,13 @@ type TodosContextType = {
   selectedFilter: FilterStatuses;
   setSelectedFilter(selectedFilter: FilterStatuses): void;
   handleUpdateTodoStatus: (updetedTodo: Todo) => void;
+  updatedValue: string;
+  setUpdatedValue: (updatedValue: string) => void;
+  handleUpdateTodoTitle: (updatedTodo: Todo) => void;
+  tempEdition: Todo | null;
+  setTempEdition: (tempEdition: Todo | null) => void;
+  isEditingOn: boolean;
+  setIsEditingOn: (isEditingOn: boolean) => void;
 };
 
 export const TodosContext = React.createContext<TodosContextType>({
@@ -32,6 +39,13 @@ export const TodosContext = React.createContext<TodosContextType>({
   selectedFilter: FilterStatuses.All,
   setSelectedFilter: (_selectedFilter: FilterStatuses) => {},
   handleUpdateTodoStatus: (_updetedTodo: Todo) => {},
+  updatedValue: '',
+  setUpdatedValue: (_updatedValue: string) => {},
+  handleUpdateTodoTitle: (_updetedTodo: Todo) => {},
+  tempEdition: null,
+  setTempEdition: (_tempEdition: Todo | null) => {},
+  isEditingOn: false,
+  setIsEditingOn: (_isEditingOn: boolean) => {},
 });
 
 type Props = {
@@ -44,6 +58,44 @@ export const TodosProvider: React.FC<Props> = ({ children }) => {
   const [todos, setTodos] = useState<Todo[]>([]);
   const [allId, setAllId] = useState<number[]>([]);
   const [selectedFilter, setSelectedFilter] = useState(FilterStatuses.All);
+  const [updatedValue, setUpdatedValue] = useState('');
+  const [tempEdition, setTempEdition] = useState<Todo | null>(null);
+  const [isEditingOn, setIsEditingOn] = useState(false);
+
+  const handleUpdateTodoTitle = (clickedTodo: Todo) => {
+    const updatedTodo = {
+      ...clickedTodo,
+      title: updatedValue.trim(),
+    };
+
+    setAllId(prevAllId => [...prevAllId, updatedTodo.id]);
+
+    setTempEdition(updatedTodo);
+
+    updateTodo(updatedTodo)
+      .then(response => {
+        setTodos(prevTodos => {
+          const newTodos = [...prevTodos];
+
+          const index = newTodos.findIndex(todo => todo.id === response.id);
+
+          newTodos.splice(index, 1, updatedTodo);
+
+          setIsEditingOn(false);
+
+          return newTodos;
+        });
+      })
+      .catch(() => {
+        setTimeout(() => {
+          setErrorMessage('Unable to update a todo');
+        }, 3000);
+      })
+      .finally(() => {
+        setAllId([]);
+        setTempEdition(null);
+      });
+  };
 
   const handleUpdateTodoStatus = (clickedTodo: Todo) => {
     const updatedTodo = {
@@ -108,8 +160,24 @@ export const TodosProvider: React.FC<Props> = ({ children }) => {
       selectedFilter,
       setSelectedFilter,
       handleUpdateTodoStatus,
+      updatedValue,
+      setUpdatedValue,
+      handleUpdateTodoTitle,
+      tempEdition,
+      setTempEdition,
+      isEditingOn,
+      setIsEditingOn,
     }),
-    [todos, setTodos, allId, errorMessage, isSubmiting, selectedFilter],
+    [
+      todos,
+      allId,
+      errorMessage,
+      isSubmiting,
+      selectedFilter,
+      updatedValue,
+      tempEdition,
+      isEditingOn,
+    ],
   );
 
   return (

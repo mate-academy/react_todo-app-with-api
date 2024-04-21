@@ -147,12 +147,14 @@ export const App: React.FC = () => {
 
       <div className="todoapp__content">
         <header className="todoapp__header">
-          <button
-            type="button"
-            className={toggleAllClasses}
-            data-cy="ToggleAllButton"
-            onClick={handleToggleAll}
-          />
+          {todos.length > 0 && (
+            <button
+              type="button"
+              className={toggleAllClasses}
+              data-cy="ToggleAllButton"
+              onClick={handleToggleAll}
+            />
+          )}
 
           <form>
             <input
