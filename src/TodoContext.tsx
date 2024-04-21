@@ -53,7 +53,7 @@ export const TodoContext: React.FC<Props> = ({ children }) => {
     setTimeout(() => {
       setVisibleErr(false);
       setErrMessage('');
-    }, 2500);
+    }, 2900);
 
   //   try {
   //     setIsLoading([updatedTodo.id]);

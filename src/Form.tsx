@@ -96,6 +96,8 @@ export const Form = ({ todo, editSelectedInput }: Props) => {
 
             return updatedTodos;
           });
+
+          setIsEdited(null);
         })
         .catch(() => {
           setVisibleErr(true);
@@ -121,7 +123,11 @@ export const Form = ({ todo, editSelectedInput }: Props) => {
       updateTodo(t);
     }
 
-    setIsEdited(null);
+    if (editedTitle === todo.title) {
+      setIsEdited(null);
+    }
+
+    // setIsEdited(null);
   };
 
   return (
