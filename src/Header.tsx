@@ -1,29 +1,19 @@
 import cn from 'classnames';
-import { Todo } from './types/Todo';
-import { useEffect, useRef } from 'react';
-import { getTodos, patchTodo } from './api/todos';
+import { useContext, useEffect, useRef } from 'react';
+import { patchTodo } from './api/todos';
+import { ContextTodos } from './TodoContext';
 
-type Props = {
-  isLoading: number[];
-  handleSubmit: (event: React.FormEvent) => void;
-  setErrMessage: React.Dispatch<React.SetStateAction<string>>;
-  setTodos: React.Dispatch<React.SetStateAction<Todo[]>>;
-  setNewTitle: React.Dispatch<React.SetStateAction<string>>;
-  setIsLoading: React.Dispatch<React.SetStateAction<number[]>>;
-  newTitle: string;
-  todos: Todo[];
-};
-
-export const Header = ({
-  setErrMessage,
-  setIsLoading,
-  setTodos,
-  isLoading,
-  handleSubmit,
-  newTitle,
-  setNewTitle,
-  todos,
-}: Props) => {
+export const Header = () => {
+  const {
+    setErrMessage,
+    setIsLoading,
+    setTodos,
+    isLoading,
+    handleSubmit,
+    newTitle,
+    setNewTitle,
+    todos,
+  } = useContext(ContextTodos);
   const isAllActive = todos.every(todo => todo.completed);
 
   const selectInputTitle = useRef<HTMLInputElement>(null);
@@ -49,12 +39,14 @@ export const Header = ({
         await patchTodo({
           ...todo,
           completed: !checkAll,
+        }).then(respond => {
+          setTodos(prevTodos => {
+            return prevTodos.map(prevTodo =>
+              prevTodo.id === respond.id ? respond : prevTodo,
+            );
+          });
         });
       }
-
-      const updatedTodos = await getTodos();
-
-      setTodos(updatedTodos);
     } catch {
       setErrMessage('Unable to update a todo');
     } finally {

@@ -1,11 +1,14 @@
 import cn from 'classnames';
+import { useContext } from 'react';
+import { ContextTodos } from './TodoContext';
 
 type Props = {
-  isLoading: number[];
   todoId: number;
 };
 
-export const Loader = ({ isLoading, todoId }: Props) => {
+export const Loader = ({ todoId }: Props) => {
+  const { isLoading } = useContext(ContextTodos);
+
   return (
     <div
       data-cy="TodoLoader"

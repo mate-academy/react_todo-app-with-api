@@ -17,7 +17,6 @@ export const postTodo = ({ title, completed, userId }: Partial<Todo>) => {
 
 export const patchTodo = ({ id, userId, title, completed }: Todo) => {
   return client.patch<Todo>(`/todos/${id}`, {
-    id,
     userId,
     title,
     completed,

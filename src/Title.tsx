@@ -1,15 +1,14 @@
+import { useContext } from 'react';
+import { ContextTodos } from './TodoContext';
 import { Todo } from './types/Todo';
 
 type Props = {
   todo: Todo;
-  setIsEdited: (value: number) => void;
-  handleRemoveButton: (
-    todo: Todo,
-    event: React.MouseEvent<HTMLButtonElement>,
-  ) => void;
 };
 
-export const Title = ({ todo, setIsEdited, handleRemoveButton }: Props) => {
+export const Title = ({ todo }: Props) => {
+  const { setIsEdited, handleRemoveButton } = useContext(ContextTodos);
+
   return (
     <>
       <span

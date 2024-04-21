@@ -1,27 +1,15 @@
-import { Todo } from './types/Todo';
 import { Status } from './enums/status';
 import cn from 'classnames';
+import { useContext } from 'react';
+import { ContextTodos } from './TodoContext';
 
 type Props = {
-  setErrMessage: (string: string) => void;
-  todos: Todo[];
   isAnyCompleted: boolean;
-  stat: Status;
-  removeTodo: (todo: Todo) => void;
-  setIsLoading: React.Dispatch<React.SetStateAction<number[]>>;
-  setTodos: React.Dispatch<React.SetStateAction<Todo[]>>;
-  setStat: (x: Status) => void;
 };
 
-export const Footer = ({
-  removeTodo,
-  setIsLoading,
-  setErrMessage,
-  todos,
-  isAnyCompleted,
-  setStat,
-  stat,
-}: Props) => {
+export const Footer = ({ isAnyCompleted }: Props) => {
+  const { todos, removeTodo, setErrMessage, setIsLoading, stat, setStat } =
+    useContext(ContextTodos);
   const notActive = todos.reduce(
     (acc, todo) => (todo.completed === false ? acc + 1 : acc),
     0,
