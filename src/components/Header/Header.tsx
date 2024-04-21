@@ -1,10 +1,7 @@
 import React, { useContext, useEffect, useRef, useState } from 'react';
 import { todosContext } from '../../Store';
 import classNames from 'classnames';
-import { errorText } from '../../constants';
-import { completedTodos, uncompletedTodos } from '../../utils/utils';
-import { handleAdd } from '../../utils/handleAdd';
-import { handleUpdate } from '../../utils/handleUpdate';
+import { item, items } from '../../utils/utils';
 
 export const Header: React.FC = () => {
   const [state, setters] = useContext(todosContext);
@@ -15,38 +12,14 @@ export const Header: React.FC = () => {
     if (titleFild.current && !state.selectedTodo) {
       titleFild.current.focus();
     }
-  }, [state.selectedTodo, state.todos, state.updatedAt, state.loading]);
+  }, [state.selectedTodo, state.updatedAt, state.loading]);
 
   const allTodosAreCompleted =
-    completedTodos(state.todos).length === state.todos.length;
+    items.completed(state.todos).length === state.todos.length;
 
-  function handleSubmit(e: React.FormEvent) {
+  function onSubmit(e: React.FormEvent) {
     e.preventDefault();
-    const newTitle = title.trim();
-
-    if (!newTitle) {
-      setters.setErrorMessage(errorText.emptyTitle);
-
-      return;
-    }
-
-    if (!state.loading) {
-      handleAdd(newTitle, setters).then(() => setTitle(''));
-    }
-  }
-
-  function toggleAll() {
-    if (uncompletedTodos(state.todos).length > 0) {
-      uncompletedTodos(state.todos).map(todo => {
-        return handleUpdate(todo, !todo.completed, setters);
-      });
-    }
-
-    if (uncompletedTodos(state.todos).length === 0 && state.todos.length > 0) {
-      state.todos.map(todo => {
-        return handleUpdate(todo, !todo.completed, setters);
-      });
-    }
+    item.handleAdd(title, state, setters, setTitle);
   }
 
   return (
@@ -58,11 +31,11 @@ export const Header: React.FC = () => {
             active: allTodosAreCompleted,
           })}
           data-cy="ToggleAllButton"
-          onClick={() => toggleAll()}
+          onClick={() => items.toggleAll(state, setters)}
         />
       )}
 
-      <form onSubmit={handleSubmit}>
+      <form onSubmit={onSubmit}>
         <input
           ref={titleFild}
           disabled={state.loading}

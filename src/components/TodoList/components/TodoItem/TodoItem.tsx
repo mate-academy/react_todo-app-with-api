@@ -6,8 +6,8 @@ import './todo.scss';
 import { useContext } from 'react';
 import { todosContext } from '../../../../Store';
 import { TodoWithLoader } from '../../../../types/TodoWithLoader';
-import { handleDelete } from '../../../../utils/handleDelete';
 import { handleUpdate } from '../../../../utils/handleUpdate';
+import { item } from '../../../../utils/utils';
 type Props = { todo: TodoWithLoader };
 
 export const TodoItem: React.FC<Props> = ({ todo }) => {
@@ -23,24 +23,11 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
     }
   }, [state.selectedTodo]);
 
-  function onDelete() {
-    setters.setErrorMessage('');
-    handleDelete(todo, setters);
-  }
-
   const onUpdate = () => {
-    const newTitle = title.trim();
-
-    if (newTitle === todo.title) {
-      setters.setSelectedTodo(null);
-    } else if (newTitle.length === 0) {
-      onDelete();
-    } else {
-      handleUpdate(todo, todo.completed, setters, newTitle);
-    }
+    item.handleUpdate(todo, title, setters);
   };
 
-  function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+  function onSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     onUpdate();
   }
@@ -70,7 +57,7 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
       </label>
 
       {todoIsSelected ? (
-        <form onSubmit={handleSubmit} onBlur={() => onUpdate()}>
+        <form onSubmit={onSubmit} onBlur={() => onUpdate()}>
           <input
             autoFocus
             data-cy="TodoTitleField"
@@ -95,7 +82,7 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
             type="button"
             className="todo__remove"
             data-cy="TodoDelete"
-            onClick={onDelete}
+            onClick={() => item.handleDelete(todo, setters)}
           >
             ×
           </button>

@@ -2,7 +2,7 @@ import { editTodo } from '../api/todos';
 import { Setters } from '../types/Setters';
 import { errorText } from '../constants';
 import { TodoWithLoader } from '../types/TodoWithLoader';
-import { updateTodoLoading } from './utils';
+import { item } from './utils';
 
 export function handleUpdate(
   todo: TodoWithLoader,
@@ -20,7 +20,7 @@ export function handleUpdate(
 
   setters.setLoading(true);
   setters.setErrorMessage('');
-  updateTodoLoading(todo, true, setters);
+  item.updateLoading(todo, true, setters);
 
   return editTodo(todo.id, newTodo)
     .then(todo1 => {
@@ -42,7 +42,8 @@ export function handleUpdate(
     })
     .finally(() => {
       setters.setLoading(false);
-      updateTodoLoading(todo, false, setters);
+      setters.setUpdatedAt(new Date());
+      item.updateLoading(todo, false, setters);
     })
     .then(() => {
       setters.setSelectedTodo(null);

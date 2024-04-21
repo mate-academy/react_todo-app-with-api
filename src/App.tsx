@@ -7,7 +7,7 @@ import { TodoList } from './components/TodoList/TodoList';
 import { todosContext } from './Store';
 import { Footer } from './components/Footer/Footer';
 import { errorText } from './constants';
-import { filterTodos } from './utils/utils';
+import { items } from './utils/utils';
 import { ErrorNotification } from './components/ErrorNotification';
 import { TodoWithLoader } from './types/TodoWithLoader';
 
@@ -46,7 +46,7 @@ export const App: React.FC = () => {
   }, [state.errorMessage, state.loading, setters]);
 
   const displayedTodos = useMemo(() => {
-    return filterTodos(state.todos, state.filter);
+    return items.filter(state.todos, state.filter);
   }, [state.todos, state.filter, state.updatedAt]);
 
   if (!USER_ID) {

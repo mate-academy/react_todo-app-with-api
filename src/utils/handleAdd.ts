@@ -1,10 +1,10 @@
 import { addTodo } from '../api/todos';
 import { Setters } from '../types/Setters';
 import { errorText } from '../constants';
-import { createNewTodo } from './utils';
+import { item } from './utils';
 
 export function handleAdd(title: string, setters: Setters) {
-  const newTodo = createNewTodo(title, false);
+  const newTodo = item.createNew(title, false);
 
   setters.setLoading(true);
   setters.setErrorMessage('');

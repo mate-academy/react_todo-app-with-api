@@ -2,10 +2,12 @@ import { deleteTodo } from '../api/todos';
 import { Setters } from '../types/Setters';
 import { errorText } from '../constants';
 import { TodoWithLoader } from '../types/TodoWithLoader';
-import { updateTodoLoading } from './utils';
+import { item } from './utils';
 
 export function handleDelete(todo: TodoWithLoader, setters: Setters) {
-  updateTodoLoading(todo, true, setters);
+  setters.setLoading(true);
+  setters.setErrorMessage('');
+  item.updateLoading(todo, true, setters);
 
   return deleteTodo(todo.id)
     .then(() => {
@@ -14,9 +16,12 @@ export function handleDelete(todo: TodoWithLoader, setters: Setters) {
       });
     })
     .catch(error => {
-      updateTodoLoading(todo, false, setters);
+      item.updateLoading(todo, false, setters);
       setters.setErrorMessage(errorText.failDeleting);
-      setters.setUpdatedAt(new Date());
       throw error;
-    });
+    })
+    .finally(() => {
+      setters.setLoading(false);
+    })
+    .then(() => setters.setSelectedTodo(null));
 }
