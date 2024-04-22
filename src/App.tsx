@@ -46,6 +46,7 @@ export const App: React.FC = () => {
       setError(null);
     } catch (errors) {
       setError('Unable to load todos');
+    } finally {
     }
   };
 
@@ -67,7 +68,7 @@ export const App: React.FC = () => {
     if (inputRef.current) {
       inputRef.current.focus();
     }
-  }, [todos]);
+  }, [todos, isInputDisabled]);
 
   // form event handling
   const handleSubmit = async (e: React.FormEvent) => {
@@ -79,6 +80,8 @@ export const App: React.FC = () => {
     }
 
     try {
+      setIsInputDisabled(true);
+
       setTempTodo({
         id: 0,
         title: title.trim(),
@@ -99,24 +102,40 @@ export const App: React.FC = () => {
       setError('Unable to add a todo');
     } finally {
       setTempTodo(null);
+      setIsInputDisabled(false);
     }
   };
 
   const deleteSingleTodo = async (todoId: number) => {
+    let deleteSuccess = false;
+
     try {
+      setIsInputDisabled(true);
+
       setLoadingTodoIds(prevLoading => [...prevLoading, todoId]); // Set download status for selected todo
-      await deleteTodo(todoId);
+      await Promise.allSettled([deleteTodo(todoId)]);
+
+      deleteSuccess = true;
+
       setTodos(currentTodo => currentTodo.filter(todo => todo.id !== todoId));
     } catch (errors) {
       setError('Unable to delete a todo');
     } finally {
-      setLoadingTodoIds(prevLoading => prevLoading.filter(id => id !== todoId)); // Clearing the download status after the operation
+      if (!deleteSuccess) {
+        setLoadingTodoIds(prevLoading =>
+          prevLoading.filter(id => id !== todoId),
+        );
+      } // Clearing the download status after the operation
+
+      setIsInputDisabled(false);
     }
   };
 
   // The function is responsible for changing the task status
   const toggleTodoCompletion = async (todoId: number) => {
     try {
+      setIsInputDisabled(true);
+
       const updatedTodo = todos.find(todo => todo.id === todoId);
 
       if (updatedTodo) {
@@ -136,11 +155,13 @@ export const App: React.FC = () => {
       setError('Unable to toggle todo completion');
     } finally {
       setError(null);
+      setIsInputDisabled(false);
     }
   };
 
   const clearCompletedTodos = async () => {
     try {
+      setIsInputDisabled(true);
       // Selection of completed todos
       const completedTodosIds = todos
         .filter(todo => todo.completed)
@@ -155,6 +176,7 @@ export const App: React.FC = () => {
         setFilterStatus(TodoStatus.All);
       }
     } finally {
+      setIsInputDisabled(false);
     }
   };
 
