@@ -33,9 +33,10 @@ export const Header: React.FC<Props> = ({
   const handleToggleAll = async () => {
     const filteredTasks = todos.filter(todo => !todo.completed);
     const unfinishedTasks = filteredTasks.length ? filteredTasks : todos;
+    const todoIdsToLoad = unfinishedTasks.map(task => task.id);
 
     try {
-      setLoadingTodoIds([...unfinishedTasks.map(task => task.id)]);
+      setLoadingTodoIds([...todoIdsToLoad]);
 
       const updatingStatus = unfinishedTasks.map(todo =>
         updateTodo(todo.id, { ...todo, completed: !todo.completed }),
@@ -63,6 +64,7 @@ export const Header: React.FC<Props> = ({
           onClick={handleToggleAll}
         />
       )}
+
       <form onSubmit={onSubmit}>
         <input
           ref={inputRef}

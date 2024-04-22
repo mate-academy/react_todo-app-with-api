@@ -11,15 +11,21 @@ export const Filter: React.FC<FilterProps> = ({
   currentFilterStatus,
   onFilter,
 }) => {
+  const valuesOfStatus = Object.values(Status);
+
+  function checkField(field: Status) {
+    return field === currentFilterStatus;
+  }
+
   return (
     <nav className="filter" data-cy="Filter">
-      {Object.values(Status).map(field => (
+      {valuesOfStatus.map(field => (
         <a
           key={field}
           onClick={() => onFilter(field)}
           href="#/"
           className={classnames('filter__link', {
-            selected: field === currentFilterStatus,
+            selected: checkField(field),
           })}
           data-cy={`FilterLink${field}`}
         >

@@ -44,6 +44,7 @@ export const Footer: React.FC<Props> = ({
         onFilter={onFilterChange}
         currentFilterStatus={currentFilterStatus}
       />
+
       <button
         type="button"
         className="todoapp__clear-completed"

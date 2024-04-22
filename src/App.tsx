@@ -110,6 +110,22 @@ export const App: React.FC = () => {
     );
   };
 
+  const handleNewTitle = (value: React.SetStateAction<string>) => {
+    setNewTitle(value);
+  };
+
+  const handleLoadingTodoIds = (ids: number[]) => {
+    setLoadingTodoIds(ids);
+  };
+
+  const handleStatus = (field: React.SetStateAction<Status>) => {
+    setStatus(field);
+  };
+
+  const handleErrorMessage = () => {
+    setErrorMessage(Errors.Default);
+  };
+
   if (!USER_ID) {
     return <UserWarning />;
   }
@@ -122,13 +138,13 @@ export const App: React.FC = () => {
         <Header
           inputRef={focusInput}
           onSubmit={handleSubmit}
-          onChange={value => setNewTitle(value)}
+          onChange={handleNewTitle}
           onUpdateTodos={updateTodos}
           onError={handleError}
           newTitle={newTitle}
           isLoading={isLoading}
           todos={todos}
-          setLoadingTodoIds={(ids: number[]) => setLoadingTodoIds(ids)}
+          setLoadingTodoIds={handleLoadingTodoIds}
         />
 
         <Todolist
@@ -142,7 +158,7 @@ export const App: React.FC = () => {
 
         {!!todos.length && (
           <Footer
-            onFilterChange={field => setStatus(field)}
+            onFilterChange={handleStatus}
             onDeleteTodo={removeTodo}
             currentFilterStatus={status}
             todos={todos}
@@ -151,10 +167,7 @@ export const App: React.FC = () => {
         )}
       </div>
 
-      <Error
-        errorMessage={errorMessage}
-        onDeleteError={() => setErrorMessage(Errors.Default)}
-      />
+      <Error errorMessage={errorMessage} onDeleteError={handleErrorMessage} />
     </div>
   );
 };

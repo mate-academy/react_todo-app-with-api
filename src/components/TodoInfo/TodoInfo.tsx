@@ -19,13 +19,17 @@ export const TodoInfo: React.FC<Props> = ({
   onUpdateTodos = () => {},
   loadingTodoIds,
 }) => {
-  const [editTitle, setEditTitle] = useState(todo.title);
+  const { title } = todo;
+
+  const [editTitle, setEditTitle] = useState(title);
   const [isLoading, setIsLoading] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
 
   const inputField = useRef<HTMLInputElement | null>(null);
 
   const isIncludesId = loadingTodoIds?.includes(todo.id);
+
+  const checkForIsActive = isIncludesId || todo.id === 0 || isLoading;
 
   useEffect(() => {
     if (isEditing) {
@@ -48,6 +52,10 @@ export const TodoInfo: React.FC<Props> = ({
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const handleIsEditing = () => {
+    setIsEditing(true);
   };
 
   const renameTodo = async () => {
@@ -130,7 +138,7 @@ export const TodoInfo: React.FC<Props> = ({
           <span
             data-cy="TodoTitle"
             className="todo__title"
-            onDoubleClick={() => setIsEditing(true)}
+            onDoubleClick={handleIsEditing}
           >
             {todo.title}
           </span>
@@ -149,7 +157,7 @@ export const TodoInfo: React.FC<Props> = ({
       <div
         data-cy="TodoLoader"
         className={cn('modal overlay', {
-          'is-active': isIncludesId || todo.id === 0 || isLoading,
+          'is-active': checkForIsActive,
         })}
       >
         <div className="modal-background has-background-white-ter" />
