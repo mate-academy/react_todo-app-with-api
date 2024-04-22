@@ -20,18 +20,19 @@ export function handleUpdate(
 
   setters.setLoading(true);
   setters.setErrorMessage('');
+  item.updateLoading(todo, true, setters);
 
   return editTodo(todo.id, newTodo)
-    .then(currentTodo => {
+    .then(updatedTodo => {
       setters.setTodos(prevTodos => {
-        return prevTodos.map(todo1 => {
-          if (todo1.id === currentTodo.id) {
+        return prevTodos.map(currentTodo => {
+          if (currentTodo.id === updatedTodo.id) {
             setters.setUpdatedAt(new Date());
 
-            return { ...todo1, loading: false };
+            return { ...updatedTodo, loading: false };
           }
 
-          return todo1;
+          return currentTodo;
         });
       });
     })
@@ -41,6 +42,7 @@ export function handleUpdate(
     })
     .finally(() => {
       setters.setLoading(false);
+      setters.setUpdatedAt(new Date());
       item.updateLoading(todo, false, setters);
     })
     .then(() => {
