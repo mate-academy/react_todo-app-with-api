@@ -22,17 +22,13 @@ export const TodoListItem: React.FC<Props> = ({ todo }) => {
   } = useContext(TodoContext);
 
   const { id, title, completed } = todo;
-
   const [isEditing, setIsEditing] = useState(false);
-
   const [newTitle, setNewTitle] = useState(title);
-
   const [trimmedTitle, setTrimmedTitle] = useState(newTitle.trim());
 
   const removeTodo = () => {
     setIsLoading(true);
     setListOfProcessingTodos([todo]);
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     deleteTodo(id)
       .then(() => {
         setTodosList(todosList.filter(item => item.id !== id));

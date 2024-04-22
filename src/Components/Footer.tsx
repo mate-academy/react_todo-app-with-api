@@ -1,4 +1,4 @@
-import { useContext } from 'react';
+import { useContext, useMemo } from 'react';
 import { TodoContext } from './TodoContext';
 import classNames from 'classnames';
 import { FilterSettings } from './TodoContext';
@@ -16,8 +16,14 @@ export const Footer = () => {
     setIsLoading,
   } = useContext(TodoContext);
 
-  const completedTodos = todosList.filter(todo => todo.completed);
-  const unCompletedTodos = todosList.filter(todo => !todo.completed);
+  const completedTodos = useMemo(
+    () => todosList.filter(todo => todo.completed),
+    [todosList],
+  );
+  const unCompletedTodos = useMemo(
+    () => todosList.filter(todo => !todo.completed),
+    [todosList],
+  );
 
   const handleFiltering = (value: FilterSettings) => {
     setFilterSettings(value);

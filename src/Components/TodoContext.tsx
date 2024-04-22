@@ -67,24 +67,17 @@ export const TodoContext = React.createContext<TodoContextType>({
 
 export const TodoProvider: React.FC<Props> = ({ children }) => {
   const [newTodo, setNewTodo] = useState(todoPattern);
-
   const [todosList, setTodosList] = useState<Todo[]>([]);
-
   const [filterSettings, setFilterSettings] = useState(FilterSettings.all);
-
   const [errorMessage, setErrorMessage] = useState('');
-
   const [newTodosProcessing, setNewTodosProcessing] = useState(false);
-
   const [tempTodo, setTempTodo] = useState(null);
-
   const [isLoading, setIsLoading] = useState(false);
-
   const [listOfProcessingTodos, setListOfProcessingTodos] = useState<Todo[]>(
     [],
   );
 
-  const initialTodosList = () => {
+  const initializeTodosList = () => {
     getTodos()
       .then(todos => setTodosList(todos))
       .catch(() => {
@@ -94,7 +87,7 @@ export const TodoProvider: React.FC<Props> = ({ children }) => {
   };
 
   useEffect(() => {
-    initialTodosList();
+    initializeTodosList();
   }, [newTodosProcessing]);
 
   const value = useMemo<TodoContextType>(
