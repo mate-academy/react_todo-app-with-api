@@ -73,22 +73,18 @@ export const TodosProvider: React.FC<Props> = ({ children }) => {
   }, []);
 
   const handleDelete = (todoId: number) => {
-    setLoadingIds([...loadingIds, todoId]);
-    debugger;
+    setLoadingIds(prev => [...prev, todoId]);
 
     return deleteTodo(todoId)
       .then(() => {
-        debugger;
         setTodos(currentTodos =>
           currentTodos.filter(todo => todo.id !== todoId),
         );
       })
       .catch(() => {
-        debugger;
         setErrorMessage('Unable to delete a todo');
       })
       .finally(() => {
-        debugger;
         setLoadingIds(prev => prev.filter(item => item !== todoId));
         setFocused(new Date());
       });

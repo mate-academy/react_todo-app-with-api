@@ -56,15 +56,11 @@ export const TodoHeader: React.FC = () => {
 
     createTodo(newTodo)
       .then(handleTodo => {
-        return setTodos(prevTodo => [...prevTodo, handleTodo]);
+        setTodos(prevTodo => [...prevTodo, handleTodo]);
       })
-      .catch(error => {
+      .catch(() => {
         isError = true;
-
         setErrorMessage('Unable to add a todo');
-        setTimeout(() => {
-          throw error;
-        }, 3000);
       })
       .finally(() => {
         setFocused(new Date());
