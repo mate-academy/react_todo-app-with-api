@@ -35,7 +35,7 @@ type Props = {
 };
 
 export const GlobalProvider: React.FC<Props> = ({ children }) => {
-  const [todos, setTodos] = useState<TodoWithLoader[]>([]);
+  const [todos, setTodos] = useState<TodoWithLoader[] | []>([]);
   const [errorMessage, setErrorMessage] = useState('');
   const [filter, setFilter] = useState(Filter.all);
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);

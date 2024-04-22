@@ -20,20 +20,19 @@ export function handleUpdate(
 
   setters.setLoading(true);
   setters.setErrorMessage('');
-  item.updateLoading(todo, true, setters);
 
   return editTodo(todo.id, newTodo)
-    .then(todo1 => {
+    .then(currentTodo => {
       setters.setTodos(prevTodos => {
-        const index = prevTodos.findIndex(
-          currentTodo => todo1.id === currentTodo.id,
-        );
+        return prevTodos.map(todo1 => {
+          if (todo1.id === currentTodo.id) {
+            setters.setUpdatedAt(new Date());
 
-        if (index >= 0) {
-          prevTodos.splice(index, 1, { ...todo1, loading: false });
-        }
+            return { ...todo1, loading: false };
+          }
 
-        return prevTodos;
+          return todo1;
+        });
       });
     })
     .catch(error => {
@@ -42,7 +41,6 @@ export function handleUpdate(
     })
     .finally(() => {
       setters.setLoading(false);
-      setters.setUpdatedAt(new Date());
       item.updateLoading(todo, false, setters);
     })
     .then(() => {

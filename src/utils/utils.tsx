@@ -53,19 +53,21 @@ export const items = {
 };
 
 export const item = {
-  updateLoading(todo: TodoWithLoader, isLoading: boolean, setter: Setters) {
-    setter.setTodos(prevTodos => {
-      const index = prevTodos.findIndex(todo1 => todo1.id === todo.id);
-      const oldTodo = prevTodos[index];
+  updateLoading(
+    currentTodo: TodoWithLoader,
+    isLoading: boolean,
+    setters: Setters,
+  ): void {
+    setters.setTodos(prevTodos => {
+      return prevTodos.map(todo => {
+        if (todo.id === currentTodo.id) {
+          setters.setUpdatedAt(new Date());
 
-      if (index >= 0) {
-        setter.setUpdatedAt(new Date());
-        const newTodo: TodoWithLoader = { ...oldTodo, loading: isLoading };
+          return { ...todo, loading: isLoading };
+        }
 
-        prevTodos.splice(index, 1, newTodo);
-      }
-
-      return prevTodos;
+        return todo;
+      });
     });
   },
 

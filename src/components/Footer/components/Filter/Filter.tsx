@@ -1,10 +1,8 @@
 import './filter.scss';
-import { Filter } from '../../../../types/Filter';
 import { FilterItem } from '../FilterItem';
+import { allFilters } from '../../../../constants';
 
 export const FilterContainer: React.FC = () => {
-  const allFilters = [Filter.all, Filter.active, Filter.completed];
-
   return (
     <nav className="filter" data-cy="Filter">
       {allFilters.map(filter => {
