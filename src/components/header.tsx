@@ -16,8 +16,8 @@ type Props = {
   isSubmitting: boolean;
   setIsSubmitting: (s: boolean) => void;
   setTempTodo: (o: Todo | null) => void;
-  setIsLoading: (e: (s: number[]) => number[] | number[]) => void;
-  isLoading: number[];
+  setTodosInProcess: (e: (s: number[]) => number[] | number[]) => void;
+  todosInProcess: number[];
 };
 
 export const Header: React.FC<Props> = ({
@@ -32,8 +32,8 @@ export const Header: React.FC<Props> = ({
   isSubmitting,
   setIsSubmitting,
   setTempTodo,
-  setIsLoading,
-  isLoading,
+  setTodosInProcess,
+  todosInProcess,
 }) => {
   const titleField = useRef<HTMLInputElement>(null);
 
@@ -63,19 +63,11 @@ export const Header: React.FC<Props> = ({
     setIsSubmitting(true);
 
     addTodo(todoId, title.trim())
-      .then(() => {
+      .then(todo => {
         setTitle('');
         setErrorMessage('');
         setTempTodo(null);
-        setPreparedTodos([
-          ...todos,
-          {
-            id: todoId,
-            userId: 292,
-            title: title.trim(),
-            completed: false,
-          },
-        ]);
+        setPreparedTodos([...todos, todo]);
       })
       .catch(() => {
         setTempTodo(null);
@@ -89,49 +81,49 @@ export const Header: React.FC<Props> = ({
   const handleToggleAll = () => {
     if (isCompleted.length) {
       isCompleted.forEach(todo => {
-        setIsLoading(prevTodosIds => [...prevTodosIds, todo.id]);
+        setTodosInProcess(prevTodosIds => [...prevTodosIds, todo.id]);
 
         updateTodo(todo.id, !todo.completed)
-          .then(updatedTodo => {
+          .then(() => {
             setPreparedTodos(currentTodos => {
-              const newTodos = [...currentTodos];
+              currentTodos
+                .filter(currentTodo => currentTodo.completed === false)
+                .map(notCompletedTodo => {
+                  const newTodo = notCompletedTodo;
 
-              const index = newTodos.findIndex(
-                newTodo => todo.id === newTodo.id,
-              );
+                  newTodo.completed = true;
+                });
 
-              newTodos.splice(index, 1, updatedTodo);
-
-              return newTodos;
+              return currentTodos;
             });
           })
           .catch(() => {
             setErrorMessage(`Unable to update a todo`);
           })
-          .finally(() => setIsLoading(() => []));
+          .finally(() => setTodosInProcess(() => []));
       });
     } else {
       preparedTodos.forEach(todo => {
-        setIsLoading(prevTodosIds => [...prevTodosIds, todo.id]);
+        setTodosInProcess(prevTodosIds => [...prevTodosIds, todo.id]);
 
         updateTodo(todo.id, !todo.completed)
-          .then(updatedTodo => {
+          .then(() => {
             setPreparedTodos(currentTodos => {
-              const newTodos = [...currentTodos];
+              currentTodos
+                .filter(currentTodo => currentTodo.completed === true)
+                .map(completedTodo => {
+                  const newTodo = completedTodo;
 
-              const index = newTodos.findIndex(
-                newTodo => todo.id === newTodo.id,
-              );
+                  newTodo.completed = false;
+                });
 
-              newTodos.splice(index, 1, updatedTodo);
-
-              return newTodos;
+              return currentTodos;
             });
           })
           .catch(() => {
             setErrorMessage(`Unable to update a todo`);
           })
-          .finally(() => setIsLoading(() => []));
+          .finally(() => setTodosInProcess(() => []));
       });
     }
   };
@@ -141,7 +133,7 @@ export const Header: React.FC<Props> = ({
       <button
         type="button"
         className={classNames('todoapp__toggle-all', {
-          active: !isCompleted.length || isLoading.length,
+          active: !isCompleted.length || todosInProcess.length,
         })}
         data-cy="ToggleAllButton"
         onClick={handleToggleAll}
@@ -161,4 +153,4 @@ export const Header: React.FC<Props> = ({
       </form>
     </header>
   );
-};пше
+};

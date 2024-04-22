@@ -8,7 +8,7 @@ type Props = {
   onSelect: (a: string) => void;
   count: number;
   todos: Todo[];
-  setIsLoading: (e: (s: number[]) => number[] | number[]) => void;
+  setTodosInProcess: (e: (s: number[]) => number[] | number[]) => void;
   setErrorMessage: (m: string) => void;
 };
 
@@ -18,7 +18,7 @@ export const Footer: React.FC<Props> = ({
   onSelect,
   count,
   todos,
-  setIsLoading,
+  setTodosInProcess,
   setErrorMessage,
 }) => {
   const completedTodos = todos.filter(todo => todo.completed);
@@ -27,7 +27,7 @@ export const Footer: React.FC<Props> = ({
 
   const handleDeleteCompletedTodos = () => {
     completedTodos.forEach(todo => {
-      setIsLoading(prevTodosIds => [...prevTodosIds, todo.id]);
+      setTodosInProcess(prevTodosIds => [...prevTodosIds, todo.id]);
 
       deleteTodo(todo.id)
         .then(() => {
@@ -40,7 +40,7 @@ export const Footer: React.FC<Props> = ({
         .catch(() => {
           setErrorMessage(`Unable to delete a todo`);
         })
-        .finally(() => setIsLoading(() => []));
+        .finally(() => setTodosInProcess(() => []));
     });
   };
 

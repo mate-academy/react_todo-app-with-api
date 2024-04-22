@@ -21,7 +21,7 @@ export const App: React.FC = () => {
   const [title, setTitle] = useState<string>('');
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
-  const [isLoading, setIsLoading] = useState<number[]>([]);
+  const [todosInProcess, setTodosInProcess] = useState<number[]>([]);
   const [isEditing, setIsEditing] = useState<number | null>(null);
   const [updatedTitle, setUpdatedTitle] = useState<string>('');
 
@@ -62,8 +62,8 @@ export const App: React.FC = () => {
           setIsSubmitting={setIsSubmitting}
           isSubmitting={isSubmitting}
           setTempTodo={setTempTodo}
-          setIsLoading={setIsLoading}
-          isLoading={isLoading}
+          setTodosInProcess={setTodosInProcess}
+          todosInProcess={todosInProcess}
         />
 
         {!!preparedTodos?.length && (
@@ -72,8 +72,8 @@ export const App: React.FC = () => {
               todos={visibleTodos}
               setPreparedTodos={setPreparedTodos}
               tempTodo={tempTodo}
-              isLoading={isLoading}
-              setIsLoading={setIsLoading}
+              todosInProcess={todosInProcess}
+              setTodosInProcess={setTodosInProcess}
               setErrorMessage={setErrorMessage}
               setIsEditing={setIsEditing}
               isEditing={isEditing}
@@ -87,7 +87,7 @@ export const App: React.FC = () => {
               onSelect={setSelectedFilter}
               count={getCount(preparedTodos)}
               todos={visibleTodos}
-              setIsLoading={setIsLoading}
+              setTodosInProcess={setTodosInProcess}
               setErrorMessage={setErrorMessage}
             />
           </>

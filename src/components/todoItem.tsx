@@ -9,8 +9,8 @@ type Props = {
   todo: Todo;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   setPreparedTodos: (e: Todo[] | ((f: any[]) => any[])) => void;
-  isLoading: number[];
-  setIsLoading: (e: (s: number[]) => number[] | number[]) => void;
+  todosInProcess: number[];
+  setTodosInProcess: (e: (s: number[]) => number[] | number[]) => void;
   setErrorMessage: (m: string) => void;
   setIsEditing: (s: number | null) => void;
   isEditing: number | null;
@@ -22,8 +22,8 @@ export const TodoItem: React.FC<Props> = ({
   todos,
   todo,
   setPreparedTodos,
-  isLoading,
-  setIsLoading,
+  todosInProcess,
+  setTodosInProcess,
   setErrorMessage,
   setIsEditing,
   isEditing,
@@ -45,7 +45,7 @@ export const TodoItem: React.FC<Props> = ({
   }, [isEditing]);
 
   const handleDeleteTodo = () => {
-    setIsLoading(prevTodosIds => [...prevTodosIds, todo.id]);
+    setTodosInProcess(prevTodosIds => [...prevTodosIds, todo.id]);
 
     deleteTodo(todo.id)
       .then(() => {
@@ -56,28 +56,33 @@ export const TodoItem: React.FC<Props> = ({
       .catch(() => {
         setErrorMessage(`Unable to delete a todo`);
       })
-      .finally(() => setIsLoading(() => []));
+      .finally(() => setTodosInProcess(() => []));
   };
 
   const handleStatus = () => {
-    setIsLoading(prevTodosIds => [...prevTodosIds, todo.id]);
+    setTodosInProcess(prevTodosIds => [...prevTodosIds, todo.id]);
 
     updateTodo(todo.id, !todo.completed)
-      .then(updatedTodo => {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      .then((updatedTodo: any) => {
+        const updatedTodoStatus = updatedTodo.completed;
+
         setPreparedTodos(currentTodos => {
-          const newTodos = [...currentTodos];
+          currentTodos
+            .filter(currentTodo => todo.id === currentTodo.id)
+            .map(todoForUpdating => {
+              const newTodo = todoForUpdating;
 
-          const index = newTodos.findIndex(newTodo => todo.id === newTodo.id);
+              newTodo.completed = updatedTodoStatus;
+            });
 
-          newTodos.splice(index, 1, updatedTodo);
-
-          return newTodos;
+          return currentTodos;
         });
       })
       .catch(() => {
         setErrorMessage(`Unable to update a todo`);
       })
-      .finally(() => setIsLoading(() => []));
+      .finally(() => setTodosInProcess(() => []));
   };
 
   const handleEdit = () => {
@@ -91,35 +96,40 @@ export const TodoItem: React.FC<Props> = ({
 
     event.preventDefault();
 
-    setIsLoading(prevTodosIds => [...prevTodosIds, todo.id]);
+    setTodosInProcess(prevTodosIds => [...prevTodosIds, todo.id]);
 
     if (!updatedTitle.trim().length) {
       setIsEditing(null);
       handleDeleteTodo();
-      setIsLoading(() => []);
+      setTodosInProcess(() => []);
     }
 
     if (updatedTitle === todo.title) {
       setIsEditing(null);
-      setIsLoading(() => []);
+      setTodosInProcess(() => []);
 
       return;
     } else {
       updateTodoTitle(todo.id, updatedTitle)
-        .then(updatedTodo => {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        .then((updatedTodo: any) => {
+          const updatedTodoTitle = updatedTodo.title;
+
           setPreparedTodos(currentTodos => {
-            const newTodos = [...currentTodos];
+            currentTodos
+              .filter(currentTodo => todo.id === currentTodo.id)
+              .map(todoForUpdating => {
+                const newTodo = todoForUpdating;
 
-            const index = newTodos.findIndex(newTodo => todo.id === newTodo.id);
+                newTodo.title = updatedTodoTitle;
+              });
 
-            newTodos.splice(index, 1, updatedTodo);
-
-            return newTodos;
+            return currentTodos;
           });
         })
         .finally(() => {
           setIsEditing(null);
-          setIsLoading(() => []);
+          setTodosInProcess(() => []);
         });
     }
   };
@@ -182,7 +192,7 @@ export const TodoItem: React.FC<Props> = ({
       <div
         data-cy="TodoLoader"
         className={cn('modal overlay', {
-          'is-active': isLoading.includes(todo.id),
+          'is-active': todosInProcess.includes(todo.id),
         })}
       >
         <div className="modal-background has-background-white-ter" />

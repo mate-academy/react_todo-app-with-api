@@ -7,8 +7,8 @@ type Props = {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   setPreparedTodos: (e: Todo[] | ((f: any[]) => any[])) => void;
   tempTodo: Todo | null;
-  isLoading: number[];
-  setIsLoading: (e: (s: number[]) => number[] | number[]) => void;
+  todosInProcess: number[];
+  setTodosInProcess: (e: (s: number[]) => number[] | number[]) => void;
   setErrorMessage: (m: string) => void;
   setIsEditing: (s: number | null) => void;
   isEditing: number | null;
@@ -20,8 +20,8 @@ export const TodoList: React.FC<Props> = ({
   todos,
   setPreparedTodos,
   tempTodo,
-  isLoading,
-  setIsLoading,
+  todosInProcess,
+  setTodosInProcess,
   setErrorMessage,
   setIsEditing,
   isEditing,
@@ -36,8 +36,8 @@ export const TodoList: React.FC<Props> = ({
           todo={todo}
           setPreparedTodos={setPreparedTodos}
           key={todo.id}
-          isLoading={isLoading}
-          setIsLoading={setIsLoading}
+          todosInProcess={todosInProcess}
+          setTodosInProcess={setTodosInProcess}
           setErrorMessage={setErrorMessage}
           setIsEditing={setIsEditing}
           isEditing={isEditing}
