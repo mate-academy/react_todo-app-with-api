@@ -1,4 +1,5 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
+import { Todo } from '../types/Todo';
+
 const BASE_URL = 'https://mate.academy/students-api';
 
 export function wait(delay: number) {
@@ -12,7 +13,7 @@ type RequestMethod = 'GET' | 'POST' | 'PATCH' | 'DELETE';
 function request<T>(
   url: string,
   method: RequestMethod = 'GET',
-  data: any = null,
+  data?: Todo,
 ): Promise<T> {
   const options: RequestInit = { method };
 
@@ -36,7 +37,7 @@ function request<T>(
 
 export const client = {
   get: <T>(url: string) => request<T>(url),
-  post: <T>(url: string, data: any) => request<T>(url, 'POST', data),
-  patch: <T>(url: string, data: any) => request<T>(url, 'PATCH', data),
+  post: <T>(url: string, data: Todo) => request<T>(url, 'POST', data),
+  patch: <T>(url: string, data: Todo) => request<T>(url, 'PATCH', data),
   delete: (url: string) => request(url, 'DELETE'),
 };
