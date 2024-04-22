@@ -39,6 +39,15 @@ export const TodoList = ({
     }
   };
 
+  const handleTitleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setNewTitle(e.target.value);
+  };
+
+  const handleTitleSubmit = (id: number) => {
+    onSubmitNewTitle(id, newTitle);
+    onEdit(null);
+  };
+
   return (
     <section className="todoapp__main" data-cy="TodoList">
       {tempTodo && (
@@ -71,15 +80,6 @@ export const TodoList = ({
         const { title, completed, id } = task;
         const isEditing = id === editId;
 
-        const handleTitleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-          setNewTitle(e.target.value);
-        };
-
-        const handleTitleSubmit = () => {
-          onSubmitNewTitle(id, newTitle);
-          onEdit(null);
-        };
-
         return (
           <div
             key={id}
@@ -109,7 +109,7 @@ export const TodoList = ({
                 key={id}
                 onSubmit={e => {
                   e.preventDefault();
-                  handleTitleSubmit();
+                  handleTitleSubmit(id);
                 }}
               >
                 <input

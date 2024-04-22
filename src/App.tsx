@@ -73,9 +73,7 @@ export const App: React.FC = () => {
   };
 
   const addNewTodo = async (creatNewTodo: Todo) => {
-    setTaskTitle('');
     try {
-      setIsSubmitting(true);
       setTasks(currentTodos => [...currentTodos, creatNewTodo]);
       setIsUpdating([0]);
 
@@ -112,7 +110,7 @@ export const App: React.FC = () => {
       completed: false,
       id: 0,
     };
-
+    setIsSubmitting(true);
     addNewTodo(newTodo);
   };
 
