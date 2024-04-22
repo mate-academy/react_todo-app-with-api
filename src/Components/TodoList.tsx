@@ -2,17 +2,16 @@ import { useContext } from 'react';
 import { TodoContext } from './TodoContext';
 import { TodoListItem } from './TodoListItem';
 import { Todo } from '../types/Todo';
-
-type FilterSettings = string;
+import { FilterSettings } from './TodoContext';
 
 function filterList(list: Todo[], settings: FilterSettings): Todo[] {
   return list.filter(item => {
     switch (settings) {
-      case 'active':
-        return item.completed === false;
-      case 'completed':
-        return item.completed === true;
-      case 'all':
+      case FilterSettings.active:
+        return !item.completed;
+      case FilterSettings.completed:
+        return item.completed;
+      case FilterSettings.all:
         return item;
       default:
         return;
