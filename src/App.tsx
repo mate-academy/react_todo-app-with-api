@@ -68,23 +68,23 @@ export const App: React.FC = () => {
 
   const filteredTodos = filterTodo(tasks, status);
 
-  if (!USER_ID) {
-    return <UserWarning />;
-  }
-
   const handleError: (errorMsg: string) => void = errorMsg => {
     setErrorMessage(errorMsg);
   };
 
   const addNewTodo = async (creatNewTodo: Todo) => {
-    setTempTodo({ ...creatNewTodo, id: 0 });
-
+    setTaskTitle('');
     try {
       setIsSubmitting(true);
-      const newTodo = await addTodo(creatNewTodo);
-
-      setTasks(currentTodos => [...currentTodos, newTodo]);
-      setTaskTitle('');
+      setTasks(currentTodos => [...currentTodos, creatNewTodo]);
+      setIsUpdating([0])
+      
+      const newTodo: Todo = await addTodo(creatNewTodo);
+      setTasks(currentTodos => {
+        currentTodos.pop();
+        return[...currentTodos, newTodo];
+       })
+       setTaskTitle('');
     } catch {
       handleError(errorType.add);
     } finally {
@@ -233,23 +233,20 @@ export const App: React.FC = () => {
     updateNewTitle(id, title);
   };
 
-  // eslint-disable-next-line react-hooks/rules-of-hooks
   useEffect(() => {
     getTodos()
       .then(setTasks)
       .then(() => focusInput())
       .catch(() => handleError(errorType.load));
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // eslint-disable-next-line react-hooks/rules-of-hooks
+
   useEffect(() => {
     const timeoutId = setTimeout(() => setErrorMessage(''), 2000);
 
     return () => clearTimeout(timeoutId);
   }, [errorMessage]);
 
-  // eslint-disable-next-line react-hooks/rules-of-hooks
   useEffect(() => {
     if (taskLeft > 0) {
       return setAllDone(false);
@@ -257,6 +254,10 @@ export const App: React.FC = () => {
       return setAllDone(true);
     }
   }, [taskLeft]);
+
+  if (!USER_ID) {
+    return <UserWarning />;
+  }
 
   return (
     <div className="todoapp">
