@@ -110,6 +110,7 @@ export const App: React.FC = () => {
       completed: false,
       id: 0,
     };
+
     setIsSubmitting(true);
     addNewTodo(newTodo);
   };
