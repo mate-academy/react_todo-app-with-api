@@ -1,5 +1,4 @@
 import React, { useEffect, useRef, useState } from 'react';
-import classNames from 'classnames';
 import { Todo } from '../../types/Todo';
 
 type Props = {
@@ -53,9 +52,7 @@ export const TodoForm: React.FC<Props> = ({
       {isToggleAllVisible && (
         <button
           type="button"
-          className={classNames('todoapp__toggle-all', {
-            active: isAllTodosCompleted,
-          })}
+          className={`todoapp__toggle-all ${isAllTodosCompleted && 'active'} `}
           aria-label="Change todos completed state"
           data-cy="ToggleAllButton"
           onClick={handleToggleAll}
