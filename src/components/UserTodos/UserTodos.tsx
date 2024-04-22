@@ -34,8 +34,8 @@ export const UserTodos: React.FC<Props> = ({ userId, onError }) => {
   });
 
   const hasTodos = todos.length !== 0;
-  const hasCompletedTodo = filteredTodos.some(todo => todo.completed);
-  const hasAllTodosCompleted = filteredTodos.every(todo => todo.completed);
+  const hasCompletedTodo = todos.some(todo => todo.completed);
+  const hasAllTodosCompleted = todos.every(todo => todo.completed);
   const activeTodos = todos.filter(todo => !todo.completed);
 
   useEffect(() => {
