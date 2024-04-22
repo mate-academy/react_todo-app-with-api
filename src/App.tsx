@@ -22,8 +22,7 @@ export const App: React.FC = () => {
   const [filterStatus, setFilterStatus] = useState<TodoStatus>(TodoStatus.All);
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
   const [loadingTodoIds, setLoadingTodoIds] = useState<number[]>([]);
-  // const [formSubmitting, setFormSubmitting] = useState(false);
-
+  const [isInputDisabled, setIsInputDisabled] = useState(false);
 
   const filteredTodos = todos.filter(todo => {
     switch (filterStatus) {
@@ -38,16 +37,6 @@ export const App: React.FC = () => {
     }
   });
 
-  useEffect(() => {
-    if (USER_ID) {
-      handleRequest();
-    }
-
-    setTimeout(() => {
-      setError('');
-    }, 3000);
-  }, []);
-
   // Sends a request to the server to get a list (todos).
   const handleRequest = async () => {
     try {
@@ -59,6 +48,16 @@ export const App: React.FC = () => {
       setError('Unable to load todos');
     }
   };
+
+    useEffect(() => {
+      if (USER_ID) {
+        handleRequest();
+      }
+
+      setTimeout(() => {
+        setError('');
+      }, 3000);
+    }, []);
 
   const isLoading = !!loadingTodoIds.length;
 
@@ -153,7 +152,7 @@ export const App: React.FC = () => {
       setTodos(currentTodos => currentTodos.filter(todo => !todo.completed));
 
       if (todos.some(todo => !todo.completed)) {
-        setFilterStatus(TodoStatus.Completed);
+        setFilterStatus(TodoStatus.All);
       }
     } finally {
     }
@@ -163,6 +162,8 @@ export const App: React.FC = () => {
     setLoadingTodoIds(prevLoading => [...prevLoading, todoId]);
 
     try {
+      setIsInputDisabled(true);
+
       await updateTodo({
         id: todoId,
         title: newTitle.trim(),
@@ -182,6 +183,7 @@ export const App: React.FC = () => {
       setError('Unable to update a todo');
     } finally {
       setLoadingTodoIds(prevLoading => prevLoading.filter(id => id !== todoId));
+      setIsInputDisabled(false);
     }
   };
 
@@ -202,7 +204,7 @@ export const App: React.FC = () => {
           inputRef={inputRef}
           title={title}
           toggleTodoCompletion={toggleTodoCompletion}
-          // formSubmitting={formSubmitting}
+          isInputDisabled={isInputDisabled}
         />
 
         <TodoList

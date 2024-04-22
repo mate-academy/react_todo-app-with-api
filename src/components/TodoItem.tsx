@@ -28,78 +28,83 @@ export const TodoItem: React.FC<Props> = ({
   };
 
   const handleSave = () => {
-    if (newTitle.trim() === '') {
+    if (!newTitle.trim()) {
       deleteSingleTodo(todo.id);
-    } else
-      if (newTitle.trim() !== title.trim()) {
-        onSave(id, newTitle, completed);
+    } else if (newTitle.trim() !== title.trim()) {
+      onSave(id, newTitle, completed);
     }
     setEditing(false);
   };
 
+  const handleKeyUp: React.KeyboardEventHandler<HTMLInputElement> = e => {
+    if (e.key === 'Enter') {
+      handleSave();
+    } else if (e.key === 'Escape') {
+      setEditing(false);
+      setNewTitle(title);
+    }
+  };
+
   return (
     <section className="todoapp__main" data-cy="TodoList">
-      {/* This is a completed todo */}
-      {editing ? (
-        <input
-          type="text"
-          className="todo__title-field"
-          value={newTitle}
-          onChange={e => setNewTitle(e.target.value)}
-          onBlur={handleSave}
-          onKeyUp={e => {
-            if (e.key === 'Enter') {
-              handleSave();
-            } else if (e.key === 'Escape') {
-              setEditing(false);
-              setNewTitle(title);
-            }
-          }}
-          autoFocus
-        />
-      ) : (
+      <div
+        key={id}
+        data-cy="Todo"
+        className={classNames('todo', { completed: completed })}
+        onDoubleClick={handleDoubleClick}
+      >
+        <label className="todo__status-label">
+          <input
+            data-cy="TodoStatus"
+            type="checkbox"
+            className="todo__status"
+            checked={completed}
+            onChange={() => toggleTodoCompletion(id)}
+            autoFocus
+          />
+        </label>
+        {/* This is a completed todo */}
+        {editing ? (
+          <input
+            data-cy="TodoTitleField"
+            type="text"
+            className="todo__title-field"
+            placeholder="Empty todo will be deleted"
+            value={newTitle}
+            onChange={e => setNewTitle(e.target.value)}
+            onBlur={handleSave}
+            onKeyUp={handleKeyUp}
+            autoFocus
+          />
+        ) : (
+          <>
+            <span data-cy="TodoTitle" className="todo__title">
+              {title}
+            </span>
+
+            {/* Remove button appears only on hover */}
+            <button
+              type="button"
+              className="todo__remove"
+              data-cy="TodoDelete"
+              onClick={() => deleteSingleTodo(id)}
+            >
+              ×
+            </button>
+          </>
+        )}
+
+        {/* overlay will cover the todo while it is being deleted or updated */}
         <div
-          key={id}
-          data-cy="Todo"
-          className={classNames('todo', { completed: completed })}
-          onDoubleClick={handleDoubleClick}
+          data-cy="TodoLoader"
+          className={classNames('modal overlay', {
+            'is-active': loadingTodoIds.includes(id),
+          })}
         >
-          <label className="todo__status-label">
-            <input
-              data-cy="TodoStatus"
-              type="checkbox"
-              className="todo__status"
-              checked={completed}
-              onChange={() => toggleTodoCompletion(id)}
-              autoFocus
-            />
-          </label>
-          <span data-cy="TodoTitle" className="todo__title">
-            {title}
-          </span>
-
-          {/* Remove button appears only on hover */}
-          <button
-            type="button"
-            className="todo__remove"
-            data-cy="TodoDelete"
-            onClick={() => deleteSingleTodo(id)}
-          >
-            ×
-          </button>
-
-          {/* overlay will cover the todo while it is being deleted or updated */}
-          <div
-            data-cy="TodoLoader"
-            className={classNames('modal overlay', {
-              'is-active': loadingTodoIds.includes(id),
-            })}
-          >
-            <div className="modal-background has-background-white-ter" />
-            <div className="loader" />
-          </div>
+          <div className="modal-background has-background-white-ter" />
+          <div className="loader" />
         </div>
-      )}
+      </div>
     </section>
   );
 };

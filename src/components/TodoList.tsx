@@ -27,6 +27,7 @@ export const TodoList: React.FC<Props> = ({
       {/* This is a completed todo */}
       {filteredTodos.map(todo => (
         <TodoItem
+          key={todo.id}
           todo={todo}
           onSave={handleSave}
           toggleTodoCompletion={toggleTodoCompletion}

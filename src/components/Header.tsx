@@ -10,7 +10,7 @@ type Props = {
   inputRef: Ref<HTMLInputElement> | null;
   title: string;
   isLoading: boolean;
-  // formSubmitting: boolean;
+  isInputDisabled: boolean;
 };
 
 export const Header: React.FC<Props> = ({
@@ -21,16 +21,9 @@ export const Header: React.FC<Props> = ({
   title,
   isLoading,
   inputRef,
-  // formSubmitting,
+  isInputDisabled,
 }) => {
-  // const [formSubmitting, setFormSubmitting] = useState(false);
   const allTodosCompleted = todos.every(todo => todo.completed);
-
-  // const handleFormSubmit = async (e: FormEvent) => {
-  //   setFormSubmitting(true);
-  //   await onSubmit(e);
-  //   setFormSubmitting(false);
-  // };
 
   // request to the server and changing the state
   const toggleAllTodosOnServer = async () => {
@@ -74,7 +67,7 @@ export const Header: React.FC<Props> = ({
           className="todoapp__new-todo"
           placeholder="What needs to be done?"
           onChange={e => onChange(e.target.value)}
-          disabled={isLoading}
+          disabled={isLoading || isInputDisabled}
         />
       </form>
     </header>
