@@ -7,7 +7,15 @@ type Props = {
 };
 
 export const Title = ({ todo }: Props) => {
-  const { setIsEdited, handleRemoveButton } = useContext(ContextTodos);
+  const { setIsEdited, removeTodo } = useContext(ContextTodos);
+
+  const handleRemoveButton = (
+    t: Todo,
+    event: React.MouseEvent<HTMLButtonElement>,
+  ) => {
+    event.preventDefault();
+    removeTodo(t);
+  };
 
   return (
     <>

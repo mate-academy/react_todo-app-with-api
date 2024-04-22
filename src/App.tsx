@@ -13,12 +13,12 @@ export const App: React.FC = () => {
     tempTodo,
     stat,
     todos,
-    isEdited,
+    // isEdited,
     setTodos,
     setVisibleErr,
     setErrMessage,
     resetErr,
-    editSelectedInput,
+    // editSelectedInput,
   } = useContext(ContextTodos);
   const filteredTodos = (tod: Todo[], type: Status) => {
     switch (type) {
@@ -54,13 +54,13 @@ export const App: React.FC = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  //for focus on edited todo
-  useEffect(() => {
-    if (editSelectedInput.current) {
-      editSelectedInput.current.focus();
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isEdited]);
+  // //for focus on edited todo
+  // useEffect(() => {
+  //   if (editSelectedInput.current) {
+  //     editSelectedInput.current.focus();
+  //   }
+  //   // eslint-disable-next-line react-hooks/exhaustive-deps
+  // }, [isEdited]);
 
   return (
     <div className="todoapp">

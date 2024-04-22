@@ -1,4 +1,4 @@
-import { useContext, useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import { Todo } from './types/Todo';
 import { ContextTodos } from './TodoContext';
 import { deleteTodo, patchTodo } from './api/todos';
@@ -10,6 +10,7 @@ type Props = {
 
 export const Form = ({ todo, editSelectedInput }: Props) => {
   const {
+    isEdited,
     setIsEdited,
     setIsLoading,
     todos,
@@ -18,6 +19,14 @@ export const Form = ({ todo, editSelectedInput }: Props) => {
     resetErr,
     setTodos,
   } = useContext(ContextTodos);
+
+  //for focus on edited todo
+  useEffect(() => {
+    if (editSelectedInput.current) {
+      editSelectedInput.current.focus();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isEdited]);
 
   const [editedTitle, setEditedTitle] = useState(todo.title);
 
@@ -114,7 +123,7 @@ export const Form = ({ todo, editSelectedInput }: Props) => {
     updateTodo(t);
   };
 
-  const handleBlourSubmit = (
+  const handleBlurSubmit = (
     event: React.FocusEvent<HTMLInputElement, Element>,
     t: Todo,
   ) => {
@@ -126,8 +135,6 @@ export const Form = ({ todo, editSelectedInput }: Props) => {
     if (editedTitle === todo.title) {
       setIsEdited(null);
     }
-
-    // setIsEdited(null);
   };
 
   return (
@@ -140,7 +147,7 @@ export const Form = ({ todo, editSelectedInput }: Props) => {
         value={editedTitle}
         onChange={event => setEditedTitle(event.target.value)}
         onKeyUp={handleKeyUpInputEdit}
-        onBlur={event => handleBlourSubmit(event, todo)}
+        onBlur={event => handleBlurSubmit(event, todo)}
         ref={editSelectedInput}
       />
     </form>

@@ -18,7 +18,6 @@ export const Header = () => {
 
   const selectInputTitle = useRef<HTMLInputElement>(null);
 
-  //focus on input for creating new title
   useEffect(() => {
     if (selectInputTitle.current) {
       selectInputTitle.current.focus();
@@ -26,11 +25,11 @@ export const Header = () => {
   }, [isLoading]);
 
   const handleChangeCompleted = async () => {
-    const checkAll = todos.every(todo => todo.completed);
+    const isEveryTodoCompleted = todos.every(todo => todo.completed);
 
     try {
       for (const todo of todos) {
-        if (todo.completed === !checkAll) {
+        if (todo.completed === !isEveryTodoCompleted) {
           continue;
         }
 
@@ -38,7 +37,7 @@ export const Header = () => {
 
         await patchTodo({
           ...todo,
-          completed: !checkAll,
+          completed: !isEveryTodoCompleted,
         }).then(respond => {
           setTodos(prevTodos => {
             return prevTodos.map(prevTodo =>

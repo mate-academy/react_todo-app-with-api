@@ -22,10 +22,6 @@ type TodoContextProps = {
   setTodos: React.Dispatch<React.SetStateAction<Todo[]>>;
   addTodo: () => Promise<void>;
   removeTodo: (todoToRmove: Todo) => Promise<void>;
-  handleRemoveButton: (
-    todo: Todo,
-    event: React.MouseEvent<HTMLButtonElement>,
-  ) => void;
   handleSubmit: (event: React.FormEvent) => void;
   resetErr: () => NodeJS.Timeout;
   editSelectedInput: React.RefObject<HTMLInputElement>;
@@ -127,50 +123,48 @@ export const TodoContext: React.FC<Props> = ({ children }) => {
       return;
     }
 
-    if (trimedTitle !== '') {
-      const newTodo: Todo = {
-        id: 0,
-        userId: 472,
-        title: trimedTitle,
-        completed: false,
-      };
+    const newTodo: Todo = {
+      id: 0,
+      userId: 472,
+      title: trimedTitle,
+      completed: false,
+    };
 
-      const temp = {
-        id: 0,
-        userId: 472,
-        title: trimedTitle,
-        completed: false,
-      };
+    const temp = {
+      id: 0,
+      userId: 472,
+      title: trimedTitle,
+      completed: false,
+    };
 
-      setTempTodo([...todos, temp]);
+    setTempTodo([...todos, temp]);
 
-      try {
-        setIsLoading([0]);
+    try {
+      setIsLoading([0]);
 
-        await postTodo(newTodo).then(respond => {
-          setTempTodo(null);
-          setTodos(prevTodos => [...prevTodos, respond]);
-          setNewTitle('');
-        });
-      } catch (error) {
-        setIsLoading([]);
+      await postTodo(newTodo).then(respond => {
         setTempTodo(null);
-        setVisibleErr(true);
-        setErrMessage('Unable to add a todo');
-        resetErr();
-      } finally {
-        setIsLoading([]);
-      }
+        setTodos(prevTodos => [...prevTodos, respond]);
+        setNewTitle('');
+      });
+    } catch (error) {
+      setIsLoading([]);
+      setTempTodo(null);
+      setVisibleErr(true);
+      setErrMessage('Unable to add a todo');
+      resetErr();
+    } finally {
+      setIsLoading([]);
     }
   };
 
-  const removeTodo = async (todoToRmove: Todo) => {
+  const removeTodo = async (todoToRemove: Todo) => {
     try {
-      setIsLoading(state => [...state, todoToRmove.id]);
+      setIsLoading(state => [...state, todoToRemove.id]);
 
-      await deleteTodo(todoToRmove.id).then(() =>
+      await deleteTodo(todoToRemove.id).then(() =>
         setTodos(prevTodos => {
-          return prevTodos.filter(prevTodo => prevTodo.id !== todoToRmove.id);
+          return prevTodos.filter(prevTodo => prevTodo.id !== todoToRemove.id);
         }),
       );
     } catch {
@@ -180,14 +174,6 @@ export const TodoContext: React.FC<Props> = ({ children }) => {
     } finally {
       setIsLoading([]);
     }
-  };
-
-  const handleRemoveButton = (
-    todo: Todo,
-    event: React.MouseEvent<HTMLButtonElement>,
-  ) => {
-    event.preventDefault();
-    removeTodo(todo);
   };
 
   const handleSubmit = (event: React.FormEvent) => {
@@ -218,10 +204,8 @@ export const TodoContext: React.FC<Props> = ({ children }) => {
         setTodos,
         setVisibleErr,
         addTodo,
-        handleRemoveButton,
         handleSubmit,
         removeTodo,
-        // updateTodo,
       }}
     >
       {children}
