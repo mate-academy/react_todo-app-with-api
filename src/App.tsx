@@ -77,14 +77,16 @@ export const App: React.FC = () => {
     try {
       setIsSubmitting(true);
       setTasks(currentTodos => [...currentTodos, creatNewTodo]);
-      setIsUpdating([0])
-      
+      setIsUpdating([0]);
+
       const newTodo: Todo = await addTodo(creatNewTodo);
+
       setTasks(currentTodos => {
         currentTodos.pop();
-        return[...currentTodos, newTodo];
-       })
-       setTaskTitle('');
+
+        return [...currentTodos, newTodo];
+      });
+      setTaskTitle('');
     } catch {
       handleError(errorType.add);
     } finally {
@@ -239,7 +241,6 @@ export const App: React.FC = () => {
       .then(() => focusInput())
       .catch(() => handleError(errorType.load));
   }, []);
-
 
   useEffect(() => {
     const timeoutId = setTimeout(() => setErrorMessage(''), 2000);
