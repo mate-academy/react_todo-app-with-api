@@ -10,8 +10,16 @@ type Props = {
 };
 
 export const TodoItem: React.FC<Props> = ({ todo }) => {
-  const { handleComplete, isCompleted, handleDelete, loadingIds, setTodos } =
-    useContext(TodosContext);
+  const {
+    handleComplete,
+    isCompleted,
+    handleDelete,
+    loadingIds,
+    setTodos,
+    setErrorMessage,
+    setLoadingIds,
+    hideMessage,
+  } = useContext(TodosContext);
   const [editForm, setEditForm] = useState<Todo | null>(null);
   const [title, setTitle] = useState(todo.title);
   const focus = useRef<HTMLInputElement>(null);
@@ -23,30 +31,49 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
   }, [editForm]);
 
   const handleUpdateTodo = () => {
+    setLoadingIds([todo.id]);
     const newTodo = {
       ...todo,
-      title,
+      title: title.trim(),
     };
 
-    return updateTodo(newTodo).then(() =>
-      setTodos(prevTodo =>
-        prevTodo.map(item => (item.id === todo.id ? newTodo : item)),
-      ),
-    );
+    updateTodo(newTodo)
+      .then(() =>
+        setTodos(prevTodo =>
+          prevTodo.map(item => (item.id === todo.id ? newTodo : item)),
+        ),
+      )
+      .catch(() => {
+        setEditForm(todo);
+        setErrorMessage('Unable to update a todo');
+      })
+      .finally(() => {
+        setLoadingIds([]);
+        hideMessage();
+      });
   };
 
   const onKeyUp = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === 'Escape') {
-      setEditForm(null);
-    } else if (e.key === 'Enter') {
-      handleUpdateTodo();
+    if (e.key === 'Enter') {
+      if (!title) {
+        setEditForm(todo);
+        handleDelete(todo.id);
+      } else {
+        handleUpdateTodo();
+        setEditForm(null);
+      }
+    } else if (e.key === 'Escape') {
       setEditForm(null);
     }
   };
 
   const handleOnBlur = () => {
-    handleUpdateTodo();
-    setEditForm(null);
+    if (!title) {
+      handleDelete(todo.id);
+    } else {
+      handleUpdateTodo();
+      setEditForm(null);
+    }
   };
 
   return (
@@ -69,7 +96,7 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
 
       {editForm?.id !== todo.id ? (
         <>
-          <span data-cy="TodoTitle" className="todo__title">
+          <span data-cy="TodoTitle" className="todo__title" onKeyUp={onKeyUp}>
             {todo.title}
           </span>
 
@@ -85,7 +112,7 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
           </button>
         </>
       ) : (
-        <form>
+        <form onSubmit={e => e.preventDefault()}>
           <input
             ref={focus}
             data-cy="TodoTitleField"
