@@ -46,7 +46,9 @@ export const App: React.FC = () => {
     found: 'Todo not found',
   };
 
-  const taskLeft = tasks?.filter(task => !task.completed).length;
+  const taskLeft = tasks?.filter(
+    task => !task.completed && task.id != 0,
+  ).length;
 
   const focusInput = () => {
     setTimeout(() => {
@@ -239,6 +241,7 @@ export const App: React.FC = () => {
       .then(setTasks)
       .then(() => focusInput())
       .catch(() => handleError(errorType.load));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
