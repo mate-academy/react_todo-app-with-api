@@ -67,7 +67,7 @@ export const Header: React.FC<Props> = ({
           className="todoapp__new-todo"
           placeholder="What needs to be done?"
           onChange={e => onChange(e.target.value)}
-          disabled={isLoading || isInputDisabled}
+          disabled={isInputDisabled}
         />
       </form>
     </header>

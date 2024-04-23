@@ -107,25 +107,19 @@ export const App: React.FC = () => {
   };
 
   const deleteSingleTodo = async (todoId: number) => {
-    let deleteSuccess = false;
-
     try {
       setIsInputDisabled(true);
 
       setLoadingTodoIds(prevLoading => [...prevLoading, todoId]); // Set download status for selected todo
-      await Promise.allSettled([deleteTodo(todoId)]);
-
-      deleteSuccess = true;
+      await deleteTodo(todoId);
 
       setTodos(currentTodo => currentTodo.filter(todo => todo.id !== todoId));
     } catch (errors) {
       setError('Unable to delete a todo');
     } finally {
-      if (!deleteSuccess) {
         setLoadingTodoIds(prevLoading =>
           prevLoading.filter(id => id !== todoId),
-        );
-      } // Clearing the download status after the operation
+        );  // Clearing the download status after the operation
 
       setIsInputDisabled(false);
     }
@@ -168,7 +162,23 @@ export const App: React.FC = () => {
         .map(todo => todo.id);
 
       // Deleting each completed todo by its ID
-      await Promise.all(completedTodosIds.map(id => deleteSingleTodo(id)));
+      //   await Promise.allSettled(
+      //    completedTodosIds.map(id => deleteSingleTodo(id)),
+      //  );
+
+      await Promise.allSettled(
+        completedTodosIds.map(id => deleteSingleTodo(id)),
+      ).then(results => {
+        results.forEach((result, num) => {
+          if (result.status == 'fulfilled') {
+            alert(`${completedTodosIds[num]}: ${result.status}`);
+          }
+          if (result.status == 'rejected') {
+            alert(`${completedTodosIds[num]}: ${result.reason}`);
+          }
+        });
+      });
+
       // Updating the todos list, excluding completed todos
       setTodos(currentTodos => currentTodos.filter(todo => !todo.completed));
 
