@@ -5,14 +5,16 @@ import classNames from 'classnames';
 import './todo.scss';
 import { useContext } from 'react';
 import { todosContext } from '../../../../Store';
-import { TodoWithLoader } from '../../../../types/TodoWithLoader';
-import { handleUpdate } from '../../../../utils/handleUpdate';
-import { item } from '../../../../utils/utils';
-type Props = { todo: TodoWithLoader };
+import { isTodoLoading } from '../../../../utils/utils';
+import { Todo } from '../../../../types/Todo';
+
+type Props = { todo: Todo };
 
 export const TodoItem: React.FC<Props> = ({ todo }) => {
-  const [{ selectedTodo }, setters] = useContext(todosContext);
-  const { id, completed, title, loading } = todo;
+  const { state, setters, handlers } = useContext(todosContext);
+  const { selectedTodo, loadingTodos } = state;
+  const { id, completed, title } = todo;
+  const { handleUpdate, handleDelete } = handlers;
   const { setSelectedTodo } = setters;
   const [newTitle, setNewTitle] = useState(todo.title);
   const titleFild = useRef<HTMLInputElement>(null);
@@ -24,8 +26,18 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
     }
   }, [selectedTodo]);
 
+  const onDelete = () => {
+    handleDelete(todo);
+  };
+
   const onUpdate = () => {
-    item.handleUpdate(todo, newTitle, setters);
+    if (newTitle === title) {
+      setSelectedTodo(null);
+    } else if (newTitle.length === 0) {
+      onDelete();
+    } else {
+      handleUpdate(todo, todo.completed, newTitle);
+    }
   };
 
   function onSubmit(e: React.FormEvent<HTMLFormElement>) {
@@ -54,7 +66,7 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
           className="todo__status completed"
           checked={completed}
           onChange={() => {
-            handleUpdate(todo, !completed, setters);
+            handleUpdate(todo, !todo.completed, title);
           }}
         />
       </label>
@@ -68,7 +80,7 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
             className="todo__title-field"
             placeholder="Empty todo will be deleted"
             value={newTitle}
-            onChange={e => setNewTitle(e.target.value)}
+            onChange={e => setNewTitle(e.target.value.trim())}
           />
         </form>
       ) : (
@@ -85,7 +97,7 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
             type="button"
             className="todo__remove"
             data-cy="TodoDelete"
-            onClick={() => item.handleDelete(todo, setters)}
+            onClick={onDelete}
           >
             ×
           </button>
@@ -95,7 +107,7 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
       <div
         data-cy="TodoLoader"
         className={classNames('modal overlay', {
-          'is-active': loading,
+          'is-active': isTodoLoading(todo.id, loadingTodos),
         })}
       >
         <div className="modal-background has-background-white-ter" />

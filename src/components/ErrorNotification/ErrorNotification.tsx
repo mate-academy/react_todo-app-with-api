@@ -7,8 +7,8 @@ type Props = { errorMessage: string };
 
 export const ErrorNotification: React.FC<Props> = React.memo(
   ({ errorMessage }) => {
-    const [store, setters] = useContext(todosContext);
-    const { errorMessage: error } = store;
+    const { state, setters } = useContext(todosContext);
+    const { errorMessage: error } = state;
     const { setErrorMessage } = setters;
 
     const handleClick = () => setErrorMessage('');

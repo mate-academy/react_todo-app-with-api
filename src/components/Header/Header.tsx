@@ -1,44 +1,98 @@
+/* eslint-disable react/display-name */
 import React, { useContext, useEffect, useRef, useState } from 'react';
 import { todosContext } from '../../Store';
 import classNames from 'classnames';
 import { item, items } from '../../utils/utils';
+import { errorText } from '../../constants';
+import { addTodo } from '../../api/todos';
 
-export const Header: React.FC = () => {
-  const [state, setters] = useContext(todosContext);
+export const Header: React.FC = React.memo(() => {
+  const { state, setters, handlers } = useContext(todosContext);
+  const { selectedTodo, loadingTodos, todos } = state;
+  const { handleUpdate } = handlers;
+  const { setErrorMessage, setTempTodo, setTodos } = setters;
   const [title, setTitle] = useState('');
+  const [loading, setLoading] = useState(false);
   const titleFild = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    if (titleFild.current && !state.selectedTodo) {
+    if (titleFild.current && !selectedTodo) {
       titleFild.current.focus();
     }
-  }, [state.selectedTodo, state.updatedAt, state.loading]);
+  }, [selectedTodo, loadingTodos, todos]);
 
-  const allTodosAreCompleted =
-    items.completed(state.todos).length === state.todos.length;
+  function handleAdd() {
+    const newTitle = title.trim();
+
+    if (!newTitle) {
+      setErrorMessage(errorText.emptyTitle);
+
+      return;
+    }
+
+    if (!loading) {
+      const newTodo = item.createNew(title, false);
+
+      setLoading(true);
+      setErrorMessage('');
+      setTempTodo(newTodo);
+
+      addTodo(newTodo)
+        .then(todo => {
+          setTodos(prevTodos => [...prevTodos, todo]);
+        })
+        .catch(error => {
+          setErrorMessage(errorText.failAdding);
+          throw error;
+        })
+        .finally(() => {
+          setLoading(false);
+          setTempTodo(null);
+        })
+        .then(() => setTitle(''));
+    }
+  }
+
+  function toggleAll() {
+    const uncompleted = items.uncompleted(todos);
+
+    if (uncompleted.length > 0) {
+      uncompleted.map(todo => {
+        return handleUpdate(todo, !todo.completed, todo.title);
+      });
+    }
+
+    if (uncompleted.length === 0 && todos.length > 0) {
+      todos.map(todo => {
+        return handleUpdate(todo, !todo.completed, todo.title);
+      });
+    }
+  }
+
+  const allTodosAreCompleted = items.completed(todos).length === todos.length;
 
   function onSubmit(e: React.FormEvent) {
     e.preventDefault();
-    item.handleAdd(title, state, setters, setTitle);
+    handleAdd();
   }
 
   return (
     <header className="todoapp__header">
-      {state.todos.length > 0 && (
+      {todos.length > 0 && (
         <button
           type="button"
           className={classNames('todoapp__toggle-all', {
             active: allTodosAreCompleted,
           })}
           data-cy="ToggleAllButton"
-          onClick={() => items.toggleAll(state, setters)}
+          onClick={toggleAll}
         />
       )}
 
       <form onSubmit={onSubmit}>
         <input
           ref={titleFild}
-          disabled={state.loading}
+          disabled={loading}
           data-cy="NewTodoField"
           type="text"
           className="todoapp__new-todo"
@@ -49,4 +103,4 @@ export const Header: React.FC = () => {
       </form>
     </header>
   );
-};
+});

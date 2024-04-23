@@ -9,7 +9,9 @@ interface Props {
 }
 
 export const FilterItem: React.FC<Props> = ({ value }) => {
-  const [{ filter }, { setFilter }] = useContext(todosContext);
+  const { state, setters } = useContext(todosContext);
+  const { filter } = state;
+  const { setFilter } = setters;
   const isSelected = filter === value;
   const link = value !== Filter.all ? `#/${value}` : `#/`;
   const buttonText = getButtonText(value);

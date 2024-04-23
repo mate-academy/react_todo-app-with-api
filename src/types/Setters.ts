@@ -1,9 +1,9 @@
 import { Filter } from './Filter';
 import { Todo } from './Todo';
-import { TodoWithLoader } from './TodoWithLoader';
 
 export type Setters = {
-  setTodos: React.Dispatch<React.SetStateAction<TodoWithLoader[]>>;
+  setTodos: React.Dispatch<React.SetStateAction<Todo[]>>;
+  setLoadingTodos: React.Dispatch<React.SetStateAction<Todo[]>>;
   setSelectedTodo: (tempTodo: null | Todo) => void;
   setTempTodo: (tempTodo: null | Todo) => void;
   setFilter: (filter: Filter) => void;

@@ -1,9 +1,9 @@
 import { Filter } from './Filter';
 import { Todo } from './Todo';
-import { TodoWithLoader } from './TodoWithLoader';
 
 export type State = {
-  todos: TodoWithLoader[];
+  todos: Todo[];
+  loadingTodos: Todo[];
   selectedTodo: null | Todo;
   tempTodo: null | Todo;
   filter: Filter;

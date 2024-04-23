@@ -4,10 +4,21 @@ import { todosContext } from '../../Store';
 import { items } from '../../utils/utils';
 
 export const Footer: React.FC = () => {
-  const [{ todos }, setters] = useContext(todosContext);
+  const { state, handlers } = useContext(todosContext);
+  const { handleDelete } = handlers;
+  const { todos } = state;
+
   const completedTodos = items.completed(todos);
   const todosCount = items.uncompleted(todos).length;
   const isDisabled = completedTodos.length === 0;
+
+  function clearCompleted() {
+    const completed = items.completed(todos);
+
+    completed.map(todo => {
+      handleDelete(todo);
+    });
+  }
 
   return (
     <footer className="todoapp__footer" data-cy="Footer">
@@ -22,7 +33,7 @@ export const Footer: React.FC = () => {
         className="todoapp__clear-completed"
         data-cy="ClearCompletedButton"
         disabled={isDisabled}
-        onClick={() => items.clearCompleted(todos, setters)}
+        onClick={clearCompleted}
       >
         Clear completed
       </button>
