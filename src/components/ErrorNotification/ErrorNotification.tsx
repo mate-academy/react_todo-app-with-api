@@ -8,6 +8,10 @@ type Props = { errorMessage: string };
 export const ErrorNotification: React.FC<Props> = React.memo(
   ({ errorMessage }) => {
     const [store, setters] = useContext(todosContext);
+    const { errorMessage: error } = store;
+    const { setErrorMessage } = setters;
+
+    const handleClick = () => setErrorMessage('');
 
     return (
       <div
@@ -15,7 +19,7 @@ export const ErrorNotification: React.FC<Props> = React.memo(
         className={classNames(
           'notification is-danger is-light has-text-weight-normal',
           {
-            hidden: !store.errorMessage,
+            hidden: !error,
           },
         )}
       >
@@ -23,8 +27,9 @@ export const ErrorNotification: React.FC<Props> = React.memo(
           data-cy="HideErrorButton"
           type="button"
           className="delete"
-          onClick={() => setters.setErrorMessage('')}
+          onClick={handleClick}
         />
+
         {errorMessage}
       </div>
     );

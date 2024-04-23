@@ -11,20 +11,21 @@ import { item } from '../../../../utils/utils';
 type Props = { todo: TodoWithLoader };
 
 export const TodoItem: React.FC<Props> = ({ todo }) => {
-  const [state, setters] = useContext(todosContext);
-  const [title, setTitle] = useState(todo.title);
+  const [{ selectedTodo }, setters] = useContext(todosContext);
+  const { id, completed, title, loading } = todo;
+  const { setSelectedTodo } = setters;
+  const [newTitle, setNewTitle] = useState(todo.title);
   const titleFild = useRef<HTMLInputElement>(null);
-  const todoIsSelected =
-    state.selectedTodo && state.selectedTodo.id === todo.id;
+  const todoIsSelected = selectedTodo && selectedTodo.id === todo.id;
 
   useEffect(() => {
-    if (titleFild.current && state.selectedTodo) {
+    if (titleFild.current && selectedTodo) {
       titleFild.current.focus();
     }
-  }, [state.selectedTodo]);
+  }, [selectedTodo]);
 
   const onUpdate = () => {
-    item.handleUpdate(todo, title, setters);
+    item.handleUpdate(todo, newTitle, setters);
   };
 
   function onSubmit(e: React.FormEvent<HTMLFormElement>) {
@@ -32,26 +33,28 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
     onUpdate();
   }
 
+  const onEscape = (e: React.KeyboardEvent<HTMLDivElement>) => {
+    if (e.key === 'Escape') {
+      setNewTitle(title);
+      setSelectedTodo(null);
+    }
+  };
+
   return (
     <div
       data-cy="Todo"
-      className={classNames('todo', { completed: todo.completed })}
-      key={todo.id}
-      onKeyUp={e => {
-        if (e.key === 'Escape') {
-          setTitle(todo.title);
-          setters.setSelectedTodo(null);
-        }
-      }}
+      className={classNames('todo', { completed: completed })}
+      key={id}
+      onKeyUp={onEscape}
     >
       <label className="todo__status-label">
         <input
           data-cy="TodoStatus"
           type="checkbox"
           className="todo__status completed"
-          checked={todo.completed}
+          checked={completed}
           onChange={() => {
-            handleUpdate(todo, !todo.completed, setters);
+            handleUpdate(todo, !completed, setters);
           }}
         />
       </label>
@@ -64,8 +67,8 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
             type="text"
             className="todo__title-field"
             placeholder="Empty todo will be deleted"
-            value={title}
-            onChange={e => setTitle(e.target.value)}
+            value={newTitle}
+            onChange={e => setNewTitle(e.target.value)}
           />
         </form>
       ) : (
@@ -73,7 +76,7 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
           <span
             data-cy="TodoTitle"
             className="todo__title"
-            onDoubleClick={() => setters.setSelectedTodo(todo)}
+            onDoubleClick={() => setSelectedTodo(todo)}
           >
             {todo.title}
           </span>
@@ -92,7 +95,7 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
       <div
         data-cy="TodoLoader"
         className={classNames('modal overlay', {
-          'is-active': todo.loading,
+          'is-active': loading,
         })}
       >
         <div className="modal-background has-background-white-ter" />
