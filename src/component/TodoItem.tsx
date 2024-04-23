@@ -3,14 +3,14 @@ import classNames from 'classnames';
 import { Todo } from '../types/Todo';
 import { useContext, useEffect, useRef, useState } from 'react';
 import { TodosContext } from '../TodosProvider/TodosProvider';
-// import { updateTodo } from '../api/todos';
+import { updateTodo } from '../api/todos';
 
 type Props = {
   todo: Todo;
 };
 
 export const TodoItem: React.FC<Props> = ({ todo }) => {
-  const { handleComplete, isCompleted, handleDelete, loadingIds } =
+  const { handleComplete, isCompleted, handleDelete, loadingIds, setTodos } =
     useContext(TodosContext);
   const [editForm, setEditForm] = useState<Todo | null>(null);
   const [title, setTitle] = useState(todo.title);
@@ -22,28 +22,30 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
     }
   }, [editForm]);
 
-  // const updateData = () => {
-  //   const updatedTitle = {
-  //     ...todo,
-  //     title,
-  //   };
+  const handleUpdateTodo = () => {
+    const newTodo = {
+      ...todo,
+      title,
+    };
 
-  // updateTodo(updatedTitle).then(() => {
-  // setTodos(prevTodo =>
-  //   prevTodo.map(item => (item.id === todo.id ? updateData : item)),
-  // );
-  //   });
-  // };
+    updateTodo(newTodo).then(() =>
+      setTodos(prevTodo =>
+        prevTodo.map(item => (item.id === todo.id ? newTodo : item)),
+      ),
+    );
+  };
 
   const onKeyUp = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Escape') {
       setEditForm(null);
     } else if (e.key === 'Enter') {
+      handleUpdateTodo();
       setEditForm(null);
     }
   };
 
   const handleOnBlur = () => {
+    handleUpdateTodo();
     setEditForm(null);
   };
 
