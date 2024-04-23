@@ -63,6 +63,7 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
         setEditForm(null);
       }
     } else if (e.key === 'Escape') {
+      setTitle(todo.title);
       setEditForm(null);
     }
   };
