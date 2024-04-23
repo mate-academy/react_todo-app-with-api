@@ -1,6 +1,6 @@
 import { createContext, useEffect, useState } from 'react';
 import { Todo } from '../types/Todo';
-import { deleteTodo, getTodos } from '../api/todos';
+import { deleteTodo, getTodos, updateTodo } from '../api/todos';
 import { Filter } from '../enum/Filter';
 
 type Props = {
@@ -8,11 +8,14 @@ type Props = {
 };
 
 type ContextType = {
+  everyCompleted: boolean;
+  hideMessage: () => void;
+  handleToggle: (todos: Todo[], v: boolean) => void;
   focused: Date;
   loadingIds: number[];
   setLoadingIds: (v: number[]) => void;
   handleDelete: (id: number) => void;
-  handleComplete: (todoId: number, status: boolean) => void;
+  handleComplete: (todo: Todo, status: boolean) => void;
   handleClearCompleted: () => void;
   setFocused: (v: Date) => void;
   filterTodos: (list: Todo[], filterBy: string) => Todo[];
@@ -29,6 +32,9 @@ type ContextType = {
 };
 
 export const TodosContext = createContext<ContextType>({
+  everyCompleted: false,
+  hideMessage: () => {},
+  handleToggle: () => {},
   focused: new Date(),
   loadingIds: [],
   setLoadingIds: () => [],
@@ -58,6 +64,12 @@ export const TodosProvider: React.FC<Props> = ({ children }) => {
   // eslint-disable-next-line
   const [focused, setFocused] = useState(new Date());
   const [loadingIds, setLoadingIds] = useState<number[]>([]);
+  const everyCompleted =
+    todos.length !== 0 ? todos.every(todo => todo.completed) : false;
+  const hideMessage = () =>
+    setTimeout(() => {
+      setErrorMessage('');
+    }, 3000);
 
   useEffect(() => {
     setErrorMessage('');
@@ -67,9 +79,7 @@ export const TodosProvider: React.FC<Props> = ({ children }) => {
         setErrorMessage('Unable to load todos');
       });
 
-    setTimeout(() => {
-      setErrorMessage('');
-    }, 3000);
+    hideMessage();
   }, []);
 
   const handleDelete = (todoId: number) => {
@@ -111,26 +121,41 @@ export const TodosProvider: React.FC<Props> = ({ children }) => {
     });
   };
 
-  const handleComplete = (todoId: number, status: boolean) => {
+  const handleComplete = (todo: Todo, status: boolean) => {
+    setLoadingIds(prevIds => [...prevIds, todo.id]);
     setIsCompleted(!status);
+    const changeStatus = { ...todo, completed: status };
 
-    setTodos(prevTodo => {
-      const newTodo = [...prevTodo];
-
-      return newTodo.map(todo => {
-        if (todo.id === todoId) {
-          return {
-            ...todo,
-            completed: status,
-          };
-        }
-
-        return todo;
+    updateTodo(changeStatus)
+      .then(() =>
+        setTodos(prevTodos =>
+          prevTodos.map(item =>
+            item.id === changeStatus.id ? changeStatus : item,
+          ),
+        ),
+      )
+      .catch(() => {
+        setErrorMessage('Unable to update a todo');
+      })
+      .finally(() => {
+        setLoadingIds([]);
+        setIsCompleted(false);
+        hideMessage();
       });
-    });
+  };
+
+  const handleToggle = (list: Todo[], status: boolean) => {
+    if (everyCompleted) {
+      list.forEach(item => handleComplete(item, status));
+    } else {
+      list.forEach(item => !item.completed && handleComplete(item, status));
+    }
   };
 
   const todosTools = {
+    everyCompleted,
+    hideMessage,
+    handleToggle,
     focused,
     loadingIds,
     setLoadingIds,

@@ -1,11 +1,11 @@
 import React, { useContext, useEffect, useRef, useState } from 'react';
 import { USER_ID, createTodo } from '../api/todos';
 import { TodosContext } from '../TodosProvider/TodosProvider';
+import classNames from 'classnames';
 
 export const TodoHeader: React.FC = () => {
   const [title, setTitle] = useState('');
   const focus = useRef<HTMLInputElement>(null);
-
   const {
     todos,
     setTodos,
@@ -17,6 +17,9 @@ export const TodoHeader: React.FC = () => {
     isDisabled,
     setLoadingIds,
     focused,
+    handleToggle,
+    hideMessage,
+    everyCompleted,
   } = useContext(TodosContext);
 
   let isError = false;
@@ -67,9 +70,7 @@ export const TodoHeader: React.FC = () => {
         setIdDisabled(false);
         setTempTodo(null);
         setLoadingIds([]);
-        setTimeout(() => {
-          setErrorMessage('');
-        }, 3000);
+        hideMessage();
 
         if (!isError) {
           setTitle('');
@@ -80,12 +81,16 @@ export const TodoHeader: React.FC = () => {
 
   return (
     <>
-      {/* this button should have `active` class only if all todos are completed */}
-      <button
-        type="button"
-        className="todoapp__toggle-all active"
-        data-cy="ToggleAllButton"
-      />
+      {todos.length > 0 && (
+        <button
+          type="button"
+          className={classNames('todoapp__toggle-all', {
+            active: everyCompleted,
+          })}
+          data-cy="ToggleAllButton"
+          onClick={() => handleToggle(todos, !everyCompleted)}
+        />
+      )}
       <form onSubmit={onSubmit}>
         <input
           ref={focus}
