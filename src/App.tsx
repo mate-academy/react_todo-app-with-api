@@ -155,6 +155,7 @@ export const App: React.FC = () => {
       setDeletingIds(prevIds =>
         prevIds.filter(deletingId => deletingId !== id),
       );
+      focusInput();
     });
   };
 
