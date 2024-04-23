@@ -88,6 +88,11 @@ export const App: React.FC = () => {
       });
       setTaskTitle('');
     } catch {
+      setTasks(currentTodos => {
+        currentTodos.pop();
+
+        return [...currentTodos];
+      });
       handleError(errorType.add);
     } finally {
       setTempTodo(null);
