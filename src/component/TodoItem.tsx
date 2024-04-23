@@ -28,7 +28,7 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
       title,
     };
 
-    updateTodo(newTodo).then(() =>
+    return updateTodo(newTodo).then(() =>
       setTodos(prevTodo =>
         prevTodo.map(item => (item.id === todo.id ? newTodo : item)),
       ),
