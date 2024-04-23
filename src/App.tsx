@@ -19,6 +19,10 @@ export const App: React.FC = () => {
   const [inputValue, setInputValue] = useState('');
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
 
+  const UNAIBLE_TO_LOAD = 'Unable to load todos';
+  const UNAIBLE_TO_ADD = 'Unable to add a todo';
+  const NO_EMPTY_TITLE = 'Title should not be empty';
+
   const focusInput = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -30,7 +34,7 @@ export const App: React.FC = () => {
   useEffect(() => {
     getTodos()
       .then(setTodos)
-      .catch(() => setErrorMessage('Unable to load todos'))
+      .catch(() => setErrorMessage(UNAIBLE_TO_LOAD))
       .finally(() => {
         setTimeout(() => {
           setErrorMessage('');
@@ -83,7 +87,7 @@ export const App: React.FC = () => {
         setTodos([...todos, newTodoObj]);
       })
       .catch(() => {
-        setErrorMessage('Unable to add a todo');
+        setErrorMessage(UNAIBLE_TO_ADD);
       })
       .finally(() => {
         setIsSubmiting(false);
@@ -102,7 +106,7 @@ export const App: React.FC = () => {
     event.preventDefault();
 
     if (inputValue.trim() === '') {
-      setErrorMessage('Title should not be empty');
+      setErrorMessage(NO_EMPTY_TITLE);
       setTimeout(() => {
         setErrorMessage('');
       }, 3000);

@@ -1,6 +1,6 @@
 /* eslint-disable jsx-a11y/label-has-associated-control */
 
-import { useContext, useEffect, useRef } from 'react';
+import { useContext, useEffect, useRef, useState } from 'react';
 import { Todo } from '../types/Todo';
 import { TodosContext } from './todosContext';
 import classNames from 'classnames';
@@ -21,11 +21,11 @@ export const TodosItem: React.FC<ItemProps> = ({ item }) => {
     handleUpdateTodoTitle,
     tempEdition,
     setTempEdition,
-    isEditingOn,
-    setIsEditingOn,
+    setErrorMessage,
+    UNAIBLE_TO_UPDATE,
   } = useContext(TodosContext);
 
-  // const [isEditingOn, setIsEditingOn] = useState(false);
+  const [isEditingOn, setIsEditingOn] = useState(false);
 
   const isTodoCompletedClass = classNames({
     todo: true,
@@ -42,9 +42,7 @@ export const TodosItem: React.FC<ItemProps> = ({ item }) => {
     setUpdatedValue(event.target.value);
   };
 
-  const submitEditind = () => {
-    // setIsEditingOn(false);
-
+  const submitEditing = () => {
     if (updatedValue.trim() === '') {
       handleDeleteTodo(item.id);
     } else {
@@ -53,13 +51,23 @@ export const TodosItem: React.FC<ItemProps> = ({ item }) => {
         title: updatedValue,
       });
       setAllId([...allId, item.id]);
-      handleUpdateTodoTitle(item);
+
+      handleUpdateTodoTitle(item)
+        .then(() => {
+          setIsEditingOn(false);
+        })
+        .catch(() => {
+          setIsEditingOn(true);
+          setTimeout(() => {
+            setErrorMessage(UNAIBLE_TO_UPDATE);
+          }, 3000);
+        });
     }
   };
 
   const handleOnBlur = () => {
     if (item.title !== updatedValue) {
-      submitEditind();
+      submitEditing();
     } else {
       setIsEditingOn(false);
     }
@@ -77,7 +85,7 @@ export const TodosItem: React.FC<ItemProps> = ({ item }) => {
 
       return;
     } else if (event.key === 'Enter' && item.title !== updatedValue) {
-      submitEditind();
+      submitEditing();
     } else {
       return;
     }
