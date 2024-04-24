@@ -97,18 +97,10 @@ export const App: React.FC = () => {
   };
 
   const handleEditTodo = async (title: string, todo: Todo) => {
-    if (!title.trim()) {
-      handleDelete(todo.id);
-    } else {
+    if (title.trim()) {
       setIsLoadingId(todo.id);
       try {
-        const timer = setTimeout(() => {
-          throw Error('no result');
-        }, 5000);
-
         await updateTodo(todo.id, { ...todo, title });
-        clearTimeout(timer);
-        setTimeout(() => setIsLoadingId(null), 500);
 
         setTodos(
           todos.map(currentTodo => {
@@ -122,13 +114,41 @@ export const App: React.FC = () => {
             return currentTodo;
           }),
         );
+        setIsLoadingId(null);
+        setEditingId(-1);
       } catch (error) {
         setErrors({ ...noErrors, updateTodoError: true });
         clearErrors();
       }
+    } else {
+      handleDelete(todo.id);
     }
+  };
 
-    setEditingId(-1);
+  const handleCheckTodo = async (todo: Todo) => {
+    setIsLoadingId(todo.id);
+    try {
+      await updateTodo(todo.id, {
+        ...todo,
+        completed: !todo.completed,
+      });
+      setIsLoadingId(null);
+      setTodos(
+        todos.map(currentTodo => {
+          if (todo.id === currentTodo.id) {
+            return {
+              ...currentTodo,
+              completed: !todo.completed,
+            };
+          }
+
+          return currentTodo;
+        }),
+      );
+    } catch (error) {
+      setErrors({ ...noErrors, updateTodoError: true });
+      clearErrors();
+    }
   };
 
   const handleClearCompleted = () => {
@@ -144,25 +164,6 @@ export const App: React.FC = () => {
   useEffect(() => {
     loadTodos();
   }, []);
-
-  const handleCheckTodo = async (todo: Todo) => {
-    setIsLoadingId(todo.id);
-    try {
-      const timer = setTimeout(() => {
-        throw Error('no result');
-      }, 5000);
-
-      await updateTodo(todo.id, {
-        ...todo,
-        completed: !todo.completed,
-      });
-
-      clearTimeout(timer);
-    } catch (error) {
-      setErrors({ ...noErrors, updateTodoError: true });
-      clearErrors();
-    }
-  };
 
   const completedTodos = useMemo(() => {
     return todos.filter(todo => todo.completed);
