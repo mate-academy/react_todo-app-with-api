@@ -20,6 +20,7 @@ export const Header = () => {
     if (newTodo.trim() && !idTodoSubmitting) {
       // dispatch({ type: 'AddTodo', title: newTodo });
       setIsVaitingAdd(true);
+      dispatch({ type: 'setTempTodo', title: newTodo });
 
       postTodo({
         title: newTodo.trim(),
@@ -36,6 +37,7 @@ export const Header = () => {
           dispatch({ type: 'removeTodo', id: 0 });
         })
         .finally(() => {
+          dispatch({ type: 'deletTempTodo' });
           dispatch({ type: 'setIdTodoSelection', id: 0 });
           inputRef.current?.focus();
           setIsVaitingAdd(false);

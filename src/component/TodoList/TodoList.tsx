@@ -1,4 +1,4 @@
-import { useContext } from 'react';
+import { useContext, useRef } from 'react';
 import { DispatchContext, StateContext } from '../../store/store';
 import cn from 'classnames';
 import { IsUseTodos } from '../../types/IsUseTodos';
@@ -14,7 +14,10 @@ export const TodoList = () => {
     idTodoSubmitting,
     vaitTodoId,
     changerTodo,
+    tempTodo,
   } = useContext(StateContext);
+
+  const inputRef = useRef<HTMLInputElement>(null);
 
   const todosFilter = todos.filter(todo => {
     switch (useTodos) {
@@ -73,10 +76,15 @@ export const TodoList = () => {
     dispatch({ type: 'setVaitTodoId', id: todo.id });
 
     if (todo.title === changerTodo) {
+      dispatch({ type: 'deleteVaitTodoId', id: todo.id });
+      dispatch({ type: 'setChangedTodoId', id: 0 });
+
       return;
     }
 
     if (todo.title === '') {
+      dispatch({ type: 'deleteVaitTodoId', id: todo.id });
+      dispatch({ type: 'setChangedTodoId', id: 0 });
       handleDeleteTodo(todo.id);
 
       return;
@@ -88,6 +96,7 @@ export const TodoList = () => {
       })
       .catch(() => {
         dispatch({ type: 'setError', error: 'Unable to update a todo' });
+        inputRef.current?.focus();
       })
       .finally(() => {
         dispatch({ type: 'deleteVaitTodoId', id: todo.id });
@@ -129,6 +138,7 @@ export const TodoList = () => {
               data-cy="TodoTitle"
               className="todo__title"
               onDoubleClick={() =>
+                changerId === 0 &&
                 dispatch({ type: 'setChangedTodoId', id: id })
               }
             >
@@ -148,6 +158,7 @@ export const TodoList = () => {
               }
             >
               <input
+                ref={inputRef}
                 data-cy="TodoTitleField"
                 type="text"
                 className="todo__title-field"
@@ -192,6 +203,33 @@ export const TodoList = () => {
           </div>
         </div>
       ))}
+
+      {!!tempTodo && (
+        <div data-cy="Todo" className="todo">
+          {/* eslint-disable-next-line jsx-a11y/label-has-associated-control */}
+          <label className="todo__status-label">
+            <input
+              data-cy="TodoStatus"
+              type="checkbox"
+              className="todo__status"
+            />
+          </label>
+
+          <span data-cy="TodoTitle" className="todo__title">
+            {tempTodo.title}
+          </span>
+
+          {/* Remove button appears only on hover */}
+          <button type="button" className="todo__remove" data-cy="TodoDelete">
+            ×
+          </button>
+
+          <div data-cy="TodoLoader" className="modal overlay is-active">
+            <div className="modal-background has-background-white-ter" />
+            <div className="loader" />
+          </div>
+        </div>
+      )}
     </section>
   );
 };

@@ -1,6 +1,7 @@
 import React, { useReducer } from 'react';
 import { Todo } from '../types/Todo';
 import { IsUseTodos } from '../types/IsUseTodos';
+import { USER_ID } from '../api/todos';
 
 interface State {
   todos: Todo[];
@@ -11,6 +12,7 @@ interface State {
   errorsInTodo: string;
   idTodoSubmitting: number;
   vaitTodoId: number[];
+  tempTodo: Todo | null;
 }
 
 export type Action =
@@ -27,7 +29,9 @@ export type Action =
   | { type: 'setError'; error: string }
   | { type: 'setIdTodoSelection'; id: number }
   | { type: 'setVaitTodoId'; id: number | number[] }
-  | { type: 'deleteVaitTodoId'; id: number };
+  | { type: 'deleteVaitTodoId'; id: number }
+  | { type: 'setTempTodo'; title: string }
+  | { type: 'deletTempTodo' };
 
 const reducer = (state: State, action: Action): State => {
   switch (action.type) {
@@ -174,6 +178,23 @@ const reducer = (state: State, action: Action): State => {
         vaitTodoId: [...state.vaitTodoId.filter(id => id !== action.id)],
       };
 
+    case 'setTempTodo':
+      return {
+        ...state,
+        tempTodo: {
+          id: 0,
+          userId: USER_ID,
+          title: action.title,
+          completed: false,
+        },
+      };
+
+    case 'deletTempTodo':
+      return {
+        ...state,
+        tempTodo: null,
+      };
+
     default:
       return state;
   }
@@ -188,6 +209,7 @@ const initialState: State = {
   errorsInTodo: '',
   idTodoSubmitting: 0,
   vaitTodoId: [],
+  tempTodo: null,
 };
 
 const defaultDispatch: React.Dispatch<Action> = () => {};
