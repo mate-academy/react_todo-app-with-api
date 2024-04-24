@@ -4,6 +4,7 @@ import cn from 'classnames';
 import { IsUseTodos } from '../../types/IsUseTodos';
 import { USER_ID, changeTodoApi, deleteTodo } from '../../api/todos';
 import { Todo } from '../../types/Todo';
+import { CSSTransition, TransitionGroup } from 'react-transition-group';
 
 export const TodoList = () => {
   const dispatch = useContext(DispatchContext);
@@ -114,122 +115,138 @@ export const TodoList = () => {
 
   return (
     <section className="todoapp__main" data-cy="TodoList">
-      {todosFilter.map(({ id, title, completed }) => (
-        <div
-          data-cy="Todo"
-          className={cn('todo', { completed: completed })}
-          key={id}
-        >
-          {/* eslint-disable-next-line jsx-a11y/label-has-associated-control */}
-          <label className="todo__status-label">
-            <input
-              data-cy="TodoStatus"
-              type="checkbox"
-              className="todo__status"
-              checked={completed}
-              onChange={() =>
-                handleCheckedTodo({ id, userId: USER_ID, title, completed })
-              }
-            />
-          </label>
-
-          {id !== changerId && (
-            <span
-              data-cy="TodoTitle"
-              className="todo__title"
-              onDoubleClick={() =>
-                changerId === 0 &&
-                dispatch({ type: 'setChangedTodoId', id: id })
-              }
+      <TransitionGroup>
+        {todosFilter.map(({ id, title, completed }) => (
+          <CSSTransition key={id} timeout={300} classNames="temp-item">
+            <div
+              data-cy="Todo"
+              className={cn('todo', { completed: completed })}
+              key={id}
             >
-              {title}
-            </span>
-          )}
+              {/* eslint-disable-next-line jsx-a11y/label-has-associated-control */}
+              <label className="todo__status-label">
+                <input
+                  data-cy="TodoStatus"
+                  type="checkbox"
+                  className="todo__status"
+                  checked={completed}
+                  onChange={() =>
+                    handleCheckedTodo({ id, userId: USER_ID, title, completed })
+                  }
+                />
+              </label>
 
-          {id === changerId && (
-            <form
-              onSubmit={e =>
-                hundleSubmitChangeTodo(e, {
-                  id,
-                  userId: USER_ID,
-                  title,
-                  completed,
-                })
-              }
-            >
-              <input
-                ref={inputRef}
-                data-cy="TodoTitleField"
-                type="text"
-                className="todo__title-field"
-                placeholder="Empty todo will be deleted"
-                value={title}
-                onKeyUp={e => hundleKeyUp(e, id)}
-                autoFocus
-                onChange={e =>
-                  dispatch({
-                    type: 'changedTodoFromId',
-                    id: id,
-                    text: e.target.value,
-                  })
-                }
-                onBlur={() =>
-                  handleSendTitleTodo({ id, userId: USER_ID, title, completed })
-                }
-              />
-            </form>
-          )}
+              {id !== changerId && (
+                <span
+                  data-cy="TodoTitle"
+                  className="todo__title"
+                  onDoubleClick={() =>
+                    changerId === 0 &&
+                    dispatch({ type: 'setChangedTodoId', id: id })
+                  }
+                >
+                  {title}
+                </span>
+              )}
 
-          {/* Remove button appears only on hover */}
-          {id !== changerId && (
-            <button
-              type="button"
-              className="todo__remove"
-              data-cy="TodoDelete"
-              onClick={() => handleDeleteTodo(id)}
-            >
-              ×
-            </button>
-          )}
+              {id === changerId && (
+                <form
+                  onSubmit={e =>
+                    hundleSubmitChangeTodo(e, {
+                      id,
+                      userId: USER_ID,
+                      title,
+                      completed,
+                    })
+                  }
+                >
+                  <input
+                    ref={inputRef}
+                    data-cy="TodoTitleField"
+                    type="text"
+                    className="todo__title-field"
+                    placeholder="Empty todo will be deleted"
+                    value={title}
+                    onKeyUp={e => hundleKeyUp(e, id)}
+                    autoFocus
+                    onChange={e =>
+                      dispatch({
+                        type: 'changedTodoFromId',
+                        id: id,
+                        text: e.target.value,
+                      })
+                    }
+                    onBlur={() =>
+                      handleSendTitleTodo({
+                        id,
+                        userId: USER_ID,
+                        title,
+                        completed,
+                      })
+                    }
+                  />
+                </form>
+              )}
 
-          <div
-            data-cy="TodoLoader"
-            className={cn('modal overlay', {
-              'is-active': idTodoSubmitting === id || vaitTodoId.includes(id),
-            })}
-          >
-            <div className="modal-background has-background-white-ter" />
-            <div className="loader" />
-          </div>
-        </div>
-      ))}
+              {/* Remove button appears only on hover */}
+              {id !== changerId && (
+                <button
+                  type="button"
+                  className="todo__remove"
+                  data-cy="TodoDelete"
+                  onClick={() => handleDeleteTodo(id)}
+                >
+                  ×
+                </button>
+              )}
 
-      {!!tempTodo && (
-        <div data-cy="Todo" className="todo">
-          {/* eslint-disable-next-line jsx-a11y/label-has-associated-control */}
-          <label className="todo__status-label">
-            <input
-              data-cy="TodoStatus"
-              type="checkbox"
-              className="todo__status"
-            />
-          </label>
+              <div
+                data-cy="TodoLoader"
+                className={cn('modal overlay', {
+                  'is-active':
+                    idTodoSubmitting === id || vaitTodoId.includes(id),
+                })}
+              >
+                <div className="modal-background has-background-white-ter" />
+                <div className="loader" />
+              </div>
+            </div>
+          </CSSTransition>
+        ))}
 
-          <span data-cy="TodoTitle" className="todo__title">
-            {tempTodo.title}
-          </span>
+        {!!tempTodo && (
+          <CSSTransition key={0} timeout={300} classNames="temp-item">
+            <div data-cy="Todo" className="todo">
+              {/* eslint-disable-next-line jsx-a11y/label-has-associated-control */}
+              <label className="todo__status-label">
+                <input
+                  data-cy="TodoStatus"
+                  type="checkbox"
+                  className="todo__status"
+                />
+              </label>
 
-          {/* Remove button appears only on hover */}
-          <button type="button" className="todo__remove" data-cy="TodoDelete">
-            ×
-          </button>
+              <span data-cy="TodoTitle" className="todo__title">
+                {tempTodo.title}
+              </span>
 
-          <div data-cy="TodoLoader" className="modal overlay is-active">
-            <div className="modal-background has-background-white-ter" />
-            <div className="loader" />
-          </div>
-        </div>
-      )}
+              {/* Remove button appears only on hover */}
+              <button
+                type="button"
+                className="todo__remove"
+                data-cy="TodoDelete"
+              >
+                ×
+              </button>
+
+              <div data-cy="TodoLoader" className="modal overlay is-active">
+                <div className="modal-background has-background-white-ter" />
+                <div className="loader" />
+              </div>
+            </div>
+          </CSSTransition>
+        )}
+      </TransitionGroup>
     </section>
   );
 };
