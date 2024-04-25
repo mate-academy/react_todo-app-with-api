@@ -20,6 +20,9 @@ export const App: React.FC = () => {
   const [tempTodo, setTempTodo] = useState<null | Todo>(null);
   const [isNewTodoLoading, setIsNewTodoLoading] = useState<boolean>(false);
   const [todosIdBeingEdited, setTodosIdBeingEdited] = useState<number[]>([]);
+  const [todoIdBeingEdited, setTodoIdBeingEdited] = useState<number | null>(
+    null,
+  );
 
   const hasCompletedTodos = todos.some((todo: Todo) => todo.completed);
 
@@ -48,8 +51,10 @@ export const App: React.FC = () => {
   }, [currentError]);
 
   useEffect(() => {
-    todoInput.current?.focus();
-  }, [todos, currentError]);
+    if (todoIdBeingEdited === null) {
+      todoInput.current?.focus();
+    }
+  }, [todos, currentError, todoIdBeingEdited]);
 
   const deleteTodoById = useCallback((id: number) => {
     deleteTodo(id)
@@ -135,6 +140,8 @@ export const App: React.FC = () => {
 
   const updateTodoTitle = useCallback(
     (todo: Todo, newTitle: string) => {
+      setTodoIdBeingEdited(todo.id);
+
       const trimmedTitle = newTitle.trim();
 
       if (trimmedTitle === todo.title) {
@@ -168,6 +175,8 @@ export const App: React.FC = () => {
               return currentTodo;
             }),
           );
+
+          setTodoIdBeingEdited(null);
         })
         .catch(() => setCurrentError(Error.CannotUpdate))
         .finally(() => {
@@ -239,6 +248,7 @@ export const App: React.FC = () => {
             handleChangeCompletion={updateTodoCompletionById}
             todosIdBeingEdited={todosIdBeingEdited}
             updateTodoTitle={updateTodoTitle}
+            todoIdBeingEdited={todoIdBeingEdited}
           />
         )}
 
@@ -249,6 +259,7 @@ export const App: React.FC = () => {
             handleChangeCompletion={updateTodoCompletionById}
             isTemp={true}
             updateTodoTitle={updateTodoTitle}
+            todoIdBeingEdited={todoIdBeingEdited}
           />
         )}
 

@@ -10,6 +10,7 @@ type Props = {
   isBeingEdited?: boolean;
   isTemp?: boolean;
   updateTodoTitle: (todo: Todo, newTitle: string) => void;
+  todoIdBeingEdited: number | null;
 };
 
 const getTodoClass = (todo: Todo) =>
@@ -25,6 +26,7 @@ export const TodoItem: React.FC<Props> = ({
   isBeingEdited = false,
   isTemp = false,
   updateTodoTitle,
+  todoIdBeingEdited,
 }) => {
   const [isBeingDeleted, setIsBeingDeleted] = useState<boolean>(false);
   const [isFormOpen, setIsFormOpen] = useState<boolean>(false);
@@ -35,6 +37,7 @@ export const TodoItem: React.FC<Props> = ({
   const finishEditingTodo = () => {
     setIsFormOpen(false);
     setNewTodoTitle(newTodoTitle);
+    // setTodoIdBeingEdited(null)
   };
 
   const handleEscapeKey = (event: KeyboardEvent) => {
@@ -49,10 +52,20 @@ export const TodoItem: React.FC<Props> = ({
       setIsBeingDeleted(true);
     }
 
+    if (todo.title === newTodoTitle) {
+      setIsFormOpen(false);
+
+      return;
+    }
+
     updateTodoTitle(todo, newTodoTitle);
 
-    finishEditingTodo();
-    document.removeEventListener('keyup', handleEscapeKey);
+    Promise.resolve(() => {
+      if (todoIdBeingEdited === null) {
+        finishEditingTodo();
+        document.removeEventListener('keyup', handleEscapeKey);
+      }
+    });
   };
 
   useEffect(() => {
@@ -60,6 +73,8 @@ export const TodoItem: React.FC<Props> = ({
       todoTitleInput.current?.focus();
     }
   }, [isFormOpen]);
+
+  // How to check whether the Todo was updated or an error was caught?
 
   return (
     <div
@@ -71,8 +86,9 @@ export const TodoItem: React.FC<Props> = ({
         document.addEventListener('keyup', event => handleEscapeKey(event));
       }}
       onBlur={() => {
+        updateTodoTitle(todo, newTodoTitle);
         setIsFormOpen(false);
-        setNewTodoTitle(todo.title);
+        setNewTodoTitle(newTodoTitle);
       }}
     >
       <label className="todo__status-label">
