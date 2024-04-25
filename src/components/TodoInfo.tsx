@@ -29,12 +29,12 @@ export const TodoInfo: React.FC<Props> = ({ todo }) => {
       currentId: todo.id,
       currentTitle: todo.title,
     });
-    dispatch({ type: 'setEdit', currentId: 0 });
+    dispatch({ type: 'setEdit', currentId: 0, currentTitle: todo.title });
   };
 
   const handleKeyUp = (event: React.KeyboardEvent<HTMLInputElement>) => {
     if (event.key === 'Escape') {
-      dispatch({ type: 'setEdit', currentId: 0 });
+      dispatch({ type: 'escape' });
     }
   };
 
@@ -44,7 +44,7 @@ export const TodoInfo: React.FC<Props> = ({ todo }) => {
       currentId: todo.id,
       currentTitle: todo.title,
     });
-    dispatch({ type: 'setEdit', currentId: 0 });
+    dispatch({ type: 'setEdit', currentId: 0, currentTitle: todo.title });
   };
 
   const handleChangeInput = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -76,7 +76,11 @@ export const TodoInfo: React.FC<Props> = ({ todo }) => {
         <>
           <span
             onDoubleClick={() =>
-              dispatch({ type: 'setEdit', currentId: todo.id })
+              dispatch({
+                type: 'setEdit',
+                currentId: todo.id,
+                currentTitle: todo.title,
+              })
             }
             data-cy="TodoTitle"
             className="todo__title"

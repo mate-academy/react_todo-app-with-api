@@ -1,3 +1,5 @@
+import React from 'react';
+
 export const Loader: React.FC = () => {
   return (
     <div data-cy="TodoLoader" className="modal overlay is-active">
