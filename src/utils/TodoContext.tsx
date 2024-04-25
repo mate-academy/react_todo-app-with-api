@@ -25,7 +25,9 @@ const initialTodo: TodoContextType = {
   setDraftTodo: () => {},
   deleteTodo: async () => {},
   addTodo: async () => {},
+  updateTodo: async () => {},
   handleCompleted: () => {},
+  toggleAllCompleted: () => {},
 };
 
 interface Props {
@@ -41,6 +43,8 @@ export const TodoContextProvider: React.FC<Props> = ({ children }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [modifiedTodoId, setModifiedTodoId] = useState(0);
   const [draftTodo, setDraftTodo] = useState<Todo | null>(null);
+  const activeTodos = todos.filter(todo => !todo.completed);
+  const completedTodos = todos.filter(todo => todo.completed);
 
   useEffect(() => {
     todosServices
@@ -94,15 +98,62 @@ export const TodoContextProvider: React.FC<Props> = ({ children }) => {
     }
   }, []);
 
-  const handleCompleted = useCallback((currentTodo: Todo) => {
-    setTodos(prevTodos =>
-      prevTodos.map(todo =>
-        todo.id === currentTodo.id
-          ? { ...todo, completed: !todo.completed }
-          : todo,
-      ),
-    );
+  const updateTodo = useCallback(async (updatedTodo: Todo) => {
+    setIsLoading(true);
+    setModifiedTodoId(updatedTodo.id);
+    setErrorMessage(Errors.NoErrors);
+    try {
+      const editedTodo = await todosServices.updateTodos(updatedTodo);
+
+      setTodos(currentTodos =>
+        currentTodos.map(todo =>
+          todo.id === updatedTodo.id ? editedTodo : todo,
+        ),
+      );
+    } catch (error) {
+      setErrorMessage(Errors.UpdateTodo);
+      setTodos(todos);
+      setTimeout(() => {
+        setErrorMessage(Errors.NoErrors);
+      }, 3000);
+      setIsLoading(false);
+    } finally {
+      setIsLoading(false);
+      setModifiedTodoId(0);
+    }
   }, []);
+
+  const handleCompleted = useCallback(async (currentTodo: Todo) => {
+    setIsLoading(true);
+    setModifiedTodoId(currentTodo.id);
+    setErrorMessage(Errors.NoErrors);
+    try {
+      const toggled = await todosServices.updateTodos({
+        ...currentTodo,
+        completed: !currentTodo.completed,
+      });
+
+      setTodos(prevTodos =>
+        prevTodos.map(todo =>
+          todo.id === toggled.id
+            ? { ...todo, completed: !todo.completed }
+            : todo,
+        ),
+      );
+    } catch (error) {
+      setErrorMessage(Errors.UpdateTodo);
+      setTimeout(() => setErrorMessage(Errors.NoErrors), 3000);
+    } finally {
+      setIsLoading(false);
+      setModifiedTodoId(0);
+    }
+  }, []);
+
+  const toggleAllCompleted = useCallback(() => {
+    const toggleTodos = !!activeTodos.length ? activeTodos : completedTodos;
+
+    toggleTodos.forEach(todo => handleCompleted(todo))
+  }, [activeTodos, completedTodos, handleCompleted]);
 
   const todoValue = useMemo(
     () => ({
@@ -118,8 +169,10 @@ export const TodoContextProvider: React.FC<Props> = ({ children }) => {
       setDraftTodo,
       setIsLoading,
       addTodo,
+      updateTodo,
       deleteTodo,
       handleCompleted,
+      toggleAllCompleted,
     }),
     [
       todos,
@@ -129,8 +182,10 @@ export const TodoContextProvider: React.FC<Props> = ({ children }) => {
       modifiedTodoId,
       draftTodo,
       addTodo,
+      updateTodo,
       deleteTodo,
       handleCompleted,
+      toggleAllCompleted,
     ],
   );
 

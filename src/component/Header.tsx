@@ -5,8 +5,14 @@ import { Errors } from '../types/ErrorsTodo';
 import { USER_ID } from '../api/todos';
 
 export const Header: React.FC = () => {
-  const { todos, addTodo, isLoading, setIsLoading, setErrorMessage } =
-    useTodos();
+  const {
+    todos,
+    addTodo,
+    isLoading,
+    setIsLoading,
+    setErrorMessage,
+    toggleAllCompleted,
+  } = useTodos();
   const inputRef = useRef<HTMLInputElement | null>(null);
   const [inputTodo, setInputTodo] = useState('');
   const allCompleted = todos.every(todo => todo.completed);
@@ -15,7 +21,7 @@ export const Header: React.FC = () => {
     if (!isLoading && inputRef.current) {
       inputRef.current.focus();
     }
-  }, [isLoading]);
+  }, [isLoading, addTodo]);
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -49,13 +55,16 @@ export const Header: React.FC = () => {
 
   return (
     <header className="todoapp__header">
-      <button
-        type="button"
-        className={classNames('todoapp__toggle-all', {
-          active: allCompleted,
-        })}
-        data-cy="ToggleAllButton"
-      />
+      {!!todos.length && (
+        <button
+          type="button"
+          className={classNames('todoapp__toggle-all', {
+            active: allCompleted,
+          })}
+          data-cy="ToggleAllButton"
+          onClick={toggleAllCompleted}
+        />
+      )}
 
       <form onSubmit={handleSubmit}>
         <input

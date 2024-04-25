@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Todo } from '../types/Todo';
 import classNames from 'classnames';
 import { useTodos } from '../utils/TodoContext';
@@ -6,9 +6,54 @@ import { useTodos } from '../utils/TodoContext';
 type Props = {
   todo: Todo;
 };
+
 export const TodoItem: React.FC<Props> = ({ todo }) => {
-  const { deleteTodo, handleCompleted, modifiedTodoId } = useTodos();
+  const {
+    deleteTodo,
+    updateTodo,
+    handleCompleted,
+    modifiedTodoId,
+    isLoading,
+    setIsLoading,
+  } = useTodos();
   const { id, title, completed } = todo;
+  const [isEditing, setIsEditing] = useState(false);
+  const [updatedTitle, setUpdatedTitle] = useState(title);
+  const inputRef = useRef<HTMLInputElement | null>(null);
+
+  useEffect(() => {
+    if (!isLoading) {
+      inputRef.current?.focus();
+    }
+  }, [isEditing, isLoading]);
+
+  const handleSubmit = async (event: React.FormEvent) => {
+    event.preventDefault();
+    setIsLoading(true);
+    const trimmedTitle = updatedTitle.trim();
+
+    if (trimmedTitle === title || !trimmedTitle) {
+      if (!trimmedTitle) {
+        await deleteTodo(id);
+      }
+
+      setIsEditing(false);
+      setUpdatedTitle(title);
+      setIsLoading(false);
+
+      return;
+    }
+
+    try {
+      setIsLoading(true);
+      await updateTodo({ ...todo, title: trimmedTitle });
+    } catch (error) {
+      throw error;
+    } finally {
+      setIsLoading(false);
+      setIsEditing(false);
+    }
+  };
 
   return (
     <div
@@ -28,18 +73,44 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
         />
       </label>
 
-      <span data-cy="TodoTitle" className="todo__title">
-        {title}
-      </span>
+      {isEditing ? (
+        <form onSubmit={handleSubmit}>
+          <input
+            data-cy="TodoTitleField"
+            type="text"
+            className="todo__title-field"
+            placeholder="Empty todo will be deleted"
+            value={updatedTitle}
+            onChange={event => setUpdatedTitle(event.target.value)}
+            ref={inputRef}
+            onBlur={handleSubmit}
+            onKeyUp={event => {
+              if (event.key === 'Escape') {
+                setIsEditing(false);
+              }
+            }}
+          />
+        </form>
+      ) : (
+        <>
+          <span
+            data-cy="TodoTitle"
+            className="todo__title"
+            onDoubleClick={() => setIsEditing(true)}
+          >
+            {title}
+          </span>
 
-      <button
-        type="button"
-        className="todo__remove"
-        data-cy="TodoDelete"
-        onClick={() => deleteTodo(id)}
-      >
-        ×
-      </button>
+          <button
+            type="button"
+            className="todo__remove"
+            data-cy="TodoDelete"
+            onClick={() => deleteTodo(id)}
+          >
+            ×
+          </button>
+        </>
+      )}
 
       <div
         data-cy="TodoLoader"

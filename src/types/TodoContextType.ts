@@ -15,6 +15,8 @@ export interface TodoContextType {
   setIsLoading: (loading: boolean) => void;
   setDraftTodo: (todo: Todo) => void;
   addTodo: (todo: Todo) => Promise<void>;
+  updateTodo: (updateTodo: Todo) => Promise<void>;
   deleteTodo: (todoId: number) => Promise<void>;
   handleCompleted: (currentTodo: Todo) => void;
+  toggleAllCompleted: () => void;
 }
