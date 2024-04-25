@@ -9,14 +9,25 @@ export const getTodos = () => {
   return client.get<Todo[]>(`${BASE_TODOS_PATH}?userId=${USER_ID}`);
 };
 
-export const deleteTodo = (todoId: Todo['id']) => {
-  return client.delete(`${BASE_TODOS_PATH}/${todoId}`);
+export const deleteTodo = (id: Todo['id']) => {
+  return client.delete(`${BASE_TODOS_PATH}/${id}`);
 };
 
-export const addTodo = (todoTitle: Todo['title']) => {
+export const addTodo = (title: Todo['title']) => {
   return client.post(BASE_TODOS_PATH, {
-    title: todoTitle,
+    title: title,
     userId: USER_ID,
     completed: false,
+  });
+};
+
+export const patchTodo = (
+  id: Todo['id'],
+  title: Todo['title'],
+  completed: Todo['completed'],
+) => {
+  return client.patch(`${BASE_TODOS_PATH}/${id}`, {
+    title: title,
+    completed: completed,
   });
 };

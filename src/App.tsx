@@ -1,6 +1,6 @@
 import React from 'react';
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { USER_ID, getTodos, deleteTodo, addTodo } from './api/todos';
+import { USER_ID, getTodos, deleteTodo, addTodo, patchTodo } from './api/todos';
 import { TodoList } from './components/TodoList';
 import { Todo } from './types/Todo';
 import { Error } from './types/Error';
@@ -19,6 +19,7 @@ export const App: React.FC = () => {
   const [newTodoTitle, setNewTodoTitle] = useState<string>('');
   const [tempTodo, setTempTodo] = useState<null | Todo>(null);
   const [isNewTodoLoading, setIsNewTodoLoading] = useState<boolean>(false);
+  const [todosIdBeingEdited, setTodosIdBeingEdited] = useState<number[]>([]);
 
   const hasCompletedTodos = todos.some((todo: Todo) => todo.completed);
 
@@ -93,6 +94,43 @@ export const App: React.FC = () => {
       });
   }, [newTodoTitle]);
 
+  const toggleTodoCompletionById = useCallback(
+    (todo: Todo) => {
+      // Put the edited todo id in state, to later show a modal on it in the component
+      setTodosIdBeingEdited((currentTodosId: number[]) => [
+        ...currentTodosId,
+        todo.id,
+      ]);
+
+      // Call API
+      patchTodo(todo.id, todo.title, !todo.completed)
+        .then(() => {
+          // Todo was updated in the api. Update the todos state manually
+          setTodos((currentTodos: Todo[]) =>
+            currentTodos.map((currentTodo: Todo) => {
+              if (currentTodo.id === todo.id) {
+                return {
+                  ...currentTodo,
+                  completed: !currentTodo.completed,
+                };
+              }
+
+              return currentTodo;
+            }),
+          );
+        })
+        .catch(() => setCurrentError(Error.CannotUpdate))
+        .finally(() => {
+          const filteredIds = todosIdBeingEdited.filter(
+            (currentTodoId: number) => currentTodoId !== todo.id,
+          );
+
+          setTodosIdBeingEdited(filteredIds);
+        });
+    },
+    [todosIdBeingEdited],
+  );
+
   const clearCompletedTodos = useCallback(() => {
     const completedTodos = todos.filter((todo: Todo) => todo.completed);
 
@@ -126,6 +164,8 @@ export const App: React.FC = () => {
           <TodoList
             todos={getFilteredTodos(todos, currentFilter)}
             handleDeleteTodo={deleteTodoById}
+            handleToggleCompletion={toggleTodoCompletionById}
+            todosIdBeingEdited={todosIdBeingEdited}
           />
         )}
 
@@ -133,6 +173,7 @@ export const App: React.FC = () => {
           <TodoItem
             todo={tempTodo}
             handleDeleteTodo={deleteTodoById}
+            handleToggleCompletion={toggleTodoCompletionById}
             isTemp={true}
           />
         )}

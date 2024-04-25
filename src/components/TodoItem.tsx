@@ -6,6 +6,8 @@ import { useState } from 'react';
 type Props = {
   todo: Todo;
   handleDeleteTodo: (todoId: Todo['id']) => void;
+  handleToggleCompletion: (todo: Todo) => void;
+  isBeingEdited?: boolean;
   isTemp?: boolean;
 };
 
@@ -18,6 +20,8 @@ const getTodoClass = (todo: Todo) =>
 export const TodoItem: React.FC<Props> = ({
   todo,
   handleDeleteTodo,
+  handleToggleCompletion,
+  isBeingEdited = false,
   isTemp = false,
 }) => {
   const [isBeingDeleted, setIsBeingDeleted] = useState<boolean>(false);
@@ -30,6 +34,10 @@ export const TodoItem: React.FC<Props> = ({
           type="checkbox"
           className="todo__status"
           checked={todo.completed}
+          onChange={event => {
+            event.preventDefault();
+            handleToggleCompletion(todo);
+          }}
           readOnly
         />
       </label>
@@ -55,7 +63,7 @@ export const TodoItem: React.FC<Props> = ({
         className={classNames({
           modal: true,
           overlay: true,
-          'is-active': isTemp || isBeingDeleted,
+          'is-active': isTemp || isBeingDeleted || isBeingEdited,
         })}
       >
         <div className="modal-background has-background-white-ter" />
