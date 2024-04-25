@@ -1,7 +1,7 @@
 /* eslint-disable jsx-a11y/label-has-associated-control */
 import classNames from 'classnames';
 import { Todo } from '../types/Todo';
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 type Props = {
   todo: Todo;
@@ -9,6 +9,7 @@ type Props = {
   handleChangeCompletion: (todo: Todo, newIsCompleted: boolean) => void;
   isBeingEdited?: boolean;
   isTemp?: boolean;
+  updateTodoTitle: (todo: Todo, newTitle: string) => void;
 };
 
 const getTodoClass = (todo: Todo) =>
@@ -23,11 +24,57 @@ export const TodoItem: React.FC<Props> = ({
   handleChangeCompletion,
   isBeingEdited = false,
   isTemp = false,
+  updateTodoTitle,
 }) => {
   const [isBeingDeleted, setIsBeingDeleted] = useState<boolean>(false);
+  const [isFormOpen, setIsFormOpen] = useState<boolean>(false);
+  const [newTodoTitle, setNewTodoTitle] = useState<string>(todo.title);
+
+  const todoTitleInput = useRef<HTMLInputElement>(null);
+
+  const finishEditingTodo = () => {
+    setIsFormOpen(false);
+    setNewTodoTitle(newTodoTitle);
+  };
+
+  const handleEscapeKey = (event: KeyboardEvent) => {
+    if (event.key === 'Escape') {
+      finishEditingTodo();
+    }
+  };
+
+  const handleUpdateTodoFormSubmit = (event: React.FormEvent) => {
+    event.preventDefault();
+    if (!newTodoTitle.trim().length) {
+      setIsBeingDeleted(true);
+    }
+
+    updateTodoTitle(todo, newTodoTitle);
+
+    finishEditingTodo();
+    document.removeEventListener('keyup', handleEscapeKey);
+  };
+
+  useEffect(() => {
+    if (isFormOpen) {
+      todoTitleInput.current?.focus();
+    }
+  }, [isFormOpen]);
 
   return (
-    <div data-cy="Todo" className={getTodoClass(todo)}>
+    <div
+      data-cy="Todo"
+      className={getTodoClass(todo)}
+      onDoubleClick={() => {
+        setIsFormOpen(true);
+        // Check whether the Esc was clicked when editing the todo -> If so, close the form
+        document.addEventListener('keyup', event => handleEscapeKey(event));
+      }}
+      onBlur={() => {
+        setIsFormOpen(false);
+        setNewTodoTitle(todo.title);
+      }}
+    >
       <label className="todo__status-label">
         <input
           data-cy="TodoStatus"
@@ -42,21 +89,40 @@ export const TodoItem: React.FC<Props> = ({
         />
       </label>
 
-      <span data-cy="TodoTitle" className="todo__title">
-        {todo.title}
-      </span>
+      {/* Show the form only when the todo is double-clicked */}
+      {isFormOpen && (
+        <form onSubmit={handleUpdateTodoFormSubmit}>
+          <input
+            data-cy="TodoTitleField"
+            type="text"
+            className="todo__title-field"
+            placeholder="Empty todo will be deleted"
+            value={newTodoTitle}
+            onChange={event => setNewTodoTitle(event.target.value)}
+            ref={todoTitleInput}
+          />
+        </form>
+      )}
 
-      <button
-        type="button"
-        className="todo__remove"
-        data-cy="TodoDelete"
-        onClick={() => {
-          setIsBeingDeleted(true);
-          handleDeleteTodo(todo.id);
-        }}
-      >
-        ×
-      </button>
+      {!isFormOpen && (
+        <>
+          <span data-cy="TodoTitle" className="todo__title">
+            {todo.title}
+          </span>
+
+          <button
+            type="button"
+            className="todo__remove"
+            data-cy="TodoDelete"
+            onClick={() => {
+              setIsBeingDeleted(true);
+              handleDeleteTodo(todo.id);
+            }}
+          >
+            ×
+          </button>
+        </>
+      )}
 
       <div
         data-cy="TodoLoader"

@@ -133,6 +133,54 @@ export const App: React.FC = () => {
     [todosIdBeingEdited],
   );
 
+  const updateTodoTitle = useCallback(
+    (todo: Todo, newTitle: string) => {
+      const trimmedTitle = newTitle.trim();
+
+      if (trimmedTitle === todo.title) {
+        return;
+      }
+
+      if (!trimmedTitle.length) {
+        // Delete the todo
+        deleteTodoById(todo.id);
+
+        return;
+      }
+
+      setTodosIdBeingEdited((currentTodosId: number[]) => [
+        ...currentTodosId,
+        todo.id,
+      ]);
+
+      patchTodo(todo.id, trimmedTitle, todo.completed)
+        .then(() => {
+          // Todo was updated in the api. Update the todos state manually
+          setTodos((currentTodos: Todo[]) =>
+            currentTodos.map((currentTodo: Todo) => {
+              if (currentTodo.id === todo.id) {
+                return {
+                  ...currentTodo,
+                  title: trimmedTitle,
+                };
+              }
+
+              return currentTodo;
+            }),
+          );
+        })
+        .catch(() => setCurrentError(Error.CannotUpdate))
+        .finally(() => {
+          const filteredIds = todosIdBeingEdited.filter(
+            (currentTodoId: number) => currentTodoId !== todo.id,
+          );
+
+          setTodosIdBeingEdited(filteredIds);
+        });
+    },
+    [deleteTodoById, todosIdBeingEdited],
+  );
+
   const updateAllTodosCompletion = useCallback(() => {
     // Check whether all todo's are completed (and display active or not) -> Then go on with this function babyyy
 
@@ -190,6 +238,7 @@ export const App: React.FC = () => {
             handleDeleteTodo={deleteTodoById}
             handleChangeCompletion={updateTodoCompletionById}
             todosIdBeingEdited={todosIdBeingEdited}
+            updateTodoTitle={updateTodoTitle}
           />
         )}
 
@@ -199,6 +248,7 @@ export const App: React.FC = () => {
             handleDeleteTodo={deleteTodoById}
             handleChangeCompletion={updateTodoCompletionById}
             isTemp={true}
+            updateTodoTitle={updateTodoTitle}
           />
         )}
 
