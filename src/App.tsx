@@ -1,39 +1,17 @@
-/* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable jsx-a11y/label-has-associated-control */
-import React, { useContext, useEffect, useMemo, useRef } from 'react';
+import React, { useContext, useMemo } from 'react';
 import { UserWarning } from './UserWarning';
-import { USER_ID, getTodos } from './api/todos';
+import { USER_ID } from './api/todos';
 import { Header } from './components/Header/Header';
 import { TodoList } from './components/TodoList/TodoList';
 import { todosContext } from './Store';
 import { Footer } from './components/Footer/Footer';
-
 import { items } from './utils/utils';
 import { ErrorNotification } from './components/ErrorNotification';
-import { errorText } from './constants';
 
 export const App: React.FC = () => {
-  const { state, setters } = useContext(todosContext);
-  const { todos, filter, tempTodo, loading, updatedAt, errorMessage } = state;
-  const { setTodos, setErrorMessage } = setters;
-  const timerId = useRef(0);
-
-  useEffect(() => {
-    getTodos()
-      .then(todosFromServer => setTodos(todosFromServer))
-      .catch(() => {
-        setErrorMessage(errorText.noTodos);
-      });
-  }, []);
-
-  useEffect(() => {
-    if (errorMessage) {
-      clearTimeout(timerId.current);
-      timerId.current = window.setTimeout(() => {
-        setters.setErrorMessage('');
-      }, 3000);
-    }
-  }, [errorMessage, loading, setters]);
+  const { state } = useContext(todosContext);
+  const { todos, filter, tempTodo, updatedAt, errorMessage } = state;
 
   const displayedTodos = useMemo(() => {
     return items.filter(todos, filter);

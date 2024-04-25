@@ -1,11 +1,11 @@
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Todo } from './types/Todo';
 import { Filter } from './types/Filter';
 import { State } from './types/State';
 import { Setters } from './types/Setters';
-import { deleteTodo, editTodo } from './api/todos';
+import { deleteTodo, editTodo, getTodos } from './api/todos';
 import { errorText } from './constants';
-import { item } from './utils/utils';
+import { createNewTodo } from './utils/utils';
 import { Handlers } from './types/Handlers';
 type InitialCotext = {
   state: State;
@@ -61,10 +61,29 @@ export const GlobalProvider: React.FC<Props> = ({ children }) => {
   const [updatedAt, setUpdatedAt] = useState(new Date());
   const [loading, setLoading] = useState(false);
   const [loadingTodos, setLoadingTodos] = useState<Todo[]>([]);
+  const timerId = useRef(0);
+
+  useEffect(() => {
+    getTodos()
+      .then(todosFromServer => setTodos(todosFromServer))
+      .catch(() => {
+        setErrorMessage(errorText.noTodos);
+      });
+  }, []);
+
+  useEffect(() => {
+    clearTimeout(timerId.current);
+    if (errorMessage) {
+      timerId.current = window.setTimeout(() => {
+        setErrorMessage('');
+      }, 3500);
+    }
+  }, [errorMessage]);
+  //#region  handleers: handleUpdate, handleDelete
 
   function handleUpdate(todo: Todo, completedStatus: boolean, title: string) {
     const updatedTitle = title.length === 0 ? todo.title : title;
-    const newTodo: Todo = item.createNew(updatedTitle, completedStatus);
+    const newTodo: Todo = createNewTodo(updatedTitle, completedStatus);
 
     setLoading(true);
     setErrorMessage('');
@@ -83,6 +102,7 @@ export const GlobalProvider: React.FC<Props> = ({ children }) => {
         throw error;
       })
       .finally(() => {
+        setLoading(false);
         setLoadingTodos(loadingTodos1 =>
           loadingTodos1.filter(oldTodo => oldTodo.id !== todo.id),
         );
@@ -111,9 +131,13 @@ export const GlobalProvider: React.FC<Props> = ({ children }) => {
       })
       .finally(() => {
         setLoading(false);
+        setLoadingTodos(loadingTodos1 =>
+          loadingTodos1.filter(oldTodo => oldTodo.id !== todo.id),
+        );
       })
       .then(() => setSelectedTodo(null));
   }
+  //#endregion
 
   const state: State = {
     todos,

@@ -2,13 +2,13 @@
 import React, { useContext, useEffect, useRef, useState } from 'react';
 import { todosContext } from '../../Store';
 import classNames from 'classnames';
-import { item, items } from '../../utils/utils';
+import { createNewTodo, items } from '../../utils/utils';
 import { errorText } from '../../constants';
 import { addTodo } from '../../api/todos';
 
 export const Header: React.FC = React.memo(() => {
   const { state, setters, handlers } = useContext(todosContext);
-  const { selectedTodo, loadingTodos, todos } = state;
+  const { selectedTodo, loadingTodos, todos, tempTodo } = state;
   const { handleUpdate } = handlers;
   const { setErrorMessage, setTempTodo, setTodos } = setters;
   const [title, setTitle] = useState('');
@@ -19,19 +19,20 @@ export const Header: React.FC = React.memo(() => {
     if (titleFild.current && !selectedTodo) {
       titleFild.current.focus();
     }
-  }, [selectedTodo, loadingTodos, todos]);
+  }, [selectedTodo, loadingTodos, tempTodo]);
 
   function handleAdd() {
     const newTitle = title.trim();
 
     if (!newTitle) {
       setErrorMessage(errorText.emptyTitle);
+      setLoading(false);
 
       return;
     }
 
     if (!loading) {
-      const newTodo = item.createNew(title, false);
+      const newTodo = createNewTodo(newTitle, false);
 
       setLoading(true);
       setErrorMessage('');

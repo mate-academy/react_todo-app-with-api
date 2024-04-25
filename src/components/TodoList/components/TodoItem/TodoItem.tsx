@@ -18,7 +18,7 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
   const { setSelectedTodo } = setters;
   const [newTitle, setNewTitle] = useState(todo.title);
   const titleFild = useRef<HTMLInputElement>(null);
-  const todoIsSelected = selectedTodo && selectedTodo.id === todo.id;
+  const todoIsSelected = selectedTodo && selectedTodo.id === id;
 
   useEffect(() => {
     if (titleFild.current && selectedTodo) {
@@ -31,12 +31,14 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
   };
 
   const onUpdate = () => {
-    if (newTitle === title) {
+    const updatedTitle = newTitle.trim();
+
+    if (updatedTitle === title) {
       setSelectedTodo(null);
-    } else if (newTitle.length === 0) {
+    } else if (updatedTitle.length === 0) {
       onDelete();
     } else {
-      handleUpdate(todo, todo.completed, newTitle);
+      handleUpdate(todo, completed, updatedTitle);
     }
   };
 
@@ -66,7 +68,7 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
           className="todo__status completed"
           checked={completed}
           onChange={() => {
-            handleUpdate(todo, !todo.completed, title);
+            handleUpdate(todo, !completed, title);
           }}
         />
       </label>
@@ -80,7 +82,7 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
             className="todo__title-field"
             placeholder="Empty todo will be deleted"
             value={newTitle}
-            onChange={e => setNewTitle(e.target.value.trim())}
+            onChange={e => setNewTitle(e.target.value)}
           />
         </form>
       ) : (
@@ -90,7 +92,7 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
             className="todo__title"
             onDoubleClick={() => setSelectedTodo(todo)}
           >
-            {todo.title}
+            {title}
           </span>
 
           <button
@@ -107,7 +109,7 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
       <div
         data-cy="TodoLoader"
         className={classNames('modal overlay', {
-          'is-active': isTodoLoading(todo.id, loadingTodos),
+          'is-active': isTodoLoading(id, loadingTodos),
         })}
       >
         <div className="modal-background has-background-white-ter" />
