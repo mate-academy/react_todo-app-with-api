@@ -6,7 +6,7 @@ import { useState } from 'react';
 type Props = {
   todo: Todo;
   handleDeleteTodo: (todoId: Todo['id']) => void;
-  handleToggleCompletion: (todo: Todo) => void;
+  handleChangeCompletion: (todo: Todo, newIsCompleted: boolean) => void;
   isBeingEdited?: boolean;
   isTemp?: boolean;
 };
@@ -20,7 +20,7 @@ const getTodoClass = (todo: Todo) =>
 export const TodoItem: React.FC<Props> = ({
   todo,
   handleDeleteTodo,
-  handleToggleCompletion,
+  handleChangeCompletion,
   isBeingEdited = false,
   isTemp = false,
 }) => {
@@ -36,7 +36,7 @@ export const TodoItem: React.FC<Props> = ({
           checked={todo.completed}
           onChange={event => {
             event.preventDefault();
-            handleToggleCompletion(todo);
+            handleChangeCompletion(todo, !todo.completed);
           }}
           readOnly
         />

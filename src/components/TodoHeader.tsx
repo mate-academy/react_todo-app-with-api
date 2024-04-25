@@ -1,3 +1,4 @@
+import cn from 'classnames';
 import { Ref } from 'react';
 
 type Props = {
@@ -6,6 +7,9 @@ type Props = {
   createTodo: () => void;
   todoInput: Ref<HTMLInputElement>;
   isNewTodoLoading: boolean;
+  handleToggleAll: () => void;
+  isToggleAllActive: boolean;
+  hasAnyTodos: boolean;
 };
 
 export const TodoHeader: React.FC<Props> = ({
@@ -14,6 +18,9 @@ export const TodoHeader: React.FC<Props> = ({
   createTodo,
   todoInput,
   isNewTodoLoading,
+  handleToggleAll,
+  isToggleAllActive,
+  hasAnyTodos,
 }) => {
   const handleFormSubmit = (event: React.FormEvent) => {
     event.preventDefault();
@@ -22,11 +29,16 @@ export const TodoHeader: React.FC<Props> = ({
 
   return (
     <header className="todoapp__header">
-      <button
-        type="button"
-        className="todoapp__toggle-all active"
-        data-cy="ToggleAllButton"
-      />
+      {hasAnyTodos && (
+        <button
+          type="button"
+          className={cn('todoapp__toggle-all', { active: isToggleAllActive })}
+          data-cy="ToggleAllButton"
+          onClick={() => {
+            handleToggleAll();
+          }}
+        />
+      )}
 
       <form onSubmit={handleFormSubmit}>
         <input

@@ -23,6 +23,8 @@ export const App: React.FC = () => {
 
   const hasCompletedTodos = todos.some((todo: Todo) => todo.completed);
 
+  const areAllTodosCompleted = todos.every((todo: Todo) => todo.completed);
+
   const activeTodosAmount = todos.filter(
     (todo: Todo) => !todo.completed,
   ).length;
@@ -94,8 +96,8 @@ export const App: React.FC = () => {
       });
   }, [newTodoTitle]);
 
-  const toggleTodoCompletionById = useCallback(
-    (todo: Todo) => {
+  const updateTodoCompletionById = useCallback(
+    (todo: Todo, newIsCompleted: boolean) => {
       // Put the edited todo id in state, to later show a modal on it in the component
       setTodosIdBeingEdited((currentTodosId: number[]) => [
         ...currentTodosId,
@@ -103,7 +105,7 @@ export const App: React.FC = () => {
       ]);
 
       // Call API
-      patchTodo(todo.id, todo.title, !todo.completed)
+      patchTodo(todo.id, todo.title, newIsCompleted)
         .then(() => {
           // Todo was updated in the api. Update the todos state manually
           setTodos((currentTodos: Todo[]) =>
@@ -111,7 +113,7 @@ export const App: React.FC = () => {
               if (currentTodo.id === todo.id) {
                 return {
                   ...currentTodo,
-                  completed: !currentTodo.completed,
+                  completed: newIsCompleted,
                 };
               }
 
@@ -130,6 +132,25 @@ export const App: React.FC = () => {
     },
     [todosIdBeingEdited],
   );
+
+  const updateAllTodosCompletion = useCallback(() => {
+    // Check whether all todo's are completed (and display active or not) -> Then go on with this function babyyy
+
+    // If all todos are completes
+    if (areAllTodosCompleted) {
+      // Update all to uncompleted
+      for (const todo of todos) {
+        updateTodoCompletionById(todo, false);
+      }
+    } else {
+      // We have any uncompleted todos -> Update all to completed
+      for (const todo of todos) {
+        if (!todo.completed) {
+          updateTodoCompletionById(todo, true);
+        }
+      }
+    }
+  }, [areAllTodosCompleted, todos, updateTodoCompletionById]);
 
   const clearCompletedTodos = useCallback(() => {
     const completedTodos = todos.filter((todo: Todo) => todo.completed);
@@ -158,13 +179,16 @@ export const App: React.FC = () => {
           createTodo={createTodo}
           todoInput={todoInput}
           isNewTodoLoading={isNewTodoLoading}
+          handleToggleAll={updateAllTodosCompletion}
+          isToggleAllActive={areAllTodosCompleted}
+          hasAnyTodos={!!todos.length}
         />
 
         {todos.length > 0 && (
           <TodoList
             todos={getFilteredTodos(todos, currentFilter)}
             handleDeleteTodo={deleteTodoById}
-            handleToggleCompletion={toggleTodoCompletionById}
+            handleChangeCompletion={updateTodoCompletionById}
             todosIdBeingEdited={todosIdBeingEdited}
           />
         )}
@@ -173,7 +197,7 @@ export const App: React.FC = () => {
           <TodoItem
             todo={tempTodo}
             handleDeleteTodo={deleteTodoById}
-            handleToggleCompletion={toggleTodoCompletionById}
+            handleChangeCompletion={updateTodoCompletionById}
             isTemp={true}
           />
         )}

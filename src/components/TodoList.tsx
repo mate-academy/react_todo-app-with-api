@@ -4,14 +4,14 @@ import { TodoItem } from './TodoItem';
 type Props = {
   todos: Todo[];
   handleDeleteTodo: (id: number) => void;
-  handleToggleCompletion: (todo: Todo) => void;
+  handleChangeCompletion: (todo: Todo, newIsCompleted: boolean) => void;
   todosIdBeingEdited: number[];
 };
 
 export const TodoList: React.FC<Props> = ({
   todos,
   handleDeleteTodo,
-  handleToggleCompletion,
+  handleChangeCompletion,
   todosIdBeingEdited,
 }) => {
   return (
@@ -21,7 +21,7 @@ export const TodoList: React.FC<Props> = ({
           key={todo.id}
           todo={todo}
           handleDeleteTodo={handleDeleteTodo}
-          handleToggleCompletion={handleToggleCompletion}
+          handleChangeCompletion={handleChangeCompletion}
           isBeingEdited={todosIdBeingEdited.includes(todo.id)}
         />
       ))}
