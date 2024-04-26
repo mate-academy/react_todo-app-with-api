@@ -10,7 +10,7 @@ type Props = {
   isBeingEdited?: boolean;
   isTemp?: boolean;
   updateTodoTitle: (todo: Todo, newTitle: string) => void;
-  todoIdBeingEdited: number | null;
+  todoBeingUpdated: number | null;
 };
 
 const getTodoClass = (todo: Todo) =>
@@ -26,7 +26,7 @@ export const TodoItem: React.FC<Props> = ({
   isBeingEdited = false,
   isTemp = false,
   updateTodoTitle,
-  todoIdBeingEdited,
+  todoBeingUpdated,
 }) => {
   const [isBeingDeleted, setIsBeingDeleted] = useState<boolean>(false);
   const [isFormOpen, setIsFormOpen] = useState<boolean>(false);
@@ -37,7 +37,7 @@ export const TodoItem: React.FC<Props> = ({
   const finishEditingTodo = () => {
     setIsFormOpen(false);
     setNewTodoTitle(newTodoTitle);
-    // setTodoIdBeingEdited(null)
+    // setTodoBeingUpdated(null)
   };
 
   const handleEscapeKey = (event: KeyboardEvent) => {
@@ -61,7 +61,7 @@ export const TodoItem: React.FC<Props> = ({
     updateTodoTitle(todo, newTodoTitle);
 
     Promise.resolve(() => {
-      if (todoIdBeingEdited === null) {
+      if (todoBeingUpdated === null) {
         finishEditingTodo();
         document.removeEventListener('keyup', handleEscapeKey);
       }

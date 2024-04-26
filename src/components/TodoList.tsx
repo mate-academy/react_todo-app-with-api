@@ -7,7 +7,7 @@ type Props = {
   handleChangeCompletion: (todo: Todo, newIsCompleted: boolean) => void;
   todosIdBeingEdited: number[];
   updateTodoTitle: (todo: Todo, newTitle: string) => void;
-  todoIdBeingEdited: number | null;
+  todoBeingUpdated: number | null;
 };
 
 export const TodoList: React.FC<Props> = ({
@@ -16,7 +16,7 @@ export const TodoList: React.FC<Props> = ({
   handleChangeCompletion,
   todosIdBeingEdited,
   updateTodoTitle,
-  todoIdBeingEdited,
+  todoBeingUpdated,
 }) => {
   return (
     <section className="todoapp__main" data-cy="TodoList">
@@ -28,7 +28,7 @@ export const TodoList: React.FC<Props> = ({
           handleChangeCompletion={handleChangeCompletion}
           isBeingEdited={todosIdBeingEdited.includes(todo.id)}
           updateTodoTitle={updateTodoTitle}
-          todoIdBeingEdited={todoIdBeingEdited}
+          todoBeingUpdated={todoBeingUpdated}
         />
       ))}
     </section>
