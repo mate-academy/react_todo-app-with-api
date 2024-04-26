@@ -118,13 +118,11 @@ export const App: React.FC = () => {
 
   const updateTodoCompletionById = useCallback(
     (todo: Todo, newIsCompleted: boolean) => {
-      // Put the edited todo id in state, to later show a modal on it in the component
+      // Put the edited todo id in state, to show a modal on loading
       addTodoToEditingList(todo);
 
-      // Call API
       patchTodo(todo.id, todo.title, newIsCompleted)
         .then(() => {
-          // Todo was updated in the api. Update the todos state manually
           setTodos((currentTodos: Todo[]) =>
             currentTodos.map((currentTodo: Todo) => {
               if (currentTodo.id === todo.id) {
@@ -157,7 +155,6 @@ export const App: React.FC = () => {
       }
 
       if (!trimmedTitle.length) {
-        // Delete the todo
         deleteTodoById(todo.id);
 
         return;
@@ -192,11 +189,7 @@ export const App: React.FC = () => {
   );
 
   const updateAllTodosCompletion = useCallback(() => {
-    // Check whether all todo's are completed (and display active or not) -> Then go on with this function babyyy
-
-    // If all todos are completes
     if (areAllTodosCompleted) {
-      // Update all to uncompleted
       for (const todo of todos) {
         updateTodoCompletionById(todo, false);
       }

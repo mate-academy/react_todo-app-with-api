@@ -37,7 +37,6 @@ export const TodoItem: React.FC<Props> = ({
   const finishEditingTodo = () => {
     setIsFormOpen(false);
     setNewTodoTitle(newTodoTitle);
-    // setTodoBeingUpdated(null)
   };
 
   const handleEscapeKey = (event: KeyboardEvent) => {
@@ -74,15 +73,12 @@ export const TodoItem: React.FC<Props> = ({
     }
   }, [isFormOpen]);
 
-  // How to check whether the Todo was updated or an error was caught?
-
   return (
     <div
       data-cy="Todo"
       className={getTodoClass(todo)}
       onDoubleClick={() => {
         setIsFormOpen(true);
-        // Check whether the Esc was clicked when editing the todo -> If so, close the form
         document.addEventListener('keyup', event => handleEscapeKey(event));
       }}
       onBlur={() => {
