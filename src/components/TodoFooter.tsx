@@ -22,10 +22,12 @@ export const TodoFooter: React.FC<Props> = ({
       selected: linkFilter === currentFilter,
     });
 
+  const todoCounterText = `${activeTodosAmount} item${activeTodosAmount === 1 ? '' : 's'} left`;
+
   return (
     <footer className="todoapp__footer" data-cy="Footer">
       <span className="todo-count" data-cy="TodosCounter">
-        {activeTodosAmount} items left
+        {todoCounterText}
       </span>
 
       <nav className="filter" data-cy="Filter">
