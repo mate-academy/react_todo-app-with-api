@@ -115,6 +115,7 @@ export const App: React.FC = () => {
 
       setTodos(currentTodo => currentTodo.filter(todo => todo.id !== todoId));
     } catch (errors) {
+      // setTodos(todos);
       setError('Unable to delete a todo');
     } finally {
         setLoadingTodoIds(prevLoading =>
@@ -129,12 +130,14 @@ export const App: React.FC = () => {
   const toggleTodoCompletion = async (todoId: number) => {
     try {
       setIsInputDisabled(true);
-
       const updatedTodo = todos.find(todo => todo.id === todoId);
 
-      if (updatedTodo) {
-        await updateTodo(updatedTodo);
+      if (!updatedTodo) {
+        throw new Error('Todo not found');
       }
+
+      setLoadingTodoIds(prevLoading => [...prevLoading, todoId]);
+      await updateTodo(updatedTodo);
 
       setTodos(prevTodos => {
         const updatedTodos = prevTodos.map(todo =>
@@ -146,12 +149,53 @@ export const App: React.FC = () => {
         return updatedTodos;
       });
     } catch (errors) {
+      setTodos(todos);
       setError('Unable to toggle todo completion');
     } finally {
-      setError(null);
+      setLoadingTodoIds(prevLoading =>
+        prevLoading.filter(id => id !== todoId),
+      );
+      // setError(null);
       setIsInputDisabled(false);
     }
   };
+
+  // const clearCompletedTodos = async () => {
+  //   try {
+  //     setIsInputDisabled(true);
+  //     // Selection of completed todos
+  //     const completedTodosIds = todos
+  //       .filter(todo => todo.completed)
+  //       .map(todo => todo.id);
+
+  //     // Deleting each completed todo by its ID
+  //     //   await Promise.allSettled(
+  //     //    completedTodosIds.map(id => deleteSingleTodo(id)),
+  //     //  );
+
+  //     await Promise.all(
+  //       completedTodosIds.map(id => deleteSingleTodo(id)),
+  //     ).then(results => {
+  //       results.forEach((result, num) => {
+  //         if (result.status == 'fulfilled') {
+  //           alert(`${completedTodosIds[num]}: ${result.status}`);
+  //         }
+  //         if (result.status == 'rejected') {
+  //           alert(`${completedTodosIds[num]}: ${result.reason}`);
+  //         }
+  //       });
+  //     });
+
+  //     // Updating the todos list, excluding completed todos
+  //     setTodos(currentTodos => currentTodos.filter(todo => !todo.completed));
+
+  //     if (todos.some(todo => !todo.completed)) {
+  //       setFilterStatus(TodoStatus.All);
+  //     }
+  //   } finally {
+  //     setIsInputDisabled(false);
+  //   }
+  // };
 
   const clearCompletedTodos = async () => {
     try {
@@ -161,34 +205,12 @@ export const App: React.FC = () => {
         .filter(todo => todo.completed)
         .map(todo => todo.id);
 
-      // Deleting each completed todo by its ID
-      //   await Promise.allSettled(
-      //    completedTodosIds.map(id => deleteSingleTodo(id)),
-      //  );
-
-      await Promise.allSettled(
-        completedTodosIds.map(id => deleteSingleTodo(id)),
-      ).then(results => {
-        results.forEach((result, num) => {
-          if (result.status == 'fulfilled') {
-            alert(`${completedTodosIds[num]}: ${result.status}`);
-          }
-          if (result.status == 'rejected') {
-            alert(`${completedTodosIds[num]}: ${result.reason}`);
-          }
-        });
-      });
-
-      // Updating the todos list, excluding completed todos
-      setTodos(currentTodos => currentTodos.filter(todo => !todo.completed));
-
-      if (todos.some(todo => !todo.completed)) {
-        setFilterStatus(TodoStatus.All);
-      }
+      await Promise.all(completedTodosIds.map(id => deleteSingleTodo(id)));
     } finally {
       setIsInputDisabled(false);
     }
   };
+
 
   const onSave = async (todoId: number, newTitle: string, completed: boolean) => {
     setLoadingTodoIds(prevLoading => [...prevLoading, todoId]);
