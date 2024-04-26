@@ -11,7 +11,7 @@ export const Footer: React.FC = () => {
 
   const clearCompleted = async () => {
     try {
-      await Promise.all(completedTodos.map(todo => deleteTodo(todo.id)));
+      await Promise.allSettled(completedTodos.map(todo => deleteTodo(todo.id)));
     } catch {
       setErrorMessage(Errors.DeleteTodo);
     } finally {

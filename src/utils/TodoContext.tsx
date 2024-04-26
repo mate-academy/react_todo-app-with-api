@@ -23,10 +23,11 @@ const initialTodo: TodoContextType = {
   setErrorMessage: () => {},
   setIsLoading: () => {},
   setDraftTodo: () => {},
+  setModifiedTodoId: () => {},
   deleteTodo: async () => {},
   addTodo: async () => {},
   updateTodo: async () => {},
-  handleCompleted: () => {},
+  handleCompleted: async () => {},
   toggleAllCompleted: () => {},
 };
 
@@ -70,58 +71,64 @@ export const TodoContextProvider: React.FC<Props> = ({ children }) => {
       setIsLoading(false);
       setModifiedTodoId(0);
     }
-  }, []);
+  }, [todos]);
 
-  const addTodo = useCallback(async ({ title, completed, userId }: Todo) => {
-    setIsLoading(true);
-    setErrorMessage(Errors.NoErrors);
-    setDraftTodo({ id: 0, title, userId, completed: false });
-    try {
-      const newestTodo = await todosServices.createTodos({
-        title,
-        completed,
-        userId,
-      });
+  const addTodo = useCallback(
+    async ({ title, completed, userId }: Todo) => {
+      setIsLoading(true);
+      setErrorMessage(Errors.NoErrors);
+      setDraftTodo({ id: 0, title, userId, completed: false });
+      try {
+        const newestTodo = await todosServices.createTodos({
+          title,
+          completed,
+          userId,
+        });
 
-      setDraftTodo(null);
-      setTodos(currentTodos => [...currentTodos, newestTodo]);
-      setIsLoading(false);
-    } catch (error) {
-      setErrorMessage(Errors.AddTodo);
-      setDraftTodo(null);
-      setTimeout(() => {
-        setErrorMessage(Errors.NoErrors);
-      }, 3000);
-      throw error;
-    } finally {
-      setIsLoading(false);
-    }
-  }, []);
+        setDraftTodo(null);
+        setTodos(currentTodos => [...currentTodos, newestTodo]);
+        setIsLoading(false);
+      } catch (error) {
+        setErrorMessage(Errors.AddTodo);
+        setDraftTodo(null);
+        setTimeout(() => {
+          setErrorMessage(Errors.NoErrors);
+        }, 3000);
+        throw error;
+      } finally {
+        setIsLoading(false);
+      }
+    },
+    [todos],
+  );
 
-  const updateTodo = useCallback(async (updatedTodo: Todo) => {
-    setIsLoading(true);
-    setModifiedTodoId(updatedTodo.id);
-    setErrorMessage(Errors.NoErrors);
-    try {
-      const editedTodo = await todosServices.updateTodos(updatedTodo);
+  const updateTodo = useCallback(
+    async (updatedTodo: Todo) => {
+      setIsLoading(true);
+      setModifiedTodoId(updatedTodo.id);
+      setErrorMessage(Errors.NoErrors);
+      try {
+        const editedTodo = await todosServices.updateTodos(updatedTodo);
 
-      setTodos(currentTodos =>
-        currentTodos.map(todo =>
-          todo.id === updatedTodo.id ? editedTodo : todo,
-        ),
-      );
-    } catch (error) {
-      setErrorMessage(Errors.UpdateTodo);
-      setTodos(todos);
-      setTimeout(() => {
-        setErrorMessage(Errors.NoErrors);
-      }, 3000);
-      setIsLoading(false);
-    } finally {
-      setIsLoading(false);
-      setModifiedTodoId(0);
-    }
-  }, []);
+        setTodos(currentTodos =>
+          currentTodos.map(todo =>
+            todo.id === updatedTodo.id ? editedTodo : todo,
+          ),
+        );
+      } catch (error) {
+        setErrorMessage(Errors.UpdateTodo);
+        setTodos(todos);
+        setTimeout(() => {
+          setErrorMessage(Errors.NoErrors);
+        }, 3000);
+        setIsLoading(false);
+      } finally {
+        setIsLoading(false);
+        setModifiedTodoId(0);
+      }
+    },
+    [todos],
+  );
 
   const handleCompleted = useCallback(async (currentTodo: Todo) => {
     setIsLoading(true);
@@ -152,7 +159,7 @@ export const TodoContextProvider: React.FC<Props> = ({ children }) => {
   const toggleAllCompleted = useCallback(() => {
     const toggleTodos = !!activeTodos.length ? activeTodos : completedTodos;
 
-    toggleTodos.forEach(todo => handleCompleted(todo))
+    toggleTodos.forEach(todo => handleCompleted(todo));
   }, [activeTodos, completedTodos, handleCompleted]);
 
   const todoValue = useMemo(
@@ -168,6 +175,7 @@ export const TodoContextProvider: React.FC<Props> = ({ children }) => {
       setErrorMessage,
       setDraftTodo,
       setIsLoading,
+      setModifiedTodoId,
       addTodo,
       updateTodo,
       deleteTodo,

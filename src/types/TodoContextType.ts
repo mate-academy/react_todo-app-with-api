@@ -14,7 +14,8 @@ export interface TodoContextType {
   setErrorMessage: (message: Errors) => void;
   setIsLoading: (loading: boolean) => void;
   setDraftTodo: (todo: Todo) => void;
-  addTodo: (todo: Todo) => Promise<void>;
+  setModifiedTodoId: React.Dispatch<React.SetStateAction<number>>;
+  addTodo: ({ title, completed, userId }: Todo) => Promise<void>;
   updateTodo: (updateTodo: Todo) => Promise<void>;
   deleteTodo: (todoId: number) => Promise<void>;
   handleCompleted: (currentTodo: Todo) => void;
