@@ -380,10 +380,10 @@ export const App: React.FC = () => {
           'notification is-danger is-light has-text-weight-normal',
           {
             hidden:
-              !errors.addTodoError ||
-              !errors.deleteTodoError ||
-              !errors.loadError ||
-              !errors.titleError ||
+              !errors.addTodoError &&
+              !errors.deleteTodoError &&
+              !errors.loadError &&
+              !errors.titleError &&
               !errors.updateTodoError,
           },
         )}
