@@ -34,9 +34,7 @@ export const TodoHeader: React.FC<Props> = ({
           type="button"
           className={cn('todoapp__toggle-all', { active: isToggleAllActive })}
           data-cy="ToggleAllButton"
-          onClick={() => {
-            handleToggleAll();
-          }}
+          onClick={() => handleToggleAll()}
         />
       )}
 

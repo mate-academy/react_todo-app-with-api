@@ -1,4 +1,3 @@
-import React from 'react';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { USER_ID, getTodos, deleteTodo, addTodo, patchTodo } from './api/todos';
 import { TodoList } from './components/TodoList';

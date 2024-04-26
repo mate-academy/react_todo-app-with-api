@@ -1,7 +1,7 @@
 /* eslint-disable jsx-a11y/label-has-associated-control */
 import classNames from 'classnames';
 import { Todo } from '../types/Todo';
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 
 type Props = {
   todo: Todo;
@@ -34,16 +34,19 @@ export const TodoItem: React.FC<Props> = ({
 
   const todoTitleInput = useRef<HTMLInputElement>(null);
 
-  const finishEditingTodo = () => {
+  const finishEditingTodo = useCallback(() => {
     setIsFormOpen(false);
     setNewTodoTitle(newTodoTitle);
-  };
+  }, [newTodoTitle]);
 
-  const handleEscapeKey = (event: KeyboardEvent) => {
-    if (event.key === 'Escape') {
-      finishEditingTodo();
-    }
-  };
+  const handleEscapeKey = useCallback(
+    (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        finishEditingTodo();
+      }
+    },
+    [finishEditingTodo],
+  );
 
   const handleUpdateTodoFormSubmit = (event: React.FormEvent) => {
     event.preventDefault();
@@ -73,19 +76,23 @@ export const TodoItem: React.FC<Props> = ({
     }
   }, [isFormOpen]);
 
+  const handleDoubleClick = useCallback(() => {
+    setIsFormOpen(true);
+    document.addEventListener('keyup', event => handleEscapeKey(event));
+  }, [handleEscapeKey]);
+
+  const handleBlur = useCallback(() => {
+    updateTodoTitle(todo, newTodoTitle);
+    setIsFormOpen(false);
+    setNewTodoTitle(newTodoTitle);
+  }, [newTodoTitle, todo, updateTodoTitle]);
+
   return (
     <div
       data-cy="Todo"
       className={getTodoClass(todo)}
-      onDoubleClick={() => {
-        setIsFormOpen(true);
-        document.addEventListener('keyup', event => handleEscapeKey(event));
-      }}
-      onBlur={() => {
-        updateTodoTitle(todo, newTodoTitle);
-        setIsFormOpen(false);
-        setNewTodoTitle(newTodoTitle);
-      }}
+      onDoubleClick={handleDoubleClick}
+      onBlur={handleBlur}
     >
       <label className="todo__status-label">
         <input
@@ -101,7 +108,6 @@ export const TodoItem: React.FC<Props> = ({
         />
       </label>
 
-      {/* Show the form only when the todo is double-clicked */}
       {isFormOpen && (
         <form onSubmit={handleUpdateTodoFormSubmit}>
           <input
