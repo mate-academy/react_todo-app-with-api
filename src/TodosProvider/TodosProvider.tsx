@@ -107,7 +107,7 @@ export const TodosProvider: React.FC<Props> = ({ children }) => {
     };
 
     fetchData();
-  }, []);
+  }, [setTodos]);
 
   const handleDelete = async (todoId: number) => {
     setLoadingIds(prev => [...prev, todoId]);
@@ -116,7 +116,6 @@ export const TodosProvider: React.FC<Props> = ({ children }) => {
       await deleteTodo(todoId);
 
       setTodos(prevTodo => prevTodo.filter(todo => todo.id !== todoId));
-      // setTodos(todos.filter(todo => todo.id !== todoId));
     } catch (error) {
       setErrorMessage('Unable to delete a todo');
     } finally {

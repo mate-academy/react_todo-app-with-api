@@ -41,7 +41,7 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
       try {
         await updateTodo(newTodo);
 
-        setTodos((prevTodo: Todo[]) =>
+        setTodos(prevTodo =>
           prevTodo.map(item => (item.id === todo.id ? newTodo : item)),
         );
       } catch (error) {

@@ -1,11 +1,11 @@
 import { useState } from 'react';
-type ReturnFunction = <T>(v: T) => T;
+type ReturnFunction<T> = (v: T | ((prev: T) => T)) => void;
 
 export function useLocalStorage<T>(
   todos: string,
   startValue: T,
-): [T, (v: T | ReturnFunction) => void] {
-  const [state, setState] = useState(() => {
+): [T, ReturnFunction<T>] {
+  const [state, setState] = useState<T>(() => {
     const data = localStorage.getItem(todos);
 
     if (data === null) {
@@ -21,14 +21,17 @@ export function useLocalStorage<T>(
     }
   });
 
-  const save = (newValue: ReturnFunction) => {
-    if (typeof newValue === 'function') {
-      const value = newValue(state);
-    }
+  const save: ReturnFunction<T> = newValue => {
+    setState(prevState => {
+      const updatedValue: T =
+        typeof newValue === 'function'
+          ? (newValue as (prev: T) => T)(prevState)
+          : newValue;
 
-    localStorage.setItem(todos, JSON.stringify(newValue));
+      localStorage.setItem(todos, JSON.stringify(updatedValue));
 
-    setState(newValue);
+      return updatedValue;
+    });
   };
 
   return [state, save];
