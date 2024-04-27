@@ -3,7 +3,7 @@
 /* eslint-disable jsx-a11y/control-has-associated-label */
 import cn from 'classnames';
 import { Todo } from '../types/Todo';
-import { useContext, useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import { TodoListContext } from '../variables/LangContext';
 
 type Props = {
@@ -11,10 +11,16 @@ type Props = {
 };
 
 export const TodoItem: React.FC<Props> = ({ todo }) => {
-  const { updateTodo, deleteTodo, loadingTodoIds } =
-    useContext(TodoListContext);
-  const [showEditedForm, setShowEditedForm] = useState(false);
+  const {
+    updateTodo,
+    deleteTodo,
+    loadingTodoIds,
+    updateTodoTitle,
+    showEditedForm,
+  } = useContext(TodoListContext);
+
   const [titleHiddenForm, setTitleHiddenForm] = useState(todo.title || '');
+  const [showForm, setShowForm] = useState(showEditedForm);
 
   const handleTitleHiddenForm = (
     event: React.ChangeEvent<HTMLInputElement>,
@@ -22,14 +28,36 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
     setTitleHiddenForm(event.target.value);
   };
 
-  const handleHiddenFormSubmit = (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
+  const onBlurSubmit = () => {
     if (todo.title === titleHiddenForm) {
-      setShowEditedForm(false);
+      setShowForm(false);
 
       return;
     }
+
+    if (titleHiddenForm === '') {
+      deleteTodo(todo.id);
+    }
   };
+
+  const handleHiddenFormSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    if (todo.title === titleHiddenForm) {
+      setShowForm(false);
+
+      return;
+    }
+
+    if (titleHiddenForm === '') {
+      deleteTodo(todo.id);
+    } else {
+      updateTodoTitle({ ...todo, title: titleHiddenForm }, titleHiddenForm);
+    }
+  };
+
+  useEffect(() => {
+    setShowForm(false); // Приховати форму після оновлення
+  }, [loadingTodoIds]);
 
   return (
     <div
@@ -38,7 +66,7 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
         completed: todo.completed,
       })}
       key={todo.id}
-      onDoubleClick={() => setShowEditedForm(true)}
+      onDoubleClick={() => setShowForm(true)}
     >
       <label className="todo__status-label">
         <input
@@ -50,24 +78,25 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
         />
       </label>
 
-      {showEditedForm && (
+      {showForm && (
         <form onSubmit={handleHiddenFormSubmit}>
           <input
             type="text"
             placeholder="Empty todo will be deleted"
-            className="todoapp__new-todo"
+            className="todoapp__additional-todo"
             value={titleHiddenForm}
             onChange={handleTitleHiddenForm}
+            onBlur={onBlurSubmit}
             autoFocus
           />
         </form>
       )}
-      {!showEditedForm && (
+      {!showForm && (
         <span data-cy="TodoTitle" className="todo__title">
           {todo.title.trim()}
         </span>
       )}
-      {!showEditedForm && (
+      {!showForm && (
         <button
           type="button"
           className="todo__remove"

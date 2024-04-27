@@ -21,6 +21,7 @@ export const App: React.FC = () => {
   const [loadingTodoIds, setLoadingTodoIds] = useState<number[]>([]);
   const [title, setTitle] = useState('');
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
+  const [showEditedForm, setShowEditedForm] = useState(false);
 
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -179,6 +180,40 @@ export const App: React.FC = () => {
       );
   }
 
+  function updateTodoTitle(updatedTodo: Todo, titleEntered: string) {
+    setLoadingTodoIds(prevIds => [...prevIds, updatedTodo.id]);
+
+    todoService
+      .updateTodo(updatedTodo)
+      .then(() => {
+        setShowEditedForm(false);
+        setTodos(currentTodos => {
+          return currentTodos.map(currentTodo => {
+            if (currentTodo.id === updatedTodo.id) {
+              return {
+                ...currentTodo,
+                title: titleEntered,
+              };
+            }
+
+            return currentTodo;
+          });
+        });
+      })
+      .catch(() => {
+        setErrorMessage('Unable to update a todo');
+        setErrorVisible(true);
+        setTimeout(() => {
+          setErrorVisible(false);
+        }, 3000);
+      })
+      .finally(() =>
+        setLoadingTodoIds(prevIds =>
+          prevIds.filter(id => id !== updatedTodo.id),
+        ),
+      );
+  }
+
   function checkAllTodos(todosAll: Todo[]) {
     const todosNotCompleted = todosAll.filter(todo => todo.completed === false);
 
@@ -224,9 +259,11 @@ export const App: React.FC = () => {
         <TodoListContext.Provider
           value={{
             updateTodo,
+            updateTodoTitle,
             deleteTodo,
             loadingTodoIds,
             tempTodo,
+            showEditedForm,
           }}
         >
           <TodoList visibleTodos={visibleTodos} />
