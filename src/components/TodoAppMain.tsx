@@ -7,12 +7,29 @@ import { TransitionGroup, CSSTransition } from 'react-transition-group';
 import '../styles/animation.scss';
 
 export const TodoAppMain: React.FC = () => {
-  const { todoApi, fetch, addItem } = useContext(StateContext);
+  const { todoApi, fetch, addItem, select, totalLength } =
+    useContext(StateContext);
+
+  const filtered = (s: string) => {
+    switch (s) {
+      case 'All':
+        return totalLength;
+
+      case 'Active':
+        return totalLength.filter(todo => !todo.completed);
+
+      case 'Completed':
+        return totalLength.filter(todo => todo.completed);
+
+      default:
+        return todoApi;
+    }
+  };
 
   return (
     <section className="todoapp__main" data-cy="TodoList">
       <TransitionGroup>
-        {todoApi.map(todo => (
+        {filtered(select).map(todo => (
           <CSSTransition key={todo.id} timeout={300} classNames="item">
             <TodoInfo todo={todo} />
           </CSSTransition>

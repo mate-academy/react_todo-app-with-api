@@ -19,7 +19,9 @@ export const TodoAppFooter: React.FC = () => {
         <a
           onClick={() => dispatch({ type: 'setSelect', value: 'All' })}
           href="#/"
-          className={cn('filter__link', { selected: select === 'All' })}
+          className={cn('filter__link', {
+            selected: select === 'All',
+          })}
           data-cy="FilterLinkAll"
         >
           All

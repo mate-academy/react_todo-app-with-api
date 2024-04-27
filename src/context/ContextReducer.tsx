@@ -26,13 +26,16 @@ export type Action =
   | { type: 'submitNewTitile'; currentId: number; currentTitle: string }
   | { type: 'setAllCompleted'; currentComleted: boolean }
   | { type: 'deleteAllCompleted' }
-  | { type: 'escape' };
+  | { type: 'escape' }
+  | { type: 'setSignal' }
+  | { type: 'setAll' }
+  | { type: 'setActive' }
+  | { type: 'setCompleted' };
 
 interface State {
   totalLength: Todo[];
   todoApi: Todo[];
   select: string;
-  selectedAll: boolean;
   error: string;
   query: string;
   fetch: boolean;
@@ -46,6 +49,14 @@ interface State {
   newTodo: Omit<Todo, 'id'>;
   currentTitle: string;
   currentedCompleted: boolean;
+
+  updatingTodo: boolean;
+  setComplate: boolean;
+  signal: boolean;
+  deleteTodo: boolean;
+  createTodo: boolean;
+  updatingTitleTodo: boolean;
+  selectedAll: boolean;
   deleteAll: boolean;
 }
 
@@ -95,6 +106,13 @@ export const reducer = (state: State, action: Action) => {
         fetch: true,
         error: 'Unable to add a todo',
         addItem: true,
+        signal: !state.signal,
+      };
+
+    case 'setSignal':
+      return {
+        ...state,
+        signal: !state.signal,
       };
 
     case 'setSelect':
@@ -110,17 +128,17 @@ export const reducer = (state: State, action: Action) => {
       };
 
     case 'deleteTodo':
-      deleteTodo(action.currentId);
-
       return {
         ...state,
-        cuurrentId: action.currentId,
+        currentId: action.currentId,
         fetch: true,
         error: 'Unable to delete a todo',
         todoLoading: {
           ...state.todoLoading,
           [action.currentId]: true,
         },
+        deleteTodo: true,
+        signal: !state.signal,
       };
 
     case 'disableFetch':
@@ -137,24 +155,23 @@ export const reducer = (state: State, action: Action) => {
         currentTitle: '',
         selectedAll: false,
         deleteAll: false,
+        updatingTodo: false,
+        deleteTodo: false,
+        updatingTitleTodo: false,
       };
 
     case 'setComplate':
-      const setComplate = action.currentComplate ? false : true;
-
-      updateTodoCompleted({
-        id: action.currentId,
-        completed: setComplate,
-      });
-
       return {
         ...state,
-        cuurrentId: action.currentId,
+        currentId: action.currentId,
         fetch: true,
         error: 'Unable to update a todo',
         todoLoading: {
           [action.currentId]: true,
         },
+        updatingTodo: true,
+        setComplate: action.currentComplate ? false : true,
+        signal: !state.signal,
       };
 
     case 'setEdit':
@@ -166,11 +183,6 @@ export const reducer = (state: State, action: Action) => {
       };
 
     case 'setNewTitle':
-      updateTodoTitle({
-        id: action.currentId,
-        title: action.value,
-      });
-
       return {
         ...state,
         currentId: action.currentId,
@@ -186,6 +198,7 @@ export const reducer = (state: State, action: Action) => {
       return {
         ...state,
         currentId: 0,
+        prevTitle: '',
       };
 
     case 'submitNewTitile':
@@ -193,6 +206,8 @@ export const reducer = (state: State, action: Action) => {
         return {
           ...state,
           fetch: true,
+          currentId: 0,
+          prevTitle: '',
         };
       }
 
@@ -205,6 +220,8 @@ export const reducer = (state: State, action: Action) => {
           todoLoading: {
             [state.currentId]: true,
           },
+          updatingTitleTodo: true,
+          signal: !state.signal,
         };
       }
 
@@ -218,6 +235,7 @@ export const reducer = (state: State, action: Action) => {
         allTodoLoading: true,
         selectedAll: true,
         currentedCompleted: action.currentComleted ? false : true,
+        signal: !state.signal,
       };
 
     case 'deleteAllCompleted':
@@ -227,6 +245,7 @@ export const reducer = (state: State, action: Action) => {
         error: 'Unable to delete a todo',
         allTodoLoading: true,
         deleteAll: true,
+        signal: !state.signal,
       };
 
     default:
@@ -259,6 +278,13 @@ const initialState: State = {
   currentTitle: '',
   currentedCompleted: false,
   deleteAll: false,
+
+  updatingTodo: false,
+  setComplate: false,
+  signal: false,
+  deleteTodo: false,
+  createTodo: false,
+  updatingTitleTodo: false,
 };
 
 export const StateContext = React.createContext(initialState);
@@ -275,173 +301,136 @@ export const GlobalProvider: React.FC<Props> = ({ children }) => {
     setTimeout(() => dispatch({ type: 'setError', error: '' }), 3000);
   };
 
+  const postAction = (t: Todo[]) => {
+    dispatch({ type: 'setTodoApi', payload: t });
+    dispatch({ type: 'setTotalLenght', payload: t });
+    dispatch({ type: 'disableFetch' });
+  };
+
+  const error =
+    state.showError === 'Title should not be emptys'
+      ? 'Title should not be emptys'
+      : state.error;
+
   useEffect(() => {
-    let mounted = true;
-    const controller = new AbortController();
-
-    if (state.deleteAll) {
-      getTodos().then(todos =>
-        todos.map(todo => {
-          if (todo.completed) {
-            deleteTodo(todo.id)
-              .catch(() => {
-                if (mounted) {
-                  const error =
-                    state.showError === 'Title should not be emptys'
-                      ? 'Title should not be emptys'
-                      : state.error;
-
-                  dispatch({ type: 'setError', error: error });
-                }
-              })
-              .then(() => {
-                dispatch({ type: 'disableFetch' });
-                deleteAfterShowError();
-              });
-          }
-        }),
-      );
-    } else if (state.addItem) {
-      addTodo(state.newTodo).then(() => {
-        getTodos()
-          .then(todos => {
-            todos.map(todo => {
-              if (!todo.title.length) {
-                deleteTodo(todo.id);
-              }
+    if (state.selectedAll) {
+      state.todoApi.map(todo => {
+        updateTodoCompleted({
+          id: todo.id,
+          completed: state.currentedCompleted,
+        })
+          .then(() => {
+            const selectedAll = state.todoApi.map(t => {
+              return {
+                ...t,
+                completed: state.currentedCompleted,
+              };
             });
 
-            dispatch({ type: 'setTotalLenght', payload: todos });
-
-            if (mounted) {
-              switch (state.select) {
-                case 'All':
-                  dispatch({ type: 'setTodoApi', payload: todos });
-
-                  break;
-
-                case 'Active':
-                  dispatch({
-                    type: 'setTodoApi',
-                    payload: todos.filter(todo => !todo.completed),
-                  });
-
-                  break;
-
-                case 'Completed':
-                  dispatch({
-                    type: 'setTodoApi',
-                    payload: todos.filter(todo => todo.completed),
-                  });
-
-                  break;
-              }
-            }
+            postAction(selectedAll);
           })
           .catch(() => {
-            if (mounted) {
-              const error =
-                state.showError === 'Title should not be emptys'
-                  ? 'Title should not be emptys'
-                  : state.error;
-
-              dispatch({ type: 'setError', error: error });
-            }
+            dispatch({ type: 'setError', error: error });
           })
-          .finally(() => {
-            dispatch({ type: 'disableFetch' });
-            deleteAfterShowError();
-          });
+          .finally(() => deleteAfterShowError());
       });
-    } else if (state.selectedAll) {
-      getTodos().then(todos =>
-        todos.map(todo =>
-          updateTodoCompleted({
-            id: todo.id,
-            completed: state.currentedCompleted,
-          })
-            .catch(() => {
-              if (mounted) {
-                const error =
-                  state.showError === 'Title should not be emptys'
-                    ? 'Title should not be emptys'
-                    : state.error;
-
-                dispatch({ type: 'setError', error: error });
-              }
-            })
+    } else if (state.deleteAll) {
+      state.todoApi.map(todo => {
+        if (todo.completed) {
+          deleteTodo(todo.id)
             .then(() => {
-              dispatch({ type: 'disableFetch' });
-              deleteAfterShowError();
-            }),
-        ),
-      );
+              const afterTodoDelete = state.todoApi.filter(t => !t.completed);
+
+              postAction(afterTodoDelete);
+            })
+            .catch(() => {
+              dispatch({ type: 'setError', error: error });
+            })
+            .finally(() => deleteAfterShowError());
+        }
+      });
+    } else if (state.updatingTitleTodo) {
+      updateTodoTitle({
+        id: state.currentId,
+        title: state.prevTitle,
+      })
+        .then(() => {
+          const updatedTodosTitle = state.todoApi.map(todo => {
+            if (todo.id === state.currentId) {
+              return {
+                ...todo,
+                title: state.prevTitle,
+              };
+            }
+
+            return todo;
+          });
+
+          postAction(updatedTodosTitle);
+        })
+        .catch(() => {
+          dispatch({ type: 'setError', error: error });
+        })
+        .finally(() => deleteAfterShowError());
+    } else if (state.addItem) {
+      addTodo(state.newTodo)
+        .then(todo => {
+          const newTodoApi = [...state.todoApi, todo];
+
+          postAction(newTodoApi);
+        })
+        .catch(() => {
+          dispatch({ type: 'setError', error: error });
+        })
+        .finally(() => deleteAfterShowError());
+    } else if (state.deleteTodo) {
+      deleteTodo(state.currentId)
+        .then(() => {
+          const updatedTodosDelete = state.todoApi.filter(
+            todo => todo.id !== state.currentId,
+          );
+
+          postAction(updatedTodosDelete);
+        })
+        .catch(() => {
+          dispatch({ type: 'setError', error: error });
+        })
+        .finally(() => deleteAfterShowError());
+    } else if (state.updatingTodo) {
+      updateTodoCompleted({
+        id: state.currentId,
+        completed: state.setComplate,
+      })
+        .then(() => {
+          const updatedTodos = state.todoApi.map(todo => {
+            if (todo.id === state.currentId) {
+              return {
+                ...todo,
+                completed: state.setComplate,
+              };
+            }
+
+            return todo;
+          });
+
+          postAction(updatedTodos);
+        })
+        .catch(() => {
+          dispatch({ type: 'setError', error: error });
+        })
+        .finally(() => deleteAfterShowError());
     } else {
       getTodos()
         .then(todos => {
-          todos.map(todo => {
-            if (!todo.title.length) {
-              deleteTodo(todo.id);
-            }
-          });
-
+          dispatch({ type: 'setTodoApi', payload: todos });
           dispatch({ type: 'setTotalLenght', payload: todos });
-
-          if (mounted) {
-            switch (state.select) {
-              case 'All':
-                dispatch({
-                  type: 'setTodoApi',
-                  payload: todos.filter(todo => {
-                    return todo.title.length;
-                  }),
-                });
-
-                break;
-
-              case 'Active':
-                dispatch({
-                  type: 'setTodoApi',
-                  payload: todos.filter(
-                    todo => !todo.completed && todo.title.length,
-                  ),
-                });
-
-                break;
-
-              case 'Completed':
-                dispatch({
-                  type: 'setTodoApi',
-                  payload: todos.filter(
-                    todo => todo.completed && todo.title.length,
-                  ),
-                });
-
-                break;
-            }
-          }
         })
         .catch(() => {
-          if (mounted) {
-            const error =
-              state.showError === 'Title should not be emptys'
-                ? 'Title should not be emptys'
-                : state.error;
-
-            dispatch({ type: 'setError', error: error });
-          }
+          dispatch({ type: 'setError', error: error });
         })
-        .finally(() => {
-          dispatch({ type: 'disableFetch' });
-          deleteAfterShowError();
-        });
+        .finally(() => deleteAfterShowError());
     }
-
-    return () => {
-      mounted = false;
-      controller.abort();
-    };
-  }, [state.fetch, state.select]);
+  }, [state.signal]);
 
   return (
     <StateContext.Provider value={state}>

@@ -3,7 +3,7 @@ import cn from 'classnames';
 import { DispatchContext, StateContext } from '../context/ContextReducer';
 
 export const TodoAppHeader: React.FC = () => {
-  const { totalLength, query, focus } = useContext(StateContext);
+  const { todoApi, query, focus } = useContext(StateContext);
   const dispatch = useContext(DispatchContext);
 
   const handleAddSubmit = (event: React.FormEvent<HTMLFormElement>) => {
@@ -12,7 +12,7 @@ export const TodoAppHeader: React.FC = () => {
     dispatch({ type: 'addTodo' });
   };
 
-  const currentButton = totalLength.every(todo => todo.completed);
+  const currentButton = todoApi.every(todo => todo.completed);
 
   const textFiled = useRef<HTMLInputElement | null>(null);
 
@@ -30,7 +30,7 @@ export const TodoAppHeader: React.FC = () => {
           dispatch({ type: 'setAllCompleted', currentComleted: currentButton })
         }
         className={cn('todoapp__toggle-all', {
-          active: currentButton && totalLength.length,
+          active: currentButton && todoApi.length,
         })}
         data-cy="ToggleAllButton"
       />

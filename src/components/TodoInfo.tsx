@@ -29,7 +29,6 @@ export const TodoInfo: React.FC<Props> = ({ todo }) => {
       currentId: todo.id,
       currentTitle: todo.title,
     });
-    dispatch({ type: 'setEdit', currentId: 0, currentTitle: todo.title });
   };
 
   const handleKeyUp = (event: React.KeyboardEvent<HTMLInputElement>) => {
@@ -44,7 +43,6 @@ export const TodoInfo: React.FC<Props> = ({ todo }) => {
       currentId: todo.id,
       currentTitle: todo.title,
     });
-    dispatch({ type: 'setEdit', currentId: 0, currentTitle: todo.title });
   };
 
   const handleChangeInput = (event: React.ChangeEvent<HTMLInputElement>) => {
