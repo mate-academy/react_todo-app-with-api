@@ -57,15 +57,17 @@ export const TodoHeader: React.FC = () => {
     setIdDisabled(true);
     setLoadingIds([temporaryTodo.id]);
 
-    createTodo(newTodo)
-      .then(handleTodo => {
-        setTodos(prevTodo => [...prevTodo, handleTodo]);
-      })
-      .catch(() => {
+    const createTodos = async () => {
+      try {
+        const createPost = await createTodo(newTodo);
+        const addTodo = [...todos, createPost];
+
+        setTodos(addTodo);
+        // setTodos(prevTodo => [...prevTodo, createPost]); // працює
+      } catch (error) {
         isError = true;
         setErrorMessage('Unable to add a todo');
-      })
-      .finally(() => {
+      } finally {
         setFocused(new Date());
         setIdDisabled(false);
         setTempTodo(null);
@@ -75,7 +77,11 @@ export const TodoHeader: React.FC = () => {
         if (!isError) {
           setTitle('');
         }
-      });
+      }
+    };
+
+    createTodos();
+
     isError = false;
   };
 

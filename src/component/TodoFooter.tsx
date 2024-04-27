@@ -1,10 +1,10 @@
 import classNames from 'classnames';
-import { useContext, useState } from 'react';
+import { useContext } from 'react';
 import { TodosContext } from '../TodosProvider/TodosProvider';
 
 export const TodoFooter: React.FC = () => {
-  const [selectFilter, setSelectFilter] = useState('');
-  const { todos, handleClearCompleted } = useContext(TodosContext);
+  const { todos, handleClearCompleted, selectFilter, setSelectFilter } =
+    useContext(TodosContext);
 
   const visibleClearCompleted = todos.some(todo => todo.completed);
   const todosLeft = todos.filter(todo => !todo.completed);

@@ -2,12 +2,15 @@ import { createContext, useEffect, useState } from 'react';
 import { Todo } from '../types/Todo';
 import { deleteTodo, getTodos, updateTodo } from '../api/todos';
 import { Filter } from '../enum/Filter';
+import { useLocalStorage } from '../api/useLocalStorage';
 
 type Props = {
   children: React.ReactNode;
 };
 
 type ContextType = {
+  selectFilter: string;
+  setSelectFilter: (v: string) => void;
   everyCompleted: boolean;
   hideMessage: () => void;
   handleToggle: (todos: Todo[], v: boolean) => void;
@@ -26,12 +29,14 @@ type ContextType = {
   tempTodo: Todo | null;
   setTempTodo: (v: Todo | null) => void;
   todos: Todo[];
-  setTodos: (value: React.SetStateAction<Todo[]>) => void;
+  setTodos: (value: Todo[]) => void;
   errorMessage: string;
   setErrorMessage: (v: string) => void;
 };
 
 export const TodosContext = createContext<ContextType>({
+  selectFilter: '',
+  setSelectFilter: () => {},
   everyCompleted: false,
   hideMessage: () => {},
   handleToggle: () => {},
@@ -56,15 +61,31 @@ export const TodosContext = createContext<ContextType>({
 });
 
 export const TodosProvider: React.FC<Props> = ({ children }) => {
-  const [todos, setTodos] = useState<Todo[]>([]);
+  const [todos, setTodos] = useLocalStorage<Todo[]>('todos', []);
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
   const [errorMessage, setErrorMessage] = useState('');
   const [isCompleted, setIsCompleted] = useState(false);
   const [isDisabled, setIdDisabled] = useState(false);
   const [focused, setFocused] = useState(new Date());
   const [loadingIds, setLoadingIds] = useState<number[]>([]);
+  const [selectFilter, setSelectFilter] = useState('');
+
+  // useEffect(() => {
+  //   const data = localStorage.getItem('key');
+
+  //   if (data !== null) {
+  //     setSelectFilter(JSON.parse(data));
+  //   }
+  // }, []);
+
+  // useEffect(() => {
+  //   const data = JSON.stringify(selectFilter);
+
+  //   localStorage.setItem('key', data);
+  // }, [selectFilter]);
+
   const everyCompleted =
-    todos.length !== 0 ? todos.every(todo => todo.completed) : false;
+    todos.length !== 0 ? todos.every((todo: Todo) => todo.completed) : false;
   const hideMessage = () =>
     setTimeout(() => {
       setErrorMessage('');
@@ -72,31 +93,36 @@ export const TodosProvider: React.FC<Props> = ({ children }) => {
 
   useEffect(() => {
     setErrorMessage('');
-    getTodos()
-      .then(setTodos)
-      .catch(() => {
-        setErrorMessage('Unable to load todos');
-      });
 
-    hideMessage();
+    const fetchData = async () => {
+      try {
+        const readyTodos = await getTodos();
+
+        setTodos(readyTodos);
+      } catch (error) {
+        setErrorMessage('Unable to load todos');
+      } finally {
+        hideMessage();
+      }
+    };
+
+    fetchData();
   }, []);
 
-  const handleDelete = (todoId: number) => {
+  const handleDelete = async (todoId: number) => {
     setLoadingIds(prev => [...prev, todoId]);
 
-    return deleteTodo(todoId)
-      .then(() => {
-        setTodos(currentTodos =>
-          currentTodos.filter(todo => todo.id !== todoId),
-        );
-      })
-      .catch(() => {
-        setErrorMessage('Unable to delete a todo');
-      })
-      .finally(() => {
-        setLoadingIds(prev => prev.filter(item => item !== todoId));
-        setFocused(new Date());
-      });
+    try {
+      await deleteTodo(todoId);
+
+      setTodos(prevTodo => prevTodo.filter(todo => todo.id !== todoId));
+      // setTodos(todos.filter(todo => todo.id !== todoId));
+    } catch (error) {
+      setErrorMessage('Unable to delete a todo');
+    } finally {
+      setLoadingIds(prev => prev.filter(item => item !== todoId));
+      setFocused(new Date());
+    }
   };
 
   function filterTodos(list: Todo[], filterBy: string) {
@@ -113,7 +139,7 @@ export const TodosProvider: React.FC<Props> = ({ children }) => {
   }
 
   const handleClearCompleted = () => {
-    todos.forEach(todo => {
+    todos.forEach((todo: Todo) => {
       if (todo.completed) {
         handleDelete(todo.id);
       }
@@ -123,24 +149,27 @@ export const TodosProvider: React.FC<Props> = ({ children }) => {
   const handleComplete = (todo: Todo, status: boolean) => {
     setLoadingIds(prevIds => [...prevIds, todo.id]);
     setIsCompleted(!status);
-    const changeStatus = { ...todo, completed: status };
+    const changeStatus: Todo = { ...todo, completed: status };
 
-    updateTodo(changeStatus)
-      .then(() =>
-        setTodos(prevTodos =>
-          prevTodos.map(item =>
-            item.id === changeStatus.id ? changeStatus : item,
-          ),
-        ),
-      )
-      .catch(() => {
+    const handleData = async () => {
+      try {
+        await updateTodo(changeStatus);
+
+        const changedStatus = todos.map(item =>
+          item.id === changeStatus.id ? changeStatus : item,
+        );
+
+        setTodos([...changedStatus]);
+      } catch (error) {
         setErrorMessage('Unable to update a todo');
-      })
-      .finally(() => {
+      } finally {
         setLoadingIds([]);
         setIsCompleted(false);
         hideMessage();
-      });
+      }
+    };
+
+    handleData();
   };
 
   const handleToggle = (list: Todo[], status: boolean) => {
@@ -152,6 +181,8 @@ export const TodosProvider: React.FC<Props> = ({ children }) => {
   };
 
   const todosTools = {
+    selectFilter,
+    setSelectFilter,
     everyCompleted,
     hideMessage,
     handleToggle,

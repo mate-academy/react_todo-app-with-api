@@ -37,20 +37,23 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
       title: title.trim(),
     };
 
-    updateTodo(newTodo)
-      .then(() =>
-        setTodos(prevTodo =>
+    const fetchUpdateTodo = async () => {
+      try {
+        await updateTodo(newTodo);
+
+        setTodos((prevTodo: Todo[]) =>
           prevTodo.map(item => (item.id === todo.id ? newTodo : item)),
-        ),
-      )
-      .catch(() => {
+        );
+      } catch (error) {
         setEditForm(todo);
         setErrorMessage('Unable to update a todo');
-      })
-      .finally(() => {
+      } finally {
         setLoadingIds([]);
         hideMessage();
-      });
+      }
+    };
+
+    fetchUpdateTodo();
   };
 
   const onKeyUp = (e: React.KeyboardEvent<HTMLInputElement>) => {
