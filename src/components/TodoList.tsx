@@ -7,10 +7,14 @@ import { TodoItem } from './TodoItem';
 
 type Props = {
   filteredTodos: Todo[];
-  deleteSingleTodo: (todoId: number) => void;
+  deleteSingleTodo: (todoId: number) => Promise<void>;
   toggleTodoCompletion: (todoId: number) => void;
   tempTodo: Todo | null;
-  handleSave: (todoId: number, newTitle: string, completed: boolean) => void;
+  handleSave: (
+    todoId: number,
+    newTitle: string,
+    completed: boolean,
+  ) => Promise<void>;
   loadingTodoIds: number[];
 };
 

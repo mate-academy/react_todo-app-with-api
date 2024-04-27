@@ -117,6 +117,7 @@ export const App: React.FC = () => {
     } catch (errors) {
       // setTodos(todos);
       setError('Unable to delete a todo');
+      throw Error('Unable to delete a todo');
     } finally {
         setLoadingTodoIds(prevLoading =>
           prevLoading.filter(id => id !== todoId),
@@ -150,7 +151,7 @@ export const App: React.FC = () => {
       });
     } catch (errors) {
       setTodos(todos);
-      setError('Unable to toggle todo completion');
+      setError('Unable to update a todo');
     } finally {
       setLoadingTodoIds(prevLoading =>
         prevLoading.filter(id => id !== todoId),
@@ -235,6 +236,7 @@ export const App: React.FC = () => {
       );
     } catch (error) {
       setError('Unable to update a todo');
+      throw Error('Unable to update a todo');
     } finally {
       setLoadingTodoIds(prevLoading => prevLoading.filter(id => id !== todoId));
       setIsInputDisabled(false);

@@ -2,13 +2,13 @@
 /* eslint-disable */
 import classNames from 'classnames';
 import { Todo } from '../types/Todo';
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 type Props = {
   todo: Todo;
-  onSave: (todoId: number, newTitle: string, completed: boolean) => void;
+  onSave: (todoId: number, newTitle: string, completed: boolean) => Promise<void>;
   toggleTodoCompletion: (todoId: number) => void;
-  deleteSingleTodo: (todoId: number) => void;
+  deleteSingleTodo: (todoId: number) => Promise<void>;
   loadingTodoIds: number[];
 };
 
@@ -27,13 +27,23 @@ export const TodoItem: React.FC<Props> = ({
     setEditing(true);
   };
 
-  const handleSave = () => {
+  const focus = useRef<HTMLInputElement>(null);
+
+
+  const handleSave = async () => {
     if (!newTitle.trim()) {
-      deleteSingleTodo(todo.id);
+      await deleteSingleTodo(todo.id)
+        .then(
+          () => {
+            setEditing(false);
+        }
+      )
     } else if (newTitle.trim() !== title.trim()) {
-      onSave(id, newTitle, completed);
+      await onSave(id, newTitle, completed)
+        .then(() => {
+          setEditing(false);
+        })
     }
-    setEditing(false);
   };
 
   const handleKeyUp: React.KeyboardEventHandler<HTMLInputElement> = e => {
@@ -44,6 +54,13 @@ export const TodoItem: React.FC<Props> = ({
       setNewTitle(title);
     }
   };
+
+
+    useEffect(() => {
+      if (focus.current) {
+        focus.current.focus();
+      }
+    }, [editing]);
 
   return (
     <section className="todoapp__main" data-cy="TodoList">
@@ -65,17 +82,20 @@ export const TodoItem: React.FC<Props> = ({
         </label>
         {/* This is a completed todo */}
         {editing ? (
-          <input
-            data-cy="TodoTitleField"
-            type="text"
-            className="todo__title-field"
-            placeholder="Empty todo will be deleted"
-            value={newTitle}
-            onChange={e => setNewTitle(e.target.value)}
-            onBlur={handleSave}
-            onKeyUp={handleKeyUp}
-            autoFocus
-          />
+          <form onSubmit={e => e.preventDefault()}>
+            <input
+              ref={focus}
+              data-cy="TodoTitleField"
+              type="text"
+              className="todo__title-field"
+              placeholder="Empty todo will be deleted"
+              value={newTitle}
+              onChange={e => setNewTitle(e.target.value)}
+              onBlur={handleSave}
+              onKeyUp={handleKeyUp}
+              // autoFocus
+            />
+          </form>
         ) : (
           <>
             <span data-cy="TodoTitle" className="todo__title">
