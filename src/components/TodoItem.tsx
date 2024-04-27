@@ -36,13 +36,18 @@ export const TodoItem: React.FC<Props> = ({
         .then(
           () => {
             setEditing(false);
-        }
-      )
+          }
+        )
+        .catch(() => {});
     } else if (newTitle.trim() !== title.trim()) {
       await onSave(id, newTitle, completed)
         .then(() => {
           setEditing(false);
         })
+        .catch(() => {});
+    } else if (newTitle.trim() === title.trim()) {
+      setEditing(false);
+      return;
     }
   };
 
