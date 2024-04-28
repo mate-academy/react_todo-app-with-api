@@ -95,7 +95,7 @@ export const reducer = (state: State, action: Action) => {
       if (!state.query.trim()) {
         return {
           ...state,
-          showError: 'Title should not be emptys',
+          showError: 'Title should not be empty',
           signal: !state.signal,
         };
       }
@@ -316,7 +316,7 @@ export const GlobalProvider: React.FC<Props> = ({ children }) => {
   };
 
   const error =
-    state.showError === 'Title should not be emptys'
+    state.showError === 'Title should not be empty'
       ? 'Title should not be emptys'
       : state.error;
 
@@ -454,6 +454,8 @@ export const GlobalProvider: React.FC<Props> = ({ children }) => {
         })
         .finally(() => deleteAfterShowError());
     }
+
+    deleteAfterShowError();
   }, [state.signal]);
 
   return (
