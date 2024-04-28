@@ -95,8 +95,8 @@ export const reducer = (state: State, action: Action) => {
       if (!state.query.trim()) {
         return {
           ...state,
-          fetch: true,
           showError: 'Title should not be emptys',
+          signal: !state.signal,
         };
       }
 
@@ -148,6 +148,7 @@ export const reducer = (state: State, action: Action) => {
           [state.currentId]: false,
         },
         allTodoLoading: false,
+        error: '',
         addItem: false,
         focus: true,
         prevTitle: 'prevTitle',
@@ -402,7 +403,10 @@ export const GlobalProvider: React.FC<Props> = ({ children }) => {
         .catch(() => {
           dispatch({ type: 'setError', error: error });
         })
-        .finally(() => deleteAfterShowError());
+        .finally(() => {
+          dispatch({ type: 'disableFetch' });
+          deleteAfterShowError();
+        });
     } else if (state.deleteTodo) {
       deleteTodo(state.currentId)
         .then(() => {
@@ -439,7 +443,7 @@ export const GlobalProvider: React.FC<Props> = ({ children }) => {
           dispatch({ type: 'setError', error: error });
         })
         .finally(() => deleteAfterShowError());
-    } else {
+    } else if (!state.todoApi.length && !error) {
       getTodos()
         .then(todos => {
           dispatch({ type: 'setTodoApi', payload: todos });
