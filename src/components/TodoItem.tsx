@@ -98,7 +98,6 @@ export const TodoItem: React.FC<Props> = ({
               onChange={e => setNewTitle(e.target.value)}
               onBlur={handleSave}
               onKeyUp={handleKeyUp}
-              // autoFocus
             />
           </form>
         ) : (

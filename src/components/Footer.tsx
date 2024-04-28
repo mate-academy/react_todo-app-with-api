@@ -18,12 +18,13 @@ export const Footer: React.FC<Props> = ({
 }) => {
   // Counts the number of uncompleted todos
   const todosCounter = todos.filter(todo => !todo.completed).length;
+  const todoPanel = `${todosCounter} ${todosCounter === 1 ? 'item' : 'items'} left`;
 
   return (
     /* Hide the footer if there are no todos */
     <footer className="todoapp__footer" data-cy="Footer">
       <span className="todo-count" data-cy="TodosCounter">
-        {`${todosCounter} ${todosCounter === 1 ? 'item' : 'items'} left`}
+        {todoPanel}
       </span>
 
       {/* Active link should have the 'selected' class */}

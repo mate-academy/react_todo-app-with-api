@@ -161,43 +161,6 @@ export const App: React.FC = () => {
     }
   };
 
-  // const clearCompletedTodos = async () => {
-  //   try {
-  //     setIsInputDisabled(true);
-  //     // Selection of completed todos
-  //     const completedTodosIds = todos
-  //       .filter(todo => todo.completed)
-  //       .map(todo => todo.id);
-
-  //     // Deleting each completed todo by its ID
-  //     //   await Promise.allSettled(
-  //     //    completedTodosIds.map(id => deleteSingleTodo(id)),
-  //     //  );
-
-  //     await Promise.all(
-  //       completedTodosIds.map(id => deleteSingleTodo(id)),
-  //     ).then(results => {
-  //       results.forEach((result, num) => {
-  //         if (result.status == 'fulfilled') {
-  //           alert(`${completedTodosIds[num]}: ${result.status}`);
-  //         }
-  //         if (result.status == 'rejected') {
-  //           alert(`${completedTodosIds[num]}: ${result.reason}`);
-  //         }
-  //       });
-  //     });
-
-  //     // Updating the todos list, excluding completed todos
-  //     setTodos(currentTodos => currentTodos.filter(todo => !todo.completed));
-
-  //     if (todos.some(todo => !todo.completed)) {
-  //       setFilterStatus(TodoStatus.All);
-  //     }
-  //   } finally {
-  //     setIsInputDisabled(false);
-  //   }
-  // };
-
   const clearCompletedTodos = async () => {
     try {
       setIsInputDisabled(true);
