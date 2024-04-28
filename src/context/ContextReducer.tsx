@@ -102,7 +102,6 @@ export const reducer = (state: State, action: Action) => {
 
       return {
         ...state,
-        query: '',
         fetch: true,
         error: 'Unable to add a todo',
         addItem: true,
@@ -151,13 +150,14 @@ export const reducer = (state: State, action: Action) => {
         allTodoLoading: false,
         addItem: false,
         focus: true,
-        prevTitle: '',
+        prevTitle: 'prevTitle',
         currentTitle: '',
         selectedAll: false,
         deleteAll: false,
         updatingTodo: false,
         deleteTodo: false,
         updatingTitleTodo: false,
+        query: '',
       };
 
     case 'setComplate':
@@ -190,28 +190,14 @@ export const reducer = (state: State, action: Action) => {
       };
 
     case 'escape':
-      updateTodoTitle({
-        id: state.currentId,
-        title: state.currentTitle,
-      });
-
       return {
         ...state,
         currentId: 0,
-        prevTitle: '',
+        prevTitle: 'prevTitle',
       };
 
     case 'submitNewTitile':
-      if (!state.prevTitle) {
-        return {
-          ...state,
-          fetch: true,
-          currentId: 0,
-          prevTitle: '',
-        };
-      }
-
-      if (state.prevTitle !== action.currentTitle && state.prevTitle) {
+      if (state.prevTitle !== 'prevTitle') {
         return {
           ...state,
           fetch: true,
@@ -223,9 +209,12 @@ export const reducer = (state: State, action: Action) => {
           updatingTitleTodo: true,
           signal: !state.signal,
         };
+      } else {
+        return {
+          ...state,
+          currentId: 0,
+        };
       }
-
-      return state;
 
     case 'setAllCompleted':
       return {
@@ -263,7 +252,7 @@ const initialState: State = {
   query: '',
   fetch: false,
   currentId: 0,
-  prevTitle: '',
+  prevTitle: 'prevTitle',
   todoLoading: {
     [0]: false,
   },
@@ -302,8 +291,26 @@ export const GlobalProvider: React.FC<Props> = ({ children }) => {
   };
 
   const postAction = (t: Todo[]) => {
-    dispatch({ type: 'setTodoApi', payload: t });
-    dispatch({ type: 'setTotalLenght', payload: t });
+    dispatch({
+      type: 'setTodoApi',
+      payload: t.filter(todo => {
+        if (!todo.title.length) {
+          deleteTodo(todo.id);
+        }
+
+        return todo.title;
+      }),
+    });
+    dispatch({
+      type: 'setTotalLenght',
+      payload: t.filter(todo => {
+        if (!todo.title.length) {
+          deleteTodo(todo.id);
+        }
+
+        return todo.title;
+      }),
+    });
     dispatch({ type: 'disableFetch' });
   };
 
@@ -312,27 +319,35 @@ export const GlobalProvider: React.FC<Props> = ({ children }) => {
       ? 'Title should not be emptys'
       : state.error;
 
+  const updateAll = (todo: Todo) => {
+    updateTodoCompleted({
+      id: todo.id,
+      completed: state.currentedCompleted,
+    })
+      .then(() => {
+        const selectedAll = state.todoApi.map(t => {
+          return {
+            ...t,
+            completed: state.currentedCompleted,
+          };
+        });
+
+        postAction(selectedAll);
+      })
+      .catch(() => {
+        dispatch({ type: 'setError', error: error });
+      })
+      .finally(() => deleteAfterShowError());
+  };
+
   useEffect(() => {
     if (state.selectedAll) {
       state.todoApi.map(todo => {
-        updateTodoCompleted({
-          id: todo.id,
-          completed: state.currentedCompleted,
-        })
-          .then(() => {
-            const selectedAll = state.todoApi.map(t => {
-              return {
-                ...t,
-                completed: state.currentedCompleted,
-              };
-            });
-
-            postAction(selectedAll);
-          })
-          .catch(() => {
-            dispatch({ type: 'setError', error: error });
-          })
-          .finally(() => deleteAfterShowError());
+        if (state.currentedCompleted && !todo.completed) {
+          updateAll(todo);
+        } else if (!state.currentedCompleted && todo.completed) {
+          updateAll(todo);
+        }
       });
     } else if (state.deleteAll) {
       state.todoApi.map(todo => {
@@ -350,28 +365,33 @@ export const GlobalProvider: React.FC<Props> = ({ children }) => {
         }
       });
     } else if (state.updatingTitleTodo) {
-      updateTodoTitle({
-        id: state.currentId,
-        title: state.prevTitle,
-      })
-        .then(() => {
-          const updatedTodosTitle = state.todoApi.map(todo => {
-            if (todo.id === state.currentId) {
-              return {
-                ...todo,
-                title: state.prevTitle,
-              };
-            }
+      if (state.prevTitle !== 'prevTitle') {
+        updateTodoTitle({
+          id: state.currentId,
+          title: state.prevTitle,
+        })
+          .then(() => {
+            const updatedTodosTitle = state.todoApi.map(todo => {
+              if (todo.id === state.currentId) {
+                return {
+                  ...todo,
+                  title: state.prevTitle,
+                };
+              }
 
-            return todo;
+              return todo;
+            });
+
+            postAction(updatedTodosTitle);
+          })
+          .catch(() => {
+            dispatch({ type: 'setError', error: error });
+          })
+          .finally(() => {
+            dispatch({ type: 'escape' });
+            deleteAfterShowError();
           });
-
-          postAction(updatedTodosTitle);
-        })
-        .catch(() => {
-          dispatch({ type: 'setError', error: error });
-        })
-        .finally(() => deleteAfterShowError());
+      }
     } else if (state.addItem) {
       addTodo(state.newTodo)
         .then(todo => {

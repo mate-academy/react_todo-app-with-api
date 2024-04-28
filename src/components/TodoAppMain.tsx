@@ -2,9 +2,9 @@
 import React, { useContext } from 'react';
 import { StateContext } from '../context/ContextReducer';
 import { TodoInfo } from './TodoInfo';
-import { Loader } from './Loader';
 import { TransitionGroup, CSSTransition } from 'react-transition-group';
 import '../styles/animation.scss';
+import { TempTodo } from './TempTodo';
 
 export const TodoAppMain: React.FC = () => {
   const { todoApi, fetch, addItem, select, totalLength } =
@@ -36,12 +36,7 @@ export const TodoAppMain: React.FC = () => {
         ))}
         {fetch && addItem && (
           <CSSTransition key="loader" timeout={300} classNames="item">
-            <div className="todo">
-              <span className="todo__title">
-                <br />
-                <Loader />
-              </span>
-            </div>
+            <TempTodo />
           </CSSTransition>
         )}
       </TransitionGroup>

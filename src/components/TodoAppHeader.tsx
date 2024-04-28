@@ -3,7 +3,7 @@ import cn from 'classnames';
 import { DispatchContext, StateContext } from '../context/ContextReducer';
 
 export const TodoAppHeader: React.FC = () => {
-  const { todoApi, query, focus } = useContext(StateContext);
+  const { todoApi, query, focus, fetch } = useContext(StateContext);
   const dispatch = useContext(DispatchContext);
 
   const handleAddSubmit = (event: React.FormEvent<HTMLFormElement>) => {
@@ -46,6 +46,7 @@ export const TodoAppHeader: React.FC = () => {
           className="todoapp__new-todo"
           placeholder="What needs to be done?"
           value={query}
+          disabled={fetch}
         />
       </form>
     </header>
