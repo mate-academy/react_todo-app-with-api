@@ -55,9 +55,13 @@ export const App: React.FC = () => {
         handleRequest();
       }
 
-      setTimeout(() => {
-        setError('');
+      const errorTimeout = setTimeout(() => {
+        setError(null);
       }, 3000);
+
+      return () => {
+        clearTimeout(errorTimeout);
+      };
     }, []);
 
   const isLoading = !!loadingTodoIds.length;
