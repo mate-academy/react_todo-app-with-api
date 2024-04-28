@@ -266,7 +266,6 @@ export const App: React.FC = () => {
           <TodoList visibleTodos={visibleTodos} />
         </TodoListContext.Provider>
 
-
         {/* Hide the footer if there are no todos */}
         {!!todos.length && (
           <Footer

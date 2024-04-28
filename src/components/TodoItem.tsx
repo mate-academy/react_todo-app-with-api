@@ -11,18 +11,13 @@ type Props = {
 };
 
 export const TodoItem: React.FC<Props> = ({ todo }) => {
-  const {
-    updateTodo,
-    deleteTodo,
-    loadingTodoIds,
-    updateTodoTitle
-  } = useContext(TodoListContext);
+  const { updateTodo, deleteTodo, loadingTodoIds, updateTodoTitle } =
+    useContext(TodoListContext);
 
   const [titleHiddenForm, setTitleHiddenForm] = useState(todo.title || '');
   const [showForm, setShowForm] = useState(false);
 
   const inpRef = useRef<HTMLInputElement>(null);
-  
 
   const handleTitleHiddenForm = (
     event: React.ChangeEvent<HTMLInputElement>,
@@ -43,11 +38,12 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
       if (inpRef.current) {
         inpRef.current.disabled = true;
       }
+
       updateTodoTitle({ ...todo, title: titleHiddenForm }, titleHiddenForm)
         .then(() => {
           setShowForm(false);
         })
-        .catch((error) => {
+        .catch(error => {
           setShowForm(true);
           throw error;
         });
@@ -71,6 +67,7 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
       if (inpRef.current) {
         inpRef.current.disabled = true;
       }
+
       updateTodoTitle({ ...todo, title: titleHiddenForm }, titleHiddenForm)
         .then(() => {
           setShowForm(false);
@@ -80,9 +77,9 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
           if (inpRef.current) {
             inpRef.current.disabled = false;
           }
+
           throw error;
-        }
-        );
+        });
       if (inpRef.current) {
         inpRef.current.disabled = false;
       }
