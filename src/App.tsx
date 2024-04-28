@@ -21,7 +21,6 @@ export const App: React.FC = () => {
   const [loadingTodoIds, setLoadingTodoIds] = useState<number[]>([]);
   const [title, setTitle] = useState('');
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
-  const [showEditedForm, setShowEditedForm] = useState(false);
 
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -183,10 +182,9 @@ export const App: React.FC = () => {
   function updateTodoTitle(updatedTodo: Todo, titleEntered: string) {
     setLoadingTodoIds(prevIds => [...prevIds, updatedTodo.id]);
 
-    todoService
+    return todoService
       .updateTodo(updatedTodo)
       .then(() => {
-        setShowEditedForm(false);
         setTodos(currentTodos => {
           return currentTodos.map(currentTodo => {
             if (currentTodo.id === updatedTodo.id) {
@@ -259,15 +257,15 @@ export const App: React.FC = () => {
         <TodoListContext.Provider
           value={{
             updateTodo,
-            updateTodoTitle,
             deleteTodo,
+            updateTodoTitle,
             loadingTodoIds,
             tempTodo,
-            showEditedForm,
           }}
         >
           <TodoList visibleTodos={visibleTodos} />
         </TodoListContext.Provider>
+
 
         {/* Hide the footer if there are no todos */}
         {!!todos.length && (

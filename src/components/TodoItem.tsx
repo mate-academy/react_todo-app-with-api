@@ -3,7 +3,7 @@
 /* eslint-disable jsx-a11y/control-has-associated-label */
 import cn from 'classnames';
 import { Todo } from '../types/Todo';
-import { useContext, useEffect, useState } from 'react';
+import { useContext, useRef, useState } from 'react';
 import { TodoListContext } from '../variables/LangContext';
 
 type Props = {
@@ -15,12 +15,14 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
     updateTodo,
     deleteTodo,
     loadingTodoIds,
-    updateTodoTitle,
-    showEditedForm,
+    updateTodoTitle
   } = useContext(TodoListContext);
 
   const [titleHiddenForm, setTitleHiddenForm] = useState(todo.title || '');
-  const [showForm, setShowForm] = useState(showEditedForm);
+  const [showForm, setShowForm] = useState(false);
+
+  const inpRef = useRef<HTMLInputElement>(null);
+  
 
   const handleTitleHiddenForm = (
     event: React.ChangeEvent<HTMLInputElement>,
@@ -37,6 +39,21 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
 
     if (titleHiddenForm === '') {
       deleteTodo(todo.id);
+    } else {
+      if (inpRef.current) {
+        inpRef.current.disabled = true;
+      }
+      updateTodoTitle({ ...todo, title: titleHiddenForm }, titleHiddenForm)
+        .then(() => {
+          setShowForm(false);
+        })
+        .catch((error) => {
+          setShowForm(true);
+          throw error;
+        });
+      if (inpRef.current) {
+        inpRef.current.disabled = false;
+      }
     }
   };
 
@@ -51,13 +68,30 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
     if (titleHiddenForm === '') {
       deleteTodo(todo.id);
     } else {
-      updateTodoTitle({ ...todo, title: titleHiddenForm }, titleHiddenForm);
+      if (inpRef.current) {
+        inpRef.current.disabled = true;
+      }
+      updateTodoTitle({ ...todo, title: titleHiddenForm }, titleHiddenForm)
+        .then(() => {
+          setShowForm(false);
+        })
+        .catch(error => {
+          setShowForm(true);
+          if (inpRef.current) {
+            inpRef.current.disabled = false;
+          }
+          throw error;
+        }
+        );
+      if (inpRef.current) {
+        inpRef.current.disabled = false;
+      }
     }
   };
 
-  useEffect(() => {
-    setShowForm(false); // Приховати форму після оновлення
-  }, [loadingTodoIds]);
+  const handleDoubleClick = () => {
+    setShowForm(true);
+  };
 
   return (
     <div
@@ -66,7 +100,7 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
         completed: todo.completed,
       })}
       key={todo.id}
-      onDoubleClick={() => setShowForm(true)}
+      onDoubleClick={handleDoubleClick}
     >
       <label className="todo__status-label">
         <input
@@ -88,6 +122,7 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
             onChange={handleTitleHiddenForm}
             onBlur={onBlurSubmit}
             autoFocus
+            ref={inpRef}
           />
         </form>
       )}
