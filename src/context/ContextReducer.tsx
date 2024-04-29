@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import React, { useEffect, useReducer } from 'react';
-import { Todo } from '../types/Todo';
+import { Select, Todo } from '../types/Todo';
 import {
   USER_ID,
   addTodo,
@@ -16,7 +16,7 @@ export type Action =
   | { type: 'setError'; error: string }
   | { type: 'setQuery'; value: string }
   | { type: 'addTodo' }
-  | { type: 'setSelect'; value: string }
+  | { type: 'setSelect'; value: Select }
   | { type: 'setFetch'; value: boolean }
   | { type: 'deleteTodo'; currentId: number }
   | { type: 'disableFetch' }
@@ -35,7 +35,7 @@ export type Action =
 interface State {
   totalLength: Todo[];
   todoApi: Todo[];
-  select: string;
+  select: Select;
   error: string;
   query: string;
   fetch: boolean;
@@ -246,7 +246,7 @@ export const reducer = (state: State, action: Action) => {
 const initialState: State = {
   totalLength: [],
   todoApi: [],
-  select: 'All',
+  select: Select.All,
   selectedAll: false,
   error: '',
   showError: '',

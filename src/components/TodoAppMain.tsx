@@ -5,20 +5,21 @@ import { TodoInfo } from './TodoInfo';
 import { TransitionGroup, CSSTransition } from 'react-transition-group';
 import '../styles/animation.scss';
 import { TempTodo } from './TempTodo';
+import { Select } from '../types/Todo';
 
 export const TodoAppMain: React.FC = () => {
   const { todoApi, fetch, addItem, select, totalLength } =
     useContext(StateContext);
 
-  const filtered = (s: string) => {
+  const filtered = (s: Select) => {
     switch (s) {
-      case 'All':
+      case Select.All:
         return totalLength;
 
-      case 'Active':
+      case Select.Active:
         return totalLength.filter(todo => !todo.completed);
 
-      case 'Completed':
+      case Select.Completed:
         return totalLength.filter(todo => todo.completed);
 
       default:

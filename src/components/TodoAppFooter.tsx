@@ -1,6 +1,7 @@
 import React, { useContext } from 'react';
 import { DispatchContext, StateContext } from '../context/ContextReducer';
 import cn from 'classnames';
+import { Select } from '../types/Todo';
 
 export const TodoAppFooter: React.FC = () => {
   const { select, totalLength } = useContext(StateContext);
@@ -17,10 +18,10 @@ export const TodoAppFooter: React.FC = () => {
 
       <nav className="filter" data-cy="Filter">
         <a
-          onClick={() => dispatch({ type: 'setSelect', value: 'All' })}
+          onClick={() => dispatch({ type: 'setSelect', value: Select.All })}
           href="#/"
           className={cn('filter__link', {
-            selected: select === 'All',
+            selected: select === Select.All,
           })}
           data-cy="FilterLinkAll"
         >
@@ -28,18 +29,22 @@ export const TodoAppFooter: React.FC = () => {
         </a>
 
         <a
-          onClick={() => dispatch({ type: 'setSelect', value: 'Active' })}
+          onClick={() => dispatch({ type: 'setSelect', value: Select.Active })}
           href="#/active"
-          className={cn('filter__link', { selected: select === 'Active' })}
+          className={cn('filter__link', { selected: select === Select.Active })}
           data-cy="FilterLinkActive"
         >
           Active
         </a>
 
         <a
-          onClick={() => dispatch({ type: 'setSelect', value: 'Completed' })}
+          onClick={() =>
+            dispatch({ type: 'setSelect', value: Select.Completed })
+          }
           href="#/completed"
-          className={cn('filter__link', { selected: select === 'Completed' })}
+          className={cn('filter__link', {
+            selected: select === Select.Completed,
+          })}
           data-cy="FilterLinkCompleted"
         >
           Completed
