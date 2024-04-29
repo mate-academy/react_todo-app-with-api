@@ -19,6 +19,10 @@ export const Footer: React.FC = () => {
     }
   };
 
+  const handleFilterClick = (newStatus: Status) => {
+    setStatus(newStatus);
+  };
+
   return (
     <footer className="todoapp__footer" data-cy="Footer">
       <span className="todo-count" data-cy="TodosCounter">
@@ -26,38 +30,19 @@ export const Footer: React.FC = () => {
       </span>
 
       <nav className="filter" data-cy="Filter">
-        <a
-          href="#/"
-          className={classNames('filter__link', {
-            selected: status === Status.All,
-          })}
-          data-cy="FilterLinkAll"
-          onClick={() => setStatus(Status.All)}
-        >
-          All
-        </a>
-
-        <a
-          href="#/active"
-          className={classNames('filter__link', {
-            selected: status === Status.Active,
-          })}
-          data-cy="FilterLinkActive"
-          onClick={() => setStatus(Status.Active)}
-        >
-          Active
-        </a>
-
-        <a
-          href="#/completed"
-          className={classNames('filter__link', {
-            selected: status === Status.Completed,
-          })}
-          data-cy="FilterLinkCompleted"
-          onClick={() => setStatus(Status.Completed)}
-        >
-          Completed
-        </a>
+        {Object.values(Status).map(filterStatus => (
+          <a
+            key={filterStatus}
+            href={`#/${filterStatus.toLowerCase()}`}
+            className={classNames('filter__link', {
+              selected: status === filterStatus,
+            })}
+            data-cy={`FilterLink${filterStatus}`}
+            onClick={() => handleFilterClick(filterStatus)}
+          >
+            {filterStatus}
+          </a>
+        ))}
       </nav>
 
       <button

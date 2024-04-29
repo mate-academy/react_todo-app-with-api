@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { Todo } from '../types/Todo';
 import classNames from 'classnames';
 import { useTodos } from '../utils/TodoContext';
+import { Errors } from '../types/ErrorsTodo';
 
 type Props = {
   todo: Todo;
@@ -9,11 +10,12 @@ type Props = {
 
 export const TodoItem: React.FC<Props> = ({ todo }) => {
   const {
+    isLoading,
+    setErrorMessage,
+    modifiedTodoId,
     deleteTodo,
     updateTodo,
     handleCompleted,
-    modifiedTodoId,
-    isLoading,
     setIsLoading,
   } = useTodos();
   const { id, title, completed } = todo;
@@ -45,14 +47,31 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
     }
 
     try {
-      setIsLoading(true);
       await updateTodo({ ...todo, title: trimmedTitle });
-    } catch (error) {
-      throw error;
+      setIsEditing(false);
+    } catch {
+      setErrorMessage(Errors.UpdateTodo);
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setUpdatedTitle(event.target.value);
+  };
+
+  const handleKeyUp = (event: React.KeyboardEvent<HTMLInputElement>) => {
+    if (event.key === 'Escape') {
       setIsEditing(false);
     }
+  };
+
+  const handleDeleteClick = () => {
+    deleteTodo(id);
+  };
+
+  const handleDoubleClick = () => {
+    setIsEditing(true);
   };
 
   return (
@@ -81,14 +100,10 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
             className="todo__title-field"
             placeholder="Empty todo will be deleted"
             value={updatedTitle}
-            onChange={event => setUpdatedTitle(event.target.value)}
+            onChange={handleInputChange}
             ref={inputRef}
             onBlur={handleSubmit}
-            onKeyUp={event => {
-              if (event.key === 'Escape') {
-                setIsEditing(false);
-              }
-            }}
+            onKeyUp={handleKeyUp}
           />
         </form>
       ) : (
@@ -96,7 +111,7 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
           <span
             data-cy="TodoTitle"
             className="todo__title"
-            onDoubleClick={() => setIsEditing(true)}
+            onDoubleClick={handleDoubleClick}
           >
             {title}
           </span>
@@ -105,7 +120,7 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
             type="button"
             className="todo__remove"
             data-cy="TodoDelete"
-            onClick={() => deleteTodo(id)}
+            onClick={handleDeleteClick}
           >
             ×
           </button>
