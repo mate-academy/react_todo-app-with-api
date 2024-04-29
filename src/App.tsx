@@ -159,7 +159,10 @@ export const App: React.FC = () => {
         );
         focusInput();
       })
-      .catch(() => handleError(errorType.deleteTask));
+      .catch(() => {
+        handleError(errorType.deleteTask);
+        setDeletingIds([]);
+      });
   };
 
   const clearCompleted = () => {
