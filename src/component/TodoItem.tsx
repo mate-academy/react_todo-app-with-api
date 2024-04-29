@@ -47,6 +47,7 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
     }
 
     try {
+      setIsLoading(true);
       await updateTodo({ ...todo, title: trimmedTitle });
       setIsEditing(false);
     } catch {
