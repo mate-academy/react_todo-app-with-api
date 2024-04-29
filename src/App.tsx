@@ -228,7 +228,8 @@ export const App: React.FC = () => {
         const revertedTasks = tasks.map(todo =>
           todo.id === id ? { ...todo, title: todoToUpdate.title } : todo,
         );
-        handleError(errorType.updateTodo)
+
+        handleError(errorType.updateTodo);
         setTasks(revertedTasks);
         setIsUpdating([]);
       });
