@@ -72,11 +72,12 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
         .then(() => {
           setShowForm(false);
         })
-        .catch((error) => {
+        .catch(error => {
           setShowForm(true);
           if (inpRef.current) {
             inpRef.current.disabled = false;
           }
+
           throw error;
         });
       if (inpRef.current) {
