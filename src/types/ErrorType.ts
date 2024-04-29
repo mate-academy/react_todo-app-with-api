@@ -4,4 +4,5 @@ export type ErrorType = {
   add: string;
   found: string;
   deleteTask: string;
+  updateTodo: string;
 };

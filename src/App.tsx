@@ -45,6 +45,7 @@ export const App: React.FC = () => {
     add: 'Unable to add a todo',
     found: 'Todo not found',
     deleteTask: 'Unable to delete a todo',
+    updateTodo: 'Unable to update a todo',
   };
 
   const taskLeft = tasks?.filter(
@@ -227,7 +228,7 @@ export const App: React.FC = () => {
         const revertedTasks = tasks.map(todo =>
           todo.id === id ? { ...todo, title: todoToUpdate.title } : todo,
         );
-
+        handleError(errorType.updateTodo)
         setTasks(revertedTasks);
         setIsUpdating([]);
       });
