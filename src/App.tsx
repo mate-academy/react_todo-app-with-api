@@ -8,7 +8,7 @@ import { TodoList } from './component/TodoList';
 import { ErrorNotification } from './component/ErrorNotification';
 
 import { useTodos } from './utils/TodoContext';
-import { USER_ID } from './api/todos';
+const USER_ID = 464;
 
 export const App: React.FC = () => {
   const { todos } = useTodos();
