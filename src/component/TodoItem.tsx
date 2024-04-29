@@ -21,11 +21,11 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
   const { id, title, completed } = todo;
   const [isEditing, setIsEditing] = useState(false);
   const [updatedTitle, setUpdatedTitle] = useState(title);
-  const inputRef = useRef<HTMLInputElement | null>(null);
+  const titleRef = useRef<HTMLInputElement | null>(null);
 
   useEffect(() => {
-    if (!isLoading) {
-      inputRef.current?.focus();
+    if (!isLoading && isEditing && titleRef.current) {
+      titleRef.current?.focus();
     }
   }, [isEditing, isLoading]);
 
@@ -52,6 +52,9 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
       setIsEditing(false);
     } catch {
       setErrorMessage(Errors.UpdateTodo);
+      if (titleRef.current) {
+        titleRef.current.focus();
+      }
     } finally {
       setIsLoading(false);
     }
@@ -102,7 +105,7 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
             placeholder="Empty todo will be deleted"
             value={updatedTitle}
             onChange={handleInputChange}
-            ref={inputRef}
+            ref={titleRef}
             onBlur={handleSubmit}
             onKeyUp={handleKeyUp}
           />
