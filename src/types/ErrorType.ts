@@ -3,4 +3,5 @@ export type ErrorType = {
   load: string;
   add: string;
   found: string;
+  deleteTask: string;
 };

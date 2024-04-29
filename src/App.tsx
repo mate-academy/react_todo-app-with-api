@@ -44,7 +44,7 @@ export const App: React.FC = () => {
     load: 'Unable to load todos',
     add: 'Unable to add a todo',
     found: 'Todo not found',
-delete: 'cannot delete todo',
+    deleteTask: 'cannot delete todo',
   };
 
   const taskLeft = tasks?.filter(
@@ -151,13 +151,15 @@ delete: 'cannot delete todo',
 
   const deleteTask = (id: number) => {
     setDeletingIds(prevIds => [...prevIds, id]);
-    deleteTodo(id).then(() => {
-      setTasks(currentTodos => currentTodos.filter(todo => todo.id !== id));
-      setDeletingIds(prevIds =>
-        prevIds.filter(deletingId => deletingId !== id),
-      );
-      focusInput();
-    }.catch(() => handleError(errorType.delete));
+    deleteTodo(id)
+      .then(() => {
+        setTasks(currentTodos => currentTodos.filter(todo => todo.id !== id));
+        setDeletingIds(prevIds =>
+          prevIds.filter(deletingId => deletingId !== id),
+        );
+        focusInput();
+      })
+      .catch(() => handleError(errorType.deleteTask));
   };
 
   const clearCompleted = () => {
