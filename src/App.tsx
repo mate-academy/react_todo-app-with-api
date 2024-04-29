@@ -44,7 +44,7 @@ export const App: React.FC = () => {
     load: 'Unable to load todos',
     add: 'Unable to add a todo',
     found: 'Todo not found',
-    deleteTask: 'cannot delete todo',
+    deleteTask: 'Unable to delete a todo',
   };
 
   const taskLeft = tasks?.filter(
