@@ -55,9 +55,7 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
       if (titleRef.current) {
         titleRef.current.focus();
       }
-    } finally {
-      setIsLoading(false);
-    }
+    } 
   };
 
   const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
