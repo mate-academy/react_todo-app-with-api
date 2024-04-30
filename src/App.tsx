@@ -204,6 +204,8 @@ export const App: React.FC = () => {
         setTimeout(() => {
           setErrorVisible(false);
         }, 3000);
+
+        throw new Error('some error');
       })
       .finally(() =>
         setLoadingTodoIds(prevIds =>

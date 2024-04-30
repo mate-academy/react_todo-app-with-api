@@ -3,7 +3,7 @@
 /* eslint-disable jsx-a11y/control-has-associated-label */
 import cn from 'classnames';
 import { Todo } from '../types/Todo';
-import { useContext, useRef, useState } from 'react';
+import { useContext, useEffect, useRef, useState } from 'react';
 import { TodoListContext } from '../variables/LangContext';
 
 type Props = {
@@ -18,6 +18,12 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
   const [showForm, setShowForm] = useState(false);
 
   const inpRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    if (inpRef.current) {
+      inpRef.current.focus();
+    }
+  });
 
   const handleTitleHiddenForm = (
     event: React.ChangeEvent<HTMLInputElement>,
@@ -43,9 +49,12 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
         .then(() => {
           setShowForm(false);
         })
-        .catch(error => {
+        .catch(() => {
           setShowForm(true);
-          throw error;
+          if (inpRef.current) {
+            inpRef.current.disabled = false;
+            inpRef.current.focus();
+          }
         });
       if (inpRef.current) {
         inpRef.current.disabled = false;
@@ -72,13 +81,12 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
         .then(() => {
           setShowForm(false);
         })
-        .catch(error => {
+        .catch(() => {
           setShowForm(true);
           if (inpRef.current) {
             inpRef.current.disabled = false;
+            inpRef.current.focus();
           }
-
-          throw error;
         });
       if (inpRef.current) {
         inpRef.current.disabled = false;
@@ -118,7 +126,6 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
             value={titleHiddenForm}
             onChange={handleTitleHiddenForm}
             onBlur={onBlurSubmit}
-            autoFocus
             ref={inpRef}
           />
         </form>
