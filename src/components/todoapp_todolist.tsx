@@ -89,7 +89,7 @@ export const TodoList = ({
               onEdit(id);
               setNewTitle(title);
             }}
-            onBlur={() => onEdit(null)}
+            onBlur={() => handleTitleSubmit(id)}
           >
             <label
               htmlFor={`Input-task-title#${id}`}

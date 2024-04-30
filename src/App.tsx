@@ -215,7 +215,7 @@ export const App: React.FC = () => {
     const updatedTodo = { ...todoToUpdate, title: newTitl };
 
     const updatedTasks = tasks.map(todo =>
-      todo.id === id ? { ...todo, title: newTitle } : todo,
+      todo.id === id ? { ...todo, title: newTitl } : todo,
     );
 
     setTasks(updatedTasks);
@@ -225,12 +225,15 @@ export const App: React.FC = () => {
         setIsUpdating([]);
       })
       .catch(() => {
+        handleError(errorType.updateTodo);
+
         const revertedTasks = tasks.map(todo =>
           todo.id === id ? { ...todo, title: todoToUpdate.title } : todo,
         );
 
-        handleError(errorType.updateTodo);
+        setIsEditing(id);
         setTasks(revertedTasks);
+
         setIsUpdating([]);
       });
     setIsSubmitting(false);
