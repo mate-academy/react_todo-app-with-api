@@ -15,14 +15,30 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
     useContext(TodoListContext);
 
   const [titleHiddenForm, setTitleHiddenForm] = useState(todo.title || '');
+  const initialTitle = useRef(todo.title || '');
   const [showForm, setShowForm] = useState(false);
 
   const inpRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
+    const handleEscKeyPress = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        setShowForm(false);
+        setTitleHiddenForm(initialTitle.current);
+      }
+    };
+
+    if (showForm) {
+      document.addEventListener('keydown', handleEscKeyPress);
+    }
+
     if (inpRef.current) {
       inpRef.current.focus();
     }
+
+    return () => {
+      document.removeEventListener('keydown', handleEscKeyPress);
+    };
   });
 
   const handleTitleHiddenForm = (
@@ -39,7 +55,16 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
     }
 
     if (titleHiddenForm === '') {
-      deleteTodo(todo.id);
+      if (inpRef.current) {
+        inpRef.current.disabled = true;
+      }
+
+      deleteTodo(todo.id)
+        .catch(() => {
+        if (inpRef.current) {
+        inpRef.current.disabled = true;
+      }
+      });
     } else {
       if (inpRef.current) {
         inpRef.current.disabled = true;
@@ -71,6 +96,10 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
     }
 
     if (titleHiddenForm === '') {
+      if (inpRef.current) {
+        inpRef.current.disabled = true;
+      }
+
       deleteTodo(todo.id);
     } else {
       if (inpRef.current) {
@@ -120,6 +149,7 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
       {showForm && (
         <form onSubmit={handleHiddenFormSubmit}>
           <input
+            data-cy="TodoTitleField"
             type="text"
             placeholder="Empty todo will be deleted"
             className="todoapp__additional-todo"
