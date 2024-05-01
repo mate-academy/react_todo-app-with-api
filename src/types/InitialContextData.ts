@@ -4,11 +4,12 @@ import { Todo } from './Todo';
 
 export interface InitialContextData {
   state: State;
-  setFilter: (payload: Filter) => void;
+  setLoadingItems: (payload: number[]) => void;
   setTodos: (payload: Todo[]) => void;
   addTodo: (payload: string) => Promise<void>;
-  // updateTodo: (payload: Todo) => Promise<void>;
+  updateTodo: (payload: Todo) => Promise<void>;
   deleteTodo: (payload: number) => Promise<void>;
   setTempTodo: (payload: Todo) => void;
+  setFilter: (payload: Filter) => void;
   setError: (payload: string) => void;
 }

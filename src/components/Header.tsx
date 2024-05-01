@@ -8,8 +8,9 @@ export const Header: React.FC = () => {
   const {
     state: { todos },
     addTodo,
+    updateTodo,
     setError,
-    setTodos,
+    setLoadingItems,
   } = useAppContext();
 
   const mainInputRef = useRef<HTMLInputElement>(null);
@@ -39,22 +40,27 @@ export const Header: React.FC = () => {
 
   const handleToggleAllClick = () => {
     if (allCompleted) {
-      setTodos(
-        todos.map(todo => ({
-          ...todo,
-          completed: false,
-        })),
-      );
+      setLoadingItems(todos.map(todo => todo.id));
+      Promise.all([
+        todos.forEach(todo =>
+          updateTodo({ ...todo, completed: !todo.completed }).finally(() =>
+            setLoadingItems([]),
+          ),
+        ),
+      ]);
 
       return;
     }
 
-    setTodos(
-      todos.map(todo => ({
-        ...todo,
-        completed: true,
-      })),
-    );
+    const notComleted = todos.filter(t => !t.completed);
+    setLoadingItems(notComleted.map(todo => todo.id));
+    Promise.all([
+      notComleted.forEach(todo =>
+        updateTodo({ ...todo, completed: true }).finally(() =>
+          setLoadingItems([]),
+        ),
+      ),
+    ]);
   };
 
   useEffect(() => {

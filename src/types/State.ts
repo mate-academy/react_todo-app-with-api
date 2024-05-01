@@ -6,4 +6,5 @@ export interface State {
   filter: Filter;
   error: string;
   tempTodo: Todo | null;
+  loadingItems: number[];
 }

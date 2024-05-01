@@ -5,21 +5,31 @@ import { useAppContext } from '../context/Context';
 
 interface Props {
   todoData: Todo;
-  isLoading?: boolean;
 }
-export const TodoItem: React.FC<Props> = ({ todoData, isLoading = false }) => {
-  const [loading, setIsLoading] = useState(isLoading);
-  const { deleteTodo } = useAppContext();
+export const TodoItem: React.FC<Props> = ({ todoData }) => {
+  const {
+    state: { loadingItems },
+    updateTodo,
+    deleteTodo,
+    setLoadingItems,
+  } = useAppContext();
+  const loading = loadingItems.includes(todoData.id);
+  // const [loading, setIsLoading] = useState(loadingState);
   const [editMode, setEditMode] = useState(false);
   const [title, setTitle] = useState(todoData.title);
 
-  const handleCompleted = () => {};
+  const handleCompleted = () => {
+    setLoadingItems([todoData.id]),
+      updateTodo({ ...todoData, completed: !todoData.completed }).finally(() =>
+        setLoadingItems([]),
+      );
+  };
 
   const handleDelete = (id: number) => {
-    setIsLoading(true);
-    deleteTodo(id).finally(() => {
-      setIsLoading(true);
-    });
+    setLoadingItems([todoData.id]),
+      deleteTodo(id).finally(() => {
+        setLoadingItems([]);
+      });
   };
 
   const handleDoubleClick = () => setEditMode(true);
@@ -35,14 +45,17 @@ export const TodoItem: React.FC<Props> = ({ todoData, isLoading = false }) => {
       return;
     }
 
-    // dispatch({
-    //   type: 'updateTodo',
-    //   payload: {
-    //     ...todoData,
-    //     title: title.trim(),
-    //   },
-    // });
-    setEditMode(false);
+    if (title === title.trim()) {
+      setEditMode(false);
+      return;
+    }
+
+    setLoadingItems([todoData.id]);
+    updateTodo({ ...todoData, title: title.trim() })
+      .then(() => setEditMode(false))
+      .finally(() => {
+        setLoadingItems([]);
+      });
   };
 
   const handleKeyUp = (event: KeyboardEvent) => {

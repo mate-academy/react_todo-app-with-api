@@ -8,13 +8,19 @@ export const Footer: React.FC = () => {
     state: { todos, filter },
     setFilter,
     deleteTodo,
+    setLoadingItems,
   } = useAppContext();
 
   const completed = todos.filter(todo => todo.completed);
   const notComleted = todos.filter(todo => !todo.completed);
 
   const handleGroupDelete = () => {
-    Promise.all([completed.forEach(todo => deleteTodo(todo.id))]);
+    setLoadingItems(completed.map(t => t.id));
+    Promise.all([
+      completed.forEach(todo =>
+        deleteTodo(todo.id).finally(() => setLoadingItems([])),
+      ),
+    ]);
   };
 
   return (

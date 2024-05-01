@@ -10,9 +10,10 @@ import * as todoService from '../api/todos';
 
 const initialState: State = {
   todos: [],
+  tempTodo: null,
   filter: Filter.All,
   error: '',
-  tempTodo: null,
+  loadingItems: [],
 };
 
 const reducer = (state: State, action: Action): State => {
@@ -21,11 +22,6 @@ const reducer = (state: State, action: Action): State => {
       return {
         ...state,
         todos: action.payload,
-      };
-    case 'setTempTodo':
-      return {
-        ...state,
-        tempTodo: action.payload,
       };
 
     case 'addTodo':
@@ -48,6 +44,12 @@ const reducer = (state: State, action: Action): State => {
         todos: state.todos.filter((todo: Todo) => todo.id !== action.payload),
       };
 
+    case 'setTempTodo':
+      return {
+        ...state,
+        tempTodo: action.payload,
+      };
+
     case 'setFilter':
       return {
         ...state,
@@ -60,6 +62,12 @@ const reducer = (state: State, action: Action): State => {
         error: action.payload,
       };
 
+    case 'setLoadingItems':
+      return {
+        ...state,
+        loadingItems: action.payload,
+      };
+
     default:
       return state;
   }
@@ -67,12 +75,13 @@ const reducer = (state: State, action: Action): State => {
 
 const AppContext = createContext<InitialContextData>({
   state: initialState,
-  setFilter: () => {},
+  setLoadingItems: () => {},
   setTodos: () => {},
   addTodo: () => new Promise(() => {}),
-  // updateTodo: () => new Promise(() => {}),
+  updateTodo: () => new Promise(() => {}),
   deleteTodo: () => new Promise(() => {}),
   setTempTodo: () => {},
+  setFilter: () => {},
   setError: () => {},
 });
 
@@ -85,26 +94,13 @@ export const AppContextProvider: React.FC<{
     dispatch({ type: 'setTodos', payload: todos });
   };
 
-  const setError = (errorMessage: string) => {
-    dispatch({ type: 'setError', payload: errorMessage });
-    setTimeout(() => dispatch({ type: 'setError', payload: '' }), 3000);
-  };
-
-  const setFilter = (filterType: Filter) => {
-    dispatch({ type: 'setFilter', payload: filterType });
-  };
-
-  const setTempTodo = (todo: Todo | null) => {
-    dispatch({ type: 'setTempTodo', payload: todo });
-  };
-
   const addTodo = (title: string) => {
     const newTodo = {
       userId: todoService.USER_ID,
       title,
       completed: false,
     };
-
+    setLoadingItems([0]);
     setTempTodo({ ...newTodo, id: 0 });
 
     return todoService
@@ -114,7 +110,20 @@ export const AppContextProvider: React.FC<{
         setError('Unable to add a todo');
         throw error;
       })
-      .finally(() => setTempTodo(null));
+      .finally(() => {
+        setTempTodo(null);
+        setLoadingItems([]);
+      });
+  };
+
+  const updateTodo = (newTodo: Todo) => {
+    return todoService
+      .updateTodo(newTodo)
+      .then(res => dispatch({ type: 'updateTodo', payload: res }))
+      .catch(error => {
+        setError('Unable to update a todo');
+        throw error;
+      });
   };
 
   const deleteTodo = (id: number) => {
@@ -127,6 +136,23 @@ export const AppContextProvider: React.FC<{
         setError('Unable to delete a todo');
         throw error;
       });
+  };
+
+  const setTempTodo = (todo: Todo | null) => {
+    dispatch({ type: 'setTempTodo', payload: todo });
+  };
+
+  const setFilter = (filterType: Filter) => {
+    dispatch({ type: 'setFilter', payload: filterType });
+  };
+
+  const setError = (errorMessage: string) => {
+    dispatch({ type: 'setError', payload: errorMessage });
+    setTimeout(() => dispatch({ type: 'setError', payload: '' }), 3000);
+  };
+
+  const setLoadingItems = (idList: number[]) => {
+    dispatch({ type: 'setLoadingItems', payload: idList });
   };
 
   useEffect(() => {
@@ -149,12 +175,14 @@ export const AppContextProvider: React.FC<{
     <AppContext.Provider
       value={{
         state,
+        setLoadingItems,
         setTodos,
-        setError,
-        setFilter,
-        setTempTodo,
         addTodo,
+        updateTodo,
         deleteTodo,
+        setTempTodo,
+        setFilter,
+        setError,
       }}
     >
       {children}

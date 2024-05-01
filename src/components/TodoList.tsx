@@ -22,7 +22,7 @@ export const TodoList: React.FC = () => {
       {filteredTodos.map(todo => (
         <TodoItem key={todo.id} todoData={todo} />
       ))}
-      {tempTodo && <TodoItem todoData={tempTodo} isLoading={true} />}
+      {tempTodo && <TodoItem todoData={tempTodo} />}
     </section>
   );
 };
