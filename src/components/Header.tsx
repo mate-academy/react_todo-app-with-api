@@ -53,6 +53,7 @@ export const Header: React.FC = () => {
     }
 
     const notComleted = todos.filter(t => !t.completed);
+
     setLoadingItems(notComleted.map(todo => todo.id));
     Promise.all([
       notComleted.forEach(todo =>

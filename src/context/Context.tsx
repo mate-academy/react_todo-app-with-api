@@ -44,7 +44,7 @@ const reducer = (state: State, action: Action): State => {
         todos: state.todos.filter((todo: Todo) => todo.id !== action.payload),
       };
 
-    case 'setTempTodo':
+    case 'addTempTodo':
       return {
         ...state,
         tempTodo: action.payload,
@@ -90,8 +90,21 @@ export const AppContextProvider: React.FC<{
 }> = ({ children }) => {
   const [state, dispatch] = useReducer(reducer, initialState);
 
+  const setLoadingItems = (idList: number[]) => {
+    dispatch({ type: 'setLoadingItems', payload: idList });
+  };
+
+  const setError = (errorMessage: string) => {
+    dispatch({ type: 'setError', payload: errorMessage });
+    setTimeout(() => dispatch({ type: 'setError', payload: '' }), 3000);
+  };
+
   const setTodos = (todos: Todo[]) => {
     dispatch({ type: 'setTodos', payload: todos });
+  };
+
+  const addTempTodo = (todo: Todo | null) => {
+    dispatch({ type: 'addTempTodo', payload: todo });
   };
 
   const addTodo = (title: string) => {
@@ -100,8 +113,9 @@ export const AppContextProvider: React.FC<{
       title,
       completed: false,
     };
+
     setLoadingItems([0]);
-    setTempTodo({ ...newTodo, id: 0 });
+    addTempTodo({ ...newTodo, id: 0 });
 
     return todoService
       .addTodo(newTodo)
@@ -111,7 +125,7 @@ export const AppContextProvider: React.FC<{
         throw error;
       })
       .finally(() => {
-        setTempTodo(null);
+        addTempTodo(null);
         setLoadingItems([]);
       });
   };
@@ -138,21 +152,8 @@ export const AppContextProvider: React.FC<{
       });
   };
 
-  const setTempTodo = (todo: Todo | null) => {
-    dispatch({ type: 'setTempTodo', payload: todo });
-  };
-
   const setFilter = (filterType: Filter) => {
     dispatch({ type: 'setFilter', payload: filterType });
-  };
-
-  const setError = (errorMessage: string) => {
-    dispatch({ type: 'setError', payload: errorMessage });
-    setTimeout(() => dispatch({ type: 'setError', payload: '' }), 3000);
-  };
-
-  const setLoadingItems = (idList: number[]) => {
-    dispatch({ type: 'setLoadingItems', payload: idList });
   };
 
   useEffect(() => {
@@ -180,7 +181,7 @@ export const AppContextProvider: React.FC<{
         addTodo,
         updateTodo,
         deleteTodo,
-        setTempTodo,
+        setTempTodo: addTempTodo,
         setFilter,
         setError,
       }}

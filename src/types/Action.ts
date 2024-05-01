@@ -6,7 +6,7 @@ export type Action =
   | { type: 'addTodo'; payload: Todo }
   | { type: 'updateTodo'; payload: Todo }
   | { type: 'deleteTodo'; payload: number }
-  | { type: 'setTempTodo'; payload: Todo | null }
+  | { type: 'addTempTodo'; payload: Todo | null }
   | { type: 'setFilter'; payload: Filter }
   | { type: 'setError'; payload: string }
   | { type: 'setLoadingItems'; payload: number[] };
