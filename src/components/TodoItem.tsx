@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import cn from 'classnames';
 import { Todo } from '../types/Todo';
 import { useAppContext } from '../context/Context';
@@ -13,23 +13,26 @@ export const TodoItem: React.FC<Props> = ({ todoData }) => {
     deleteTodo,
     setLoadingItems,
   } = useAppContext();
+
   const loading = loadingItems.includes(todoData.id);
   // const [loading, setIsLoading] = useState(loadingState);
   const [editMode, setEditMode] = useState(false);
   const [title, setTitle] = useState(todoData.title);
 
+  const inputTitleRef = useRef<HTMLInputElement>(null);
+
   const handleCompleted = () => {
-    setLoadingItems([todoData.id]),
-      updateTodo({ ...todoData, completed: !todoData.completed }).finally(() =>
-        setLoadingItems([]),
-      );
+    setLoadingItems([todoData.id]);
+    updateTodo({ ...todoData, completed: !todoData.completed }).finally(() =>
+      setLoadingItems([]),
+    );
   };
 
   const handleDelete = (id: number) => {
-    setLoadingItems([todoData.id]),
-      deleteTodo(id).finally(() => {
-        setLoadingItems([]);
-      });
+    setLoadingItems([todoData.id]);
+    deleteTodo(id).finally(() => {
+      setLoadingItems([]);
+    });
   };
 
   const handleDoubleClick = () => setEditMode(true);
@@ -39,23 +42,25 @@ export const TodoItem: React.FC<Props> = ({ todoData }) => {
   };
 
   const handleTitleSave = () => {
-    if (!title.trim()) {
-      handleDelete(todoData.id);
+    const trimmedTitle = title.trim();
 
-      return;
-    }
+    if (trimmedTitle !== todoData.title) {
+      if (!title.trim()) {
+        handleDelete(todoData.id);
 
-    if (title === title.trim()) {
+        return;
+      }
+
+      setLoadingItems([todoData.id]);
+      updateTodo({ ...todoData, title: title.trim() })
+        .then(() => setEditMode(false))
+        .catch(() => inputTitleRef.current?.focus())
+        .finally(() => {
+          setLoadingItems([]);
+        });
+    } else {
       setEditMode(false);
-      return;
     }
-
-    setLoadingItems([todoData.id]);
-    updateTodo({ ...todoData, title: title.trim() })
-      .then(() => setEditMode(false))
-      .finally(() => {
-        setLoadingItems([]);
-      });
   };
 
   const handleKeyUp = (event: KeyboardEvent) => {
@@ -66,6 +71,12 @@ export const TodoItem: React.FC<Props> = ({ todoData }) => {
       handleTitleSave();
     }
   };
+
+  useEffect(() => {
+    if (editMode) {
+      inputTitleRef.current?.focus();
+    }
+  }, [editMode]);
 
   useEffect(() => {
     if (editMode) {
@@ -99,11 +110,11 @@ export const TodoItem: React.FC<Props> = ({ todoData }) => {
       {editMode ? (
         <form onSubmit={event => event.preventDefault()}>
           <input
+            ref={inputTitleRef}
             data-cy="TodoTitleField"
             type="text"
             className="todo__title-field"
             placeholder="Empty todo will be deleted"
-            autoFocus
             value={title}
             onBlur={handleTitleSave}
             onChange={e => handleTitleChange(e)}
