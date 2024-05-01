@@ -59,11 +59,10 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
         inpRef.current.disabled = true;
       }
 
-      deleteTodo(todo.id)
-        .catch(() => {
+      deleteTodo(todo.id).catch(() => {
         if (inpRef.current) {
-        inpRef.current.disabled = true;
-      }
+          inpRef.current.disabled = true;
+        }
       });
     } else {
       if (inpRef.current) {
