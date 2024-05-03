@@ -5,13 +5,13 @@ import cn from 'classnames';
 
 type Props = {
   todos: Todo[];
-  onAddNewTodo: (_: string) => void;
-  onError: (_: ErrorText) => void;
+  onAddNewTodo: (title: string) => void;
+  onError: (error: ErrorText) => void;
   isPosting: boolean;
   title: string;
-  setTitle: (_: string) => void;
+  setTitle: (title: string) => void;
   inputRef: React.RefObject<HTMLInputElement>;
-  onTodoCheck: (_: Todo) => void;
+  onTodoCheck: (todo: Todo) => void;
 };
 
 export const TodoAppHeader: React.FC<Props> = ({

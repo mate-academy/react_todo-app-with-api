@@ -19,7 +19,7 @@ import { getFilteredTodos } from './utils/getFilteredTodos';
 
 export const App: React.FC = () => {
   const [todos, setTodos] = useState<Todo[]>([]);
-  const [processingTodos, setProcessingTodos] = useState<Todo[]>([]);
+  const [processingTodos, setProcessingTodos] = useState<number[]>([]);
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
   const [errorText, setErrorText] = useState<ErrorText>(ErrorText.NoError);
   const [title, setTitle] = useState('');
@@ -29,19 +29,13 @@ export const App: React.FC = () => {
   );
 
   const preparedTodos = getFilteredTodos(todos, statusFilter);
-  const addToProcessingListById = (todoId: number) => {
-    const todoToAdd = todos.find(todo => todo.id === todoId);
-
-    if (todoToAdd === undefined) {
-      return;
-    }
-
-    setProcessingTodos(prevTodos => [...prevTodos, todoToAdd]);
+  const addToProcessingList = (todoId: number) => {
+    setProcessingTodos(prevTodoIds => [...prevTodoIds, todoId]);
   };
 
-  const removeFromProcessingListById = (todoId: number) => {
+  const removeFromProcessingList = (todoId: number) => {
     setProcessingTodos(prevTodos =>
-      prevTodos.filter(prevTodo => prevTodo.id !== todoId),
+      prevTodos.filter(prevTodoId => prevTodoId !== todoId),
     );
   };
 
@@ -59,8 +53,8 @@ export const App: React.FC = () => {
   }, []);
 
   const handleTodoDelete = (todoId: number) => {
-    addToProcessingListById(todoId);
-    setErrorText(ErrorText.NoError);
+    addToProcessingList(todoId);
+    handleHideError()
 
     deleteTodo(todoId)
       .then(() => {
@@ -72,7 +66,7 @@ export const App: React.FC = () => {
         handleError(ErrorText.Delete);
       })
       .finally(() => {
-        removeFromProcessingListById(todoId);
+        removeFromProcessingList(todoId);
       });
   };
 
@@ -93,20 +87,14 @@ export const App: React.FC = () => {
     };
 
     setTempTodo(newTodo);
-    setErrorText(ErrorText.NoError);
+    handleHideError()
 
     postTodo(newTodo)
       .then(res => {
         setTitle('');
 
         setTodos(prevTodos => {
-          return [
-            ...prevTodos,
-            {
-              ...newTodo,
-              id: res.id,
-            },
-          ];
+          return [...prevTodos, res];
         });
       })
       .catch(() => {
@@ -119,8 +107,8 @@ export const App: React.FC = () => {
   };
 
   const handleTodoUpdate = (updatedTodo: Todo) => {
-    addToProcessingListById(updatedTodo.id);
-    setErrorText(ErrorText.NoError);
+    addToProcessingList(updatedTodo.id);
+    handleHideError()
 
     updateTodo(updatedTodo)
       .then(resp => {
@@ -132,7 +120,7 @@ export const App: React.FC = () => {
         handleError(ErrorText.Update);
       })
       .finally(() => {
-        removeFromProcessingListById(updatedTodo.id);
+        removeFromProcessingList(updatedTodo.id);
       });
   };
 
@@ -146,9 +134,7 @@ export const App: React.FC = () => {
   useEffect(() => {
     const fetchTodos = () => {
       getTodos()
-        .then(data => {
-          setTodos(data);
-        })
+        .then(setTodos)
         .catch(() => {
           handleError(ErrorText.Loading);
         });

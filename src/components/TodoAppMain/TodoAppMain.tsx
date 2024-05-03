@@ -5,7 +5,7 @@ import { TodoItem } from '../TodoItem';
 type Props = {
   todos: Todo[];
   tempTodo: Todo | null;
-  processingTodos: Todo[];
+  processingTodos: number[];
   onTodoDelete: (todoId: number) => void;
   onTodoCheck: (todo: Todo) => void;
   onTodoUpdate: (todo: Todo) => void;
@@ -26,7 +26,7 @@ export const TodoAppMain: React.FC<Props> = ({
         key={todo.id}
         todo={todo}
         isUpdating={processingTodos.some(
-          todoInProcess => todoInProcess.id === todo.id,
+          todoIdInProcess => todoIdInProcess=== todo.id,
         )}
         onTodoDelete={onTodoDelete}
         onTodoUpdate={onTodoUpdate}
