@@ -15,9 +15,12 @@ import { TodoLoader } from '../TodoLoader/TodoLoader';
 export const TodoItem: React.FC<TodoItemType> = ({ todo, tempTodo }) => {
   const { id, title, completed } = todo;
   const { deleteTodo, updateTodo } = useContext(TodoListContext);
-  const [loading, setLoading] = useState(false);
+
   const [queryNewTodo, setQueryNewTodo] = useState(title);
+
+  const [loading, setLoading] = useState(false);
   const [isEditing, setEditing] = useState(false);
+
   const todoTitleField = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -30,31 +33,51 @@ export const TodoItem: React.FC<TodoItemType> = ({ todo, tempTodo }) => {
     }
   }, [tempTodo]);
 
-  const handlerDeleteTodo = () => {
+  const handlerDeleteTodo = async () => {
     setLoading(true);
 
-    deleteTodo(id);
+    try {
+      await deleteTodo(id);
+    } catch {
+      setLoading(false);
+    }
   };
 
   const handlerChangeQuery = (e: ChangeEvent<HTMLInputElement>) => {
     setQueryNewTodo(e.target.value);
   };
 
-  const handlerUpdateStatusTodo = () => {
-    updateTodo(id, { completed: !completed });
+  const handlerUpdateStatusTodo = async () => {
+    setLoading(true);
+
+    try {
+      await updateTodo(id, { completed: !completed });
+
+      setLoading(false);
+    } catch {
+      setLoading(false);
+    }
   };
 
-  const handlerUpdateTodo = () => {
+  const handlerUpdateTodo = async () => {
     if (queryNewTodo === title) {
       setEditing(false);
 
       return;
     }
 
-    if (queryNewTodo.trim()) {
-      updateTodo(id, { title: queryNewTodo });
-    } else {
-      deleteTodo(id);
+    setLoading(true);
+
+    try {
+      if (queryNewTodo.trim()) {
+        await updateTodo(id, { title: queryNewTodo });
+      } else {
+        await deleteTodo(id);
+      }
+
+      setLoading(false);
+    } catch {
+      setLoading(false);
     }
   };
 
