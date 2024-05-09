@@ -13,7 +13,7 @@ import cn from 'classnames';
 
 export const TodoHeader = () => {
   const todoField = useRef<HTMLInputElement>(null);
-  const { todos, addTodo, errorMessage, updateIsCompletedTodo, isDisabled } =
+  const { todos, addTodo, updateIsCompletedTodo, isDisabled, isSuccess } =
     useContext(TodoListContext);
   const [queryTodo, setQueryTodo] = useState('');
   const isAllCompletedTodos = todos.every(item => item.completed);
@@ -22,22 +22,24 @@ export const TodoHeader = () => {
     todoField.current?.focus();
   }, [todos]);
 
-  const handlerChangeQuery = (e: ChangeEvent<HTMLInputElement>) => {
-    setQueryTodo(e.target.value);
-  };
-
   const reset = () => {
     setQueryTodo('');
   };
 
-  const handlerSumbit = (e: FormEvent) => {
+  useEffect(() => {
+    if (isSuccess) {
+      reset();
+    }
+  }, [isSuccess]);
+
+  const handlerChangeQuery = (e: ChangeEvent<HTMLInputElement>) => {
+    setQueryTodo(e.target.value);
+  };
+
+  const handlerSumbit = async (e: FormEvent) => {
     e.preventDefault();
 
     addTodo(queryTodo);
-
-    if (!errorMessage) {
-      reset();
-    }
   };
 
   return (

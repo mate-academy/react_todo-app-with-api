@@ -6,6 +6,7 @@ export type TodoListContextType = {
   tempTodo: TodoType | null;
   currentFilter: string;
   isDisabled: boolean;
+  isSuccess: boolean;
   setCurrentFilter: (status: string) => void;
   addTodo: (todo: string) => void;
   deleteTodo: (id: number) => void;
