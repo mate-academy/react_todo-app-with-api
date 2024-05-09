@@ -73,7 +73,10 @@ export const Main = ({
                   value={changeInput}
                   onChange={event => setChangeInput(event.target.value)}
                   ref={inputFocus}
-                  onKeyUp={event => changeInputs(todo, event.key)}
+                  onKeyUp={event => {
+                    event.preventDefault();
+                    changeInputs(todo, event.key);
+                  }}
                   onBlur={() => changeInputs(todo, 'Blur')}
                 />
               </form>
