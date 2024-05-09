@@ -28,7 +28,7 @@ export const TodoItem: React.FC<Props> = ({ todo, loading = false }) => {
     // dispatch({ type: 'deleteTodo', payload: todo.id });
   };
 
-  const handleFormSubmit = (id?: number) => {
+  const handleFormSubmit = () => {
     const newTitle = title.trim();
 
     setIsEdit(false);
@@ -38,7 +38,7 @@ export const TodoItem: React.FC<Props> = ({ todo, loading = false }) => {
         // dispatch({ type: ListAct.Delete, payload: todo.id });
         // handleDelete(todo.id);
         setIsLoading(true);
-        deleteTodo(id as number)
+        deleteTodo(todo.id)
           .catch(() => setIsEdit(true))
           .finally(() => setIsLoading(false));
         // dispatch({ type: 'deleteTodo', payload: todo.id });
@@ -103,7 +103,6 @@ export const TodoItem: React.FC<Props> = ({ todo, loading = false }) => {
       </label>
 
       {isEdit ? (
-        // <form onSubmit={handleFormSubmit}>
         <form
           onSubmit={(element: React.FormEvent<HTMLFormElement>): void => {
             element.preventDefault();
