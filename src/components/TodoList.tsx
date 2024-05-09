@@ -13,7 +13,6 @@ export const TodoList: React.FC = () => {
         return !todo.completed;
       case FilterAction.Completed:
         return todo.completed;
-      case FilterAction.All:
       default:
         return todos;
     }

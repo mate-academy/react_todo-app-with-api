@@ -19,9 +19,7 @@ export const Filter: React.FC = () => {
   const showTodos = todos.filter(todo => !todo.completed).length;
 
   const handleDeletCompleteTodos = () => {
-    for (const item of hasCompleteTodo) {
-      deleteTodo(item.id);
-    }
+    hasCompleteTodo.forEach(todo => deleteTodo(todo.id));
   };
 
   return (

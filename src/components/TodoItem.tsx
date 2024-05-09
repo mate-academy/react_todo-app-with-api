@@ -38,6 +38,7 @@ export const TodoItem: React.FC<Props> = ({ todo, loading = false }) => {
         setIsLoading(true);
         updateTodo({ ...todo, title: newTitle })
           .catch(() => setIsEdit(true))
+          .catch(() => setIsLoading(false))
           .finally(() => setIsLoading(false));
       }
     } else {
