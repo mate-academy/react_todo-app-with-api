@@ -4,13 +4,6 @@ import cn from 'classnames';
 
 export const Error: React.FC = () => {
   const { error } = useContext(TodoContext);
-  // const [newError, setNewError] = useState('');
-
-  // useEffect(() => {
-  //   if (errorMessage !== '') {
-  //     setNewError(error);
-  //   }
-  // }, [error]);
 
   return (
     <div
@@ -23,23 +16,8 @@ export const Error: React.FC = () => {
         { hidden: !error },
       )}
     >
-      <button
-        data-cy="HideErrorButton"
-        type="button"
-        className="delete"
-        // onClick={() => setError('')}
-      />
+      <button data-cy="HideErrorButton" type="button" className="delete" />
       {error}
-      {/* show only one message at a time */}
-      {/* Unable to load todos
-      <br />
-      Title should not be empty
-      <br />
-      Unable to add a todo
-      <br />
-      Unable to delete a todo
-      <br />
-      Unable to update a todo */}
     </div>
   );
 };

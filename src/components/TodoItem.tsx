@@ -1,11 +1,8 @@
 /* eslint-disable jsx-a11y/label-has-associated-control */
 import React, { useContext, useState } from 'react';
 import cn from 'classnames';
-// import { ListAct } from '../types/Actions';
 import { Todo } from '../types/Todo';
 import { TodoContext } from './TodoContext';
-// import { USER_ID } from '../api/todos';
-// import * as api from '../api/todos';
 
 type Props = {
   todo: Todo;
@@ -25,40 +22,24 @@ export const TodoItem: React.FC<Props> = ({ todo, loading = false }) => {
   const handleDelete = (id: number) => {
     setIsLoading(true);
     deleteTodo(id).finally(() => setIsLoading(false));
-    // dispatch({ type: 'deleteTodo', payload: todo.id });
   };
 
   const handleFormSubmit = () => {
     const newTitle = title.trim();
 
     setIsEdit(false);
-    // setIsLoading(true);
     if (newTitle !== todo.title) {
       if (!newTitle) {
-        // dispatch({ type: ListAct.Delete, payload: todo.id });
-        // handleDelete(todo.id);
         setIsLoading(true);
         deleteTodo(todo.id)
           .catch(() => setIsEdit(true))
           .finally(() => setIsLoading(false));
-        // dispatch({ type: 'deleteTodo', payload: todo.id });
-        // setError('Unable to delete todos');
       } else {
         setIsLoading(true);
         updateTodo({ ...todo, title: newTitle })
           .catch(() => setIsEdit(true))
           .finally(() => setIsLoading(false));
       }
-
-      // dispatch({
-      //   type: 'updateTodo',
-      //   payload: {
-      //     id: todo.id,
-      //     title: title.trim(),
-      //     userId: USER_ID,
-      //     completed: false,
-      //   },
-      // });
     } else {
       setIsEdit(false);
     }
@@ -84,10 +65,6 @@ export const TodoItem: React.FC<Props> = ({ todo, loading = false }) => {
     updateTodo({ ...todo, completed: !todo.completed }).finally(() =>
       setIsLoading(false),
     );
-    // dispatch({
-    //   type: ListAct.SetComplet,
-    //   payload: { id: todo.id, completed: !todo.completed },
-    // });
   };
 
   return (

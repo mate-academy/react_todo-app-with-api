@@ -79,35 +79,6 @@ const reducer = (state: State, action: Action): State => {
     case 'setTempTodos':
       return { ...state, tempTodo: action.payload };
 
-    // case ListAct.SetComplet:
-    //   return {
-    //     ...state,
-    //     todos: state.todos.map(todo =>
-    //       todo.id === action.payload.id
-    //         ? { ...todo, completed: action.payload.completed }
-    //         : todo,
-    //     ),
-    //   };
-
-    // case ListAct.ClearComplet:
-    //   return {
-    //     ...state,
-    //     todos: state.todos.filter(todo => todo.completed === false),
-    //   };
-
-    // case ListAct.SetAllComplet:
-    //   const completed = {
-    //     ...state,
-    //     todos: state.todos.some(todo => !todo.completed),
-    //   };
-
-    //   return {
-    //     ...state,
-    //     todos: state.todos.map(todo => {
-    //       return { ...state, completed: completed };
-    //     }),
-    //   };
-
     default:
       return state;
   }
@@ -210,16 +181,6 @@ export const TodoProvider: React.FC<ProviderProps> = ({ children }) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [todos, tempTodo, filter, error, setFilter],
   );
-
-  // useEffect(() => {
-  //   const storedTodos = JSON.parse(localStorage.getItem('todos') as string);
-
-  //   if (storedTodos) {
-  //     storedTodos.forEach((todo: Todo) => {
-  //       dispatch({ type: ListAct.Add, payload: todo });
-  //     });
-  //   }
-  // }, []);
 
   useEffect(() => {
     api

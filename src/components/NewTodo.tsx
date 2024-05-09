@@ -1,6 +1,5 @@
 import React, { useEffect, useRef } from 'react';
 import { useContext, useState } from 'react';
-// import { Todo } from '../types/Todo';
 import { TodoContext } from './TodoContext';
 import cn from 'classnames';
 
@@ -23,18 +22,6 @@ export const NewTodo: React.FC = () => {
       return;
     }
 
-    // if (!!title.trim().length) {
-    //   const addedTodo: Todo = {
-    //     id: +new Date(),
-    //     title: title.trim(),
-    //     completed: false,
-    //     userId: USER_ID,
-    //   };
-
-    //   setTitle('');
-
-    //   dispatch({ type: 'addTodo', payload: addedTodo });
-    // }
     setTitileReady(true);
     setError('');
 

@@ -3,7 +3,6 @@ import { useContext } from 'react';
 import cn from 'classnames';
 import { TodoContext } from './TodoContext';
 import { FilterAction } from '../types/Actions';
-// import { deleteTodo } from '../api/todos';
 
 export const Filter: React.FC = () => {
   const { todos, filter, setFilter, deleteTodo } = useContext(TodoContext);
