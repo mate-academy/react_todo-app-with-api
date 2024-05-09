@@ -76,6 +76,7 @@ export const TodoListProvider: React.FC<TodoListProviderType> = ({
     } catch {
       setErrorMessage(Errors.ADD_TODO);
       setIsDisabled(false);
+      setTempTodo(null);
     }
   };
 
