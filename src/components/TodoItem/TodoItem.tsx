@@ -38,6 +38,8 @@ export const TodoItem: React.FC<TodoItemType> = ({ todo, tempTodo }) => {
 
     try {
       await deleteTodo(id);
+
+      setLoading(false);
     } catch {
       setLoading(false);
     }
