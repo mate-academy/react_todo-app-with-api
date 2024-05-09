@@ -1,3 +1,5 @@
+import cn from 'classnames';
+
 interface Props {
   error: string;
   setError: (b: string) => void;
@@ -6,9 +8,8 @@ interface Props {
 export const Errors = ({ error, setError }: Props) => {
   return (
     <div
-      hidden={!error}
       data-cy="ErrorNotification"
-      className="notification is-danger is-light has-text-weight-normal"
+      className={cn('notification is-danger is-light has-text-weight-normal', {'hidden': !error})}
     >
       <button
         data-cy="HideErrorButton"

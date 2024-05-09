@@ -33,8 +33,8 @@ export const App: React.FC = () => {
   if (error) {
     setTimeout(() => {
       setError('');
-    }, 3000)
-  }
+    }, 3000);
+  } 
 
   if (!USER_ID) {
     return <UserWarning />;
