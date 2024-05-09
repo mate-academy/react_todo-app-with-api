@@ -14,7 +14,7 @@ type Props = {
 
 export const TodoItem: React.FC<Props> = ({ todo, loading = false }) => {
   const [isEdit, setIsEdit] = useState(false);
-  const [title, setTitle] = useState(todo.title);
+  const [title, setTitle] = useState(todo.title.trim());
   const [isLoading, setIsLoading] = useState(loading);
   const { deleteTodo, updateTodo } = useContext(TodoContext);
 
@@ -28,7 +28,7 @@ export const TodoItem: React.FC<Props> = ({ todo, loading = false }) => {
     // dispatch({ type: 'deleteTodo', payload: todo.id });
   };
 
-  const handleFormSubmit = () => {
+  const handleFormSubmit = (id?: number) => {
     const newTitle = title.trim();
 
     setIsEdit(false);
@@ -36,14 +36,18 @@ export const TodoItem: React.FC<Props> = ({ todo, loading = false }) => {
     if (newTitle !== todo.title) {
       if (!newTitle) {
         // dispatch({ type: ListAct.Delete, payload: todo.id });
-        handleDelete(todo.id);
+        // handleDelete(todo.id);
+        setIsLoading(true);
+        deleteTodo(id as number)
+          .catch(() => setIsEdit(true))
+          .finally(() => setIsLoading(false));
         // dispatch({ type: 'deleteTodo', payload: todo.id });
         // setError('Unable to delete todos');
       } else {
         setIsLoading(true);
-        updateTodo({ ...todo, title: newTitle }).finally(() =>
-          setIsLoading(false),
-        );
+        updateTodo({ ...todo, title: newTitle })
+          .catch(() => setIsEdit(true))
+          .finally(() => setIsLoading(false));
       }
 
       // dispatch({
@@ -65,6 +69,7 @@ export const TodoItem: React.FC<Props> = ({ todo, loading = false }) => {
       setTitle(todo.title);
       setIsEdit(false);
     } else if (event.key === 'Enter') {
+      setTitle(title.trim());
       handleFormSubmit();
     }
   };
@@ -98,7 +103,12 @@ export const TodoItem: React.FC<Props> = ({ todo, loading = false }) => {
       </label>
 
       {isEdit ? (
-        <form onSubmit={handleFormSubmit}>
+        // <form onSubmit={handleFormSubmit}>
+        <form
+          onSubmit={(element: React.FormEvent<HTMLFormElement>): void => {
+            element.preventDefault();
+          }}
+        >
           <input
             data-cy="TodoTitleField"
             type="text"
