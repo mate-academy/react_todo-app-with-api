@@ -1,7 +1,8 @@
-import React, {
+import {
   ChangeEvent,
   FormEvent,
   useContext,
+  useEffect,
   useRef,
   useState,
 } from 'react';
@@ -12,12 +13,12 @@ import cn from 'classnames';
 
 export const TodoHeader = () => {
   const todoField = useRef<HTMLInputElement>(null);
-  const { todos, addTodo, errorMessage, updateIsCompletedTodo } =
+  const { todos, addTodo, errorMessage, updateIsCompletedTodo, isDisabled } =
     useContext(TodoListContext);
   const [queryTodo, setQueryTodo] = useState('');
   const isAllCompletedTodos = todos.every(item => item.completed);
 
-  React.useEffect(() => {
+  useEffect(() => {
     todoField.current?.focus();
   }, [todos]);
 
@@ -56,6 +57,7 @@ export const TodoHeader = () => {
       {/* Add a todo on form submit */}
       <form onSubmit={handlerSumbit}>
         <input
+          disabled={isDisabled}
           ref={todoField}
           value={queryTodo}
           onChange={handlerChangeQuery}

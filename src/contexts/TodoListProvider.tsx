@@ -16,6 +16,7 @@ export const TodoListProvider: React.FC<TodoListProviderType> = ({
   const [errorMessage, setErrorMessage] = useState<Errors | null>(null);
   const [currentFilter, setCurrentFilter] = useState<string>(Filters.All);
   const [tempTodo, setTempTodo] = useState<TodoType | null>(null);
+  const [isDisabled, setIsDisabled] = useState(false);
 
   useEffect(() => {
     const timeout = setTimeout(() => {
@@ -52,6 +53,8 @@ export const TodoListProvider: React.FC<TodoListProviderType> = ({
       return;
     }
 
+    setIsDisabled(true);
+
     if (!errorMessage) {
       saveTempTodo(todo);
     }
@@ -65,6 +68,7 @@ export const TodoListProvider: React.FC<TodoListProviderType> = ({
 
       setTodos([...todos, data]);
       setTempTodo(null);
+      setIsDisabled(false);
     } catch {
       setErrorMessage(Errors.ADD_TODO);
     }
@@ -143,6 +147,7 @@ export const TodoListProvider: React.FC<TodoListProviderType> = ({
       tempTodo,
       updateTodo,
       updateIsCompletedTodo,
+      isDisabled,
     };
   };
 

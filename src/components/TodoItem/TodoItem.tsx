@@ -108,7 +108,7 @@ export const TodoItem: React.FC<TodoItemType> = ({ todo, tempTodo }) => {
           data-cy="TodoTitle"
           className="todo__title"
         >
-          {title}
+          {title.trim()}
         </span>
       )}
       {/* Remove button appears only on hover */}

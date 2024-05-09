@@ -7,6 +7,7 @@ export const TodoListContext = React.createContext<TodoListContextType>({
   todos: [],
   errorMessage: null,
   tempTodo: null,
+  isDisabled: false,
   currentFilter: Filters.All,
   setCurrentFilter: () => {},
   addTodo: () => {},
