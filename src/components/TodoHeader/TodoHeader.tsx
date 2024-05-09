@@ -22,13 +22,9 @@ export const TodoHeader = () => {
     todoField.current?.focus();
   }, [todos]);
 
-  const reset = () => {
-    setQueryTodo('');
-  };
-
   useEffect(() => {
     if (isSuccess) {
-      reset();
+      setQueryTodo('');
     }
   }, [isSuccess]);
 
