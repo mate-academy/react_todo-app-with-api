@@ -27,7 +27,7 @@ export const App: React.FC = () => {
       .then(todoses => {
         setTodos(todoses);
       })
-      .catch(() => setError('load'));
+      .catch(() => setError('Unable to load todos'));
   }, []);
 
   if (!USER_ID) {
@@ -45,7 +45,7 @@ export const App: React.FC = () => {
         setInput('');
       })
 
-      .catch(() => setError('add'))
+      .catch(() => setError('Unable to add a todo'))
       .finally(() => {
         setWaitSerser(false);
         setTempTodo(null);
@@ -60,7 +60,7 @@ export const App: React.FC = () => {
         setTodos(prevTodos => prevTodos.filter(todo => todo.id !== post.id));
         setLoadTodos([]);
       })
-      .catch(() => setError('delete'))
+      .catch(() => setError('Unable to delete a todo'))
       .finally(() => setWaitSerser(false));
   };
 
@@ -74,7 +74,7 @@ export const App: React.FC = () => {
     const deletePromeses = completedTodos.map(todo =>
       deletePost(`/todos/${todo.id}`)
         .then(() => todo.id)
-        .catch(() => setError('delete')),
+        .catch(() => setError('Unable to delete a todo')),
     );
 
     Promise.all(deletePromeses)
@@ -85,7 +85,7 @@ export const App: React.FC = () => {
         setError('');
         setLoadTodos([]);
       })
-      .catch(() => setError('delete'))
+      .catch(() => setError('Unable to delete a todo'))
       .finally(() => setWaitSerser(false));
   };
 
@@ -106,7 +106,7 @@ export const App: React.FC = () => {
         setLoadTodos([]);
         setError('');
       })
-      .catch(() => setError('update'))
+      .catch(() => setError('Unable to update a todo'))
       .finally(() => setWaitSerser(false));
   };
 
@@ -168,7 +168,7 @@ export const App: React.FC = () => {
                 );
               }),
             )
-            .catch(() => setError('update'))
+            .catch(() => setError('Unable to update a todo'))
             .finally(() => {
               setWaitSerser(false);
               setClickTodo(null);

@@ -38,7 +38,7 @@ export const Header = ({
         event.preventDefault();
         AddPost();
       } else {
-        setError('empty');
+        setError('Title should not be empty');
       }
     }
   };

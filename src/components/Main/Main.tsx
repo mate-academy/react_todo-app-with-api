@@ -40,8 +40,7 @@ export const Main = ({
 
   return (
     <section className="todoapp__main" data-cy="TodoList">
-      {todos &&
-        todos.length > 0 &&
+      {todos.length > 0 &&
         todos.map(todo => (
           <div
             data-cy="Todo"
@@ -73,8 +72,11 @@ export const Main = ({
                   value={changeInput}
                   onChange={event => setChangeInput(event.target.value)}
                   ref={inputFocus}
-                  onKeyUp={event => {
-                    event.preventDefault();
+                  onKeyDown={event => {
+                    if (event.key === 'Enter') {
+                      event.preventDefault();
+                    }
+
                     changeInputs(todo, event.key);
                   }}
                   onBlur={() => changeInputs(todo, 'Blur')}
