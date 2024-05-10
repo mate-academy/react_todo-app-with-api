@@ -195,13 +195,26 @@ export const App: React.FC = () => {
     const allCompleted = todos.every(todo => todo.completed);
 
     try {
-      for (const todo of todos) {
-        await updateTodo(todo.id, !allCompleted);
-      }
+      if (
+        todos.some(todo => !todo.completed) &&
+        todos.some(todo => todo.completed)
+      ) {
+        const incompleteTodos = todos.filter(todo => !todo.completed);
 
-      setTodos(prev =>
-        prev.map(todo => ({ ...todo, completed: !allCompleted })),
-      );
+        for (const todo of incompleteTodos) {
+          await updateTodo(todo.id, true);
+        }
+
+        setTodos(prev => prev.map(todo => ({ ...todo, completed: true })));
+      } else {
+        for (const todo of todos) {
+          await updateTodo(todo.id, !allCompleted);
+        }
+
+        setTodos(prev =>
+          prev.map(todo => ({ ...todo, completed: !allCompleted })),
+        );
+      }
     } catch (err) {
       setError(true);
       setErrorType('update');
