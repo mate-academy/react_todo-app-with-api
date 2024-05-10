@@ -160,6 +160,8 @@ export const App: React.FC = () => {
   };
 
   const handleToggleTodo = async (id: number) => {
+    setLoadingTodoId(id);
+
     setTodos(prev =>
       prev.map(todo =>
         todo.id === id ? { ...todo, completed: !todo.completed } : todo,
@@ -175,6 +177,8 @@ export const App: React.FC = () => {
       );
       setError(true);
       setErrorType('update');
+    } finally {
+      setLoadingTodoId(null);
     }
   };
 
