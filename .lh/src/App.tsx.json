@@ -3,7 +3,7 @@
     "activeCommit": 0,
     "commits": [
         {
-            "activePatchIndex": 49,
+            "activePatchIndex": 62,
             "patches": [
                 {
                     "date": 1715350240271,
@@ -204,6 +204,58 @@
                 {
                     "date": 1715353958187,
                     "content": "Index: \n===================================================================\n--- \n+++ \n@@ -177,9 +177,9 @@\n       );\n       setError(true);\n       setErrorType('update');\n     } finally {\n-      setloadi\n+      setLoadingTodoId(null);\n     }\n   };\n \n   const handleToggleAllTodos = () => {\n"
+                },
+                {
+                    "date": 1715354915393,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -161,8 +161,9 @@\n \n   const handleToggleTodo = async (id: number) => {\n     setLoadingTodoId(id);\n \n+    try\n     setTodos(prev =>\n       prev.map(todo =>\n         todo.id === id ? { ...todo, completed: !todo.completed } : todo,\n       ),\n"
+                },
+                {
+                    "date": 1715354928299,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -161,15 +161,13 @@\n \n   const handleToggleTodo = async (id: number) => {\n     setLoadingTodoId(id);\n \n-    try\n-    setTodos(prev =>\n-      prev.map(todo =>\n-        todo.id === id ? { ...todo, completed: !todo.completed } : todo,\n-      ),\n-    );\n     try {\n+\n+    }\n+    \n+    try {\n       await updateTodo(id, !todos.find(todo => todo.id === id)?.completed);\n     } catch (err) {\n       setTodos(prev =>\n         prev.map(todo =>\n"
+                },
+                {
+                    "date": 1715354944778,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -164,9 +164,9 @@\n \n     try {\n \n     }\n-    \n+\n     try {\n       await updateTodo(id, !todos.find(todo => todo.id === id)?.completed);\n     } catch (err) {\n       setTodos(prev =>\n"
+                },
+                {
+                    "date": 1715354954622,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -161,13 +161,14 @@\n \n   const handleToggleTodo = async (id: number) => {\n     setLoadingTodoId(id);\n \n+    setTodos(prev =>\n+      prev.map(todo =>\n+        todo.id === id ? { ...todo, completed: !todo.completed } : todo,\n+      ),\n+    );\n     try {\n-\n-    }\n-\n-    try {\n       await updateTodo(id, !todos.find(todo => todo.id === id)?.completed);\n     } catch (err) {\n       setTodos(prev =>\n         prev.map(todo =>\n"
+                },
+                {
+                    "date": 1715355361826,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -161,28 +161,33 @@\n \n   const handleToggleTodo = async (id: number) => {\n     setLoadingTodoId(id);\n \n-    setTodos(prev =>\n-      prev.map(todo =>\n-        todo.id === id ? { ...todo, completed: !todo.completed } : todo,\n-      ),\n-    );\n     try {\n+      // Optimistically update the state of the todo\n+      setTodos(prev =>\n+        prev.map(todo =>\n+          todo.id === id ? { ...todo, completed: !todo.completed } : todo\n+        )\n+      );\n+\n+      // Send update request to the server\n       await updateTodo(id, !todos.find(todo => todo.id === id)?.completed);\n     } catch (err) {\n+      // If there's an error, revert the changes in the state\n       setTodos(prev =>\n         prev.map(todo =>\n-          todo.id == id ? { ...todo, completed: !todo.completed } : todo,\n-        ),\n+          todo.id === id ? { ...todo, completed: !todo.completed } : todo\n+        )\n       );\n       setError(true);\n       setErrorType('update');\n     } finally {\n       setLoadingTodoId(null);\n     }\n   };\n \n+\n   const handleToggleAllTodos = () => {\n     const allCompleted = todos.every(todo => todo.completed);\n \n     setTodos(prev =>\n"
+                },
+                {
+                    "date": 1715355367404,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -162,19 +162,17 @@\n   const handleToggleTodo = async (id: number) => {\n     setLoadingTodoId(id);\n \n     try {\n-      // Optimistically update the state of the todo\n+      //  update the state of the todo\n       setTodos(prev =>\n         prev.map(todo =>\n           todo.id === id ? { ...todo, completed: !todo.completed } : todo\n         )\n       );\n \n-      // Send update request to the server\n       await updateTodo(id, !todos.find(todo => todo.id === id)?.completed);\n     } catch (err) {\n-      // If there's an error, revert the changes in the state\n       setTodos(prev =>\n         prev.map(todo =>\n           todo.id === id ? { ...todo, completed: !todo.completed } : todo\n         )\n"
+                },
+                {
+                    "date": 1715355636700,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -159,22 +159,22 @@\n     }\n   };\n \n   const handleToggleTodo = async (id: number) => {\n-    setLoadingTodoId(id);\n+    // Optimistically update the UI\n+    setTodos(prevTodos =>\n+      prevTodos.map(todo =>\n+        todo.id === id ? { ...todo, completed: !todo.completed } : todo\n+      )\n+    );\n \n     try {\n-      //  update the state of the todo\n-      setTodos(prev =>\n-        prev.map(todo =>\n-          todo.id === id ? { ...todo, completed: !todo.completed } : todo\n-        )\n-      );\n-\n+      // Send the update request to the server\n       await updateTodo(id, !todos.find(todo => todo.id === id)?.completed);\n     } catch (err) {\n-      setTodos(prev =>\n-        prev.map(todo =>\n+      // If an error occurs, revert the UI changes\n+      setTodos(prevTodos =>\n+        prevTodos.map(todo =>\n           todo.id === id ? { ...todo, completed: !todo.completed } : todo\n         )\n       );\n       setError(true);\n"
+                },
+                {
+                    "date": 1715355643338,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -159,20 +159,17 @@\n     }\n   };\n \n   const handleToggleTodo = async (id: number) => {\n-    // Optimistically update the UI\n     setTodos(prevTodos =>\n       prevTodos.map(todo =>\n         todo.id === id ? { ...todo, completed: !todo.completed } : todo\n       )\n     );\n \n     try {\n-      // Send the update request to the server\n       await updateTodo(id, !todos.find(todo => todo.id === id)?.completed);\n     } catch (err) {\n-      // If an error occurs, revert the UI changes\n       setTodos(prevTodos =>\n         prevTodos.map(todo =>\n           todo.id === id ? { ...todo, completed: !todo.completed } : todo\n         )\n"
+                },
+                {
+                    "date": 1715356053595,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -159,17 +159,22 @@\n     }\n   };\n \n   const handleToggleTodo = async (id: number) => {\n-    setTodos(prevTodos =>\n-      prevTodos.map(todo =>\n-        todo.id === id ? { ...todo, completed: !todo.completed } : todo\n-      )\n-    );\n+    setLoadingTodoId(id);\n \n     try {\n+      // Optimistically update the todo's completion status\n+      setTodos(prevTodos =>\n+        prevTodos.map(todo =>\n+          todo.id === id ? { ...todo, completed: !todo.completed } : todo\n+        )\n+      );\n+\n+      // Send the update request to the server\n       await updateTodo(id, !todos.find(todo => todo.id === id)?.completed);\n     } catch (err) {\n+      // Revert the optimistic update on error\n       setTodos(prevTodos =>\n         prevTodos.map(todo =>\n           todo.id === id ? { ...todo, completed: !todo.completed } : todo\n         )\n"
+                },
+                {
+                    "date": 1715356058710,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -162,19 +162,16 @@\n   const handleToggleTodo = async (id: number) => {\n     setLoadingTodoId(id);\n \n     try {\n-      // Optimistically update the todo's completion status\n       setTodos(prevTodos =>\n         prevTodos.map(todo =>\n           todo.id === id ? { ...todo, completed: !todo.completed } : todo\n         )\n       );\n \n-      // Send the update request to the server\n       await updateTodo(id, !todos.find(todo => todo.id === id)?.completed);\n     } catch (err) {\n-      // Revert the optimistic update on error\n       setTodos(prevTodos =>\n         prevTodos.map(todo =>\n           todo.id === id ? { ...todo, completed: !todo.completed } : todo\n         )\n"
+                },
+                {
+                    "date": 1715356429878,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -162,16 +162,19 @@\n   const handleToggleTodo = async (id: number) => {\n     setLoadingTodoId(id);\n \n     try {\n+      // Optimistically update the todo's completion status\n       setTodos(prevTodos =>\n         prevTodos.map(todo =>\n           todo.id === id ? { ...todo, completed: !todo.completed } : todo\n         )\n       );\n \n+      // Send the update request to the server\n       await updateTodo(id, !todos.find(todo => todo.id === id)?.completed);\n     } catch (err) {\n+      // Revert the optimistic update on error\n       setTodos(prevTodos =>\n         prevTodos.map(todo =>\n           todo.id === id ? { ...todo, completed: !todo.completed } : todo\n         )\n"
+                },
+                {
+                    "date": 1715356435857,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -162,19 +162,16 @@\n   const handleToggleTodo = async (id: number) => {\n     setLoadingTodoId(id);\n \n     try {\n-      // Optimistically update the todo's completion status\n       setTodos(prevTodos =>\n         prevTodos.map(todo =>\n           todo.id === id ? { ...todo, completed: !todo.completed } : todo\n         )\n       );\n \n-      // Send the update request to the server\n       await updateTodo(id, !todos.find(todo => todo.id === id)?.completed);\n     } catch (err) {\n-      // Revert the optimistic update on error\n       setTodos(prevTodos =>\n         prevTodos.map(todo =>\n           todo.id === id ? { ...todo, completed: !todo.completed } : todo\n         )\n"
+                },
+                {
+                    "date": 1715357219447,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -161,30 +161,28 @@\n \n   const handleToggleTodo = async (id: number) => {\n     setLoadingTodoId(id);\n \n+    setTodos(prev =>\n+      prev.map(todo =>\n+        todo.id === id ? { ...todo, completed: !todo.completed } : todo,\n+      ),\n+    );\n     try {\n-      setTodos(prevTodos =>\n-        prevTodos.map(todo =>\n-          todo.id === id ? { ...todo, completed: !todo.completed } : todo\n-        )\n-      );\n-\n       await updateTodo(id, !todos.find(todo => todo.id === id)?.completed);\n     } catch (err) {\n-      setTodos(prevTodos =>\n-        prevTodos.map(todo =>\n-          todo.id === id ? { ...todo, completed: !todo.completed } : todo\n-        )\n+      setTodos(prev =>\n+        prev.map(todo =>\n+          todo.id == id ? { ...todo, completed: !todo.completed } : todo,\n+        ),\n       );\n       setError(true);\n       setErrorType('update');\n     } finally {\n       setLoadingTodoId(null);\n     }\n   };\n \n-\n   const handleToggleAllTodos = () => {\n     const allCompleted = todos.every(todo => todo.completed);\n \n     setTodos(prev =>\n"
                 }
             ],
             "date": 1715350240271,

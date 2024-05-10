@@ -3,7 +3,7 @@
     "activeCommit": 0,
     "commits": [
         {
-            "activePatchIndex": 3,
+            "activePatchIndex": 24,
             "patches": [
                 {
                     "date": 1715349628952,
@@ -20,6 +20,90 @@
                 {
                     "date": 1715349665745,
                     "content": "Index: \n===================================================================\n--- \n+++ \n@@ -1,8 +1,8 @@\n import React from 'react';\n-import { Todo } from '../types/Todo';\n+import { Todo } from '../';\n import { TodoItem } from './TodoItem';\n-import { Error } from '../';\n+import { Error } from '../Types/Todo';\n \n interface Props {\n   todos: Todo[];\n   onToggleTodo: (id: number) => void;\n"
+                },
+                {
+                    "date": 1715355036455,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -1,6 +1,6 @@\n import React from 'react';\n-import { Todo } from '../';\n+import { Todo } from '../Types/Todo';\n import { TodoItem } from './TodoItem';\n import { Error } from '../Types/Todo';\n \n interface Props {\n@@ -37,14 +37,9 @@\n   loading,\n   setLoading,\n   deleteFewTodo,\n }) => {\n-  const filteredTodos =\n-    filter === 'active'\n-      ? todos.filter(todo => !todo.completed)\n-      : filter === 'completed'\n-        ? todos.filter(todo => todo.completed)\n-        : todos;\n+  const filteredTodos = \n \n   const showLoader = loading && loadingTodoId !== null;\n \n   const noTodosMessage =\n"
+                },
+                {
+                    "date": 1715355042061,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -37,9 +37,9 @@\n   loading,\n   setLoading,\n   deleteFewTodo,\n }) => {\n-  const filteredTodos = \n+  const filteredTodos = todos.filter\n \n   const showLoader = loading && loadingTodoId !== null;\n \n   const noTodosMessage =\n"
+                },
+                {
+                    "date": 1715355047271,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -37,9 +37,11 @@\n   loading,\n   setLoading,\n   deleteFewTodo,\n }) => {\n-  const filteredTodos = todos.filter\n+  const filteredTodos = todos.filter(todo => {\n+    \n+  })\n \n   const showLoader = loading && loadingTodoId !== null;\n \n   const noTodosMessage =\n"
+                },
+                {
+                    "date": 1715355052818,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -38,9 +38,9 @@\n   setLoading,\n   deleteFewTodo,\n }) => {\n   const filteredTodos = todos.filter(todo => {\n-    \n+    if (filter)\n   })\n \n   const showLoader = loading && loadingTodoId !== null;\n \n"
+                },
+                {
+                    "date": 1715355058485,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -38,9 +38,9 @@\n   setLoading,\n   deleteFewTodo,\n }) => {\n   const filteredTodos = todos.filter(todo => {\n-    if (filter)\n+    if (filter === 'active')\n   })\n \n   const showLoader = loading && loadingTodoId !== null;\n \n"
+                },
+                {
+                    "date": 1715355065591,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -38,9 +38,11 @@\n   setLoading,\n   deleteFewTodo,\n }) => {\n   const filteredTodos = todos.filter(todo => {\n-    if (filter === 'active')\n+    if (filter === 'active') {\n+      return !todo\n+    }\n   })\n \n   const showLoader = loading && loadingTodoId !== null;\n \n"
+                },
+                {
+                    "date": 1715355075169,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -39,10 +39,10 @@\n   deleteFewTodo,\n }) => {\n   const filteredTodos = todos.filter(todo => {\n     if (filter === 'active') {\n-      return !todo\n-    }\n+      return !todo.completed;\n+    } else if\n   })\n \n   const showLoader = loading && loadingTodoId !== null;\n \n"
+                },
+                {
+                    "date": 1715355082350,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -40,9 +40,9 @@\n }) => {\n   const filteredTodos = todos.filter(todo => {\n     if (filter === 'active') {\n       return !todo.completed;\n-    } else if\n+    } else if (filter === 'compl')\n   })\n \n   const showLoader = loading && loadingTodoId !== null;\n \n"
+                },
+                {
+                    "date": 1715355087466,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -40,9 +40,9 @@\n }) => {\n   const filteredTodos = todos.filter(todo => {\n     if (filter === 'active') {\n       return !todo.completed;\n-    } else if (filter === 'compl')\n+    } else if (filter === 'completed' )\n   })\n \n   const showLoader = loading && loadingTodoId !== null;\n \n"
+                },
+                {
+                    "date": 1715355092812,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -40,10 +40,10 @@\n }) => {\n   const filteredTodos = todos.filter(todo => {\n     if (filter === 'active') {\n       return !todo.completed;\n-    } else if (filter === 'completed' )\n-  })\n+    } else if (filter === 'completed') {}\n+   })\n \n   const showLoader = loading && loadingTodoId !== null;\n \n   const noTodosMessage =\n"
+                },
+                {
+                    "date": 1715355099788,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -40,9 +40,11 @@\n }) => {\n   const filteredTodos = todos.filter(todo => {\n     if (filter === 'active') {\n       return !todo.completed;\n-    } else if (filter === 'completed') {}\n+    } else if (filter === 'completed') {\n+      return todo.completed\n+    }\n    })\n \n   const showLoader = loading && loadingTodoId !== null;\n \n"
+                },
+                {
+                    "date": 1715355105679,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -41,10 +41,10 @@\n   const filteredTodos = todos.filter(todo => {\n     if (filter === 'active') {\n       return !todo.completed;\n     } else if (filter === 'completed') {\n-      return todo.completed\n-    }\n+      return todo.completed;\n+    } else \n    })\n \n   const showLoader = loading && loadingTodoId !== null;\n \n"
+                },
+                {
+                    "date": 1715355111071,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -42,9 +42,11 @@\n     if (filter === 'active') {\n       return !todo.completed;\n     } else if (filter === 'completed') {\n       return todo.completed;\n-    } else \n+    } else {\n+      return true;\n+    }\n    })\n \n   const showLoader = loading && loadingTodoId !== null;\n \n"
+                },
+                {
+                    "date": 1715355334489,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -40,14 +40,10 @@\n }) => {\n   const filteredTodos = todos.filter(todo => {\n     if (filter === 'active') {\n       return !todo.completed;\n-    } else if (filter === 'completed') {\n-      return todo.completed;\n-    } else {\n-      return true;\n-    }\n-   })\n+    } else if (filter --)\n+  })\n \n   const showLoader = loading && loadingTodoId !== null;\n \n   const noTodosMessage =\n"
+                },
+                {
+                    "date": 1715355342304,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -37,13 +37,14 @@\n   loading,\n   setLoading,\n   deleteFewTodo,\n }) => {\n-  const filteredTodos = todos.filter(todo => {\n-    if (filter === 'active') {\n-      return !todo.completed;\n-    } else if (filter --)\n-  })\n+  const filteredTodos =\n+    filter === 'active'\n+      ? todos.filter(todo => !todo.completed)\n+      : filter === 'completed'\n+        ? todos.filter(todo => todo.completed)\n+        : todos;\n \n   const showLoader = loading && loadingTodoId !== null;\n \n   const noTodosMessage =\n"
+                },
+                {
+                    "date": 1715356969176,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -46,8 +46,10 @@\n         : todos;\n \n   const showLoader = loading && loadingTodoId !== null;\n \n+  \n+\n   const noTodosMessage =\n     filter !== 'all' && filteredTodos.length === 0 ? (\n       <p className=\"todoapp__empty-list-message\"></p>\n     ) : null;\n"
+                },
+                {
+                    "date": 1715356977249,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -46,9 +46,9 @@\n         : todos;\n \n   const showLoader = loading && loadingTodoId !== null;\n \n-  \n+  const render\n \n   const noTodosMessage =\n     filter !== 'all' && filteredTodos.length === 0 ? (\n       <p className=\"todoapp__empty-list-message\"></p>\n"
+                },
+                {
+                    "date": 1715356993103,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -46,9 +46,9 @@\n         : todos;\n \n   const showLoader = loading && loadingTodoId !== null;\n \n-  const render\n+  const renderTodos = \n \n   const noTodosMessage =\n     filter !== 'all' && filteredTodos.length === 0 ? (\n       <p className=\"todoapp__empty-list-message\"></p>\n"
+                },
+                {
+                    "date": 1715357007216,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -46,9 +46,27 @@\n         : todos;\n \n   const showLoader = loading && loadingTodoId !== null;\n \n-  const renderTodos = \n+  const renderTodos =  {filteredTodos.map(todo => (\n+    <TodoItem\n+      key={todo.id}\n+      id={todo.id}\n+      title={todo.title}\n+      completed={todo.completed}\n+      onToggle={() => onToggleTodo(todo.id)}\n+      setError={setError}\n+      setErrorType={setErrorType}\n+      onDelete={() => handleDeleteTodo(todo.id)}\n+      loadingTodoId={loadingTodoId}\n+      loadingAddTodoId={loadingAddTodoId}\n+      setFocus={setFocus}\n+      setLoadingTodoId={setLoadingTodoId}\n+      showLoader={showLoader || deleteFewTodo.includes(todo.id)}\n+      setLoading={setLoading}\n+      deleteFewTodo={deleteFewTodo}\n+    />\n+  ))}\n \n   const noTodosMessage =\n     filter !== 'all' && filteredTodos.length === 0 ? (\n       <p className=\"todoapp__empty-list-message\"></p>\n"
+                },
+                {
+                    "date": 1715357013835,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -46,9 +46,9 @@\n         : todos;\n \n   const showLoader = loading && loadingTodoId !== null;\n \n-  const renderTodos =  {filteredTodos.map(todo => (\n+  const renderTodos = filteredTodos.map(todo => (\n     <TodoItem\n       key={todo.id}\n       id={todo.id}\n       title={todo.title}\n@@ -64,9 +64,9 @@\n       showLoader={showLoader || deleteFewTodo.includes(todo.id)}\n       setLoading={setLoading}\n       deleteFewTodo={deleteFewTodo}\n     />\n-  ))}\n+  ));\n \n   const noTodosMessage =\n     filter !== 'all' && filteredTodos.length === 0 ? (\n       <p className=\"todoapp__empty-list-message\"></p>\n"
+                },
+                {
+                    "date": 1715357024544,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -74,9 +74,9 @@\n \n   return (\n     <section className=\"todoapp__main\" data-cy=\"TodoList\">\n       {/* This is a completed todo */}\n-      {filteredTodos.map(todo => (\n+      {{filteredTodos.map(todo => (\n         <TodoItem\n           key={todo.id}\n           id={todo.id}\n           title={todo.title}\n@@ -92,9 +92,9 @@\n           showLoader={showLoader || deleteFewTodo.includes(todo.id)}\n           setLoading={setLoading}\n           deleteFewTodo={deleteFewTodo}\n         />\n-      ))}\n+      ))}}\n       {addNewTodo && tempTodo && (\n         <TodoItem\n           key={tempTodo.id}\n           id={tempTodo.id}\n"
                 }
             ],
             "date": 1715349628952,

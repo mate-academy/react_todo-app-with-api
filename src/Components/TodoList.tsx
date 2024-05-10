@@ -47,6 +47,26 @@ export const TodoList: React.FC<Props> = ({
 
   const showLoader = loading && loadingTodoId !== null;
 
+  const renderTodos = filteredTodos.map(todo => (
+    <TodoItem
+      key={todo.id}
+      id={todo.id}
+      title={todo.title}
+      completed={todo.completed}
+      onToggle={() => onToggleTodo(todo.id)}
+      setError={setError}
+      setErrorType={setErrorType}
+      onDelete={() => handleDeleteTodo(todo.id)}
+      loadingTodoId={loadingTodoId}
+      loadingAddTodoId={loadingAddTodoId}
+      setFocus={setFocus}
+      setLoadingTodoId={setLoadingTodoId}
+      showLoader={showLoader || deleteFewTodo.includes(todo.id)}
+      setLoading={setLoading}
+      deleteFewTodo={deleteFewTodo}
+    />
+  ));
+
   const noTodosMessage =
     filter !== 'all' && filteredTodos.length === 0 ? (
       <p className="todoapp__empty-list-message"></p>
@@ -55,25 +75,7 @@ export const TodoList: React.FC<Props> = ({
   return (
     <section className="todoapp__main" data-cy="TodoList">
       {/* This is a completed todo */}
-      {filteredTodos.map(todo => (
-        <TodoItem
-          key={todo.id}
-          id={todo.id}
-          title={todo.title}
-          completed={todo.completed}
-          onToggle={() => onToggleTodo(todo.id)}
-          setError={setError}
-          setErrorType={setErrorType}
-          onDelete={() => handleDeleteTodo(todo.id)}
-          loadingTodoId={loadingTodoId}
-          loadingAddTodoId={loadingAddTodoId}
-          setFocus={setFocus}
-          setLoadingTodoId={setLoadingTodoId}
-          showLoader={showLoader || deleteFewTodo.includes(todo.id)}
-          setLoading={setLoading}
-          deleteFewTodo={deleteFewTodo}
-        />
-      ))}
+      {renderTodos}
       {addNewTodo && tempTodo && (
         <TodoItem
           key={tempTodo.id}
