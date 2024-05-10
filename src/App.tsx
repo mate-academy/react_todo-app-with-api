@@ -8,6 +8,7 @@ import {
   getTodosFromServer,
   postTodoToServer,
   deleteTodoFromServer,
+  updateTodo,
 } from './api/todos';
 
 import { Todo } from './types/Todo';
@@ -52,9 +53,9 @@ export const App: React.FC = () => {
 
   useEffect(() => {
     getTodosFromServer()
-      .then(serverTodos => {
+      .then((todos: Todo[]) => {
         setTodos(
-          serverTodos.map(todo => ({
+          todos.map((todo: Todo) => ({
             ...todo,
             isFromServer: true,
           })),
@@ -96,7 +97,7 @@ export const App: React.FC = () => {
         completed: false,
         id: generateId(),
       })
-        .then(addedTodo => {
+        .then((addedTodo: Todo) => {
           setTodos(prev => [...prev, addedTodo]);
           updateErrorCases(false, 'addTodo');
           didSucceed = true;
@@ -138,6 +139,60 @@ export const App: React.FC = () => {
     });
   };
 
+  const renameTodo = async (todoId: number, newTitle: string) => {
+    let didSucceed = false;
+
+    await updateTodo(todoId, { title: newTitle })
+      .then((newTodo: Todo) => {
+        setTodos(prevTodos =>
+          prevTodos.map(prevTodo =>
+            prevTodo.id === todoId ? newTodo : prevTodo,
+          ),
+        );
+        updateErrorCases(false, 'updateTodo');
+
+        didSucceed = true;
+      })
+      .catch(() => {
+        updateErrorCases(true, 'updateTodo');
+      });
+
+    return didSucceed;
+  };
+
+  const checkTodo = async (todoId: number, newStatus: boolean) => {
+    let didSucceed = false;
+
+    await updateTodo(todoId, { completed: newStatus })
+      .then((newTodo: Todo) => {
+        setTodos(prevTodos =>
+          prevTodos.map(prevTodo =>
+            prevTodo.id === todoId ? newTodo : prevTodo,
+          ),
+        );
+        updateErrorCases(false, 'updateTodo');
+
+        didSucceed = true;
+      })
+      .catch(() => {
+        updateErrorCases(true, 'updateTodo');
+      });
+
+    return didSucceed;
+  };
+
+  const checkTodos = () => {
+    const targetStatus = !todos.every(({ completed }) => completed);
+
+    const todosToCheck = todos
+      .filter(({ completed }) => completed !== targetStatus)
+      .map(({ id }) => id);
+
+    todosToCheck.forEach(todoId => {
+      checkTodo(todoId, targetStatus);
+    });
+  };
+
   if (!USER_ID) {
     return <UserWarning />;
   }
@@ -145,21 +200,6 @@ export const App: React.FC = () => {
   const todosToDisplay = todos.filter(
     ({ completed }) => completeFilter === null || completed !== completeFilter,
   );
-
-  const handleCompleteTodo = (todoId: number) => {
-    const updatedTodos = todos.map(todo => {
-      if (todo.id === todoId) {
-        return {
-          ...todo,
-          completed: !todo.completed,
-        };
-      }
-
-      return todo;
-    });
-
-    setTodos(updatedTodos);
-  };
 
   return (
     <div className="todoapp">
@@ -171,12 +211,15 @@ export const App: React.FC = () => {
           addTodo={addTodo}
           isInputDisabled={isInputDisabled}
           todoInput={todoInput}
+          renameTodo={renameTodo}
+          checkTodos={checkTodos}
         />
         <TodoList
           todos={todosToDisplay}
           deleteTodo={deleteTodo}
           tempTodo={tempTodo}
-          handleCompleteTodo={handleCompleteTodo}
+          renameTodo={renameTodo}
+          checkTodo={checkTodo}
         />
         {todos.length !== 0 && (
           <Footer

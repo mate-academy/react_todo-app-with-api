@@ -8,13 +8,15 @@ type Props = {
   todos: Todo[];
   deleteTodo: (todoId: number) => Promise<boolean>;
   tempTodo: Todo | null;
-  handleCompleteTodo: (todoId: number) => void;
+  renameTodo(todoId: number, newTitle: string): Promise<boolean>;
+  checkTodo(todoId: number, newStatus: boolean): Promise<boolean>;
 };
 export const TodoList: FC<Props> = ({
   todos,
   deleteTodo,
   tempTodo,
-  // handleCompleteTodo,
+  renameTodo,
+  checkTodo,
 }) => {
   return (
     <section className="todoapp__main" data-cy="TodoList">
@@ -23,10 +25,19 @@ export const TodoList: FC<Props> = ({
           key={todo.id}
           todo={todo}
           deleteTodo={deleteTodo}
-          // handleCompleteTodo={handleCompleteTodo}
+          renameTodo={renameTodo}
+          checkTodo={checkTodo}
         />
       ))}
-      {tempTodo && <TodoItem todo={tempTodo} deleteTodo={deleteTodo} isTemp />}
+      {tempTodo && (
+        <TodoItem
+          todo={tempTodo}
+          deleteTodo={deleteTodo}
+          isTemp
+          renameTodo={renameTodo}
+          checkTodo={checkTodo}
+        />
+      )}
     </section>
   );
 };

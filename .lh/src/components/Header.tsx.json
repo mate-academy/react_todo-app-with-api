@@ -1,0 +1,26 @@
+{
+    "sourceFile": "src/components/Header.tsx",
+    "activeCommit": 0,
+    "commits": [
+        {
+            "activePatchIndex": 2,
+            "patches": [
+                {
+                    "date": 1715338149345,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n"
+                },
+                {
+                    "date": 1715338238936,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -7,8 +7,9 @@\n   todos: TodoType[];\n   addTodo: (newTodoTitle: string) => Promise<boolean>;\n   isInputDisabled: boolean;\n   todoInput: Ref<HTMLInputElement>;\n+  renameTodo(todoId: number, newTitle: string): Promise<boolean>;\n };\n \n export const Header: FC<Props> = ({\n   todos,\n@@ -33,8 +34,11 @@\n       }\n     });\n   };\n \n+  const handleClick = () => {\n+    markAllTodos()\n+  }\n   return (\n     <header className=\"todoapp__header\">\n       <button\n         type=\"button\"\n"
+                },
+                {
+                    "date": 1715338261721,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -7,8 +7,9 @@\n   todos: TodoType[];\n   addTodo: (newTodoTitle: string) => Promise<boolean>;\n   isInputDisabled: boolean;\n   todoInput: Ref<HTMLInputElement>;\n+  renameTodo(todoId: number, newTitle: string): Promise<boolean>;\n };\n \n export const Header: FC<Props> = ({\n   todos,\n@@ -33,8 +34,11 @@\n       }\n     });\n   };\n \n+  const handleClick = () => {\n+    markAllTodos();\n+  };\n   return (\n     <header className=\"todoapp__header\">\n       <button\n         type=\"button\"\n@@ -42,8 +46,9 @@\n           'todoapp__toggle-all ' +\n           (todos.every(({ completed }) => completed) ? 'active' : '')\n         }\n         data-cy=\"ToggleAllButton\"\n+        onClick={handleClick}\n       />\n \n       {/* Add a todos on form submit */}\n       <form onSubmit={handleNewTodoForm}>\n"
+                }
+            ],
+            "date": 1715338149345,
+            "name": "Commit-0",
+            "content": "import { FC, Ref, useEffect, useRef, useState } from 'react';\nimport React from 'react';\n\nimport { TodoType } from '../types/Todo';\n\ntype Props = {\n  todos: TodoType[];\n  addTodo: (newTodoTitle: string) => Promise<boolean>;\n  isInputDisabled: boolean;\n  todoInput: Ref<HTMLInputElement>;\n  renameTodo(todoId: number, newTitle: string): Promise<boolean>;\n};\n\nexport const Header: FC<Props> = ({\n  todos,\n  addTodo,\n  isInputDisabled,\n  todoInput,\n}) => {\n  const [newTodoTitle, setNewTodoTitle] = useState<string>('');\n  const newTodoInputRef = useRef<HTMLInputElement>(null);\n\n  useEffect(() => {\n    if (newTodoInputRef.current) {\n      newTodoInputRef.current.focus();\n    }\n  }, [todos]);\n\n  const handleNewTodoForm = (e: React.FormEvent) => {\n    e.preventDefault();\n    addTodo(newTodoTitle).then(didSucceed => {\n      if (didSucceed) {\n        setNewTodoTitle('');\n      }\n    });\n  };\n\n  return (\n    <header className=\"todoapp__header\">\n      <button\n        type=\"button\"\n        className={\n          'todoapp__toggle-all ' +\n          (todos.every(({ completed }) => completed) ? 'active' : '')\n        }\n        data-cy=\"ToggleAllButton\"\n      />\n\n      {/* Add a todos on form submit */}\n      <form onSubmit={handleNewTodoForm}>\n        <input\n          data-cy=\"NewTodoField\"\n          type=\"text\"\n          className=\"todoapp__new-todo\"\n          id=\"todoapp__new-todo\"\n          placeholder=\"What needs to be done?\"\n          ref={todoInput}\n          value={newTodoTitle}\n          onChange={e => {\n            setNewTodoTitle(e.target.value);\n          }}\n          autoFocus\n          disabled={isInputDisabled}\n        />\n      </form>\n    </header>\n  );\n};\n"
+        }
+    ]
+}

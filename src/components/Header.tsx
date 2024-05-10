@@ -8,6 +8,8 @@ type Props = {
   addTodo: (newTodoTitle: string) => Promise<boolean>;
   isInputDisabled: boolean;
   todoInput: Ref<HTMLInputElement>;
+  renameTodo(todoId: number, newTitle: string): Promise<boolean>;
+  checkTodos: () => void;
 };
 
 export const Header: FC<Props> = ({
@@ -15,6 +17,7 @@ export const Header: FC<Props> = ({
   addTodo,
   isInputDisabled,
   todoInput,
+  checkTodos,
 }) => {
   const [newTodoTitle, setNewTodoTitle] = useState<string>('');
   const newTodoInputRef = useRef<HTMLInputElement>(null);
@@ -34,16 +37,23 @@ export const Header: FC<Props> = ({
     });
   };
 
+  const handleClick = () => {
+    checkTodos();
+  };
+
   return (
     <header className="todoapp__header">
-      <button
-        type="button"
-        className={
-          'todoapp__toggle-all ' +
-          (todos.every(({ completed }) => completed) ? 'active' : '')
-        }
-        data-cy="ToggleAllButton"
-      />
+      {todos.length !== 0 && (
+        <button
+          type="button"
+          className={
+            'todoapp__toggle-all ' +
+            (todos.every(({ completed }) => completed) ? 'active' : '')
+          }
+          data-cy="ToggleAllButton"
+          onClick={handleClick}
+        />
+      )}
 
       {/* Add a todos on form submit */}
       <form onSubmit={handleNewTodoForm}>

@@ -1,0 +1,30 @@
+{
+    "sourceFile": "src/components/TodoList.tsx",
+    "activeCommit": 0,
+    "commits": [
+        {
+            "activePatchIndex": 3,
+            "patches": [
+                {
+                    "date": 1715338823181,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n"
+                },
+                {
+                    "date": 1715338962602,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -9,14 +9,16 @@\n   deleteTodo: (todoId: number) => Promise<boolean>;\n   tempTodo: Todo | null;\n   handleCompleteTodo: (todoId: number) => void;\n   renameTodo(todoId: number, newTitle: string): Promise<boolean>;\n+  checkTodo(todoId: number, newStatus: boolean): Promise<boolean>;\n };\n export const TodoList: FC<Props> = ({\n   todos,\n   deleteTodo,\n   tempTodo,\n   renameTodo,\n+  checkTodo: \n }) => {\n   return (\n     <section className=\"todoapp__main\" data-cy=\"TodoList\">\n       {todos.map(todo => (\n"
+                },
+                {
+                    "date": 1715339001635,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -16,9 +16,9 @@\n   todos,\n   deleteTodo,\n   tempTodo,\n   renameTodo,\n-  checkTodo: \n+  checkTodo,\n }) => {\n   return (\n     <section className=\"todoapp__main\" data-cy=\"TodoList\">\n       {todos.map(todo => (\n"
+                },
+                {
+                    "date": 1715339163060,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -7,9 +7,8 @@\n type Props = {\n   todos: Todo[];\n   deleteTodo: (todoId: number) => Promise<boolean>;\n   tempTodo: Todo | null;\n-  handleCompleteTodo: (todoId: number) => void;\n   renameTodo(todoId: number, newTitle: string): Promise<boolean>;\n   checkTodo(todoId: number, newStatus: boolean): Promise<boolean>;\n };\n export const TodoList: FC<Props> = ({\n"
+                }
+            ],
+            "date": 1715338823181,
+            "name": "Commit-0",
+            "content": "import { FC } from 'react';\nimport React from 'react';\n\nimport { Todo } from '../types/Todo';\nimport { TodoItem } from '../components/TodoItem';\n\ntype Props = {\n  todos: Todo[];\n  deleteTodo: (todoId: number) => Promise<boolean>;\n  tempTodo: Todo | null;\n  handleCompleteTodo: (todoId: number) => void;\n  renameTodo(todoId: number, newTitle: string): Promise<boolean>;\n};\nexport const TodoList: FC<Props> = ({\n  todos,\n  deleteTodo,\n  tempTodo,\n  renameTodo,\n}) => {\n  return (\n    <section className=\"todoapp__main\" data-cy=\"TodoList\">\n      {todos.map(todo => (\n        <TodoItem\n          key={todo.id}\n          todo={todo}\n          deleteTodo={deleteTodo}\n          renameTodo={renameTodo}\n          checkTodo={checkTodo}\n        />\n      ))}\n      {tempTodo && <TodoItem todo={tempTodo} deleteTodo={deleteTodo} isTemp renameTodo={renameTodo} checkTodo={checkTodo} />}\n    </section>\n  );\n};\n"
+        }
+    ]
+}
