@@ -1,0 +1,110 @@
+{
+    "sourceFile": "src/api/todos.ts",
+    "activeCommit": 0,
+    "commits": [
+        {
+            "activePatchIndex": 23,
+            "patches": [
+                {
+                    "date": 1715349725765,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n"
+                },
+                {
+                    "date": 1715349732028,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -1,5 +1,5 @@\n-import { Todo } from '../types/Todo';\n+import { Todo } from '../Types';\n import { client } from '../utils/fetchClient';\n \n export const USER_ID = 534;\n \n"
+                },
+                {
+                    "date": 1715349737980,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -1,6 +1,6 @@\n-import { Todo } from '../Types';\n-import { client } from '../utils/fetchClient';\n+import { Todo } from '../Types/Todo';\n+import { client } from '../t';\n \n export const USER_ID = 534;\n \n export const getTodos = () => {\n"
+                },
+                {
+                    "date": 1715349743351,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -1,6 +1,6 @@\n import { Todo } from '../Types/Todo';\n-import { client } from '../t';\n+import { client } from '../Utils/fetchClient';\n \n export const USER_ID = 534;\n \n export const getTodos = () => {\n"
+                },
+                {
+                    "date": 1715351335983,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -13,4 +13,6 @@\n \n export const deleteTodo = (todoId: number) => {\n   return client.delete(`/todos/${todoId}`);\n };\n+\n+export \n"
+                },
+                {
+                    "date": 1715351342900,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -14,5 +14,9 @@\n export const deleteTodo = (todoId: number) => {\n   return client.delete(`/todos/${todoId}`);\n };\n \n-export \n+export\n+const\n+u\n+pdate\n+Todo\n"
+                },
+                {
+                    "date": 1715351349065,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -19,4 +19,6 @@\n const\n u\n pdate\n Todo\n+ =\n+(todoId)\n"
+                },
+                {
+                    "date": 1715351362145,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -14,11 +14,11 @@\n export const deleteTodo = (todoId: number) => {\n   return client.delete(`/todos/${todoId}`);\n };\n \n-export\n-const\n+exportconst\n u\n pdate\n Todo\n  =\n-(todoId)\n+(todoId: )\n+\n"
+                },
+                {
+                    "date": 1715351367685,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -14,11 +14,9 @@\n export const deleteTodo = (todoId: number) => {\n   return client.delete(`/todos/${todoId}`);\n };\n \n-exportconst\n-u\n-pdate\n+export const update\n Todo\n  =\n (todoId: )\n \n"
+                },
+                {
+                    "date": 1715351375637,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -14,9 +14,6 @@\n export const deleteTodo = (todoId: number) => {\n   return client.delete(`/todos/${todoId}`);\n };\n \n-export const update\n-Todo\n- =\n-(todoId: )\n+export const update Todo = (todoId: )\n \n"
+                },
+                {
+                    "date": 1715351383706,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -14,6 +14,6 @@\n export const deleteTodo = (todoId: number) => {\n   return client.delete(`/todos/${todoId}`);\n };\n \n-export const update Todo = (todoId: )\n+export const update Todo = (todoId: number)\n \n"
+                },
+                {
+                    "date": 1715351390065,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -14,6 +14,6 @@\n export const deleteTodo = (todoId: number) => {\n   return client.delete(`/todos/${todoId}`);\n };\n \n-export const update Todo = (todoId: number)\n+export const update Todo = (todoId: number, updatedTodo)\n \n"
+                },
+                {
+                    "date": 1715351397174,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -14,6 +14,6 @@\n export const deleteTodo = (todoId: number) => {\n   return client.delete(`/todos/${todoId}`);\n };\n \n-export const update Todo = (todoId: number, updatedTodo)\n+export const update Todo = (todoId: number, updatedTodo: Todo) =\n \n"
+                },
+                {
+                    "date": 1715351404351,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -14,6 +14,8 @@\n export const deleteTodo = (todoId: number) => {\n   return client.delete(`/todos/${todoId}`);\n };\n \n-export const update Todo = (todoId: number, updatedTodo: Todo) =\n+export const update Todo = (todoId: number, updatedTodo: Todo) => {\n+  return\n+}\n \n"
+                },
+                {
+                    "date": 1715351409595,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -15,7 +15,7 @@\n   return client.delete(`/todos/${todoId}`);\n };\n \n export const update Todo = (todoId: number, updatedTodo: Todo) => {\n-  return\n+  return client.put()\n }\n \n"
+                },
+                {
+                    "date": 1715351415128,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -15,7 +15,7 @@\n   return client.delete(`/todos/${todoId}`);\n };\n \n export const update Todo = (todoId: number, updatedTodo: Todo) => {\n-  return client.put()\n+  return client.put(`/`)\n }\n \n"
+                },
+                {
+                    "date": 1715351420359,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -15,7 +15,7 @@\n   return client.delete(`/todos/${todoId}`);\n };\n \n export const update Todo = (todoId: number, updatedTodo: Todo) => {\n-  return client.put(`/`)\n+  return client.put(`/todos/$`)\n }\n \n"
+                },
+                {
+                    "date": 1715351425658,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -15,7 +15,7 @@\n   return client.delete(`/todos/${todoId}`);\n };\n \n export const update Todo = (todoId: number, updatedTodo: Todo) => {\n-  return client.put(`/todos/$`)\n+  return client.put(`/todos/${todoId}`)\n }\n \n"
+                },
+                {
+                    "date": 1715351430923,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -15,7 +15,7 @@\n   return client.delete(`/todos/${todoId}`);\n };\n \n export const update Todo = (todoId: number, updatedTodo: Todo) => {\n-  return client.put(`/todos/${todoId}`)\n+  return client.put(`/todos/${todoId}`, updatedTodo)\n }\n \n"
+                },
+                {
+                    "date": 1715351437539,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -14,8 +14,8 @@\n export const deleteTodo = (todoId: number) => {\n   return client.delete(`/todos/${todoId}`);\n };\n \n-export const update Todo = (todoId: number, updatedTodo: Todo) => {\n+export const updateTodo = (todoId: number, updatedTodo: Todo) => {\n   return client.put(`/todos/${todoId}`, updatedTodo)\n }\n \n"
+                },
+                {
+                    "date": 1715351444912,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -16,6 +16,5 @@\n };\n \n export const updateTodo = (todoId: number, updatedTodo: Todo) => {\n   return client.put(`/todos/${todoId}`, updatedTodo)\n-}\n-\n+};\n"
+                },
+                {
+                    "date": 1715351460431,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -0,0 +1,20 @@\n+import { Todo } from '../Types/Todo';\n+import { client } from '../Utils/fetchClient';\n+\n+export const USER_ID = 534;\n+\n+export const getTodos = () => {\n+  return client.get<Todo[]>(`/todos?userId=${USER_ID}`);\n+};\n+\n+export const postTodo = (newTodo: Todo) => {\n+  return client.post<Todo>('/todos', newTodo);\n+};\n+\n+export const deleteTodo = (todoId: number) => {\n+  return client.delete(`/todos/${todoId}`);\n+};\n+\n+export const updateTodo = (todoId: number, updatedTodo: Todo) => {\n+  return client.put<>(`/todos/${todoId}`, updatedTodo);\n+};\n"
+                },
+                {
+                    "date": 1715351470876,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -17,24 +17,4 @@\n \n export const updateTodo = (todoId: number, updatedTodo: Todo) => {\n   return client.put<>(`/todos/${todoId}`, updatedTodo);\n };\n-import { Todo } from '../Types/Todo';\n-import { client } from '../Utils/fetchClient';\n-\n-export const USER_ID = 534;\n-\n-export const getTodos = () => {\n-  return client.get<Todo[]>(`/todos?userId=${USER_ID}`);\n-};\n-\n-export const postTodo = (newTodo: Todo) => {\n-  return client.post<Todo>('/todos', newTodo);\n-};\n-\n-export const deleteTodo = (todoId: number) => {\n-  return client.delete(`/todos/${todoId}`);\n-};\n-\n-export const updateTodo = (todoId: number, updatedTodo: Todo) => {\n-  return client.put(`/todos/${todoId}`, updatedTodo)\n-};\n"
+                },
+                {
+                    "date": 1715351526995,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -14,7 +14,5 @@\n export const deleteTodo = (todoId: number) => {\n   return client.delete(`/todos/${todoId}`);\n };\n \n-export const updateTodo = (todoId: number, updatedTodo: Todo) => {\n-  return client.put<>(`/todos/${todoId}`, updatedTodo);\n-};\n+\n"
+                }
+            ],
+            "date": 1715349725765,
+            "name": "Commit-0",
+            "content": "import { Todo } from '../types/Todo';\nimport { client } from '../utils/fetchClient';\n\nexport const USER_ID = 534;\n\nexport const getTodos = () => {\n  return client.get<Todo[]>(`/todos?userId=${USER_ID}`);\n};\n\nexport const postTodo = (newTodo: Todo) => {\n  return client.post<Todo>('/todos', newTodo);\n};\n\nexport const deleteTodo = (todoId: number) => {\n  return client.delete(`/todos/${todoId}`);\n};\n"
+        }
+    ]
+}
