@@ -3,7 +3,7 @@
     "activeCommit": 0,
     "commits": [
         {
-            "activePatchIndex": 6,
+            "activePatchIndex": 14,
             "patches": [
                 {
                     "date": 1715350240271,
@@ -32,6 +32,38 @@
                 {
                     "date": 1715351666869,
                     "content": "Index: \n===================================================================\n--- \n+++ \n@@ -30,9 +30,9 @@\n \n         setTodos(todosData);\n       } catch (err) {\n         setError(true);\n-        setErrorType('load');\n+        setErrorType('up');\n       }\n     };\n \n     fetchTodos();\n"
+                },
+                {
+                    "date": 1715351967782,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -30,9 +30,9 @@\n \n         setTodos(todosData);\n       } catch (err) {\n         setError(true);\n-        setErrorType('up');\n+        setErrorType('update');\n       }\n     };\n \n     fetchTodos();\n@@ -170,8 +170,9 @@\n   };\n \n   const handleToggleAllTodos = () => {\n     const allCompleted = todos.every(todo => todo.completed);\n+    n\n \n     setTodos(prev =>\n       prev.map(todo => ({\n         ...todo,\n"
+                },
+                {
+                    "date": 1715351973402,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -170,9 +170,9 @@\n   };\n \n   const handleToggleAllTodos = () => {\n     const allCompleted = todos.every(todo => todo.completed);\n-    n\n+    const newStt\n \n     setTodos(prev =>\n       prev.map(todo => ({\n         ...todo,\n"
+                },
+                {
+                    "date": 1715351980115,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -170,10 +170,11 @@\n   };\n \n   const handleToggleAllTodos = () => {\n     const allCompleted = todos.every(todo => todo.completed);\n-    const newStt\n+    const newSttus = \n \n+\n     setTodos(prev =>\n       prev.map(todo => ({\n         ...todo,\n         completed: !allCompleted,\n"
+                },
+                {
+                    "date": 1715351985308,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -170,9 +170,9 @@\n   };\n \n   const handleToggleAllTodos = () => {\n     const allCompleted = todos.every(todo => todo.completed);\n-    const newSttus = \n+    const newSttus = !all\n \n \n     setTodos(prev =>\n       prev.map(todo => ({\n"
+                },
+                {
+                    "date": 1715351996436,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -170,11 +170,10 @@\n   };\n \n   const handleToggleAllTodos = () => {\n     const allCompleted = todos.every(todo => todo.completed);\n-    const newSttus = !all\n+    const newStatus = !allCompleted;\n \n-\n     setTodos(prev =>\n       prev.map(todo => ({\n         ...todo,\n         completed: !allCompleted,\n"
+                },
+                {
+                    "date": 1715352010283,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -175,9 +175,9 @@\n \n     setTodos(prev =>\n       prev.map(todo => ({\n         ...todo,\n-        completed: !allCompleted,\n+        completed: new,\n       })),\n     );\n   };\n \n"
+                },
+                {
+                    "date": 1715352017975,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -175,9 +175,9 @@\n \n     setTodos(prev =>\n       prev.map(todo => ({\n         ...todo,\n-        completed: new,\n+        completed: !allCompleted,\n       })),\n     );\n   };\n \n"
+                },
+                {
+                    "date": 1715352412850,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -30,9 +30,9 @@\n \n         setTodos(todosData);\n       } catch (err) {\n         setError(true);\n-        setErrorType('update');\n+        setErrorType('load');\n       }\n     };\n \n     fetchTodos();\n@@ -170,9 +170,8 @@\n   };\n \n   const handleToggleAllTodos = () => {\n     const allCompleted = todos.every(todo => todo.completed);\n-    const newStatus = !allCompleted;\n \n     setTodos(prev =>\n       prev.map(todo => ({\n         ...todo,\n"
                 }
             ],
             "date": 1715350240271,

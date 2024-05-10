@@ -31,7 +31,7 @@ export const App: React.FC = () => {
         setTodos(todosData);
       } catch (err) {
         setError(true);
-        setErrorType('update');
+        setErrorType('load');
       }
     };
 

@@ -3,7 +3,7 @@
     "activeCommit": 0,
     "commits": [
         {
-            "activePatchIndex": 2,
+            "activePatchIndex": 5,
             "patches": [
                 {
                     "date": 1715351565971,
@@ -16,6 +16,18 @@
                 {
                     "date": 1715351685341,
                     "content": "Index: \n===================================================================\n--- \n+++ \n@@ -12,9 +12,9 @@\n Toggle the `completed` status on `TodoStatus` change:\n - Install Prettier Extention and use this [VSCode settings](https://mate-academy.github.io/fe-program/tools/vscode/settings.json) to enable format on save.\n + covered the todo with a loader overlay while waiting for API response;\n + the status should be changed on success;\n-- show the `Unable to update a todo` notification in case of API error.\n++ show the `Unable to update a todo` notification in case of API error.\n \n Add the ability to toggle the completed status of all the todos with the `toggleAll` checkbox:\n \n - `toggleAll` button should have `active` class only if all the todos are completed;\n"
+                },
+                {
+                    "date": 1715351900061,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -16,9 +16,9 @@\n + show the `Unable to update a todo` notification in case of API error.\n \n Add the ability to toggle the completed status of all the todos with the `toggleAll` checkbox:\n \n-- `toggleAll` button should have `active` class only if all the todos are completed;\n++ `toggleAll` button should have `active` class only if all the todos are completed;\n - `toggleAll` click changes its status to the opposite one, and sets this new status to all the todos;\n - it should work the same as several individual updates of the todos which statuses were actually changed;\n - do send requests for the todos that were not changed;\n \n"
+                },
+                {
+                    "date": 1715352027429,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -17,9 +17,9 @@\n \n Add the ability to toggle the completed status of all the todos with the `toggleAll` checkbox:\n \n + `toggleAll` button should have `active` class only if all the todos are completed;\n-- `toggleAll` click changes its status to the opposite one, and sets this new status to all the todos;\n++ `toggleAll` click changes its status to the opposite one, and sets this new status to all the todos;\n - it should work the same as several individual updates of the todos which statuses were actually changed;\n - do send requests for the todos that were not changed;\n \n ## Renaming a todo\n"
+                },
+                {
+                    "date": 1715352106535,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -18,9 +18,9 @@\n Add the ability to toggle the completed status of all the todos with the `toggleAll` checkbox:\n \n + `toggleAll` button should have `active` class only if all the todos are completed;\n + `toggleAll` click changes its status to the opposite one, and sets this new status to all the todos;\n-- it should work the same as several individual updates of the todos which statuses were actually changed;\n++ it should work the same as several individual updates of the todos which statuses were actually changed;\n - do send requests for the todos that were not changed;\n \n ## Renaming a todo\n \n"
                 }
             ],
             "date": 1715351565971,
