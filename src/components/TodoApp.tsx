@@ -127,7 +127,6 @@ export const TodoApp: React.FC = () => {
           aria-label="hide error"
           onClick={handleHideErrorMessage}
         />
-        {/* show only one message at a time */}
         {errorMessage}
       </div>
     </div>
