@@ -3,7 +3,7 @@
     "activeCommit": 0,
     "commits": [
         {
-            "activePatchIndex": 62,
+            "activePatchIndex": 64,
             "patches": [
                 {
                     "date": 1715350240271,
@@ -256,6 +256,14 @@
                 {
                     "date": 1715357219447,
                     "content": "Index: \n===================================================================\n--- \n+++ \n@@ -161,30 +161,28 @@\n \n   const handleToggleTodo = async (id: number) => {\n     setLoadingTodoId(id);\n \n+    setTodos(prev =>\n+      prev.map(todo =>\n+        todo.id === id ? { ...todo, completed: !todo.completed } : todo,\n+      ),\n+    );\n     try {\n-      setTodos(prevTodos =>\n-        prevTodos.map(todo =>\n-          todo.id === id ? { ...todo, completed: !todo.completed } : todo\n-        )\n-      );\n-\n       await updateTodo(id, !todos.find(todo => todo.id === id)?.completed);\n     } catch (err) {\n-      setTodos(prevTodos =>\n-        prevTodos.map(todo =>\n-          todo.id === id ? { ...todo, completed: !todo.completed } : todo\n-        )\n+      setTodos(prev =>\n+        prev.map(todo =>\n+          todo.id == id ? { ...todo, completed: !todo.completed } : todo,\n+        ),\n       );\n       setError(true);\n       setErrorType('update');\n     } finally {\n       setLoadingTodoId(null);\n     }\n   };\n \n-\n   const handleToggleAllTodos = () => {\n     const allCompleted = todos.every(todo => todo.completed);\n \n     setTodos(prev =>\n"
+                },
+                {
+                    "date": 1715357552520,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -168,8 +168,9 @@\n       ),\n     );\n     try {\n       await updateTodo(id, !todos.find(todo => todo.id === id)?.completed);\n+    \n     } catch (err) {\n       setTodos(prev =>\n         prev.map(todo =>\n           todo.id == id ? { ...todo, completed: !todo.completed } : todo,\n"
+                },
+                {
+                    "date": 1715357570491,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -163,18 +163,24 @@\n     setLoadingTodoId(id);\n \n     setTodos(prev =>\n       prev.map(todo =>\n-        todo.id === id ? { ...todo, completed: !todo.completed } : todo,\n+        todo.id === id ? { ...todo, pendingToggle: true } : todo,\n       ),\n     );\n+\n     try {\n       await updateTodo(id, !todos.find(todo => todo.id === id)?.completed);\n-    \n+\n+      setTodos(prev =>\n+        prev.map(todo =>\n+          todo.id === id ? { ...todo, completed: !todo.completed, pendingToggle: false } : todo,\n+        ),\n+      );\n     } catch (err) {\n       setTodos(prev =>\n         prev.map(todo =>\n-          todo.id == id ? { ...todo, completed: !todo.completed } : todo,\n+          todo.id === id ? { ...todo, pendingToggle: false } : todo,\n         ),\n       );\n       setError(true);\n       setErrorType('update');\n"
                 }
             ],
             "date": 1715350240271,

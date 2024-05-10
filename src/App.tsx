@@ -164,15 +164,24 @@ export const App: React.FC = () => {
 
     setTodos(prev =>
       prev.map(todo =>
-        todo.id === id ? { ...todo, completed: !todo.completed } : todo,
+        todo.id === id ? { ...todo, pendingToggle: true } : todo,
       ),
     );
+
     try {
       await updateTodo(id, !todos.find(todo => todo.id === id)?.completed);
+
+      setTodos(prev =>
+        prev.map(todo =>
+          todo.id === id
+            ? { ...todo, completed: !todo.completed, pendingToggle: false }
+            : todo,
+        ),
+      );
     } catch (err) {
       setTodos(prev =>
         prev.map(todo =>
-          todo.id == id ? { ...todo, completed: !todo.completed } : todo,
+          todo.id === id ? { ...todo, pendingToggle: false } : todo,
         ),
       );
       setError(true);
