@@ -110,8 +110,6 @@ export const TodoApp: React.FC = () => {
           </InputFieldRefContextProvider>
         </IsChangingStatusContextProvider>
       </div>
-      {/* DON'T use conditional rendering to hide the notification */}
-      {/* Add the 'hidden' class to hide the message smoothly */}
       <div
         data-cy="ErrorNotification"
         className={cn(
