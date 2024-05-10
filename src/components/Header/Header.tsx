@@ -31,7 +31,10 @@ export const Header = ({
     setPosts(newPost);
   };
 
-  const key = (event: { key: string; preventDefault: () => void }) => {
+  const handleKeyDown = (event: {
+    key: string;
+    preventDefault: () => void;
+  }) => {
     if (event.key === 'Enter') {
       event.preventDefault();
       if (input.trim()) {
@@ -73,7 +76,7 @@ export const Header = ({
           placeholder="What needs to be done?"
           value={input}
           onChange={event => setInput(event.target.value)}
-          onKeyDown={key}
+          onKeyDown={handleKeyDown}
           ref={refFocus}
         />
       </form>

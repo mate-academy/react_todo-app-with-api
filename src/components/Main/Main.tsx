@@ -120,7 +120,7 @@ export const Main = ({
           </div>
         ))}
 
-      <TodoItem tempTodo={tempTodo} loader={loader} />
+      {tempTodo && <TodoItem todo={tempTodo} loader={loader} />}
     </section>
   );
 };

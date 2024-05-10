@@ -9,7 +9,9 @@ export const Errors = ({ error, setError }: Props) => {
   return (
     <div
       data-cy="ErrorNotification"
-      className={cn('notification is-danger is-light has-text-weight-normal', {'hidden': !error})}
+      className={cn('notification is-danger is-light has-text-weight-normal', {
+        hidden: !error,
+      })}
     >
       <button
         data-cy="HideErrorButton"

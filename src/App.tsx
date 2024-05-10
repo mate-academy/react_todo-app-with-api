@@ -34,7 +34,7 @@ export const App: React.FC = () => {
     setTimeout(() => {
       setError('');
     }, 3000);
-  } 
+  }
 
   if (!USER_ID) {
     return <UserWarning />;
