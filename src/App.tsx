@@ -2,7 +2,13 @@
 /* eslint-disable jsx-a11y/control-has-associated-label */
 import React, { useEffect, useRef, useState } from 'react';
 import { UserWarning } from './UserWarning';
-import { USER_ID, deleteTodo, getTodos, postTodo } from './api/todos';
+import {
+  USER_ID,
+  deleteTodo,
+  getTodos,
+  postTodo,
+  updateTodo,
+} from './api/todos';
 import { TodoList } from './Components/TodoList';
 import { ErrorNotification } from './Components/ErrorNotification';
 import { Footer } from './Components/Footer';
@@ -154,18 +160,21 @@ export const App: React.FC = () => {
   };
 
   const handleToggleTodo = async (id: number) => {
-    setLoadingTodoId(id);
+    setTodos(prev =>
+      prev.map(todo =>
+        todo.id === id ? { ...todo, completed: !todo.completed } : todo,
+      ),
+    );
     try {
+      await updateTodo(id, !todos.find(todo => todo.id === id)?.completed);
+    } catch (err) {
       setTodos(prev =>
         prev.map(todo =>
-          todo.id === id ? { ...todo, completed: !todo.completed } : todo,
+          todo.id == id ? { ...todo, completed: !todo.completed } : todo,
         ),
       );
-      await deleteTodo(id);
-      setLoadingTodoId(null);
-    } catch (err) {
       setError(true);
-      setErrorType('delete');
+      setErrorType('update');
     }
   };
 
