@@ -191,15 +191,21 @@ export const App: React.FC = () => {
     }
   };
 
-  const handleToggleAllTodos = () => {
+  const handleToggleAllTodos = async () => {
     const allCompleted = todos.every(todo => todo.completed);
 
-    setTodos(prev =>
-      prev.map(todo => ({
-        ...todo,
-        completed: !allCompleted,
-      })),
-    );
+    try {
+      for (const todo of todos) {
+        await updateTodo(todo.id, !allCompleted);
+      }
+
+      setTodos(prev =>
+        prev.map(todo => ({ ...todo, completed: !allCompleted })),
+      );
+    } catch (err) {
+      setError(true);
+      setErrorType('update');
+    }
   };
 
   const hideError = () => {

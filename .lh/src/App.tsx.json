@@ -3,7 +3,7 @@
     "activeCommit": 0,
     "commits": [
         {
-            "activePatchIndex": 80,
+            "activePatchIndex": 113,
             "patches": [
                 {
                     "date": 1715350240271,
@@ -328,6 +328,138 @@
                 {
                     "date": 1715358942289,
                     "content": "Index: \n===================================================================\n--- \n+++ \n@@ -213,18 +213,18 @@\n       {USER_ID && (\n         <div className=\"todoapp__content\">\n           <header className=\"todoapp__header\">\n             {/* this button should have `active` class only if all todos are completed */}\n-            \n+\n             {todos.length > 0 && (\n               <button\n                 type=\"button\"\n                 className={`todoapp__toggle-all ${todos.every(todo => todo.completed) ? 'active' : ''}`}\n                 data-cy=\"ToggleAllButton\"\n                 onClick={handleToggleAllTodos}\n               />\n             )}\n-            ){/* Add a todo on form submit */}\n+            {/* Add a todo on form submit */}\n             <form>\n               <input\n                 ref={inputRef}\n                 data-cy=\"NewTodoField\"\n"
+                },
+                {
+                    "date": 1715359330475,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -33,8 +33,10 @@\n     const fetchTodos = async () => {\n       try {\n         const todosData = await getTodos();\n \n+        const\n+\n         setTodos(todosData);\n       } catch (err) {\n         setError(true);\n         setErrorType('load');\n"
+                },
+                {
+                    "date": 1715359336140,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -33,9 +33,9 @@\n     const fetchTodos = async () => {\n       try {\n         const todosData = await getTodos();\n \n-        const\n+        const activeTodos = \n \n         setTodos(todosData);\n       } catch (err) {\n         setError(true);\n"
+                },
+                {
+                    "date": 1715359342809,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -33,9 +33,9 @@\n     const fetchTodos = async () => {\n       try {\n         const todosData = await getTodos();\n \n-        const activeTodos = \n+        const activeTodos = todosData.filter\n \n         setTodos(todosData);\n       } catch (err) {\n         setError(true);\n"
+                },
+                {
+                    "date": 1715359348297,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -33,9 +33,9 @@\n     const fetchTodos = async () => {\n       try {\n         const todosData = await getTodos();\n \n-        const activeTodos = todosData.filter\n+        const activeTodos = todosData.filter(todo => !)\n \n         setTodos(todosData);\n       } catch (err) {\n         setError(true);\n"
+                },
+                {
+                    "date": 1715359354363,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -33,9 +33,9 @@\n     const fetchTodos = async () => {\n       try {\n         const todosData = await getTodos();\n \n-        const activeTodos = todosData.filter(todo => !)\n+        const activeTodos = todosData.filter(todo => !todo.comple)\n \n         setTodos(todosData);\n       } catch (err) {\n         setError(true);\n"
+                },
+                {
+                    "date": 1715359371318,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -33,10 +33,10 @@\n     const fetchTodos = async () => {\n       try {\n         const todosData = await getTodos();\n \n-        const activeTodos = todosData.filter(todo => !todo.comple)\n-\n+        const activeTodos = todosData.filter(todo => !todo.completed);\n+awa\n         setTodos(todosData);\n       } catch (err) {\n         setError(true);\n         setErrorType('load');\n"
+                },
+                {
+                    "date": 1715359376885,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -34,9 +34,9 @@\n       try {\n         const todosData = await getTodos();\n \n         const activeTodos = todosData.filter(todo => !todo.completed);\n-awa\n+await Promise.all\n         setTodos(todosData);\n       } catch (err) {\n         setError(true);\n         setErrorType('load');\n"
+                },
+                {
+                    "date": 1715359383501,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -34,9 +34,9 @@\n       try {\n         const todosData = await getTodos();\n \n         const activeTodos = todosData.filter(todo => !todo.completed);\n-await Promise.all\n+await Promise.all(activeTodos.map)\n         setTodos(todosData);\n       } catch (err) {\n         setError(true);\n         setErrorType('load');\n"
+                },
+                {
+                    "date": 1715359393819,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -34,9 +34,9 @@\n       try {\n         const todosData = await getTodos();\n \n         const activeTodos = todosData.filter(todo => !todo.completed);\n-await Promise.all(activeTodos.map)\n+await Promise.all(activeTodos.map(todo => update))\n         setTodos(todosData);\n       } catch (err) {\n         setError(true);\n         setErrorType('load');\n"
+                },
+                {
+                    "date": 1715359399296,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -34,9 +34,9 @@\n       try {\n         const todosData = await getTodos();\n \n         const activeTodos = todosData.filter(todo => !todo.completed);\n-await Promise.all(activeTodos.map(todo => update))\n+await Promise.all(activeTodos.map(todo => updateTodo(todo)))\n         setTodos(todosData);\n       } catch (err) {\n         setError(true);\n         setErrorType('load');\n"
+                },
+                {
+                    "date": 1715359404381,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -34,9 +34,9 @@\n       try {\n         const todosData = await getTodos();\n \n         const activeTodos = todosData.filter(todo => !todo.completed);\n-await Promise.all(activeTodos.map(todo => updateTodo(todo)))\n+await Promise.all(activeTodos.map(todo => updateTodo(todo.id, todo)))\n         setTodos(todosData);\n       } catch (err) {\n         setError(true);\n         setErrorType('load');\n"
+                },
+                {
+                    "date": 1715359413197,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -34,9 +34,11 @@\n       try {\n         const todosData = await getTodos();\n \n         const activeTodos = todosData.filter(todo => !todo.completed);\n-await Promise.all(activeTodos.map(todo => updateTodo(todo.id, todo)))\n+        await Promise.all(\n+          activeTodos.map(todo => updateTodo(todo.id, todo.completed)),\n+        );\n         setTodos(todosData);\n       } catch (err) {\n         setError(true);\n         setErrorType('load');\n"
+                },
+                {
+                    "date": 1715359418814,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -34,8 +34,9 @@\n       try {\n         const todosData = await getTodos();\n \n         const activeTodos = todosData.filter(todo => !todo.completed);\n+\n         await Promise.all(\n           activeTodos.map(todo => updateTodo(todo.id, todo.completed)),\n         );\n         setTodos(todosData);\n"
+                },
+                {
+                    "date": 1715359508087,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -34,12 +34,9 @@\n       try {\n         const todosData = await getTodos();\n \n         const activeTodos = todosData.filter(todo => !todo.completed);\n-\n-        await Promise.all(\n-          activeTodos.map(todo => updateTodo(todo.id, todo.completed)),\n-        );\n+await Promise.all(activeTodos.map(todo => updateTodo(todo.id, todo.completed)))\n         setTodos(todosData);\n       } catch (err) {\n         setError(true);\n         setErrorType('load');\n"
+                },
+                {
+                    "date": 1715359516816,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -33,10 +33,10 @@\n     const fetchTodos = async () => {\n       try {\n         const todosData = await getTodos();\n \n-        const activeTodos = todosData.filter(todo => !todo.completed);\n-await Promise.all(activeTodos.map(todo => updateTodo(todo.id, todo.completed)))\n+        const activeTodos = todosData.filter\n+\n         setTodos(todosData);\n       } catch (err) {\n         setError(true);\n         setErrorType('load');\n"
+                },
+                {
+                    "date": 1715359832374,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -32,11 +32,12 @@\n   useEffect(() => {\n     const fetchTodos = async () => {\n       try {\n         const todosData = await getTodos();\n-\n-        const activeTodos = todosData.filter\n-\n+        const activeTodos = todosData.filter(todo => !todo.completed);\n+        for (const todo of activeTodos) {\n+          await updateTodo(todo.id, true);\n+        }\n         setTodos(todosData);\n       } catch (err) {\n         setError(true);\n         setErrorType('load');\n"
+                },
+                {
+                    "date": 1715359837480,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -33,9 +33,10 @@\n     const fetchTodos = async () => {\n       try {\n         const todosData = await getTodos();\n         const activeTodos = todosData.filter(todo => !todo.completed);\n-        for (const todo of activeTodos) {\n+\n+    for (const todo of activeTodos) {\n           await updateTodo(todo.id, true);\n         }\n         setTodos(todosData);\n       } catch (err) {\n"
+                },
+                {
+                    "date": 1715359846544,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -34,9 +34,9 @@\n       try {\n         const todosData = await getTodos();\n         const activeTodos = todosData.filter(todo => !todo.completed);\n \n-    for (const todo of activeTodos) {\n+        for (const todo of activeTodos) {\n           await updateTodo(todo.id, true);\n         }\n         setTodos(todosData);\n       } catch (err) {\n"
+                },
+                {
+                    "date": 1715359882506,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -37,8 +37,9 @@\n \n         for (const todo of activeTodos) {\n           await updateTodo(todo.id, true);\n         }\n+\n         setTodos(todosData);\n       } catch (err) {\n         setError(true);\n         setErrorType('load');\n@@ -194,17 +195,19 @@\n       setLoadingTodoId(null);\n     }\n   };\n \n-  const handleToggleAllTodos = () => {\n+  const handleToggleAllTodos = async () => {\n     const allCompleted = todos.every(todo => todo.completed);\n-\n-    setTodos(prev =>\n-      prev.map(todo => ({\n-        ...todo,\n-        completed: !allCompleted,\n-      })),\n-    );\n+    try {\n+      for (const todo of todos) {\n+        await updateTodo(todo.id, !allCompleted);\n+      }\n+      setTodos(prev => prev.map(todo => ({ ...todo, completed: !allCompleted })));\n+    } catch (err) {\n+      setError(true);\n+      setErrorType('update');\n+    }\n   };\n \n   const hideError = () => {\n     setError(false);\n"
+                },
+                {
+                    "date": 1715359889833,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -197,13 +197,17 @@\n   };\n \n   const handleToggleAllTodos = async () => {\n     const allCompleted = todos.every(todo => todo.completed);\n+\n     try {\n       for (const todo of todos) {\n         await updateTodo(todo.id, !allCompleted);\n       }\n-      setTodos(prev => prev.map(todo => ({ ...todo, completed: !allCompleted })));\n+\n+      setTodos(prev =>\n+        prev.map(todo => ({ ...todo, completed: !allCompleted })),\n+      );\n     } catch (err) {\n       setError(true);\n       setErrorType('update');\n     }\n"
+                },
+                {
+                    "date": 1715359955581,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -202,9 +202,9 @@\n     try {\n       for (const todo of todos) {\n         await updateTodo(todo.id, !allCompleted);\n       }\n-\n+      \n       setTodos(prev =>\n         prev.map(todo => ({ ...todo, completed: !allCompleted })),\n       );\n     } catch (err) {\n"
+                },
+                {
+                    "date": 1715359961405,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -37,9 +37,9 @@\n \n         for (const todo of activeTodos) {\n           await updateTodo(todo.id, true);\n         }\n-\n+        \n         setTodos(todosData);\n       } catch (err) {\n         setError(true);\n         setErrorType('load');\n@@ -195,23 +195,17 @@\n       setLoadingTodoId(null);\n     }\n   };\n \n-  const handleToggleAllTodos = async () => {\n+  const handleToggleAllTodos = () => {\n     const allCompleted = todos.every(todo => todo.completed);\n \n-    try {\n-      for (const todo of todos) {\n-        await updateTodo(todo.id, !allCompleted);\n-      }\n-      \n-      setTodos(prev =>\n-        prev.map(todo => ({ ...todo, completed: !allCompleted })),\n-      );\n-    } catch (err) {\n-      setError(true);\n-      setErrorType('update');\n-    }\n+    setTodos(prev =>\n+      prev.map(todo => ({\n+        ...todo,\n+        completed: !allCompleted,\n+      })),\n+    );\n   };\n \n   const hideError = () => {\n     setError(false);\n"
+                },
+                {
+                    "date": 1715359992225,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -32,14 +32,9 @@\n   useEffect(() => {\n     const fetchTodos = async () => {\n       try {\n         const todosData = await getTodos();\n-        const activeTodos = todosData.filter(todo => !todo.completed);\n \n-        for (const todo of activeTodos) {\n-          await updateTodo(todo.id, true);\n-        }\n-        \n         setTodos(todosData);\n       } catch (err) {\n         setError(true);\n         setErrorType('load');\n@@ -195,23 +190,20 @@\n       setLoadingTodoId(null);\n     }\n   };\n \n-  const handleToggleAllTodos = () => {\n+  const handleToggleAllTodos = async () => {\n     const allCompleted = todos.every(todo => todo.completed);\n-\n-    setTodos(prev =>\n-      prev.map(todo => ({\n-        ...todo,\n-        completed: !allCompleted,\n-      })),\n-    );\n+    try {\n+      for (const todo of todos) {\n+        await updateTodo(todo.id, !allCompleted);\n+      }\n+      setTodos(prev => prev.map(todo => ({ ...todo, completed: !allCompleted })));\n+    } catch (err) {\n+      setError(true);\n+      setErrorType('update');\n+    }\n   };\n-\n-  const hideError = () => {\n-    setError(false);\n-  };\n-\n   return (\n     <div className=\"todoapp\">\n       {!USER_ID && <UserWarning />}\n       <h1 className=\"todoapp__title\">todos</h1>\n"
+                },
+                {
+                    "date": 1715359997422,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -196,14 +196,17 @@\n     try {\n       for (const todo of todos) {\n         await updateTodo(todo.id, !allCompleted);\n       }\n-      setTodos(prev => prev.map(todo => ({ ...todo, completed: !allCompleted })));\n+      setTodos(prev =>\n+        prev.map(todo => ({ ...todo, completed: !allCompleted })),\n+      );\n     } catch (err) {\n       setError(true);\n       setErrorType('update');\n     }\n   };\n+\n   return (\n     <div className=\"todoapp\">\n       {!USER_ID && <UserWarning />}\n       <h1 className=\"todoapp__title\">todos</h1>\n"
+                },
+                {
+                    "date": 1715360009169,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -192,8 +192,9 @@\n   };\n \n   const handleToggleAllTodos = async () => {\n     const allCompleted = todos.every(todo => todo.completed);\n+\n     try {\n       for (const todo of todos) {\n         await updateTodo(todo.id, !allCompleted);\n       }\n"
+                },
+                {
+                    "date": 1715360024553,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -197,8 +197,9 @@\n     try {\n       for (const todo of todos) {\n         await updateTodo(todo.id, !allCompleted);\n       }\n+\n       setTodos(prev =>\n         prev.map(todo => ({ ...todo, completed: !allCompleted })),\n       );\n     } catch (err) {\n@@ -273,9 +274,9 @@\n       {/* Add the 'hidden' class to hide the message smoothly */}\n       <ErrorNotification\n         error={error}\n         errorType={errorType}\n-        hideError={hideError}\n+        hideError={}\n       />\n     </div>\n   );\n };\n"
+                },
+                {
+                    "date": 1715360043271,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -274,9 +274,9 @@\n       {/* Add the 'hidden' class to hide the message smoothly */}\n       <ErrorNotification\n         error={error}\n         errorType={errorType}\n-        hideError={}\n+        ={}\n       />\n     </div>\n   );\n };\n"
+                },
+                {
+                    "date": 1715360052234,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -271,12 +271,10 @@\n         </div>\n       )}\n       {/* DON'T use conditional rendering to hide the notification */}\n       {/* Add the 'hidden' class to hide the message smoothly */}\n-      <ErrorNotification\n-        error={error}\n-        errorType={errorType}\n-        ={}\n-      />\n+      <ErrorNotification error={error} errorType={errorType} hideError={function (): void {\n+        throw new Error('Function not implemented.');\n+      } } />\n     </div>\n   );\n };\n"
+                },
+                {
+                    "date": 1715360060285,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -271,10 +271,12 @@\n         </div>\n       )}\n       {/* DON'T use conditional rendering to hide the notification */}\n       {/* Add the 'hidden' class to hide the message smoothly */}\n-      <ErrorNotification error={error} errorType={errorType} hideError={function (): void {\n-        throw new Error('Function not implemented.');\n-      } } />\n+      <ErrorNotification\n+        error={error}\n+        errorType={errorType}\n+        hideError={}\n+      />\n     </div>\n   );\n };\n"
+                },
+                {
+                    "date": 1715360106851,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -274,9 +274,8 @@\n       {/* Add the 'hidden' class to hide the message smoothly */}\n       <ErrorNotification\n         error={error}\n         errorType={errorType}\n-        hideError={}\n       />\n     </div>\n   );\n };\n"
+                },
+                {
+                    "date": 1715360142651,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -273,9 +273,8 @@\n       {/* DON'T use conditional rendering to hide the notification */}\n       {/* Add the 'hidden' class to hide the message smoothly */}\n       <ErrorNotification\n         error={error}\n-        errorType={errorType}\n-      />\n+        errorType={errorType}      />\n     </div>\n   );\n };\n"
+                },
+                {
+                    "date": 1715360177161,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -273,8 +273,10 @@\n       {/* DON'T use conditional rendering to hide the notification */}\n       {/* Add the 'hidden' class to hide the message smoothly */}\n       <ErrorNotification\n         error={error}\n-        errorType={errorType}      />\n+        errorType={errorType}\n+        hideError={}\n+      />\n     </div>\n   );\n };\n"
+                },
+                {
+                    "date": 1715360238448,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -207,8 +207,12 @@\n       setErrorType('update');\n     }\n   };\n \n+  const hideError = () => {\n+    setError(false);\n+  };\n+\n   return (\n     <div className=\"todoapp\">\n       {!USER_ID && <UserWarning />}\n       <h1 className=\"todoapp__title\">todos</h1>\n@@ -274,9 +278,9 @@\n       {/* Add the 'hidden' class to hide the message smoothly */}\n       <ErrorNotification\n         error={error}\n         errorType={errorType}\n-        hideError={}\n+        hideError={hideError}\n       />\n     </div>\n   );\n };\n"
                 }
             ],
             "date": 1715350240271,

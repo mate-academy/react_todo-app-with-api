@@ -3,7 +3,7 @@
     "activeCommit": 0,
     "commits": [
         {
-            "activePatchIndex": 3,
+            "activePatchIndex": 6,
             "patches": [
                 {
                     "date": 1715349556788,
@@ -20,6 +20,18 @@
                 {
                     "date": 1715349794740,
                     "content": "Index: \n===================================================================\n--- \n+++ \n@@ -1,6 +1,6 @@\n import React, { useEffect } from 'react';\n-import { Error } from '../ty;\n+import { Error } from '../Types/Todo;\n \n interface Props {\n   errorType: Error | null;\n   error: boolean;\n"
+                },
+                {
+                    "date": 1715360152264,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -1,6 +1,6 @@\n import React, { useEffect } from 'react';\n-import { Error } from '../Types/Todo;\n+import { Error } from '../Types/Todo';\n \n interface Props {\n   errorType: Error | null;\n   error: boolean;\n@@ -50,9 +50,8 @@\n       <button\n         data-cy=\"HideErrorButton\"\n         type=\"button\"\n         className=\"delete\"\n-        onClick={hideError}\n       />\n       {/* show only one message at a time */}\n       {errorMessage}\n     </div>\n"
+                },
+                {
+                    "date": 1715360162904,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -3,9 +3,8 @@\n \n interface Props {\n   errorType: Error | null;\n   error: boolean;\n-  hideError: () => void;\n }\n export const ErrorNotification: React.FC<Props> = ({\n   errorType,\n   error,\n@@ -46,13 +45,9 @@\n     <div\n       data-cy=\"ErrorNotification\"\n       className={`notification is-danger is-light has-text-weight-normal ${error ? '' : 'hidden'}`}\n     >\n-      <button\n-        data-cy=\"HideErrorButton\"\n-        type=\"button\"\n-        className=\"delete\"\n-      />\n+      <button data-cy=\"HideErrorButton\" type=\"button\" className=\"delete\" />\n       {/* show only one message at a time */}\n       {errorMessage}\n     </div>\n   );\n"
+                },
+                {
+                    "date": 1715360173367,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -3,8 +3,9 @@\n \n interface Props {\n   errorType: Error | null;\n   error: boolean;\n+  hideError: () => void;\n }\n export const ErrorNotification: React.FC<Props> = ({\n   errorType,\n   error,\n@@ -45,9 +46,13 @@\n     <div\n       data-cy=\"ErrorNotification\"\n       className={`notification is-danger is-light has-text-weight-normal ${error ? '' : 'hidden'}`}\n     >\n-      <button data-cy=\"HideErrorButton\" type=\"button\" className=\"delete\" />\n+      <button\n+        data-cy=\"HideErrorButton\"\n+        type=\"button\"\n+        className=\"delete\"\n+      />\n       {/* show only one message at a time */}\n       {errorMessage}\n     </div>\n   );\n"
                 }
             ],
             "date": 1715349556788,
