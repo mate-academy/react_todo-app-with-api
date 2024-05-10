@@ -53,9 +53,9 @@ export const App: React.FC = () => {
 
   useEffect(() => {
     getTodosFromServer()
-      .then((todos: Todo[]) => {
+      .then((todosFromServer: Todo[]) => {
         setTodos(
-          todos.map((todo: Todo) => ({
+          todosFromServer.map((todo: Todo) => ({
             ...todo,
             isFromServer: true,
           })),

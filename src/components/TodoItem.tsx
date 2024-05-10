@@ -1,3 +1,5 @@
+/* eslint-disable jsx-a11y/label-has-associated-control */
+/* eslint-disable jsx-a11y/control-has-associated-label */
 import { ChangeEvent, FC, useState } from 'react';
 import { Todo } from '../types/Todo';
 import React from 'react';
@@ -57,6 +59,7 @@ export const TodoItem: FC<Props> = ({
         if (didSucceed) {
           setIsBeingEdited(false);
         }
+
         setIsBeingSaved(false);
       });
     } else {
