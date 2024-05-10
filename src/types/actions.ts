@@ -1,6 +1,7 @@
 import { Filter, TodoFromServer } from './state';
 
 export enum Action {
+  initialTodo = 'initialTodo',
   addTodo = 'addTodo',
   updateTodo = 'updateTodo',
   deleteTodo = 'deleteTodo',
@@ -11,6 +12,7 @@ export enum Action {
 type UpdateTodo = { id: number; data: Partial<TodoFromServer> };
 
 export type Actions =
+  | { type: Action.initialTodo; payload: TodoFromServer[] }
   | { type: Action.addTodo; payload: TodoFromServer }
   | { type: Action.updateTodo; payload: UpdateTodo }
   | { type: Action.deleteTodo; payload: number }

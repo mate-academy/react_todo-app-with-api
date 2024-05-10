@@ -111,6 +111,13 @@ export const TodoItem: FC<Props> = ({
       });
   };
 
+  const handleEscape = (event: React.KeyboardEvent<HTMLInputElement>) => {
+    if (event.key === 'Escape') {
+      setUpdateMode(false);
+      setNewTitle(todo.title);
+    }
+  };
+
   return (
     <li key={todo.id}>
       <div data-cy="Todo" className={`todo ${todo.completed && 'completed'}`}>
@@ -136,12 +143,7 @@ export const TodoItem: FC<Props> = ({
                 ref={todoRef}
                 placeholder="Empty todo will be deleted"
                 value={newTitle}
-                onKeyDown={event => {
-                  if (event.key === 'Escape') {
-                    setUpdateMode(false);
-                    setNewTitle(todo.title);
-                  }
-                }}
+                onKeyDown={handleEscape}
                 onChange={event => setNewTitle(event.target.value)}
                 onBlur={() => saveNewTitle()}
               />

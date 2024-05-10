@@ -93,7 +93,7 @@ export const Header: FC<Props> = ({ onError, setTempTodo }) => {
         />
       )}
 
-      <form onSubmit={event => handleSubmit(event)}>
+      <form onSubmit={handleSubmit}>
         <input
           data-cy="NewTodoField"
           type="text"

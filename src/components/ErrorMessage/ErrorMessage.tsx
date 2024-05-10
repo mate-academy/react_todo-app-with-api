@@ -12,7 +12,7 @@ export const ErrorMessage: FC<Props> = ({ errorMessage, setErrorMessage }) => {
     if (errorMessage.length > 0) {
       timer = setTimeout(() => {
         setErrorMessage('');
-      }, 1000);
+      }, 2000);
     }
 
     return () => clearTimeout(timer);
@@ -31,7 +31,6 @@ export const ErrorMessage: FC<Props> = ({ errorMessage, setErrorMessage }) => {
       />
       {errorMessage}
       <br />
-      {/* Unable to delete a todo */}
     </div>
   );
 };
