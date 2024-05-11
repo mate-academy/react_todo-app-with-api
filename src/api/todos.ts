@@ -7,7 +7,7 @@ export const getTodos = () => {
   return client.get<Todo[]>(`/todos?userId=${USER_ID}`);
 };
 
-export const postTodo = (newTodo: any) => {
+export const postTodo = (newTodo: Omit<Todo, 'id'>) => {
   return client.post<Todo>('/todos', newTodo);
 };
 
@@ -15,6 +15,6 @@ export const deleteTodo = (todoId: number) => {
   return client.delete(`/todos/${todoId}`);
 };
 
-export const updateTodo = (todoId: number, updatedTodo: any) => {
+export const updateTodo = (todoId: number, updatedTodo: Partial<Todo>) => {
   return client.patch(`/todos/${todoId}`, updatedTodo);
 };

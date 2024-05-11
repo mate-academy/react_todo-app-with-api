@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React from 'react';
 import { Filter } from '../types/Filter';
 import { Todo } from '../types/Todo';
 
@@ -15,9 +15,7 @@ export const Footer: React.FC<Props> = ({
   filter,
   clearCompleted,
 }) => {
-  const counter = useMemo(() => {
-    return todos.filter(todo => !todo.completed).length;
-  }, [todos]);
+  const counter = todos.filter(todo => !todo.completed).length;
 
   const hasCompletedTodos = todos.some(todo => todo.completed);
 
@@ -39,27 +37,27 @@ export const Footer: React.FC<Props> = ({
       <nav className="filter" data-cy="Filter">
         <a
           href="#/"
-          className={`filter__link ${filter === 'all' ? 'selected' : ''}`}
+          className={`filter__link ${filter === Filter.All ? 'selected' : ''}`}
           data-cy="FilterLinkAll"
-          onClick={handleFilter('all')}
+          onClick={handleFilter(Filter.All)}
         >
           All
         </a>
 
         <a
           href="#/active"
-          className={`filter__link ${filter === 'active' ? 'selected' : ''}`}
+          className={`filter__link ${filter === Filter.Active ? 'selected' : ''}`}
           data-cy="FilterLinkActive"
-          onClick={handleFilter('active')}
+          onClick={handleFilter(Filter.Active)}
         >
           Active
         </a>
 
         <a
           href="#/completed"
-          className={`filter__link ${filter === 'completed' ? 'selected' : ''}`}
+          className={`filter__link ${filter === Filter.Completed ? 'selected' : ''}`}
           data-cy="FilterLinkCompleted"
-          onClick={handleFilter('completed')}
+          onClick={handleFilter(Filter.Completed)}
         >
           Completed
         </a>

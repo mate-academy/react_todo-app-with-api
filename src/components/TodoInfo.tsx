@@ -1,4 +1,3 @@
-/* eslint-disable no-param-reassign */
 /* eslint-disable jsx-a11y/label-has-associated-control */
 import React, { useEffect, useRef, useState } from 'react';
 import { Todo } from '../types/Todo';
@@ -9,10 +8,8 @@ interface Props {
   isLoad?: boolean;
   onDelete: (todoId: number) => void;
   toggleTodo: (todoId: number, newStatus: boolean) => void;
-  isLoading: boolean;
   onChange: (todoId: number, newTodoTitle: string) => void;
   error: 'load' | 'add' | 'delete' | 'update' | 'empty' | null;
-  setIsLoading: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
 export const TodoInfo: React.FC<Props> = ({
@@ -20,10 +17,8 @@ export const TodoInfo: React.FC<Props> = ({
   isLoad = false,
   onDelete,
   toggleTodo,
-  isLoading,
   onChange,
   error,
-  setIsLoading,
 }) => {
   const [isDeleting, setIsDeleting] = useState(false);
   const [isEdit, setIsEdit] = useState(false);
@@ -31,22 +26,30 @@ export const TodoInfo: React.FC<Props> = ({
   const [newTodoTitle, setNewTodoTitle] = useState(todo.title);
   const formFocus = useRef<HTMLInputElement | null>(null);
 
+  const [isLoading, setIsLoading] = useState(false);
+
   useEffect(() => {
     if (formFocus.current) {
       formFocus.current.focus();
     }
   }, [isEdit]);
 
+  useEffect(() => {
+    if (isLoading) {
+      setIsLoading(false);
+    }
+  }, [todo.completed, error, todo.title]);
+
   const handleEditTodo = (event: React.FormEvent) => {
     event.preventDefault();
 
     if (newTodoTitle.length === 0) {
       onDelete(todo.id);
-      setIsLoading(true);
     } else {
       onChange(todo.id, newTodoTitle);
     }
 
+    setIsLoading(true);
     setIsEdit(false);
   };
 
@@ -84,6 +87,7 @@ export const TodoInfo: React.FC<Props> = ({
           checked={todo.completed}
           onClick={() => {
             toggleTodo(todo.id, !todo.completed);
+            setIsLoading(true);
           }}
         />
       </label>

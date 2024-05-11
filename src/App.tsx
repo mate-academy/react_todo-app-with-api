@@ -22,10 +22,9 @@ export function App() {
   const [todos, setTodos] = useState<Todo[]>([]);
   const [query, setQuery] = useState('');
   const [error, setError] = useState<ErrorType | null>(null);
-  const [filter, setFilter] = useState<Filter>('all');
+  const [filter, setFilter] = useState<Filter>(Filter.All);
   const [newTodoLoading, setNewTodoLoading] = useState(false);
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
 
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -44,12 +43,10 @@ export function App() {
   const filteredTodo = useMemo(() => {
     return todos.filter(todo => {
       switch (filter) {
-        case 'active':
+        case Filter.Active:
           return !todo.completed;
-        case 'completed':
+        case Filter.Completed:
           return todo.completed;
-        case 'all':
-          return todo;
         default:
           return true;
       }
@@ -102,13 +99,10 @@ export function App() {
   const clearCompletedTodos = useCallback(() => {
     const completedTodos = todos.filter(todo => todo.completed);
 
-    for (const todo of completedTodos) {
-      handleDeleteTodo(todo.id);
-    }
+    completedTodos.forEach(todo => handleDeleteTodo(todo.id));
   }, [todos]);
 
   const toggleTodo = (todoId: number, newStatus: boolean) => {
-    setIsLoading(true);
     updateTodo(todoId, { completed: newStatus })
       .then(() =>
         setTodos(currentTodos =>
@@ -117,8 +111,9 @@ export function App() {
           ),
         ),
       )
-      .catch(() => setError('update'))
-      .finally(() => setIsLoading(false));
+      .catch(() => {
+        setError('update');
+      });
   };
 
   const toggleAll = () => {
@@ -132,7 +127,6 @@ export function App() {
   };
 
   const changeTodo = (todoId: number, newTodoTitle: string) => {
-    setIsLoading(true);
     updateTodo(todoId, { title: newTodoTitle })
       .then(() =>
         setTodos(currentTodos =>
@@ -143,10 +137,7 @@ export function App() {
           ),
         ),
       )
-      .catch(() => setError('update'))
-      .finally(() => {
-        setIsLoading(false);
-      });
+      .catch(() => setError('update'));
   };
 
   if (!USER_ID) {
@@ -173,10 +164,8 @@ export function App() {
             todos={filteredTodo}
             onDelete={handleDeleteTodo}
             toggleTodo={toggleTodo}
-            isLoading={isLoading}
             onChange={changeTodo}
             error={error}
-            setIsLoading={setIsLoading}
           />
         )}
 
@@ -186,10 +175,8 @@ export function App() {
             isLoad={true}
             onDelete={handleDeleteTodo}
             toggleTodo={toggleTodo}
-            isLoading={isLoading}
             onChange={changeTodo}
             error={error}
-            setIsLoading={setIsLoading}
           />
         )}
 

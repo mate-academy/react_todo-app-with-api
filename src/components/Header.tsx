@@ -35,7 +35,7 @@ export const Header: React.FC<Props> = ({
             (todos.every(({ completed }) => completed) ? 'active' : '')
           }
           data-cy="ToggleAllButton"
-          onClick={() => toggleAll()}
+          onClick={toggleAll}
         />
       )}
 
