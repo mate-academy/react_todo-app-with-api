@@ -1117,7 +1117,7 @@ describe('', () => {
 
 
 
-  
+
 
   describe('Toggle All Button', () => {
     describe('if there are no todos', () => {

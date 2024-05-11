@@ -3,7 +3,7 @@
     "activeCommit": 0,
     "commits": [
         {
-            "activePatchIndex": 117,
+            "activePatchIndex": 123,
             "patches": [
                 {
                     "date": 1715350240271,
@@ -476,6 +476,30 @@
                 {
                     "date": 1715360935920,
                     "content": "Index: \n===================================================================\n--- \n+++ \n@@ -199,17 +199,19 @@\n         todos.some(todo => !todo.completed) &&\n         todos.some(todo => todo.completed)\n       ) {\n         const incompleteTodos = todos.filter(todo => !todo.completed);\n-        \n+\n         for (const todo of incompleteTodos) {\n           await updateTodo(todo.id, true);\n         }\n+\n         setTodos(prev => prev.map(todo => ({ ...todo, completed: true })));\n       } else {\n         for (const todo of todos) {\n           await updateTodo(todo.id, !allCompleted);\n         }\n+\n         setTodos(prev =>\n           prev.map(todo => ({ ...todo, completed: !allCompleted })),\n         );\n       }\n"
+                },
+                {
+                    "date": 1715425109038,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -220,8 +220,19 @@\n       setErrorType('update');\n     }\n   };\n \n+  const updateTodoTitle = (id: number, newTitle: string) => {\n+    // Implement the logic to update the title of the todo with the given id\n+    const updatedTodos = todos.map(todo => {\n+      if (todo.id === id) {\n+        return { ...todo, title: newTitle };\n+      }\n+      return todo;\n+    });\n+    setTodos(updatedTodos);\n+  };\n+\n   const hideError = () => {\n     setError(false);\n   };\n \n"
+                },
+                {
+                    "date": 1715425114856,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -226,10 +226,12 @@\n     const updatedTodos = todos.map(todo => {\n       if (todo.id === id) {\n         return { ...todo, title: newTitle };\n       }\n+\n       return todo;\n     });\n+\n     setTodos(updatedTodos);\n   };\n \n   const hideError = () => {\n"
+                },
+                {
+                    "date": 1715425122253,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -221,9 +221,8 @@\n     }\n   };\n \n   const updateTodoTitle = (id: number, newTitle: string) => {\n-    // Implement the logic to update the title of the todo with the given id\n     const updatedTodos = todos.map(todo => {\n       if (todo.id === id) {\n         return { ...todo, title: newTitle };\n       }\n@@ -286,8 +285,9 @@\n             setLoadingTodoId={setLoadingTodoId}\n             tempTodo={tempTodo}\n             setLoading={setLoading}\n             deleteFewTodo={deleteFewTodo}\n+            updateTodoTitle\n           />\n           {/* Hide the footer if there are no todos */}\n           {todos.length > 0 && (\n             <Footer\n"
+                },
+                {
+                    "date": 1715425668598,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -104,8 +104,20 @@\n         setError(true);\n         setErrorType('empty');\n         setFocus(true);\n       }\n+    } else if (event.key === 'Enter' && editingTodoId === id) {\n+      // Check if Enter key is pressed while editing a todo\n+      try {\n+        // Call the function to update the todo item with new title\n+        await updateTodoTitle(id, newTitle);\n+        // Reset the editingTodoId state to indicate that editing is finished\n+        setEditingTodoId(null);\n+      } catch (err) {\n+        // Handle error if update fails\n+        setError(true);\n+        setErrorType('update');\n+      }\n     }\n   };\n \n   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {\n@@ -285,9 +297,9 @@\n             setLoadingTodoId={setLoadingTodoId}\n             tempTodo={tempTodo}\n             setLoading={setLoading}\n             deleteFewTodo={deleteFewTodo}\n-            updateTodoTitle\n+            updateTodoTitle={updateTodoTitle}\n           />\n           {/* Hide the footer if there are no todos */}\n           {todos.length > 0 && (\n             <Footer\n"
+                },
+                {
+                    "date": 1715425673994,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -105,13 +105,10 @@\n         setErrorType('empty');\n         setFocus(true);\n       }\n     } else if (event.key === 'Enter' && editingTodoId === id) {\n-      // Check if Enter key is pressed while editing a todo\n       try {\n-        // Call the function to update the todo item with new title\n         await updateTodoTitle(id, newTitle);\n-        // Reset the editingTodoId state to indicate that editing is finished\n         setEditingTodoId(null);\n       } catch (err) {\n         // Handle error if update fails\n         setError(true);\n"
+                },
+                {
+                    "date": 1715425679619,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -107,11 +107,11 @@\n       }\n     } else if (event.key === 'Enter' && editingTodoId === id) {\n       try {\n         await updateTodoTitle(id, newTitle);\n+        \n         setEditingTodoId(null);\n       } catch (err) {\n-        // Handle error if update fails\n         setError(true);\n         setErrorType('update');\n       }\n     }\n"
                 }
             ],
             "date": 1715350240271,

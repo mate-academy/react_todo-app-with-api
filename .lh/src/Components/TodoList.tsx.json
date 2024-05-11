@@ -3,7 +3,7 @@
     "activeCommit": 0,
     "commits": [
         {
-            "activePatchIndex": 24,
+            "activePatchIndex": 32,
             "patches": [
                 {
                     "date": 1715349628952,
@@ -104,6 +104,38 @@
                 {
                     "date": 1715357024544,
                     "content": "Index: \n===================================================================\n--- \n+++ \n@@ -74,9 +74,9 @@\n \n   return (\n     <section className=\"todoapp__main\" data-cy=\"TodoList\">\n       {/* This is a completed todo */}\n-      {filteredTodos.map(todo => (\n+      {{filteredTodos.map(todo => (\n         <TodoItem\n           key={todo.id}\n           id={todo.id}\n           title={todo.title}\n@@ -92,9 +92,9 @@\n           showLoader={showLoader || deleteFewTodo.includes(todo.id)}\n           setLoading={setLoading}\n           deleteFewTodo={deleteFewTodo}\n         />\n-      ))}\n+      ))}}\n       {addNewTodo && tempTodo && (\n         <TodoItem\n           key={tempTodo.id}\n           id={tempTodo.id}\n"
+                },
+                {
+                    "date": 1715425133445,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -18,8 +18,9 @@\n   setLoadingTodoId: (setLoadingTodoId: number | null) => void;\n   tempTodo: Todo | null;\n   setLoading: (setLoading: boolean) => void;\n   deleteFewTodo: number[];\n+  updateTodoTitle\n }\n \n export const TodoList: React.FC<Props> = ({\n   todos,\n@@ -74,27 +75,9 @@\n \n   return (\n     <section className=\"todoapp__main\" data-cy=\"TodoList\">\n       {/* This is a completed todo */}\n-      {{filteredTodos.map(todo => (\n-        <TodoItem\n-          key={todo.id}\n-          id={todo.id}\n-          title={todo.title}\n-          completed={todo.completed}\n-          onToggle={() => onToggleTodo(todo.id)}\n-          setError={setError}\n-          setErrorType={setErrorType}\n-          onDelete={() => handleDeleteTodo(todo.id)}\n-          loadingTodoId={loadingTodoId}\n-          loadingAddTodoId={loadingAddTodoId}\n-          setFocus={setFocus}\n-          setLoadingTodoId={setLoadingTodoId}\n-          showLoader={showLoader || deleteFewTodo.includes(todo.id)}\n-          setLoading={setLoading}\n-          deleteFewTodo={deleteFewTodo}\n-        />\n-      ))}}\n+      {renderTodos}\n       {addNewTodo && tempTodo && (\n         <TodoItem\n           key={tempTodo.id}\n           id={tempTodo.id}\n"
+                },
+                {
+                    "date": 1715425139602,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -18,9 +18,9 @@\n   setLoadingTodoId: (setLoadingTodoId: number | null) => void;\n   tempTodo: Todo | null;\n   setLoading: (setLoading: boolean) => void;\n   deleteFewTodo: number[];\n-  updateTodoTitle\n+  updateTodoTitle: () => void;\n }\n \n export const TodoList: React.FC<Props> = ({\n   todos,\n"
+                },
+                {
+                    "date": 1715425144675,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -37,8 +37,9 @@\n   addNewTodo,\n   loading,\n   setLoading,\n   deleteFewTodo,\n+  updateTodoTitle\n }) => {\n   const filteredTodos =\n     filter === 'active'\n       ? todos.filter(todo => !todo.completed)\n"
+                },
+                {
+                    "date": 1715425152251,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -37,9 +37,9 @@\n   addNewTodo,\n   loading,\n   setLoading,\n   deleteFewTodo,\n-  updateTodoTitle\n+  updateTodoTitle,\n }) => {\n   const filteredTodos =\n     filter === 'active'\n       ? todos.filter(todo => !todo.completed)\n@@ -64,10 +64,11 @@\n       setFocus={setFocus}\n       setLoadingTodoId={setLoadingTodoId}\n       showLoader={showLoader || deleteFewTodo.includes(todo.id)}\n       setLoading={setLoading}\n-      deleteFewTodo={deleteFewTodo}\n-    />\n+      deleteFewTodo={deleteFewTodo} updateTodoTitle={function (id: number, newTitle: string): void {\n+        throw new Error('Function not implemented.');\n+      } }    />\n   ));\n \n   const noTodosMessage =\n     filter !== 'all' && filteredTodos.length === 0 ? (\n@@ -93,10 +94,11 @@\n           setFocus={setFocus}\n           setLoadingTodoId={setLoadingTodoId}\n           showLoader={true}\n           setLoading={setLoading}\n-          deleteFewTodo={deleteFewTodo}\n-        />\n+          deleteFewTodo={deleteFewTodo} updateTodoTitle={function (id: number, newTitle: string): void {\n+            throw new Error('Function not implemented.');\n+          } }        />\n       )}\n       {noTodosMessage}\n     </section>\n   );\n"
+                },
+                {
+                    "date": 1715425159789,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -64,11 +64,11 @@\n       setFocus={setFocus}\n       setLoadingTodoId={setLoadingTodoId}\n       showLoader={showLoader || deleteFewTodo.includes(todo.id)}\n       setLoading={setLoading}\n-      deleteFewTodo={deleteFewTodo} updateTodoTitle={function (id: number, newTitle: string): void {\n-        throw new Error('Function not implemented.');\n-      } }    />\n+      deleteFewTodo={deleteFewTodo}\n+      updateTodoTitle={updateTodoTitle}\n+    />\n   ));\n \n   const noTodosMessage =\n     filter !== 'all' && filteredTodos.length === 0 ? (\n@@ -94,11 +94,13 @@\n           setFocus={setFocus}\n           setLoadingTodoId={setLoadingTodoId}\n           showLoader={true}\n           setLoading={setLoading}\n-          deleteFewTodo={deleteFewTodo} updateTodoTitle={function (id: number, newTitle: string): void {\n+          deleteFewTodo={deleteFewTodo}\n+          updateTodoTitle={function (id: number, newTitle: string): void {\n             throw new Error('Function not implemented.');\n-          } }        />\n+          }}\n+        />\n       )}\n       {noTodosMessage}\n     </section>\n   );\n"
+                },
+                {
+                    "date": 1715425194759,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -18,9 +18,9 @@\n   setLoadingTodoId: (setLoadingTodoId: number | null) => void;\n   tempTodo: Todo | null;\n   setLoading: (setLoading: boolean) => void;\n   deleteFewTodo: number[];\n-  updateTodoTitle: () => void;\n+  updateTodoTitle: (id: number, newTitle: string) => void\n }\n \n export const TodoList: React.FC<Props> = ({\n   todos,\n@@ -95,11 +95,9 @@\n           setLoadingTodoId={setLoadingTodoId}\n           showLoader={true}\n           setLoading={setLoading}\n           deleteFewTodo={deleteFewTodo}\n-          updateTodoTitle={function (id: number, newTitle: string): void {\n-            throw new Error('Function not implemented.');\n-          }}\n+          updateTodoTitle={updateTodoTitle}\n         />\n       )}\n       {noTodosMessage}\n     </section>\n"
+                },
+                {
+                    "date": 1715425201466,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -18,10 +18,9 @@\n   setLoadingTodoId: (setLoadingTodoId: number | null) => void;\n   tempTodo: Todo | null;\n   setLoading: (setLoading: boolean) => void;\n   deleteFewTodo: number[];\n-  updateTodoTitle: (id: number, newTitle: string) => void\n-}\n+  updateTodoTitle: (id: number, newTitle: string) => void;\n \n export const TodoList: React.FC<Props> = ({\n   todos,\n   onToggleTodo,\n"
+                },
+                {
+                    "date": 1715425210438,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -19,8 +19,9 @@\n   tempTodo: Todo | null;\n   setLoading: (setLoading: boolean) => void;\n   deleteFewTodo: number[];\n   updateTodoTitle: (id: number, newTitle: string) => void;\n+}\n \n export const TodoList: React.FC<Props> = ({\n   todos,\n   onToggleTodo,\n"
                 }
             ],
             "date": 1715349628952,

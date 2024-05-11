@@ -221,6 +221,18 @@ export const App: React.FC = () => {
     }
   };
 
+  const updateTodoTitle = (id: number, newTitle: string) => {
+    const updatedTodos = todos.map(todo => {
+      if (todo.id === id) {
+        return { ...todo, title: newTitle };
+      }
+
+      return todo;
+    });
+
+    setTodos(updatedTodos);
+  };
+
   const hideError = () => {
     setError(false);
   };
@@ -274,6 +286,7 @@ export const App: React.FC = () => {
             tempTodo={tempTodo}
             setLoading={setLoading}
             deleteFewTodo={deleteFewTodo}
+            updateTodoTitle={updateTodoTitle}
           />
           {/* Hide the footer if there are no todos */}
           {todos.length > 0 && (
