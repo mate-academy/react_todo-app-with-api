@@ -90,6 +90,8 @@ export const TodoItem: React.FC<Props> = ({
       setLoading(true);
       await handleBlur();
       setLoading(false);
+    } else if (e.key === 'Escape') {
+      setEditing(false);
     }
   };
 
