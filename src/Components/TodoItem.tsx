@@ -65,16 +65,24 @@ export const TodoItem: React.FC<Props> = ({
   const handleBlur = async () => {
     setLoading(true);
 
-    setEditing(false);
     const trimmedTitle = title.trim();
+    let success = false;
 
     if (trimmedTitle !== initialTitle.trim()) {
       try {
         await updateTodoTitle(id, trimmedTitle);
+        success = true;
       } catch (err) {
         setError(true);
         setErrorType('update');
+        setLoading(false);
       }
+    } else {
+      success = true;
+    }
+
+    if (success) {
+      setEditing(false);
     }
 
     setLoading(false);
