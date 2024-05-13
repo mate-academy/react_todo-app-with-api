@@ -3,7 +3,7 @@
     "activeCommit": 0,
     "commits": [
         {
-            "activePatchIndex": 250,
+            "activePatchIndex": 255,
             "patches": [
                 {
                     "date": 1715349613546,
@@ -1008,6 +1008,26 @@
                 {
                     "date": 1715593949015,
                     "content": "Index: \n===================================================================\n--- \n+++ \n@@ -61,9 +61,9 @@\n   const handleDoubleClick = () => {\n     setEditing(true);\n   };\n \n- const handleBlur = async () => {\n+  const handleBlur = async () => {\n     setLoading(true);\n \n     setEditing(false);\n     if (title.trim() !== initialTitle.trim()) {\n"
+                },
+                {
+                    "date": 1715594441288,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -65,8 +65,9 @@\n   const handleBlur = async () => {\n     setLoading(true);\n \n     setEditing(false);\n+    const \n     if (title.trim() !== initialTitle.trim()) {\n       try {\n         await updateTodoTitle(id, title);\n       } catch (err) {\n"
+                },
+                {
+                    "date": 1715594446834,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -65,9 +65,9 @@\n   const handleBlur = async () => {\n     setLoading(true);\n \n     setEditing(false);\n-    const \n+    const trimmedTitle = \n     if (title.trim() !== initialTitle.trim()) {\n       try {\n         await updateTodoTitle(id, title);\n       } catch (err) {\n"
+                },
+                {
+                    "date": 1715594452681,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -65,9 +65,9 @@\n   const handleBlur = async () => {\n     setLoading(true);\n \n     setEditing(false);\n-    const trimmedTitle = \n+    const trimmedTitle = title.trim();\n     if (title.trim() !== initialTitle.trim()) {\n       try {\n         await updateTodoTitle(id, title);\n       } catch (err) {\n"
+                },
+                {
+                    "date": 1715594463217,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -66,9 +66,10 @@\n     setLoading(true);\n \n     setEditing(false);\n     const trimmedTitle = title.trim();\n-    if (title.trim() !== initialTitle.trim()) {\n+\n+    if (trimmedTitle !== initialTitle.trim()) {\n       try {\n         await updateTodoTitle(id, title);\n       } catch (err) {\n         setError(true);\n"
+                },
+                {
+                    "date": 1715594476842,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -69,9 +69,9 @@\n     const trimmedTitle = title.trim();\n \n     if (trimmedTitle !== initialTitle.trim()) {\n       try {\n-        await updateTodoTitle(id, title);\n+        await updateTodoTitle(id, trimmedTitle);\n       } catch (err) {\n         setError(true);\n         setErrorType('update');\n       }\n"
                 }
             ],
             "date": 1715349613546,
