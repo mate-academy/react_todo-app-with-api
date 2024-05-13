@@ -67,7 +67,6 @@ export const TodoList: React.FC<Props> = ({
       setLoading={setLoading}
       deleteFewTodo={deleteFewTodo}
       updateTodoTitle={updateTodoTitle}
-      loading={loading}
     />
   ));
 
@@ -98,7 +97,6 @@ export const TodoList: React.FC<Props> = ({
           setLoading={setLoading}
           deleteFewTodo={deleteFewTodo}
           updateTodoTitle={updateTodoTitle}
-          loading={loading}
         />
       )}
       {noTodosMessage}

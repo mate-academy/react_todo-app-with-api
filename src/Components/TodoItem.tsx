@@ -19,7 +19,6 @@ interface Props {
   setLoading: (setLoading: boolean) => void;
   deleteFewTodo: number[];
   updateTodoTitle: (id: number, newTitle: string) => void;
-  loading: boolean;
 }
 
 export const TodoItem: React.FC<Props> = ({
@@ -37,7 +36,6 @@ export const TodoItem: React.FC<Props> = ({
   deleteFewTodo,
   updateTodoTitle,
   setLoading,
-  loading,
 }) => {
   const [editing, setEditing] = useState(false);
   const [title, setTitle] = useState(initialTitle);
@@ -65,18 +63,20 @@ export const TodoItem: React.FC<Props> = ({
   };
 
   const handleBlur = async () => {
+    setLoading(true);
+
     setEditing(false);
     if (title.trim() !== initialTitle.trim()) {
-      setLoading(true);
       try {
-        updateTodoTitle(id, title);
+        await updateTodoTitle(id, title);
       } catch (err) {
         setError(true);
         setErrorType('update');
-      } finally {
-        setLoading(false);
       }
     }
+
+    setLoading(false);
+    setLoadingTodoId(null);
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -87,6 +87,8 @@ export const TodoItem: React.FC<Props> = ({
     e: React.KeyboardEvent<HTMLInputElement>,
   ) => {
     if (e.key === 'Enter') {
+      setLoading(true);
+      setLoadingTodoId(id);
       await handleBlur();
     } else if (e.key === 'Escape') {
       setEditing(false);
@@ -142,7 +144,7 @@ export const TodoItem: React.FC<Props> = ({
           ×
         </button>
       )}
-      <Loader loading={showLoader || loading || loadingTodoId === id} />
+      <Loader loading={showLoader || loadingTodoId === id} />
     </div>
   );
 };
