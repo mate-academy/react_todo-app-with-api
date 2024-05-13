@@ -3,7 +3,7 @@
     "activeCommit": 0,
     "commits": [
         {
-            "activePatchIndex": 54,
+            "activePatchIndex": 127,
             "patches": [
                 {
                     "date": 1715349613546,
@@ -224,6 +224,298 @@
                 {
                     "date": 1715426942669,
                     "content": "Index: \n===================================================================\n--- \n+++ \n@@ -132,5 +132,6 @@\n         />\n       )}\n       <Loader loading={showLoader || loadingTodoId === id} />\n     </div>\n-  );\n+  )\n+};\n"
+                },
+                {
+                    "date": 1715579931940,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -86,9 +86,9 @@\n       data-id={id}\n       className={`todo ${completed ? 'completed' : ''}`}\n     >\n       {/* eslint-disable jsx-a11y/label-has-associated-control */}\n-      {!editing ? (\n+      {editing ? (\n         <>\n           <label\n             className=\"todo__status-label\"\n             onDoubleClick={handleDoubleClick}\n@@ -132,6 +132,6 @@\n         />\n       )}\n       <Loader loading={showLoader || loadingTodoId === id} />\n     </div>\n-  )\n+  );\n };\n"
+                },
+                {
+                    "date": 1715579943578,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -86,9 +86,9 @@\n       data-id={id}\n       className={`todo ${completed ? 'completed' : ''}`}\n     >\n       {/* eslint-disable jsx-a11y/label-has-associated-control */}\n-      {editing ? (\n+      {!editing ? (\n         <>\n           <label\n             className=\"todo__status-label\"\n             onDoubleClick={handleDoubleClick}\n"
+                },
+                {
+                    "date": 1715580004812,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -35,9 +35,9 @@\n   loadingTodoId,\n   deleteFewTodo,\n   updateTodoTitle,\n }) => {\n-  const [editing, setEditing] = useState(false);\n+  const [editing, setEditing] = useState(true);\n   const [title, setTitle] = useState(initialTitle);\n \n   const handleToggle = () => {\n     onToggle();\n"
+                },
+                {
+                    "date": 1715580248860,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -35,9 +35,9 @@\n   loadingTodoId,\n   deleteFewTodo,\n   updateTodoTitle,\n }) => {\n-  const [editing, setEditing] = useState(true);\n+  const [editing, setEditing] = useState(false);\n   const [title, setTitle] = useState(initialTitle);\n \n   const handleToggle = () => {\n     onToggle();\n"
+                },
+                {
+                    "date": 1715580680607,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -45,9 +45,9 @@\n \n   const handleDelete = async () => {\n     setLoadingTodoId(id);\n     try {\n-      await onDelete(id);\n+      onDelete(id);\n       await deleteTodo(id);\n       setFocus(true);\n     } catch (err) {\n       setError(true);\n"
+                },
+                {
+                    "date": 1715580749524,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -45,9 +45,9 @@\n \n   const handleDelete = async () => {\n     setLoadingTodoId(id);\n     try {\n-      onDelete(id);\n+      await onDelete(id);\n       await deleteTodo(id);\n       setFocus(true);\n     } catch (err) {\n       setError(true);\n@@ -86,9 +86,9 @@\n       data-id={id}\n       className={`todo ${completed ? 'completed' : ''}`}\n     >\n       {/* eslint-disable jsx-a11y/label-has-associated-control */}\n-      {!editing ? (\n+       (\n         <>\n           <label\n             className=\"todo__status-label\"\n             onDoubleClick={handleDoubleClick}\n"
+                },
+                {
+                    "date": 1715580758899,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -86,9 +86,8 @@\n       data-id={id}\n       className={`todo ${completed ? 'completed' : ''}`}\n     >\n       {/* eslint-disable jsx-a11y/label-has-associated-control */}\n-       (\n         <>\n           <label\n             className=\"todo__status-label\"\n             onDoubleClick={handleDoubleClick}\n@@ -100,9 +99,9 @@\n               checked={completed}\n               onChange={handleToggle}\n             />\n           </label>\n-          <span\n+          {!editing ? <span\n             data-cy=\"TodoTitle\"\n             className=\"todo__title\"\n             onDoubleClick={handleDoubleClick}\n           >\n"
+                },
+                {
+                    "date": 1715580771681,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -99,9 +99,10 @@\n               checked={completed}\n               onChange={handleToggle}\n             />\n           </label>\n-          {!editing ? <span\n+        {!editing ? (\n+          <span\n             data-cy=\"TodoTitle\"\n             className=\"todo__title\"\n             onDoubleClick={handleDoubleClick}\n           >\n"
+                },
+                {
+                    "date": 1715580785386,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -117,9 +117,9 @@\n           >\n             ×\n           </button>\n         </>\n-      ) : (\n+     \n         <input\n           className=\"todo__title-field\"\n           data-cy=\"TodoTitleField\"\n           type=\"text\"\n"
+                },
+                {
+                    "date": 1715580801753,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -106,8 +106,9 @@\n             className=\"todo__title\"\n             onDoubleClick={handleDoubleClick}\n           >\n             {initialTitle}\n+       \n           </span>\n           <button\n             type=\"button\"\n             className=\"todo__remove\"\n@@ -117,9 +118,9 @@\n           >\n             ×\n           </button>\n         </>\n-     \n+\n         <input\n           className=\"todo__title-field\"\n           data-cy=\"TodoTitleField\"\n           type=\"text\"\n"
+                },
+                {
+                    "date": 1715580819638,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -106,9 +106,8 @@\n             className=\"todo__title\"\n             onDoubleClick={handleDoubleClick}\n           >\n             {initialTitle}\n-       \n           </span>\n           <button\n             type=\"button\"\n             className=\"todo__remove\"\n@@ -118,9 +117,9 @@\n           >\n             ×\n           </button>\n         </>\n-\n+      ) : (\n         <input\n           className=\"todo__title-field\"\n           data-cy=\"TodoTitleField\"\n           type=\"text\"\n"
+                },
+                {
+                    "date": 1715580826488,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -86,9 +86,9 @@\n       data-id={id}\n       className={`todo ${completed ? 'completed' : ''}`}\n     >\n       {/* eslint-disable jsx-a11y/label-has-associated-control */}\n-        <>\n+     \n           <label\n             className=\"todo__status-label\"\n             onDoubleClick={handleDoubleClick}\n           >\n@@ -116,9 +116,9 @@\n             disabled={showLoader || deleteFewTodo.includes(id)}\n           >\n             ×\n           </button>\n-        </>\n+\n       ) : (\n         <input\n           className=\"todo__title-field\"\n           data-cy=\"TodoTitleField\"\n"
+                },
+                {
+                    "date": 1715580858423,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -86,9 +86,9 @@\n       data-id={id}\n       className={`todo ${completed ? 'completed' : ''}`}\n     >\n       {/* eslint-disable jsx-a11y/label-has-associated-control */}\n-     \n+\n           <label\n             className=\"todo__status-label\"\n             onDoubleClick={handleDoubleClick}\n           >\n@@ -107,17 +107,9 @@\n             onDoubleClick={handleDoubleClick}\n           >\n             {initialTitle}\n           </span>\n-          <button\n-            type=\"button\"\n-            className=\"todo__remove\"\n-            onClick={handleDelete}\n-            data-cy=\"TodoDelete\"\n-            disabled={showLoader || deleteFewTodo.includes(id)}\n-          >\n-            ×\n-          </button>\n+       \n \n       ) : (\n         <input\n           className=\"todo__title-field\"\n"
+                },
+                {
+                    "date": 1715580863624,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -107,10 +107,10 @@\n             onDoubleClick={handleDoubleClick}\n           >\n             {initialTitle}\n           </span>\n-       \n \n+\n       ) : (\n         <input\n           className=\"todo__title-field\"\n           data-cy=\"TodoTitleField\"\n@@ -122,8 +122,17 @@\n           onBlur={handleBlur}\n           autoFocus\n         />\n       )}\n+         <button\n+            type=\"button\"\n+            className=\"todo__remove\"\n+            onClick={handleDelete}\n+            data-cy=\"TodoDelete\"\n+            disabled={showLoader || deleteFewTodo.includes(id)}\n+          >\n+            ×\n+          </button>\n       <Loader loading={showLoader || loadingTodoId === id} />\n     </div>\n   );\n };\n"
+                },
+                {
+                    "date": 1715580872134,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -87,30 +87,25 @@\n       className={`todo ${completed ? 'completed' : ''}`}\n     >\n       {/* eslint-disable jsx-a11y/label-has-associated-control */}\n \n-          <label\n-            className=\"todo__status-label\"\n-            onDoubleClick={handleDoubleClick}\n-          >\n-            <input\n-              data-cy=\"TodoStatus\"\n-              type=\"checkbox\"\n-              className=\"todo__status\"\n-              checked={completed}\n-              onChange={handleToggle}\n-            />\n-          </label>\n-        {!editing ? (\n-          <span\n-            data-cy=\"TodoTitle\"\n-            className=\"todo__title\"\n-            onDoubleClick={handleDoubleClick}\n-          >\n-            {initialTitle}\n-          </span>\n-\n-\n+      <label className=\"todo__status-label\" onDoubleClick={handleDoubleClick}>\n+        <input\n+          data-cy=\"TodoStatus\"\n+          type=\"checkbox\"\n+          className=\"todo__status\"\n+          checked={completed}\n+          onChange={handleToggle}\n+        />\n+      </label>\n+      {!editing ? (\n+        <span\n+          data-cy=\"TodoTitle\"\n+          className=\"todo__title\"\n+          onDoubleClick={handleDoubleClick}\n+        >\n+          {initialTitle}\n+        </span>\n       ) : (\n         <input\n           className=\"todo__title-field\"\n           data-cy=\"TodoTitleField\"\n@@ -122,17 +117,17 @@\n           onBlur={handleBlur}\n           autoFocus\n         />\n       )}\n-         <button\n-            type=\"button\"\n-            className=\"todo__remove\"\n-            onClick={handleDelete}\n-            data-cy=\"TodoDelete\"\n-            disabled={showLoader || deleteFewTodo.includes(id)}\n-          >\n-            ×\n-          </button>\n+      <button\n+        type=\"button\"\n+        className=\"todo__remove\"\n+        onClick={handleDelete}\n+        data-cy=\"TodoDelete\"\n+        disabled={showLoader || deleteFewTodo.includes(id)}\n+      >\n+        ×\n+      </button>\n       <Loader loading={showLoader || loadingTodoId === id} />\n     </div>\n   );\n };\n"
+                },
+                {
+                    "date": 1715581078720,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -117,17 +117,9 @@\n           onBlur={handleBlur}\n           autoFocus\n         />\n       )}\n-      <button\n-        type=\"button\"\n-        className=\"todo__remove\"\n-        onClick={handleDelete}\n-        data-cy=\"TodoDelete\"\n-        disabled={showLoader || deleteFewTodo.includes(id)}\n-      >\n-        ×\n-      </button>\n+    \n       <Loader loading={showLoader || loadingTodoId === id} />\n     </div>\n   );\n };\n"
+                },
+                {
+                    "date": 1715581094070,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -117,9 +117,18 @@\n           onBlur={handleBlur}\n           autoFocus\n         />\n       )}\n-    \n+\n       <Loader loading={showLoader || loadingTodoId === id} />\n+        <button\n+        type=\"button\"\n+        className=\"todo__remove\"\n+        onClick={handleDelete}\n+        data-cy=\"TodoDelete\"\n+        disabled={showLoader || deleteFewTodo.includes(id)}\n+      >\n+        ×\n+      </button>\n     </div>\n   );\n };\n"
+                },
+                {
+                    "date": 1715581232841,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -117,18 +117,17 @@\n           onBlur={handleBlur}\n           autoFocus\n         />\n       )}\n-\n-      <Loader loading={showLoader || loadingTodoId === id} />\n-        <button\n+      <button\n         type=\"button\"\n         className=\"todo__remove\"\n         onClick={handleDelete}\n         data-cy=\"TodoDelete\"\n         disabled={showLoader || deleteFewTodo.includes(id)}\n       >\n         ×\n-      </button>\n+      {</button>\n+      <Loader loading={showLoader || loadingTodoId === id} />\n     </div>\n   );\n };\n"
+                },
+                {
+                    "date": 1715581238002,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -125,9 +125,9 @@\n         data-cy=\"TodoDelete\"\n         disabled={showLoader || deleteFewTodo.includes(id)}\n       >\n         ×\n-      {</button>\n+      {!editing</button>\n       <Loader loading={showLoader || loadingTodoId === id} />\n     </div>\n   );\n };\n"
+                },
+                {
+                    "date": 1715581243045,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -125,9 +125,10 @@\n         data-cy=\"TodoDelete\"\n         disabled={showLoader || deleteFewTodo.includes(id)}\n       >\n         ×\n-      {!editing</button>\n+        {!editing && (\n+        </button>\n       <Loader loading={showLoader || loadingTodoId === id} />\n     </div>\n   );\n };\n"
+                },
+                {
+                    "date": 1715581248207,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -125,9 +125,8 @@\n         data-cy=\"TodoDelete\"\n         disabled={showLoader || deleteFewTodo.includes(id)}\n       >\n         ×\n-        {!editing && (\n         </button>\n       <Loader loading={showLoader || loadingTodoId === id} />\n     </div>\n   );\n"
+                },
+                {
+                    "date": 1715581254883,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -117,17 +117,18 @@\n           onBlur={handleBlur}\n           autoFocus\n         />\n       )}\n-      <button\n-        type=\"button\"\n-        className=\"todo__remove\"\n-        onClick={handleDelete}\n-        data-cy=\"TodoDelete\"\n-        disabled={showLoader || deleteFewTodo.includes(id)}\n-      >\n-        ×\n-        </button>\n+      {!editing && (\n+        <button\n+          type=\"button\"\n+          className=\"todo__remove\"\n+          onClick={handleDelete}\n+          data-cy=\"TodoDelete\"\n+          disabled={showLoader || deleteFewTodo.includes(id)}\n+        >\n+          ×\n+        </button>}\n       <Loader loading={showLoader || loadingTodoId === id} />\n     </div>\n   );\n };\n"
+                },
+                {
+                    "date": 1715581260571,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -126,9 +126,9 @@\n           data-cy=\"TodoDelete\"\n           disabled={showLoader || deleteFewTodo.includes(id)}\n         >\n           ×\n-        </button>}\n+        </button>)}\n       <Loader loading={showLoader || loadingTodoId === id} />\n     </div>\n   );\n };\n"
+                },
+                {
+                    "date": 1715581312880,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -126,9 +126,10 @@\n           data-cy=\"TodoDelete\"\n           disabled={showLoader || deleteFewTodo.includes(id)}\n         >\n           ×\n-        </button>)}\n-      <Loader loading={showLoader || loadingTodoId === id} />\n+        </button>\n+      )}\n+       {!editing && (<Loader loading={showLoader || loadingTodoId === id} />\n     </div>\n   );\n };\n"
+                },
+                {
+                    "date": 1715581318500,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -128,8 +128,8 @@\n         >\n           ×\n         </button>\n       )}\n-       {!editing && (<Loader loading={showLoader || loadingTodoId === id} />\n+      {!editing && (<Loader loading={showLoader || loadingTodoId === id} />)}\n     </div>\n   );\n };\n"
+                },
+                {
+                    "date": 1715581338450,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -128,8 +128,8 @@\n         >\n           ×\n         </button>\n       )}\n-      {!editing && (<Loader loading={showLoader || loadingTodoId === id} />)}\n+       {!editing && (<Loader loading={showLoader || loadingTodoId === id} />)}\n     </div>\n   );\n };\n"
+                },
+                {
+                    "date": 1715581551593,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -18,8 +18,9 @@\n   showLoader: boolean;\n   setLoading: (setLoading: boolean) => void;\n   deleteFewTodo: number[];\n   updateTodoTitle: (id: number, newTitle: string) => void;\n+  loading,\n }\n \n export const TodoItem: React.FC<Props> = ({\n   id,\n@@ -128,8 +129,8 @@\n         >\n           ×\n         </button>\n       )}\n-       {!editing && (<Loader loading={showLoader || loadingTodoId === id} />)}\n+      <Loader loading={showLoader || loadingTodoId === id} />\n     </div>\n   );\n };\n"
+                },
+                {
+                    "date": 1715581556984,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -18,9 +18,9 @@\n   showLoader: boolean;\n   setLoading: (setLoading: boolean) => void;\n   deleteFewTodo: number[];\n   updateTodoTitle: (id: number, newTitle: string) => void;\n-  loading,\n+  loading: boolean;\n }\n \n export const TodoItem: React.FC<Props> = ({\n   id,\n"
+                },
+                {
+                    "date": 1715581562302,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -35,8 +35,9 @@\n   showLoader,\n   loadingTodoId,\n   deleteFewTodo,\n   updateTodoTitle,\n+  loading,\n }) => {\n   const [editing, setEditing] = useState(false);\n   const [title, setTitle] = useState(initialTitle);\n \n"
+                },
+                {
+                    "date": 1715581625267,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -65,8 +65,9 @@\n \n   const handleBlur = () => {\n     setEditing(false);\n     if (title.trim() !== initialTitle.trim()) {\n+      \n       updateTodoTitle(id, title);\n     }\n   };\n \n"
+                },
+                {
+                    "date": 1715581630518,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -65,9 +65,9 @@\n \n   const handleBlur = () => {\n     setEditing(false);\n     if (title.trim() !== initialTitle.trim()) {\n-      \n+      setLoading\n       updateTodoTitle(id, title);\n     }\n   };\n \n"
+                },
+                {
+                    "date": 1715581639613,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -65,9 +65,12 @@\n \n   const handleBlur = () => {\n     setEditing(false);\n     if (title.trim() !== initialTitle.trim()) {\n-      setLoading\n+      setLoadingTodoId(true);\n+      try {\n+        \n+      }\n       updateTodoTitle(id, title);\n     }\n   };\n \n"
+                },
+                {
+                    "date": 1715581645189,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -67,11 +67,11 @@\n     setEditing(false);\n     if (title.trim() !== initialTitle.trim()) {\n       setLoadingTodoId(true);\n       try {\n-        \n+\n       }\n-      updateTodoTitle(id, title);\n+      \n     }\n   };\n \n   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {\n"
+                },
+                {
+                    "date": 1715581656549,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -67,11 +67,11 @@\n     setEditing(false);\n     if (title.trim() !== initialTitle.trim()) {\n       setLoadingTodoId(true);\n       try {\n+await updateTodoTitle(id, title);\n+      } catch \n \n-      }\n-      \n     }\n   };\n \n   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {\n"
+                },
+                {
+                    "date": 1715581661619,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -68,9 +68,9 @@\n     if (title.trim() !== initialTitle.trim()) {\n       setLoadingTodoId(true);\n       try {\n await updateTodoTitle(id, title);\n-      } catch \n+      } catch (err) \n \n     }\n   };\n \n"
+                },
+                {
+                    "date": 1715581668189,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -68,9 +68,11 @@\n     if (title.trim() !== initialTitle.trim()) {\n       setLoadingTodoId(true);\n       try {\n await updateTodoTitle(id, title);\n-      } catch (err) \n+      } catch (err) {\n+        setError\n+      }\n \n     }\n   };\n \n"
+                },
+                {
+                    "date": 1715581675809,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -69,9 +69,10 @@\n       setLoadingTodoId(true);\n       try {\n await updateTodoTitle(id, title);\n       } catch (err) {\n-        setError\n+        setError(true);\n+        setErr\n       }\n \n     }\n   };\n"
+                },
+                {
+                    "date": 1715581681996,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -70,9 +70,9 @@\n       try {\n await updateTodoTitle(id, title);\n       } catch (err) {\n         setError(true);\n-        setErr\n+        setErrorType(]update)\n       }\n \n     }\n   };\n"
+                },
+                {
+                    "date": 1715581688428,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -70,9 +70,9 @@\n       try {\n await updateTodoTitle(id, title);\n       } catch (err) {\n         setError(true);\n-        setErrorType(]update)\n+        setErrorType('update');\n       }\n \n     }\n   };\n"
+                },
+                {
+                    "date": 1715581694337,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -71,9 +71,9 @@\n await updateTodoTitle(id, title);\n       } catch (err) {\n         setError(true);\n         setErrorType('update');\n-      }\n+      } finally {}\n \n     }\n   };\n \n"
+                },
+                {
+                    "date": 1715581700437,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -71,9 +71,11 @@\n await updateTodoTitle(id, title);\n       } catch (err) {\n         setError(true);\n         setErrorType('update');\n-      } finally {}\n+      } finally {\n+        setLoadingTodoId(false)\n+      }\n \n     }\n   };\n \n"
+                },
+                {
+                    "date": 1715581707916,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -65,16 +65,16 @@\n \n   const handleBlur = () => {\n     setEditing(false);\n     if (title.trim() !== initialTitle.trim()) {\n-      setLoadingTodoId(true);\n+      setLoading(true);\n       try {\n await updateTodoTitle(id, title);\n       } catch (err) {\n         setError(true);\n         setErrorType('update');\n       } finally {\n-        setLoadingTodoId(false)\n+        setLoadingTodoId(false);\n       }\n \n     }\n   };\n"
+                },
+                {
+                    "date": 1715581717543,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -0,0 +1,147 @@\n+import React, { useState } from 'react';\n+import { Loader } from './Loader';\n+import { deleteTodo } from '../api/todos';\n+import { Error } from '../Types/Todo';\n+\n+interface Props {\n+  id: number;\n+  title: string;\n+  completed: boolean;\n+  onToggle: () => void;\n+  setError: (setError: boolean) => void;\n+  setErrorType: (setErrorType: Error | null) => void;\n+  onDelete: (id: number) => void;\n+  loadingTodoId: number | null;\n+  loadingAddTodoId: number | null;\n+  setFocus: (setFocus: boolean) => void;\n+  setLoadingTodoId: (setLoadingTodoId: number | null) => void;\n+  showLoader: boolean;\n+  setLoading: (setLoading: boolean) => void;\n+  deleteFewTodo: number[];\n+  updateTodoTitle: (id: number, newTitle: string) => void;\n+  loading: boolean;\n+  setLoading\n+}\n+\n+export const TodoItem: React.FC<Props> = ({\n+  id,\n+  title: initialTitle,\n+  completed,\n+  onToggle,\n+  setError,\n+  setErrorType,\n+  onDelete,\n+  setFocus,\n+  setLoadingTodoId,\n+  showLoader,\n+  loadingTodoId,\n+  deleteFewTodo,\n+  updateTodoTitle,\n+  loading,\n+}) => {\n+  const [editing, setEditing] = useState(false);\n+  const [title, setTitle] = useState(initialTitle);\n+\n+  const handleToggle = () => {\n+    onToggle();\n+  };\n+\n+  const handleDelete = async () => {\n+    setLoadingTodoId(id);\n+    try {\n+      await onDelete(id);\n+      await deleteTodo(id);\n+      setFocus(true);\n+    } catch (err) {\n+      setError(true);\n+      setErrorType('delete');\n+    } finally {\n+      setLoadingTodoId(null);\n+    }\n+  };\n+\n+  const handleDoubleClick = () => {\n+    setEditing(true);\n+  };\n+\n+  const handleBlur = () => {\n+    setEditing(false);\n+    if (title.trim() !== initialTitle.trim()) {\n+      setLoading(true);\n+      try {\n+await updateTodoTitle(id, title);\n+      } catch (err) {\n+        setError(true);\n+        setErrorType('update');\n+      } finally {\n+        setLoading(false);\n+      }\n+\n+    }\n+  };\n+\n+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {\n+    setTitle(e.target.value);\n+  };\n+\n+  const handleKeyDownEdit = async (\n+    e: React.KeyboardEvent<HTMLInputElement>,\n+  ) => {\n+    if (e.key === 'Enter') {\n+      handleBlur();\n+    }\n+  };\n+\n+  return (\n+    <div\n+      data-cy=\"Todo\"\n+      data-id={id}\n+      className={`todo ${completed ? 'completed' : ''}`}\n+    >\n+      {/* eslint-disable jsx-a11y/label-has-associated-control */}\n+\n+      <label className=\"todo__status-label\" onDoubleClick={handleDoubleClick}>\n+        <input\n+          data-cy=\"TodoStatus\"\n+          type=\"checkbox\"\n+          className=\"todo__status\"\n+          checked={completed}\n+          onChange={handleToggle}\n+        />\n+      </label>\n+      {!editing ? (\n+        <span\n+          data-cy=\"TodoTitle\"\n+          className=\"todo__title\"\n+          onDoubleClick={handleDoubleClick}\n+        >\n+          {initialTitle}\n+        </span>\n+      ) : (\n+        <input\n+          className=\"todo__title-field\"\n+          data-cy=\"TodoTitleField\"\n+          type=\"text\"\n+          placeholder=\"Empty todo will be deleted\"\n+          value={title}\n+          onChange={handleChange}\n+          onKeyDown={handleKeyDownEdit}\n+          onBlur={handleBlur}\n+          autoFocus\n+        />\n+      )}\n+      {!editing && (\n+        <button\n+          type=\"button\"\n+          className=\"todo__remove\"\n+          onClick={handleDelete}\n+          data-cy=\"TodoDelete\"\n+          disabled={showLoader || deleteFewTodo.includes(id)}\n+        >\n+          ×\n+        </button>\n+      )}\n+      <Loader loading={showLoader || loadingTodoId === id} />\n+    </div>\n+  );\n+};\n"
+                },
+                {
+                    "date": 1715581723096,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -19,9 +19,9 @@\n   setLoading: (setLoading: boolean) => void;\n   deleteFewTodo: number[];\n   updateTodoTitle: (id: number, newTitle: string) => void;\n   loading: boolean;\n-  setLoading\n+  setLoading: () => void\n }\n \n export const TodoItem: React.FC<Props> = ({\n   id,\n@@ -144,150 +144,4 @@\n       <Loader loading={showLoader || loadingTodoId === id} />\n     </div>\n   );\n };\n-import React, { useState } from 'react';\n-import { Loader } from './Loader';\n-import { deleteTodo } from '../api/todos';\n-import { Error } from '../Types/Todo';\n-\n-interface Props {\n-  id: number;\n-  title: string;\n-  completed: boolean;\n-  onToggle: () => void;\n-  setError: (setError: boolean) => void;\n-  setErrorType: (setErrorType: Error | null) => void;\n-  onDelete: (id: number) => void;\n-  loadingTodoId: number | null;\n-  loadingAddTodoId: number | null;\n-  setFocus: (setFocus: boolean) => void;\n-  setLoadingTodoId: (setLoadingTodoId: number | null) => void;\n-  showLoader: boolean;\n-  setLoading: (setLoading: boolean) => void;\n-  deleteFewTodo: number[];\n-  updateTodoTitle: (id: number, newTitle: string) => void;\n-  loading: boolean;\n-}\n-\n-export const TodoItem: React.FC<Props> = ({\n-  id,\n-  title: initialTitle,\n-  completed,\n-  onToggle,\n-  setError,\n-  setErrorType,\n-  onDelete,\n-  setFocus,\n-  setLoadingTodoId,\n-  showLoader,\n-  loadingTodoId,\n-  deleteFewTodo,\n-  updateTodoTitle,\n-  loading,\n-}) => {\n-  const [editing, setEditing] = useState(false);\n-  const [title, setTitle] = useState(initialTitle);\n-\n-  const handleToggle = () => {\n-    onToggle();\n-  };\n-\n-  const handleDelete = async () => {\n-    setLoadingTodoId(id);\n-    try {\n-      await onDelete(id);\n-      await deleteTodo(id);\n-      setFocus(true);\n-    } catch (err) {\n-      setError(true);\n-      setErrorType('delete');\n-    } finally {\n-      setLoadingTodoId(null);\n-    }\n-  };\n-\n-  const handleDoubleClick = () => {\n-    setEditing(true);\n-  };\n-\n-  const handleBlur = () => {\n-    setEditing(false);\n-    if (title.trim() !== initialTitle.trim()) {\n-      setLoading(true);\n-      try {\n-await updateTodoTitle(id, title);\n-      } catch (err) {\n-        setError(true);\n-        setErrorType('update');\n-      } finally {\n-        setLoadingTodoId(false);\n-      }\n-\n-    }\n-  };\n-\n-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {\n-    setTitle(e.target.value);\n-  };\n-\n-  const handleKeyDownEdit = async (\n-    e: React.KeyboardEvent<HTMLInputElement>,\n-  ) => {\n-    if (e.key === 'Enter') {\n-      handleBlur();\n-    }\n-  };\n-\n-  return (\n-    <div\n-      data-cy=\"Todo\"\n-      data-id={id}\n-      className={`todo ${completed ? 'completed' : ''}`}\n-    >\n-      {/* eslint-disable jsx-a11y/label-has-associated-control */}\n-\n-      <label className=\"todo__status-label\" onDoubleClick={handleDoubleClick}>\n-        <input\n-          data-cy=\"TodoStatus\"\n-          type=\"checkbox\"\n-          className=\"todo__status\"\n-          checked={completed}\n-          onChange={handleToggle}\n-        />\n-      </label>\n-      {!editing ? (\n-        <span\n-          data-cy=\"TodoTitle\"\n-          className=\"todo__title\"\n-          onDoubleClick={handleDoubleClick}\n-        >\n-          {initialTitle}\n-        </span>\n-      ) : (\n-        <input\n-          className=\"todo__title-field\"\n-          data-cy=\"TodoTitleField\"\n-          type=\"text\"\n-          placeholder=\"Empty todo will be deleted\"\n-          value={title}\n-          onChange={handleChange}\n-          onKeyDown={handleKeyDownEdit}\n-          onBlur={handleBlur}\n-          autoFocus\n-        />\n-      )}\n-      {!editing && (\n-        <button\n-          type=\"button\"\n-          className=\"todo__remove\"\n-          onClick={handleDelete}\n-          data-cy=\"TodoDelete\"\n-          disabled={showLoader || deleteFewTodo.includes(id)}\n-        >\n-          ×\n-        </button>\n-      )}\n-      <Loader loading={showLoader || loadingTodoId === id} />\n-    </div>\n-  );\n-};\n"
+                },
+                {
+                    "date": 1715581728685,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -19,9 +19,9 @@\n   setLoading: (setLoading: boolean) => void;\n   deleteFewTodo: number[];\n   updateTodoTitle: (id: number, newTitle: string) => void;\n   loading: boolean;\n-  setLoading: () => void\n+  setLoading: () => void;\n }\n \n export const TodoItem: React.FC<Props> = ({\n   id,\n@@ -37,8 +37,9 @@\n   loadingTodoId,\n   deleteFewTodo,\n   updateTodoTitle,\n   loading,\n+  setLoading,\n }) => {\n   const [editing, setEditing] = useState(false);\n   const [title, setTitle] = useState(initialTitle);\n \n"
+                },
+                {
+                    "date": 1715581743757,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -36,9 +36,9 @@\n   showLoader,\n   loadingTodoId,\n   deleteFewTodo,\n   updateTodoTitle,\n-  loading,\n+,\n   setLoading,\n }) => {\n   const [editing, setEditing] = useState(false);\n   const [title, setTitle] = useState(initialTitle);\n"
+                },
+                {
+                    "date": 1715581751380,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -19,9 +19,8 @@\n   setLoading: (setLoading: boolean) => void;\n   deleteFewTodo: number[];\n   updateTodoTitle: (id: number, newTitle: string) => void;\n   loading: boolean;\n-  setLoading: () => void;\n }\n \n export const TodoItem: React.FC<Props> = ({\n   id,\n@@ -36,9 +35,8 @@\n   showLoader,\n   loadingTodoId,\n   deleteFewTodo,\n   updateTodoTitle,\n-,\n   setLoading,\n }) => {\n   const [editing, setEditing] = useState(false);\n   const [title, setTitle] = useState(initialTitle);\n"
+                },
+                {
+                    "date": 1715581760195,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -67,9 +67,9 @@\n     setEditing(false);\n     if (title.trim() !== initialTitle.trim()) {\n       setLoading(true);\n       try {\n-await updateTodoTitle(id, title);\n+        await updateTodoTitle(id, title);\n       } catch (err) {\n         setError(true);\n         setErrorType('update');\n       } finally {\n"
+                },
+                {
+                    "date": 1715581781788,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -62,9 +62,9 @@\n   const handleDoubleClick = () => {\n     setEditing(true);\n   };\n \n-  const handleBlur = () => {\n+  const handleBlur = async () => {\n     setEditing(false);\n     if (title.trim() !== initialTitle.trim()) {\n       setLoading(true);\n       try {\n@@ -74,9 +74,8 @@\n         setErrorType('update');\n       } finally {\n         setLoading(false);\n       }\n-\n     }\n   };\n \n   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {\n"
+                },
+                {
+                    "date": 1715581880470,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -62,19 +62,20 @@\n   const handleDoubleClick = () => {\n     setEditing(true);\n   };\n \n+\n   const handleBlur = async () => {\n     setEditing(false);\n     if (title.trim() !== initialTitle.trim()) {\n-      setLoading(true);\n+      setLoading(true); // Ustawienie stanu ładowania na true podczas wysyłania zapytania do serwera\n       try {\n         await updateTodoTitle(id, title);\n       } catch (err) {\n         setError(true);\n         setErrorType('update');\n       } finally {\n-        setLoading(false);\n+        setLoading(false); // Ustawienie stanu ładowania na false po otrzymaniu odpowiedzi z serwera\n       }\n     }\n   };\n \n"
+                },
+                {
+                    "date": 1715581887644,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -62,20 +62,19 @@\n   const handleDoubleClick = () => {\n     setEditing(true);\n   };\n \n-\n   const handleBlur = async () => {\n     setEditing(false);\n     if (title.trim() !== initialTitle.trim()) {\n-      setLoading(true); // Ustawienie stanu ładowania na true podczas wysyłania zapytania do serwera\n+      setLoading(true);\n       try {\n         await updateTodoTitle(id, title);\n       } catch (err) {\n         setError(true);\n         setErrorType('update');\n       } finally {\n-        setLoading(false); // Ustawienie stanu ładowania na false po otrzymaniu odpowiedzi z serwera\n+        setLoading(false);\n       }\n     }\n   };\n \n"
+                },
+                {
+                    "date": 1715581907899,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -138,8 +138,8 @@\n         >\n           ×\n         </button>\n       )}\n-      <Loader loading={showLoader || loadingTodoId === id} />\n+      <Loader loading={showLoader ||  || loadingTodoId === id} />\n     </div>\n   );\n };\n"
+                },
+                {
+                    "date": 1715581919281,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -36,8 +36,9 @@\n   loadingTodoId,\n   deleteFewTodo,\n   updateTodoTitle,\n   setLoading,\n+  loading,\n }) => {\n   const [editing, setEditing] = useState(false);\n   const [title, setTitle] = useState(initialTitle);\n \n@@ -138,8 +139,8 @@\n         >\n           ×\n         </button>\n       )}\n-      <Loader loading={showLoader ||  || loadingTodoId === id} />\n+      <Loader loading={showLoader || loading || loadingTodoId === id} />\n     </div>\n   );\n };\n"
+                },
+                {
+                    "date": 1715581999220,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -139,8 +139,8 @@\n         >\n           ×\n         </button>\n       )}\n-      <Loader loading={showLoader || loading || loadingTodoId === id} />\n+      <Loader loading={loading />\n     </div>\n   );\n };\n"
+                },
+                {
+                    "date": 1715582089404,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -139,8 +139,8 @@\n         >\n           ×\n         </button>\n       )}\n-      <Loader loading={loading />\n+      <Loader loading={showLoader || loading || loadingTodoId === id ||} />\n     </div>\n   );\n };\n"
+                },
+                {
+                    "date": 1715582094645,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -139,8 +139,10 @@\n         >\n           ×\n         </button>\n       )}\n-      <Loader loading={showLoader || loading || loadingTodoId === id ||} />\n+      <Loader\n+        loading={showLoader || loading || loadingTodoId === id || editing}\n+      />\n     </div>\n   );\n };\n"
+                },
+                {
+                    "date": 1715582192296,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -86,8 +86,9 @@\n   const handleKeyDownEdit = async (\n     e: React.KeyboardEvent<HTMLInputElement>,\n   ) => {\n     if (e.key === 'Enter') {\n+      set\n       handleBlur();\n     }\n   };\n \n"
+                },
+                {
+                    "date": 1715582198575,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -86,9 +86,9 @@\n   const handleKeyDownEdit = async (\n     e: React.KeyboardEvent<HTMLInputElement>,\n   ) => {\n     if (e.key === 'Enter') {\n-      set\n+      setLoading(true);\n       handleBlur();\n     }\n   };\n \n"
+                },
+                {
+                    "date": 1715582204848,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -87,9 +87,9 @@\n     e: React.KeyboardEvent<HTMLInputElement>,\n   ) => {\n     if (e.key === 'Enter') {\n       setLoading(true);\n-      handleBlur();\n+      await handleBlur();\n     }\n   };\n \n   return (\n"
+                },
+                {
+                    "date": 1715582211932,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -88,8 +88,9 @@\n   ) => {\n     if (e.key === 'Enter') {\n       setLoading(true);\n       await handleBlur();\n+      s\n     }\n   };\n \n   return (\n"
+                },
+                {
+                    "date": 1715582217549,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -88,9 +88,9 @@\n   ) => {\n     if (e.key === 'Enter') {\n       setLoading(true);\n       await handleBlur();\n-      s\n+      setLoading(false)\n     }\n   };\n \n   return (\n"
+                },
+                {
+                    "date": 1715582230300,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -0,0 +1,150 @@\n+import React, { useState } from 'react';\n+import { Loader } from './Loader';\n+import { deleteTodo } from '../api/todos';\n+import { Error } from '../Types/Todo';\n+\n+interface Props {\n+  id: number;\n+  title: string;\n+  completed: boolean;\n+  onToggle: () => void;\n+  setError: (setError: boolean) => void;\n+  setErrorType: (setErrorType: Error | null) => void;\n+  onDelete: (id: number) => void;\n+  loadingTodoId: number | null;\n+  loadingAddTodoId: number | null;\n+  setFocus: (setFocus: boolean) => void;\n+  setLoadingTodoId: (setLoadingTodoId: number | null) => void;\n+  showLoader: boolean;\n+  setLoading: (setLoading: boolean) => void;\n+  deleteFewTodo: number[];\n+  updateTodoTitle: (id: number, newTitle: string) => void;\n+  loading: boolean;\n+}\n+\n+export const TodoItem: React.FC<Props> = ({\n+  id,\n+  title: initialTitle,\n+  completed,\n+  onToggle,\n+  setError,\n+  setErrorType,\n+  onDelete,\n+  setFocus,\n+  setLoadingTodoId,\n+  showLoader,\n+  loadingTodoId,\n+  deleteFewTodo,\n+  updateTodoTitle,\n+  setLoading,\n+  loading,\n+}) => {\n+  const [editing, setEditing] = useState(false);\n+  const [title, setTitle] = useState(initialTitle);\n+\n+  const handleToggle = () => {\n+    onToggle();\n+  };\n+\n+  const handleDelete = async () => {\n+    setLoadingTodoId(id);\n+    try {\n+      await onDelete(id);\n+      await deleteTodo(id);\n+      setFocus(true);\n+    } catch (err) {\n+      setError(true);\n+      setErrorType('delete');\n+    } finally {\n+      setLoadingTodoId(null);\n+    }\n+  };\n+\n+  const handleDoubleClick = () => {\n+    setEditing(true);\n+  };\n+\n+  const handleBlur = async () => {\n+    setEditing(false);\n+    if (title.trim() !== initialTitle.trim()) {\n+      setLoading(true);\n+      try {\n+        await updateTodoTitle(id, title);\n+      } catch (err) {\n+        setError(true);\n+        setErrorType('update');\n+      } finally {\n+        setLoading(false);\n+      }\n+    }\n+  };\n+\n+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {\n+    setTitle(e.target.value);\n+  };\n+\n+  const handleKeyDownEdit = async (\n+    e: React.KeyboardEvent<HTMLInputElement>,\n+  ) => {\n+    if (e.key === 'Enter') {\n+      setLoading(true);\n+      await handleBlur();\n+      setLoading(false);\n+    }\n+  };\n+\n+  return (\n+    <div\n+      data-cy=\"Todo\"\n+      data-id={id}\n+      className={`todo ${completed ? 'completed' : ''}`}\n+    >\n+      {/* eslint-disable jsx-a11y/label-has-associated-control */}\n+\n+      <label className=\"todo__status-label\" onDoubleClick={handleDoubleClick}>\n+        <input\n+          data-cy=\"TodoStatus\"\n+          type=\"checkbox\"\n+          className=\"todo__status\"\n+          checked={completed}\n+          onChange={handleToggle}\n+        />\n+      </label>\n+      {!editing ? (\n+        <span\n+          data-cy=\"TodoTitle\"\n+          className=\"todo__title\"\n+          onDoubleClick={handleDoubleClick}\n+        >\n+          {initialTitle}\n+        </span>\n+      ) : (\n+        <input\n+          className=\"todo__title-field\"\n+          data-cy=\"TodoTitleField\"\n+          type=\"text\"\n+          placeholder=\"Empty todo will be deleted\"\n+          value={title}\n+          onChange={handleChange}\n+          onKeyDown={handleKeyDownEdit}\n+          onBlur={handleBlur}\n+          autoFocus\n+        />\n+      )}\n+      {!editing && (\n+        <button\n+          type=\"button\"\n+          className=\"todo__remove\"\n+          onClick={handleDelete}\n+          data-cy=\"TodoDelete\"\n+          disabled={showLoader || deleteFewTodo.includes(id)}\n+        >\n+          ×\n+        </button>\n+      )}\n+      <Loader\n+        loading={showLoader || loading || loadingTodoId === id}\n+      />\n+    </div>\n+  );\n+};\n"
+                },
+                {
+                    "date": 1715582248643,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -68,9 +68,9 @@\n     setEditing(false);\n     if (title.trim() !== initialTitle.trim()) {\n       setLoading(true);\n       try {\n-        await updateTodoTitle(id, title);\n+        updateTodoTitle(id, title);\n       } catch (err) {\n         setError(true);\n         setErrorType('update');\n       } finally {\n@@ -141,160 +141,8 @@\n         >\n           ×\n         </button>\n       )}\n-      <Loader\n-        loading={showLoader || loading || loadingTodoId === id}\n-      />\n+      <Loader loading={showLoader || loading || loadingTodoId === id} />\n     </div>\n   );\n };\n-import React, { useState } from 'react';\n-import { Loader } from './Loader';\n-import { deleteTodo } from '../api/todos';\n-import { Error } from '../Types/Todo';\n-\n-interface Props {\n-  id: number;\n-  title: string;\n-  completed: boolean;\n-  onToggle: () => void;\n-  setError: (setError: boolean) => void;\n-  setErrorType: (setErrorType: Error | null) => void;\n-  onDelete: (id: number) => void;\n-  loadingTodoId: number | null;\n-  loadingAddTodoId: number | null;\n-  setFocus: (setFocus: boolean) => void;\n-  setLoadingTodoId: (setLoadingTodoId: number | null) => void;\n-  showLoader: boolean;\n-  setLoading: (setLoading: boolean) => void;\n-  deleteFewTodo: number[];\n-  updateTodoTitle: (id: number, newTitle: string) => void;\n-  loading: boolean;\n-}\n-\n-export const TodoItem: React.FC<Props> = ({\n-  id,\n-  title: initialTitle,\n-  completed,\n-  onToggle,\n-  setError,\n-  setErrorType,\n-  onDelete,\n-  setFocus,\n-  setLoadingTodoId,\n-  showLoader,\n-  loadingTodoId,\n-  deleteFewTodo,\n-  updateTodoTitle,\n-  setLoading,\n-  loading,\n-}) => {\n-  const [editing, setEditing] = useState(false);\n-  const [title, setTitle] = useState(initialTitle);\n-\n-  const handleToggle = () => {\n-    onToggle();\n-  };\n-\n-  const handleDelete = async () => {\n-    setLoadingTodoId(id);\n-    try {\n-      await onDelete(id);\n-      await deleteTodo(id);\n-      setFocus(true);\n-    } catch (err) {\n-      setError(true);\n-      setErrorType('delete');\n-    } finally {\n-      setLoadingTodoId(null);\n-    }\n-  };\n-\n-  const handleDoubleClick = () => {\n-    setEditing(true);\n-  };\n-\n-  const handleBlur = async () => {\n-    setEditing(false);\n-    if (title.trim() !== initialTitle.trim()) {\n-      setLoading(true);\n-      try {\n-        await updateTodoTitle(id, title);\n-      } catch (err) {\n-        setError(true);\n-        setErrorType('update');\n-      } finally {\n-        setLoading(false);\n-      }\n-    }\n-  };\n-\n-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {\n-    setTitle(e.target.value);\n-  };\n-\n-  const handleKeyDownEdit = async (\n-    e: React.KeyboardEvent<HTMLInputElement>,\n-  ) => {\n-    if (e.key === 'Enter') {\n-      setLoading(true);\n-      await handleBlur();\n-      setLoading(false)\n-    }\n-  };\n-\n-  return (\n-    <div\n-      data-cy=\"Todo\"\n-      data-id={id}\n-      className={`todo ${completed ? 'completed' : ''}`}\n-    >\n-      {/* eslint-disable jsx-a11y/label-has-associated-control */}\n-\n-      <label className=\"todo__status-label\" onDoubleClick={handleDoubleClick}>\n-        <input\n-          data-cy=\"TodoStatus\"\n-          type=\"checkbox\"\n-          className=\"todo__status\"\n-          checked={completed}\n-          onChange={handleToggle}\n-        />\n-      </label>\n-      {!editing ? (\n-        <span\n-          data-cy=\"TodoTitle\"\n-          className=\"todo__title\"\n-          onDoubleClick={handleDoubleClick}\n-        >\n-          {initialTitle}\n-        </span>\n-      ) : (\n-        <input\n-          className=\"todo__title-field\"\n-          data-cy=\"TodoTitleField\"\n-          type=\"text\"\n-          placeholder=\"Empty todo will be deleted\"\n-          value={title}\n-          onChange={handleChange}\n-          onKeyDown={handleKeyDownEdit}\n-          onBlur={handleBlur}\n-          autoFocus\n-        />\n-      )}\n-      {!editing && (\n-        <button\n-          type=\"button\"\n-          className=\"todo__remove\"\n-          onClick={handleDelete}\n-          data-cy=\"TodoDelete\"\n-          disabled={showLoader || deleteFewTodo.includes(id)}\n-        >\n-          ×\n-        </button>\n-      )}\n-      <Loader\n-        loading={showLoader || loading || loadingTodoId === id || editing}\n-      />\n-    </div>\n-  );\n-};\n"
+                },
+                {
+                    "date": 1715582351961,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -136,9 +136,9 @@\n           type=\"button\"\n           className=\"todo__remove\"\n           onClick={handleDelete}\n           data-cy=\"TodoDelete\"\n-          disabled={showLoader || deleteFewTodo.includes(id)}\n+          disabled={deleteFewTodo.includes(id)}\n         >\n           ×\n         </button>\n       )}\n"
+                },
+                {
+                    "date": 1715582362185,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -141,8 +141,8 @@\n         >\n           ×\n         </button>\n       )}\n-      <Loader loading={showLoader || loading || loadingTodoId === id} />\n+      <Loader loading={loading || loadingTodoId === id} />\n     </div>\n   );\n };\n"
+                },
+                {
+                    "date": 1715582385731,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -141,8 +141,8 @@\n         >\n           ×\n         </button>\n       )}\n-      <Loader loading={loading || loadingTodoId === id} />\n+      <Loader loading={showLoader || loading || loadingTodoId === id} />\n     </div>\n   );\n };\n"
+                },
+                {
+                    "date": 1715582409304,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -136,9 +136,9 @@\n           type=\"button\"\n           className=\"todo__remove\"\n           onClick={handleDelete}\n           data-cy=\"TodoDelete\"\n-          disabled={deleteFewTodo.includes(id)}\n+          disabled={showLoader || deleteFewTodo.includes(id)}\n         >\n           ×\n         </button>\n       )}\n"
+                },
+                {
+                    "date": 1715582713176,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -68,9 +68,9 @@\n     setEditing(false);\n     if (title.trim() !== initialTitle.trim()) {\n       setLoading(true);\n       try {\n-        updateTodoTitle(id, title);\n+        await updateTodoTitle(id, title);\n       } catch (err) {\n         setError(true);\n         setErrorType('update');\n       } finally {\n"
+                },
+                {
+                    "date": 1715583757865,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -46,9 +46,9 @@\n     onToggle();\n   };\n \n   const handleDelete = async () => {\n-    setLoadingTodoId(id);\n+    setLoading(id);\n     try {\n       await onDelete(id);\n       await deleteTodo(id);\n       setFocus(true);\n"
+                },
+                {
+                    "date": 1715583763508,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -46,9 +46,9 @@\n     onToggle();\n   };\n \n   const handleDelete = async () => {\n-    setLoading(id);\n+    setLoading(true);\n     try {\n       await onDelete(id);\n       await deleteTodo(id);\n       setFocus(true);\n"
+                },
+                {
+                    "date": 1715583771874,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -55,9 +55,9 @@\n     } catch (err) {\n       setError(true);\n       setErrorType('delete');\n     } finally {\n-      setLoadingTodoId(null);\n+      setLoading(null);\n     }\n   };\n \n   const handleDoubleClick = () => {\n"
+                },
+                {
+                    "date": 1715583916974,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -55,9 +55,9 @@\n     } catch (err) {\n       setError(true);\n       setErrorType('delete');\n     } finally {\n-      setLoading(null);\n+      setLoading(fal);\n     }\n   };\n \n   const handleDoubleClick = () => {\n"
+                },
+                {
+                    "date": 1715583922116,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -46,18 +46,18 @@\n     onToggle();\n   };\n \n   const handleDelete = async () => {\n-    setLoading(true);\n+    setLoadingTodoId(id);\n     try {\n       await onDelete(id);\n       await deleteTodo(id);\n       setFocus(true);\n     } catch (err) {\n       setError(true);\n       setErrorType('delete');\n     } finally {\n-      setLoading(fal);\n+      setLoadingTodoId(null);\n     }\n   };\n \n   const handleDoubleClick = () => {\n"
                 }
             ],
             "date": 1715349613546,

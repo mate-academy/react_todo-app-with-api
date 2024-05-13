@@ -3,7 +3,7 @@
     "activeCommit": 0,
     "commits": [
         {
-            "activePatchIndex": 123,
+            "activePatchIndex": 131,
             "patches": [
                 {
                     "date": 1715350240271,
@@ -500,6 +500,38 @@
                 {
                     "date": 1715425679619,
                     "content": "Index: \n===================================================================\n--- \n+++ \n@@ -107,11 +107,11 @@\n       }\n     } else if (event.key === 'Enter' && editingTodoId === id) {\n       try {\n         await updateTodoTitle(id, newTitle);\n+        \n         setEditingTodoId(null);\n       } catch (err) {\n-        // Handle error if update fails\n         setError(true);\n         setErrorType('update');\n       }\n     }\n"
+                },
+                {
+                    "date": 1715583062771,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -104,17 +104,8 @@\n         setError(true);\n         setErrorType('empty');\n         setFocus(true);\n       }\n-    } else if (event.key === 'Enter' && editingTodoId === id) {\n-      try {\n-        await updateTodoTitle(id, newTitle);\n-        \n-        setEditingTodoId(null);\n-      } catch (err) {\n-        setError(true);\n-        setErrorType('update');\n-      }\n     }\n   };\n \n   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {\n"
+                },
+                {
+                    "date": 1715583137970,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -259,9 +259,9 @@\n               <input\n                 ref={inputRef}\n                 data-cy=\"NewTodoField\"\n                 type=\"text\"\n-                className=\"todoapp__new-todo\"\n+                className={`todoapp__new-todo ${!focus ? 'disabled' : ''}`}\n                 placeholder=\"What needs to be done?\"\n                 onKeyDown={handleKeyDown}\n                 value={newTodoTitle}\n                 onChange={handleChange}\n"
+                },
+                {
+                    "date": 1715583178365,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -259,9 +259,9 @@\n               <input\n                 ref={inputRef}\n                 data-cy=\"NewTodoField\"\n                 type=\"text\"\n-                className={`todoapp__new-todo ${!focus ? 'disabled' : ''}`}\n+className={`todoapp__new-todo ${!focus ? 'disabled' : ''}`}\n                 placeholder=\"What needs to be done?\"\n                 onKeyDown={handleKeyDown}\n                 value={newTodoTitle}\n                 onChange={handleChange}\n"
+                },
+                {
+                    "date": 1715583195651,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -248,9 +248,9 @@\n \n             {todos.length > 0 && (\n               <button\n                 type=\"button\"\n-                className={`todoapp__toggle-all ${todos.every(todo => todo.completed) ? 'active' : ''}`}\n+className={`todoapp__toggle-all ${todos.every(todo => todo.completed) ? 'active' : ''}`}\n                 data-cy=\"ToggleAllButton\"\n                 onClick={handleToggleAllTodos}\n               />\n             )}\n@@ -259,9 +259,9 @@\n               <input\n                 ref={inputRef}\n                 data-cy=\"NewTodoField\"\n                 type=\"text\"\n-className={`todoapp__new-todo ${!focus ? 'disabled' : ''}`}\n+                className=\"todoapp__new-todo\"\n                 placeholder=\"What needs to be done?\"\n                 onKeyDown={handleKeyDown}\n                 value={newTodoTitle}\n                 onChange={handleChange}\n"
+                },
+                {
+                    "date": 1715583218327,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -201,9 +201,9 @@\n       ) {\n         const incompleteTodos = todos.filter(todo => !todo.completed);\n \n         for (const todo of incompleteTodos) {\n-          await updateTodo(todo.id, true);\n+          await updateTodo(todo.id, tit);\n         }\n \n         setTodos(prev => prev.map(todo => ({ ...todo, completed: true })));\n       } else {\n@@ -248,9 +248,9 @@\n \n             {todos.length > 0 && (\n               <button\n                 type=\"button\"\n-className={`todoapp__toggle-all ${todos.every(todo => todo.completed) ? 'active' : ''}`}\n+                className={`todoapp__toggle-all ${todos.every(todo => todo.completed) ? 'active' : ''}`}\n                 data-cy=\"ToggleAllButton\"\n                 onClick={handleToggleAllTodos}\n               />\n             )}\n"
+                },
+                {
+                    "date": 1715583374401,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -201,9 +201,9 @@\n       ) {\n         const incompleteTodos = todos.filter(todo => !todo.completed);\n \n         for (const todo of incompleteTodos) {\n-          await updateTodo(todo.id, tit);\n+          await updateTodo(todo.id, true);\n         }\n \n         setTodos(prev => prev.map(todo => ({ ...todo, completed: true })));\n       } else {\n@@ -275,9 +275,9 @@\n             onToggleTodo={handleToggleTodo}\n             filter={filter}\n             loading={loading}\n             setError={setError}\n-            setErrorType={setErrorType}\n+            setErrorType={'setErrorType'}\n             handleDeleteTodo={handleDeleteTodo}\n             loadingTodoId={loadingTodoId}\n             loadingAddTodoId={loadingAddTodoId}\n             addNewTodo={addNewTodo}\n"
+                },
+                {
+                    "date": 1715583396809,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -275,9 +275,9 @@\n             onToggleTodo={handleToggleTodo}\n             filter={filter}\n             loading={loading}\n             setError={setError}\n-            setErrorType={'setErrorType'}\n+            setErrorType={'load'}\n             handleDeleteTodo={handleDeleteTodo}\n             loadingTodoId={loadingTodoId}\n             loadingAddTodoId={loadingAddTodoId}\n             addNewTodo={addNewTodo}\n"
+                },
+                {
+                    "date": 1715583411998,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -275,9 +275,9 @@\n             onToggleTodo={handleToggleTodo}\n             filter={filter}\n             loading={loading}\n             setError={setError}\n-            setErrorType={'load'}\n+            setErrorType={'setErrorType'}\n             handleDeleteTodo={handleDeleteTodo}\n             loadingTodoId={loadingTodoId}\n             loadingAddTodoId={loadingAddTodoId}\n             addNewTodo={addNewTodo}\n"
                 }
             ],
             "date": 1715350240271,

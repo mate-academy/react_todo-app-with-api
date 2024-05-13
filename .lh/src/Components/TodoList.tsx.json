@@ -3,7 +3,7 @@
     "activeCommit": 0,
     "commits": [
         {
-            "activePatchIndex": 32,
+            "activePatchIndex": 34,
             "patches": [
                 {
                     "date": 1715349628952,
@@ -136,6 +136,14 @@
                 {
                     "date": 1715425210438,
                     "content": "Index: \n===================================================================\n--- \n+++ \n@@ -19,8 +19,9 @@\n   tempTodo: Todo | null;\n   setLoading: (setLoading: boolean) => void;\n   deleteFewTodo: number[];\n   updateTodoTitle: (id: number, newTitle: string) => void;\n+}\n \n export const TodoList: React.FC<Props> = ({\n   todos,\n   onToggleTodo,\n"
+                },
+                {
+                    "date": 1715581583170,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -66,8 +66,9 @@\n       showLoader={showLoader || deleteFewTodo.includes(todo.id)}\n       setLoading={setLoading}\n       deleteFewTodo={deleteFewTodo}\n       updateTodoTitle={updateTodoTitle}\n+      loading\n     />\n   ));\n \n   const noTodosMessage =\n"
+                },
+                {
+                    "date": 1715581596911,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -66,9 +66,9 @@\n       showLoader={showLoader || deleteFewTodo.includes(todo.id)}\n       setLoading={setLoading}\n       deleteFewTodo={deleteFewTodo}\n       updateTodoTitle={updateTodoTitle}\n-      loading\n+      loading={loading}\n     />\n   ));\n \n   const noTodosMessage =\n@@ -97,8 +97,9 @@\n           showLoader={true}\n           setLoading={setLoading}\n           deleteFewTodo={deleteFewTodo}\n           updateTodoTitle={updateTodoTitle}\n+          loading={loading}\n         />\n       )}\n       {noTodosMessage}\n     </section>\n"
                 }
             ],
             "date": 1715349628952,

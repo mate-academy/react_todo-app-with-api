@@ -19,6 +19,7 @@ interface Props {
   setLoading: (setLoading: boolean) => void;
   deleteFewTodo: number[];
   updateTodoTitle: (id: number, newTitle: string) => void;
+  loading: boolean;
 }
 
 export const TodoItem: React.FC<Props> = ({
@@ -35,6 +36,8 @@ export const TodoItem: React.FC<Props> = ({
   loadingTodoId,
   deleteFewTodo,
   updateTodoTitle,
+  setLoading,
+  loading,
 }) => {
   const [editing, setEditing] = useState(false);
   const [title, setTitle] = useState(initialTitle);
@@ -61,10 +64,18 @@ export const TodoItem: React.FC<Props> = ({
     setEditing(true);
   };
 
-  const handleBlur = () => {
+  const handleBlur = async () => {
     setEditing(false);
     if (title.trim() !== initialTitle.trim()) {
-      updateTodoTitle(id, title);
+      setLoading(true);
+      try {
+        updateTodoTitle(id, title);
+      } catch (err) {
+        setError(true);
+        setErrorType('update');
+      } finally {
+        setLoading(false);
+      }
     }
   };
 
@@ -76,7 +87,9 @@ export const TodoItem: React.FC<Props> = ({
     e: React.KeyboardEvent<HTMLInputElement>,
   ) => {
     if (e.key === 'Enter') {
-      handleBlur();
+      setLoading(true);
+      await handleBlur();
+      setLoading(false);
     }
   };
 
@@ -87,37 +100,24 @@ export const TodoItem: React.FC<Props> = ({
       className={`todo ${completed ? 'completed' : ''}`}
     >
       {/* eslint-disable jsx-a11y/label-has-associated-control */}
+
+      <label className="todo__status-label" onDoubleClick={handleDoubleClick}>
+        <input
+          data-cy="TodoStatus"
+          type="checkbox"
+          className="todo__status"
+          checked={completed}
+          onChange={handleToggle}
+        />
+      </label>
       {!editing ? (
-        <>
-          <label
-            className="todo__status-label"
-            onDoubleClick={handleDoubleClick}
-          >
-            <input
-              data-cy="TodoStatus"
-              type="checkbox"
-              className="todo__status"
-              checked={completed}
-              onChange={handleToggle}
-            />
-          </label>
-          <span
-            data-cy="TodoTitle"
-            className="todo__title"
-            onDoubleClick={handleDoubleClick}
-          >
-            {initialTitle}
-          </span>
-          <button
-            type="button"
-            className="todo__remove"
-            onClick={handleDelete}
-            data-cy="TodoDelete"
-            disabled={showLoader || deleteFewTodo.includes(id)}
-          >
-            ×
-          </button>
-        </>
+        <span
+          data-cy="TodoTitle"
+          className="todo__title"
+          onDoubleClick={handleDoubleClick}
+        >
+          {initialTitle}
+        </span>
       ) : (
         <input
           className="todo__title-field"
@@ -131,7 +131,18 @@ export const TodoItem: React.FC<Props> = ({
           autoFocus
         />
       )}
-      <Loader loading={showLoader || loadingTodoId === id} />
+      {!editing && (
+        <button
+          type="button"
+          className="todo__remove"
+          onClick={handleDelete}
+          data-cy="TodoDelete"
+          disabled={showLoader || deleteFewTodo.includes(id)}
+        >
+          ×
+        </button>
+      )}
+      <Loader loading={showLoader || loading || loadingTodoId === id} />
     </div>
   );
 };
