@@ -3,7 +3,7 @@
     "activeCommit": 0,
     "commits": [
         {
-            "activePatchIndex": 280,
+            "activePatchIndex": 283,
             "patches": [
                 {
                     "date": 1715349613546,
@@ -1128,6 +1128,18 @@
                 {
                     "date": 1715595127515,
                     "content": "Index: \n===================================================================\n--- \n+++ \n@@ -84,9 +84,9 @@\n     if (success) {\n       setEditing(false);\n     }\n     setLoading(false);\n-    setloading\n+    setLoadingTodoId(null);\n   };\n \n   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {\n     setTitle(e.target.value);\n"
+                },
+                {
+                    "date": 1715596013169,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -67,28 +67,44 @@\n \n     const trimmedTitle = title.trim();\n     let success = false;\n \n-    if (trimmedTitle !== initialTitle.trim()) {\n+    if (trimmedTitle === '') {\n       try {\n-        await updateTodoTitle(id, trimmedTitle);\n+        await onDelete(id);\n         success = true;\n       } catch (err) {\n         setError(true);\n-        setErrorType('update');\n+        setErrorType('delete');\n         setLoading(false);\n       }\n     } else {\n-      success = true;\n+      if (trimmedTitle !== initialTitle.trim()) {\n+        try {\n+          await updateTodoTitle(id, trimmedTitle);\n+          success = true;\n+        } catch (err) {\n+          setError(true);\n+          setErrorType('update');\n+          setLoading(false);\n+        }\n+      } else {\n+        success = true;\n+      }\n     }\n \n     if (success) {\n       setEditing(false);\n+      if (trimmedTitle === '') {\n+        setFocus(true);\n+      }\n     }\n+\n     setLoading(false);\n     setLoadingTodoId(null);\n   };\n \n+\n   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {\n     setTitle(e.target.value);\n   };\n \n"
+                },
+                {
+                    "date": 1715596314147,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -65,46 +65,31 @@\n   const handleBlur = async () => {\n     setLoading(true);\n \n     const trimmedTitle = title.trim();\n-    let success = false;\n+    // let success = false;\n \n-    if (trimmedTitle === '') {\n+    if (trimmedTitle !== initialTitle.trim()) {\n       try {\n-        await onDelete(id);\n+        await updateTodoTitle(id, trimmedTitle);\n         success = true;\n       } catch (err) {\n         setError(true);\n-        setErrorType('delete');\n+        setErrorType('update');\n         setLoading(false);\n       }\n     } else {\n-      if (trimmedTitle !== initialTitle.trim()) {\n-        try {\n-          await updateTodoTitle(id, trimmedTitle);\n-          success = true;\n-        } catch (err) {\n-          setError(true);\n-          setErrorType('update');\n-          setLoading(false);\n-        }\n-      } else {\n-        success = true;\n-      }\n+      success = true;\n     }\n \n     if (success) {\n       setEditing(false);\n-      if (trimmedTitle === '') {\n-        setFocus(true);\n-      }\n     }\n \n     setLoading(false);\n     setLoadingTodoId(null);\n   };\n \n-\n   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {\n     setTitle(e.target.value);\n   };\n \n"
+                },
+                {
+                    "date": 1715596340780,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -65,31 +65,34 @@\n   const handleBlur = async () => {\n     setLoading(true);\n \n     const trimmedTitle = title.trim();\n-    // let success = false;\n \n-    if (trimmedTitle !== initialTitle.trim()) {\n+    if (trimmedTitle === '') {\n       try {\n+        await onDelete(id);\n+        await deleteTodo(id);\n+        setFocus(true);\n+        setEditing(false);\n+      } catch (err) {\n+        setError(true);\n+        setErrorType('delete');\n+      }\n+    } else {\n+      try {\n         await updateTodoTitle(id, trimmedTitle);\n-        success = true;\n+        setEditing(false);\n       } catch (err) {\n         setError(true);\n         setErrorType('update');\n-        setLoading(false);\n       }\n-    } else {\n-      success = true;\n     }\n \n-    if (success) {\n-      setEditing(false);\n-    }\n-\n     setLoading(false);\n     setLoadingTodoId(null);\n   };\n \n+\n   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {\n     setTitle(e.target.value);\n   };\n \n"
                 }
             ],
             "date": 1715349613546,

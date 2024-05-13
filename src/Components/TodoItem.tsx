@@ -66,23 +66,25 @@ export const TodoItem: React.FC<Props> = ({
     setLoading(true);
 
     const trimmedTitle = title.trim();
-    let success = false;
 
-    if (trimmedTitle !== initialTitle.trim()) {
+    if (trimmedTitle === '') {
+      try {
+        await onDelete(id);
+        await deleteTodo(id);
+        setFocus(true);
+        setEditing(false);
+      } catch (err) {
+        setError(true);
+        setErrorType('delete');
+      }
+    } else {
       try {
         await updateTodoTitle(id, trimmedTitle);
-        success = true;
+        setEditing(false);
       } catch (err) {
         setError(true);
         setErrorType('update');
-        setLoading(false);
       }
-    } else {
-      success = true;
-    }
-
-    if (success) {
-      setEditing(false);
     }
 
     setLoading(false);
