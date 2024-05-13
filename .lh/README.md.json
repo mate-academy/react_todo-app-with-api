@@ -3,7 +3,7 @@
     "activeCommit": 0,
     "commits": [
         {
-            "activePatchIndex": 6,
+            "activePatchIndex": 7,
             "patches": [
                 {
                     "date": 1715351565971,
@@ -32,6 +32,10 @@
                 {
                     "date": 1715426209607,
                     "content": "Index: \n===================================================================\n--- \n+++ \n@@ -19,16 +19,16 @@\n \n + `toggleAll` button should have `active` class only if all the todos are completed;\n + `toggleAll` click changes its status to the opposite one, and sets this new status to all the todos;\n + it should work the same as several individual updates of the todos which statuses were actually changed;\n-- do send requests for the todos that were not changed;\n++ do send requests for the todos that were not changed;\n \n ## Renaming a todo\n \n Implement the ability to edit a todo title on double click:\n \n - show the edit form instead of the title and remove button;\n-- saves changes on the form submit (just press `Enter`);\n+ saves changes on the form submit (just press `Enter`);\n - save changes when the field loses focus (`onBlur`);\n - if the new title is the same as the old one just cancel editing;\n - cancel editing on `Esс` key `keyup` event;\n - if the new title is empty delete the todo the same way the `x` button does it;\n"
+                },
+                {
+                    "date": 1715602501229,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -26,9 +26,9 @@\n \n Implement the ability to edit a todo title on double click:\n \n - show the edit form instead of the title and remove button;\n- saves changes on the form submit (just press `Enter`);\n++ saves changes on the form submit (just press `Enter`);\n - save changes when the field loses focus (`onBlur`);\n - if the new title is the same as the old one just cancel editing;\n - cancel editing on `Esс` key `keyup` event;\n - if the new title is empty delete the todo the same way the `x` button does it;\n@@ -46,5 +46,5 @@\n ## Instructions\n \n - Implement a solution following the [React task guideline](https://github.com/mate-academy/react_task-guideline#react-tasks-guideline).\n - Use the [React TypeScript cheat sheet](https://mate-academy.github.io/fe-program/js/extra/react-typescript).\n-- Replace `<your_account>` with your Github username in the [DEMO LINK](https://<your_account>.github.io/react_todo-app-with-api/) and add it to the PR description.\n+- Replace `<your_account>` with your Github username in the [DEMO LINK](https://marinatea.github.io/react_todo-app-with-api/) and add it to the PR description.\n"
                 }
             ],
             "date": 1715351565971,
