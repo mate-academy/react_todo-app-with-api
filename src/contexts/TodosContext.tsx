@@ -1,23 +1,50 @@
-import { createContext, useState } from 'react';
+import { createContext, useMemo, useRef, useState } from 'react';
 import { Todo } from '../types';
 
-type SetTodosContextType = React.Dispatch<React.SetStateAction<Todo[]>>;
+type TodosStoreType = {
+  todos: Todo[];
+  isDeletingCompleted: boolean;
+  isChangingStatus: boolean;
+  inputFieldRef: React.RefObject<HTMLInputElement> | null;
+};
 
-export const TodosContext = createContext<Todo[]>([]);
-export const SetTodosContext = createContext<SetTodosContextType>(() => []);
+type TodosContextType = {
+  todosContext: TodosStoreType;
+  setTodosContext: React.Dispatch<React.SetStateAction<TodosStoreType>>;
+};
+
+export const TodosContext = createContext<TodosContextType>({
+  todosContext: {
+    todos: [],
+    isDeletingCompleted: false,
+    isChangingStatus: false,
+    inputFieldRef: null,
+  },
+  setTodosContext: () => {},
+});
 
 type Props = {
   children: React.ReactNode;
 };
 
 export const TodosContextProvider: React.FC<Props> = ({ children }) => {
-  const [todos, setTodos] = useState<Todo[]>([]);
+  const inputFieldRef = useRef(null);
+  const [todosContext, setTodosContext] = useState<TodosStoreType>({
+    todos: [],
+    isDeletingCompleted: false,
+    isChangingStatus: false,
+    inputFieldRef,
+  });
+
+  const value = useMemo(
+    () => ({
+      todosContext,
+      setTodosContext,
+    }),
+    [todosContext],
+  );
 
   return (
-    <TodosContext.Provider value={todos}>
-      <SetTodosContext.Provider value={setTodos}>
-        {children}
-      </SetTodosContext.Provider>
-    </TodosContext.Provider>
+    <TodosContext.Provider value={value}>{children}</TodosContext.Provider>
   );
 };

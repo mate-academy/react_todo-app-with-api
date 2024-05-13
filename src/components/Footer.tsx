@@ -2,13 +2,7 @@ import cn from 'classnames';
 import { useCallback, useContext, useMemo } from 'react';
 import { ErrorMessage, FilterBy } from '../types';
 import { deleteTodo } from '../api/todos';
-import {
-  InputFieldRefContext,
-  SetErrorMessageContext,
-  SetIsDeletingCompletedContext,
-  SetTodosContext,
-  TodosContext,
-} from '../contexts';
+import { SetErrorMessageContext, TodosContext } from '../Contexts';
 
 type Props = {
   filterBy: string;
@@ -16,11 +10,10 @@ type Props = {
 };
 
 export const Footer: React.FC<Props> = ({ filterBy, handleFilterClick }) => {
-  const todos = useContext(TodosContext);
-  const setTodos = useContext(SetTodosContext);
+  const { todosContext, setTodosContext } = useContext(TodosContext);
   const setErrorMessage = useContext(SetErrorMessageContext);
-  const setIsDeletingCompleted = useContext(SetIsDeletingCompletedContext);
-  const inputFieldRef = useContext(InputFieldRefContext);
+
+  const { todos, inputFieldRef } = todosContext;
 
   const itemsLeftAmount = useMemo(() => {
     return todos.reduce((res, todo) => {
@@ -29,7 +22,10 @@ export const Footer: React.FC<Props> = ({ filterBy, handleFilterClick }) => {
   }, [todos]);
 
   const handleClearCompletedClick = useCallback(() => {
-    setIsDeletingCompleted(true);
+    setTodosContext(prevTodosContext => ({
+      ...prevTodosContext,
+      isDeletingCompleted: true,
+    }));
     setErrorMessage(ErrorMessage.noError);
 
     const completedTodos = todos.filter(todo => todo.completed);
@@ -38,21 +34,45 @@ export const Footer: React.FC<Props> = ({ filterBy, handleFilterClick }) => {
       completedTodos.map(async todo => {
         try {
           await deleteTodo(todo.id);
-          setTodos(prevTodos => {
-            return prevTodos.filter(prevTodo => prevTodo.id !== todo.id);
-          });
+
+          return todo.id;
         } catch {
           setErrorMessage(ErrorMessage.delete);
+          throw new Error();
         }
       }),
-    ).finally(() => {
-      if (inputFieldRef?.current) {
-        inputFieldRef.current.focus();
-      }
+    )
+      .then(results => {
+        setTodosContext(prevTodosContext => {
+          const fulfilledIds = results
+            .map(result => {
+              if (result.status === 'fulfilled') {
+                return result.value;
+              }
 
-      setIsDeletingCompleted(false);
-    });
-  }, [todos, setIsDeletingCompleted, inputFieldRef, setErrorMessage, setTodos]);
+              return null;
+            })
+            .filter(result => result !== null);
+
+          return {
+            ...prevTodosContext,
+            todos: todos.filter(todo => {
+              return !fulfilledIds.includes(todo.id);
+            }),
+          };
+        });
+      })
+      .finally(() => {
+        if (inputFieldRef?.current) {
+          inputFieldRef.current.focus();
+        }
+
+        setTodosContext(prevTodosContext => ({
+          ...prevTodosContext,
+          isDeletingCompleted: false,
+        }));
+      });
+  }, [todos, setTodosContext, inputFieldRef, setErrorMessage]);
 
   return (
     <footer className="todoapp__footer" data-cy="Footer">
