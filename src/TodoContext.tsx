@@ -51,67 +51,6 @@ export const TodoContext: React.FC<Props> = ({ children }) => {
       setErrMessage('');
     }, 2900);
 
-  //   try {
-  //     setIsLoading([updatedTodo.id]);
-  //     const todoToUpdate = todos.find(tod => tod.id === updatedTodo.id);
-
-  //     let newTodo: Todo = {
-  //       id: 0,
-  //       userId: 0,
-  //       title: '',
-  //       completed: false,
-  //     };
-
-  //     if (option === 'completed' && todoToUpdate) {
-  //       newTodo = { ...todoToUpdate, completed: !updatedTodo.completed };
-  //     }
-
-  //     if (option === 'title' && todoToUpdate) {
-  //       const trimedTitle = editedTitle.trim();
-
-  //       if (trimedTitle === '') {
-  //         setVisibleErr(true);
-  //         setErrMessage('Title should not be empty');
-  //         resetErr();
-  //         deleteTodo(todoToUpdate.id).then(async () => {
-  //           const loadTodos = getTodos();
-
-  //           setTodos(await loadTodos);
-  //         });
-
-  //         return;
-  //       }
-
-  //       if (trimedTitle === todoToUpdate.title) {
-  //         setEditedTitle('');
-
-  //         return;
-  //       }
-
-  //       newTodo = { ...todoToUpdate, title: trimedTitle };
-  //     }
-
-  //     await patchTodo(newTodo).then(response =>
-  //       setTodos(prevState => {
-  //         if (prevState.find(todo => todo.id === response.id)) {
-  //           return prevState.map(todo =>
-  //             todo.id === response.id ? response : todo,
-  //           );
-  //         }
-
-  //         return [...prevState];
-  //       }),
-  //     );
-  //   } catch {
-  //     setVisibleErr(true);
-  //     setErrMessage('Unable to update a todo');
-  //     resetErr();
-  //   } finally {
-  //     setIsLoading([]);
-  //     setEditedTitle('');
-  //   }
-  // };
-
   const addTodo = async () => {
     const trimedTitle = newTitle.trim();
 
