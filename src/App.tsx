@@ -221,16 +221,25 @@ export const App: React.FC = () => {
     }
   };
 
-  const updateTodoTitle = (id: number, newTitle: string) => {
-    const updatedTodos = todos.map(todo => {
-      if (todo.id === id) {
-        return { ...todo, title: newTitle };
-      }
+  const updateTodoTitle = async (id: number, newTitle: string) => {
+    setLoading(true);
+    try {
+      await updateTodo(id, addNewTodo);
+      const updatedTodos = todos.map(todo => {
+        if (todo.id === id) {
+          return { ...todo, title: newTitle };
+        }
 
-      return todo;
-    });
+        return todo;
+      });
 
-    setTodos(updatedTodos);
+      setTodos(updatedTodos);
+    } catch (err) {
+      setError(true);
+      setErrorType('update');
+    } finally {
+      setLoading(false);
+    }
   };
 
   const hideError = () => {

@@ -87,9 +87,7 @@ export const TodoItem: React.FC<Props> = ({
     e: React.KeyboardEvent<HTMLInputElement>,
   ) => {
     if (e.key === 'Enter') {
-      setLoading(true);
       await handleBlur();
-      setLoading(false);
     } else if (e.key === 'Escape') {
       setEditing(false);
     }
