@@ -41,8 +41,8 @@ const TodoList: React.FC<TodoListProps> = ({
           todo={{ title: tempTodo, id: -1, data: '', completed: false } as Todo}
           onDeleteTodo={onDeleteTodo}
           pending={pending}
-          handleToggleTodo={() => handleToggleTodo}
-          handleUpdateTodo={() => handleUpdateTodo}
+          handleToggleTodo={handleToggleTodo}
+          handleUpdateTodo={handleUpdateTodo}
         />
       )}
       {filteredTodos().map((todo: Todo) => (
@@ -51,10 +51,8 @@ const TodoList: React.FC<TodoListProps> = ({
           todo={todo}
           onDeleteTodo={onDeleteTodo}
           pending={pending}
-          handleToggleTodo={() => handleToggleTodo(todo.id)}
-          handleUpdateTodo={() =>
-            handleUpdateTodo(todo.id, todo.title, todo.completed)
-          }
+          handleToggleTodo={handleToggleTodo}
+          handleUpdateTodo={handleUpdateTodo}
         />
       ))}
     </section>

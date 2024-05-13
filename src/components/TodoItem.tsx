@@ -8,8 +8,8 @@ interface TodoProps {
   todo: TodoType;
   onDeleteTodo: (id: number) => void;
   pending: number | null;
-  handleToggleTodo: () => void;
-  handleUpdateTodo: (id: number, title: string) => void;
+  handleToggleTodo: (id: number) => void;
+  handleUpdateTodo: (id: number, title: string, completed: boolean) => void;
 }
 
 const TodoItem: React.FC<TodoProps> = ({
@@ -33,7 +33,7 @@ const TodoItem: React.FC<TodoProps> = ({
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    handleUpdateTodo(todo.id, editedTitle);
+    handleUpdateTodo(todo.id, editedTitle, todo.completed);
     setEditing(false);
   };
 
@@ -45,8 +45,12 @@ const TodoItem: React.FC<TodoProps> = ({
     }
   };
 
-  const handleToggle = () => {
-    handleToggleTodo();
+  const handleToggle = (
+    event: React.ChangeEvent<HTMLInputElement>,
+    id: number,
+  ) => {
+    event.preventDefault();
+    handleToggleTodo(id);
   };
 
   return (
@@ -61,7 +65,7 @@ const TodoItem: React.FC<TodoProps> = ({
           type="checkbox"
           className="todo__status"
           checked={todo.completed}
-          onChange={handleToggle}
+          onChange={e => handleToggle(e, todo.id)}
         />
       </label>
       <span data-cy="TodoTitle" className="todo__title">

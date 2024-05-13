@@ -33,9 +33,8 @@ const App: React.FC = () => {
     };
 
     fetchTodos();
-  }, [todos]);
+  }, []);
 
-  //tempTodo readme only title and userId
   const handleAddTodo = async (title: string) => {
     setTempTodo(title);
     console.log(title);
