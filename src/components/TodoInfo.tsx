@@ -76,7 +76,7 @@ export const TodoInfo: React.FC<Props> = ({ todo, isLoading = false }) => {
     }
 
     return;
-  });
+  }, [beingEdited]);
 
   return (
     <>

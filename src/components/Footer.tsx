@@ -1,4 +1,4 @@
-import React, { useContext } from 'react';
+import React, {useContext} from 'react';
 
 import classNames from 'classnames';
 import { TodoContext } from '../services/TodoContext';
@@ -10,26 +10,18 @@ export const Footer: React.FC = () => {
   const completedTodos = todos.filter(todo => todo.completed);
   const activeTodos = todos.filter(todo => !todo.completed);
 
-  const handleFilterAll = () => {
-    setFilter(Filter.All);
-  };
-
-  const handleFilterActive = () => {
-    setFilter(Filter.Active);
-  };
-
-  const handleFilterCompleted = () => {
-    setFilter(Filter.Completed);
+  const handleFilterChange = (filter: Filter) => {
+    setFilter(filter);
   };
 
   const handleClearCompleted = () => {
-    for (const todo of completedTodos) {
+    completedTodos.forEach(todo => {
       deleteTodo(todo.id);
-    }
+    })
   };
 
   if (!todos.length) {
-    return <></>;
+    return null;
   }
 
   return (
@@ -46,7 +38,7 @@ export const Footer: React.FC = () => {
             selected: filter === Filter.All,
           })}
           data-cy="FilterLinkAll"
-          onClick={handleFilterAll}
+          onClick={() => handleFilterChange(Filter.All)}
         >
           All
         </a>
@@ -57,7 +49,7 @@ export const Footer: React.FC = () => {
             selected: filter === Filter.Active,
           })}
           data-cy="FilterLinkActive"
-          onClick={handleFilterActive}
+          onClick={() => handleFilterChange(Filter.Active)}
         >
           Active
         </a>
@@ -68,7 +60,7 @@ export const Footer: React.FC = () => {
             selected: filter === Filter.Completed,
           })}
           data-cy="FilterLinkCompleted"
-          onClick={handleFilterCompleted}
+          onClick={() => handleFilterChange(Filter.Completed)}
         >
           Completed
         </a>

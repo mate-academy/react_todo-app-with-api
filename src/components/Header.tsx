@@ -23,16 +23,16 @@ export const Header: React.FC<Props> = () => {
 
   const handleToggleTodos = () => {
     if (completedTodos.length === todos.length) {
-      for (const todo of completedTodos) {
+      completedTodos.forEach(todo => {
         updateTodo({ ...todo, completed: false });
-      }
-
+      });
       return;
     }
 
-    for (const todo of activeTodos) {
+    // If not all todos are completed, set all todos to completed
+    activeTodos.forEach(todo => {
       updateTodo({ ...todo, completed: true });
-    }
+    } )
   };
 
   const handleTitleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
