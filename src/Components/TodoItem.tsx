@@ -79,6 +79,7 @@ export const TodoItem: React.FC<Props> = ({
     } else {
       try {
         await updateTodoTitle(id, trimmedTitle);
+        setEditing(false);
       } catch (err) {
         setError(true);
         setErrorType('update');
