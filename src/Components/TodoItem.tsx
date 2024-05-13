@@ -100,7 +100,13 @@ export const TodoItem: React.FC<Props> = ({
     if (e.key === 'Enter') {
       setLoading(true);
       setLoadingTodoId(id);
-      await handleBlur();
+      if (title.trim() !== initialTitle.trim()) {
+        await handleBlur();
+      } else {
+        setEditing(false);
+        setLoading(false);
+        setLoadingTodoId(null);
+      }
     } else if (e.key === 'Escape') {
       setEditing(false);
     }
