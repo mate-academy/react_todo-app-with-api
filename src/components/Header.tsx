@@ -3,7 +3,7 @@ import { useCallback, useContext, useState } from 'react';
 import { ErrorMessage, Todo } from '../types';
 import { USER_ID, addTodo, patchTodo } from '../api/todos';
 import { TEMP_ITEM_ID } from '../utils';
-import { SetErrorMessageContext, TodosContext } from '../Contexts';
+import { SetErrorMessageContext, TodosContext } from '../contexts';
 
 type Props = {
   setTempTodo: (tempTodo: Todo | null) => void;

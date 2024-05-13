@@ -2,7 +2,7 @@ import cn from 'classnames';
 import { useCallback, useContext, useMemo } from 'react';
 import { ErrorMessage, FilterBy } from '../types';
 import { deleteTodo } from '../api/todos';
-import { SetErrorMessageContext, TodosContext } from '../Contexts';
+import { SetErrorMessageContext, TodosContext } from '../contexts';
 
 type Props = {
   filterBy: string;

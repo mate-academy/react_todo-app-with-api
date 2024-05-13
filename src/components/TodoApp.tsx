@@ -16,7 +16,7 @@ import {
   ErrorMessageContext,
   SetErrorMessageContext,
   TodosContext,
-} from '../Contexts';
+} from '../contexts';
 
 export const TodoApp: React.FC = () => {
   const [filterBy, setFilterBy] = useState('All');

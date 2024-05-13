@@ -3,7 +3,7 @@ import cn from 'classnames';
 import { ErrorMessage, Todo } from '../types';
 import { deleteTodo, patchTodo } from '../api/todos';
 import { TEMP_ITEM_ID } from '../utils';
-import { SetErrorMessageContext, TodosContext } from '../Contexts';
+import { SetErrorMessageContext, TodosContext } from '../contexts';
 
 type Props = {
   todo: Todo;
