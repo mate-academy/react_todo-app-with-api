@@ -1,0 +1,18 @@
+{
+    "sourceFile": "src/Components/Loader.tsx",
+    "activeCommit": 0,
+    "commits": [
+        {
+            "activePatchIndex": 0,
+            "patches": [
+                {
+                    "date": 1715349593409,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n"
+                }
+            ],
+            "date": 1715349593409,
+            "name": "Commit-0",
+            "content": "import React from 'react';\n\ninterface Props {\n  loading: boolean;\n}\n\nexport const Loader: React.FC<Props> = ({ loading }) => {\n  return (\n    <div\n      data-cy=\"TodoLoader\"\n      className={`modal overlay ${loading ? 'is-active' : ''}`}\n    >\n      <div className=\"modal-background has-background-white-ter\" />\n      <div className=\"loader\" />\n    </div>\n  );\n};\n"
+        }
+    ]
+}
