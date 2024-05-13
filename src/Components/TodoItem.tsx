@@ -72,7 +72,6 @@ export const TodoItem: React.FC<Props> = ({
         await onDelete(id);
         await deleteTodo(id);
         setFocus(true);
-        setEditing(false);
       } catch (err) {
         setError(true);
         setErrorType('delete');
@@ -80,10 +79,10 @@ export const TodoItem: React.FC<Props> = ({
     } else {
       try {
         await updateTodoTitle(id, trimmedTitle);
-        setEditing(false);
       } catch (err) {
         setError(true);
         setErrorType('update');
+        setEditing(true);
       }
     }
 
