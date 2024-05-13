@@ -47,6 +47,7 @@ export const TodoInfo: React.FC<Props> = ({ todo, isLoading = false }) => {
 
   const handleChangeCompleted = () => {
     updateTodo({ ...todo, completed: !todo.completed });
+
   };
 
   const handleDelete = () => {
