@@ -57,16 +57,16 @@ export const TodoInfo: React.FC<Props> = ({ todo, isLoading = false }) => {
     });
   };
 
-  const handleKeyup = (event: KeyboardEvent) => {
-    if (event.key === 'Escape') {
-      setBeingEdited(false);
-      setTitle(todo.title);
-    } else if (event.key === 'Enter') {
-      updateTodoTitle();
-    }
-  };
-
   useEffect(() => {
+    const handleKeyup = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        setBeingEdited(false);
+        setTitle(todo.title);
+      } else if (event.key === 'Enter') {
+        updateTodoTitle();
+      }
+    };
+
     if (beingEdited) {
       document.addEventListener('keyup', handleKeyup);
 
@@ -76,7 +76,7 @@ export const TodoInfo: React.FC<Props> = ({ todo, isLoading = false }) => {
     }
 
     return;
-  }, [beingEdited]);
+  }, [beingEdited, todo.title, updateTodoTitle]);
 
   return (
     <>

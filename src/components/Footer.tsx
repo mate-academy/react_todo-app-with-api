@@ -1,4 +1,4 @@
-import React, {useContext} from 'react';
+import React, { useContext } from 'react';
 
 import classNames from 'classnames';
 import { TodoContext } from '../services/TodoContext';
@@ -10,14 +10,14 @@ export const Footer: React.FC = () => {
   const completedTodos = todos.filter(todo => todo.completed);
   const activeTodos = todos.filter(todo => !todo.completed);
 
-  const handleFilterChange = (filter: Filter) => {
-    setFilter(filter);
+  const handleFilterChange = (newFilter: Filter) => {
+    setFilter(newFilter);
   };
 
   const handleClearCompleted = () => {
     completedTodos.forEach(todo => {
       deleteTodo(todo.id);
-    })
+    });
   };
 
   if (!todos.length) {

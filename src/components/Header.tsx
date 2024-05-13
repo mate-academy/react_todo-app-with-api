@@ -26,13 +26,14 @@ export const Header: React.FC<Props> = () => {
       completedTodos.forEach(todo => {
         updateTodo({ ...todo, completed: false });
       });
+
       return;
     }
 
     // If not all todos are completed, set all todos to completed
     activeTodos.forEach(todo => {
       updateTodo({ ...todo, completed: true });
-    } )
+    });
   };
 
   const handleTitleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
