@@ -26,7 +26,7 @@ export const TodoList: React.FC<Props> = ({
               key={todo.id}
               todo={todo}
               setTodos={setTodos}
-              isLoading={isLoading}
+              deleteLoader={isLoading}
               setIsLoading={setIsLoading}
               setInputFocus={setInputFocus}
               setErrorMessage={setErrorMessage}
@@ -36,7 +36,7 @@ export const TodoList: React.FC<Props> = ({
             <TodoItem
               todo={tempTodo}
               setTodos={setTodos}
-              isLoading={isLoading}
+              deleteLoader={isLoading}
               setIsLoading={setIsLoading}
               setInputFocus={setInputFocus}
               setErrorMessage={setErrorMessage}
