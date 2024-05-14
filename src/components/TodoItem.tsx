@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import classNames from 'classnames';
 import { Todo } from '../types/Todo';
 import { useTodos } from '../utils/TodoContext';
+import { ErrText } from '../types/ErrText';
 
 interface Props {
   todo: Todo;
@@ -14,44 +15,53 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
     onUpdate,
     toggleCompleted,
     modifiedTodoId,
+    setModifiedTodoId,
     loading,
     setLoading,
+    setErrMessage,
   } = useTodos();
   const [editing, setEditing] = useState(false);
   const [updatedTitle, setUpdatedTitle] = useState(title);
   const inputRef = useRef<HTMLInputElement | null>(null);
 
   useEffect(() => {
-    if (!loading) {
+    if (editing && !loading) {
       inputRef.current?.focus();
     }
   }, [editing, loading]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setLoading(true);
     const trimmedTitle = updatedTitle.trim();
 
     if (trimmedTitle === title || !trimmedTitle) {
       if (!trimmedTitle) {
-        await onDelete(id);
+        try {
+          await onDelete(id);
+        } catch (error) {
+          setErrMessage(ErrText.DeleteErr);
+        } finally {
+          setLoading(false);
+          setModifiedTodoId(0);
+        }
       }
 
       setEditing(false);
       setUpdatedTitle(title);
-      setLoading(false);
 
       return;
     }
 
+    setLoading(true);
     try {
-      setLoading(true);
       await onUpdate({ ...todo, title: trimmedTitle });
+      setEditing(false);
     } catch (error) {
-      throw error;
+      setErrMessage(ErrText.UpdateErr);
+      setTimeout(() => setErrMessage(ErrText.NoErr), 3000);
     } finally {
       setLoading(false);
-      setEditing(false);
+      setModifiedTodoId(0);
     }
   };
 
@@ -105,7 +115,19 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
             type="button"
             className="todo__remove"
             data-cy="TodoDelete"
-            onClick={() => onDelete(id)}
+            onClick={() => {
+              setLoading(true);
+              setModifiedTodoId(id);
+              onDelete(id)
+                .catch(() => {
+                  setErrMessage(ErrText.DeleteErr);
+                  setTimeout(() => setErrMessage(ErrText.NoErr), 3000);
+                })
+                .finally(() => {
+                  setLoading(false);
+                  setModifiedTodoId(0);
+                });
+            }}
           >
             ×
           </button>
@@ -115,7 +137,7 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
       <div
         data-cy="TodoLoader"
         className={classNames('modal overlay', {
-          'is-active': id === modifiedTodoId,
+          'is-active': id === modifiedTodoId && loading,
         })}
       >
         <div className="modal-background has-background-white-ter" />

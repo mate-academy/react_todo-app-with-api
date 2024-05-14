@@ -10,11 +10,21 @@ export const TodoFooter: React.FC = () => {
   const completedTodos = todos.filter(el => el.completed);
 
   const handleCompleted = async () => {
-    try {
-      await Promise.allSettled(completedTodos.map(todo => onDelete(todo.id)));
-    } catch {
+    setErrMessage(ErrText.NoErr);
+    let hasError = false;
+
+    const deletePromises = completedTodos.map(async todo => {
+      try {
+        await onDelete(todo.id);
+      } catch {
+        hasError = true;
+      }
+    });
+
+    await Promise.all(deletePromises);
+
+    if (hasError) {
       setErrMessage(ErrText.DeleteErr);
-    } finally {
       setTimeout(() => setErrMessage(ErrText.NoErr), 3000);
     }
   };

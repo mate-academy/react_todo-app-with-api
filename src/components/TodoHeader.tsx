@@ -22,7 +22,7 @@ export const TodoHeader: React.FC = () => {
     if (!loading) {
       inputRef.current?.focus();
     }
-  }, [loading, submitting, onAdd]);
+  }, [loading, submitting]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -31,15 +31,16 @@ export const TodoHeader: React.FC = () => {
     setSubmitting(true);
     const trimmedInput = todoInput.trim();
 
+    if (!trimmedInput.length) {
+      setErrMessage(ErrText.EmptyErr);
+      setTimeout(() => setErrMessage(ErrText.NoErr), 3000);
+      setLoading(false);
+      setSubmitting(false);
+
+      return;
+    }
+
     try {
-      if (!trimmedInput.length) {
-        setErrMessage(ErrText.EmptyErr);
-        setTimeout(() => setErrMessage(ErrText.NoErr), 3000);
-        setTodoInput('');
-
-        return;
-      }
-
       await onAdd({
         id: Date.now(),
         title: trimmedInput,
@@ -47,9 +48,9 @@ export const TodoHeader: React.FC = () => {
         userId: USER_ID,
       });
       setTodoInput('');
-      setSubmitting(false);
     } catch (error) {
-      throw error;
+      setErrMessage(ErrText.AddErr);
+      setTimeout(() => setErrMessage(ErrText.NoErr), 3000);
     } finally {
       setLoading(false);
       setSubmitting(false);

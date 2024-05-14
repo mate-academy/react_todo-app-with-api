@@ -44,8 +44,6 @@ export const TodoContextProvider: React.FC<Props> = ({ children }) => {
   const [loading, setLoading] = useState(false);
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
   const [modifiedTodoId, setModifiedTodoId] = useState(0);
-  const activeTodos = todos.filter(todo => !todo.completed);
-  const completedTodos = todos.filter(todo => todo.completed);
 
   useEffect(() => {
     todoServices
@@ -59,56 +57,66 @@ export const TodoContextProvider: React.FC<Props> = ({ children }) => {
       });
   }, []);
 
-  const onDelete = useCallback(
-    async (todoId: number) => {
-      setLoading(true);
-      setModifiedTodoId(todoId);
-      setErrMessage(ErrText.NoErr);
-      try {
-        await todoServices.deleteTodos(todoId);
-        setTodos(currentTodos =>
-          currentTodos.filter(todo => todo.id !== todoId),
-        );
-        setLoading(false);
-      } catch (error) {
-        setErrMessage(ErrText.DeleteErr);
-        setTodos(todos);
-        setTimeout(() => setErrMessage(ErrText.NoErr), 3000);
-      } finally {
-        setLoading(false);
-        setModifiedTodoId(0);
-      }
-    },
-    [todos],
-  );
+  const onDelete = useCallback(async (todoId: number) => {
+    setLoading(true);
+    setModifiedTodoId(todoId);
+    setErrMessage(ErrText.NoErr);
+    try {
+      await todoServices.deleteTodos(todoId);
+      setTodos(currentTodos => currentTodos.filter(todo => todo.id !== todoId));
+    } catch (error) {
+      setErrMessage(ErrText.DeleteErr);
+      setTimeout(() => setErrMessage(ErrText.NoErr), 3000);
+    } finally {
+      setLoading(false);
+      setModifiedTodoId(0);
+    }
+  }, []);
 
-  const onAdd = useCallback(
-    async ({ title, completed, userId }: Todo) => {
-      setLoading(true);
-      setErrMessage(ErrText.NoErr);
-      setTempTodo({ id: 0, title, completed, userId });
-      try {
-        const newTodo = await todoServices.createTodos({
-          title,
-          completed,
-          userId,
-        });
+  const onAdd = useCallback(async ({ title, completed, userId }: Todo) => {
+    setLoading(true);
+    setErrMessage(ErrText.NoErr);
+    setTempTodo({ id: 0, title, completed, userId });
+    try {
+      const newTodo = await todoServices.createTodos({
+        title,
+        completed,
+        userId,
+      });
 
-        setTempTodo(null);
-        setTodos(currentTodos => [...currentTodos, newTodo]);
-        setLoading(false);
-      } catch (error) {
-        setErrMessage(ErrText.AddErr);
-        setTempTodo(null);
-        setTodos(todos);
-        setTimeout(() => setErrMessage(ErrText.NoErr), 3000);
-        throw error;
-      } finally {
-        setLoading(false);
-      }
-    },
-    [todos],
-  );
+      setTempTodo(null);
+      setTodos(currentTodos => [...currentTodos, newTodo]);
+    } catch (error) {
+      setErrMessage(ErrText.AddErr);
+      setTempTodo(null);
+      setTimeout(() => setErrMessage(ErrText.NoErr), 3000);
+      throw error;
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  const onUpdate = useCallback(async (updatedTodo: Todo) => {
+    setLoading(true);
+    setModifiedTodoId(updatedTodo.id);
+    setErrMessage(ErrText.NoErr);
+    try {
+      const response = await todoServices.updateTodos(updatedTodo);
+
+      setTodos(currentTodos =>
+        currentTodos.map(todo =>
+          todo.id === updatedTodo.id ? { ...todo, ...response } : todo,
+        ),
+      );
+    } catch (error) {
+      setErrMessage(ErrText.UpdateErr);
+      setTimeout(() => setErrMessage(ErrText.NoErr), 3000);
+      throw error;
+    } finally {
+      setLoading(false);
+      setModifiedTodoId(0);
+    }
+  }, []);
 
   const toggleCompleted = useCallback(async (toggledTodo: Todo) => {
     setLoading(true);
@@ -137,36 +145,17 @@ export const TodoContextProvider: React.FC<Props> = ({ children }) => {
   }, []);
 
   const toggleAllCompleted = useCallback(() => {
-    const toggledTodos = !!activeTodos.length ? activeTodos : completedTodos;
+    const areAllCompleted = todos.every(todo => todo.completed);
+    const newCompletedStatus = !areAllCompleted;
 
-    toggledTodos.forEach(todo => toggleCompleted(todo));
-  }, [activeTodos, completedTodos, toggleCompleted]);
+    const todosToUpdate = todos.filter(
+      todo => todo.completed !== newCompletedStatus,
+    );
 
-  const onUpdate = useCallback(
-    async (updatedTodo: Todo) => {
-      setLoading(true);
-      setModifiedTodoId(updatedTodo.id);
-      setErrMessage(ErrText.NoErr);
-      try {
-        const editedTodo = await todoServices.updateTodos(updatedTodo);
-
-        setTodos(currentTodos =>
-          currentTodos.map(todo =>
-            todo.id === updatedTodo.id ? editedTodo : todo,
-          ),
-        );
-      } catch (error) {
-        setErrMessage(ErrText.UpdateErr);
-        setTodos(todos);
-        setTimeout(() => setErrMessage(ErrText.NoErr), 3000);
-        setLoading(false);
-      } finally {
-        setLoading(false);
-        setModifiedTodoId(0);
-      }
-    },
-    [todos],
-  );
+    todosToUpdate.forEach(todo => {
+      toggleCompleted({ ...todo, completed: newCompletedStatus });
+    });
+  }, [todos, toggleCompleted]);
 
   const todoContextValue = useMemo(
     () => ({
