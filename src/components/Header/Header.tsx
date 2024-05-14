@@ -98,10 +98,12 @@ export const Header: React.FC<Props> = ({
   };
 
   const handleToggleAll = () => {
+    const incompleteTodos = todos?.filter(todo => !todo.completed);
     const isAllCompleted = todos?.every(todo => todo.completed);
+    const iterateTodos = incompleteTodos.length === 0 ? todos : incompleteTodos;
 
     setIsLoading(true);
-    todos?.forEach(todo => {
+    iterateTodos.map(todo => {
       updateData(todo.id, 'completed', !todo.completed)
         .then(() => {
           setTodos(prevTodos => prevTodos.map(prev => (

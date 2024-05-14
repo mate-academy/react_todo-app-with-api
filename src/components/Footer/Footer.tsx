@@ -16,14 +16,14 @@ interface Props {
 
 export const Footer: React.FC<Props> = ({
   setFilterType, setInputFocus, filterType,
-  todos, setTodos, setErrorMessage, setIsLoading
+  todos, setTodos, setErrorMessage, setIsLoading,
 }) => {
 
   const handleDeleteCompleted = () => {
     const completedTodos = todos.filter(todo => todo.completed);
 
-    setIsLoading(true);
     completedTodos.forEach(todo => {
+      setIsLoading(true);
       deleteData(todo.id)
         .then(() => {
           setTodos(prevTodos =>
@@ -89,12 +89,12 @@ export const Footer: React.FC<Props> = ({
         </a>
       </nav>
 
-      {/* this button should be disabled if there are no completed todos */}
+
       <button
         type="button"
         className="todoapp__clear-completed"
         data-cy="ClearCompletedButton"
-        disabled={todos.every(todo => !todo.completed)}
+        disabled={todos.every(plan => !plan.completed)}
         onClick={handleDeleteCompleted}
       >
         Clear completed

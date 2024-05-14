@@ -31,6 +31,7 @@ export const TodoItem: React.FC<Props> = ({
         setInputFocus(true);
       })
       .catch(() => {
+        setCanEdit(true);
         setErrorMessage('Unable to delete a todo');
 
         setTimeout(() => {
@@ -75,14 +76,14 @@ export const TodoItem: React.FC<Props> = ({
   const handleChangeTitle = () => {
     if (newTitle) {
       setIsLoading(true);
-      updateData(id, 'title', newTitle)
+      updateData(id, 'title', newTitle.trim())
         .then(() => {
           setTodos((currentTodos) => {
             return currentTodos.map((plan) => {
               if (plan.id === id) {
                 return {
                   ...plan,
-                  title: newTitle,
+                  title: newTitle.trim(),
                 };
               }
 
@@ -92,6 +93,7 @@ export const TodoItem: React.FC<Props> = ({
           setInputFocus(true);
         })
         .catch(() => {
+          setCanEdit(true);
           setErrorMessage('Unable to update a todo');
 
           setTimeout(() => {
@@ -179,14 +181,17 @@ export const TodoItem: React.FC<Props> = ({
           {title}
         </span>
       )}
-      <button
-        type="button"
-        className="todo__remove"
-        data-cy="TodoDelete"
-        onClick={todoDeleteButton}
-      >
-        ×
-      </button>
+
+      {!canEdit && (
+        <button
+          type="button"
+          className="todo__remove"
+          data-cy="TodoDelete"
+          onClick={todoDeleteButton}
+        >
+          ×
+        </button>
+      )}
 
       <div
         data-cy="TodoLoader"
