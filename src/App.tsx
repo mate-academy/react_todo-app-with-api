@@ -1,6 +1,6 @@
 /* eslint-disable no-console */
 import React, { useEffect, useState } from 'react';
-import { getTodos, delTodos } from './api/todos';
+import { getTodos, delTodos, addTodos } from './api/todos';
 import Filter from './components/Filter';
 import TodoList from './components/TodoList';
 import NewTodo from './components/NewTodo';
@@ -36,14 +36,22 @@ const App: React.FC = () => {
   }, []);
 
   const handleAddTodo = async (title: string) => {
+    if (title.trim() === '') {
+      setError(true);
+      setErrorType('add');
+
+      return;
+    }
+
     setTempTodo(title);
-    console.log(title);
     setPending(-1);
     try {
-      const newTodo: Todo = await client.post('/todos', {
+      const random = Math.floor(Math.random() * 1000);
+      const newTodo: Todo = await addTodos({
         userId: 587,
         title,
         completed: false,
+        id: random,
       });
 
       setErrorType('add');

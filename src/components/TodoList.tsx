@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { Todo } from '../types/Todo';
 import TodoItem from './TodoItem';
 
@@ -21,7 +21,7 @@ const TodoList: React.FC<TodoListProps> = ({
   handleToggleTodo,
   handleUpdateTodo,
 }) => {
-  const filteredTodos = () => {
+  const filteredTodos = useMemo(() => {
     switch (filter) {
       case 'all':
         return todos;
@@ -32,20 +32,20 @@ const TodoList: React.FC<TodoListProps> = ({
       default:
         return todos;
     }
-  };
+  }, [todos, filter]);
 
   return (
     <section className="todoapp__main" data-cy="TodoList">
       {tempTodo && (
         <TodoItem
-          todo={{ title: tempTodo, id: -1, data: '', completed: false } as Todo}
+          todo={{ title: tempTodo, id: -1, completed: false } as Todo}
           onDeleteTodo={onDeleteTodo}
           pending={pending}
           handleToggleTodo={handleToggleTodo}
           handleUpdateTodo={handleUpdateTodo}
         />
       )}
-      {filteredTodos().map((todo: Todo) => (
+      {filteredTodos.map((todo: Todo) => (
         <TodoItem
           key={todo.id}
           todo={todo}

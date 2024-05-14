@@ -21,19 +21,42 @@ const TodoItem: React.FC<TodoProps> = ({
 }) => {
   const [editing, setEditing] = useState<boolean>(false);
   const [editedTitle, setEditedTitle] = useState(todo.title);
+  const [originalTitle, setOriginalTitle] = useState(todo.title);
 
   const handleDoubleClick = () => {
+    setOriginalTitle(todo.title);
     setEditing(true);
-    setEditedTitle(todo.title);
   };
 
   const handleNewTitle = (e: React.ChangeEvent<HTMLInputElement>) => {
     setEditedTitle(e.target.value);
   };
 
+  const handleBlur = () => {
+    if (editedTitle.trim() === '') {
+      onDeleteTodo(todo.id);
+    } else if (editedTitle !== originalTitle) {
+      handleUpdateTodo(todo.id, editedTitle, todo.completed);
+    }
+
+    setEditing(false);
+  };
+
+  const handleKeyUp = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Escape' || e.key === 'ArrowUp') {
+      setEditedTitle(originalTitle);
+      setEditing(false);
+    }
+  };
+
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    handleUpdateTodo(todo.id, editedTitle, todo.completed);
+    if (editedTitle.trim() === '') {
+      onDeleteTodo(todo.id);
+    } else if (editedTitle !== originalTitle) {
+      handleUpdateTodo(todo.id, editedTitle, todo.completed);
+    }
+
     setEditing(false);
   };
 
@@ -68,15 +91,22 @@ const TodoItem: React.FC<TodoProps> = ({
           onChange={e => handleToggle(e, todo.id)}
         />
       </label>
-      <span data-cy="TodoTitle" className="todo__title">
-        {editing ? (
-          <form onSubmit={handleSubmit}>
-            <input onChange={handleNewTitle} value={editedTitle} />
-          </form>
-        ) : (
-          todo.title
-        )}
-      </span>
+      {editing ? (
+        <form onSubmit={handleSubmit}>
+          <input
+            className="todoapp__new-todo"
+            onChange={handleNewTitle}
+            onBlur={handleBlur}
+            onKeyUp={handleKeyUp}
+            value={editedTitle}
+            autoFocus
+          />
+        </form>
+      ) : (
+        <span data-cy="TodoTitle" className="todo__title">
+          {todo.title}
+        </span>
+      )}
       <button
         type="button"
         className="todo__remove"

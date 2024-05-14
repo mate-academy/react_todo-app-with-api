@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { Error } from '../types/Todo';
 
 interface Props {
@@ -7,28 +7,22 @@ interface Props {
   errorHide: () => void;
 }
 export const ErrorFile: React.FC<Props> = ({ errorType, error, errorHide }) => {
-  let errorMessage = '';
-
-  switch (errorType) {
-    case 'load':
-      errorMessage = 'Unable to load todos';
-      break;
-    case 'empty':
-      errorMessage = 'Title should not be empty';
-      break;
-    case 'add':
-      errorMessage = 'Unable to add a todo';
-      break;
-    case 'delete':
-      errorMessage = 'Unable to delete a todo';
-      break;
-    case 'update':
-      errorMessage = 'Unable to update a todo';
-      break;
-    default:
-      errorMessage = 'Unknown error';
-      break;
-  }
+  const errorMessage = useMemo(() => {
+    switch (errorType) {
+      case 'load':
+        return 'Unable to load todos';
+      case 'empty':
+        return 'Title should not be empty';
+      case 'add':
+        return 'Unable to add a todo';
+      case 'delete':
+        return 'Unable to delete a todo';
+      case 'update':
+        return 'Unable to update a todo';
+      default:
+        return 'Unknown error';
+    }
+  }, [errorType]);
 
   return (
     <div

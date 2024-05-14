@@ -1,5 +1,4 @@
 export interface Todo {
-  data: any;
   id: number;
   userId: number;
   title: string;

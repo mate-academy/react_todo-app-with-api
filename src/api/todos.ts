@@ -12,6 +12,6 @@ export const delTodos = (id: number) => {
   return client.delete(`/todos/${id}`);
 };
 
-// export const addTodos = () => {
-//   return client.get<Todo[]>(`/todos/${}`);
-// };
+export const addTodos = (todoData: Todo) => {
+  return client.post<Todo>(`/todos`, todoData);
+};
