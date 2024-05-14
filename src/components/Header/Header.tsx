@@ -1,18 +1,18 @@
 import { useContext, useEffect, useRef, useState } from 'react';
 import { DispatchContext, StateContext } from '../../utils/Store';
 import { addTodo, updateTodo } from '../../api/todos';
-// import { Todo } from '../../types/Todo';
-// import { Todo } from '../../types/Todo';
+import classNames from 'classnames';
 
 export const Header = () => {
   const dispatch = useContext(DispatchContext);
   const state = useContext(StateContext);
+  const { loading } = useContext(StateContext);
   const [title, setTitle] = useState('');
   const inputReference = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     inputReference.current?.focus();
-  }, [state.todos, state.tempTodo]);
+  }, [state.todos.length, state.tempTodo]);
 
   const handleTitleAdd = (event: React.ChangeEvent<HTMLInputElement>) => {
     setTitle(event.target.value);
@@ -148,14 +148,20 @@ export const Header = () => {
     }
   };
 
+  const isAllCompleeted = state.todos.every(todo => todo.completed === true);
+
   return (
     <header className="todoapp__header">
-      <button
-        type="button"
-        className="todoapp__toggle-all active"
-        data-cy="ToggleAllButton"
-        onClick={AllCompleted}
-      />
+      {state.todos.length > 0 && (
+        <button
+          type="button"
+          className={classNames('todoapp__toggle-all', {
+            active: loading.length === 0 && isAllCompleeted,
+          })}
+          data-cy="ToggleAllButton"
+          onClick={AllCompleted}
+        />
+      )}
 
       <form method="POST" onSubmit={Submit}>
         <input
