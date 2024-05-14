@@ -20,6 +20,8 @@ const App: React.FC = () => {
     setError(false);
   };
 
+  setTimeout(hideError, 3000);
+
   useEffect(() => {
     const fetchTodos = async () => {
       try {
@@ -38,7 +40,7 @@ const App: React.FC = () => {
   const handleAddTodo = async (title: string) => {
     if (title.trim() === '') {
       setError(true);
-      setErrorType('add');
+      setErrorType('empty');
 
       return;
     }
