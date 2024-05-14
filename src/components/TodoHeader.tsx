@@ -12,15 +12,17 @@ export const TodoHeader: React.FC = () => {
     loading,
     setLoading,
     toggleAllCompleted,
+    setTempTodo,
+    setModifiedTodoId,
   } = useTodos();
   const [todoInput, setTodoInput] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const isAllCompleted = todos.every(todo => todo.completed);
-  const inputRef = useRef<HTMLInputElement | null>(null);
+  const inputRefHeader = useRef<HTMLInputElement | null>(null);
 
   useEffect(() => {
     if (!loading) {
-      inputRef.current?.focus();
+      inputRefHeader.current?.focus();
     }
   }, [loading, submitting]);
 
@@ -40,13 +42,18 @@ export const TodoHeader: React.FC = () => {
       return;
     }
 
+    const newTodo = {
+      id: Date.now(),
+      title: trimmedInput,
+      completed: false,
+      userId: USER_ID,
+    };
+
+    setTempTodo(newTodo);
+    setModifiedTodoId(prev => [...prev, newTodo.id]);
+
     try {
-      await onAdd({
-        id: Date.now(),
-        title: trimmedInput,
-        completed: false,
-        userId: USER_ID,
-      });
+      await onAdd(newTodo);
       setTodoInput('');
     } catch (error) {
       setErrMessage(ErrText.AddErr);
@@ -54,6 +61,8 @@ export const TodoHeader: React.FC = () => {
     } finally {
       setLoading(false);
       setSubmitting(false);
+      setModifiedTodoId(prev => prev.filter(todoId => todoId !== newTodo.id));
+      setTempTodo(null);
     }
   };
 
@@ -78,7 +87,7 @@ export const TodoHeader: React.FC = () => {
           placeholder="What needs to be done?"
           value={todoInput}
           onChange={e => setTodoInput(e.target.value)}
-          ref={inputRef}
+          ref={inputRefHeader}
           disabled={submitting || loading}
         />
       </form>

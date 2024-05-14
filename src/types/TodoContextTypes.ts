@@ -18,6 +18,6 @@ export interface TodoContextTypes {
   setLoading: React.Dispatch<React.SetStateAction<boolean>>;
   tempTodo: Todo | null;
   setTempTodo: React.Dispatch<React.SetStateAction<Todo | null>>;
-  modifiedTodoId: number;
-  setModifiedTodoId: React.Dispatch<React.SetStateAction<number>>;
+  modifiedTodoId: number[];
+  setModifiedTodoId: React.Dispatch<React.SetStateAction<number[]>>;
 }

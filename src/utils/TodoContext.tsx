@@ -27,7 +27,7 @@ const initTodoCont: TodoContextTypes = {
   setLoading: () => {},
   tempTodo: null,
   setTempTodo: () => {},
-  modifiedTodoId: 0,
+  modifiedTodoId: [],
   setModifiedTodoId: () => {},
 };
 
@@ -43,7 +43,7 @@ export const TodoContextProvider: React.FC<Props> = ({ children }) => {
   const [errMessage, setErrMessage] = useState(ErrText.NoErr);
   const [loading, setLoading] = useState(false);
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
-  const [modifiedTodoId, setModifiedTodoId] = useState(0);
+  const [modifiedTodoId, setModifiedTodoId] = useState<number[]>([]);
 
   useEffect(() => {
     todoServices
@@ -59,7 +59,7 @@ export const TodoContextProvider: React.FC<Props> = ({ children }) => {
 
   const onDelete = useCallback(async (todoId: number) => {
     setLoading(true);
-    setModifiedTodoId(todoId);
+    setModifiedTodoId(prev => [...prev, todoId]);
     setErrMessage(ErrText.NoErr);
     try {
       await todoServices.deleteTodos(todoId);
@@ -69,7 +69,7 @@ export const TodoContextProvider: React.FC<Props> = ({ children }) => {
       setTimeout(() => setErrMessage(ErrText.NoErr), 3000);
     } finally {
       setLoading(false);
-      setModifiedTodoId(0);
+      setModifiedTodoId(prev => prev.filter(id => id !== todoId));
     }
   }, []);
 
@@ -97,8 +97,8 @@ export const TodoContextProvider: React.FC<Props> = ({ children }) => {
   }, []);
 
   const onUpdate = useCallback(async (updatedTodo: Todo) => {
-    setLoading(true);
-    setModifiedTodoId(updatedTodo.id);
+    setLoading(false);
+    setModifiedTodoId(prev => [...prev, updatedTodo.id]);
     setErrMessage(ErrText.NoErr);
     try {
       const response = await todoServices.updateTodos(updatedTodo);
@@ -114,13 +114,13 @@ export const TodoContextProvider: React.FC<Props> = ({ children }) => {
       throw error;
     } finally {
       setLoading(false);
-      setModifiedTodoId(0);
+      setModifiedTodoId(prev => prev.filter(id => id !== updatedTodo.id));
     }
   }, []);
 
   const toggleCompleted = useCallback(async (toggledTodo: Todo) => {
     setLoading(true);
-    setModifiedTodoId(toggledTodo.id);
+    setModifiedTodoId(prev => [...prev, toggledTodo.id]);
     setErrMessage(ErrText.NoErr);
     try {
       const toggled = await todoServices.updateTodos({
@@ -140,7 +140,7 @@ export const TodoContextProvider: React.FC<Props> = ({ children }) => {
       setTimeout(() => setErrMessage(ErrText.NoErr), 3000);
     } finally {
       setLoading(false);
-      setModifiedTodoId(0);
+      setModifiedTodoId(prev => prev.filter(id => id !== toggledTodo.id));
     }
   }, []);
 

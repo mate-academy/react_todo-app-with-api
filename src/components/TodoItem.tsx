@@ -22,11 +22,11 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
   } = useTodos();
   const [editing, setEditing] = useState(false);
   const [updatedTitle, setUpdatedTitle] = useState(title);
-  const inputRef = useRef<HTMLInputElement | null>(null);
+  const inputRefTodo = useRef<HTMLInputElement | null>(null);
 
   useEffect(() => {
     if (editing && !loading) {
-      inputRef.current?.focus();
+      inputRefTodo.current?.focus();
     }
   }, [editing, loading]);
 
@@ -36,13 +36,15 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
 
     if (trimmedTitle === title || !trimmedTitle) {
       if (!trimmedTitle) {
+        setLoading(true);
+        setModifiedTodoId(prev => [...prev, id]);
         try {
           await onDelete(id);
         } catch (error) {
           setErrMessage(ErrText.DeleteErr);
         } finally {
           setLoading(false);
-          setModifiedTodoId(0);
+          setModifiedTodoId(prev => prev.filter(todoId => todoId !== id));
         }
       }
 
@@ -53,6 +55,7 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
     }
 
     setLoading(true);
+    setModifiedTodoId(prev => [...prev, id]);
     try {
       await onUpdate({ ...todo, title: trimmedTitle });
       setEditing(false);
@@ -61,7 +64,7 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
       setTimeout(() => setErrMessage(ErrText.NoErr), 3000);
     } finally {
       setLoading(false);
-      setModifiedTodoId(0);
+      setModifiedTodoId(prev => prev.filter(todoId => todoId !== id));
     }
   };
 
@@ -90,7 +93,7 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
             type="text"
             className="todo__title-field"
             placeholder="Empty todo will be deleted"
-            ref={inputRef}
+            ref={inputRefTodo}
             value={updatedTitle}
             onChange={e => setUpdatedTitle(e.target.value)}
             onBlur={handleSubmit}
@@ -117,7 +120,7 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
             data-cy="TodoDelete"
             onClick={() => {
               setLoading(true);
-              setModifiedTodoId(id);
+              setModifiedTodoId(prev => [...prev, id]);
               onDelete(id)
                 .catch(() => {
                   setErrMessage(ErrText.DeleteErr);
@@ -125,7 +128,9 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
                 })
                 .finally(() => {
                   setLoading(false);
-                  setModifiedTodoId(0);
+                  setModifiedTodoId(prev =>
+                    prev.filter(todoId => todoId !== id),
+                  );
                 });
             }}
           >
@@ -137,7 +142,7 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
       <div
         data-cy="TodoLoader"
         className={classNames('modal overlay', {
-          'is-active': id === modifiedTodoId && loading,
+          'is-active': modifiedTodoId.includes(id),
         })}
       >
         <div className="modal-background has-background-white-ter" />
