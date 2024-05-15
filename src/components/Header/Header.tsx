@@ -24,7 +24,7 @@ export const Header: React.FC<Props> = ({
   const [title, setTitle] = useState('');
   const [isDisabled, setIsDisabled] = useState(false);
 
-  const handleCreateNew = async () => {
+  const handleCreateNew = useCallback(async () => {
     if (!title.trim().length) {
       return;
     }
@@ -61,7 +61,8 @@ export const Header: React.FC<Props> = ({
         setTempTodo(null);
         setIsDisabled(false);
       });
-  };
+  }, [title, todos]);
+
 
   const handleKeyPress = useCallback((
     event: React.KeyboardEvent<HTMLInputElement>

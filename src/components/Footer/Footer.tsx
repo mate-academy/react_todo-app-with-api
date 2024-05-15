@@ -43,14 +43,14 @@ export const Footer: React.FC<Props> = ({
   };
 
   const notCompletedCount = todos.filter(todo => !todo.completed).length;
+  const todosText = `${notCompletedCount} item${notCompletedCount === 1 ? '' : 's'} left`;
 
   return (
     <footer className="todoapp__footer" data-cy="Footer">
       <span className="todo-count" data-cy="TodosCounter">
-        {notCompletedCount} item{notCompletedCount === 1 ? '' : 's'} left
+        {todosText}
       </span>
 
-      {/* Active link should have the 'selected' class */}
       <nav className="filter" data-cy="Filter">
         <a
           href="#/"

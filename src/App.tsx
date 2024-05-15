@@ -36,17 +36,14 @@ export const App: React.FC = () => {
   useEffect(() => {
     setIsLoading(true);
     getData()
-      .then(response => {
-        setTodos(response);
-        setIsLoading(false);
-      })
+      .then(setTodos)
       .catch(() => {
         setErrorMessage('Unable to load todos');
-
         setTimeout(() => {
           setErrorMessage('');
         }, 3000);
-      });
+      })
+      .finally(() => setIsLoading(false));
 
     if (inputRef.current) {
       inputRef.current.focus();
@@ -110,7 +107,7 @@ export const App: React.FC = () => {
         className={
           classNames(
             "notification is-danger is-light has-text-weight-normal",
-            {"hidden": errorMessage === "" }
+            {"hidden": !errorMessage }
           )
         }
       >

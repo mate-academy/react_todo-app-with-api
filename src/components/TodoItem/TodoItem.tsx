@@ -38,9 +38,7 @@ export const TodoItem: React.FC<Props> = ({
           setErrorMessage('');
         }, 3000);
       })
-      .finally(() => {
-        setIsLoading(false);
-      });
+      .finally(() => setIsLoading(false));
   };
 
   const handleComplete = () => {
