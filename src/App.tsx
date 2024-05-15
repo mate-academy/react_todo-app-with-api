@@ -25,6 +25,14 @@ export const App: React.FC = () => {
   const [isDeleting, setIsDeleting] = useState(false);
 
   const activeInput = useRef<HTMLInputElement>(null);
+  const sortedTodos = getFilter(todos, sortField);
+
+  const setErrorWithSetTimeout = (error: ErrorType) => {
+    setErrorMessage(error);
+    setTimeout(() => {
+      setErrorMessage(null);
+    }, 3000);
+  };
 
   useEffect(() => {
     setErrorMessage(null);
@@ -32,19 +40,13 @@ export const App: React.FC = () => {
     getTodos()
       .then(setTodos)
       .catch(() => {
-        setErrorMessage(ErrorType.UnableLoad);
-
-        setTimeout(() => {
-          setErrorMessage(null);
-        }, 3000);
+        setErrorWithSetTimeout(ErrorType.UnableLoad);
       });
   }, []);
 
   useEffect(() => {
     activeInput.current?.focus();
   }, [todos, errorMessage]);
-
-  const sortedTodos = getFilter(todos, sortField);
 
   const onDelete = (todoId: number) => {
     if (isDeleting) {
@@ -60,10 +62,7 @@ export const App: React.FC = () => {
         );
       })
       .catch(() => {
-        setErrorMessage(ErrorType.UnableDelete);
-        setTimeout(() => {
-          setErrorMessage(null);
-        }, 3000);
+        setErrorWithSetTimeout(ErrorType.UnableDelete);
         // setTodos(todos);
       })
       .finally(() => {
@@ -73,11 +72,7 @@ export const App: React.FC = () => {
 
   const createNewTodo = () => {
     if (!titleNew.trim()) {
-      setErrorMessage(ErrorType.EmptyTitle);
-
-      setTimeout(() => {
-        setErrorMessage(null);
-      }, 3000);
+      setErrorWithSetTimeout(ErrorType.EmptyTitle);
 
       return;
     }
@@ -99,10 +94,7 @@ export const App: React.FC = () => {
         setTitleNew('');
       })
       .catch(() => {
-        setErrorMessage(ErrorType.UnableAdd);
-        setTimeout(() => {
-          setErrorMessage(null);
-        }, 3000);
+        setErrorWithSetTimeout(ErrorType.UnableAdd);
       })
       .finally(() => {
         setTempTodo(null);
