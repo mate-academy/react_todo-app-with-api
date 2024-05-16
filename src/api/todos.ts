@@ -14,3 +14,11 @@ export const getDelete = (todoId: number) => {
 export const getAdd = ({ title, completed, userId }: Omit<Todo, 'id'>) => {
   return client.post<Todo>('/todos', { title, completed, userId });
 };
+
+export const getUpdate = (
+  id: Todo['id'],
+  title: Todo['title'],
+  completed: Todo['completed'],
+) => {
+  return client.patch<Todo>(`/todos/${id}`, { title, completed });
+};

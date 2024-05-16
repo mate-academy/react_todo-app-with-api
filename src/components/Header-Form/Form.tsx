@@ -2,32 +2,41 @@ import React, { Ref } from 'react';
 
 type Props = {
   activeInput: Ref<HTMLInputElement>;
-  createNewTodo: () => void;
+  onCreate: () => void;
   titleNew: string;
   setTitleNew: (title: string) => void;
   isSubmitingNewTodo: boolean;
+  allTodosCompleted: boolean;
+  hasAnyTodo: boolean;
+  makeToggleAll: () => void;
 };
 
 export const Form: React.FC<Props> = ({
   activeInput,
-  createNewTodo,
+  onCreate,
   titleNew,
   setTitleNew,
   isSubmitingNewTodo,
+  allTodosCompleted,
+  hasAnyTodo,
+  makeToggleAll,
 }) => {
   const onAddNewTodo = (event: React.FormEvent) => {
     event.preventDefault();
 
-    createNewTodo();
+    onCreate();
   };
 
   return (
     <header className="todoapp__header">
-      <button
-        type="button"
-        className="todoapp__toggle-all active"
-        data-cy="ToggleAllButton"
-      />
+      {hasAnyTodo && (
+        <button
+          type="button"
+          className={`todoapp__toggle-all ${allTodosCompleted && 'active'}`}
+          data-cy="ToggleAllButton"
+          onClick={() => makeToggleAll()}
+        />
+      )}
       <form method="POST" onSubmit={onAddNewTodo}>
         <input
           disabled={isSubmitingNewTodo}

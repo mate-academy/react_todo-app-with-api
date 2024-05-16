@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { UserWarning } from './UserWarning';
-import { USER_ID, getTodos, getDelete, getAdd } from './api/todos';
+import { USER_ID, getTodos, getDelete, getAdd, getUpdate } from './api/todos';
 import { Todo } from './types/Todo';
 import { SortType } from './types/SortType';
 
@@ -14,25 +14,62 @@ import { TodoItem } from './components/TodoItem/TodoItem';
 
 export const App: React.FC = () => {
   const [todos, setTodos] = useState<Todo[]>([]);
-
   const [titleNew, setTitleNew] = useState('');
   const [isSubmitingNewTodo, setIsSubmitingNewTodo] = useState(false);
-
   const [errorMessage, setErrorMessage] = useState<ErrorType | null>(null);
   const [sortField, setSortField] = useState(SortType.All);
-
   const [tempTodo, setTempTodo] = useState<null | Todo>(null);
   const [isDeleting, setIsDeleting] = useState(false);
+
+  const [beingEdited, setBeingEdited] = useState<number[]>([]);
+  const [beingUpdated, setBeingUpdated] = useState<number | null>(null);
 
   const activeInput = useRef<HTMLInputElement>(null);
   const sortedTodos = getFilter(todos, sortField);
 
+  // others region
+  const allTodosCompleted = todos.every(todo => todo.completed);
   const setErrorWithSetTimeout = (error: ErrorType) => {
     setErrorMessage(error);
     setTimeout(() => {
       setErrorMessage(null);
     }, 3000);
   };
+
+  const removeTodoFromEditingList = (todo: Todo) => {
+    const filteredIds = beingEdited.filter(
+      currentIds => currentIds !== todo.id,
+    );
+
+    setBeingEdited(filteredIds);
+  };
+
+  const addTodoToEditingList = (todo: Todo) => {
+    setBeingEdited(currentTodosId => [...currentTodosId, todo.id]);
+  };
+
+  const deleteTodoById = (id: number) => {
+    if (isDeleting) {
+      return;
+    }
+
+    setIsDeleting(false);
+
+    return getDelete(id)
+      .then(() =>
+        setTodos((currentTodos: Todo[]) =>
+          currentTodos.filter((todo: Todo) => todo.id !== id),
+        ),
+      )
+      .catch(() => {
+        setErrorWithSetTimeout(ErrorType.UnableDelete);
+      })
+      .finally(() => {
+        setIsDeleting(false);
+      });
+  };
+
+  // region useEffect
 
   useEffect(() => {
     setErrorMessage(null);
@@ -45,9 +82,12 @@ export const App: React.FC = () => {
   }, []);
 
   useEffect(() => {
-    activeInput.current?.focus();
-  }, [todos, errorMessage]);
+    if (beingUpdated === null) {
+      activeInput.current?.focus();
+    }
+  }, [todos, errorMessage, beingUpdated]);
 
+  // handlers region
   const onDelete = (todoId: number) => {
     if (isDeleting) {
       return;
@@ -70,7 +110,7 @@ export const App: React.FC = () => {
       });
   };
 
-  const createNewTodo = () => {
+  const onCreate = () => {
     if (!titleNew.trim()) {
       setErrorWithSetTimeout(ErrorType.EmptyTitle);
 
@@ -102,8 +142,95 @@ export const App: React.FC = () => {
       });
   };
 
+  const onUpdate = (todo: Todo, updatedTitle: string) => {
+    setBeingUpdated(todo.id);
+
+    const trimmedTitle = updatedTitle.trim();
+
+    if (todo.title === trimmedTitle) {
+      return;
+    }
+
+    if (!trimmedTitle) {
+      deleteTodoById(todo.id);
+
+      return;
+    }
+
+    addTodoToEditingList(todo);
+
+    getUpdate(todo.id, trimmedTitle, todo.completed)
+      .then(() => {
+        setTodos(currentTodos =>
+          currentTodos.map(currTodo => {
+            if (currTodo.id === todo.id) {
+              return {
+                ...currTodo,
+                title: trimmedTitle,
+              };
+            }
+
+            return currTodo;
+          }),
+        );
+
+        setBeingUpdated(null);
+      })
+      .catch(() => {
+        setErrorWithSetTimeout(ErrorType.UnableUpdate);
+      })
+      .finally(() => {
+        removeTodoFromEditingList(todo);
+      });
+  };
+
+  // helper functions region
   const clearCompleted = () => {
     return todos.filter(todo => todo.completed).map(todo => onDelete(todo.id));
+  };
+
+  const toggleById = (updatedTodo: Todo, isCompleted: boolean) => {
+    addTodoToEditingList(updatedTodo);
+
+    getUpdate(updatedTodo.id, updatedTodo.title, isCompleted)
+      .then(() => {
+        setTodos(currentTodos =>
+          currentTodos.map(currTodo => {
+            if (currTodo.id === updatedTodo.id) {
+              return {
+                ...currTodo,
+                completed: isCompleted,
+              };
+            }
+
+            return currTodo;
+          }),
+        );
+      })
+      .catch(() => setErrorWithSetTimeout(ErrorType.UnableUpdate))
+      .finally(() => {
+        removeTodoFromEditingList(updatedTodo);
+      });
+  };
+
+  const makeToggleAll = () => {
+    // if (allTodosCompleted) {
+    //   return todos.map(todo => toggleById(todo, false));
+    // } else {
+    //   return todos.map(todo => toggleById(todo, true));
+    // }
+
+    if (allTodosCompleted) {
+      for (const todo of todos) {
+        toggleById(todo, false);
+      }
+    } else {
+      for (const todo of todos) {
+        if (!todo.completed) {
+          toggleById(todo, true);
+        }
+      }
+    }
   };
 
   if (!USER_ID) {
@@ -117,21 +244,34 @@ export const App: React.FC = () => {
         <Form
           titleNew={titleNew}
           setTitleNew={setTitleNew}
-          createNewTodo={createNewTodo}
+          onCreate={onCreate}
           activeInput={activeInput}
           isSubmitingNewTodo={isSubmitingNewTodo}
+          allTodosCompleted={allTodosCompleted}
+          hasAnyTodo={!!todos.length}
+          makeToggleAll={makeToggleAll}
         />
 
         <Todos
           todos={sortedTodos}
           onDelete={isDeleting ? () => {} : onDelete}
+          toggleById={toggleById}
+          onUpdate={onUpdate}
+          beingEdited={beingEdited}
+          beingUpdated={beingUpdated}
         />
-
         {tempTodo && (
-          <TodoItem todo={tempTodo} onDelete={onDelete} isTemp={true} />
+          <TodoItem
+            todo={tempTodo}
+            onDelete={onDelete}
+            isTemp={true}
+            toggleById={toggleById}
+            onUpdate={onUpdate}
+            beingUpdated={beingUpdated}
+          />
         )}
 
-        {todos.length > 0 && (
+        {!!todos.length && (
           <Footer
             todos={todos}
             sortField={sortField}
