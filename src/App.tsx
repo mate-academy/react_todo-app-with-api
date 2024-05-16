@@ -84,13 +84,15 @@ export const App: React.FC = () => {
     };
 
     for (const todo of todos) {
-      modifyTodo(todo.id, todoProps)
-        .then(() => {
-          modifyTodoLocal(todo.id, todoProps);
-        })
-        .catch(() => {
-          setTimeoutErrorMessage('Unable to update a todo');
-        });
+      if (todo.completed !== todoProps.completed) {
+        modifyTodo(todo.id, todoProps)
+          .then(() => {
+            modifyTodoLocal(todo.id, todoProps);
+          })
+          .catch(() => {
+            setTimeoutErrorMessage('Unable to update a todo');
+          });
+      }
     }
   };
 
@@ -104,12 +106,14 @@ export const App: React.FC = () => {
 
       <div className="todoapp__content">
         <header className="todoapp__header">
-          <button
-            type="button"
-            className={`todoapp__toggle-all ${todos.every(todo => todo.completed) && 'active'}`}
-            data-cy="ToggleAllButton"
-            onClick={onToggleAll}
-          />
+          {todos.length > 0 && (
+            <button
+              type="button"
+              className={`todoapp__toggle-all ${todos.every(todo => todo.completed) && 'active'}`}
+              data-cy="ToggleAllButton"
+              onClick={onToggleAll}
+            />
+          )}
 
           <form onSubmit={onSubmit}>
             <input
