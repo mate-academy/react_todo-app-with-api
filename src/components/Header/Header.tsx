@@ -28,9 +28,9 @@ export const Header: FC<Props> = ({ onError, setTempTodo }) => {
     event.preventDefault();
     setAddingTodo(true);
 
-    const trimedTitle = todoTitle.trim();
+    const trimmedTitle = todoTitle.trim();
 
-    if (!trimedTitle) {
+    if (!trimmedTitle) {
       onError('Title should not be empty');
       setAddingTodo(false);
 

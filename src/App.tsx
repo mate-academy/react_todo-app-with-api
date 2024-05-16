@@ -1,8 +1,8 @@
 /* eslint-disable jsx-a11y/label-has-associated-control */
 /* eslint-disable jsx-a11y/control-has-associated-label */
-import React, { useEffect, useState, useContext } from 'react';
+import React, { useState, useContext } from 'react';
 import { UserWarning } from './UserWarning';
-import { USER_ID, getTodos } from './api/todos';
+import { USER_ID } from './api/todos';
 import { Header } from './components/Header';
 import { TodoList } from './components/TodoList';
 import { Footer } from './components/Footer';
@@ -10,6 +10,7 @@ import { DispatchContext } from './store/todoReducer';
 import { Action } from './types/actions';
 import { ErrorMessage } from './components/ErrorMessage';
 import { Todo } from './types/Todo';
+import { useGetInitialData } from './helpers/useGetInitialData';
 
 export const App: React.FC = () => {
   const [errorMessage, setErrorMessage] = useState('');
@@ -18,13 +19,12 @@ export const App: React.FC = () => {
 
   const dispatch = useContext(DispatchContext);
 
-  useEffect(() => {
-    getTodos()
-      .then(response => {
-        dispatch({ type: Action.initialTodo, payload: response });
-      })
-      .catch(() => setErrorMessage('Unable to load todos'));
-  }, []);
+  useGetInitialData({
+    onSuccess: response => {
+      dispatch({ type: Action.initialTodo, payload: response });
+    },
+    onError: () => setErrorMessage('Unable to load todos'),
+  });
 
   if (!USER_ID) {
     return <UserWarning />;

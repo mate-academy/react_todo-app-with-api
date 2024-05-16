@@ -3,6 +3,7 @@ import { DispatchContext, StateContext } from '../../store/todoReducer';
 import { Action } from '../../types/actions';
 import { deleteTodo } from '../../api/todos';
 import { filterAction } from '../../constants/filterActions';
+import { fetchRequest } from '../../helpers/fetchRequest';
 
 type Props = {
   onError: (message: string) => void;
@@ -13,27 +14,30 @@ export const Footer: FC<Props> = ({ onError, onCoverShow }) => {
   const { todos, filter } = useContext(StateContext);
   const dispatch = useContext(DispatchContext);
 
-  const isActiveTodo = todos.some(todo => todo.completed);
+  const hasActiveTodo = todos.some(todo => todo.completed);
 
   const status = todos.filter(todo => !todo.completed);
 
-  const handleCleareCompleted = () => {
-    const completedTodo = todos.filter(todo => todo.completed);
-    const arrOfId = completedTodo.map(todo => todo.id);
+  const handleClearCompleted = () => {
+    const completedTodos = todos.filter(todo => todo.completed);
+    const arrOfId = completedTodos.map(todo => todo.id);
 
     onCoverShow(arrOfId);
 
-    completedTodo.forEach(todo => {
-      deleteTodo(todo.id)
-        .then(() => {
+    completedTodos.forEach(todo => {
+      fetchRequest({
+        request: deleteTodo,
+        id: todo.id,
+        onSuccess: () => {
           dispatch({ type: Action.deleteTodo, payload: todo.id });
-        })
-        .catch(() => {
+        },
+        onError: () => {
           onError('Unable to delete a todo');
-        })
-        .finally(() => {
+        },
+        onTheEnd: () => {
           onCoverShow([]);
-        });
+        },
+      });
     });
   };
 
@@ -70,11 +74,11 @@ export const Footer: FC<Props> = ({ onError, onCoverShow }) => {
         type="button"
         className="todoapp__clear-completed"
         data-cy="ClearCompletedButton"
-        {...(!isActiveTodo && {
+        {...(!hasActiveTodo && {
           style: { opacity: 0 },
+          disabled: true,
         })}
-        {...(!isActiveTodo && { disabled: true })}
-        onClick={() => handleCleareCompleted()}
+        onClick={() => handleClearCompleted()}
       >
         Clear completed
       </button>
