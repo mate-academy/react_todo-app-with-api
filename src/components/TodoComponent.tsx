@@ -2,7 +2,7 @@
 import cn from 'classnames';
 import { Todo } from '../types/Todo';
 import { deleteTodo, modifyTodo } from '../api/todos';
-import { useRef, useState } from 'react';
+import { useRef, useState, useEffect } from 'react';
 import { useTodosMethods } from '../store/reducer';
 
 interface Props {
@@ -22,16 +22,31 @@ export const TodoComponent: React.FC<Props> = ({
   const [loading, setLoading] = useState(false);
   const [beingEdited, setBeingEdited] = useState(false);
   const [editedValue, setEditedValue] = useState('');
-
-  // this state is needed to make task show proper title while loading after edit
   const [title, setTitle] = useState(todo.title);
 
   const formInputRef = useRef<HTMLInputElement>(null);
 
+  useEffect(() => {
+    if (beingEdited) {
+      formInputRef.current?.focus();
+      const handleKeyUp = (event: KeyboardEvent) => {
+        if (event.key === 'Escape') {
+          setBeingEdited(false);
+        }
+      };
+
+      document.addEventListener('keyup', handleKeyUp);
+
+      return () => {
+        document.removeEventListener('keyup', handleKeyUp);
+      };
+    }
+
+    return () => {};
+  }, [beingEdited]);
+
   const onDelete = (todoId: number) => {
     setLoading(true);
-
-    // tries to delete on server, if success - removes locally
     deleteTodo(todoId)
       .then(() => {
         deleteTodoLocal(todo.id);
@@ -39,14 +54,11 @@ export const TodoComponent: React.FC<Props> = ({
       .catch(() => {
         setTimeoutErrorMessage('Unable to delete a todo');
       });
-
-    // focuses on input field
     inputRef.current?.focus();
   };
 
   const onTodoStatusToggle = (modifiedTodo: Todo) => {
     setLoading(true);
-
     const todoProps: Partial<Todo> = modifiedTodo.completed
       ? { completed: false }
       : { completed: true };
@@ -64,16 +76,6 @@ export const TodoComponent: React.FC<Props> = ({
   const onTitleDoubleClick = (modifiedTodo: Todo) => {
     setBeingEdited(true);
     setEditedValue(modifiedTodo.title);
-
-    // had to make this task async for correct focus
-    setTimeout(() => formInputRef.current?.focus(), 0);
-
-    // event listener for pressing escape button
-    addEventListener('keyup', event => {
-      if (event.key === 'Escape') {
-        setBeingEdited(false);
-      }
-    });
   };
 
   const onSubmit = (event?: React.FormEvent<HTMLFormElement>) => {
@@ -91,7 +93,6 @@ export const TodoComponent: React.FC<Props> = ({
 
     setLoading(true);
     setTitle(normalizedEditedValue);
-
     if (!normalizedEditedValue) {
       deleteTodo(todo.id)
         .then(() => {
