@@ -16,7 +16,7 @@ enum FilerType {
 
 type TodosContextType = {
   todos: Todo[];
-  setTodos: (v: Todo[]) => void;
+  setTodos: React.Dispatch<React.SetStateAction<Todo[]>>;
   toggleAll: () => void;
   addTodo: (newTodo: Todo) => Promise<void>;
   isAllTodoCompleted: boolean;
@@ -75,7 +75,6 @@ export const TodosProvider: React.FC<Props> = ({ children }) => {
   const [loadingIds, setLoadingIds] = useState<number[]>([]);
 
   const todoRef = useRef<HTMLInputElement>(null);
-  // const inputElement = document.getElementById('NewTodoField');
 
   const addTodo = useCallback(({ title, completed, userId }: Todo) => {
     setErrorMessage('');
@@ -107,25 +106,20 @@ export const TodosProvider: React.FC<Props> = ({ children }) => {
 
       return postService
         .updateTodo(updatedTodo)
-        .finally(() => {
-          setLoadingIds(loadingIds.filter(id => id !== updatedTodo.id));
-        })
         .then(newTodo => {
           setTodos(curentTodos => {
-            const newTodos = [...curentTodos];
-            const index = newTodos.findIndex(
-              todo => todo.id === updatedTodo.id,
+            return curentTodos.map(todo =>
+              todo.id === updatedTodo.id ? newTodo : todo,
             );
-
-            newTodos.splice(index, 1, newTodo);
-
-            return newTodos;
           });
         })
         .catch(error => {
           setErrorMessage('Unable to update a todo');
           setTimeout(() => setErrorMessage(''), 3000);
           throw error;
+        })
+        .finally(() => {
+          setLoadingIds(loadingIds.filter(id => id !== updatedTodo.id));
         });
     },
     [loadingIds],
@@ -133,52 +127,41 @@ export const TodosProvider: React.FC<Props> = ({ children }) => {
 
   const deleteTodo = useCallback(
     (deletedTodo: Todo) => {
-      const newTodos = todos.filter(todo => todo.id !== deletedTodo.id);
+      // const newTodos = todos.filter(todo => todo.id !== deletedTodo.id);
 
       setLoadingIds([...loadingIds, deletedTodo.id]);
 
       return postService
         .deleteTodo(deletedTodo.id)
-        .finally(() => {
-          setIsSubmitting(false);
-          setTodos(newTodos);
-          setLoadingIds(loadingIds.filter(todoid => todoid !== deletedTodo.id));
+        .then(() => {
+          setTodos(curent => curent.filter(todo => todo.id !== deletedTodo.id));
         })
         .catch(error => {
-          setTodos(todos);
+          setTodos(curent => curent);
           setErrorMessage('Unable to delete a todo');
           setTimeout(() => setErrorMessage(''), 3000);
           throw error;
+        })
+        .finally(() => {
+          setIsSubmitting(false);
+          setLoadingIds(loadingIds.filter(todoid => todoid !== deletedTodo.id));
         });
     },
-    [loadingIds, todos],
+    [loadingIds],
   );
 
   const clearCompleted = useCallback(() => {
-    const noDeleteTodos = todos.filter(todo => todo.completed === false);
+    // const noDeleteTodos = todos.filter(todo => todo.completed === false);
     const deleteTodos = todos.filter(todo => todo.completed === true);
 
     const deleteTodosId = deleteTodos.map(todo => todo.id);
 
     setLoadingIds([...loadingIds, ...deleteTodosId]);
 
-    return deleteTodos.forEach(todo => {
-      postService
-        .deleteTodo(todo.id)
-        .then(() => setTodos(noDeleteTodos))
-        .finally(() => {
-          setLoadingIds(
-            loadingIds.filter(id => deleteTodosId.includes(id) === false),
-          );
-          setIsSubmitting(false);
-        })
-        .catch(() => {
-          setTodos(todos);
-          setErrorMessage('Unable to delete a todo');
-          setTimeout(() => setErrorMessage(''), 3000);
-        });
+    return deleteTodos.forEach(curentTodo => {
+      deleteTodo(curentTodo).catch(() => {});
     });
-  }, [loadingIds, todos]);
+  }, [deleteTodo, loadingIds, todos]);
 
   const toggleAll = useCallback(() => {
     const newTodos = [...todos];
@@ -186,23 +169,19 @@ export const TodosProvider: React.FC<Props> = ({ children }) => {
     const result = newTodos.every(todo => todo.completed);
 
     if (result) {
-      const changeTodos = newTodos.map(todo => {
-        return { ...todo, completed: !todo.completed };
+      newTodos.forEach(todo => {
+        updateTodo({ ...todo, completed: !todo.completed });
       });
-
-      setTodos(changeTodos);
     } else {
-      const changeTodos = newTodos.map(todo => {
-        if (todo.completed === false) {
-          return { ...todo, completed: !todo.completed };
+      newTodos.forEach(todo => {
+        if (!todo.completed) {
+          updateTodo({ ...todo, completed: !todo.completed });
         } else {
-          return todo;
+          setErrorMessage('');
         }
       });
-
-      setTodos(changeTodos);
     }
-  }, [setTodos, todos]);
+  }, [todos, updateTodo]);
 
   const isAllTodoCompleted = todos.every(todo => todo.completed);
 
@@ -251,7 +230,6 @@ export const TodosProvider: React.FC<Props> = ({ children }) => {
       setStateClearBtn,
       isSubmitting,
       setIsSubmitting,
-      // errorDalay,
       tempTodo,
       loadingIds,
     }),
@@ -273,7 +251,6 @@ export const TodosProvider: React.FC<Props> = ({ children }) => {
       setStateClearBtn,
       isSubmitting,
       setIsSubmitting,
-      // errorDalay,
       tempTodo,
       loadingIds,
     ],

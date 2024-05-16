@@ -29,8 +29,14 @@ export const TodoInfo: React.FC<Props> = ({ todo, isProcessed }) => {
 
     const trimTitle = value.trim();
 
+    if (trimTitle === title) {
+      setEditing(false);
+
+      return;
+    }
+
     if (trimTitle) {
-      updateTodo({ ...todo, title: value.trim() }).finally(() =>
+      updateTodo({ ...todo, title: value.trim() }).then(() =>
         setEditing(false),
       );
     } else {

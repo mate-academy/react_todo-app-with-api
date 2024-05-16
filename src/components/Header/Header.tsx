@@ -15,6 +15,7 @@ export const Header: React.FC<Props> = ({ isEmpty }) => {
     setErrorMessage,
     isSubmitting,
     setIsSubmitting,
+    tempTodo,
   } = useContext(TodosContext);
 
   const [value, setValue] = useState('');
@@ -23,7 +24,7 @@ export const Header: React.FC<Props> = ({ isEmpty }) => {
 
   React.useEffect(() => {
     ref.current?.focus();
-  }, [ref, todos.length]);
+  }, [ref, todos.length, tempTodo]);
 
   const handleSubmit = (event: React.FormEvent) => {
     event.preventDefault();
