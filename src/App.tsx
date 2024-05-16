@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { UserWarning } from './UserWarning';
 
 // API
-import { USER_ID, getTodos, addTodo } from './api/todos';
+import { USER_ID, getTodos, addTodo, modifyTodo } from './api/todos';
 
 import { Todo } from './types/Todo';
 
@@ -14,10 +14,12 @@ import { ErrorNotification } from './components/ErrorNotification';
 
 export const App: React.FC = () => {
   const { todos } = useCurrentState();
-  const { setTodosLocal, addTodoLocal, setTimeoutErrorMessage } = useMemo(
-    useTodosMethods,
-    [],
-  );
+  const {
+    setTodosLocal,
+    addTodoLocal,
+    modifyTodoLocal,
+    setTimeoutErrorMessage,
+  } = useMemo(useTodosMethods, []);
 
   const [input, setInput] = useState('');
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
@@ -74,6 +76,24 @@ export const App: React.FC = () => {
       });
   };
 
+  const onToggleAll = () => {
+    const areAllCompleted = todos.every(todo => todo.completed);
+
+    const todoProps = {
+      completed: !areAllCompleted,
+    };
+
+    for (const todo of todos) {
+      modifyTodo(todo.id, todoProps)
+        .then(() => {
+          modifyTodoLocal(todo.id, todoProps);
+        })
+        .catch(() => {
+          setTimeoutErrorMessage('Unable to update a todo');
+        });
+    }
+  };
+
   if (!USER_ID) {
     return <UserWarning />;
   }
@@ -84,14 +104,13 @@ export const App: React.FC = () => {
 
       <div className="todoapp__content">
         <header className="todoapp__header">
-          {/* this button should have `active` class only if all todos are completed */}
           <button
             type="button"
-            className="todoapp__toggle-all active"
+            className={`todoapp__toggle-all ${todos.every(todo => todo.completed) && 'active'}`}
             data-cy="ToggleAllButton"
+            onClick={onToggleAll}
           />
 
-          {/* Add a todo on form submit */}
           <form onSubmit={onSubmit}>
             <input
               data-cy="NewTodoField"
