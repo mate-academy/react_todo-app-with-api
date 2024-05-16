@@ -85,9 +85,7 @@ const DispatchContext = React.createContext((_value: any) => {});
 
 // this hook returns current state of todos array, filter and error message
 export const useCurrentState = () => {
-  const todos = useContext(StateContext).todos;
-  const filterField = useContext(StateContext).filterField;
-  const errorMessage = useContext(StateContext).errorMessage;
+  const { todos, filterField, errorMessage } = useContext(StateContext);
 
   return {
     todos,
