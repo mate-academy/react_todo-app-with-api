@@ -2,7 +2,6 @@ import React, { useContext } from 'react';
 import { TodosContext } from '../../TodosContext';
 import { Todo } from '../../types/Todo';
 import { TodoItem } from '../TodoItem/TodoItem';
-
 export const TodoList: React.FC = () => {
   const { selectedFilter, showFilteredTodos } = useContext(TodosContext);
 
