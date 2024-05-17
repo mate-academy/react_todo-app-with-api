@@ -1,6 +1,7 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable no-console */
 /* eslint-disable jsx-a11y/label-has-associated-control */
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Todo as TodoType } from '../types/Todo';
 import classNames from 'classnames';
 
@@ -22,6 +23,15 @@ const TodoItem: React.FC<TodoProps> = ({
   const [editing, setEditing] = useState<boolean>(false);
   const [editedTitle, setEditedTitle] = useState(todo.title);
   const [originalTitle, setOriginalTitle] = useState(todo.title);
+  const [inputFocused, setInputFocused] = useState<boolean>(false);
+
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    if (inputFocused) {
+      inputRef.current?.focus();
+    }
+  }, [inputFocused]);
 
   const handleDoubleClick = () => {
     setOriginalTitle(todo.title);
@@ -50,14 +60,13 @@ const TodoItem: React.FC<TodoProps> = ({
   };
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    setEditing(false);
     e.preventDefault();
     if (editedTitle.trim() === '') {
       onDeleteTodo(todo.id);
     } else if (editedTitle !== originalTitle) {
       handleUpdateTodo(todo.id, editedTitle, todo.completed);
     }
-
-    setEditing(false);
   };
 
   const handleDeleteClick = async () => {
@@ -65,8 +74,14 @@ const TodoItem: React.FC<TodoProps> = ({
       await onDeleteTodo(todo.id);
     } catch (error) {
       console.log(error);
+    } finally {
+      setInputFocused(true);
     }
   };
+
+  useEffect(() => {
+    setInputFocused(true);
+  }, [inputFocused]);
 
   const handleToggle = (
     event: React.ChangeEvent<HTMLInputElement>,
@@ -94,6 +109,7 @@ const TodoItem: React.FC<TodoProps> = ({
       {editing ? (
         <form onSubmit={handleSubmit}>
           <input
+            ref={inputRef}
             className="todoapp__new-todo"
             onChange={handleNewTitle}
             onBlur={handleBlur}

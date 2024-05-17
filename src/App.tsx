@@ -1,3 +1,4 @@
+/* eslint-disable padding-line-between-statements */
 /* eslint-disable no-console */
 import React, { useEffect, useState } from 'react';
 import { getTodos, delTodos, addTodos } from './api/todos';
@@ -15,6 +16,9 @@ const App: React.FC = () => {
   const [errorType, setErrorType] = useState<Error | null>(null);
   const [tempTodo, setTempTodo] = useState<string>('');
   const [pending, setPending] = useState<number | null>(null);
+  const [isSubmit, setIsSubmit] = useState(false);
+  const [tit, setTit] = useState('');
+  const [isHeaderFocus, setIsHeaderFocus] = useState(false);
 
   const hideError = () => {
     setError(false);
@@ -37,6 +41,10 @@ const App: React.FC = () => {
     fetchTodos();
   }, []);
 
+  const handleSetTempTitle = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setTit(e.target.value);
+  };
+
   const handleAddTodo = async (title: string) => {
     if (title.trim() === '') {
       setError(true);
@@ -47,6 +55,10 @@ const App: React.FC = () => {
 
     setTempTodo(title);
     setPending(-1);
+    setIsSubmit(true);
+
+    let isErrorAcc = false;
+
     try {
       const random = Math.floor(Math.random() * 1000);
       const newTodo: Todo = await addTodos({
@@ -61,9 +73,15 @@ const App: React.FC = () => {
     } catch (err) {
       setError(true);
       setErrorType('add');
+      isErrorAcc = true;
     } finally {
       setPending(null);
       setTempTodo('');
+      setIsSubmit(false);
+
+      if (!isErrorAcc) {
+        setTit('');
+      }
     }
   };
 
@@ -77,6 +95,7 @@ const App: React.FC = () => {
       setErrorType('delete');
     } finally {
       setPending(null);
+      setIsHeaderFocus(true);
     }
   };
 
@@ -122,7 +141,13 @@ const App: React.FC = () => {
       <h1 className="todoapp__title">todos</h1>
 
       <div className="todoapp__content">
-        <NewTodo onAddTodo={handleAddTodo} />
+        <NewTodo
+          onAddTodo={handleAddTodo}
+          isSubmit={isSubmit}
+          title={tit}
+          handleSetTitle={handleSetTempTitle}
+          isHeaderFocus={isHeaderFocus}
+        />
 
         {todos.length > 0 && (
           <TodoList

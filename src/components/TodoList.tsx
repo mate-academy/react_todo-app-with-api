@@ -36,15 +36,6 @@ const TodoList: React.FC<TodoListProps> = ({
 
   return (
     <section className="todoapp__main" data-cy="TodoList">
-      {tempTodo && (
-        <TodoItem
-          todo={{ title: tempTodo, id: -1, completed: false } as Todo}
-          onDeleteTodo={onDeleteTodo}
-          pending={pending}
-          handleToggleTodo={handleToggleTodo}
-          handleUpdateTodo={handleUpdateTodo}
-        />
-      )}
       {filteredTodos.map((todo: Todo) => (
         <TodoItem
           key={todo.id}
@@ -55,6 +46,15 @@ const TodoList: React.FC<TodoListProps> = ({
           handleUpdateTodo={handleUpdateTodo}
         />
       ))}
+      {tempTodo && (
+        <TodoItem
+          todo={{ title: tempTodo, id: -1, completed: false } as Todo}
+          onDeleteTodo={onDeleteTodo}
+          pending={pending}
+          handleToggleTodo={handleToggleTodo}
+          handleUpdateTodo={handleUpdateTodo}
+        />
+      )}
     </section>
   );
 };
