@@ -72,6 +72,9 @@ export const Header: React.FC = () => {
           })
           .catch(() => {
             setError(Error.UpdateTodo);
+          })
+          .finally(() => {
+            setIsLoaded(false);
           });
       }
     });
