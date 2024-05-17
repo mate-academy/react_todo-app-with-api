@@ -1,34 +1,20 @@
-import { useContext, useEffect } from 'react';
+import { useContext } from 'react';
 import { TodosContext } from '../../stor/Context';
 import classNames from 'classnames';
 
 type Props = {};
 
 enum FilerType {
-  FILTER_TODO_ALL = 'all',
-  FILTER_TODO_ACTIVE = 'active',
-  FILTER_TODO_COMPLETED = 'completed',
+  ALL = 'all',
+  ACTIVE = 'active',
+  COMPLETED = 'completed',
 }
 
 export const Footer: React.FC<Props> = () => {
-  const {
-    todos,
-    filterField,
-    setFilterField,
-    clearCompleted,
-    stateClearBtn,
-    setStateClearBtn,
-  } = useContext(TodosContext);
+  const { todos, filterField, setFilterField, clearCompleted, stateClearBtn } =
+    useContext(TodosContext);
 
-  useEffect(() => {
-    if (todos.find(todo => todo.completed)) {
-      setStateClearBtn(false);
-    } else {
-      setStateClearBtn(true);
-    }
-  }, [setStateClearBtn, todos]);
-
-  const count = todos.filter(todo => todo.completed === false).length;
+  const count = todos.filter(todo => !todo.completed).length;
 
   return (
     <footer className="todoapp__footer" data-cy="Footer">
@@ -41,10 +27,10 @@ export const Footer: React.FC<Props> = () => {
         <a
           href="#/"
           className={classNames('filter__link', {
-            selected: filterField === FilerType.FILTER_TODO_ALL,
+            selected: filterField === FilerType.ALL,
           })}
           data-cy="FilterLinkAll"
-          onClick={() => setFilterField(FilerType.FILTER_TODO_ALL)}
+          onClick={() => setFilterField(FilerType.ALL)}
         >
           All
         </a>
@@ -52,10 +38,10 @@ export const Footer: React.FC<Props> = () => {
         <a
           href="#/active"
           className={classNames('filter__link', {
-            selected: filterField === FilerType.FILTER_TODO_ACTIVE,
+            selected: filterField === FilerType.ACTIVE,
           })}
           data-cy="FilterLinkActive"
-          onClick={() => setFilterField(FilerType.FILTER_TODO_ACTIVE)}
+          onClick={() => setFilterField(FilerType.ACTIVE)}
         >
           Active
         </a>
@@ -63,10 +49,10 @@ export const Footer: React.FC<Props> = () => {
         <a
           href="#/completed"
           className={classNames('filter__link', {
-            selected: filterField === FilerType.FILTER_TODO_COMPLETED,
+            selected: filterField === FilerType.COMPLETED,
           })}
           data-cy="FilterLinkCompleted"
-          onClick={() => setFilterField(FilerType.FILTER_TODO_COMPLETED)}
+          onClick={() => setFilterField(FilerType.COMPLETED)}
         >
           Completed
         </a>

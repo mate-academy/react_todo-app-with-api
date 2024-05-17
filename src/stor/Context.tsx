@@ -9,9 +9,9 @@ import { Todo } from '../types/Todo';
 import * as postService from '../api/todos';
 
 enum FilerType {
-  FILTER_TODO_ALL = 'all',
-  FILTER_TODO_ACTIVE = 'active',
-  FILTER_TODO_COMPLETED = 'completed',
+  ALL = 'all',
+  ACTIVE = 'active',
+  COMPLETED = 'completed',
 }
 
 type TodosContextType = {
@@ -19,7 +19,7 @@ type TodosContextType = {
   setTodos: React.Dispatch<React.SetStateAction<Todo[]>>;
   toggleAll: () => void;
   addTodo: (newTodo: Todo) => Promise<void>;
-  isAllTodoCompleted: boolean;
+  isAllTodosCompleted: boolean;
   updateTodo: (newTodo: Todo) => Promise<void>;
   deleteTodo: (deletedTodo: Todo) => void;
   clearCompleted: () => void;
@@ -42,11 +42,11 @@ export const TodosContext = React.createContext<TodosContextType>({
   setTodos: () => {},
   toggleAll: () => {},
   addTodo: async () => {},
-  isAllTodoCompleted: false,
+  isAllTodosCompleted: false,
   updateTodo: async () => {},
   deleteTodo: () => {},
   clearCompleted: () => {},
-  filterField: FilerType.FILTER_TODO_ALL,
+  filterField: FilerType.ALL,
   setFilterField: () => {},
   visibleTodos: [],
   todoRef: createRef(),
@@ -66,7 +66,7 @@ type Props = {
 
 export const TodosProvider: React.FC<Props> = ({ children }) => {
   const [todos, setTodos] = useState<Todo[]>([]);
-  const [filterField, setFilterField] = useState(FilerType.FILTER_TODO_ALL);
+  const [filterField, setFilterField] = useState(FilerType.ALL);
   const [errorMessage, setErrorMessage] = useState('');
   const [stateClearBtn, setStateClearBtn] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -75,6 +75,14 @@ export const TodosProvider: React.FC<Props> = ({ children }) => {
   const [loadingIds, setLoadingIds] = useState<number[]>([]);
 
   const todoRef = useRef<HTMLInputElement>(null);
+
+  useMemo(() => {
+    if (todos.find(todo => todo.completed)) {
+      setStateClearBtn(false);
+    } else {
+      setStateClearBtn(true);
+    }
+  }, [todos]);
 
   const addTodo = useCallback(({ title, completed, userId }: Todo) => {
     setErrorMessage('');
@@ -127,8 +135,6 @@ export const TodosProvider: React.FC<Props> = ({ children }) => {
 
   const deleteTodo = useCallback(
     (deletedTodo: Todo) => {
-      // const newTodos = todos.filter(todo => todo.id !== deletedTodo.id);
-
       setLoadingIds([...loadingIds, deletedTodo.id]);
 
       return postService
@@ -151,7 +157,6 @@ export const TodosProvider: React.FC<Props> = ({ children }) => {
   );
 
   const clearCompleted = useCallback(() => {
-    // const noDeleteTodos = todos.filter(todo => todo.completed === false);
     const deleteTodos = todos.filter(todo => todo.completed === true);
 
     const deleteTodosId = deleteTodos.map(todo => todo.id);
@@ -183,19 +188,19 @@ export const TodosProvider: React.FC<Props> = ({ children }) => {
     }
   }, [todos, updateTodo]);
 
-  const isAllTodoCompleted = todos.every(todo => todo.completed);
+  const isAllTodosCompleted = todos.every(todo => todo.completed);
 
-  function getPrepareTodos(filter: FilerType, todos1: Todo[]) {
+  function getPreparedTodos(filter: FilerType, todos1: Todo[]) {
     const prepearedTodos = [...todos1];
 
     if (filter) {
       const result = prepearedTodos.filter(todo => {
         switch (filter) {
-          case FilerType.FILTER_TODO_ALL:
+          case FilerType.ALL:
             return todo;
-          case FilerType.FILTER_TODO_ACTIVE:
+          case FilerType.ACTIVE:
             return todo.completed !== true;
-          case FilerType.FILTER_TODO_COMPLETED:
+          case FilerType.COMPLETED:
             return todo.completed === true;
           default:
             return todo;
@@ -208,7 +213,7 @@ export const TodosProvider: React.FC<Props> = ({ children }) => {
     }
   }
 
-  const visibleTodos = getPrepareTodos(filterField, todos);
+  const visibleTodos = getPreparedTodos(filterField, todos);
 
   const value = useMemo(
     () => ({
@@ -216,7 +221,7 @@ export const TodosProvider: React.FC<Props> = ({ children }) => {
       setTodos,
       toggleAll,
       addTodo,
-      isAllTodoCompleted,
+      isAllTodosCompleted,
       updateTodo,
       deleteTodo,
       clearCompleted,
@@ -238,7 +243,7 @@ export const TodosProvider: React.FC<Props> = ({ children }) => {
       clearCompleted,
       deleteTodo,
       filterField,
-      isAllTodoCompleted,
+      isAllTodosCompleted,
       setTodos,
       todos,
       toggleAll,

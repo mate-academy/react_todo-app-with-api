@@ -10,7 +10,7 @@ export const Header: React.FC<Props> = ({ isEmpty }) => {
   const {
     addTodo,
     toggleAll,
-    isAllTodoCompleted,
+    isAllTodosCompleted,
     todos,
     setErrorMessage,
     isSubmitting,
@@ -58,7 +58,7 @@ export const Header: React.FC<Props> = ({ isEmpty }) => {
         <button
           type="button"
           className={classNames('todoapp__toggle-all', {
-            active: isAllTodoCompleted,
+            active: isAllTodosCompleted,
           })}
           data-cy="ToggleAllButton"
           onClick={toggleAll}
