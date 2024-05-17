@@ -8,41 +8,51 @@ import React, {
   useRef,
   useState,
 } from 'react';
-import { TodoContext, TodoDispatch } from '../../Context/TodoContext';
-import { deleteTodo, updateTodo } from '../../api/todos';
+import { TodoDispatch } from '../../../Context/TodoContext';
+import { deleteTodo, updateTodo } from '../../../api/todos';
 
 interface IProps {
   id: string;
   title: string;
+  editableTodoId: string;
   setEditableTodoId: () => void;
   showError: (err: string) => void;
-  setLoading: (bool: boolean) => void;
+  setEditableLoad: (bool: boolean) => void;
 }
 
 export const FormMain: FC<IProps> = ({
   id,
   title,
+  editableTodoId,
   setEditableTodoId,
   showError,
-  setLoading,
+  setEditableLoad,
 }) => {
-  const { handleFocusInput } = useContext(TodoContext);
   const dispatch = useContext(TodoDispatch);
   const [editText, setEditText] = useState(title);
-
+  const inputFocus = useRef<HTMLInputElement | null>(null);
   const editFormRef = useRef<HTMLFormElement>(null);
+
+  const handleFocusInput = () => {
+    inputFocus.current?.focus();
+  };
+
+  useEffect(() => {
+    if (editableTodoId === id) {
+      handleFocusInput();
+    }
+  }, [editableTodoId, id]);
 
   const handleSubmit = useCallback(
     async (e: React.FormEvent | MouseEvent) => {
       e.preventDefault();
-      setLoading(true);
 
       try {
+        setEditableLoad(true);
         if (!editText.trim()) {
           if (id) {
             await deleteTodo(id);
             dispatch({ type: 'DELETE_TODO', payload: id });
-            handleFocusInput();
           }
         } else if (editText.trim() !== title) {
           const newTodo = {
@@ -53,37 +63,30 @@ export const FormMain: FC<IProps> = ({
           const updatedTodo = await updateTodo(newTodo);
 
           dispatch({ type: 'EDIT_TODO', payload: updatedTodo });
-          handleFocusInput();
         }
-      } catch (error) {
-        showError('Unable to update or delete the todo');
-      } finally {
-        setLoading(false);
+
         setEditableTodoId();
+      } catch (error) {
+        if (!editText.trim()) {
+          showError('Unable to delete a todo');
+        } else {
+          showError('Unable to update a todo');
+        }
+
+        handleFocusInput();
+      } finally {
+        setEditableLoad(false);
       }
     },
     [
-      setLoading,
+      setEditableLoad,
       editText,
       title,
       id,
       dispatch,
-      handleFocusInput,
       showError,
       setEditableTodoId,
     ],
-  );
-
-  const handleClickOutside = useCallback(
-    (e: MouseEvent) => {
-      if (
-        editFormRef.current &&
-        !editFormRef.current.contains(e.target as Node)
-      ) {
-        handleSubmit(e);
-      }
-    },
-    [handleSubmit],
   );
 
   const handleKeyUp = useCallback(
@@ -95,20 +98,11 @@ export const FormMain: FC<IProps> = ({
     [setEditableTodoId],
   );
 
-  useEffect(() => {
-    const handleOutsideClick = (e: MouseEvent) => handleClickOutside(e);
-
-    document.addEventListener('mousedown', handleOutsideClick);
-
-    return () => {
-      document.removeEventListener('mousedown', handleOutsideClick);
-    };
-  }, [handleClickOutside]);
-
   return (
     <form ref={editFormRef} onSubmit={e => handleSubmit(e)}>
       <label htmlFor="TodoTitleField">
         <input
+          ref={inputFocus}
           id="TodoTitleField"
           data-cy="TodoTitleField"
           type="text"

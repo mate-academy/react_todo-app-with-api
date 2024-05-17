@@ -8,12 +8,14 @@ import { updateTodo } from '../../api/todos';
 
 interface IProps {
   setLoading: (load: boolean) => void;
+  setLoadingAdd: (load: boolean) => void;
   showError: (err: string) => void;
   setTempTodo: (todo: Todo | null) => void;
 }
 
 export const HeaderTodo: FC<IProps> = ({
   setLoading,
+  setLoadingAdd,
   showError,
   setTempTodo,
 }) => {
@@ -25,12 +27,28 @@ export const HeaderTodo: FC<IProps> = ({
     setLoading(true);
     setLoad(true);
     try {
+      let todosToUpdate;
+
+      if (allCompleted) {
+        todosToUpdate = todos.map(todo => ({
+          ...todo,
+          completed: false,
+        }));
+      } else {
+        todosToUpdate = todos
+          .filter(todo => !todo.completed)
+          .map(todo => ({
+            ...todo,
+            completed: true,
+          }));
+      }
+
       await Promise.all(
-        todos.map(todo => {
+        todosToUpdate.map(todo => {
           return updateTodo({
             id: todo.id,
             title: todo.title,
-            completed: !todo.completed,
+            completed: todo.completed,
           });
         }),
       );
@@ -38,7 +56,7 @@ export const HeaderTodo: FC<IProps> = ({
       dispatch({ type: 'CHECK_ALL_TODO' });
     } catch (error) {
       showError('Unable to update a todo');
-      throw new Error('No internet connection');
+      throw new Error('Unable to update a todo');
     } finally {
       setLoading(false);
       setLoad(false);
@@ -59,7 +77,11 @@ export const HeaderTodo: FC<IProps> = ({
         />
       )}
 
-      <FormHeader showError={showError} setTempTodo={setTempTodo} />
+      <FormHeader
+        showError={showError}
+        setTempTodo={setTempTodo}
+        setLoadingAdd={setLoadingAdd}
+      />
     </header>
   );
 };
