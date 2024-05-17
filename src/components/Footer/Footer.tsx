@@ -8,12 +8,12 @@ type Props = {
   clearCompleted: () => void;
 };
 
-export const Footer: React.FC<Props> = ({
+export const Footer = ({
   sortField,
   setSortField,
   todos,
   clearCompleted,
-}) => {
+}: Props) => {
   const hasCompletedTodo = todos.some(todo => todo.completed);
 
   const activeTodos = todos.reduce(

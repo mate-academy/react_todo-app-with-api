@@ -1,12 +1,18 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { UserWarning } from './UserWarning';
-import { USER_ID, getTodos, getDelete, getAdd, getUpdate } from './api/todos';
+import {
+  USER_ID,
+  getTodos,
+  deleteTodo,
+  addTodo,
+  updateTodo,
+} from './api/todos';
 import { Todo } from './types/Todo';
 import { SortType } from './types/SortType';
 
 import { Todos } from './components/Todos/Todos';
 import { Footer } from './components/Footer/Footer';
-import { getFilter } from './components/FilterFunc/FilterFunc';
+import { filter } from './components/filter/filter';
 import { Form } from './components/Header-Form/Form';
 import { ErrorType } from './types/ErrorType';
 import { ErrorMessage } from './components/ErrorMessage/ErrorMessage';
@@ -25,7 +31,7 @@ export const App: React.FC = () => {
   const [beingUpdated, setBeingUpdated] = useState<number | null>(null);
 
   const activeInput = useRef<HTMLInputElement>(null);
-  const sortedTodos = getFilter(todos, sortField);
+  const sortedTodos = filter(todos, sortField);
 
   // others region
   const allTodosCompleted = todos.every(todo => todo.completed);
@@ -34,6 +40,10 @@ export const App: React.FC = () => {
     setTimeout(() => {
       setErrorMessage(null);
     }, 3000);
+  };
+
+  const clear = () => {
+    setErrorMessage(null);
   };
 
   const removeTodoFromEditingList = (todo: Todo) => {
@@ -55,7 +65,7 @@ export const App: React.FC = () => {
 
     setIsDeleting(false);
 
-    return getDelete(id)
+    return deleteTodo(id)
       .then(() =>
         setTodos((currentTodos: Todo[]) =>
           currentTodos.filter((todo: Todo) => todo.id !== id),
@@ -95,7 +105,7 @@ export const App: React.FC = () => {
 
     setIsDeleting(false);
 
-    return getDelete(todoId)
+    return deleteTodo(todoId)
       .then(() => {
         setTodos(currentTodos =>
           currentTodos.filter(todo => todo.id !== todoId),
@@ -128,7 +138,7 @@ export const App: React.FC = () => {
 
     setIsSubmitingNewTodo(true);
 
-    getAdd(newTodo)
+    addTodo(newTodo)
       .then(created => {
         setTodos(currentTodos => [...currentTodos, created]);
         setTitleNew('');
@@ -159,7 +169,7 @@ export const App: React.FC = () => {
 
     addTodoToEditingList(todo);
 
-    getUpdate(todo.id, trimmedTitle, todo.completed)
+    updateTodo(todo)
       .then(() => {
         setTodos(currentTodos =>
           currentTodos.map(currTodo => {
@@ -192,7 +202,7 @@ export const App: React.FC = () => {
   const toggleById = (updatedTodo: Todo, isCompleted: boolean) => {
     addTodoToEditingList(updatedTodo);
 
-    getUpdate(updatedTodo.id, updatedTodo.title, isCompleted)
+    updateTodo(updatedTodo)
       .then(() => {
         setTodos(currentTodos =>
           currentTodos.map(currTodo => {
@@ -271,10 +281,7 @@ export const App: React.FC = () => {
         )}
       </div>
 
-      <ErrorMessage
-        errorMessage={errorMessage}
-        setErrorMessage={setErrorMessage}
-      />
+      <ErrorMessage errorMessage={errorMessage} clear={clear} />
     </div>
   );
 };

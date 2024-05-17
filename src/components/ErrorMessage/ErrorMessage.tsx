@@ -2,13 +2,10 @@ import { ErrorType } from '../../types/ErrorType';
 
 type Props = {
   errorMessage: ErrorType | null;
-  setErrorMessage: (error: ErrorType | null) => void;
+  clear: () => void;
 };
 
-export const ErrorMessage: React.FC<Props> = ({
-  errorMessage,
-  setErrorMessage,
-}) => {
+export const ErrorMessage: React.FC<Props> = ({ errorMessage, clear }) => {
   return (
     <div
       data-cy="ErrorNotification"
@@ -16,7 +13,7 @@ export const ErrorMessage: React.FC<Props> = ({
   ${!errorMessage && 'hidden'}`}
     >
       <button
-        onClick={() => setErrorMessage(null)}
+        onClick={() => clear()}
         data-cy="HideErrorButton"
         type="button"
         className="delete"
