@@ -214,22 +214,12 @@ export const App: React.FC = () => {
   };
 
   const makeToggleAll = () => {
-    // if (allTodosCompleted) {
-    //   return todos.map(todo => toggleById(todo, false));
-    // } else {
-    //   return todos.map(todo => toggleById(todo, true));
-    // }
-
     if (allTodosCompleted) {
-      for (const todo of todos) {
-        toggleById(todo, false);
-      }
+      return todos.map(todo => toggleById(todo, false));
     } else {
-      for (const todo of todos) {
-        if (!todo.completed) {
-          toggleById(todo, true);
-        }
-      }
+      return todos.map(todo =>
+        todo.completed ? todo : toggleById(todo, true),
+      );
     }
   };
 
