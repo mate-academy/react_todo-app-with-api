@@ -13,13 +13,15 @@ interface Props {
   setIsLoading: (isLoading: boolean) => void;
   inputRef: React.RefObject<HTMLInputElement>;
   setTodos: React.Dispatch<React.SetStateAction<TypeTodo[]>>;
+  setLoadingTodos: React.Dispatch<React.SetStateAction<number[]>>;
   setTempTodo: React.Dispatch<React.SetStateAction<TypeTodo | null>>;
 }
 
 export const Header: React.FC<Props> = ({
   inputFocus, inputRef, allTodosCompleted,
   todos, setInputFocus, setErrorMessage,
-  setTodos, setTempTodo, setIsLoading
+  setTodos, setTempTodo, setIsLoading,
+  setLoadingTodos,
 }) => {
   const [title, setTitle] = useState('');
   const [isDisabled, setIsDisabled] = useState(false);
@@ -61,7 +63,7 @@ export const Header: React.FC<Props> = ({
         setTempTodo(null);
         setIsDisabled(false);
       });
-  }, [title, todos]);
+  }, [title, todos, setErrorMessage, setInputFocus, setTempTodo, setTodos]);
 
 
   const handleKeyPress = useCallback((
@@ -103,15 +105,18 @@ export const Header: React.FC<Props> = ({
     const isAllCompleted = todos?.every(todo => todo.completed);
     const iterateTodos = incompleteTodos.length === 0 ? todos : incompleteTodos;
 
+    iterateTodos.forEach(todo => {
+      setLoadingTodos(prev => [...prev, todo.id]);
+    });
+
     setIsLoading(true);
     iterateTodos.map(todo => {
       updateData(todo.id, 'completed', !todo.completed)
         .then(() => {
-          setTodos(prevTodos => prevTodos.map(prev => (
-            {
-              ...prev,
-              completed: !isAllCompleted
-            })));
+          setTodos(prevTodos => prevTodos.map(prev => ({
+            ...prev,
+            completed: !isAllCompleted
+          })));
           setInputFocus(true);
         })
         .catch(() => {
@@ -122,6 +127,7 @@ export const Header: React.FC<Props> = ({
           }, 3000);
         })
         .finally(() => {
+          setLoadingTodos([]);
           setIsLoading(false);
         });
     });

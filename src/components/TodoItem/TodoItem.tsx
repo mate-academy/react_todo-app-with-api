@@ -7,6 +7,7 @@ interface Props {
   todo: TypeTodo,
   isTemp?: boolean,
   deleteLoader: boolean,
+  loadingTodos: number[],
   setInputFocus: (focus: boolean) => void,
   setIsLoading: (isLoading: boolean) => void,
   setErrorMessage: (message: string) => void,
@@ -14,8 +15,8 @@ interface Props {
 }
 
 export const TodoItem: React.FC<Props> = ({
-  todo, setErrorMessage, deleteLoader,
-  setTodos, setInputFocus, isTemp
+  todo, setErrorMessage, loadingTodos,
+  setTodos, setInputFocus, isTemp,
 }) => {
   const { id, title, completed } = todo;
   const [isLoading, setIsLoading] = useState(false);
@@ -195,7 +196,10 @@ export const TodoItem: React.FC<Props> = ({
         data-cy="TodoLoader"
         className={classNames(
           'modal overlay',
-          { 'is-active': isTemp || isLoading || deleteLoader, }
+          {
+            'is-active': isTemp || isLoading
+              || loadingTodos.includes(todo.id),
+          }
         )}
       >
         <div className="modal-background has-background-white-ter" />

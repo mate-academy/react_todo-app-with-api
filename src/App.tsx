@@ -13,6 +13,7 @@ export const App: React.FC = () => {
   const [errorMessage, setErrorMessage] = useState('');
   const [filterType, setFilterType] = useState<FilterType>(FilterType.All);
   const [todos, setTodos] = useState<TypeTodo[]>([]);
+  const [loadingTodos, setLoadingTodos] = useState<number[]>([]);
   const [tempTodo, setTempTodo] = useState<TypeTodo | null>(null);
 
   const [inputFocus, setInputFocus] = useState(true);
@@ -75,6 +76,7 @@ export const App: React.FC = () => {
           setIsLoading={setIsLoading}
           setInputFocus={setInputFocus}
           setErrorMessage={setErrorMessage}
+          setLoadingTodos={setLoadingTodos}
           allTodosCompleted={allTodosCompleted}
         />
 
@@ -83,10 +85,11 @@ export const App: React.FC = () => {
           setTodos={setTodos}
           tempTodo={tempTodo}
           isLoading={isLoading}
+          loadingTodos={loadingTodos}
           filteredTodo={filteredTodo}
           setIsLoading={setIsLoading}
-          setErrorMessage={setErrorMessage}
           setInputFocus={setInputFocus}
+          setErrorMessage={setErrorMessage}
         />
 
         {hasTodos && (
@@ -94,6 +97,7 @@ export const App: React.FC = () => {
             todos={todos}
             setTodos={setTodos}
             filterType={filterType}
+            setLoadingTodos={setLoadingTodos}
             setIsLoading={setIsLoading}
             setFilterType={setFilterType}
             setInputFocus={setInputFocus}

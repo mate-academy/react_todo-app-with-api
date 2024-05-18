@@ -12,15 +12,20 @@ interface Props {
   setErrorMessage: (message: string) => void,
   setIsLoading: (isLoading: boolean) => void,
   setTodos: React.Dispatch<React.SetStateAction<TypeTodo[]>>,
+  setLoadingTodos: React.Dispatch<React.SetStateAction<number[]>>,
 };
 
 export const Footer: React.FC<Props> = ({
-  setFilterType, setInputFocus, filterType,
+  setFilterType, setInputFocus, filterType, setLoadingTodos,
   todos, setTodos, setErrorMessage, setIsLoading,
 }) => {
 
   const handleDeleteCompleted = () => {
     const completedTodos = todos.filter(todo => todo.completed);
+
+    completedTodos.forEach(todo => {
+      setLoadingTodos(prev => [...prev, todo.id]);
+    });
 
     completedTodos.forEach(todo => {
       setIsLoading(true);
@@ -38,6 +43,9 @@ export const Footer: React.FC<Props> = ({
           setTimeout(() => {
             setErrorMessage('');
           }, 3000);
+        })
+        .finally(() => {
+          setLoadingTodos([]);
         });
     });
   };

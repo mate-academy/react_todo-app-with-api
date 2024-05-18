@@ -6,7 +6,8 @@ interface Props {
   todos: TypeTodo[],
   isLoading: boolean,
   filteredTodo: TypeTodo[],
-  tempTodo: TypeTodo | null;
+  tempTodo: TypeTodo | null,
+  loadingTodos: number[],
   setInputFocus: (focus: boolean) => void,
   setIsLoading: (isLoading: boolean) => void,
   setErrorMessage: (message: string) => void,
@@ -15,7 +16,8 @@ interface Props {
 
 export const TodoList: React.FC<Props> = ({
   todos, filteredTodo, setIsLoading, isLoading,
-  setErrorMessage, setTodos, setInputFocus, tempTodo
+  setErrorMessage, setTodos, setInputFocus,
+  tempTodo, loadingTodos,
 }) => {
   return (
     <>
@@ -27,6 +29,7 @@ export const TodoList: React.FC<Props> = ({
               todo={todo}
               setTodos={setTodos}
               deleteLoader={isLoading}
+              loadingTodos={loadingTodos}
               setIsLoading={setIsLoading}
               setInputFocus={setInputFocus}
               setErrorMessage={setErrorMessage}
@@ -37,6 +40,7 @@ export const TodoList: React.FC<Props> = ({
               todo={tempTodo}
               setTodos={setTodos}
               deleteLoader={isLoading}
+              loadingTodos={loadingTodos}
               setIsLoading={setIsLoading}
               setInputFocus={setInputFocus}
               setErrorMessage={setErrorMessage}
