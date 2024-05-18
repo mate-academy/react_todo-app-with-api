@@ -1,77 +1,91 @@
-import React from 'react';
+import React, { useContext } from 'react';
+import cn from 'classnames';
+import { TodoContext } from '../context/TodoContext';
 import { Filter } from '../types/Filter';
-import { Todo } from '../types/Todo';
 
-interface Props {
-  todos: Todo[];
-  filter: Filter;
-  onFilter: React.Dispatch<React.SetStateAction<Filter>>;
-  clearCompleted: () => void;
-}
+export const Footer = () => {
+  const {
+    todos,
+    originalTodos,
+    filteredBy,
+    setFilteredBy,
+    handleClearCompleted,
+  } = useContext(TodoContext);
 
-export const Footer: React.FC<Props> = ({
-  onFilter,
-  todos,
-  filter,
-  clearCompleted,
-}) => {
-  const counter = todos.filter(todo => !todo.completed).length;
+  const activeTodos = originalTodos.filter(
+    todo => !todo.completed && todo.id !== 0,
+  ).length;
+  const disabled = todos.some(todo => todo.completed);
 
-  const hasCompletedTodos = todos.some(todo => todo.completed);
+  const handleFilter = (
+    event: React.MouseEvent<HTMLAnchorElement>,
+    type: Filter,
+  ) => {
+    event.preventDefault();
 
-  const handleFilter = (newFilter: Filter) => (e: React.FormEvent) => {
-    e.preventDefault();
-    onFilter(newFilter);
+    setFilteredBy(type);
   };
 
-  if (!todos.length) {
-    return null;
-  }
+  const handleClearTodos = () => {
+    const done = todos.filter(({ completed }) => completed);
+
+    handleClearCompleted(done.map(({ id }) => id));
+  };
 
   return (
-    <footer className="todoapp__footer" data-cy="Footer">
-      <span className="todo-count" data-cy="TodosCounter">
-        {counter} items left
-      </span>
+    <>
+      {originalTodos.length > 0 && (
+        <footer className="todoapp__footer" data-cy="Footer">
+          <span className="todo-count" data-cy="TodosCounter">
+            {`${activeTodos} items left`}
+          </span>
 
-      <nav className="filter" data-cy="Filter">
-        <a
-          href="#/"
-          className={`filter__link ${filter === Filter.All ? 'selected' : ''}`}
-          data-cy="FilterLinkAll"
-          onClick={handleFilter(Filter.All)}
-        >
-          All
-        </a>
+          <nav className="filter" data-cy="Filter">
+            <a
+              href="#/"
+              className={cn('filter__link', {
+                selected: filteredBy === Filter.All,
+              })}
+              data-cy="FilterLinkAll"
+              onClick={event => handleFilter(event, Filter.All)}
+            >
+              All
+            </a>
 
-        <a
-          href="#/active"
-          className={`filter__link ${filter === Filter.Active ? 'selected' : ''}`}
-          data-cy="FilterLinkActive"
-          onClick={handleFilter(Filter.Active)}
-        >
-          Active
-        </a>
+            <a
+              href="#/active"
+              className={cn('filter__link', {
+                selected: filteredBy === Filter.Active,
+              })}
+              data-cy="FilterLinkActive"
+              onClick={event => handleFilter(event, Filter.Active)}
+            >
+              Active
+            </a>
 
-        <a
-          href="#/completed"
-          className={`filter__link ${filter === Filter.Completed ? 'selected' : ''}`}
-          data-cy="FilterLinkCompleted"
-          onClick={handleFilter(Filter.Completed)}
-        >
-          Completed
-        </a>
-      </nav>
+            <a
+              href="#/completed"
+              className={cn('filter__link', {
+                selected: filteredBy === Filter.Completed,
+              })}
+              data-cy="FilterLinkCompleted"
+              onClick={event => handleFilter(event, Filter.Completed)}
+            >
+              Completed
+            </a>
+          </nav>
 
-      <button
-        type="button"
-        className="todoapp__clear-completed"
-        data-cy="ClearCompletedButton"
-        disabled={!hasCompletedTodos}
-        onClick={clearCompleted}
-      >
-        Clear completed
-      </button>
-    </footer>
+          <button
+            type="button"
+            className="todoapp__clear-completed"
+            data-cy="ClearCompletedButton"
+            disabled={!disabled}
+            onClick={handleClearTodos}
+          >
+            Clear completed
+          </button>
+        </footer>
+      )}
+    </>
   );
 };
