@@ -69,7 +69,7 @@ export const TodoComponent: React.FC<TodoProps> = ({
 
   useEffect(() => {
     if (isEditionActive && formRef.current) {
-      formRef.current.focus(); // Focus on input field when isEditionActive is true
+      formRef.current.focus();
     }
   }, [isEditionActive]);
 
