@@ -47,7 +47,7 @@ export const App: React.FC = () => {
         setErrorMessage('Unable to load todos');
         setErrorid(errorid + 1);
       });
-  }, []);
+  }, [errorid]);
 
   useEffect(
     () => setFiltredTodos(() => filterFunction(todosFromServer, filterType)),
