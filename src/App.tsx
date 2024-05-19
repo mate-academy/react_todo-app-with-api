@@ -34,6 +34,7 @@ export const App: React.FC = () => {
       .catch(() => {
         setTimeoutErrorMessage('Unable to load todos');
       });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const onSubmit = (event: React.FormEvent<HTMLFormElement>) => {
@@ -106,7 +107,7 @@ export const App: React.FC = () => {
 
       <div className="todoapp__content">
         <header className="todoapp__header">
-          {todos.length > 0 && (
+          {!!todos.length && (
             <button
               type="button"
               className={`todoapp__toggle-all ${todos.every(todo => todo.completed) && 'active'}`}
@@ -130,7 +131,7 @@ export const App: React.FC = () => {
 
         <TodoList tempTodo={tempTodo} inputRef={inputRef} />
 
-        {todos.length !== 0 && <Footer inputRef={inputRef} />}
+        {!!todos.length && <Footer inputRef={inputRef} />}
       </div>
 
       <ErrorNotification />

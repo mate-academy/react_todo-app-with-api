@@ -57,15 +57,13 @@ export const TodoComponent: React.FC<Props> = ({
     inputRef.current?.focus();
   };
 
-  const onTodoStatusToggle = (modifiedTodo: Todo) => {
+  const onTodoStatusToggle = () => {
     setLoading(true);
-    const todoProps: Partial<Todo> = modifiedTodo.completed
-      ? { completed: false }
-      : { completed: true };
+    const updatedTodo = { ...todo, completed: !todo.completed };
 
-    modifyTodo(modifiedTodo.id, todoProps)
+    modifyTodo(updatedTodo.id, { completed: updatedTodo.completed })
       .then(() => {
-        modifyTodoLocal(modifiedTodo.id, todoProps);
+        modifyTodoLocal(updatedTodo.id, { completed: updatedTodo.completed });
       })
       .catch(() => setTimeoutErrorMessage('Unable to update a todo'))
       .finally(() => {
@@ -146,7 +144,7 @@ export const TodoComponent: React.FC<Props> = ({
           data-cy="TodoStatus"
           type="checkbox"
           className="todo__status"
-          onChange={() => onTodoStatusToggle(todo)}
+          onChange={onTodoStatusToggle}
           checked={todo.completed}
         />
       </label>
