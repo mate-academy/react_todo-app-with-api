@@ -28,16 +28,10 @@ const Header: FC<Props> = ({
   const allCompleted = todos.every(todo => todo.completed);
 
   useEffect(() => {
-    if (!isSendingTodo) {
+    if (!isSendingTodo || deletingId) {
       inputRef.current?.focus();
     }
-  }, [title, isSendingTodo, inputRef]);
-
-  useEffect(() => {
-    if (deletingId) {
-      inputRef.current?.focus();
-    }
-  }, [inputRef, deletingId]);
+  }, [title, isSendingTodo, deletingId, inputRef]);
 
   const addNewTodo = async () => {
     setIsSendingTodo(true);
