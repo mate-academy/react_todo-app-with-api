@@ -23,7 +23,7 @@ export const Header: React.FC = () => {
   const [isLoaded, setIsLoaded] = useState(false);
 
   const allTodoCompleted = todos.every(todo => todo.completed);
-  const hasTodos = todos.length > 0;
+  const hasTodos = !!todos.length;
 
   const handleAddTodo = (event: React.KeyboardEvent<HTMLInputElement>) => {
     if (event.key === 'Enter') {
@@ -62,21 +62,24 @@ export const Header: React.FC = () => {
   const handleToggleAll = () => {
     setIsLoaded(true);
 
-    todos.forEach(todo => {
+    const updatePromises = todos.map(todo => {
       const updatedTodo = { ...todo, completed: !allTodoCompleted };
 
       if (todo.completed !== updatedTodo.completed) {
-        updateTodo(updatedTodo)
+        return updateTodo(updatedTodo)
           .then(() => {
             updateTodoLocal(updatedTodo);
           })
           .catch(() => {
             setError(Error.UpdateTodo);
-          })
-          .finally(() => {
-            setIsLoaded(false);
           });
       }
+
+      return Promise.resolve();
+    });
+
+    Promise.all(updatePromises).finally(() => {
+      setIsLoaded(false);
     });
   };
 

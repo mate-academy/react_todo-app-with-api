@@ -3,6 +3,7 @@ import { getTodos } from '../api/todos';
 
 import { Todo } from '../types/Todo';
 import { Error } from '../types/Error';
+import { filterTodosByStatus } from '../Helpers/TodoHelpers';
 
 type TodoContextType = {
   todos: Todo[];
@@ -71,17 +72,6 @@ export const TodoProvider: React.FC<TodoProviderProps> = ({ children }) => {
         setError(Error.LoadTodos);
       });
   }, []);
-
-  const filterTodosByStatus = (_todos: Todo[], filterBy: string) => {
-    switch (filterBy) {
-      case 'active':
-        return _todos.filter(todo => !todo.completed);
-      case 'completed':
-        return _todos.filter(todo => todo.completed);
-      default:
-        return _todos;
-    }
-  };
 
   const visibleTodos = filterTodosByStatus(todos, status);
 

@@ -8,18 +8,26 @@ import { Error } from '../../types/Error';
 export const Footer: React.FC = () => {
   const { todos, status, setStatus, deleteTodoLocal, setError, focusInput } =
     useContext(TodoContext);
-  const activeTodoCount = todos.filter(todo => !todo.completed).length;
-  const completedTodoCount = todos.filter(todo => todo.completed).length;
+
+  const { activeTodoCount, completedTodoCount } = todos.reduce(
+    (counts, todo) => {
+      return {
+        activeTodoCount: counts.activeTodoCount + Number(!todo.completed),
+        completedTodoCount: counts.completedTodoCount + Number(todo.completed),
+      };
+    },
+    { activeTodoCount: 0, completedTodoCount: 0 },
+  );
 
   const handleStatusChange = (newStatus: string) => () => {
     setStatus(newStatus);
   };
 
-  const handleClearAllCompleted = () => {
+  const handleClearAllCompleted = async () => {
     const completedTodos = todos.filter(todo => todo.completed);
 
-    completedTodos.forEach(todo => {
-      deleteTodo(todo.id)
+    const deletePromises = completedTodos.map(todo => {
+      return deleteTodo(todo.id)
         .then(() => {
           deleteTodoLocal(todo.id);
         })
@@ -27,6 +35,8 @@ export const Footer: React.FC = () => {
           setError(Error.DeleteTodo);
         });
     });
+
+    await Promise.all(deletePromises);
 
     focusInput();
   };
