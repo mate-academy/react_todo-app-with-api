@@ -1,12 +1,13 @@
 /* eslint-disable jsx-a11y/control-has-associated-label */
 /* eslint-disable jsx-a11y/label-has-associated-control */
-import React, { useContext } from 'react';
+import React from 'react';
 
 import classNames from 'classnames';
-import { AppContext } from '../../wrappers/AppProvider';
+
+import { useAppContext } from '../../hooks/useAppContext';
 
 export const TodoInfo: React.FC = () => {
-  const { tempTodo } = useContext(AppContext);
+  const { tempTodo } = useAppContext();
 
   return (
     <div

@@ -1,26 +1,13 @@
-import { FC, useContext, useEffect } from 'react';
-
-import { errors } from '../../constants';
-
-import { AppContext } from '../../wrappers/AppProvider';
+import { FC } from 'react';
+import { useErrorNotification } from '../../hooks';
 
 export const ErrorNotification: FC = () => {
-  const { errorType, setErrorType } = useContext(AppContext);
-
-  const errorMessage = errorType ? errors[errorType].message : '';
-
-  useEffect(() => {
-    if (errorType) {
-      setTimeout(() => {
-        setErrorType(null);
-      }, 3000);
-    }
-  });
+  const { errorMessage, setErrorType } = useErrorNotification();
 
   return (
     <div
       data-cy="ErrorNotification"
-      className={`notification is-danger is-light has-text-weight-normal ${!errorType ? 'hidden' : ''}`}
+      className={`notification is-danger is-light has-text-weight-normal ${!errorMessage ? 'hidden' : ''}`}
     >
       {errorMessage}
       <button

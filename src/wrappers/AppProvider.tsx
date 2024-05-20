@@ -11,12 +11,13 @@ import {
 } from 'react';
 import { ErrorType, ITempTodo, StatusSelect, Todo } from '../types';
 
-import { getFilteredTodos, getTodos } from '../helpers';
+import { getFilteredTodos } from '../helpers';
+import { useTodos } from '../hooks/useTodos';
 
 interface IAppProvider {
   children: ReactNode;
 }
-interface AppContextProps {
+export interface AppContextProps {
   todos: Todo[];
   filteredTodo: Todo[];
   setTodos: Dispatch<SetStateAction<Todo[]>>;
@@ -56,32 +57,22 @@ export const AppContext = createContext<AppContextProps>({
 });
 
 export const AppProvider: FC<IAppProvider> = ({ children }) => {
-  const [todos, setTodos] = useState<Todo[]>([]);
+  const { todos, setTodos, errorType, setErrorType } = useTodos();
+
   const [filteredTodo, setFilteredTodo] = useState<Todo[]>([]);
+
   const [status, setStatus] = useState<StatusSelect>(StatusSelect.All);
-  const [errorType, setErrorType] = useState<ErrorType | null>(null);
+
   const [tempTodo, setTempTodo] = useState<ITempTodo>({
     isLoading: false,
     todo: { id: 0, title: '', completed: false },
   });
+
   const [todoDeleteId, setTodoDeleteId] = useState<number[] | null>(null);
 
   const [isTodoFetching, setIsTodoFetching] = useState(false);
+
   const inputRef = useRef<HTMLInputElement>(null);
-
-  useEffect(() => {
-    const fetchTodo = async () => {
-      try {
-        const result = await getTodos();
-
-        setTodos(result);
-      } catch (er) {
-        setErrorType('load');
-      }
-    };
-
-    fetchTodo();
-  }, []);
 
   useEffect(() => {
     setFilteredTodo(getFilteredTodos(todos, status));

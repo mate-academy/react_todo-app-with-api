@@ -1,4 +1,4 @@
-import { FC, useContext } from 'react';
+import { FC } from 'react';
 
 import {
   Header,
@@ -8,10 +8,10 @@ import {
   TodoInfo,
 } from './components';
 
-import { AppContext } from './wrappers/AppProvider';
+import { useAppContext } from './hooks/useAppContext';
 
 export const App: FC = () => {
-  const { tempTodo } = useContext(AppContext);
+  const { tempTodo } = useAppContext();
 
   return (
     <div className="todoapp">

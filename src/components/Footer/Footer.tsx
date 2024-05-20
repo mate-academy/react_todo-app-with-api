@@ -1,52 +1,21 @@
-import { useContext, FC } from 'react';
+import { FC } from 'react';
 import { StatusSelect } from '../../types/Todo';
-import { AppContext } from '../../wrappers/AppProvider';
+
 import './Footer.scss';
-import { deleteTodos } from '../../helpers';
+
+import { useAppContext, useDeleteCompleted } from '../../hooks';
 
 export const Footer: FC = () => {
-  const {
-    todos,
-    setTodos,
-    setStatus,
-    status,
-    setErrorType,
-    setTodoDeleteId,
-    inputRef,
-  } = useContext(AppContext);
+  const { todos, setStatus, status } = useAppContext();
 
-  const activeTodo = todos.reduce(
+  const { onDeleteAllCompleted } = useDeleteCompleted();
+
+  const activeTodoCount = todos.reduce(
     (acc, current) => (current.completed ? acc : acc + 1),
     0,
   );
 
-  const someCompletedTodos = todos.some(todo => todo.completed);
-
-  const onDeleteAllCompleted = async () => {
-    try {
-      const allCompleted = todos.filter(el => el.completed);
-
-      const idToDelete = allCompleted.map(el => el.id);
-
-      setTodoDeleteId(idToDelete);
-
-      await Promise.all(
-        allCompleted.map(async todo => {
-          try {
-            await deleteTodos(todo.id);
-
-            setTodos(prevState => prevState.filter(el => el.id !== todo.id));
-          } catch (err) {
-            setErrorType('delete');
-          }
-        }),
-      );
-
-      inputRef.current?.focus();
-    } finally {
-      setTodoDeleteId(null);
-    }
-  };
+  const hasCompletedTodos = todos.some(todo => todo.completed);
 
   if (!todos.length) {
     return null;
@@ -55,7 +24,7 @@ export const Footer: FC = () => {
   return (
     <footer className="todoapp__footer" data-cy="Footer">
       <span className="todo-count" data-cy="TodosCounter">
-        {activeTodo} items left
+        {activeTodoCount} items left
       </span>
 
       <nav className="filter" data-cy="Filter">
@@ -97,7 +66,7 @@ export const Footer: FC = () => {
         type="button"
         className="todoapp__clear-completed"
         data-cy="ClearCompletedButton"
-        disabled={!someCompletedTodos}
+        disabled={!hasCompletedTodos}
         onClick={onDeleteAllCompleted}
       >
         Clear completed

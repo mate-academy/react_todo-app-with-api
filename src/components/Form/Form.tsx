@@ -1,64 +1,22 @@
-import { FC, useContext, useEffect, useState } from 'react';
+import { FC, useEffect, useState } from 'react';
 
-import { postTodo } from '../../helpers';
-
-import { Todo } from '../../types';
-
-import { AppContext } from '../../wrappers/AppProvider';
+import { useAppContext, useFormSubmit } from '../../hooks';
 
 export const Form: FC = () => {
-  const { setErrorType, setTempTodo, setTodos, inputRef } =
-    useContext(AppContext);
+  const { inputRef } = useAppContext();
 
   const [query, setQuery] = useState('');
 
   const [isLoading, setIsLoading] = useState(false);
 
+  const { onFormSubmit } = useFormSubmit();
+
   useEffect(() => {
     inputRef.current?.focus();
   }, [isLoading, inputRef]);
 
-  const onFormSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    const trimmedQuery = query.trim();
-
-    if (!trimmedQuery) {
-      setErrorType('empty');
-
-      return;
-    }
-
-    try {
-      setIsLoading(true);
-
-      setTempTodo({
-        isLoading: true,
-        todo: {
-          title: trimmedQuery,
-          id: 0,
-          completed: false,
-        },
-      });
-      setIsLoading(true);
-
-      const result = await postTodo(trimmedQuery);
-
-      setTodos(prevState => [...prevState, result as Todo]);
-
-      setQuery('');
-    } catch (err) {
-      setErrorType('add');
-    } finally {
-      setIsLoading(false);
-      setTempTodo({
-        todo: null,
-        isLoading: false,
-      });
-    }
-  };
-
   return (
-    <form onSubmit={onFormSubmit}>
+    <form onSubmit={e => onFormSubmit(e, query, setQuery, setIsLoading)}>
       <input
         ref={inputRef}
         data-cy="NewTodoField"
