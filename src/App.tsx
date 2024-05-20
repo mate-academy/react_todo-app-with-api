@@ -24,9 +24,7 @@ export const App: React.FC = () => {
   const [editingTodoId, setEditingTodoId] = useState<number | null>(null);
   const [editingTitle, setEditingTitle] = useState('');
 
-  // const inputRef = useRef<HTMLInputElement>(null);
-
-  const itemsLeft = todosFromServer.filter(todo => !todo.completed);
+  const activeItems = todosFromServer.filter(todo => !todo.completed);
   const completedItems = todosFromServer.filter(todo => todo.completed);
 
   useEffect(() => {
@@ -37,7 +35,7 @@ export const App: React.FC = () => {
         setErrorMessage('Unable to load todos');
         setErrorid(errorid + 1);
       });
-  }, [errorid]);
+  }, []);
 
   useEffect(
     () => setFiltredTodos(() => filterFunction(todosFromServer, filterType)),
@@ -266,7 +264,7 @@ export const App: React.FC = () => {
       <div className="todoapp__content">
         <Header
           todosFromServer={todosFromServer}
-          itemsLeft={itemsLeft}
+          activeItems={activeItems}
           completedItems={completedItems}
           onSubmit={onSubmit}
           title={title}
@@ -294,7 +292,7 @@ export const App: React.FC = () => {
 
         {todosFromServer.length > 0 && (
           <Footer
-            itemsLeft={itemsLeft}
+            activeItems={activeItems}
             filterType={filterType}
             setFilterType={setFilterType}
             completedItems={completedItems}

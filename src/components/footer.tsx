@@ -3,15 +3,15 @@ import { Todo } from '../types/Todo';
 import { TodoStatus } from '../types/TodoStatus';
 
 type Props = {
-  itemsLeft: Todo[];
+  activeItems: Todo[];
   filterType: TodoStatus;
-  setFilterType: React.Dispatch<React.SetStateAction<TodoStatus>>;
+  setFilterType: (type: TodoStatus) => void;
   completedItems: Todo[];
   onDeleteAllCompleted: (todos: Todo[]) => void;
 };
 
 export const Footer: React.FC<Props> = ({
-  itemsLeft,
+  activeItems,
   filterType,
   setFilterType,
   completedItems,
@@ -20,10 +20,9 @@ export const Footer: React.FC<Props> = ({
   return (
     <footer className="todoapp__footer" data-cy="Footer">
       <span className="todo-count" data-cy="TodosCounter">
-        {itemsLeft.length} items left
+        {activeItems.length} items left
       </span>
 
-      {/* Active link should have the 'selected' class */}
       <nav className="filter" data-cy="Filter">
         <a
           href="#/"
@@ -59,7 +58,6 @@ export const Footer: React.FC<Props> = ({
         </a>
       </nav>
 
-      {/* this button should be disabled if there are no completed todos */}
       <button
         type="button"
         className="todoapp__clear-completed"

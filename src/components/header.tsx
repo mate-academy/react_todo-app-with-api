@@ -4,7 +4,7 @@ import { useEffect, useRef } from 'react';
 
 type Props = {
   todosFromServer: Todo[];
-  itemsLeft: Todo[];
+  activeItems: Todo[];
   completedItems: Todo[];
   onSubmit: (
     event: React.FormEvent<HTMLFormElement>,
@@ -19,7 +19,7 @@ type Props = {
 
 export const Header: React.FC<Props> = ({
   todosFromServer,
-  itemsLeft,
+  activeItems,
   completedItems,
   onSubmit,
   title,
@@ -39,23 +39,21 @@ export const Header: React.FC<Props> = ({
 
   return (
     <header className="todoapp__header">
-      {/* this button should have `active` class only if all todos are completed */}
       {todosFromServer.length > 0 && (
         <button
           type="button"
           className={classNames('todoapp__toggle-all', {
-            active: itemsLeft.length === 0,
+            active: activeItems.length === 0,
           })}
           data-cy="ToggleAllButton"
           onClick={() =>
             updateToCompletedTodos(
-              itemsLeft.length > 0 ? itemsLeft : completedItems,
+              activeItems.length > 0 ? activeItems : completedItems,
             )
           }
         />
       )}
 
-      {/* Add a todo on form submit */}
       <form onSubmit={onSubmit}>
         <input
           ref={inputRef}

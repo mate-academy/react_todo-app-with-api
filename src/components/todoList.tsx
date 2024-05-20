@@ -1,7 +1,7 @@
 /* eslint-disable jsx-a11y/label-has-associated-control */
 /* eslint-disable jsx-a11y/control-has-associated-label */
-import classNames from 'classnames';
 import { Todo } from '../types/Todo';
+import { SingleTodo } from '../components/singleTodo';
 
 type Props = {
   filtredTodos: Todo[];
@@ -34,67 +34,79 @@ export const TodoList: React.FC<Props> = ({
 }) => {
   return (
     <section className="todoapp__main" data-cy="TodoList">
-      {/* This is a completed todo */}
       {filtredTodos.map(todo => (
-        <div
-          data-cy="Todo"
-          className={todo.completed ? 'todo completed' : 'todo'}
+        <SingleTodo
           key={todo.id}
-        >
-          <label className="todo__status-label">
-            <input
-              data-cy="TodoStatus"
-              type="checkbox"
-              className="todo__status"
-              checked={todo.completed}
-              onClick={() => onUpdateTodoStatus(todo)}
-              disabled={loader.length !== 0}
-            />
-          </label>
+          todo={todo}
+          editingTodoId={editingTodoId}
+          handleEditSubmit={handleEditSubmit}
+          editingTitle={editingTitle}
+          handleEditBlur={handleEditBlur}
+          handleEdit={handleEdit}
+          loader={loader}
+          handleEditChange={handleEditChange}
+          onUpdateTodoStatus={onUpdateTodoStatus}
+          handleDelete={handleDelete}
+        />
+        // <div
+        //   data-cy="Todo"
+        //   className={todo.completed ? 'todo completed' : 'todo'}
+        //   key={todo.id}
+        // >
+        //   <label className="todo__status-label">
+        //     <input
+        //       data-cy="TodoStatus"
+        //       type="checkbox"
+        //       className="todo__status"
+        //       checked={todo.completed}
+        //       onClick={() => onUpdateTodoStatus(todo)}
+        //       disabled={loader.length !== 0}
+        //     />
+        //   </label>
 
-          {editingTodoId === todo.id ? (
-            <form onSubmit={handleEditSubmit}>
-              <input
-                data-cy="TodoTitleField"
-                type="text"
-                className="todo__title-field"
-                value={editingTitle}
-                onChange={handleEditChange}
-                onBlur={handleEditBlur}
-                autoFocus
-              />
-            </form>
-          ) : (
-            <span
-              data-cy="TodoTitle"
-              className="todo__title"
-              onDoubleClick={() => handleEdit(todo)}
-            >
-              {todo.title}
-            </span>
-          )}
+        //   {editingTodoId === todo.id ? (
+        //     <form onSubmit={handleEditSubmit}>
+        //       <input
+        //         data-cy="TodoTitleField"
+        //         type="text"
+        //         className="todo__title-field"
+        //         value={editingTitle}
+        //         onChange={handleEditChange}
+        //         onBlur={handleEditBlur}
+        //         autoFocus
+        //       />
+        //     </form>
+        //   ) : (
+        //     <span
+        //       data-cy="TodoTitle"
+        //       className="todo__title"
+        //       onDoubleClick={() => handleEdit(todo)}
+        //     >
+        //       {todo.title}
+        //     </span>
+        //   )}
 
-          {editingTodoId !== todo.id && (
-            <button
-              type="button"
-              className="todo__remove"
-              data-cy="TodoDelete"
-              onClick={() => handleDelete(todo.id)}
-            >
-              ×
-            </button>
-          )}
+        //   {editingTodoId !== todo.id && (
+        //     <button
+        //       type="button"
+        //       className="todo__remove"
+        //       data-cy="TodoDelete"
+        //       onClick={() => handleDelete(todo.id)}
+        //     >
+        //       ×
+        //     </button>
+        //   )}
 
-          <div
-            data-cy="TodoLoader"
-            className={classNames('modal overlay', {
-              'is-active': loader?.includes(todo.id),
-            })}
-          >
-            <div className="modal-background has-background-white-ter" />
-            <div className="loader" />
-          </div>
-        </div>
+        //   <div
+        //     data-cy="TodoLoader"
+        //     className={classNames('modal overlay', {
+        //       'is-active': loader?.includes(todo.id),
+        //     })}
+        //   >
+        //     <div className="modal-background has-background-white-ter" />
+        //     <div className="loader" />
+        //   </div>
+        // </div>
       ))}
       {addingTodo && (
         <div data-cy="Todo" className="todo">
