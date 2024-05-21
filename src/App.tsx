@@ -27,11 +27,6 @@ export const App: React.FC = () => {
   const [error, setError] = useState<ErrorMessages>('');
   const [inputTodo, setInputTodo] = useState('');
   const [loading, setLoading] = useState(false);
-  // const inputRefAddTodo = useRef<HTMLInputElement>(null);
-
-  // useEffect(() => {
-  //   inputRefAddTodo.current?.focus();
-  // }, [loading]);
 
   const todoList = useMemo(() => {
     return todos.filter(todo => {
@@ -191,7 +186,6 @@ export const App: React.FC = () => {
 
       <div className="todoapp__content">
         <header className="todoapp__header">
-          {/* this button should have `active` class only if all todos are completed */}
           {todos.length !== 0 && todos[0].id !== 0 && (
             <button
               type="button"
@@ -201,7 +195,6 @@ export const App: React.FC = () => {
             />
           )}
 
-          {/* Add a todo on form submit */}
           <form>
             <input
               ref={reference => {
@@ -235,7 +228,6 @@ export const App: React.FC = () => {
               {remainingItemsCount} items left
             </span>
 
-            {/* Active link should have the 'selected' class */}
             <nav className="filter" data-cy="Filter">
               <a
                 href="#/"
@@ -278,8 +270,6 @@ export const App: React.FC = () => {
         )}
       </div>
 
-      {/* DON'T use conditional rendering to hide the notification */}
-      {/* Add the 'hidden' class to hide the message smoothly */}
       <div
         data-cy="ErrorNotification"
         className={`notification is-danger is-light has-text-weight-normal ${error === '' ? 'hidden' : ''}`}
@@ -290,12 +280,7 @@ export const App: React.FC = () => {
           className="delete"
           onClick={() => setError('')}
         />
-        {/* show only one message at a time */}
-        {error === 'Unable to load todos' && 'Unable to load todos'}
-        {error === 'Title should not be empty' && 'Title should not be empty'}
-        {error === 'Unable to delete a todo' && 'Unable to delete a todo'}
-        {error === 'Unable to add a todo' && 'Unable to add a todo'}
-        {error === 'Unable to update a todo' && 'Unable to update a todo'}
+        {error}
       </div>
     </div>
   );
