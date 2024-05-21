@@ -1,13 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import { USER_ID, getTodos } from './api/todos';
 
+import { UserWarning } from './UserWarning';
 import ErrorNotification from './components/ErrorNotification';
 import Footer from './components/Footer';
-import Header from './components/Headre';
+import Header from './components/Header';
+import TodoList from './components/TodoList';
 import { Status } from './types/Status';
 import { Todo } from './types/Todo';
-import TodoList from './components/TodoList';
-import { UserWarning } from './UserWarning';
 
 export const App: React.FC = () => {
   const [todos, setTodos] = useState<Todo[]>([]);
@@ -49,7 +49,6 @@ export const App: React.FC = () => {
           setTodos={setTodos}
           onErrorMessage={onErrorMessage}
           setTempTodo={setTempTodo}
-          errorMessage={errorMessage}
           deletingId={deletingId}
           todos={todos}
           setUpdatingTodoId={setUpdatingTodoId}

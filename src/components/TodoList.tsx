@@ -2,8 +2,8 @@ import { Dispatch, FC } from 'react';
 
 import { Status } from '../types/Status';
 import { Todo } from '../types/Todo';
-import TodoItem from './TodoItem';
 import { getFilteredTodos } from '../utils/getFilteredTodos';
+import TodoItem from './TodoItem';
 
 interface Props {
   todos: Todo[];
@@ -30,6 +30,13 @@ const TodoList: FC<Props> = ({
 }) => {
   const filteredTodos = getFilteredTodos(todos, selectedStatus);
 
+  const onTodoChange = (updatedTodo: Todo) =>
+    setTodos((prevState: Todo[]) =>
+      prevState.map(todoItem =>
+        todoItem.id === updatedTodo.id ? updatedTodo : todoItem,
+      ),
+    );
+
   return (
     <section className="todoapp__main" data-cy="TodoList">
       {filteredTodos.map(todo => (
@@ -42,6 +49,7 @@ const TodoList: FC<Props> = ({
           deletingId={deletingId}
           setUpdatingTodoId={setUpdatingTodoId}
           updatingTodoId={updatingTodoId}
+          onTodoChange={onTodoChange}
         />
       ))}
       {tempTodo && (
@@ -54,6 +62,7 @@ const TodoList: FC<Props> = ({
           deletingId={deletingId}
           setUpdatingTodoId={setUpdatingTodoId}
           updatingTodoId={updatingTodoId}
+          onTodoChange={onTodoChange}
         />
       )}
     </section>

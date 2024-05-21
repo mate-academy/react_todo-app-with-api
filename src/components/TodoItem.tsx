@@ -3,9 +3,9 @@
 import { Dispatch, FC, FormEvent, useEffect, useState } from 'react';
 import { deleteTodo, updateTodos } from '../api/todos';
 
-import { Todo } from '../types/Todo';
 import classNames from 'classnames';
 import useFocusInput from '../hooks/useFocusInput';
+import { Todo } from '../types/Todo';
 
 interface Props {
   todo: Todo;
@@ -15,6 +15,7 @@ interface Props {
   deletingId: number;
   setUpdatingTodoId: Dispatch<React.SetStateAction<number>>;
   updatingTodoId: number;
+  onTodoChange: (updatedTodo: Todo) => void;
 }
 
 const TodoItem: FC<Props> = ({
@@ -24,6 +25,7 @@ const TodoItem: FC<Props> = ({
   setDeletingId,
   deletingId,
   updatingTodoId,
+  onTodoChange,
   setUpdatingTodoId,
 }) => {
   const [selectedTodo, setSelectedTodo] = useState<Todo | null>(null);
@@ -72,7 +74,9 @@ const TodoItem: FC<Props> = ({
     updateTodos(id, updatedTodo)
       .then(() =>
         setTodos(prevState =>
-          prevState.map(t => (t.id === id ? updatedTodo : t)),
+          prevState.map(todoItem =>
+            todoItem.id === id ? updatedTodo : todoItem,
+          ),
         ),
       )
       .catch(() => onErrorMessage('Unable to update a todo'))
@@ -98,9 +102,7 @@ const TodoItem: FC<Props> = ({
 
     updateTodos(todo.id, updatedTodo)
       .then(() => {
-        setTodos(prevState =>
-          prevState.map(t => (t.id === todo.id ? updatedTodo : t)),
-        );
+        onTodoChange(updatedTodo);
         setSelectedTodo(null);
       })
       .catch(() => {

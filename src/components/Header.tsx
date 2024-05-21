@@ -1,12 +1,11 @@
 import { Dispatch, FC, FormEvent, useEffect, useState } from 'react';
 import { USER_ID, addTodo, updateTodos } from '../api/todos';
 
-import { Todo } from '../types/Todo';
 import useFocusInput from '../hooks/useFocusInput';
+import { Todo } from '../types/Todo';
 
 interface Props {
   onErrorMessage: (message: string) => void;
-  errorMessage: string;
   setTodos: Dispatch<React.SetStateAction<Todo[]>>;
   setTempTodo: Dispatch<React.SetStateAction<Todo | null>>;
   deletingId: number;

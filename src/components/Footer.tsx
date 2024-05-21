@@ -1,8 +1,8 @@
 import { Dispatch, FC } from 'react';
 
+import { deleteTodo } from '../api/todos';
 import { Status } from '../types/Status';
 import { Todo } from '../types/Todo';
-import { deleteTodo } from '../api/todos';
 
 interface Props {
   todos: Todo[];
