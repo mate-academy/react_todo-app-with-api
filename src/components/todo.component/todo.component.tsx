@@ -3,16 +3,9 @@
 /* eslint-disable no-param-reassign */
 /* eslint-disable @typescript-eslint/indent */
 /* eslint-disable jsx-a11y/label-has-associated-control */
-import React, {
-  ChangeEvent,
-  useCallback,
-  useEffect,
-  useRef,
-  useState,
-} from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { TodoProps } from './todo.props';
-import { deleteTodo } from '../../api/todos';
-import { ErrorTypes } from '../Errors/error';
+import { ErrorTypes } from '../error.component/error';
 import * as Services from '../../api/todos';
 
 export const TodoComponent: React.FC<TodoProps> = ({
@@ -21,19 +14,19 @@ export const TodoComponent: React.FC<TodoProps> = ({
   onDeleteTodo,
   onError,
   onTodoChange,
+  isExternalLoading,
 }) => {
   const [isEditionActive, setIsEditionActive] = useState(false);
-  const [title, setTitle] = useState(todo.title);
   const [isLoading, setIsLoading] = useState(isTemp);
-  const formRef = useRef<HTMLInputElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
 
   const handleEditForm = () => {
     setIsEditionActive(true);
   };
 
-  const handleTitle = (event: ChangeEvent<HTMLInputElement>) => {
-    setTitle(event.target.value);
-  };
+  // const handleTitle = (event: ChangeEvent<HTMLInputElement>) => {
+  //   setTitle(event.target.value);
+  // };
 
   const handleCheckboxChange = useCallback(() => {
     const newCheckedState = !todo.completed;
@@ -51,27 +44,68 @@ export const TodoComponent: React.FC<TodoProps> = ({
       });
   }, [onError, todo, onTodoChange]);
 
-  const handleDelete = () => {
+  const handleDelete = useCallback(() => {
     setIsLoading(true);
-    deleteTodo(todo.id)
+    Services.deleteTodo(todo.id)
       .then(() => {
         onDeleteTodo && onDeleteTodo(todo.id);
       })
       .catch(() => {
-        const errorMessage = ErrorTypes.UnableToDeleteTodo;
-
-        onError && onError(errorMessage);
+        onError(ErrorTypes.UnableToDeleteTodo);
       })
       .finally(() => {
-        setIsLoading(true);
+        setIsLoading(false);
       });
-  };
+  }, [onDeleteTodo, onError, todo.id]);
+
+  const handleBlur = useCallback(() => {
+    const newTitle = inputRef.current?.value.trim() || '';
+
+    if (!newTitle) {
+      handleDelete();
+
+      return;
+    }
+
+    if (newTitle !== todo.title) {
+      setIsLoading(true);
+      Services.updateTodo(todo.id, { title: newTitle })
+        .then(() => {
+          onTodoChange({ id: todo.id, title: newTitle });
+          setIsEditionActive(false);
+        })
+        .catch(() => {
+          onError(ErrorTypes.UnableToUpdateTodo);
+          inputRef.current?.focus();
+        })
+        .finally(() => {
+          setIsLoading(false);
+        });
+    } else {
+      setIsEditionActive(false);
+    }
+
+    return;
+  }, [handleDelete, onError, todo.id, todo.title, onTodoChange]);
 
   useEffect(() => {
-    if (isEditionActive && formRef.current) {
-      formRef.current.focus();
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        setIsEditionActive(false);
+      } else if (event.key === 'Enter') {
+        handleBlur();
+      }
+    };
+
+    if (isEditionActive) {
+      inputRef.current?.focus();
+      window.addEventListener('keydown', handleKeyDown);
     }
-  }, [isEditionActive]);
+
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [isEditionActive, handleBlur]);
 
   return (
     <>
@@ -89,16 +123,17 @@ export const TodoComponent: React.FC<TodoProps> = ({
           />
         </label>
         {isEditionActive ? (
-          <form>
+          <form onSubmit={e => e.preventDefault()}>
             <input
               data-cy="TodoTitleField"
               type="text"
               className="todo__title-field"
               placeholder="Empty todo will be deleted"
-              value={title}
-              onBlur={() => setIsEditionActive(false)}
-              onChange={handleTitle}
-              ref={formRef}
+              // value={title}
+              onBlur={handleBlur}
+              // onChange={handleTitle}
+              ref={inputRef}
+              defaultValue={todo.title}
             />
           </form>
         ) : (
@@ -108,7 +143,7 @@ export const TodoComponent: React.FC<TodoProps> = ({
               className="todo__title"
               onDoubleClick={handleEditForm}
             >
-              {title}
+              {todo.title}
             </span>
 
             <button
@@ -123,7 +158,7 @@ export const TodoComponent: React.FC<TodoProps> = ({
         )}
         <div
           data-cy="TodoLoader"
-          className={`modal overlay ${isLoading ? 'is-active' : ''}`}
+          className={`modal overlay ${isLoading || isExternalLoading ? 'is-active' : ''}`}
         >
           <div className="modal-background has-background-white-ter" />
           <div className="loader" />

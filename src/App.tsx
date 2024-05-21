@@ -6,10 +6,10 @@ import React, {
   useRef,
   useState,
 } from 'react';
-import { Todo } from './types/Todo';
-import { TodoComponent } from './components/Todo/todo.component';
-import { TodoStatus } from './components/Filter/filter.status';
-import { ErrorTypes } from './components/Errors/error';
+import { Todo } from './components/todo.component/todo.types';
+import { TodoComponent } from './components/todo.component/todo.component';
+import { TodoStatus } from './components/filter.component/filter.status';
+import { ErrorTypes } from './components/error.component/error';
 import * as Services from './api/todos';
 
 export const App: React.FC = () => {
@@ -19,6 +19,9 @@ export const App: React.FC = () => {
   const [newTodoTitle, setNewTodoTitle] = useState<string>('');
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
+  const [toggleAllClicked, setToggleAllClicked] = useState<boolean>(false);
+  const [isLoadingAll, setIsLoadingAll] = useState(false);
+
   const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -29,85 +32,106 @@ export const App: React.FC = () => {
 
   useEffect(() => {
     if (errorTitle !== null) {
-      setTimeout(() => setErrorTitle(null), 3000);
+      setTimeout(() => setErrorTitle(null), 4000);
     }
   }, [errorTitle]);
 
   useEffect(() => {
-    inputRef.current?.focus();
-  }, [todos, errorTitle]);
-
-  const handleAddTodo = (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    const trimmedTitle = newTodoTitle.trim();
-
-    if (!trimmedTitle) {
-      setErrorTitle(ErrorTypes.TitleError);
-
-      return;
+    if (!toggleAllClicked && errorTitle !== ErrorTypes.UnableToUpdateTodo) {
+      inputRef.current?.focus();
+    } else {
+      setToggleAllClicked(false);
     }
+  }, [todos, errorTitle, toggleAllClicked]);
 
-    const newTempTodo: Todo = {
-      id: 0,
-      title: trimmedTitle,
-      completed: false,
-      userId: Services.USER_ID,
-    };
+  const handleAddTodo = useCallback(
+    (event: React.FormEvent<HTMLFormElement>) => {
+      event.preventDefault();
+      const trimmedTitle = newTodoTitle.trim();
 
-    setTempTodo(newTempTodo);
-    setIsLoading(true);
+      if (!trimmedTitle) {
+        setErrorTitle(ErrorTypes.TitleError);
 
-    Services.createTodo(trimmedTitle, Services.USER_ID)
-      .then(newTodo => {
-        setTempTodo(null);
-        setTodos(prevTodos => [
-          ...prevTodos.filter(todo => todo.title !== trimmedTitle),
-          newTodo,
-        ]);
-        setNewTodoTitle('');
-      })
-      .catch(() => {
-        setErrorTitle(ErrorTypes.UnableToAddTodo);
-        setTempTodo(null);
-      })
-      .finally(() => {
-        setIsLoading(false);
-      });
-  };
+        return;
+      }
 
-  const handleStatus = (status: TodoStatus) => {
+      const newTempTodo: Todo = {
+        id: 0,
+        title: trimmedTitle,
+        completed: false,
+        userId: Services.USER_ID,
+      };
+
+      setTempTodo(newTempTodo);
+      setIsLoading(true);
+
+      Services.createTodo(trimmedTitle, Services.USER_ID)
+        .then(newTodo => {
+          setTempTodo(null);
+          setTodos(prevTodos => [
+            ...prevTodos.filter(todo => todo.id !== 0),
+            newTodo,
+          ]);
+          setNewTodoTitle('');
+        })
+        .catch(() => {
+          setErrorTitle(ErrorTypes.UnableToAddTodo);
+          setTempTodo(null);
+        })
+        .finally(() => {
+          setIsLoading(false);
+        });
+    },
+    [newTodoTitle],
+  );
+
+  const handleStatus = useCallback((status: TodoStatus) => {
     setStatus(status);
-  };
+  }, []);
 
-  const handleTodoChange = (updatedTodo: Partial<Todo> & { id: number }) => {
-    setTodos(state =>
-      state.map(todo =>
-        todo.id === updatedTodo.id ? { ...todo, ...updatedTodo } : todo,
-      ),
-    );
-  };
+  const handleTodoChange = useCallback(
+    (updatedTodo: Partial<Todo> & { id: number }) => {
+      setTodos(state =>
+        state.map(todo =>
+          todo.id === updatedTodo.id ? { ...todo, ...updatedTodo } : todo,
+        ),
+      );
+    },
+    [],
+  );
 
   const handleToggleAll = useCallback(() => {
+    setToggleAllClicked(true);
     const allCompleted = todos.every(todo => todo.completed);
     const newCompletedState = !allCompleted;
 
     setIsLoading(true);
-    Promise.all(
-      todos.map(todo =>
-        Services.updateTodo(todo.id, { completed: newCompletedState })
-          .then(() => ({ ...todo, completed: newCompletedState }))
-          .catch(() => {
-            setErrorTitle(ErrorTypes.UnableToUpdateTodo);
+    setIsLoadingAll(true);
 
-            return todo;
-          }),
-      ),
+    Promise.all(
+      todos
+        .filter(t => t.completed !== newCompletedState)
+        .map(todo =>
+          Services.updateTodo(todo.id, { completed: newCompletedState })
+            .then(() => ({ ...todo, completed: newCompletedState }))
+            .catch(() => {
+              setErrorTitle(ErrorTypes.UnableToUpdateTodo);
+
+              return todo;
+            }),
+        ),
     )
       .then(updatedTodos => {
-        setTodos(updatedTodos);
+        const updatedTodosMap: { [key: number]: Todo } = updatedTodos.reduce(
+          (acc, curr) => ({ ...acc, [curr.id]: curr }), // DONE key is the id of updatedTodos
+          {},
+        );
+
+        setTodos(tds => tds.map(td => updatedTodosMap[td.id] || td)); //existing todos and map to check if id exists and return the todo
       })
       .finally(() => {
         setIsLoading(false);
+        setIsLoadingAll(false);
       });
   }, [todos]);
 
@@ -130,7 +154,9 @@ export const App: React.FC = () => {
     setTodos(prevTodos => prevTodos.filter(todo => todo.id !== deletedTodoId));
   };
 
-  const handleDeleteCompleted = () => {
+  const handleDeleteCompleted = useCallback(() => {
+    setIsLoading(true);
+    setIsLoadingAll(true);
     todos.forEach(todo => {
       if (!todo.completed) {
         return;
@@ -144,9 +170,17 @@ export const App: React.FC = () => {
         })
         .catch(() => {
           setErrorTitle(ErrorTypes.UnableToDeleteTodo);
+        })
+        .finally(() => {
+          setIsLoadingAll(false);
+          setIsLoading(false);
         });
     });
-  };
+  }, [todos]);
+
+  const handleError = useCallback((errorMessage: string) => {
+    setErrorTitle(errorMessage);
+  }, []);
 
   return (
     <div className="todoapp">
@@ -183,7 +217,8 @@ export const App: React.FC = () => {
               todo={todo}
               onTodoChange={handleTodoChange}
               onDeleteTodo={handleDeleteTodo}
-              onError={errorMessage => setErrorTitle(errorMessage)}
+              onError={handleError}
+              isExternalLoading={isLoadingAll}
             />
           ))}
           {tempTodo && (
@@ -191,8 +226,9 @@ export const App: React.FC = () => {
               todo={tempTodo}
               isTemp={true}
               onTodoChange={handleTodoChange}
-              onError={errorMessage => setErrorTitle(errorMessage)}
+              onError={handleError}
               onDeleteTodo={handleDeleteTodo}
+              isExternalLoading={isLoadingAll}
             />
           )}
         </section>
