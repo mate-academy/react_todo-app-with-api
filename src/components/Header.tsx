@@ -1,63 +1,33 @@
-import { Dispatch, FC, FormEvent, useEffect, useState } from 'react';
-import { USER_ID, addTodo, updateTodos } from '../api/todos';
+import { FC, FormEvent, useEffect, useState } from 'react';
 
 import useFocusInput from '../hooks/useFocusInput';
-import { Todo } from '../types/Todo';
 
 interface Props {
   onErrorMessage: (message: string) => void;
-  setTodos: Dispatch<React.SetStateAction<Todo[]>>;
-  setTempTodo: Dispatch<React.SetStateAction<Todo | null>>;
   deletingId: number;
-  todos: Todo[];
-  setUpdatingTodoId: Dispatch<React.SetStateAction<number>>;
+  allCompletedTodos: boolean;
+  onAddTodo: (title: string) => Promise<void>;
+  handleToggleCompleted: () => void;
+  todosLength: number;
 }
 
 const Header: FC<Props> = ({
   onErrorMessage,
-  setTodos,
-  setTempTodo,
   deletingId,
-  todos,
+  allCompletedTodos,
+  onAddTodo,
+  handleToggleCompleted,
+  todosLength,
 }) => {
   const inputRef = useFocusInput();
   const [title, setTitle] = useState('');
   const [isSendingTodo, setIsSendingTodo] = useState(false);
 
-  const allCompleted = todos.every(todo => todo.completed);
-
   useEffect(() => {
     if (!isSendingTodo || deletingId) {
       inputRef.current?.focus();
     }
-  }, [title, isSendingTodo, deletingId, inputRef]);
-
-  const addNewTodo = async () => {
-    setIsSendingTodo(true);
-
-    const newTodo: Omit<Todo, 'id'> = {
-      title: title.trim(),
-      userId: USER_ID,
-      completed: false,
-    };
-
-    setTempTodo({
-      ...newTodo,
-      id: 0,
-    });
-
-    try {
-      const createdTodo = await addTodo(newTodo);
-
-      setTodos(prevTodos => [...prevTodos, createdTodo]);
-      setTitle('');
-    } catch {
-      onErrorMessage('Unable to add a todo');
-    } finally {
-      setIsSendingTodo(false);
-      setTempTodo(null);
-    }
-  };
+  }, [isSendingTodo, deletingId, inputRef]);
 
   const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -68,38 +38,26 @@ const Header: FC<Props> = ({
       return;
     }
 
-    addNewTodo();
-  };
-
-  const handleToggleCompleted = async () => {
-    const areAllCompleted = todos.every(todo => todo.completed);
-    const updatedTodos = todos.map(todo => ({
-      ...todo,
-      completed: !areAllCompleted,
-    }));
-
-    const todosToUpdate = todos.filter(
-      todo => todo.completed === areAllCompleted,
-    );
-
-    try {
-      await Promise.all(
-        todosToUpdate.map(todo =>
-          updateTodos(todo.id, { ...todo, completed: !areAllCompleted }),
-        ),
-      );
-      setTodos(updatedTodos);
-    } catch {
-      onErrorMessage('Unable to update a todo');
-    }
+    setIsSendingTodo(true);
+    onAddTodo(title)
+      .then(() => {
+        setTitle('');
+      })
+      .catch(() => {
+        onErrorMessage('Unable to add a todo');
+      })
+      .finally(() => {
+        setIsSendingTodo(false);
+        inputRef.current?.focus();
+      });
   };
 
   return (
     <header className="todoapp__header">
-      {!!todos.length && (
+      {!!todosLength && (
         <button
           type="button"
-          className={`todoapp__toggle-all ${allCompleted && 'active'}`}
+          className={`todoapp__toggle-all ${allCompletedTodos ? 'active' : ''}`}
           data-cy="ToggleAllButton"
           onClick={handleToggleCompleted}
         />

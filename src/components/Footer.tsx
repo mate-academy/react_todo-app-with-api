@@ -1,43 +1,21 @@
-import { Dispatch, FC } from 'react';
-
-import { deleteTodo } from '../api/todos';
+import { FC } from 'react';
 import { Status } from '../types/Status';
-import { Todo } from '../types/Todo';
 
 interface Props {
-  todos: Todo[];
   selectedStatus: Status;
   setSelectedStatus: (status: Status) => void;
-  setTodos: Dispatch<React.SetStateAction<Todo[]>>;
-  setIsDeleting: Dispatch<React.SetStateAction<number>>;
-  onErrorMessage: (message: string) => void;
+  onClearCompleted: () => void;
+  activeTodosCount: number;
+  completedTodosCount: number;
 }
 
 const Footer: FC<Props> = ({
-  todos,
   selectedStatus,
   setSelectedStatus,
-  setTodos,
-  setIsDeleting,
-  onErrorMessage,
+  onClearCompleted,
+  activeTodosCount,
+  completedTodosCount,
 }) => {
-  const activeTodosCount = todos.filter(todo => !todo.completed).length;
-  const completedTodos = todos.filter(todo => todo.completed);
-
-  const handleClearCompleted = () => {
-    completedTodos.forEach(todo => {
-      setIsDeleting(todo.id);
-      deleteTodo(todo.id)
-        .then(() =>
-          setTodos((prevState: Todo[]) =>
-            prevState.filter(todoItem => todoItem.id !== todo.id),
-          ),
-        )
-        .catch(() => onErrorMessage('Unable to delete a todo'))
-        .finally(() => setIsDeleting(0));
-    });
-  };
-
   return (
     <footer className="todoapp__footer" data-cy="Footer">
       <span className="todo-count" data-cy="TodosCounter">
@@ -77,8 +55,8 @@ const Footer: FC<Props> = ({
         type="button"
         className="todoapp__clear-completed"
         data-cy="ClearCompletedButton"
-        disabled={!completedTodos.length}
-        onClick={handleClearCompleted}
+        disabled={!completedTodosCount}
+        onClick={onClearCompleted}
       >
         Clear completed
       </button>
