@@ -85,16 +85,19 @@ export const Header: React.FC<Props> = ({
       const updatedTodos = await Promise.all(
         todos.map(async todo => {
           if (todo.completed !== newCompletedState) {
-            const updatedTodo = await updateTodo(todo.id, { completed: newCompletedState });
+            const updatedTodo = await updateTodo(todo.id, {
+              completed: newCompletedState,
+            });
+
             return updatedTodo;
           }
+
           return todo;
-        })
+        }),
       );
 
       setTodos(updatedTodos);
     } catch (error) {
-      console.error("Error updating todos:", error);
       setError(Error.UnableUpdate);
     } finally {
       setIsLoading(false);
@@ -106,8 +109,8 @@ export const Header: React.FC<Props> = ({
       {!isLoading && todos.length > 0 && (
         <button
           type="button"
-          className={cn("todoapp__toggle-all", {
-            active: todos.length > 0 && todos.every(todo => todo.completed)
+          className={cn('todoapp__toggle-all', {
+            active: todos.length > 0 && todos.every(todo => todo.completed),
           })}
           data-cy="ToggleAllButton"
           onClick={handleToggleAll}

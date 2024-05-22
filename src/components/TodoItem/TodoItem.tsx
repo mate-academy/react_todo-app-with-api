@@ -24,7 +24,7 @@ export const TodoItem: React.FC<Props> = ({
   setError,
   setDeleteIds,
 }) => {
-  const [isLoading, setIsLoading] = useState(false)
+  const [isLoading, setIsLoading] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [newTitle, setNewTitle] = useState(todo.title);
   const [editingValue, setEditingValue] = useState('');
@@ -46,14 +46,16 @@ export const TodoItem: React.FC<Props> = ({
       });
   };
 
-  const handleToggleTodo = (todo: Todo) => {
+  const handleToggleTodo = (todo_: Todo) => {
     setIsLoading(true);
 
-    const updatedTodo = { ...todo, completed: !todo.completed };
+    const updatedTodo = { ...todo_, completed: !todo_.completed };
 
-    updateTodo(todo.id, { completed: !todo.completed })
+    updateTodo(todo_.id, { completed: !todo_.completed })
       .then(() => {
-        setTodos((prevTodos) => prevTodos.map((item) => (item.id === todo.id ? updatedTodo : item)));
+        setTodos(prevTodos =>
+          prevTodos.map(item => (item.id === todo_.id ? updatedTodo : item)),
+        );
       })
       .catch(() => setError(Error.UnableUpdate))
       .finally(() => {
@@ -69,20 +71,23 @@ export const TodoItem: React.FC<Props> = ({
   const handleCancelEdit = () => {
     setIsEditing(false);
     setNewTitle(todo.title);
-  }
+  };
 
   const handleSaveEdit = () => {
     const normTitle = editingValue.trim();
 
     if (normTitle === '') {
       handleDeleteTodo(todo.id);
+
       return;
     }
 
     if (normTitle !== todo.title) {
       updateTodo(todo.id, { title: normTitle })
         .then(res => {
-          setTodos((prevTodos) => prevTodos.map((item) => (item.id === todo.id ? res : item)));
+          setTodos(prevTodos =>
+            prevTodos.map(item => (item.id === todo.id ? res : item)),
+          );
           setNewTitle(res.title);
           setIsEditing(false);
         })
@@ -107,7 +112,7 @@ export const TodoItem: React.FC<Props> = ({
 
   const onSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-  }
+  };
 
   return (
     <div
@@ -132,7 +137,7 @@ export const TodoItem: React.FC<Props> = ({
             type="text"
             className="todo__title-field"
             value={editingValue}
-            onChange={(e) => setEditingValue(e.target.value)}
+            onChange={e => setEditingValue(e.target.value)}
             onBlur={handleSaveEdit}
             onKeyUp={handleKeyPress}
             autoFocus
