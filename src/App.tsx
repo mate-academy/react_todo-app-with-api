@@ -38,6 +38,7 @@ export const App: React.FC = () => {
           setTodos={setTodos}
           setTempTodo={setTempTodo}
           setError={setError}
+          setLoadingIds={setLoadingIds}
         />
         <TodoList
           todos={sortedTodos}
