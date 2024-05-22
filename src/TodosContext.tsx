@@ -11,11 +11,14 @@ type ContextType = {
   selectedFilter: Selected;
   loader: boolean;
   errorMessage: string;
+  lastTodo: Todo | null;
+  setLastTodo: (value: Todo | null) => void;
+  setLoader: (value: boolean) => void;
   loadPost: () => void;
   setSelectedFilter: (value: Selected) => void;
   showFilteredTodos: (value: Selected) => Todo[];
   setTodos: (prevTodos: Todo[]) => void;
-  addTodo: (todo: Todo) => void;
+  addTodo: (todo: Todo, titleField: HTMLInputElement) => Promise<void>;
   deleteTodo: (id: number) => void;
   deleteCompleted: () => void;
   toggleTodoCompleted: (id: number, completed: boolean) => void;
@@ -34,11 +37,14 @@ export const TodosContext = React.createContext<ContextType>({
   selectedFilter: Selected.all,
   loader: false,
   errorMessage: '',
+  lastTodo: null,
+  setLastTodo: () => {},
+  setLoader: () => {},
   loadPost: () => {},
   setSelectedFilter: () => Selected.all,
   showFilteredTodos: () => [],
   setTodos: () => [],
-  addTodo: () => {},
+  addTodo: async () => {},
   deleteTodo: () => {},
   deleteCompleted: () => {},
   toggleTodoCompleted: () => {},
@@ -47,8 +53,9 @@ export const TodosContext = React.createContext<ContextType>({
 });
 
 export const TodosProvider: React.FC<Props> = ({ children }) => {
-  const [loader, setLoader] = useState(false);
+  const [loader, setLoader] = useState<boolean>(false);
   const [errorMessage, setErrorMessage] = useState<string>('');
+  const [lastTodo, setLastTodo] = useState<Todo | null>(null);
 
   const [todos, setTodos] = useState<Todo[]>([]);
   const [selectedFilter, setSelectedFilter] = useState<Selected>(Selected.all);
@@ -59,14 +66,14 @@ export const TodosProvider: React.FC<Props> = ({ children }) => {
     postService
       .getTodos()
       .then(res => {
-        const sortBack = res.sort((a, b) => b.id - a.id);
-
-        setTodos(sortBack);
+        setTodos(res);
       })
       .catch(() => {
         setErrorMessage('Unable to load todos');
       })
-      .finally(() => setLoader(false));
+      .finally(() => {
+        setLoader(false);
+      });
   };
 
   useEffect(() => {
@@ -84,23 +91,43 @@ export const TodosProvider: React.FC<Props> = ({ children }) => {
     }
   };
 
-  const addTodo = ({ userId, title, completed }: Todo) => {
+  const addTodo = (
+    { userId, title, completed }: Todo,
+    titleFieldRef: HTMLInputElement,
+  ) => {
+    if (titleFieldRef) {
+      /* eslint-disable no-param-reassign */
+      titleFieldRef.disabled = true;
+    }
+
     return postService
       .addTodo({ userId, title, completed })
       .then(newTodo => {
         setTodos(currentTodos => [...currentTodos, newTodo]);
+        setLoader(false);
+        setLastTodo(null);
       })
       .catch(error => {
         setErrorMessage('Unable to add a todo');
         throw error;
+      })
+      .finally(() => {
+        if (titleFieldRef) {
+          /* eslint-disable no-param-reassign */
+          titleFieldRef.disabled = false;
+          titleFieldRef.focus();
+        }
       });
   };
 
   const deleteTodo = (id: number) => {
+    setLoader(true);
+
     postService
       .deleteTodo(id)
       .then(() => {
         setTodos(todos.filter(currentTodo => currentTodo.id !== id));
+        setLoader(false);
       })
       .catch(error => {
         setErrorMessage('Unable to delete a todo');
@@ -183,6 +210,9 @@ export const TodosProvider: React.FC<Props> = ({ children }) => {
       selectedFilter,
       loader,
       errorMessage,
+      lastTodo,
+      setLastTodo,
+      setLoader,
       loadPost,
       setSelectedFilter,
       showFilteredTodos,

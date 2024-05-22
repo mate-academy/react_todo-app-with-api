@@ -1,4 +1,4 @@
-import React, { useContext } from 'react';
+import React, { useContext, useEffect } from 'react';
 import classNames from 'classnames';
 import { TodosContext } from '../../TodosContext';
 
@@ -11,18 +11,27 @@ enum Selected {
 export const Footer: React.FC = () => {
   const {
     todos,
+    loader,
     setSelectedFilter,
     showFilteredTodos,
     selectedFilter,
     deleteCompleted,
   } = useContext(TodosContext);
 
+  let activeCount = showFilteredTodos(Selected.active).length;
+
+  useEffect(() => {
+    if (!loader) {
+      activeCount = showFilteredTodos(Selected.active).length;
+    }
+  }, [todos]);
+
   return (
     <>
       {!!todos.length && (
         <footer className="todoapp__footer" data-cy="Footer">
           <span className="todo-count" data-cy="TodosCounter">
-            {showFilteredTodos(Selected.active).length} items left
+            {activeCount} items left
           </span>
 
           {/* Active link should have the 'selected' class */}
