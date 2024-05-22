@@ -1,6 +1,7 @@
 import React, { useContext } from 'react';
 import cn from 'classnames';
-import { FilterBy, TodoContext } from './TodoContext';
+import { ActionNames, FilterBy, TodoContext, errors } from './TodoContext';
+import { deleteTodo } from '../api/todos';
 
 export const Footer = () => {
   const {
@@ -8,7 +9,9 @@ export const Footer = () => {
     originalTodos,
     filteredBy,
     setFilteredBy,
-    handleClearCompleted,
+    dispatch,
+    handleError,
+    handleLoading,
   } = useContext(TodoContext);
 
   const activeTodos = originalTodos.filter(
@@ -28,7 +31,15 @@ export const Footer = () => {
   const handleClearTodos = () => {
     const done = todos.filter(({ completed }) => completed);
 
-    handleClearCompleted(done.map(({ id }) => id));
+    handleLoading(done.map(({ id }) => id));
+
+    done.forEach(todo => {
+      deleteTodo(todo.id)
+        .then(() => {
+          dispatch({ type: ActionNames.Delete, payload: todo.id });
+        })
+        .catch(() => handleError(errors.DeleteTodo));
+    });
   };
 
   return (
@@ -36,7 +47,7 @@ export const Footer = () => {
       {originalTodos.length > 0 && (
         <footer className="todoapp__footer" data-cy="Footer">
           <span className="todo-count" data-cy="TodosCounter">
-            {`${activeTodos} items left`}
+            {`${activeTodos} ${activeTodos === 1 ? 'item' : 'items'} left`}
           </span>
 
           <nav className="filter" data-cy="Filter">

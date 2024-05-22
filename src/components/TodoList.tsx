@@ -3,15 +3,8 @@ import { TodoContext } from './TodoContext';
 import { TodoItem } from './TodoItem';
 
 export const TodoList: React.FC = () => {
-  const {
-    todos,
-    dispatch,
-    handleError,
-    deleteCandidates,
-    handleClearCompleted,
-    tmpTodo,
-    isLoadingAll,
-  } = useContext(TodoContext);
+  const { todos, dispatch, handleError, tmpTodo, loading, handleLoading } =
+    useContext(TodoContext);
 
   return (
     <>
@@ -19,11 +12,10 @@ export const TodoList: React.FC = () => {
         <TodoItem
           key={todo.id}
           todo={todo}
-          loading={deleteCandidates.includes(todo.id) || isLoadingAll}
+          loading={loading.some(id => id === todo.id)}
           dispatch={dispatch}
           handleError={handleError}
-          onDelete={handleClearCompleted}
-          isLoadingAll={false}
+          handleLoading={handleLoading}
         />
       ))}
 
@@ -34,8 +26,7 @@ export const TodoList: React.FC = () => {
           loading={true}
           dispatch={dispatch}
           handleError={handleError}
-          onDelete={handleClearCompleted}
-          isLoadingAll={false}
+          handleLoading={handleLoading}
         />
       )}
     </>

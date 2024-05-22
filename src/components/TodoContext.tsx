@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useReducer, useState } from 'react';
 import { Todo } from '../types/Todo';
-import { deleteTodo, getTodos } from '../api/todos';
+import { getTodos } from '../api/todos';
 
 export enum FilterBy {
   All = 'ALL',
@@ -18,12 +18,10 @@ type TodoContextType = {
   setFilteredBy: (type: FilterBy) => void;
   error: string | null;
   handleError: (message: string) => void;
-  deleteCandidates: number[];
-  handleClearCompleted: (ids: number[]) => void;
   tmpTodo: Todo | null;
   handleTmpTodo: (todo: Todo | null) => void;
-  isLoadingAll: boolean;
-  handleLoadingAll: (loading: boolean) => void;
+  loading: number[];
+  handleLoading: (ids: number[]) => void;
 };
 
 export const TodoContext = React.createContext<TodoContextType>({
@@ -34,12 +32,10 @@ export const TodoContext = React.createContext<TodoContextType>({
   setFilteredBy: () => {},
   error: null,
   handleError: () => {},
-  deleteCandidates: [],
-  handleClearCompleted: () => {},
   tmpTodo: null,
   handleTmpTodo: () => {},
-  isLoadingAll: false,
-  handleLoadingAll: () => {},
+  loading: [],
+  handleLoading: () => {},
 });
 
 export type Props = {
@@ -145,24 +141,19 @@ export const TodoProvider: React.FC<Props> = ({ children }) => {
   const [tmpTodo, setTmpTodo] = useState<Todo | null>(null);
   const [filteredBy, setFilteredBy] = useState<FilterBy>(FilterBy.All);
   const [error, setError] = useState<string | null>(null);
-  const [deleteCandidates, setDeleteCandidates] = useState<number[]>([]);
-  const [isLoadingAll, setIsLoadingAll] = useState(false);
+  const [loading, setLoading] = useState<number[]>([]);
 
   const handleError = (message: string) => {
     setError(message);
     setTimeout(() => setError(null), 3000);
   };
 
-  const handleClearCompleted = (ids: number[]) => {
-    setDeleteCandidates(prev => [...prev, ...ids]);
-  };
-
   const handleTmpTodo = (todo: Todo | null) => {
     setTmpTodo(todo);
   };
 
-  const handleLoadingAll = (loading: boolean) => {
-    setIsLoadingAll(loading);
+  const handleLoading = (ids: number[]) => {
+    setLoading(ids);
   };
 
   const value = useMemo(
@@ -174,36 +165,13 @@ export const TodoProvider: React.FC<Props> = ({ children }) => {
       setFilteredBy,
       error,
       handleError,
-      deleteCandidates,
-      handleClearCompleted,
       tmpTodo,
       handleTmpTodo,
-      isLoadingAll,
-      handleLoadingAll,
+      loading,
+      handleLoading,
     }),
-    [
-      todos,
-      dispatch,
-      filteredBy,
-      setFilteredBy,
-      error,
-      deleteCandidates,
-      tmpTodo,
-      isLoadingAll,
-    ],
+    [todos, dispatch, filteredBy, setFilteredBy, error, tmpTodo, loading],
   );
-
-  useEffect(() => {
-    if (deleteCandidates.length) {
-      deleteCandidates.forEach(id => {
-        deleteTodo(id)
-          .then(() => {
-            dispatch({ type: ActionNames.Delete, payload: id });
-          })
-          .catch(() => handleError(errors.DeleteTodo));
-      });
-    }
-  }, [deleteCandidates]);
 
   useEffect(() => {
     getTodos()

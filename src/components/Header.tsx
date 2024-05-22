@@ -14,7 +14,7 @@ export const Header: React.FC = () => {
     tmpTodo,
     handleTmpTodo,
     originalTodos,
-    handleLoadingAll,
+    handleLoading,
   } = useContext(TodoContext);
   const [value, setValue] = useState('');
   const [disabled, setDisabled] = useState(false);
@@ -77,7 +77,7 @@ export const Header: React.FC = () => {
     const activeTodos = todos.filter(todo => !todo.completed);
     const shouldUpdateTodos = allCompleted ? todos : activeTodos;
 
-    handleLoadingAll(true);
+    handleLoading(activeTodos.map(({ id }) => id));
 
     const promises: Promise<Todo>[] = [];
 
@@ -98,7 +98,7 @@ export const Header: React.FC = () => {
         handleError(errors.UpdateTodo);
       })
       .finally(() => {
-        handleLoadingAll(false);
+        handleLoading([]);
       });
   };
 

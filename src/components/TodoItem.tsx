@@ -3,31 +3,40 @@ import React, { useState } from 'react';
 import cn from 'classnames';
 import { Todo } from '../types/Todo';
 import { Action, ActionNames, errors } from './TodoContext';
-import { updateTodo } from '../api/todos';
+import { deleteTodo, updateTodo } from '../api/todos';
 
 type Props = {
   todo: Todo;
   loading: boolean;
   dispatch: (action: Action) => void;
   handleError: (message: string) => void;
-  onDelete: (ids: number[]) => void;
-  isLoadingAll: boolean;
+  handleLoading: (ids: number[]) => void;
 };
 
 export const TodoItem: React.FC<Props> = ({
   todo,
   loading,
-  onDelete,
   dispatch,
   handleError,
-  isLoadingAll,
+  handleLoading,
 }) => {
   const [inputValue, setInputValue] = useState(todo.title);
   const [isEditing, setIsEdinting] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
 
   const handleEditInput = (event: React.ChangeEvent<HTMLInputElement>) => {
     setInputValue(event.target.value);
+  };
+
+  const handleDelete = () => {
+    handleLoading([todo.id]);
+    deleteTodo(todo.id)
+      .then(() => {
+        dispatch({ type: ActionNames.Delete, payload: todo.id });
+      })
+      .catch(() => handleError(errors.DeleteTodo))
+      .finally(() => {
+        handleLoading([]);
+      });
   };
 
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
@@ -39,9 +48,9 @@ export const TodoItem: React.FC<Props> = ({
       return;
     }
 
-    setIsLoading(true);
+    handleLoading([todo.id]);
     if (!inputValue.trim()) {
-      onDelete([todo.id]);
+      handleDelete();
     } else {
       updateTodo({
         ...todo,
@@ -57,7 +66,7 @@ export const TodoItem: React.FC<Props> = ({
         .catch(() => {
           handleError(errors.UpdateTodo);
         })
-        .finally(() => setIsLoading(false));
+        .finally(() => handleLoading([]));
     }
   };
 
@@ -70,9 +79,10 @@ export const TodoItem: React.FC<Props> = ({
 
   const handleBlur = () => {
     if (!inputValue.trim()) {
-      onDelete([todo.id]);
+      handleDelete();
     } else if (inputValue) {
-      setIsLoading(true);
+      handleLoading([todo.id]);
+
       setIsEdinting(false);
 
       updateTodo({
@@ -90,13 +100,13 @@ export const TodoItem: React.FC<Props> = ({
           handleError(errors.UpdateTodo);
         })
         .finally(() => {
-          setIsLoading(false);
+          handleLoading([]);
         });
     }
   };
 
   const handleToggle = () => {
-    setIsLoading(true);
+    handleLoading([todo.id]);
 
     updateTodo({
       ...todo,
@@ -107,11 +117,11 @@ export const TodoItem: React.FC<Props> = ({
           type: ActionNames.Completed,
           payload: { id: todo.id, completed: !completedTodo.completed },
         });
-        setIsLoading(false);
+        handleLoading([]);
       })
       .catch(() => {
         handleError(errors.UpdateTodo);
-        setIsLoading(false);
+        handleLoading([]);
       });
   };
 
@@ -157,7 +167,7 @@ export const TodoItem: React.FC<Props> = ({
             type="button"
             className="todo__remove"
             data-cy="TodoDelete"
-            onClick={() => onDelete([todo.id])}
+            onClick={() => handleDelete()}
           >
             ×
           </button>
@@ -167,7 +177,7 @@ export const TodoItem: React.FC<Props> = ({
       <div
         data-cy="TodoLoader"
         className={cn('modal overlay', {
-          'is-active': loading || isLoading || isLoadingAll,
+          'is-active': loading,
         })}
       >
         <div className="modal-background has-background-white-ter" />
