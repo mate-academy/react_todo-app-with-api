@@ -9,7 +9,7 @@ interface Props {
   setSortField: (field: SortField) => void;
   setTodos: React.Dispatch<React.SetStateAction<Todo[]>>;
   setError: React.Dispatch<React.SetStateAction<ErrorType | null>>;
-  setDeletingIds: React.Dispatch<React.SetStateAction<number[]>>;
+  setLoadingIds: React.Dispatch<React.SetStateAction<number[]>>;
 }
 
 export const Footer: React.FC<Props> = ({
@@ -18,14 +18,14 @@ export const Footer: React.FC<Props> = ({
   setSortField,
   setTodos,
   setError,
-  setDeletingIds,
+  setLoadingIds,
 }) => {
   const activeTodosCount = todos.filter(todo => !todo.completed).length;
   const completedTodos = todos.filter(todo => todo.completed);
 
   const handleClearCompleted = () => {
-    const deletePromises = completedTodos.map(todo => {
-      setDeletingIds(prevIds => [...prevIds, todo.id]);
+    completedTodos.map(todo => {
+      setLoadingIds(prevIds => [...prevIds, todo.id]);
 
       return deleteTodo(todo.id)
         .then(() => {
@@ -37,12 +37,8 @@ export const Footer: React.FC<Props> = ({
           setError(ErrorType.DeleteFail);
         })
         .finally(() => {
-          setDeletingIds(prevIds => prevIds.filter(id => id !== todo.id));
+          setLoadingIds(prevIds => prevIds.filter(id => id !== todo.id));
         });
-    });
-
-    Promise.all(deletePromises).then(() => {
-      // Optional: Perform any action after all deletions are complete
     });
   };
 

@@ -17,8 +17,7 @@ export const App: React.FC = () => {
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
   const [sortField, setSortField] = useState<SortField>(SortField.All);
   const [error, setError] = useState<ErrorType | null>(null);
-  const [deletingIds, setDeletingIds] = useState<number[]>([]);
-  const [updatingIds, setUpdatingIds] = useState<number[]>([]);
+  const [loadingIds, setLoadingIds] = useState<number[]>([]);
 
   useEffect(() => {
     getTodos()
@@ -35,31 +34,26 @@ export const App: React.FC = () => {
       <div className="todoapp__content">
         <Form
           todos={todos}
-          deletingIds={deletingIds}
+          loadingIds={loadingIds}
           setTodos={setTodos}
           setTempTodo={setTempTodo}
           setError={setError}
-          setUpdatingIds={setUpdatingIds}
         />
         <TodoList
           todos={sortedTodos}
-          deletingIds={deletingIds}
-          updatingIds={updatingIds}
+          loadingIds={loadingIds}
           setTodos={setTodos}
           setError={setError}
-          setDeletingIds={setDeletingIds}
-          setUpdatingIds={setUpdatingIds}
+          setLoadingIds={setLoadingIds}
         />
         {tempTodo && (
           <TodoItem
             todo={tempTodo}
             isTemp={true}
-            deletingIds={deletingIds}
-            updatingIds={updatingIds}
+            loadingIds={loadingIds}
             setTodos={setTodos}
             setError={setError}
-            setDeletingIds={setDeletingIds}
-            setUpdatingIds={setUpdatingIds}
+            setLoadingIds={setLoadingIds}
           />
         )}
         {!!todos.length && (
@@ -69,7 +63,7 @@ export const App: React.FC = () => {
             setSortField={setSortField}
             setTodos={setTodos}
             setError={setError}
-            setDeletingIds={setDeletingIds}
+            setLoadingIds={setLoadingIds}
           />
         )}
       </div>

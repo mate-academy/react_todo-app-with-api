@@ -4,21 +4,17 @@ import { TodoItem } from '../TodoItem/TodoItem';
 
 interface Props {
   todos: Todo[];
-  deletingIds: number[];
-  updatingIds: number[];
+  loadingIds: number[];
   setTodos: React.Dispatch<React.SetStateAction<Todo[]>>;
   setError: React.Dispatch<React.SetStateAction<ErrorType | null>>;
-  setDeletingIds: React.Dispatch<React.SetStateAction<number[]>>;
-  setUpdatingIds: React.Dispatch<React.SetStateAction<number[]>>;
+  setLoadingIds: React.Dispatch<React.SetStateAction<number[]>>;
 }
 export const TodoList: React.FC<Props> = ({
   todos,
-  deletingIds,
-  updatingIds,
+  loadingIds,
   setTodos,
   setError,
-  setDeletingIds,
-  setUpdatingIds,
+  setLoadingIds,
 }) => {
   return (
     <section className="todoapp__main" data-cy="TodoList">
@@ -26,12 +22,10 @@ export const TodoList: React.FC<Props> = ({
         <TodoItem
           todo={todo}
           isTemp={false}
-          deletingIds={deletingIds}
-          updatingIds={updatingIds}
+          loadingIds={loadingIds}
           setTodos={setTodos}
           setError={setError}
-          setDeletingIds={setDeletingIds}
-          setUpdatingIds={setUpdatingIds}
+          setLoadingIds={setLoadingIds}
           key={todo.id}
         />
       ))}

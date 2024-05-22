@@ -1,24 +1,22 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { ErrorType } from '../../types/Error';
-import { USER_ID, addTodo, updateTodo } from '../../api/todos';
+import { USER_ID, addTodo } from '../../api/todos';
 import { Todo } from '../../types/Todo';
 
 interface Props {
   todos: Todo[];
-  deletingIds: number[];
+  loadingIds: number[];
   setTodos: (todos: Todo[]) => void;
   setTempTodo: (tempTodo: Todo | null) => void;
   setError: React.Dispatch<React.SetStateAction<ErrorType | null>>;
-  setUpdatingIds: React.Dispatch<React.SetStateAction<number[]>>;
 }
 
 export const Form: React.FC<Props> = ({
   todos,
-  deletingIds,
+  loadingIds,
   setTodos,
   setTempTodo,
   setError,
-  setUpdatingIds,
 }) => {
   const formInputRef = useRef<HTMLInputElement>(null);
   const [newTask, setNewTask] = useState('');
@@ -26,7 +24,7 @@ export const Form: React.FC<Props> = ({
 
   useEffect(() => {
     formInputRef.current?.focus();
-  }, [loading, deletingIds.length]);
+  }, [loading, loadingIds.length]);
 
   const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setNewTask(event.target.value);
@@ -69,43 +67,13 @@ export const Form: React.FC<Props> = ({
       });
   };
 
-  const handleToggleAllCompleted = () => {
-    const allCompleted = todos.every(todo => todo.completed);
-    const updatedTodos = todos.map(todo => ({
-      ...todo,
-      completed: !allCompleted,
-    }));
-
-    const updatePromises = todos.map(todo =>
-      todo.completed === allCompleted
-        ? updateTodo({ ...todo, completed: !allCompleted })
-        : Promise.resolve(),
-    );
-
-    const todoIds = updatedTodos.map(todo => todo.id);
-
-    setUpdatingIds(todoIds);
-
-    Promise.all(updatePromises)
-      .then(() => {
-        setTodos(updatedTodos);
-      })
-      .catch(() => {
-        setError(ErrorType.UpdateFail);
-      })
-      .finally(() => setUpdatingIds([]));
-  };
-
   return (
     <header className="todoapp__header">
-      {!!todos.length && (
-        <button
-          type="button"
-          className="todoapp__toggle-all active"
-          data-cy="ToggleAllButton"
-          onClick={handleToggleAllCompleted}
-        />
-      )}
+      <button
+        type="button"
+        className="todoapp__toggle-all active"
+        data-cy="ToggleAllButton"
+      />
 
       <form onSubmit={handleSubmit}>
         <input
@@ -116,7 +84,7 @@ export const Form: React.FC<Props> = ({
           value={newTask}
           onChange={handleInputChange}
           ref={formInputRef}
-          disabled={loading || !!deletingIds.length}
+          disabled={loading || !!loadingIds.length}
         />
       </form>
     </header>
