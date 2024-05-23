@@ -2,7 +2,7 @@
 /* eslint-disable jsx-a11y/control-has-associated-label */
 import React, { useEffect, useState } from 'react';
 import { getTodos } from './api/todos';
-import { Form } from './components/Form/Form';
+import { Header } from './components/Header/Header';
 import { Footer } from './components/Footer/Footer';
 import { TodoList } from './components/TodoList/TodoList';
 import { Todo } from './types/Todo';
@@ -32,7 +32,7 @@ export const App: React.FC = () => {
       <h1 className="todoapp__title">todos</h1>
 
       <div className="todoapp__content">
-        <Form
+        <Header
           todos={todos}
           loadingIds={loadingIds}
           setTodos={setTodos}
