@@ -1,11 +1,25 @@
 import React, { useEffect, useRef } from 'react';
+import { Todo } from '../../types/Todo';
 
-export const Header: React.FC<{
+type Props = {
   onToDoSave: (title: string) => Promise<void> | undefined;
   onTitleChange: (title: string) => void;
   initialTitle: string;
   isLoading: boolean;
-}> = ({ onToDoSave, onTitleChange, initialTitle, isLoading }) => {
+  todos: Todo[];
+  onUpdate: (id: number, updatedTodo: Partial<Todo>) => Promise<void>;
+  setIsAllLoading: React.Dispatch<React.SetStateAction<boolean>>;
+};
+
+export const Header: React.FC<Props> = ({
+  onToDoSave,
+  onTitleChange,
+  initialTitle,
+  isLoading,
+  todos,
+  onUpdate,
+  setIsAllLoading,
+}) => {
   const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -19,13 +33,32 @@ export const Header: React.FC<{
     onToDoSave(initialTitle);
   };
 
+  const handleToggleAll = () => {
+    setIsAllLoading(true);
+    const allCompleted = todos.every(todo => todo.completed);
+    const newStatus = !allCompleted;
+    const promises: Promise<void>[] = [];
+
+    todos.forEach(todo => {
+      if (todo.completed === newStatus) {
+        return;
+      }
+
+      promises.push(onUpdate(todo.id, { completed: newStatus }));
+    });
+    Promise.all(promises).finally(() => setIsAllLoading(false));
+  };
+
   return (
     <header className="todoapp__header">
-      <button
-        type="button"
-        className="todoapp__toggle-all active"
-        data-cy="ToggleAllButton"
-      />
+      {todos.length > 0 && (
+        <button
+          type="button"
+          className={`todoapp__toggle-all ${todos.every(todo => todo.completed) ? 'active' : ''}`}
+          data-cy="ToggleAllButton"
+          onClick={handleToggleAll}
+        />
+      )}
 
       <form onSubmit={handleSubmit}>
         <input

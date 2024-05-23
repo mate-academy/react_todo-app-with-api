@@ -5,8 +5,9 @@ import { ToDoItem } from '../ToDoItem/ToDoItem';
 type Props = {
   visibleToDos: Todo[];
   onDelete: (id: number) => Promise<void>;
-  onUpdate: (id: number, updated: Partial<Todo>) => void;
+  onUpdate: (id: number, updated: Partial<Todo>) => Promise<void>;
   tempTodo: Todo | null;
+  isAllLoading: boolean;
 };
 
 export const ToDoList: React.FC<Props> = ({
@@ -14,6 +15,7 @@ export const ToDoList: React.FC<Props> = ({
   onDelete,
   onUpdate,
   tempTodo,
+  isAllLoading,
 }) => {
   const renderToDos = useMemo(
     () => (tempTodo ? [...visibleToDos, tempTodo] : visibleToDos),
@@ -29,6 +31,7 @@ export const ToDoList: React.FC<Props> = ({
           onDelete={onDelete}
           onUpdate={onUpdate}
           isTempToDo={todo.id === 0}
+          isAllLoading={isAllLoading}
         />
       ))}
     </section>

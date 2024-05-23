@@ -33,6 +33,7 @@ export const App: React.FC = () => {
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
   const [title, setTitle] = useState('');
   const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [isAllLoading, setIsAllLoading] = useState<boolean>(false);
 
   useEffect(() => {
     getTodos()
@@ -99,16 +100,35 @@ export const App: React.FC = () => {
       });
   };
 
-  const updateToDoByID = (id: number, updatedToDo: Partial<Todo>) => {
-    updateToDo(id, updatedToDo)
-      .then(() =>
+  const updateToDoByID = (
+    id: number,
+    updatedToDo: Partial<Todo>,
+    onSuccess?: (res: Todo) => void,
+    onFail?: () => void,
+  ) => {
+    // setIsLoading(true);
+
+    return updateToDo(id, updatedToDo)
+      .then(res => {
         setTodos(state =>
           state.map(todo =>
             todo.id === id ? { ...todo, ...updatedToDo } : todo,
           ),
-        ),
-      )
-      .catch(() => setError('Unable to update a Todo'));
+        );
+
+        if (onSuccess) {
+          onSuccess(res);
+        }
+      })
+      .catch(() => {
+        setError('Unable to update a todo');
+        if (onFail) {
+          onFail();
+        }
+      })
+      .finally(() => {
+        setIsLoading(false);
+      });
   };
 
   const handleDeleteCompleted = () => {
@@ -145,12 +165,16 @@ export const App: React.FC = () => {
           onTitleChange={setTitle}
           initialTitle={title}
           isLoading={isLoading}
+          todos={todos}
+          onUpdate={updateToDoByID}
+          setIsAllLoading={setIsAllLoading}
         />
         <ToDoList
           visibleToDos={visibleToDos}
           onDelete={deleteTodoById}
           onUpdate={updateToDoByID}
           tempTodo={tempTodo}
+          isAllLoading={isAllLoading}
         />
         {!!todos.length && (
           <Footer
