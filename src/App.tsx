@@ -120,7 +120,7 @@ export const App: React.FC = () => {
     completedTodos.forEach(todo => handleDeleteTodo(todo.id));
   };
 
-  const handleTooggleStatus = (todo: Todo) => {
+  const handleToggleStatus = (todo: Todo) => {
     setLoadingTodos(current => [...current, todo.id]);
     todoService
       .updateTodo({ ...todo, completed: !todo.completed })
@@ -137,11 +137,11 @@ export const App: React.FC = () => {
       });
   };
 
-  const handleTooggleStatusAll = () => {
+  const handleToggleStatusAll = () => {
     if (isActiveTodos.length > 0) {
-      isActiveTodos.forEach(handleTooggleStatus);
+      isActiveTodos.forEach(handleToggleStatus);
     } else {
-      completedTodos.forEach(handleTooggleStatus);
+      completedTodos.forEach(handleToggleStatus);
     }
   };
 
@@ -175,7 +175,7 @@ export const App: React.FC = () => {
           titleField={titleField}
           title={title}
           setTitle={setTitle}
-          onToggleAll={handleTooggleStatusAll}
+          onToggleAll={handleToggleStatusAll}
         />
         <TodoList
           todos={todos}
@@ -183,7 +183,7 @@ export const App: React.FC = () => {
           selectedFilter={selectedFilter}
           handleDeleteTodo={handleDeleteTodo}
           loadingTodos={loadingTodos}
-          onToggle={handleTooggleStatus}
+          onToggle={handleToggleStatus}
           handleUpdateTodo={handleUpdateTodo}
         />
 
