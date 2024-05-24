@@ -1,15 +1,15 @@
-import React, {useEffect, useRef, useState} from 'react';
-import {UserWarning} from './UserWarning';
-import {getAdd, getDelete, getTodos, getUpdate, USER_ID} from './api/todos';
-import {Todo} from './types/Todo';
-import {TodoItem} from './components/TodoItem/TodoItem';
-import {Header} from './components/Header/Header';
-import {ErrorType} from './types/Error';
-import {Status} from './types/Status';
-import {todoFilter} from './utils/todoFilter';
-import {TodoList} from './components/TodoList/TodoList';
-import {Footer} from './components/Footer/Footer';
-import {ErrorMessage} from './components/ErrorNotification/ErrorNotification';
+import React, { useEffect, useRef, useState } from 'react';
+import { UserWarning } from './UserWarning';
+import { getAdd, getDelete, getTodos, getUpdate, USER_ID } from './api/todos';
+import { Todo } from './types/Todo';
+import { TodoItem } from './components/TodoItem/TodoItem';
+import { Header } from './components/Header/Header';
+import { ErrorType } from './types/Error';
+import { Status } from './types/Status';
+import { todoFilter } from './utils/todoFilter';
+import { TodoList } from './components/TodoList/TodoList';
+import { Footer } from './components/Footer/Footer';
+import { ErrorMessage } from './components/ErrorNotification/ErrorNotification';
 
 export const App: React.FC = () => {
   const [todos, setTodos] = useState<Todo[]>([]);
@@ -20,27 +20,11 @@ export const App: React.FC = () => {
   const [tempTodo, setTempTodo] = useState<null | Todo>(null);
   const [isDeleting, setIsDeleting] = useState(false);
 
-  const [loadingTodos, setLoadingTodos] = useState<number[]>([])
+  const [loadingTodos, setLoadingTodos] = useState<number[]>([]);
   const [beingUpdated, setBeingUpdated] = useState<number | null>(null);
 
   const activeInput = useRef<HTMLInputElement>(null);
   const allTodosCompleted = todos.every(todo => todo.completed);
-
-  const clearCompleted = () => {
-    return todos.filter(todo => todo.completed).map(todo => onDelete(todo.id));
-  };
-
-  const addTodoToEditingList = (todo: Todo) => {
-    setLoadingTodos(currentTodosId => [...currentTodosId, todo.id]);
-  };
-
-  const removeTodo = (todo: Todo) => {
-    const filteredIds = loadingTodos.filter(
-      currentIds => currentIds !== todo.id,
-    );
-
-    setLoadingTodos(filteredIds);
-  };
 
   const setErrorWithSetTimeout = (error: ErrorType) => {
     setErrorMessage(error);
@@ -88,18 +72,16 @@ export const App: React.FC = () => {
       });
   };
 
-  const onDelete = (todoId: number) => {
+  const onDelete = (id: number) => {
     if (isDeleting) {
       return;
     }
 
     setIsDeleting(false);
 
-    getDelete(todoId)
+    getDelete(id)
       .then(() => {
-        setTodos(currentTodos =>
-          currentTodos.filter(todo => todo.id !== todoId),
-        );
+        setTodos(currentTodos => currentTodos.filter(todo => todo.id !== id));
       })
       .catch(() => {
         setErrorWithSetTimeout(ErrorType.UnableDelete);
@@ -138,6 +120,22 @@ export const App: React.FC = () => {
         setTempTodo(null);
         setLoadTodo(false);
       });
+  };
+
+  const clearCompleted = () => {
+    return todos.filter(todo => todo.completed).map(todo => onDelete(todo.id));
+  };
+
+  const addTodoToEditingList = (todo: Todo) => {
+    setLoadingTodos(currentTodosId => [...currentTodosId, todo.id]);
+  };
+
+  const removeTodo = (todo: Todo) => {
+    const filteredIds = loadingTodos.filter(
+      currentIds => currentIds !== todo.id,
+    );
+
+    setLoadingTodos(filteredIds);
   };
 
   const onUpdate = (todo: Todo, updatedTitle: string) => {

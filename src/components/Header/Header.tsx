@@ -8,7 +8,7 @@ type Props = {
   loadTodo: boolean;
   allTodosCompleted: boolean;
   makeToggleAll: () => void;
-  noTodos:boolean;
+  noTodos: boolean;
 };
 
 export const Header: React.FC<Props> = ({
@@ -19,7 +19,7 @@ export const Header: React.FC<Props> = ({
   loadTodo,
   allTodosCompleted,
   makeToggleAll,
-  noTodos
+  noTodos,
 }) => {
   const onAddNewTodo = (event: React.FormEvent) => {
     event.preventDefault();

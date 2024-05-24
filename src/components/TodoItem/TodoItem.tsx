@@ -1,15 +1,15 @@
 /* eslint-disable jsx-a11y/label-has-associated-control */
-import React, {useEffect, useRef, useState} from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Todo } from '../../types/Todo';
 
 type Props = {
   todo: Todo;
   isTemp?: boolean;
   onDelete: (id: number) => void;
-  onUpdate:(todo: Todo, newTitle: string) => void;
+  onUpdate: (todo: Todo, newTitle: string) => void;
   toggleById: (todo: Todo, newIsCompleted: boolean) => void;
   beingUpdated: number | null;
-  loadingTodos?:boolean;
+  loadingTodos?: boolean;
 };
 
 export const TodoItem: React.FC<Props> = ({
@@ -19,7 +19,7 @@ export const TodoItem: React.FC<Props> = ({
   onUpdate,
   toggleById,
   beingUpdated,
-  loadingTodos
+  loadingTodos,
 }) => {
   const [beingRemoved, setBeingRemoved] = useState(false);
   const [newTitle, setNewTitle] = useState<string>(todo.title);
@@ -94,7 +94,7 @@ export const TodoItem: React.FC<Props> = ({
           checked={todo.completed}
           onChange={event => {
             event.preventDefault();
-            toggleById(todo, !todo.completed)
+            toggleById(todo, !todo.completed);
           }}
         />
       </label>
