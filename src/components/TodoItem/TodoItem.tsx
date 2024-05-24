@@ -6,7 +6,6 @@ import * as todosService from '../../api/todos';
 
 type Props = {
   todo: Todo;
-  todos: Todo[];
   setTodos: React.Dispatch<React.SetStateAction<Todo[]>>;
   setErrorMessage: (errorMessage: string) => void;
   loadingTodoIds: number[];
@@ -15,7 +14,6 @@ type Props = {
 
 export const TodoItem: React.FC<Props> = ({
   todo: { title, completed, id },
-  todos,
   setTodos,
   setErrorMessage,
   loadingTodoIds,
@@ -32,22 +30,28 @@ export const TodoItem: React.FC<Props> = ({
   }, [isEditing]);
 
   const handleToggleComplete = (todoId: number) => {
-    const updatedTodos = todos.map(todo => {
-      if (todo.id === todoId) {
-        return { ...todo, completed: !todo.completed };
-      }
-
-      return todo;
-    });
-
     setLoadingTodoIds(prevIds => [...prevIds, todoId]);
 
-    setTodos(updatedTodos);
-    setTimeout(() => {
-      setLoadingTodoIds(prevIds =>
-        prevIds.filter(prevTodoId => prevTodoId !== todoId),
-      );
-    }, 500);
+    todosService
+      .updateTodo({
+        id,
+        userId: todosService.USER_ID,
+        title,
+        completed: !completed,
+      })
+      .then(updatedTodo => {
+        setTodos(currentTodos =>
+          currentTodos.map(todo => (todo.id === todoId ? updatedTodo : todo)),
+        );
+      })
+      .catch(() => {
+        setErrorMessage(`Unable to update a todo`);
+      })
+      .finally(() => {
+        setLoadingTodoIds(prevIds =>
+          prevIds.filter(prevTodoId => prevTodoId !== todoId),
+        );
+      });
   };
 
   function removeTodo(todoId: number) {
@@ -124,11 +128,17 @@ export const TodoItem: React.FC<Props> = ({
 
   const handleInputKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
     if (event.key === 'Enter') {
+      event.preventDefault();
       updateTodo(editedTitle);
     } else if (event.key === 'Escape') {
       setIsEditing(false);
       setEditedTitle(title);
     }
+  };
+
+  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    updateTodo(editedTitle);
   };
 
   return (
@@ -149,33 +159,39 @@ export const TodoItem: React.FC<Props> = ({
       </label>
 
       {isEditing ? (
-        <input
-          ref={inputRef}
-          type="text"
-          className="todo__title-edit"
-          value={editedTitle}
-          onChange={handleInputChange}
-          onBlur={handleInputBlur}
-          onKeyDown={handleInputKeyDown}
-        />
+        <form onSubmit={handleSubmit}>
+          <input
+            ref={inputRef}
+            data-cy="TodoTitleField"
+            type="text"
+            className="todo__title-field"
+            placeholder="Empty todo will be deleted"
+            value={editedTitle}
+            onChange={handleInputChange}
+            onKeyDown={handleInputKeyDown}
+            onBlur={handleInputBlur}
+          />
+        </form>
       ) : (
-        <span
-          data-cy="TodoTitle"
-          className="todo__title"
-          onDoubleClick={handleDoubleClick}
-        >
-          {title}
-        </span>
-      )}
+        <>
+          <span
+            data-cy="TodoTitle"
+            className="todo__title"
+            onDoubleClick={handleDoubleClick}
+          >
+            {title}
+          </span>
 
-      <button
-        type="button"
-        className="todo__remove"
-        data-cy="TodoDelete"
-        onClick={() => removeTodo(id)}
-      >
-        ×
-      </button>
+          <button
+            type="button"
+            className="todo__remove"
+            data-cy="TodoDelete"
+            onClick={() => removeTodo(id)}
+          >
+            ×
+          </button>
+        </>
+      )}
 
       <div
         data-cy="TodoLoader"

@@ -32,6 +32,7 @@ export const Header: React.FC<Props> = ({
     }
   });
   const completedTodos = todos.every(todo => todo.completed);
+  const activeTodos = todos.filter(todo => !todo.completed);
 
   function addTodo(title: string) {
     if (!title.trim()) {
@@ -72,20 +73,40 @@ export const Header: React.FC<Props> = ({
   }
 
   const handleToggleAll = () => {
-    const updatedTodos = todos.map(todo => {
-      return { ...todo, completed: !todo.completed };
-    });
+    let todosToUpdate;
 
-    updatedTodos.forEach(todo => {
+    if (completedTodos) {
+      todosToUpdate = [...todos];
+    } else {
+      todosToUpdate = activeTodos;
+    }
+
+    todosToUpdate.forEach(todo => {
       setLoadingTodoIds(prevIds => [...prevIds, todo.id]);
-      setTimeout(() => {
-        setLoadingTodoIds(prevIds =>
-          prevIds.filter(prevTodoId => prevTodoId !== todo.id),
-        );
-      }, 500);
-    });
 
-    setTodos(updatedTodos);
+      todosService
+        .updateTodo({
+          id: todo.id,
+          userId: todosService.USER_ID,
+          title: todo.title,
+          completed: !todo.completed,
+        })
+        .then(updatedTodo => {
+          setTodos(currentTodos =>
+            currentTodos.map(currentTodo =>
+              currentTodo.id === todo.id ? updatedTodo : currentTodo,
+            ),
+          );
+        })
+        .catch(() => {
+          setErrorMessage(`Unable to update a todo`);
+        })
+        .finally(() => {
+          setLoadingTodoIds(prevIds =>
+            prevIds.filter(prevTodoId => prevTodoId !== todo.id),
+          );
+        });
+    });
   };
 
   const handleSubmit = (event: React.FormEvent) => {
@@ -95,14 +116,16 @@ export const Header: React.FC<Props> = ({
 
   return (
     <header className="todoapp__header">
-      <button
-        type="button"
-        className={classNames('todoapp__toggle-all', {
-          active: completedTodos,
-        })}
-        data-cy="ToggleAllButton"
-        onClick={handleToggleAll}
-      />
+      {!!todos.length && (
+        <button
+          type="button"
+          className={classNames('todoapp__toggle-all', {
+            active: completedTodos,
+          })}
+          data-cy="ToggleAllButton"
+          onClick={handleToggleAll}
+        />
+      )}
 
       <form onSubmit={handleSubmit}>
         <input

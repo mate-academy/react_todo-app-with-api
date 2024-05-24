@@ -41,7 +41,6 @@ export const TodoList: React.FC<Props> = ({
         <TodoItem
           todo={todo}
           key={todo.id}
-          todos={todos}
           setTodos={setTodos}
           setErrorMessage={setErrorMessage}
           loadingTodoIds={loadingTodoIds}
@@ -52,7 +51,6 @@ export const TodoList: React.FC<Props> = ({
       {tempTodo !== null && (
         <TodoItem
           todo={tempTodo}
-          todos={todos}
           setTodos={setTodos}
           setErrorMessage={setErrorMessage}
           loadingTodoIds={loadingTodoIds}
