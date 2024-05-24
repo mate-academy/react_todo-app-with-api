@@ -13,6 +13,7 @@ import { Error } from '../types/Error';
 import { updateErrorState } from '../utils/errorHandler';
 import { Filter } from '../types/Filter';
 import { Todo } from '../types/Todo';
+import { ErrorType } from '../types/ErrorTypes';
 
 const initialErrorState: Error[] = [
   { type: 'TodoLoadError', textError: 'Unable to load todos', value: false },
@@ -36,7 +37,6 @@ const initialErrorState: Error[] = [
 
 const initialState: State = {
   todos: [],
-  filteredTodos: [],
   filter: Filter.All,
   errors: initialErrorState,
   targetTodo: 0,
@@ -53,7 +53,7 @@ const initialAppContext: AppContextType = {
   dispatch: () => null,
 };
 
-const applyFilter = (todos: Todo[], filter: Filter): Todo[] => {
+export const applyFilter = (todos: Todo[], filter: Filter): Todo[] => {
   switch (filter) {
     case Filter.Active:
       return todos.filter(todo => !todo.completed);
@@ -69,13 +69,15 @@ const reducer = (state: State, action: Action): State => {
     case 'LOAD_TODOS_FROM_SERVER':
       return {
         ...state,
-        todos: action.payload,
-        filteredTodos: applyFilter(action.payload, state.filter),
+        todos: applyFilter(action.payload, state.filter),
       };
     case 'UPDATE_ERROR_STATUS':
       return {
         ...state,
-        errors: updateErrorState(state.errors, action.payload.type),
+        errors: updateErrorState(
+          state.errors,
+          action.payload.type as ErrorType,
+        ),
       };
     case 'CLEAR_ERRORS':
       return {
@@ -87,8 +89,7 @@ const reducer = (state: State, action: Action): State => {
 
       return {
         ...state,
-        todos: updTodos,
-        filteredTodos: updTodos,
+        todos: applyFilter(updTodos, state.filter),
         tempTodo: null,
       };
     case 'UPD_TODO':
@@ -102,22 +103,17 @@ const reducer = (state: State, action: Action): State => {
 
       return {
         ...state,
-        todos: upd,
-        filteredTodos: applyFilter(upd, state.filter),
+        todos: applyFilter(upd, state.filter),
       };
     case 'DELETE_TODO':
       return {
         ...state,
         todos: state.todos.filter(todo => todo.id !== action.payload),
-        filteredTodos: state.filteredTodos.filter(
-          todo => todo.id !== action.payload,
-        ),
       };
     case 'TOGGLE_ALL':
       return {
         ...state,
-        todos: action.payload,
-        filteredTodos: action.payload,
+        todos: applyFilter(action.payload, state.filter),
       };
     case 'SET_TARGET_TODO':
       return {
@@ -128,7 +124,6 @@ const reducer = (state: State, action: Action): State => {
       return {
         ...state,
         filter: action.payload,
-        filteredTodos: applyFilter(state.todos, action.payload),
       };
     case 'SET_INPUT_DISABLED':
       return {

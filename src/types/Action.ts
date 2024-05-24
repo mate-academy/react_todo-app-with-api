@@ -1,4 +1,5 @@
 /* eslint-disable @typescript-eslint/indent */
+import { ErrorType } from './ErrorTypes';
 import { Filter } from './Filter';
 import { Todo } from './Todo';
 
@@ -7,7 +8,7 @@ export type Action =
   | {
       type: 'UPDATE_ERROR_STATUS';
       payload: {
-        type: string;
+        type: ErrorType;
       };
     }
   | { type: 'CLEAR_ERRORS' }

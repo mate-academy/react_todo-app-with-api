@@ -4,7 +4,6 @@ import { Todo } from './Todo';
 
 export interface State {
   todos: Todo[];
-  filteredTodos: Todo[];
   filter: Filter;
   errors: Error[];
   targetTodo: number;
@@ -13,10 +12,5 @@ export interface State {
     value: boolean;
     targetId: number;
   };
-  tempTodo: {
-    id: number;
-    title: string;
-    completed: boolean;
-    userId: number;
-  } | null;
+  tempTodo: Todo | null;
 }

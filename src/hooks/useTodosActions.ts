@@ -3,6 +3,7 @@ import { AppContext } from '../context/AppContext';
 import { Todo } from '../types/Todo';
 import { TodoActions } from '../types/TodoActions';
 import { Filter } from '../types/Filter';
+import { ErrorType } from '../types/ErrorTypes';
 
 export const useTodoActions = (): TodoActions => {
   const { dispatch } = useContext(AppContext);
@@ -41,13 +42,12 @@ export const useTodoActions = (): TodoActions => {
     [dispatch],
   );
 
-  // TODO create types for errorText instead of string?
   const updateErrorStatus = useCallback(
     (errorType: string) => {
       dispatch({
         type: 'UPDATE_ERROR_STATUS',
         payload: {
-          type: errorType,
+          type: errorType as ErrorType,
         },
       });
     },
