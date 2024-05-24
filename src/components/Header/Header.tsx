@@ -50,17 +50,17 @@ export const Header: React.FC<Props> = ({
     return todosService
       .postTodo({
         userId: todosService.USER_ID,
-        title: title,
+        title: title.trim(),
         completed: false,
       })
       .then(newTodo => {
         setTodos(currentTodos => [...currentTodos, newTodo]);
+        setTodoTitle('');
       })
       .catch(() => {
         setErrorMessage(`Unable to add a todo`);
       })
       .finally(() => {
-        setTodoTitle('');
         setLoadingTodoIds(prevIds =>
           prevIds.filter(prevTodoId => prevTodoId !== createdTempTodo.id),
         );
@@ -91,7 +91,6 @@ export const Header: React.FC<Props> = ({
   const handleSubmit = (event: React.FormEvent) => {
     event.preventDefault();
     addTodo(todoTitle);
-    setTodoTitle('');
   };
 
   return (
