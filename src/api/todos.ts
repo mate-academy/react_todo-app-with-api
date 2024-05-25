@@ -14,3 +14,10 @@ export const createTodo = (newTodo: Omit<Todo, 'id'>) => {
 export const deleteTodo = (id: number) => {
   return client.delete(`/todos/${id}`);
 };
+
+export const updateTodo = (
+  id: number,
+  newTodoData: Partial<Pick<Todo, 'title' | 'completed'>>,
+) => {
+  return client.patch(`/todos/${id}`, newTodoData);
+};

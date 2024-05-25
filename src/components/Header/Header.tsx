@@ -2,7 +2,7 @@ import React, { useContext, useEffect, useRef, useState } from 'react';
 import cn from 'classnames';
 
 import { DispatchContex, StateContex } from '../../Store';
-import { USER_ID, createTodo } from '../../api/todos';
+import { USER_ID, createTodo, updateTodo } from '../../api/todos';
 
 export const Header: React.FC = () => {
   const [newTitle, setNewTitle] = useState('');
@@ -57,11 +57,32 @@ export const Header: React.FC = () => {
   };
 
   const handlerSetAllStatus = () => {
-    todos.forEach(({ id }) => {
-      dispatch({
-        type: 'set-complete',
-        payload: { id, completed: !isAllCompleted },
-      });
+    todos.forEach(({ id, completed }) => {
+      if (!completed || isAllCompleted) {
+        dispatch({
+          type: 'add-pending-todo',
+          payload: id,
+        });
+        updateTodo(id, { completed: !isAllCompleted })
+          .then(() => {
+            dispatch({
+              type: 'set-complete',
+              payload: { id, completed: !isAllCompleted },
+            });
+          })
+          .catch(() =>
+            dispatch({
+              type: 'set-error',
+              payload: 'Unable to update a todo',
+            }),
+          )
+          .finally(() =>
+            dispatch({
+              type: 'remove-pending-todo',
+              payload: id,
+            }),
+          );
+      }
     });
   };
 

@@ -3,7 +3,7 @@ import cn from 'classnames';
 
 import { Todo } from '../../types/Todo';
 import { DispatchContex } from '../../Store';
-import { deleteTodo } from '../../api/todos';
+import { deleteTodo, updateTodo } from '../../api/todos';
 
 interface Props {
   todo: Todo;
@@ -14,32 +14,36 @@ export const TodoItem: React.FC<Props> = ({ todo, isPending }) => {
   const { completed, title, id } = todo;
   const [value, setValue] = useState(title);
   const [isEdit, setIsEdit] = useState(false);
-  const [isLoading, setIsLoading] = useState(isPending);
+  const [isLoading, setIsLoading] = useState(false || isPending);
   const dispatch = useContext(DispatchContex);
 
   const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    if (isPending) {
-      setIsLoading(true);
-    }
+    setIsLoading(isPending);
   }, [isPending]);
 
-  const handlerEndEdit = () => {
-    if (!value.trim()) {
-      dispatch({ type: 'remove-todo', payload: id });
-    } else {
-      dispatch({
-        type: 'set-title',
-        payload: { id, title: value.trim() },
-      });
-      setIsEdit(false);
+  useEffect(() => {
+    if (inputRef.current && isEdit) {
+      inputRef.current.focus();
     }
-  };
+  }, [isEdit]);
 
-  const handlerSubmitEdit = (evt: React.FormEvent<HTMLFormElement>) => {
-    evt.preventDefault();
-    handlerEndEdit();
+  const handlerSetStatus = () => {
+    setIsLoading(true);
+    updateTodo(id, { completed: !completed })
+      .then(() => {
+        dispatch({
+          type: 'set-complete',
+          payload: { id, completed: !completed },
+        });
+      })
+      .catch(() => {
+        dispatch({ type: 'set-error', payload: 'Unable to update a todo' });
+      })
+      .finally(() => {
+        setIsLoading(false);
+      });
   };
 
   const handlerOnKeyUpEsc = (evt: React.KeyboardEvent<HTMLInputElement>) => {
@@ -59,15 +63,53 @@ export const TodoItem: React.FC<Props> = ({ todo, isPending }) => {
       })
       .catch(() => {
         dispatch({ type: 'set-error', payload: 'Unable to delete a todo' });
+        inputRef.current?.focus();
       })
-      .finally(() => setIsLoading(false));
+      .finally(() => {
+        setIsLoading(false);
+      });
   };
 
-  useEffect(() => {
-    if (inputRef.current && isEdit) {
-      inputRef.current.focus();
+  const handlerEndEdit = () => {
+    const newValue = value.trim();
+
+    if (!newValue) {
+      handlerDeleteTodo();
+
+      return;
     }
-  }, [isEdit]);
+
+    if (newValue !== title) {
+      setIsEdit(false);
+
+      setIsLoading(true);
+
+      updateTodo(id, { title: newValue })
+        .then(() => {
+          dispatch({
+            type: 'set-title',
+            payload: { id, title: newValue },
+          });
+        })
+        .catch(() => {
+          setIsEdit(true);
+          dispatch({ type: 'set-error', payload: 'Unable to update a todo' });
+          inputRef.current?.focus();
+        })
+        .finally(() => {
+          setIsLoading(false);
+        });
+
+      return;
+    }
+
+    setIsEdit(false);
+  };
+
+  const handlerSubmitEdit = (evt: React.FormEvent<HTMLFormElement>) => {
+    evt.preventDefault();
+    handlerEndEdit();
+  };
 
   return (
     <div data-cy="Todo" className={cn('todo', { completed: completed })}>
@@ -77,12 +119,7 @@ export const TodoItem: React.FC<Props> = ({ todo, isPending }) => {
           type="checkbox"
           className="todo__status"
           checked={completed}
-          onChange={() => {
-            dispatch({
-              type: 'set-complete',
-              payload: { id, completed: !completed },
-            });
-          }}
+          onChange={handlerSetStatus}
         />
       </label>
 
@@ -106,7 +143,6 @@ export const TodoItem: React.FC<Props> = ({ todo, isPending }) => {
             data-cy="TodoTitle"
             className="todo__title"
             onDoubleClick={() => setIsEdit(true)}
-            autoFocus
           >
             {title}
           </span>
