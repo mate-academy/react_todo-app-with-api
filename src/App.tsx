@@ -24,7 +24,7 @@ export const App: React.FC = () => {
             type: ActionTypes.SET_ERROR,
             payload: 'Unable to load todos',
           });
-        })
+        });
     }
   }, [dispatch]);
 

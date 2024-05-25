@@ -1,3 +1,4 @@
+import classNames from 'classnames';
 import React, { useCallback, useContext } from 'react';
 import { deleteTodo } from '../../api/todos';
 import { DispatchContext, StateContext } from '../../store/TodoContext';
@@ -46,7 +47,7 @@ export const Footer: React.FC = () => {
         <a
           onClick={() => onChangeFilter(FilterFields.All)}
           href="#/"
-          className={`filter__link ${filter === FilterFields.All ? 'selected' : ''}`}
+          className={classNames('filter__link', { 'selected': filter === FilterFields.All })}
           data-cy="FilterLinkAll"
         >
           All
@@ -55,7 +56,7 @@ export const Footer: React.FC = () => {
         <a
           onClick={() => onChangeFilter(FilterFields.Active)}
           href="#/active"
-          className={`filter__link ${filter === FilterFields.Active ? 'selected' : ''}`}
+          className={classNames('filter__link', { 'selected': filter === FilterFields.Active })}
           data-cy="FilterLinkActive"
         >
           Active
@@ -64,7 +65,7 @@ export const Footer: React.FC = () => {
         <a
           onClick={() => onChangeFilter(FilterFields.Completed)}
           href="#/completed"
-          className={`filter__link ${filter === FilterFields.Completed ? 'selected' : ''}`}
+          className={classNames('filter__link', { 'selected': filter === FilterFields.Completed })}
           data-cy="FilterLinkCompleted"
         >
           Completed

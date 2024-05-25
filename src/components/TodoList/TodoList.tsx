@@ -16,8 +16,10 @@ export const TodoList: React.FC<Props> = ({ todos }) => {
       switch (filter) {
         case FilterFields.Active:
           return !todo.completed;
+
         case FilterFields.Completed:
           return todo.completed;
+        
         default:
           return todo;
       }

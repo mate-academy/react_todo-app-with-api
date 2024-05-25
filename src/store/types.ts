@@ -35,8 +35,8 @@ export type Action =
   | { type: ActionTypes.EDIT_TODO; payload: { id: number; title: string } }
   | { type: ActionTypes.TOGGLE_TODO; payload: Todo }
   | { type: ActionTypes.DELETE_TODO; payload: number }
-  | { type: ActionTypes.SET_FILTER; payload: FilterFields }
   | { type: ActionTypes.SET_LOADING_ALL; payload: boolean }
+  | { type: ActionTypes.SET_FILTER; payload: FilterFields }
   | { type: ActionTypes.SET_TODOS; payload: Todo[] }
   | { type: ActionTypes.SET_ERROR; payload: string | null }
   | { type: ActionTypes.SET_REFRESH };
