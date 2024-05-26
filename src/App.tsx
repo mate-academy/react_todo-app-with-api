@@ -1,49 +1,25 @@
-/* eslint-disable jsx-a11y/label-has-associated-control */
-/* eslint-disable jsx-a11y/control-has-associated-label */
-import React, { useEffect, useRef, useState } from 'react';
-import {
-  USER_ID,
-  deleteTodo,
-  getTodos,
-  postTodo,
-  updateTodo,
-} from './api/todos';
+import React, { useState } from 'react';
 import { Todo } from './types/Todo';
 import cn from 'classnames';
 import { TodoItem } from './components/TodoItem';
+import { ErrorNotification } from './components/ErrorsNotification';
+import { useTodos } from './hooks/useTodos';
 
 type Sort = 'All' | 'Active' | 'Completed';
 
 export const App: React.FC = () => {
-  const [todos, setTodos] = useState<Todo[]>([]);
+  const {
+    todos,
+    title,
+    setTitle,
+    tempState,
+    loadingIds,
+    handleSubmit,
+    handleDelete,
+    handleUpdate,
+    inputRef,
+  } = useTodos();
   const [sortBy, setSortBy] = useState<Sort>('All');
-  const [title, setTitle] = useState('');
-  const [loadingIds, setLoadingIds] = useState<number[]>([]);
-  const [errorMessage, setErrorMessage] = useState('');
-  const [tempState, setTempState] = useState<Todo | null>(null);
-
-  const inputRef = useRef<HTMLInputElement | null>(null);
-
-  useEffect(() => {
-    inputRef.current?.focus();
-
-    getTodos()
-      .then(todosFromServer => {
-        setTodos(todosFromServer);
-      })
-      .catch(() => setErrorMessage('Unable to load todos'));
-  }, []);
-
-  // eslint-disable-next-line react-hooks/rules-of-hooks
-  useEffect(() => {
-    if (!errorMessage) {
-      return;
-    }
-
-    const timeout = setTimeout(() => setErrorMessage(''), 3000);
-
-    return () => clearTimeout(timeout);
-  }, [errorMessage]);
 
   const activeTodo = [...todos].filter(todo => todo.completed === false);
   const completedTodo = [...todos].filter(todo => todo.completed === true);
@@ -57,20 +33,6 @@ export const App: React.FC = () => {
   if (sortBy === 'Completed') {
     filteredTodos = completedTodo;
   }
-
-  const handleDelete = (id: number) => {
-    setLoadingIds([id]);
-
-    deleteTodo(id)
-      .then(() => {
-        setTodos(currentTodo => currentTodo.filter(todo => todo.id !== id));
-      })
-      .catch(() => setErrorMessage('Unable to delete a todo'))
-      .finally(() => {
-        setLoadingIds([]);
-        inputRef.current?.focus();
-      });
-  };
   //   const completedTodo: Todo[] = todos.map(todo => {
   //     if (todo.id === id) {
   //       setLoadingIds([...loadingIds, todo.id]);
@@ -98,18 +60,7 @@ export const App: React.FC = () => {
   // console.log(handleCompltete);
 
   const handleToggleStatus = (todo: Todo) => {
-    setLoadingIds([todo.id]);
-
-    updateTodo({ ...todo, completed: !todo.completed })
-      .then(updatedTodo =>
-        setTodos(currentTodos =>
-          currentTodos.map(currentTodo =>
-            currentTodo.id === updatedTodo.id ? updatedTodo : currentTodo,
-          ),
-        ),
-      )
-      .catch(() => setErrorMessage('Unable to update a todo'))
-      .finally(() => setLoadingIds([]));
+    handleUpdate({ ...todo, completed: !todo.completed });
   };
 
   const handleToggleAllStatus = () => {
@@ -120,66 +71,8 @@ export const App: React.FC = () => {
     }
   };
 
-  const handleSubmit = (event: React.FormEvent) => {
-    event.preventDefault();
-
-    const trimmedTitle = title.trim();
-
-    if (trimmedTitle.length === 0) {
-      setErrorMessage('Title should not be empty');
-
-      return;
-    }
-
-    const newTodo = {
-      title: trimmedTitle,
-      userId: USER_ID,
-      completed: false,
-    };
-
-    const tempTodo: Todo = {
-      id: 0,
-      title: trimmedTitle,
-      userId: USER_ID,
-      completed: false,
-    };
-
-    setTempState(tempTodo);
-
-    if (inputRef.current) {
-      inputRef.current.disabled = true;
-    }
-
-    postTodo(newTodo)
-      .then((newTodoFromServer: Todo) => {
-        setTodos(currentTodo => [...currentTodo, newTodoFromServer]);
-        setTitle('');
-      })
-      .catch(() => setErrorMessage('Unable to add a todo'))
-      .finally(() => {
-        if (inputRef.current) {
-          inputRef.current.disabled = false;
-        }
-
-        inputRef.current?.focus();
-
-        setTempState(null);
-      });
-  };
-
   const handleRename = (todo: Todo) => {
-    setLoadingIds([todo.id]);
-
-    updateTodo(todo)
-      .then(updatedTodo =>
-        setTodos(currentTodos =>
-          currentTodos.map(currentTodo =>
-            currentTodo.id === updatedTodo.id ? updatedTodo : currentTodo,
-          ),
-        ),
-      )
-      .catch(() => setErrorMessage('Unable to update a todo'))
-      .finally(() => setLoadingIds([]));
+    handleUpdate(todo);
   };
 
   const handleDeleteCompleted = () => {
@@ -296,16 +189,7 @@ export const App: React.FC = () => {
         )}
       </div>
 
-      <div
-        data-cy="ErrorNotification"
-        className={cn(
-          'notification is-danger is-light has-text-weight-normal',
-          { hidden: !errorMessage },
-        )}
-      >
-        <button data-cy="HideErrorButton" type="button" className="delete" />
-        {errorMessage}
-      </div>
+      <ErrorNotification />
     </div>
   );
 };
