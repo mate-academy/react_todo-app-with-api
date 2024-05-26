@@ -612,7 +612,6 @@ describe('', () => {
       it('should hide an error message in 3 seconds', () => {
         // just in case
         cy.wait(50);
-
         cy.clock();
         cy.tick(2500);
 

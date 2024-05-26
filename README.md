@@ -10,32 +10,33 @@ and implement the ability to toggle and rename todos.
 ## Toggling a todo status
 
 Toggle the `completed` status on `TodoStatus` change:
-- Install Prettier Extention and use this [VSCode settings](https://mate-academy.github.io/fe-program/tools/vscode/settings.json) to enable format on save.
-- covered the todo with a loader overlay while waiting for API response;
-- the status should be changed on success;
-- show the `Unable to update a todo` notification in case of API error.
+- Install Prettier Extention and use this [VSCode settings](https://mate-academy.github.io/fe-program/tools/vscode/settings.json) to enable format on save. -ok
+- covered the todo with a loader overlay while waiting for API response; -ok
+- the status should be changed on success; -ok
+- show the `Unable to update a todo` notification in case of API error. -ok
 
 Add the ability to toggle the completed status of all the todos with the `toggleAll` checkbox:
 
-- `toggleAll` button should have `active` class only if all the todos are completed;
-- `toggleAll` click changes its status to the opposite one, and sets this new status to all the todos;
-- it should work the same as several individual updates of the todos which statuses were actually changed;
-- do send requests for the todos that were not changed;
+- `toggleAll` button should have `active` class only if all the todos are completed; -ok
+- `toggleAll` click changes its status to the opposite one, and sets this new status to all the todos; -ok
+- it should work the same as several individual updates of the todos which statuses were actually changed; -ok
+- do send requests for the todos that were not changed; ok
+
 
 ## Renaming a todo
 
 Implement the ability to edit a todo title on double click:
 
-- show the edit form instead of the title and remove button;
-- saves changes on the form submit (just press `Enter`);
-- save changes when the field loses focus (`onBlur`);
-- if the new title is the same as the old one just cancel editing;
-- cancel editing on `Esс` key `keyup` event;
-- if the new title is empty delete the todo the same way the `x` button does it;
-- if the title was changed show the loader while waiting for the API response;
-- update the todo title on success;
-- show `Unable to update a todo` in case of API error;
-- or the deletion error message if we tried to delete the todo.
+- show the edit form instead of the title and remove button; -ok
+- saves changes on the form submit (just press `Enter`); -ok
+- save changes when the field loses focus (`onBlur`); -ok
+- if the new title is the same as the old one just cancel editing; -ok
+- cancel editing on `Esс` key `keyup` event; -ok
+- if the new title is empty delete the todo the same way the `x` button does it; -ok
+- if the title was changed show the loader while waiting for the API response; -ok
+- update the todo title on success; -ok
+- show `Unable to update a todo` in case of API error; -ok
+- or the deletion error message if we tried to delete the todo. -ok
 
 ## If you want to enable tests
 - open `cypress/integration/page.spec.js`
