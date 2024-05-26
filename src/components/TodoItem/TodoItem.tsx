@@ -7,8 +7,7 @@ type Props = {
   deleteTodo: (id: number) => Promise<void>;
   handleToggleStatus: (todo: Todo) => void;
   handleRename: (todo: Todo) => void;
-  loadingTodo: Todo | null;
-  setLoadingTodo: (loadingTodo: Todo | null) => void;
+  loadingTodos: number[];
 };
 
 export const TodoItem: React.FC<Props> = ({
@@ -16,11 +15,11 @@ export const TodoItem: React.FC<Props> = ({
   deleteTodo,
   handleToggleStatus,
   handleRename,
-  loadingTodo,
-  setLoadingTodo,
+  loadingTodos,
 }) => {
   const [newTitle, setNewTitle] = useState('');
   const [isChanging, setIsChanging] = useState(false);
+  const isLoading = loadingTodos.includes(todo.id);
 
   useEffect(() => setIsChanging(false), [todo]);
 
@@ -37,7 +36,6 @@ export const TodoItem: React.FC<Props> = ({
 
     if (!trimmedNewTitle) {
       deleteTodo(todo.id);
-      setLoadingTodo(todo);
 
       return;
     }
@@ -98,7 +96,6 @@ export const TodoItem: React.FC<Props> = ({
           data-cy="TodoDelete"
           onClick={() => {
             deleteTodo(todo.id);
-            setLoadingTodo(todo);
           }}
         >
           ×
@@ -108,7 +105,7 @@ export const TodoItem: React.FC<Props> = ({
       <div
         data-cy="TodoLoader"
         className={cn('modal overlay', {
-          'is-active': todo.id === 0 || loadingTodo,
+          'is-active': todo.id === 0 || isLoading,
         })}
       >
         <div className="modal-background has-background-white-ter" />
