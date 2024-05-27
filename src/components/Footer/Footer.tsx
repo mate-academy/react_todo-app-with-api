@@ -14,13 +14,13 @@ export const Footer: React.FC<FooterProps> = ({
   setSelectedFilter,
   deleteAllCompleted,
 }) => {
-  const isActiveTodos = todos.filter(todo => !todo.completed).length;
+  const activeTodos = todos.filter(todo => !todo.completed).length;
   const completedTodos = todos.filter(todo => todo.completed).length;
 
   return (
     <footer className="todoapp__footer" data-cy="Footer">
       <span className="todo-count" data-cy="TodosCounter">
-        {`${isActiveTodos} ${isActiveTodos === 1 ? 'item' : 'items'} left`}
+        {`${activeTodos} ${activeTodos === 1 ? 'item' : 'items'} left`}
       </span>
 
       <nav className="filter" data-cy="Filter">
