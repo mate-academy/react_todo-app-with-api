@@ -8,7 +8,7 @@ type Props = {
 };
 
 export const TodoItem: React.FC<Props> = ({ todo }) => {
-  const { loader, lastTodo, deleteTodo, toggleTodoCompleted, editTodo } =
+  const { lastTodo, deleteTodo, toggleTodoCompleted, editTodo } =
     useContext(TodosContext);
 
   const [editing, setEditing] = useState(false);
@@ -16,6 +16,10 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
   const [editingId, setEditingId] = useState('');
 
   const titleField = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    console.log(lastTodo)
+  }, [lastTodo])
 
   useEffect(() => {
     if (titleField.current) {
@@ -45,74 +49,78 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
       editTodo(todo.id, editingValue.trim());
     }
   };
-
-  return (
-    <div
-      key={todo.id.toString()}
-      data-cy="Todo"
-      className={classNames('todo', {
-        editing: editing,
-        completed: todo.completed,
-      })}
-      onDoubleClick={todoEditStart}
-    >
-      {/* eslint-disable-next-line */}
-      <label className="todo__status-label" htmlFor={todo.id.toString()}>
-        <input
-          data-cy="TodoStatus"
-          type="checkbox"
-          className="todo__status"
-          id={todo.id.toString()}
-          checked={todo.completed}
-          onChange={event =>
-            toggleTodoCompleted(+event.target.id, todo.completed)
-          }
-        />
-      </label>
-
-      {editing ? (
-        <form onSubmit={event => event.preventDefault()}>
-          <input
-            data-cy="TodoTitleField"
-            type="text"
-            ref={titleField}
-            className="todo__title-field"
-            placeholder="Empty todo will be deleted"
-            value={editingValue}
-            onBlur={handleFocusMiss}
-            onKeyUp={handleKeyUp}
-            onChange={event => setEditingValue(event.target.value)}
-          />
-        </form>
-      ) : (
-        <span
-          data-cy="TodoTitle"
-          className="todo__title"
-          onClick={event => {
-            event.preventDefault();
-          }}
-        >
-          {todo.title}
-        </span>
-      )}
-
-      <button
-        type="button"
-        className="todo__remove"
-        data-cy="TodoDelete"
-        onClick={() => deleteTodo(todo.id)}
-      >
-        ×
-      </button>
+  if (lastTodo && todo.id !== lastTodo.id || !lastTodo) {
+    return (
       <div
-        data-cy="TodoLoader"
-        className={classNames('modal overlay', {
-          'is-active': loader && lastTodo && lastTodo.id === todo.id,
+        key={todo.id.toString()}
+        data-cy="Todo"
+        className={classNames('todo', {
+          editing: editing,
+          completed: todo.completed,
         })}
+        onDoubleClick={todoEditStart}
       >
-        <div className="modal-background has-background-white-ter" />
-        <div className="loader" />
+        {/* eslint-disable-next-line */}
+        <label className="todo__status-label" htmlFor={todo.id.toString()}>
+          <input
+            data-cy="TodoStatus"
+            type="checkbox"
+            className="todo__status"
+            id={todo.id.toString()}
+            checked={todo.completed}
+            onChange={event =>
+              toggleTodoCompleted(+event.target.id, todo.completed)
+            }
+          />
+        </label>
+
+        {editing ? (
+          <form onSubmit={event => event.preventDefault()}>
+            <input
+              data-cy="TodoTitleField"
+              type="text"
+              ref={titleField}
+              className="todo__title-field"
+              placeholder="Empty todo will be deleted"
+              value={editingValue}
+              onBlur={handleFocusMiss}
+              onKeyUp={handleKeyUp}
+              onChange={event => setEditingValue(event.target.value)}
+            />
+          </form>
+        ) : (
+          <span
+            data-cy="TodoTitle"
+            className="todo__title"
+            onClick={event => {
+              event.preventDefault();
+            }}
+          >
+            {todo.title}
+          </span>
+        )}
+
+        <button
+          type="button"
+          className="todo__remove"
+          data-cy="TodoDelete"
+          onClick={() => deleteTodo(todo.id)}
+        >
+          ×
+        </button>
+        <div
+          data-cy="TodoLoader"
+          className={classNames('modal overlay', {
+            'is-active': lastTodo && lastTodo?.id === todo.id
+          })}
+        >
+          <div className="modal-background has-background-white-ter" />
+          <div className="loader" />
+        </div>
       </div>
-    </div>
-  );
+    );
+  } else {
+    return null;
+}
+
 };

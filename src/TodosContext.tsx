@@ -73,6 +73,7 @@ export const TodosProvider: React.FC<Props> = ({ children }) => {
       })
       .finally(() => {
         setLoader(false);
+        setLastTodo(null);
       });
   };
 
@@ -92,9 +93,9 @@ export const TodosProvider: React.FC<Props> = ({ children }) => {
   };
 
   const addTodo = (
-    { userId, title, completed }: Todo,
-    titleFieldRef: HTMLInputElement,
-  ) => {
+      { userId, title, completed }: Todo,
+      titleFieldRef: HTMLInputElement,
+    ) => {
     if (titleFieldRef) {
       /* eslint-disable no-param-reassign */
       titleFieldRef.disabled = true;
@@ -104,8 +105,6 @@ export const TodosProvider: React.FC<Props> = ({ children }) => {
       .addTodo({ userId, title, completed })
       .then(newTodo => {
         setTodos(currentTodos => [...currentTodos, newTodo]);
-        setLoader(false);
-        setLastTodo(null);
       })
       .catch(error => {
         setErrorMessage('Unable to add a todo');
@@ -116,23 +115,30 @@ export const TodosProvider: React.FC<Props> = ({ children }) => {
           /* eslint-disable no-param-reassign */
           titleFieldRef.disabled = false;
           titleFieldRef.focus();
+          loadPost();
+          setLastTodo(null);
+          setLoader(false);
         }
       });
   };
 
   const deleteTodo = (id: number) => {
     setLoader(true);
+    setLastTodo(todos.find(item => item.id === id) || null);
 
     postService
       .deleteTodo(id)
       .then(() => {
         setTodos(todos.filter(currentTodo => currentTodo.id !== id));
-        setLoader(false);
       })
       .catch(error => {
         setErrorMessage('Unable to delete a todo');
         throw error;
-      });
+      })
+      .finally(() => {
+        setLoader(false);
+        setLastTodo(null);
+    })
   };
 
   const deleteCompleted = () => {
@@ -225,7 +231,7 @@ export const TodosProvider: React.FC<Props> = ({ children }) => {
       setErrorMessage,
     }),
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [todos, selectedFilter, errorMessage],
+    [todos, selectedFilter, errorMessage, lastTodo],
   );
 
   return (

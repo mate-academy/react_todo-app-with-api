@@ -3,7 +3,7 @@ import { TodosContext } from '../../TodosContext';
 import classNames from 'classnames';
 
 export const Error: React.FC = () => {
-  const { errorMessage, setErrorMessage } = useContext(TodosContext);
+  const { errorMessage, setErrorMessage,  } = useContext(TodosContext);
 
   const hideError = () => {
     if (errorMessage) {

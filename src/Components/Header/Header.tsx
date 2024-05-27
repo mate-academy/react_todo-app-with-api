@@ -12,6 +12,7 @@ import { Todo } from '../../types/Todo';
 export const Header: React.FC = () => {
   const {
     loader,
+    errorMessage,
     setLoader,
     setLastTodo,
     todos,
@@ -29,42 +30,39 @@ export const Header: React.FC = () => {
   useEffect(() => {
     if (titleField.current) {
       titleField.current.focus();
+      titleField.current.disabled = false;
     }
-  }, []);
+  }, [errorMessage]);
 
   const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     setLoader(true);
-    const newTodo: Todo = {
-      id: new Date().getTime(),
-      title: currentTitleValue.trim(),
-      completed: false,
-      userId: 478,
+    let newTodo: Todo | null;
+
+
+    if (!!(titleField.current && titleField.current.value)) {
+       newTodo = {
+        id: new Date().getTime(),
+        title: currentTitleValue.trim(),
+        completed: false,
+        userId: 478,
+      };
+      setLastTodo(newTodo);
+
+    } else {
+      newTodo = null;
     };
 
-    if (titleField.current && newTodo.title) {
-      setLastTodo(newTodo);
-    }
-
-    if (currentTitleValue.trim().length > 0 && titleField.current) {
+    if (newTodo && currentTitleValue.trim().length > 0 && titleField.current) {
       addTodo(newTodo, titleField.current)
         .then(() => {
           setCurrentTitlevalue('');
-        })
-        .finally(() => {
-          setLoader(false);
         });
     } else {
       setErrorMessage('Title should not be empty');
-      setLoader(false);
-      if (titleField.current) {
-        titleField.current.focus();
-      }
-    }
+    };
 
-    if (titleField.current) {
-      setCurrentTitlevalue(titleField.current.value);
-    }
+
   };
 
   const handleTitleChenger = () => {
