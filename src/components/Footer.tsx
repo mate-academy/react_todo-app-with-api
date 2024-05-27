@@ -9,7 +9,7 @@ type Props = {
   selectTodoFilter: (filter: FilterParams) => void;
   clearCompleted: () => void;
   todos: Todo[];
-  setShouldFocusInput: React.Dispatch<React.SetStateAction<boolean>>;
+  setShouldFocusInput: (value: boolean) => void;
 };
 export const Footer: React.FC<Props> = ({
   activeCount,

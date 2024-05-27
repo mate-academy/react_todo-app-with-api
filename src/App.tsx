@@ -4,7 +4,7 @@ import React, { useEffect, useState } from 'react';
 import { UserWarning } from './UserWarning';
 import { USER_ID, deleteTodo, editTodo, getTodos } from './api/todos';
 import { Header } from './components/Header';
-import { Main } from './components/Main';
+import { TodoList } from './components/TodoList';
 import { Footer } from './components/Footer';
 import { Todo } from './types/Todo';
 import { FilterParams, filterTodos } from './utils/filterTodos';
@@ -21,9 +21,7 @@ export const App: React.FC = () => {
   const [isLoading, setIsLoading] = useState<number[]>([]);
   const [shouldFocusInput, setShouldFocusInput] = useState(false);
 
-  const countActive = () => {
-    return todos.filter(todo => todo.completed === false);
-  };
+  const activeTodos = filterTodos(todos, FilterParams.ACTIVE);
 
   const selectTodoFilter = (filter: FilterParams) => {
     setSelected(filter);
@@ -71,17 +69,15 @@ export const App: React.FC = () => {
     );
   };
 
-  const addEditedTodos = (editedTodo: Todo) => {
+  const addEditedTodo = (editedTodo: Todo) => {
     setTodos(prevTodos =>
       prevTodos.map(todo => (todo.id === editedTodo.id ? editedTodo : todo)),
     );
   };
 
   const completeAllTodos = () => {
-    const active = countActive();
-
-    if (active.length > 0) {
-      active.forEach(async todo => {
+    if (activeTodos.length > 0) {
+      activeTodos.forEach(async todo => {
         try {
           setIsLoading(prev => [...prev, todo.id]);
           const res = await editTodo<Todo>(todo.id, {
@@ -160,11 +156,11 @@ export const App: React.FC = () => {
           setShouldFocusInput={setShouldFocusInput}
         />
         {!!todos.length && (
-          <Main
+          <TodoList
             todos={todosAfterFilter}
             tempTodo={tempTodo}
             onDelete={onDelete}
-            addEditedTodos={addEditedTodos}
+            addEditedTodo={addEditedTodo}
             handleErrorMessages={handleErrorMessages}
             isLoading={isLoading}
             setIsLoading={setIsLoading}
@@ -172,7 +168,7 @@ export const App: React.FC = () => {
         )}
         {!!todos.length && (
           <Footer
-            activeCount={countActive().length}
+            activeCount={activeTodos.length}
             selected={selected}
             selectTodoFilter={selectTodoFilter}
             clearCompleted={clearCompleted}

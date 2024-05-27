@@ -1,5 +1,6 @@
 import { useEffect } from 'react';
 import { ErroMessage } from '../utils/errorMessages';
+const milliseconds = 3000;
 
 type Props = {
   errorMesage: string;
@@ -13,7 +14,7 @@ export const ErrorNotification: React.FC<Props> = ({
   useEffect(() => {
     const id = window.setTimeout(() => {
       handleErrorMessages(ErroMessage.NO_ERRORS);
-    }, 3000);
+    }, milliseconds);
 
     return () => {
       window.clearTimeout(id);

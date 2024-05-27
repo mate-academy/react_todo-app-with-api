@@ -9,12 +9,12 @@ type Props = {
   todos: Todo[];
   addTodo: (newTodo: Todo) => void;
   handleErrorMessages: (newErrorMessage: ErroMessage) => void;
-  setTempTodo: React.Dispatch<React.SetStateAction<Todo | null>>;
+  setTempTodo: (value: Todo | null) => void;
   setIsLoading: React.Dispatch<React.SetStateAction<number[]>>;
-  setTodos: React.Dispatch<React.SetStateAction<Todo[]>>;
+  setTodos: (value: Todo[]) => void;
   completeAllTodos: () => void;
   shouldFocusInput: boolean;
-  setShouldFocusInput: React.Dispatch<React.SetStateAction<boolean>>;
+  setShouldFocusInput: (value: boolean) => void;
 };
 
 export const Header: React.FC<Props> = ({
@@ -81,7 +81,7 @@ export const Header: React.FC<Props> = ({
     if (shouldFocusInput) {
       handleFocusInput();
     }
-  }, [handleFocusInput]);
+  }, [shouldFocusInput]);
 
   return (
     <header className="todoapp__header">

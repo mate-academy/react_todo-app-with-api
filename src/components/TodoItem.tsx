@@ -9,7 +9,7 @@ type Props = {
   todo: Todo;
   isLoading: number[];
   onDelete: (todoItem: Todo, shouldFocus: boolean) => void;
-  addEditedTodos?: (editedTodo: Todo) => void;
+  addEditedTodo?: (editedTodo: Todo) => void;
   handleErrorMessages?: (newErrorMessage: ErroMessage) => void;
   setIsLoading?: React.Dispatch<React.SetStateAction<number[]>>;
 };
@@ -18,7 +18,7 @@ export const TodoItem: React.FC<Props> = ({
   todo,
   isLoading,
   onDelete = () => {},
-  addEditedTodos = () => {},
+  addEditedTodo = () => {},
   handleErrorMessages = () => {},
   setIsLoading = () => {},
 }) => {
@@ -27,7 +27,6 @@ export const TodoItem: React.FC<Props> = ({
   const editInputref: React.RefObject<HTMLInputElement> = useRef(null);
 
   const onDoubleClickHandle = () => {
-    console.log('edit');
     setEditQuery(todo.title);
     setEditToggle(true);
   };
@@ -59,7 +58,7 @@ export const TodoItem: React.FC<Props> = ({
 
       const editedTodoResponse = await editTodo<Todo>(todo.id, editedTodo);
 
-      addEditedTodos(editedTodoResponse);
+      addEditedTodo(editedTodoResponse);
       setEditToggle(false);
     } catch {
       handleErrorMessages(ErroMessage.UPDATE);
@@ -79,7 +78,7 @@ export const TodoItem: React.FC<Props> = ({
 
       const editedTodoResponse = await editTodo<Todo>(todo.id, editedTodo);
 
-      addEditedTodos(editedTodoResponse);
+      addEditedTodo(editedTodoResponse);
     } catch {
       handleErrorMessages(ErroMessage.UPDATE);
     } finally {

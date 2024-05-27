@@ -6,17 +6,17 @@ type Props = {
   todos: Todo[];
   tempTodo: Todo | null;
   onDelete: (todoItem: Todo, shouldFocus: boolean) => void;
-  addEditedTodos: (editedTodo: Todo) => void;
+  addEditedTodo: (editedTodo: Todo) => void;
   handleErrorMessages: (newErrorMessage: ErroMessage) => void;
   isLoading: number[];
   setIsLoading: React.Dispatch<React.SetStateAction<number[]>>;
 };
 
-export const Main: React.FC<Props> = ({
+export const TodoList: React.FC<Props> = ({
   todos,
   tempTodo,
   onDelete,
-  addEditedTodos,
+  addEditedTodo,
   handleErrorMessages,
   isLoading,
   setIsLoading,
@@ -30,7 +30,7 @@ export const Main: React.FC<Props> = ({
             key={todo.id}
             isLoading={isLoading}
             onDelete={onDelete}
-            addEditedTodos={addEditedTodos}
+            addEditedTodo={addEditedTodo}
             handleErrorMessages={handleErrorMessages}
             setIsLoading={setIsLoading}
           />
