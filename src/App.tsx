@@ -30,6 +30,9 @@ export const App: React.FC = () => {
       })
       .catch(() => {
         setError(Error.UnableLoad);
+        // setIsLoading(false);
+      })
+      .finally(() => {
         setIsLoading(false);
       });
   }, []);
@@ -73,7 +76,7 @@ export const App: React.FC = () => {
           />
         )}
 
-        {todos.length > 0 && (
+        {!!todos.length && (
           <Footer
             todos={todos}
             selectedFilter={filter}
