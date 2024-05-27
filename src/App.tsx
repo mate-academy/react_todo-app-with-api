@@ -30,7 +30,6 @@ export const App: React.FC = () => {
       })
       .catch(() => {
         setError(Error.UnableLoad);
-        // setIsLoading(false);
       })
       .finally(() => {
         setIsLoading(false);
