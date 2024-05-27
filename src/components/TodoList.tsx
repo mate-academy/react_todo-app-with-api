@@ -1,13 +1,14 @@
 /* eslint-disable jsx-a11y/label-has-associated-control */
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { Todo } from '../types/Todo';
+import { Todo as TypeTodo } from '../types/Todo';
 import { USER_ID, deleteTodo, updateTodo } from '../api/todos';
-import { ErrorMessages } from '../App';
+import { ErrorMessages, handleThenUpdateCompleted } from '../App';
+import Todo from './Todo';
 
 type Props = {
-  todoList: Todo[];
-  todos: Todo[];
-  setTodos: React.Dispatch<React.SetStateAction<Todo[]>>;
+  todoList: TypeTodo[];
+  todos: TypeTodo[];
+  setTodos: React.Dispatch<React.SetStateAction<TypeTodo[]>>;
   setError: (error: ErrorMessages) => void;
   setLoading: (loading: boolean) => void;
 };
@@ -41,8 +42,8 @@ export const TodoList: React.FC<Props> = ({
   }
 
   const handleChangeCompleted = useCallback(
-    (todoSelect: Todo) => {
-      setError('');
+    (todoSelect: TypeTodo) => {
+      setError(ErrorMessages.Empty);
       setIdsToUpdated(state => [...state, todoSelect.id]);
       updateTodo({
         id: todoSelect.id,
@@ -52,16 +53,10 @@ export const TodoList: React.FC<Props> = ({
       })
         .then(updatedTodo => {
           setTodos(last =>
-            [...last].map(todo => {
-              if (todo.id === todoSelect.id) {
-                return { ...todo, completed: updatedTodo.completed };
-              }
-
-              return todo;
-            }),
+            handleThenUpdateCompleted(last, todoSelect, updatedTodo),
           );
         })
-        .catch(() => setError('Unable to update a todo'))
+        .catch(() => setError(ErrorMessages.UnableUpdate))
         .finally(() =>
           setIdsToUpdated(state => state.filter(el => el !== todoSelect.id)),
         );
@@ -71,32 +66,28 @@ export const TodoList: React.FC<Props> = ({
 
   function handleDeleteTodo(id: number) {
     setLoading(true);
-    setError('');
+    setError(ErrorMessages.Empty);
     setIdsToUpdated(state => [...state, id]);
 
     deleteTodo(id)
       .then(() => {
         setTodos(state => state.filter(todo => todo.id !== id));
       })
-      .catch(() => setError('Unable to delete a todo'))
+      .catch(() => setError(ErrorMessages.UnableDelete))
       .finally(() => {
         setIdsToUpdated(state => state.filter(el => el !== id));
         setLoading(false);
       });
   }
 
-  function handleUpdateTitleTodo(todoSelect: Todo) {
-    setError('');
+  function handleUpdateTitleTodo(todoSelect: TypeTodo) {
+    setError(ErrorMessages.Empty);
     setIdsToUpdated(state => [...state, todoSelect.id]);
 
     setTodos(
-      [...todos].map(todo => {
-        if (todo.id === todoId) {
-          return { ...todo, title: todoTitle };
-        }
-
-        return todo;
-      }),
+      todos.map(todo =>
+        todo.id === todoId ? { ...todo, title: todoTitle } : todo,
+      ),
     );
 
     if (tempTitle !== todoTitle.trim()) {
@@ -113,8 +104,8 @@ export const TodoList: React.FC<Props> = ({
         completed: todoSelect.completed,
       })
         .then(updatedTodo => {
-          setTodos(
-            [...todos].map(todo => {
+          setTodos(state =>
+            state.map(todo => {
               if (todo.id === todoId) {
                 return { ...todo, title: updatedTodo.title };
               }
@@ -126,7 +117,7 @@ export const TodoList: React.FC<Props> = ({
           setFormActive(false);
         })
         .catch(() => {
-          setError('Unable to update a todo');
+          setError(ErrorMessages.UnableUpdate);
           setFormActive(true);
         })
         .finally(() => {
@@ -138,7 +129,7 @@ export const TodoList: React.FC<Props> = ({
     }
   }
 
-  function handleBlur(todoSelect: Todo) {
+  function handleBlur(todoSelect: TypeTodo) {
     if (idsToUptdated.length === 0) {
       handleUpdateTitleTodo(todoSelect);
 
@@ -148,7 +139,7 @@ export const TodoList: React.FC<Props> = ({
 
   function handleKeyDown(
     event: React.KeyboardEvent<HTMLInputElement>,
-    todo: Todo,
+    todo: TypeTodo,
   ) {
     if (event.key === 'Enter') {
       event.preventDefault();
@@ -169,63 +160,21 @@ export const TodoList: React.FC<Props> = ({
   return (
     <>
       {todoList.map(todo => (
-        <div
+        <Todo
           key={todo.id}
-          data-cy="Todo"
-          className={`todo ${todo.completed ? 'completed' : ''} ${todo.id === 0 ? 'temp' : ''}`}
-        >
-          <label className="todo__status-label">
-            <input
-              data-cy="TodoStatus"
-              type="checkbox"
-              className="todo__status"
-              onChange={() => handleChangeCompleted(todo)}
-              checked={todo.completed}
-            />
-          </label>
-
-          {formActive && todo.id === todoId ? (
-            <form>
-              <input
-                data-cy="TodoTitleField"
-                type="text"
-                ref={inputRef}
-                className="todo__title-field"
-                placeholder="Empty todo will be deleted"
-                value={todoTitle}
-                onChange={e => setTodoTitle(e.target.value)}
-                onBlur={() => handleBlur(todo)}
-                onKeyDown={e => handleKeyDown(e, todo)}
-              />
-            </form>
-          ) : (
-            <>
-              <span
-                data-cy="TodoTitle"
-                className="todo__title"
-                onDoubleClick={() => handleSetFormActive(todo.title, todo.id)}
-              >
-                {todo.title}
-              </span>
-              <button
-                type="button"
-                className="todo__remove"
-                data-cy="TodoDelete"
-                onClick={() => handleDeleteTodo(todo.id)}
-              >
-                ×
-              </button>
-            </>
-          )}
-
-          <div
-            data-cy="TodoLoader"
-            className={`modal overlay ${todo.id === 0 || idsToUptdated.includes(todo.id) ? 'is-active' : ''}`}
-          >
-            <div className="modal-background has-background-white-ter" />
-            <div className="loader" />
-          </div>
-        </div>
+          formActive={formActive}
+          handleBlur={handleBlur}
+          todo={todo}
+          todoTitle={todoTitle}
+          handleChangeCompleted={handleChangeCompleted}
+          handleDeleteTodo={handleDeleteTodo}
+          handleKeyDown={handleKeyDown}
+          handleSetFormActive={handleSetFormActive}
+          idsToUptdated={idsToUptdated}
+          inputRef={inputRef}
+          setTodoTitle={setTodoTitle}
+          todoId={todoId}
+        />
       ))}
     </>
   );
