@@ -6,10 +6,7 @@ interface Props {
   setErrorMessage: (errorText: string) => void;
 }
 
-export const ErrorNotification: React.FC<Props> = ({
-  errorMessage,
-  setErrorMessage,
-}) => {
+export const Error: React.FC<Props> = ({ errorMessage, setErrorMessage }) => {
   return (
     <div
       data-cy="ErrorNotification"

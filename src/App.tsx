@@ -5,12 +5,12 @@ import { UserWarning } from './UserWarning';
 import { USER_ID, getTodos } from './api/todos';
 import { Todo } from './types/Todo';
 import { Status } from './types/Status';
-import { Header } from './components/Header/Header';
+import { Header } from './components/Header';
 import { getVisibleTodos } from './utils/getVisibleTodos';
-import { TodoList } from './components/TodoList/TodoList';
-import { Footer } from './components/Footer/Footer';
-import { TodoItem } from './components/TodoItem/TodoItem';
-import { ErrorNotification } from './components/Error/Error';
+import { TodoList } from './components/TodoList';
+import { Footer } from './components/Footer';
+import { TodoItem } from './components/TodoItem';
+import { Error } from './components/Error';
 import { ErrorMessages } from './types/ErrorMessages';
 
 export const App: React.FC = () => {
@@ -79,10 +79,7 @@ export const App: React.FC = () => {
         )}
       </div>
 
-      <ErrorNotification
-        errorMessage={errorMessage}
-        setErrorMessage={setErrorMessage}
-      />
+      <Error errorMessage={errorMessage} setErrorMessage={setErrorMessage} />
     </div>
   );
 };
