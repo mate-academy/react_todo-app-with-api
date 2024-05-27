@@ -1,8 +1,8 @@
 import React from 'react';
 import { Todo } from '../../types/Todo';
 import { Status } from '../../types/Status';
-import { FilteredTodos } from '../../utils/FilteredTodos';
 import { TodoItem } from '../TodoItem';
+import { filterTodos } from '../../utils/filteredTodos';
 
 interface TodoListProps {
   todos: Todo[];
@@ -23,7 +23,7 @@ export const TodoList: React.FC<TodoListProps> = ({
   onToggle = () => {},
   handleUpdateTodo = () => {},
 }) => {
-  const filteredTodos = FilteredTodos(todos, selectedFilter);
+  const filteredTodos = filterTodos(todos, selectedFilter);
 
   return (
     <section className="todoapp__main" data-cy="TodoList">

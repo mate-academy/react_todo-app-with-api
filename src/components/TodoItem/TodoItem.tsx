@@ -24,7 +24,7 @@ export const TodoItem: React.FC<TodoItemProps> = ({
   const editFieldRef = useRef<HTMLInputElement>(null);
 
   const handleSave = () => {
-    if (newTitle.trim() === '') {
+    if (newTitle.trim()) {
       handleDeleteTodo(todo.id);
     } else {
       handleUpdateTodo({
