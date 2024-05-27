@@ -2,7 +2,7 @@ import React from 'react';
 import { Todo } from '../../types/Todo';
 import { Status } from '../../types/Status';
 import { TodoItem } from '../TodoItem';
-import { filterTodos } from '../../utils/filteredTodos';
+import { filterTodos } from '../../utils/filterTodos';
 
 interface TodoListProps {
   todos: Todo[];
