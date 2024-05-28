@@ -1,25 +1,21 @@
-import React, { useContext, useEffect } from 'react';
+import React, { useContext } from 'react';
 import { TodosContext } from '../../TodosContext';
 import { Todo } from '../../types/Todo';
 import { TodoItem } from '../TodoItem/TodoItem';
 
 export const TodoList: React.FC = () => {
-  const { loader, selectedFilter, lastTodo, showFilteredTodos } = useContext(TodosContext);
+  const { todos, selectedFilter, lastTodo, showFilteredTodos } =
+    useContext(TodosContext);
 
   const filteredTodos = showFilteredTodos(selectedFilter);
-
-  useEffect(() => {
-    console.log(lastTodo, loader);
-  }, [lastTodo, loader]); // Додано loader до залежностей
+  const deletedElement = todos.find(ietm => ietm.id === lastTodo?.id);
 
   return (
     <section className="todoapp__main" data-cy="TodoList">
       {filteredTodos.map((item: Todo) => (
         <TodoItem key={item.id.toString()} todo={item} />
       ))}
-      {lastTodo && (
-        <TodoItem key={lastTodo.id.toString()} todo={lastTodo} />
-      )}
+      {lastTodo && !deletedElement && <TodoItem key={lastTodo.id.toString()} todo={lastTodo} />}
     </section>
   );
 };

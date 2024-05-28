@@ -18,10 +18,6 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
   const titleField = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    console.log(lastTodo)
-  }, [lastTodo])
-
-  useEffect(() => {
     if (titleField.current) {
       titleField.current.focus();
     }
@@ -49,7 +45,7 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
       editTodo(todo.id, editingValue.trim());
     }
   };
-  if (lastTodo && todo.id !== lastTodo.id || !lastTodo) {
+
     return (
       <div
         key={todo.id.toString()}
@@ -111,7 +107,7 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
         <div
           data-cy="TodoLoader"
           className={classNames('modal overlay', {
-            'is-active': lastTodo && lastTodo?.id === todo.id
+            'is-active': lastTodo?.id === todo.id,
           })}
         >
           <div className="modal-background has-background-white-ter" />
@@ -119,8 +115,4 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
         </div>
       </div>
     );
-  } else {
-    return null;
-}
-
 };

@@ -39,30 +39,25 @@ export const Header: React.FC = () => {
     setLoader(true);
     let newTodo: Todo | null;
 
-
     if (!!(titleField.current && titleField.current.value)) {
-       newTodo = {
+      newTodo = {
         id: new Date().getTime(),
         title: currentTitleValue.trim(),
         completed: false,
         userId: 478,
       };
       setLastTodo(newTodo);
-
     } else {
       newTodo = null;
-    };
+    }
 
     if (newTodo && currentTitleValue.trim().length > 0 && titleField.current) {
-      addTodo(newTodo, titleField.current)
-        .then(() => {
-          setCurrentTitlevalue('');
-        });
+      addTodo(newTodo, titleField.current).then(() => {
+        setCurrentTitlevalue('');
+      });
     } else {
       setErrorMessage('Title should not be empty');
-    };
-
-
+    }
   };
 
   const handleTitleChenger = () => {

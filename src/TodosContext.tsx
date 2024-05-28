@@ -93,9 +93,9 @@ export const TodosProvider: React.FC<Props> = ({ children }) => {
   };
 
   const addTodo = (
-      { userId, title, completed }: Todo,
-      titleFieldRef: HTMLInputElement,
-    ) => {
+    { userId, title, completed }: Todo,
+    titleFieldRef: HTMLInputElement,
+  ) => {
     if (titleFieldRef) {
       /* eslint-disable no-param-reassign */
       titleFieldRef.disabled = true;
@@ -138,7 +138,7 @@ export const TodosProvider: React.FC<Props> = ({ children }) => {
       .finally(() => {
         setLoader(false);
         setLastTodo(null);
-    })
+      });
   };
 
   const deleteCompleted = () => {
