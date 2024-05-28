@@ -5,10 +5,12 @@ import { ErrorText } from '../types/ErrorText';
 
 export const ErrorNotification: React.FC = () => {
   const { errMessage, setErrMessage } = useTodos();
-  const [errorMessageVisible, setErrorMessageVisible] = useState(true);
+  const [errorMessageVisible, setErrorMessageVisible] = useState(false);
 
   useEffect(() => {
     if (errMessage !== ErrorText.NoErr) {
+      setErrorMessageVisible(true);
+
       const timer = setTimeout(() => {
         setErrMessage(ErrorText.NoErr);
         setErrorMessageVisible(false);
