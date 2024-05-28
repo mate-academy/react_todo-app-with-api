@@ -153,4 +153,12 @@ export const TodoContextProvider: React.FC<Props> = ({ children }) => {
   );
 };
 
-export const useTodos = () => useContext(TodoContext);
+export const useTodos = () => {
+  const context = useContext(TodoContext);
+
+  if (!context) {
+    throw new Error('useTodos must be used within a TodosProvider');
+  }
+
+  return context;
+};

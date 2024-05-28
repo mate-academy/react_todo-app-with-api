@@ -1,10 +1,11 @@
+import { Dispatch, SetStateAction } from 'react';
 import { ErrorText } from './ErrorText';
 import { Status } from './Status';
 import { Todo } from './Todo';
 
 export interface TodoContextType {
   todos: Todo[];
-  setTodos: (todos: Todo[]) => void;
+  setTodos: Dispatch<SetStateAction<Todo[]>>;
   status: Status;
   setStatus: (status: Status) => void;
   errMessage: ErrorText;

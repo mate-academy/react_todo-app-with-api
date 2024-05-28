@@ -19,14 +19,6 @@ export const TodoItems: React.FC<Props> = ({ todo }) => {
   const [loading, setLoading] = useState(false);
   const inputRef = useRef<HTMLInputElement | null>(null);
 
-  const updateTodos = (prevTodos: Todo[], updatedTodo: Todo): Todo[] => {
-    const updatedTodos = prevTodos.map((prevTodo: Todo) =>
-      prevTodo.id === updatedTodo.id ? updatedTodo : prevTodo,
-    );
-
-    return updatedTodos;
-  };
-
   useEffect(() => {
     if (isEditing && inputRef.current) {
       inputRef.current.focus();
@@ -40,12 +32,16 @@ export const TodoItems: React.FC<Props> = ({ todo }) => {
   const updateTodoTitle = async () => {
     setLoading(true);
     try {
-      const updatedTodo = await todosServices.updateTodo(id, {
+      const updatedTodo = (await todosServices.updateTodo(id, {
         ...todo,
         title: newTitle,
-      });
+      })) as Todo;
 
-      setTodos((prevTodos: Todo[]) => updateTodos(prevTodos, updatedTodo));
+      setTodos((prevTodos: Todo[]) => {
+        return prevTodos.map((prevTodo: Todo) =>
+          prevTodo.id === updatedTodo.id ? updatedTodo : prevTodo,
+        );
+      });
 
       setIsEditing(false);
     } catch (error) {
