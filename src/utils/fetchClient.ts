@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 const BASE_URL = 'https://mate.academy/students-api';
+const REQUEST_DELAY = 100;
 
 export function wait(delay: number) {
   return new Promise(resolve => {
@@ -23,7 +24,7 @@ function request<T>(
     };
   }
 
-  return wait(100)
+  return wait(REQUEST_DELAY)
     .then(() => fetch(BASE_URL + url, options))
     .then(response => {
       if (!response.ok) {

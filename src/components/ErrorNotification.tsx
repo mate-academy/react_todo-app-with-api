@@ -3,6 +3,8 @@ import cn from 'classnames';
 
 import { Errors } from '../types/Errors';
 
+const ERROR_TIMEOUT = 3000;
+
 interface Props {
   errorMessage: Errors | null;
   onDeleteError: () => void;
@@ -17,7 +19,7 @@ export const ErrorNotification: React.FC<Props> = ({
       return;
     }
 
-    const timerID = setTimeout(() => onDeleteError(), 3000);
+    const timerID = setTimeout(() => onDeleteError(), ERROR_TIMEOUT);
 
     return () => clearTimeout(timerID);
   }, [errorMessage]);
