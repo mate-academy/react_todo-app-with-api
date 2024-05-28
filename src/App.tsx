@@ -15,12 +15,12 @@ import { TodoList } from './components/TodoList/TodoList';
 import { getFilteredTodos } from './utils/getFiltredTodos';
 import { FilterStatus } from './types/FilterStatus';
 import { Footer } from './components/Footer/Footer';
-import { Error } from './types/Error';
+import { ErrorMessage } from './types/ErrorMessage';
 import cn from 'classnames';
 
 export const App: React.FC = () => {
   const [todos, setTodos] = useState<Todo[]>([]);
-  const [error, setError] = useState('');
+  const [error, setError] = useState<ErrorMessage | null>(null);
   const [selectedFilter, setSelectedFilter] = useState(FilterStatus.All);
   const [title, setTitle] = useState('');
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
@@ -34,7 +34,7 @@ export const App: React.FC = () => {
 
     getTodos()
       .then(res => setTodos(res))
-      .catch(() => setError(Error.UnableLoad));
+      .catch(() => setError(ErrorMessage.UnableLoad));
   }, []);
 
   useEffect(() => {
@@ -42,7 +42,7 @@ export const App: React.FC = () => {
       return;
     }
 
-    const timeout = setTimeout(() => setError(''), 3000);
+    const timeout = setTimeout(() => setError(null), 3000);
 
     return () => clearTimeout(timeout);
   }, [error]);
@@ -53,7 +53,7 @@ export const App: React.FC = () => {
     const trimmedTitle = title.trim();
 
     if (!trimmedTitle) {
-      setError(Error.TitleIsEmpty);
+      setError(ErrorMessage.TitleIsEmpty);
 
       return;
     }
@@ -80,7 +80,7 @@ export const App: React.FC = () => {
         setTodos(currentTodos => [...currentTodos, newTodoFromServer]);
         setTitle('');
       })
-      .catch(() => setError(Error.UnableAddTodo))
+      .catch(() => setError(ErrorMessage.UnableAddTodo))
       .finally(() => {
         if (inputRef.current) {
           inputRef.current.disabled = false;
@@ -101,7 +101,7 @@ export const App: React.FC = () => {
           currentTodos.filter(todo => todo.id !== todoId),
         ),
       )
-      .catch(() => setError(Error.UnableDeleteTodo))
+      .catch(() => setError(ErrorMessage.UnableDeleteTodo))
       .finally(() =>
         setLoadingTodos(current =>
           current.filter(deletingTodoId => todoId !== deletingTodoId),
@@ -129,7 +129,7 @@ export const App: React.FC = () => {
           ),
         ),
       )
-      .catch(() => setError(Error.UnableUppdateTodo))
+      .catch(() => setError(ErrorMessage.UnableUppdateTodo))
       .finally(() =>
         setLoadingTodos(current => current.filter(id => id !== todo.id)),
       );
@@ -154,7 +154,7 @@ export const App: React.FC = () => {
           ),
         ),
       )
-      .catch(() => setError(Error.UnableUppdateTodo))
+      .catch(() => setError(ErrorMessage.UnableUppdateTodo))
       .finally(() =>
         setLoadingTodos(current => current.filter(id => id !== todo.id)),
       );
@@ -207,7 +207,7 @@ export const App: React.FC = () => {
           data-cy="HideErrorButton"
           type="button"
           className="delete"
-          onClick={() => setError('')}
+          onClick={() => setError(null)}
         />
         {error}
       </div>

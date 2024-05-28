@@ -29,7 +29,8 @@ export const Header: React.FC<HeaderProps> = ({
           className={cn('todoapp__toggle-all', { active: everyTodoCompleted })}
           data-cy="ToggleAllButton"
           onClick={onToggleAll}
-        />)}
+        />
+      )}
 
       <form onSubmit={onAdd}>
         <input

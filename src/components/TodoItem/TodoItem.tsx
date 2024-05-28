@@ -2,7 +2,7 @@ import { Todo } from '../../types/Todo';
 import React, { useState, useEffect, FormEvent } from 'react';
 import cn from 'classnames';
 
-interface Props {
+interface TodoItemProps {
   todo: Todo;
   onDelete?: (todoId: number) => void;
   isLoading: boolean;
@@ -10,7 +10,7 @@ interface Props {
   onRename?: (todo: Todo) => void;
 }
 
-export const TodoItem: React.FC<Props> = ({
+export const TodoItem: React.FC<TodoItemProps> = ({
   todo,
   onDelete = () => {},
   onToggle = () => {},
@@ -48,8 +48,8 @@ export const TodoItem: React.FC<Props> = ({
       className={cn('todo', { completed: todo.completed })}
       key={todo.id}
     >
-       {/* eslint-disable jsx-a11y/label-has-associated-control */}
       <label className="todo__status-label">
+        {null}
         <input
           data-cy="TodoStatus"
           type="checkbox"

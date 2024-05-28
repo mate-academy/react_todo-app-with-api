@@ -1,7 +1,7 @@
 import { Todo } from '../../types/Todo';
 import { TodoItem } from '../TodoItem/TodoItem';
 
-interface Props {
+interface TodoListProps {
   todos: Todo[];
   tempTodo: Todo | null;
   onDelete?: (todoId: number) => void;
@@ -10,7 +10,7 @@ interface Props {
   onRename?: (todo: Todo) => void;
 }
 
-export const TodoList: React.FC<Props> = ({
+export const TodoList: React.FC<TodoListProps> = ({
   todos,
   tempTodo,
   onDelete,
