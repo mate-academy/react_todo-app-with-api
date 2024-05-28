@@ -2,11 +2,11 @@ import React, { useEffect, useState } from 'react';
 import { UserWarning } from '../../UserWarning';
 import * as todosService from '../../api/todos';
 import { Todo } from '../../types/Todo';
-import classNames from 'classnames';
 import { Header } from '../Header/Header';
 import { TodoList } from '../TodoList/TodoList';
 import { Footer } from '../Footer/Footer';
 import { Status } from '../../types/Status';
+import { ErrorNotification } from '../ErrorNotification/ErrorNotification';
 
 export const TodoApp: React.FC = () => {
   const [todos, setTodos] = useState<Todo[]>([]);
@@ -79,18 +79,7 @@ export const TodoApp: React.FC = () => {
         )}
       </div>
 
-      <div
-        data-cy="ErrorNotification"
-        className={classNames(
-          'notification is-danger is-light has-text-weight-normal',
-          {
-            hidden: !errorMessage,
-          },
-        )}
-      >
-        <button data-cy="HideErrorButton" type="button" className="delete" />
-        {errorMessage}
-      </div>
+      <ErrorNotification errorMessage={errorMessage} />
     </div>
   );
 };
