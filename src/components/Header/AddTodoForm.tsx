@@ -15,7 +15,7 @@ export const AddTodoForm: React.FunctionComponent<AddTodoFormProps> = ({
   const inputRef = useRef<HTMLInputElement>(null);
   const { todos, loadingIds, errorMessage } = useTodosContext();
 
-  const isInputActive = loadingIds.length > 0;
+  const isInputActive = !!loadingIds.length;
 
   useEffect(() => {
     if (inputRef.current) {

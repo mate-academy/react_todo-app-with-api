@@ -16,7 +16,7 @@ export const ErrorsContainer = () => {
         data-cy="HideErrorButton"
         type="button"
         className="delete"
-        onClick={() => setErrorMessage('')}
+        onClick={() => setErrorMessage(null)}
       />
       {errorMessage}
     </div>

@@ -5,28 +5,24 @@ import { addTodo, updateTodo } from '../../api/todos';
 
 import { useTodosContext } from '../../context/TodosContext';
 
-import { temporaryTodo } from '../../utils/tempTodo';
-
 import { AddTodoForm } from './AddTodoForm';
 
 import { Todo } from '../../types/Todo';
+import { Errors } from '../../types/Errors';
 
 export const Header = () => {
   const [title, setTitle] = useState('');
-  const { todos, setTodos, setErrorMessage, setTempTodo, setLoadingIds } =
-    useTodosContext();
+  const {
+    todos,
+    setTodos,
+    setErrorMessage,
+    setTempTodo,
+    setLoadingIds,
+    createNewTodo,
+  } = useTodosContext();
 
   const isToggleButtonActive = todos.every(t => t.completed);
-  const showToggleAll = todos.length > 0;
-
-  function createNewTodo(currentTitle: string) {
-    const newTodo: Todo = {
-      ...temporaryTodo,
-      title: currentTitle.trim(),
-    };
-
-    return newTodo;
-  }
+  const showToggleAll = !!todos.length;
 
   function addNewTodo(newTodo: Todo) {
     addTodo(newTodo)
@@ -35,7 +31,7 @@ export const Header = () => {
         setTitle('');
       })
       .catch(() => {
-        setErrorMessage('Unable to add a todo');
+        setErrorMessage(Errors.addError);
         setTempTodo(null);
       })
       .finally(() => {
@@ -50,7 +46,7 @@ export const Header = () => {
         setTodos(updatedTodos);
       })
       .catch(() => {
-        setErrorMessage('Unable to update a todo');
+        setErrorMessage(Errors.updateError);
       })
       .finally(() => {
         setLoadingIds([]);
@@ -63,7 +59,7 @@ export const Header = () => {
     const normalizedTitle = title.trim();
 
     if (!normalizedTitle) {
-      setErrorMessage('Title should not be empty');
+      setErrorMessage(Errors.titleError);
 
       return;
     }
@@ -81,7 +77,7 @@ export const Header = () => {
 
     const updatedTodos = todos.map(todo => ({
       ...todo,
-      completed: allCompleted ? false : true,
+      completed: !allCompleted,
     }));
 
     const todoIdsToUpdate = allCompleted

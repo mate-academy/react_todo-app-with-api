@@ -8,6 +8,7 @@ import { updateTodo } from '../../api/todos';
 import { Todo } from '../../types/Todo';
 import { EditForm } from './EditForm';
 import { TodoLoader } from './TodoLoader';
+import { Errors } from '../../types/Errors';
 
 type TodoItemProps = {
   todo: Todo;
@@ -35,7 +36,7 @@ export const TodoItem: React.FunctionComponent<TodoItemProps> = ({
         );
       })
       .catch(() => {
-        setErrorMessage('Unable to update a todo');
+        setErrorMessage(Errors.updateError);
         setEditing(true);
       })
       .finally(() => {

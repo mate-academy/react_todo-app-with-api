@@ -17,6 +17,8 @@ import { Footer } from './components/Footer/Footer';
 
 import { Status } from './types/Status';
 import { deleteTodo } from './api/todos';
+import { Errors } from './types/Errors';
+import { TempTodo } from './components/TempTodo/TempTodo';
 
 export const App = () => {
   const {
@@ -40,7 +42,7 @@ export const App = () => {
         );
       })
       .catch(() => {
-        setErrorMessage('Unable to delete a todo');
+        setErrorMessage(Errors.deleteError);
       })
       .finally(() => {
         setLoadingIds([]);
@@ -63,7 +65,7 @@ export const App = () => {
             ))}
             {tempTodo && (
               <CSSTransition key={0} timeout={300} classNames="temp-item">
-                <TodoItem todo={tempTodo} />
+                <TempTodo title={tempTodo.title} />
               </CSSTransition>
             )}
           </TransitionGroup>

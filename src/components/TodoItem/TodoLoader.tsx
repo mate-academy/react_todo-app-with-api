@@ -15,7 +15,7 @@ export const TodoLoader: React.FunctionComponent<TodoLoaderProps> = ({
     <div
       data-cy="TodoLoader"
       className={cn('modal overlay', {
-        'is-active': loadingIds?.includes(todo.id),
+        'is-active': loadingIds.includes(todo.id),
       })}
     >
       <div className="modal-background has-background-white-ter" />
