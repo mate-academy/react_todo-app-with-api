@@ -22,6 +22,7 @@ export const ErrorNotification: React.FC<Props> = ({
     const timerID = setTimeout(() => onDeleteError(), ERROR_TIMEOUT);
 
     return () => clearTimeout(timerID);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [errorMessage]);
 
   return (
