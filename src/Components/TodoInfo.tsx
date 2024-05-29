@@ -87,7 +87,7 @@ export const TodoInfo: React.FC<Props> = ({ todo }) => {
 
         setIsSaving(false);
       });
-  }, [dispatch, editedTitle, todo, isSaving, resetErrorMessage]);
+  }, [dispatch, todo, resetErrorMessage]);
 
   const saveChanges = useCallback(() => {
     setIsSaving(true);
@@ -134,7 +134,7 @@ export const TodoInfo: React.FC<Props> = ({ todo }) => {
     } else {
       deleteTodo();
     }
-  }, [dispatch, editedTitle, todo, isSaving, deleteTodo, resetErrorMessage]);
+  }, [dispatch, editedTitle, todo, deleteTodo, resetErrorMessage]);
 
   const handleKeyUp = useCallback(
     (e: React.KeyboardEvent<HTMLInputElement>) => {
