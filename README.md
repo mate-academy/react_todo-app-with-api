@@ -1,50 +1,58 @@
-# React Todo App with API (complete)
+# React Todo App with API
 
-It is the third part of the React Todo App with API.
+## Introduction
 
-Take your code implemented for [Add and Delete](https://github.com/mate-academy/react_todo-app-add-and-delete)
-and implement the ability to toggle and rename todos.
+Welcome to the **React Todo App with API** – an efficient, user-friendly, and highly functional task management application designed to simplify your daily task tracking. This app not only lets you add and delete todos but also provides the ability to toggle their completion status and rename them seamlessly, enhancing your productivity and task management experience.
 
-> Here is [the working example](https://mate-academy.github.io/react_todo-app-with-api/)
+[Demo Link](https://tetlisna.github.io/react_todo-app-with-api/)
 
-## Toggling a todo status
+## Why You'll Love It
 
-Toggle the `completed` status on `TodoStatus` change:
-- Install Prettier Extention and use this [VSCode settings](https://mate-academy.github.io/fe-program/tools/vscode/settings.json) to enable format on save.
-- covered the todo with a loader overlay while waiting for API response;
-- the status should be changed on success;
-- show the `Unable to update a todo` notification in case of API error.
+### Real-Time Updates
+The app interacts with an API to ensure that your data is always up-to-date. When you toggle a todo's status or rename it, the changes are immediately reflected, giving you a smooth and responsive experience.
 
-Add the ability to toggle the completed status of all the todos with the `toggleAll` checkbox:
+### Optimized Performance
+- **Loader Overlays**: While waiting for API responses, the app displays loader overlays, keeping you informed about the background processes and ensuring that you always know the current state of your actions.
+- **Context Management**: All data is stored in the context, making state management efficient and the application performant.
 
-- `toggleAll` button should have `active` class only if all the todos are completed;
-- `toggleAll` click changes its status to the opposite one, and sets this new status to all the todos;
-- it should work the same as several individual updates of the todos which statuses were actually changed;
-- do send requests for the todos that were not changed;
+### Comprehensive Todo Management
+- **Toggling Todos**: Easily toggle the completion status of individual todos or all todos at once using the `toggleAll` checkbox. The `toggleAll` button activates only if all todos are marked as completed, ensuring precise control over your task list.
+- **Renaming Todos**: Edit todo titles with a simple double-click. The intuitive editing form allows you to save changes on submit or when the input field loses focus. It also handles edge cases like empty titles or unchanged titles gracefully.
 
-## Renaming a todo
+### Error Handling
+- **User Notifications**: In case of any API errors, the app provides clear notifications such as `Unable to update a todo` or deletion error messages, keeping you informed and reducing confusion.
 
-Implement the ability to edit a todo title on double click:
+## Key Features
 
-- show the edit form instead of the title and remove button;
-- saves changes on the form submit (just press `Enter`);
-- save changes when the field loses focus (`onBlur`);
-- if the new title is the same as the old one just cancel editing;
-- cancel editing on `Esс` key `keyup` event;
-- if the new title is empty delete the todo the same way the `x` button does it;
-- if the title was changed show the loader while waiting for the API response;
-- update the todo title on success;
-- show `Unable to update a todo` in case of API error;
-- or the deletion error message if we tried to delete the todo.
+### Toggle Todo Status
+- **Individual Toggle**: Toggle the `completed` status of each todo with instant feedback.
+- **Bulk Toggle**: Use the `toggleAll` checkbox to change the status of all todos simultaneously. The app ensures that only the todos with actual status changes trigger API requests, optimizing performance.
 
-## If you want to enable tests
-- open `cypress/integration/page.spec.js`
-- replace `describe.skip` with `describe` for the root `describe`
+### Rename Todos
+- **Inline Editing**: Double-click a todo title to switch to edit mode. Changes are saved on `Enter` or when the input field loses focus.
+- **Smart Handling**: If the new title is the same as the old one, editing is canceled. If the title is empty, the todo is deleted automatically, streamlining your workflow.
+- **Error Feedback**: The app shows loaders during API calls and provides error messages if updates fail.
 
-> ❗❗All tests should pass, even if some behaviour in not well explained in the task❗❗
+## Development and Testing
 
-## Instructions
+### Development
+This app is built with modern React and TypeScript, ensuring a robust and type-safe development experience. Here are some of the key dependencies used in the project:
 
-- Implement a solution following the [React task guideline](https://github.com/mate-academy/react_task-guideline#react-tasks-guideline).
-- Use the [React TypeScript cheat sheet](https://mate-academy.github.io/fe-program/js/extra/react-typescript).
-- Replace `<your_account>` with your Github username in the [DEMO LINK](https://<your_account>.github.io/react_todo-app-with-api/) and add it to the PR description.
+- **React**: A JavaScript library for building user interfaces.
+- **TypeScript**: A typed superset of JavaScript that compiles to plain JavaScript.
+- **Bulma**: A modern CSS framework based on Flexbox.
+- **Cypress**: A testing framework for end-to-end testing.
+
+### Scripts
+
+Start the development server
+
+```bash
+npm start 
+
+
+### Testing
+To run tests, you can use the following command:
+
+```bash
+npm test
