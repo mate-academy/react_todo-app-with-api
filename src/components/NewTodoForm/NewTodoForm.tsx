@@ -16,12 +16,6 @@ export const NewTodoForm: React.FC<Props> = ({ onTodoCreated }) => {
     useTodos();
   const [title, setTitle] = useState('');
 
-  const newTodo = {
-    userId: todoService.USER_ID,
-    title: title.trim(),
-    completed: false,
-  };
-
   const titleField = useRef<HTMLInputElement>(null);
 
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -31,6 +25,13 @@ export const NewTodoForm: React.FC<Props> = ({ onTodoCreated }) => {
 
   const handleSubmit = (event: SyntheticEvent) => {
     event.preventDefault();
+
+    const newTodo = {
+      userId: todoService.USER_ID,
+      title: title.trim(),
+      completed: false,
+    };
+
     if (!title.trim()) {
       displayError(ErrorMessages.TitleIsEmpty);
 

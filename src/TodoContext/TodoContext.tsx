@@ -13,12 +13,14 @@ type ContextType = {
   setIsLoading: (value: boolean) => void;
   todos: Todo[];
   setTodos: Dispatch<SetStateAction<Todo[]>>;
-  activeTodos: Todo[];
-  setActiveTodos: (todos: Todo[]) => void;
+  activeTodoIds: Array<Todo['id']>;
+  setActiveTodoIds: (todos: Array<Todo['id']>) => void;
   handleDeleteTodo: (todo: Todo) => void;
   toggleTodo: (todo: Todo) => void;
   renameTodo: (todo: Todo, newTitle: string) => Promise<void>;
 };
+
+// export const TodoContext = React.createContext<ContextType | null>(null);
 
 export const TodoContext = React.createContext<ContextType>({
   error: null,
@@ -30,8 +32,8 @@ export const TodoContext = React.createContext<ContextType>({
   setIsLoading: (_value: boolean) => {},
   todos: [],
   setTodos: () => [],
-  activeTodos: [],
-  setActiveTodos: (_todos: Todo[]) => {},
+  activeTodoIds: [],
+  setActiveTodoIds: (_todos: Array<Todo['id']>) => {},
   handleDeleteTodo: (_todo: Todo) => {},
   toggleTodo: (_todo: Todo) => {},
   renameTodo: (_todo: Todo, _newTitle: string) => new Promise(() => {}),
@@ -46,7 +48,7 @@ export const TodoProvider: React.FC<Props> = ({ children }) => {
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
   const [todos, setTodos] = useState<Todo[]>([]);
   const [isLoading, setIsLoading] = useState(false);
-  const [activeTodos, setActiveTodos] = useState<Todo[]>([]);
+  const [activeTodoIds, setActiveTodoIds] = useState<Array<Todo['id']>>([]);
 
   const displayError = useCallback(
     (message: ErrorMessages) => {
@@ -59,7 +61,7 @@ export const TodoProvider: React.FC<Props> = ({ children }) => {
   );
 
   const toggleTodo = (todoToUpdate: Todo) => {
-    setActiveTodos(currentTodos => [...currentTodos, todoToUpdate]);
+    setActiveTodoIds(currentTodos => [...currentTodos, todoToUpdate.id]);
     todoService
       .updateTodo({
         ...todoToUpdate,
@@ -74,13 +76,13 @@ export const TodoProvider: React.FC<Props> = ({ children }) => {
       })
       .catch(() => displayError(ErrorMessages.UpdateTodo))
       .finally(() => {
-        setActiveTodos([]);
+        setActiveTodoIds([]);
       });
   };
 
   const handleDeleteTodo = (todo: Todo) => {
     setIsLoading(true);
-    setActiveTodos([todo]);
+    setActiveTodoIds([todo.id]);
     todoService
       .deleteTodo(todo.id)
       .then(() =>
@@ -90,13 +92,13 @@ export const TodoProvider: React.FC<Props> = ({ children }) => {
       )
       .catch(() => displayError(ErrorMessages.DeleteTodo))
       .finally(() => {
-        setActiveTodos([]);
+        setActiveTodoIds([]);
         setIsLoading(false);
       });
   };
 
   const renameTodo = (todoToRename: Todo, newTitle: string) => {
-    setActiveTodos(currentTodos => [...currentTodos, todoToRename]);
+    setActiveTodoIds(currentTodos => [...currentTodos, todoToRename.id]);
 
     return todoService
       .updateTodo({
@@ -115,8 +117,8 @@ export const TodoProvider: React.FC<Props> = ({ children }) => {
         throw updateError;
       })
       .finally(() => {
-        setActiveTodos(currentTodos =>
-          currentTodos.filter(item => item.id !== todoToRename.id),
+        setActiveTodoIds(currentTodos =>
+          currentTodos.filter(id => id !== todoToRename.id),
         );
       });
   };
@@ -131,8 +133,8 @@ export const TodoProvider: React.FC<Props> = ({ children }) => {
     setIsLoading,
     todos,
     setTodos,
-    setActiveTodos,
-    activeTodos,
+    setActiveTodoIds,
+    activeTodoIds,
     handleDeleteTodo,
     toggleTodo,
     renameTodo,

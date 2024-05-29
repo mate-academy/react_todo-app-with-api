@@ -9,7 +9,7 @@ type Props = {
 };
 
 export const TodoList: React.FC<Props> = ({ todos }) => {
-  const { tempTodo, activeTodos } = useTodos();
+  const { tempTodo, activeTodoIds } = useTodos();
 
   return (
     <section className="todoapp__main" data-cy="TodoList">
@@ -20,7 +20,7 @@ export const TodoList: React.FC<Props> = ({ todos }) => {
               <Todo
                 todo={todo}
                 key={todo.id}
-                isActive={activeTodos.includes(todo)}
+                isActive={activeTodoIds.includes(todo.id)}
               />
             </CSSTransition>
           );
