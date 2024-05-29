@@ -15,7 +15,9 @@ export const TodoList: React.FC = () => {
       {filteredTodos.map((item: Todo) => (
         <TodoItem key={item.id.toString()} todo={item} />
       ))}
-      {lastTodo && !deletedElement && <TodoItem key={lastTodo.id.toString()} todo={lastTodo} />}
+      {lastTodo && !deletedElement && (
+        <TodoItem key={lastTodo.id.toString()} todo={lastTodo} />
+      )}
     </section>
   );
 };

@@ -11,7 +11,6 @@ import { Todo } from '../../types/Todo';
 
 export const Header: React.FC = () => {
   const {
-    loader,
     errorMessage,
     setLoader,
     setLastTodo,
@@ -28,7 +27,7 @@ export const Header: React.FC = () => {
   const titleField = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    if (titleField.current) {
+    if (!!titleField.current) {
       titleField.current.focus();
       titleField.current.disabled = false;
     }
@@ -37,6 +36,11 @@ export const Header: React.FC = () => {
   const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     setLoader(true);
+
+    if (titleField.current) {
+      titleField.current.disabled = true;
+    }
+
     let newTodo: Todo | null;
 
     if (!!(titleField.current && titleField.current.value)) {
@@ -54,9 +58,15 @@ export const Header: React.FC = () => {
     if (newTodo && currentTitleValue.trim().length > 0 && titleField.current) {
       addTodo(newTodo, titleField.current).then(() => {
         setCurrentTitlevalue('');
+        if (titleField.current) {
+          titleField.current.disabled = false;
+        }
       });
     } else {
       setErrorMessage('Title should not be empty');
+      if (titleField.current) {
+        titleField.current.disabled = false;
+      }
     }
   };
 
@@ -99,7 +109,6 @@ export const Header: React.FC = () => {
         <input
           data-cy="NewTodoField"
           ref={titleField}
-          disabled={loader}
           type="text"
           className="todoapp__new-todo"
           placeholder="What needs to be done?"

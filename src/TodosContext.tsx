@@ -12,6 +12,7 @@ type ContextType = {
   loader: boolean;
   errorMessage: string;
   lastTodo: Todo | null;
+  mainFocus: boolean;
   setLastTodo: (value: Todo | null) => void;
   setLoader: (value: boolean) => void;
   loadPost: () => void;
@@ -38,6 +39,7 @@ export const TodosContext = React.createContext<ContextType>({
   loader: false,
   errorMessage: '',
   lastTodo: null,
+  mainFocus: true,
   setLastTodo: () => {},
   setLoader: () => {},
   loadPost: () => {},
@@ -56,6 +58,7 @@ export const TodosProvider: React.FC<Props> = ({ children }) => {
   const [loader, setLoader] = useState<boolean>(false);
   const [errorMessage, setErrorMessage] = useState<string>('');
   const [lastTodo, setLastTodo] = useState<Todo | null>(null);
+  const [mainFocus, setMainFocus] = useState<boolean>(true);
 
   const [todos, setTodos] = useState<Todo[]>([]);
   const [selectedFilter, setSelectedFilter] = useState<Selected>(Selected.all);
@@ -74,6 +77,7 @@ export const TodosProvider: React.FC<Props> = ({ children }) => {
       .finally(() => {
         setLoader(false);
         setLastTodo(null);
+        setMainFocus(true);
       });
   };
 
@@ -138,6 +142,7 @@ export const TodosProvider: React.FC<Props> = ({ children }) => {
       .finally(() => {
         setLoader(false);
         setLastTodo(null);
+        loadPost();
       });
   };
 
@@ -207,6 +212,9 @@ export const TodosProvider: React.FC<Props> = ({ children }) => {
         setTodos(prevTodos);
         setErrorMessage('Unable to update a todo');
         throw error;
+      })
+      .finally(() => {
+        setLastTodo(null);
       });
   };
 
@@ -217,6 +225,7 @@ export const TodosProvider: React.FC<Props> = ({ children }) => {
       loader,
       errorMessage,
       lastTodo,
+      mainFocus,
       setLastTodo,
       setLoader,
       loadPost,
@@ -231,7 +240,7 @@ export const TodosProvider: React.FC<Props> = ({ children }) => {
       setErrorMessage,
     }),
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [todos, selectedFilter, errorMessage, lastTodo],
+    [todos, selectedFilter, errorMessage, lastTodo, mainFocus],
   );
 
   return (
