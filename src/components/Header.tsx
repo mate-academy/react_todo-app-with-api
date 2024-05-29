@@ -27,11 +27,12 @@ export const Header: React.FC<Props> = ({
 
   useEffect(() => {
     inputRef.current?.focus();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [tempTodo]);
 
   return (
     <header className="todoapp__header">
-      {todos.length !== 0 && (
+      {!!todos.length && (
         <button
           data-cy="ToggleAllButton"
           type="button"
