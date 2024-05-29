@@ -16,11 +16,12 @@ export const Header: React.FC = () => {
   const { todos } = useContext(TodoContext);
   const [isDisabled, setIsDisabled] = useState(false);
   const state = useContext(TodoContext);
-
   const handleSubmit = useCallback(
     (event: React.FormEvent) => {
       dispatch({ type: 'clearError' });
+
       event.preventDefault();
+
       if (title.trim().length === 0) {
         dispatch({
           type: 'setError',
@@ -66,6 +67,7 @@ export const Header: React.FC = () => {
               payload: { updatedTodo: { ...createdTodo, isLoading: false } },
             });
           })
+
           .catch(error => {
             dispatch({
               type: 'setError',
@@ -78,12 +80,10 @@ export const Header: React.FC = () => {
 
             throw error;
           })
-          .then(() => {
-            setTitle('');
-          })
-          .finally(() => {
-            setIsDisabled(false);
-          });
+
+          .then(() => setTitle(''))
+
+          .finally(() => setIsDisabled(false));
       }
 
       return null;
@@ -101,26 +101,41 @@ export const Header: React.FC = () => {
 
   const handleToggleAll = () => {
     const areAllCompleted = todos.every(todo => todo.completed);
-    const updatedTodos = todos.map(todo => ({
+    let todosNotCompleted = todos.filter(todo => !todo.completed);
+
+    if (areAllCompleted) {
+      todosNotCompleted = todos.filter(todo => todo.completed);
+    }
+
+    const updatedTodos = todosNotCompleted.map(todo => ({
       ...todo,
       completed: !areAllCompleted,
     }));
 
-    // const
+    updatedTodos.forEach(todo => {
+      dispatch({
+        type: 'setItemLoading',
+        payload: { id: todo.id, isLoading: true },
+      });
 
-    dispatch({ type: 'setLoading', payload: { isLoading: true } });
+      updateTodo(todo)
+        .catch(error => {
+          dispatch({
+            type: 'setError',
+            payload: { errorMessage: 'Unable to update a todo' },
+          });
 
-    const toggleAllPromises = updatedTodos.map(todo => {
-      return updateTodo(todo);
+          throw error;
+        })
+        .finally(() => {
+          dispatch({
+            type: 'setItemLoading',
+            payload: { id: todo.id, isLoading: false },
+          });
+        });
     });
 
-    Promise.all(toggleAllPromises)
-      .then(results => {
-        dispatch({ type: 'toggleAll', payload: { updatedTodos: results } });
-      })
-      .finally(() => {
-        dispatch({ type: 'setLoading', payload: { isLoading: false } });
-      });
+    dispatch({ type: 'toggleAll', payload: { updatedTodos: updatedTodos } });
   };
 
   if (!USER_ID) {
@@ -129,7 +144,7 @@ export const Header: React.FC = () => {
 
   return (
     <header className="todoapp__header">
-      {todos.length > 0 && (
+      {!!todos.length && (
         <button
           type="button"
           className={classNames('todoapp__toggle-all', {
@@ -148,9 +163,7 @@ export const Header: React.FC = () => {
           type="text"
           className="todoapp__new-todo"
           placeholder="What needs to be done?"
-          onChange={e => {
-            setTitle(e.target.value);
-          }}
+          onChange={e => setTitle(e.target.value)}
           ref={inputField}
         />
       </form>

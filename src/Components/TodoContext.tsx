@@ -1,4 +1,4 @@
-import React, { useReducer } from 'react';
+import React, { useCallback, useReducer } from 'react';
 import { Todo } from '../types/Todo';
 import { SortingTodos } from '../types/Sorting';
 
@@ -21,9 +21,7 @@ type Action =
   | { type: 'activeTab'; payload: { tab: SortingTodos } }
   | { type: 'setError'; payload: { errorMessage: string } }
   | { type: 'clearError' }
-  | { type: 'setLoading'; payload: { isLoading: boolean } }
   | { type: 'setItemLoading'; payload: { id: number; isLoading: boolean } }
-  | { type: 'setAdding'; payload: { isAdded: boolean } }
   | { type: 'toggleAll'; payload: { updatedTodos: Todo[] } };
 
 const initialState: State = {
@@ -145,19 +143,12 @@ function reducer(state: State, action: Action): State {
       };
     }
 
-    case 'setLoading': {
-      return {
-        ...state,
-        isLoading: action.payload.isLoading,
-      };
-    }
-
     case 'setItemLoading': {
       return {
         ...state,
         isLoadingItems: {
           ...state.isLoadingItems,
-          [action.payload.id]: action.payload.isLoading, // Set loading state for specific item
+          [action.payload.id]: action.payload.isLoading,
         },
       };
     }
@@ -186,11 +177,11 @@ type Props = {
 export const GlobalContext: React.FC<Props> = ({ children }) => {
   const [state, dispatch] = useReducer(reducer, initialState);
 
-  const resetErrorMessage = (delay = 3000) => {
+  const resetErrorMessage = useCallback((delay = 3000) => {
     setTimeout(() => {
       dispatch({ type: 'clearError' });
     }, delay);
-  };
+  }, []);
 
   return (
     <DispatchContext.Provider value={{ dispatch, resetErrorMessage }}>
