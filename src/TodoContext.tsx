@@ -22,7 +22,6 @@ type ContextProps = {
   handleDelete: (todo: Todo) => void;
   handleDeleteCompleted: () => void;
   isLoading: boolean;
-  isUpdating: boolean;
   isDeletion: boolean;
   currentTodoId: number | null;
   tempTodo: Todo | null;
@@ -52,7 +51,6 @@ export const TodoContext = React.createContext<ContextProps>({
   handleDelete: () => {},
   handleDeleteCompleted: () => {},
   isLoading: false,
-  isUpdating: false,
   isDeletion: false,
   tempTodo: null,
   currentTodoId: null,
@@ -97,7 +95,6 @@ export const TodoProvider: React.FC<Props> = ({ children }) => {
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
   const [filterField, setFilterField] = useState('all');
   const [isLoading, setIsLoading] = useState(false);
-  const [isUpdating, setIsUpdating] = useState(false);
   const [isDeletion, setIsDeletion] = useState(false);
   const [currentTodoId, setCurrentTodoId] = useState<number | null>(null);
   const [selectedTodo, setSelectedTodo] = useState<Todo | null>(null);
@@ -222,6 +219,8 @@ export const TodoProvider: React.FC<Props> = ({ children }) => {
   };
 
   const addTodo = (newTodo: Todo) => {
+    setIsLoading(true);
+
     todoServices
       .createTodo(newTodo)
       .then(todo => {
@@ -246,8 +245,8 @@ export const TodoProvider: React.FC<Props> = ({ children }) => {
   };
 
   const updateTodo = (updatedTodo: Todo) => {
-    setIsUpdating(true);
     setCurrentTodoId(updatedTodo.id);
+    setIsLoading(true);
 
     todoServices
       .updateTodo(updatedTodo)
@@ -264,6 +263,7 @@ export const TodoProvider: React.FC<Props> = ({ children }) => {
       })
       .catch(() => {
         setErrorMessage('Unable to update a todo');
+        setSelectedTodo(updatedTodo);
 
         setTimeout(() => {
           if (titleField.current) {
@@ -274,7 +274,6 @@ export const TodoProvider: React.FC<Props> = ({ children }) => {
         }, 3000);
       })
       .finally(() => {
-        setIsUpdating(false);
         setSelectedTodo(null);
         setCurrentTodoId(null);
       });
@@ -352,8 +351,6 @@ export const TodoProvider: React.FC<Props> = ({ children }) => {
         return;
       }
 
-      setIsLoading(true);
-
       setTempTodo({
         id: 0,
         userId: USER_ID,
@@ -388,7 +385,6 @@ export const TodoProvider: React.FC<Props> = ({ children }) => {
     handleDelete,
     handleDeleteCompleted,
     isLoading,
-    isUpdating,
     isDeletion,
     tempTodo,
     currentTodoId,

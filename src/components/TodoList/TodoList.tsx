@@ -11,7 +11,6 @@ export const TodoList: React.FC = () => {
     handleDelete,
     tempTodo,
     isLoading,
-    isUpdating,
     isDeletion,
     currentTodoId,
     selectedTodo,
@@ -84,20 +83,19 @@ export const TodoList: React.FC = () => {
               >
                 ×
               </button>
-              <div
-                data-cy="TodoLoader"
-                className={classNames('modal', 'overlay', {
-                  'is-active':
-                    (isLoading && todo.id === currentTodoId) ||
-                    (isUpdating && todo.id === currentTodoId) ||
-                    (isDeletion && todo.id === currentTodoId),
-                })}
-              >
-                <div className="modal-background has-background-white-ter" />
-                <div className="loader" />
-              </div>
             </>
           )}
+          <div
+            data-cy="TodoLoader"
+            className={classNames('modal', 'overlay', {
+              'is-active':
+                (isLoading && todo.id === currentTodoId) ||
+                (isDeletion && todo.id === currentTodoId),
+            })}
+          >
+            <div className="modal-background has-background-white-ter" />
+            <div className="loader" />
+          </div>
         </div>
       ))}
 
