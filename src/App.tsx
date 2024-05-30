@@ -8,7 +8,7 @@ import {
   getTodos,
   updateTodo,
 } from './api/todos';
-import { Todo } from './types/Todo';
+import { FilterStatus, Todo } from './types/Todo';
 import classNames from 'classnames';
 import { TodoItem } from './components/TodoItem';
 
@@ -26,7 +26,7 @@ export const App: React.FC = () => {
   useEffect(() => {
     inputRef.current?.focus();
     getTodos()
-      .then((response: React.SetStateAction<Todo[]>) => setTodos(response))
+      .then(setTodos)
       .catch(() => setErrorMessage('Unable to load todos'));
   }, []);
 
@@ -234,10 +234,10 @@ export const App: React.FC = () => {
                 <a
                   href="#/"
                   className={classNames('filter__link', {
-                    selected: status === 'all',
+                    selected: status === FilterStatus.All,
                   })}
                   data-cy="FilterLinkAll"
-                  onClick={() => setStatus('all')}
+                  onClick={() => setStatus(FilterStatus.All)}
                 >
                   All
                 </a>
@@ -245,10 +245,10 @@ export const App: React.FC = () => {
                 <a
                   href="#/active"
                   className={classNames('filter__link', {
-                    selected: status === 'active',
+                    selected: status === FilterStatus.Active,
                   })}
                   data-cy="FilterLinkActive"
-                  onClick={() => setStatus('active')}
+                  onClick={() => setStatus(FilterStatus.Active)}
                 >
                   Active
                 </a>
@@ -256,10 +256,10 @@ export const App: React.FC = () => {
                 <a
                   href="#/completed"
                   className={classNames('filter__link', {
-                    selected: status === 'completed',
+                    selected: status === FilterStatus.Completed,
                   })}
                   data-cy="FilterLinkCompleted"
-                  onClick={() => setStatus('completed')}
+                  onClick={() => setStatus(FilterStatus.Completed)}
                 >
                   Completed
                 </a>
