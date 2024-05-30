@@ -8,8 +8,7 @@ import TodoList from './components/TodoList';
 
 import { Status } from './types/Status';
 import { Todo } from './types/Todo';
-
-// const USER_ID = 664;
+import { Errors } from './types/Errors';
 
 export const App: FC = () => {
   const [todos, setTodos] = useState<Todo[]>([]);
@@ -27,7 +26,7 @@ export const App: FC = () => {
     todoService
       .getTodos()
       .then(setTodos)
-      .catch(() => setErrorMessage('Unable to load todos'));
+      .catch(() => setErrorMessage(Errors.LOAD));
   }, []);
 
   useEffect(() => {
@@ -35,7 +34,7 @@ export const App: FC = () => {
       return;
     }
 
-    const timeout = setTimeout(() => setErrorMessage(''), 3000);
+    const timeout = setTimeout(() => setErrorMessage(Errors.DEFAULT), 3000);
 
     return () => clearTimeout(timeout);
   }, [errorMessage]);
@@ -59,7 +58,7 @@ export const App: FC = () => {
     const normalizedTitle = title.trim();
 
     if (!normalizedTitle) {
-      setErrorMessage('Title should not be empty');
+      setErrorMessage(Errors.TITLE);
 
       return;
     }
@@ -83,7 +82,7 @@ export const App: FC = () => {
         setTitle('');
       })
       .catch(() => {
-        setErrorMessage('Unable to add a todo');
+        setErrorMessage(Errors.ADD);
       })
       .finally(() => {
         if (inputRef.current) {
@@ -106,7 +105,7 @@ export const App: FC = () => {
         );
       })
       .catch(() => {
-        setErrorMessage('Unable to delete a todo');
+        setErrorMessage(Errors.DELETE);
       })
       .finally(() => {
         setLoadingTodosIds(current => current.filter(id => id !== todoId));
@@ -130,7 +129,7 @@ export const App: FC = () => {
           ),
         );
       })
-      .catch(() => setErrorMessage('Unable to update a todo'))
+      .catch(() => setErrorMessage(Errors.UPDATE))
       .finally(() => {
         setLoadingTodosIds(current => current.filter(id => id !== todo.id));
       });
@@ -149,20 +148,20 @@ export const App: FC = () => {
         );
       })
       .catch(() => {
-        setErrorMessage('Unable to update a todo');
+        setErrorMessage(Errors.UPDATE);
         throw new Error();
       });
   };
 
   const updateAllToggleStatus = () => {
-    if (activeTodos.length > 0) {
+    if (activeTodos.length) {
       activeTodos.forEach(updateToggleStatus);
     } else {
       completedTodos.forEach(updateToggleStatus);
     }
   };
 
-  const isAllToggleButtonVisible = activeTodos.length === 0;
+  const isAllToggleButtonVisible = !activeTodos.length;
 
   if (!USER_ID) {
     return <UserWarning />;
@@ -193,13 +192,13 @@ export const App: FC = () => {
           setLoadingTodosIds={setLoadingTodosIds}
         />
 
-        {todos.length > 0 && (
+        {!!todos.length && (
           <Footer
             activeTodosCount={activeTodos.length}
             selectedStatus={selectedStatus}
             setSelectedStatus={setSelectedStatus}
             deleteAllCompleted={deleteAllCompleted}
-            clearAllVisible={completedTodos.length > 0}
+            clearAllVisible={!!completedTodos.length}
           />
         )}
       </div>
@@ -212,7 +211,7 @@ export const App: FC = () => {
           data-cy="HideErrorButton"
           type="button"
           className="delete"
-          onClick={() => setErrorMessage('')}
+          onClick={() => setErrorMessage(Errors.DEFAULT)}
         />
         {errorMessage}
       </div>

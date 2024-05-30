@@ -47,8 +47,6 @@ const TodoItem: FC<Props> = ({
       .finally(() => {
         setLoadingTodosIds(current => current.filter(id => id !== todo.id));
       });
-
-    // setIsRenaming(false);
   };
 
   return (
