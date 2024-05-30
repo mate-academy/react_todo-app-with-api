@@ -106,7 +106,7 @@ export const App: React.FC = () => {
   const handleDeletingTodo = (id: number) => {
     handleManagingTodos(id);
 
-    return todoService
+    todoService
       .deleteTodo(id)
       .then(() =>
         setTodos(prevTodos => prevTodos.filter(todo => todo.id !== id)),
@@ -172,7 +172,7 @@ export const App: React.FC = () => {
   const handleUpdatingTodo = (todo: Todo) => {
     handleManagingTodos(todo.id);
 
-    return todoService
+    todoService
       .updateTodo(todo)
       .then(updatedTodo => {
         setTodos(currentTodos =>

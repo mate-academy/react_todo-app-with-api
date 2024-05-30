@@ -1,5 +1,5 @@
 /* eslint-disable jsx-a11y/label-has-associated-control */
-import React, { useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Todo } from '../types/Todo';
 import cn from 'classnames';
 
@@ -23,6 +23,12 @@ export const TodoItem: React.FC<Props> = ({
 
   const inputRef = useRef<HTMLInputElement>(null);
 
+  useEffect(() => {
+    if (isEditing && inputRef.current) {
+      inputRef.current.focus();
+    }
+  }, [isEditing]);
+
   const handleSubmittingUpdate = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
@@ -43,6 +49,7 @@ export const TodoItem: React.FC<Props> = ({
     }
 
     handleUpdatingTodo({ ...todo, title: preparedTitle });
+    setIsEditing(false);
   };
 
   return (
