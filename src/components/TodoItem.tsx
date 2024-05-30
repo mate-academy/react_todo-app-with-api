@@ -10,17 +10,19 @@ interface Props {
   isLoading: boolean;
 }
 
+const noOperation = () => {};
+
 export const TodoItem: FC<Props> = ({
   todo,
-  onDelete = () => {},
-  onToggle = () => {},
-  onRename = () => {},
+  onDelete = noOperation,
+  onToggle = noOperation,
+  onRename = noOperation,
   isLoading,
 }) => {
-  const [isRemaining, setIsRemaining] = useState(false);
+  const [isRenaming, setIsRenaming] = useState(false);
   const [newTitle, setNewTitle] = useState('');
 
-  useEffect(() => setIsRemaining(false), [todo]);
+  useEffect(() => setIsRenaming(false), [todo]);
 
   const handleSubmit = (event: FormEvent) => {
     event.preventDefault();
@@ -28,7 +30,7 @@ export const TodoItem: FC<Props> = ({
     const trimmedNewTitle = newTitle.trim();
 
     if (trimmedNewTitle === todo.title) {
-      setIsRemaining(false);
+      setIsRenaming(false);
 
       return;
     }
@@ -58,13 +60,13 @@ export const TodoItem: FC<Props> = ({
         />
       </label>
 
-      {isRemaining ? (
+      {isRenaming ? (
         <form
           onSubmit={handleSubmit}
           onBlur={handleSubmit}
           onKeyUp={event => {
             if (event.key === 'Escape') {
-              setIsRemaining(false);
+              setIsRenaming(false);
             }
           }}
         >
@@ -84,7 +86,7 @@ export const TodoItem: FC<Props> = ({
             data-cy="TodoTitle"
             className="todo__title"
             onDoubleClick={() => {
-              setIsRemaining(true);
+              setIsRenaming(true);
               setNewTitle(todo.title);
             }}
           >

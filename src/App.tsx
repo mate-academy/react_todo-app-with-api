@@ -45,14 +45,14 @@ export const App: React.FC = () => {
   const activeTodos = todos.filter(todo => !todo.completed);
   const completedTodos = todos.filter(todo => todo.completed);
 
-  let filterTodos = todos;
+  let filteredTodos = todos;
 
   if (status === 'active') {
-    filterTodos = activeTodos;
+    filteredTodos = activeTodos;
   }
 
   if (status === 'completed') {
-    filterTodos = completedTodos;
+    filteredTodos = completedTodos;
   }
 
   const handleAddTodo = (event: FormEvent) => {
@@ -211,7 +211,7 @@ export const App: React.FC = () => {
         {todos.length > 0 && (
           <>
             <section className="todoapp__main" data-cy="TodoList">
-              {filterTodos.map(todo => (
+              {filteredTodos.map(todo => (
                 <TodoItem
                   key={todo.id}
                   todo={todo}
@@ -222,12 +222,7 @@ export const App: React.FC = () => {
                 />
               ))}
 
-              {tempTodo && (
-                <TodoItem
-                  todo={tempTodo}
-                  isLoading={loadingTodos.includes(0)}
-                />
-              )}
+              {tempTodo && <TodoItem todo={tempTodo} isLoading />}
             </section>
 
             <footer className="todoapp__footer" data-cy="Footer">
