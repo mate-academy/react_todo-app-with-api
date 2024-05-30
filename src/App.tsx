@@ -218,7 +218,7 @@ export const App: React.FC = () => {
           handleTogglingTodo={handleTogglingTodo}
         />
 
-        {todos.length > 0 && (
+        {!!todos.length && (
           <Footer
             todos={todos}
             status={status}

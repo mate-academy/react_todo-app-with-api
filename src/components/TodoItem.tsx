@@ -51,6 +51,17 @@ export const TodoItem: React.FC<Props> = ({
     handleUpdatingTodo({ ...todo, title: preparedTitle });
   };
 
+  const handleCancelUpdating = () => {
+    setNewTitle(todo.title);
+    setIsEditing(false);
+  };
+
+  const handlePressingKey = (event: React.KeyboardEvent) => {
+    if (event.key === 'Escape') {
+      handleCancelUpdating();
+    }
+  };
+
   return (
     <div
       data-cy="Todo"
@@ -72,11 +83,7 @@ export const TodoItem: React.FC<Props> = ({
       {isEditing ? (
         <form
           onSubmit={handleSubmittingUpdate}
-          onKeyUp={event => {
-            if (event.key === 'Escape') {
-              setIsEditing(false);
-            }
-          }}
+          onKeyUp={handlePressingKey}
           onBlur={handleSubmittingUpdate}
         >
           <input
