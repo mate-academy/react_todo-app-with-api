@@ -35,6 +35,16 @@ export const Header: React.FC = () => {
 
   const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+
+    if (currentTitleValue.trim().length === 0) {
+      setErrorMessage('Title should not be empty');
+      setCurrentTitlevalue('');
+      if (titleField.current) {
+        titleField.current.disabled = false;
+      };
+      return;
+    }
+
     setLoader(true);
 
     if (titleField.current) {
@@ -62,12 +72,7 @@ export const Header: React.FC = () => {
           titleField.current.disabled = false;
         }
       });
-    } else {
-      setErrorMessage('Title should not be empty');
-      if (titleField.current) {
-        titleField.current.disabled = false;
-      }
-    }
+    };
   };
 
   const handleTitleChenger = () => {
