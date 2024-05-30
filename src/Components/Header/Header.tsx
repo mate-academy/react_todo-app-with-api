@@ -41,7 +41,8 @@ export const Header: React.FC = () => {
       setCurrentTitlevalue('');
       if (titleField.current) {
         titleField.current.disabled = false;
-      };
+      }
+
       return;
     }
 
@@ -72,7 +73,7 @@ export const Header: React.FC = () => {
           titleField.current.disabled = false;
         }
       });
-    };
+    }
   };
 
   const handleTitleChenger = () => {

@@ -39,9 +39,13 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
   };
 
   const handleFocusMiss = () => {
+
     todoEditEnd();
     if (editingValue.trim()) {
       editTodo(todo.id, editingValue.trim());
+    } else {
+      deleteTodo(todo.id);
+      return;
     }
   };
 
