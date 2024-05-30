@@ -49,7 +49,6 @@ export const TodoItem: React.FC<Props> = ({
     }
 
     handleUpdatingTodo({ ...todo, title: preparedTitle });
-    setIsEditing(false);
   };
 
   return (
