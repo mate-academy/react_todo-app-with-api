@@ -29,7 +29,9 @@ export const TodoItem: React.FC<Props> = ({
     }
   }, [isEditing]);
 
-  const handleSubmittingUpdate = (event: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmittingUpdate = async (
+    event: React.FormEvent<HTMLFormElement>,
+  ) => {
     event.preventDefault();
 
     const preparedTitle = newTitle.trim();
@@ -48,7 +50,11 @@ export const TodoItem: React.FC<Props> = ({
       return;
     }
 
-    handleUpdatingTodo({ ...todo, title: preparedTitle });
+    // handleUpdatingTodo({ ...todo, title: preparedTitle });
+    // setIsEditing(false);
+
+    await handleUpdatingTodo({ ...todo, title: preparedTitle });
+    setIsEditing(false);
   };
 
   const handleCancelUpdating = () => {

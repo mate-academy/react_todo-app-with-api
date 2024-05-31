@@ -169,30 +169,58 @@ export const App: React.FC = () => {
     }
   };
 
-  const handleUpdatingTodo = (todo: Todo) => {
-    handleManagingTodos(todo.id);
+  // const handleUpdatingTodo = (todo: Todo) => {
+  //   handleManagingTodos(todo.id);
 
-    todoService
-      .updateTodo(todo)
-      .then(updatedTodo => {
-        setTodos(currentTodos =>
-          currentTodos.map(todo =>
-            todo.id === updatedTodo.id ? updatedTodo : todo,
-          ),
-        );
-      })
-      .catch(() => setError(Error.UnableUpdate))
-      .finally(() => {
-        if (inputRef.current) {
-          inputRef.current.disabled = false;
-          inputRef.current.focus();
-        }
+  //   todoService
+  //     .updateTodo(todo)
+  //     .then(updatedTodo => {
+  //       setTodos(currentTodos =>
+  //         currentTodos.map(todo =>
+  //           todo.id === updatedTodo.id ? updatedTodo : todo,
+  //         ),
+  //       );
+  //     })
+  //     .catch(() => setError(Error.UnableUpdate))
+  //     .finally(() => {
+  //       if (inputRef.current) {
+  //         inputRef.current.disabled = false;
+  //         inputRef.current.focus();
+  //       }
 
-        setManagingTodos(currentTodos =>
-          currentTodos.filter(currentId => currentId !== todo.id),
+  //       setManagingTodos(currentTodos =>
+  //         currentTodos.filter(currentId => currentId !== todo.id),
+  //       );
+  //     });
+  // };
+
+  async function handleUpdatingTodo(todoToUpdate: Todo) {
+    handleManagingTodos(todoToUpdate.id);
+
+    try {
+      const updatedTodo = await todoService.updateTodo(todoToUpdate);
+
+      setTempTodo(null);
+
+      setTodos(currentTodos => {
+        return currentTodos.map(todo =>
+          todo.id === updatedTodo.id ? updatedTodo : todo,
         );
       });
-  };
+    } catch (error) {
+      setError(Error.UnableUpdate);
+      throw error;
+    } finally {
+      if (inputRef.current) {
+        inputRef.current.disabled = false;
+        inputRef.current.focus();
+      }
+
+      setManagingTodos(currentTodos =>
+        currentTodos.filter(currentId => currentId !== todoToUpdate.id),
+      );
+    }
+  }
 
   return (
     <div className="todoapp">
