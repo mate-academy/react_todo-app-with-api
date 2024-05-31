@@ -50,7 +50,8 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
 
         return;
       }
-    };
+    }
+
     if (event.key === 'Escape') {
       event.preventDefault();
       setEditing(false);
@@ -91,6 +92,10 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
             className="todo__title-field"
             placeholder="Empty todo will be deleted"
             value={editingValue}
+            onBlur={() => {
+              setEditing(false);
+              setEditingId('');
+            }}
             onKeyUp={handleKeyUp}
             onChange={event => setEditingValue(event.target.value)}
           />
