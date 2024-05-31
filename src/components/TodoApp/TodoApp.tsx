@@ -175,7 +175,7 @@ export const TodoApp: React.FC = () => {
               className="todoapp__new-todo"
               placeholder="What needs to be done?"
               value={title}
-              onChange={event => setTitle(event.target.value.trimStart())}
+              onChange={event => setTitle(event.target.value)}
               ref={inputRef}
             />
           </form>
