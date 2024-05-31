@@ -44,12 +44,13 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
       editTodo(todo.id, editingValue.trim());
     } else {
       deleteTodo(todo.id);
+
       return;
     }
   };
 
   const handleKeyUp = (event: React.KeyboardEvent) => {
-    if (event.key === 'Escape' || event.key === 'Enter') {
+    if (event.key === 'Enter') {
       setLastTodo(todo);
       event.preventDefault();
       todoEditEnd();
@@ -57,6 +58,7 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
         editTodo(todo.id, editingValue.trim());
       } else {
         deleteTodo(todo.id);
+
         return;
       }
     }
