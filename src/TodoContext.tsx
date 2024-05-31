@@ -22,6 +22,7 @@ type ContextProps = {
   handleDelete: (todo: Todo) => void;
   handleDeleteCompleted: () => void;
   isLoading: boolean;
+  isTodoError: boolean;
   isDeletion: boolean;
   currentTodoId: number | null;
   tempTodo: Todo | null;
@@ -51,6 +52,7 @@ export const TodoContext = React.createContext<ContextProps>({
   handleDelete: () => {},
   handleDeleteCompleted: () => {},
   isLoading: false,
+  isTodoError: false,
   isDeletion: false,
   tempTodo: null,
   currentTodoId: null,
@@ -95,6 +97,7 @@ export const TodoProvider: React.FC<Props> = ({ children }) => {
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
   const [filterField, setFilterField] = useState('all');
   const [isLoading, setIsLoading] = useState(false);
+  const [isTodoError, setIsTodoError] = useState(false);
   const [isDeletion, setIsDeletion] = useState(false);
   const [currentTodoId, setCurrentTodoId] = useState<number | null>(null);
   const [selectedTodo, setSelectedTodo] = useState<Todo | null>(null);
@@ -263,7 +266,7 @@ export const TodoProvider: React.FC<Props> = ({ children }) => {
       })
       .catch(() => {
         setErrorMessage('Unable to update a todo');
-        setSelectedTodo(updatedTodo);
+        setIsTodoError(true);
 
         setTimeout(() => {
           if (titleField.current) {
@@ -274,7 +277,10 @@ export const TodoProvider: React.FC<Props> = ({ children }) => {
         }, 3000);
       })
       .finally(() => {
-        setSelectedTodo(null);
+        if (!isTodoError) {
+          setSelectedTodo(null);
+        }
+
         setCurrentTodoId(null);
       });
   };
@@ -385,6 +391,7 @@ export const TodoProvider: React.FC<Props> = ({ children }) => {
     handleDelete,
     handleDeleteCompleted,
     isLoading,
+    isTodoError,
     isDeletion,
     tempTodo,
     currentTodoId,
