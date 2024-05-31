@@ -38,17 +38,6 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
     setEditingId(todo.id.toString());
   };
 
-  const handleFocusMiss = () => {
-    todoEditEnd();
-    if (editingValue.trim()) {
-      editTodo(todo.id, editingValue.trim());
-    } else {
-      deleteTodo(todo.id);
-
-      return;
-    }
-  };
-
   const handleKeyUp = (event: React.KeyboardEvent) => {
     if (event.key === 'Enter') {
       setLastTodo(todo);
@@ -61,6 +50,11 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
 
         return;
       }
+    };
+    if (event.key === 'Escape') {
+      event.preventDefault();
+      setEditing(false);
+      setEditingId('');
     }
   };
 
@@ -97,7 +91,6 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
             className="todo__title-field"
             placeholder="Empty todo will be deleted"
             value={editingValue}
-            onBlur={handleFocusMiss}
             onKeyUp={handleKeyUp}
             onChange={event => setEditingValue(event.target.value)}
           />
