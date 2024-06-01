@@ -1,7 +1,7 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import { useEffect, useReducer, useRef, useState } from 'react';
 import { Todo } from '../types/Todo';
-import { useErrorNotifications } from '../store/Errors';
+import { useErrorNotifications } from '../store/ErrorsProvider';
 import {
   USER_ID,
   deleteTodo,

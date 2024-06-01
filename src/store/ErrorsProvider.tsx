@@ -25,12 +25,14 @@ export const useErrorNotifications = () => useContext(ErrorContext);
 export const ErrorsProvider: React.FC<Props> = ({ children }) => {
   const [errorMessage, setErrorMessage] = useState('');
 
+  const TIME_HIDE_ERROR = 3000;
+
   useEffect(() => {
     if (!errorMessage) {
       return;
     }
 
-    const timeout = setTimeout(() => setErrorMessage(''), 3000);
+    const timeout = setTimeout(() => setErrorMessage(''), TIME_HIDE_ERROR);
 
     return () => clearTimeout(timeout);
   }, [errorMessage]);

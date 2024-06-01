@@ -5,7 +5,7 @@ import '@fortawesome/fontawesome-free/css/all.css';
 import './styles/index.scss';
 
 import { App } from './App';
-import { ErrorsProvider } from './store/Errors';
+import { ErrorsProvider } from './store/ErrorsProvider';
 
 createRoot(document.getElementById('root') as HTMLDivElement).render(
   <ErrorsProvider>

@@ -1,5 +1,5 @@
 import cn from 'classnames';
-import { useErrorNotifications } from '../store/Errors';
+import { useErrorNotifications } from '../store/ErrorsProvider';
 
 export const ErrorNotification = () => {
   const { errorMessage, setErrorMessage } = useErrorNotifications();
