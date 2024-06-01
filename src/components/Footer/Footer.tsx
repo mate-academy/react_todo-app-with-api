@@ -4,15 +4,20 @@ import classNames from 'classnames';
 import { FilterField } from '../../utils/constants';
 
 export const Footer: React.FC = () => {
-  const { todos, filterField, setFilterField, handleDeleteCompleted } =
-    useContext(TodoContext);
+  const {
+    todos,
+    filterField,
+    setFilterField,
+    handleDeleteCompleted,
+    uncompletedTodos,
+  } = useContext(TodoContext);
 
   return (
     <>
       {todos.length > 0 && (
         <footer className="todoapp__footer" data-cy="Footer">
           <span className="todo-count" data-cy="TodosCounter">
-            {`${todos.filter(todo => !todo.completed).length} items left`}
+            {`${uncompletedTodos} items left`}
           </span>
 
           <nav className="filter" data-cy="Filter">

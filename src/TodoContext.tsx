@@ -32,6 +32,7 @@ type ContextProps = {
   setEditedTitle: (newTitle: string) => void;
   wasEdited: boolean;
   setWasEdited: (wasEdited: boolean) => void;
+  uncompletedTodos: number | null;
 };
 
 export const TodoContext = React.createContext<ContextProps>({
@@ -62,6 +63,7 @@ export const TodoContext = React.createContext<ContextProps>({
   setEditedTitle: () => {},
   wasEdited: false,
   setWasEdited: () => {},
+  uncompletedTodos: null,
 });
 
 type Props = {
@@ -103,6 +105,7 @@ export const TodoProvider: React.FC<Props> = ({ children }) => {
   const [selectedTodo, setSelectedTodo] = useState<Todo | null>(null);
   const [editedTitle, setEditedTitle] = useState('');
   const [wasEdited, setWasEdited] = useState(false);
+  const uncompletedTodos = todos.filter(todo => !todo.completed).length;
 
   useEffect(() => {
     todoServices
@@ -401,6 +404,7 @@ export const TodoProvider: React.FC<Props> = ({ children }) => {
     setEditedTitle,
     wasEdited,
     setWasEdited,
+    uncompletedTodos,
   };
 
   return <TodoContext.Provider value={value}>{children}</TodoContext.Provider>;

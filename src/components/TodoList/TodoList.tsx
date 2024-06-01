@@ -20,6 +20,20 @@ export const TodoList: React.FC = () => {
     setSelectedTodo,
   } = useContext(TodoContext);
 
+  const handleEditing = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setEditedTitle(event.target.value.trim());
+    setWasEdited(true);
+  };
+
+  const handleKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
+    if (event.key === 'Enter') {
+      handleSubmit(event);
+    } else if (event.key === 'Escape' && selectedTodo) {
+      setEditedTitle(selectedTodo.title);
+      setSelectedTodo(null);
+    }
+  };
+
   return (
     <section className="todoapp__main" data-cy="TodoList">
       {readyTodos.map(todo => (
@@ -46,18 +60,8 @@ export const TodoList: React.FC = () => {
                 className="todo__title-field"
                 placeholder="Empty todo will be deleted"
                 defaultValue={todo.title}
-                onChange={event => {
-                  setEditedTitle(event.target.value.trim());
-                  setWasEdited(true);
-                }}
-                onKeyDown={event => {
-                  if (event.key === 'Enter') {
-                    handleSubmit(event);
-                  } else if (event.key === 'Escape') {
-                    setEditedTitle(selectedTodo.title);
-                    setSelectedTodo(null);
-                  }
-                }}
+                onChange={handleEditing}
+                onKeyDown={handleKeyDown}
                 onBlur={event => {
                   handleSubmit(event);
                 }}

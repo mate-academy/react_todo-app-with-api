@@ -5,6 +5,7 @@ import { USER_ID } from '../../api/todos';
 import { Header } from '../Header/Header';
 import { TodoList } from '../TodoList/TodoList';
 import { Footer } from '../Footer/Footer';
+import classNames from 'classnames';
 
 export const TodoAppContent: React.FC = () => {
   const { errorMessage, setErrorMessage } = useContext(TodoContext);
@@ -27,7 +28,13 @@ export const TodoAppContent: React.FC = () => {
 
       <div
         data-cy="ErrorNotification"
-        className={`notification is-danger is-light has-text-weight-normal ${errorMessage === '' && 'hidden'}`}
+        className={classNames(
+          'notification',
+          'is-danger',
+          'is-light',
+          'has-text-weight-normal',
+          { hidden: errorMessage === '' },
+        )}
       >
         <button
           data-cy="HideErrorButton"
@@ -40,9 +47,6 @@ export const TodoAppContent: React.FC = () => {
         {/*
         <br />
         Title should not be empty
-        <br />
-        <br />
-
         <br />
          */}
       </div>
