@@ -10,8 +10,8 @@ interface Props {
   selectedFilter: Status;
   handleDeleteTodo?: (id: number) => void;
   loadingTodos: number[];
-  onToggle?: (todo: Todo) => void;
-  handleUpdateTodo?: (updatedTodo: Todo) => void;
+  onToggle: (todo: Todo) => void;
+  handleUpdateTodo: (updatedTodo: Todo) => void;
 }
 
 export const TodoList: React.FC<Props> = ({

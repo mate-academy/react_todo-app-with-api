@@ -1,6 +1,6 @@
 /* eslint-disable max-len */
 /* eslint-disable jsx-a11y/control-has-associated-label */
-import React, { FormEvent, useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { UserWarning } from './UserWarning';
 import {
   USER_ID,
@@ -16,6 +16,7 @@ import { Error } from './types/Error';
 import { Header } from './conponents/Header/Header';
 import { TodoList } from './conponents/TodoList/TodoList';
 import { Footer } from './conponents/Footer/Footer';
+import { filterTodos } from './utils/filteredTodos';
 
 export const App: React.FC = () => {
   const [todos, setTodos] = useState<Todo[]>([]);
@@ -23,12 +24,12 @@ export const App: React.FC = () => {
   const [error, setError] = useState<string>('');
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
   const [loadingTodos, setLoadingTodos] = useState<number[]>([]);
-  const [newTitle, setNewTitle] = useState<string>('');
 
   const titleField = useRef<HTMLInputElement>(null);
 
-  const completedTodos = todos.filter(todo => todo.completed);
-  const activeTodos = todos.filter(todo => !todo.completed);
+  const completedTodos = filterTodos(todos, Status.Completed);
+
+  const activeTodos = filterTodos(todos, Status.Active);
 
   useEffect(() => {
     getTodos()
@@ -56,9 +57,10 @@ export const App: React.FC = () => {
     return <UserWarning />;
   }
 
-  const handleAddNewTitle = (event: FormEvent) => {
-    event.preventDefault();
-
+  const handleAddNewTitle = (
+    newTitle: string,
+    setNewTitle: React.Dispatch<React.SetStateAction<string>>,
+  ) => {
     const trimmedNewTitle = newTitle.trim();
 
     if (!trimmedNewTitle) {
@@ -173,12 +175,12 @@ export const App: React.FC = () => {
 
       <div className="todoapp__content">
         <Header
-          todos={todos}
+          hasTodos={todos.length !== 0}
+          hasActiveTodos={activeTodos.length > 0}
           handleAddTodo={handleAddNewTitle}
           titleField={titleField}
-          title={newTitle}
-          setTitle={setNewTitle}
           onToggleAll={handleAllToggleStatus}
+          setTempTodo={setTempTodo}
         />
         <TodoList
           todos={todos}
@@ -195,8 +197,8 @@ export const App: React.FC = () => {
             selectedFilter={filterBy}
             setSelectedFilter={setFilterBy}
             deleteAllCompleted={handleDeleteAllCompleted}
-            activeTodos={activeTodos}
-            completedTodos={completedTodos}
+            hasActiveTodosCount={activeTodos.length}
+            hasCompletedTodos={completedTodos.length !== 0}
           />
         )}
       </div>

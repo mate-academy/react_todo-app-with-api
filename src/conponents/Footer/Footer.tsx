@@ -1,26 +1,25 @@
 import React from 'react';
 import { Status } from '../../types/Status';
-import { Todo } from '../../types/Todo';
 
 interface Props {
   selectedFilter: Status;
   setSelectedFilter: (filterBy: Status) => void;
   deleteAllCompleted: () => void;
-  activeTodos: Todo[];
-  completedTodos: Todo[];
+  hasActiveTodosCount: number;
+  hasCompletedTodos: boolean;
 }
 
 export const Footer: React.FC<Props> = ({
   selectedFilter,
   setSelectedFilter,
   deleteAllCompleted,
-  activeTodos,
-  completedTodos,
+  hasActiveTodosCount,
+  hasCompletedTodos,
 }) => {
   return (
     <footer className="todoapp__footer" data-cy="Footer">
       <span className="todo-count" data-cy="TodosCounter">
-        {`${activeTodos.length} ${activeTodos.length === 1 ? 'item' : 'items'} left`}
+        {`${hasActiveTodosCount} ${hasActiveTodosCount === 1 ? 'item' : 'items'} left`}
       </span>
 
       <nav className="filter" data-cy="Filter">
@@ -56,7 +55,7 @@ export const Footer: React.FC<Props> = ({
         type="button"
         className="todoapp__clear-completed"
         data-cy="ClearCompletedButton"
-        disabled={!completedTodos.length}
+        disabled={!hasCompletedTodos}
         onClick={deleteAllCompleted}
       >
         Clear completed

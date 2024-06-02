@@ -1,46 +1,54 @@
 import cn from 'classnames';
-import React, { FormEvent } from 'react';
+import React, { FormEvent, useState } from 'react';
 import { Todo } from '../../types/Todo';
 
 interface Props {
-  todos: Todo[];
-  handleAddTodo: (event: FormEvent<HTMLFormElement>) => void;
+  hasTodos: boolean;
+  hasActiveTodos: boolean;
+  handleAddTodo: (
+    newTitle: string,
+    setNewTitle: React.Dispatch<React.SetStateAction<string>>,
+  ) => void;
   titleField: React.RefObject<HTMLInputElement>;
-  title: string;
-  setTitle: React.Dispatch<React.SetStateAction<string>>;
   onToggleAll: () => void;
+  setTempTodo: React.Dispatch<React.SetStateAction<Todo | null>>;
 }
 
 export const Header: React.FC<Props> = ({
-  todos,
+  hasTodos,
+  hasActiveTodos,
   handleAddTodo,
   titleField,
-  title,
-  setTitle,
   onToggleAll,
 }) => {
-  const allCompleted = todos.every(todo => todo.completed);
+  const [newTitle, setNewTitle] = useState<string>('');
+
+  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+
+    await handleAddTodo(newTitle, setNewTitle);
+  };
 
   return (
     <header className="todoapp__header">
-      {!!todos.length && (
+      {hasTodos && (
         <button
           type="button"
-          className={cn('todoapp__toggle-all', { active: allCompleted })}
+          className={cn('todoapp__toggle-all', { active: !hasActiveTodos })}
           data-cy="ToggleAllButton"
           onClick={onToggleAll}
         />
       )}
 
-      <form onSubmit={handleAddTodo}>
+      <form onSubmit={handleSubmit}>
         <input
           ref={titleField}
           data-cy="NewTodoField"
           type="text"
           className="todoapp__new-todo"
           placeholder="What needs to be done?"
-          value={title}
-          onChange={event => setTitle(event.target.value.trimStart())}
+          value={newTitle}
+          onChange={event => setNewTitle(event.target.value.trimStart())}
         />
       </form>
     </header>
