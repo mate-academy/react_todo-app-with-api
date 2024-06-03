@@ -5,21 +5,21 @@ import { TodoItem } from './TodoItem';
 type Props = {
   filteredTodos: Todo[];
   tempTodo: Todo | null;
-  TodoDeleteButton: (todoId: number) => void;
-  isLoading: number[];
-  todoStatus: (todoId: number, completed: boolean) => void;
-  setIsLoading: React.Dispatch<React.SetStateAction<number[]>>;
+  onTodoDeleteButton: (todoId: number) => void;
+  loadingTodoIds: number[];
+  onTodoStatus: (todoId: number, completed: boolean) => void;
+  setLoadingTodoIds: React.Dispatch<React.SetStateAction<number[]>>;
   setTodos: React.Dispatch<React.SetStateAction<Todo[]>>;
   handleError: (errorMessage: ErrorTypes) => void;
 };
 
 export const TodoList: React.FC<Props> = ({
   filteredTodos,
-  TodoDeleteButton,
-  isLoading,
+  onTodoDeleteButton,
+  loadingTodoIds,
   tempTodo,
-  todoStatus,
-  setIsLoading,
+  onTodoStatus,
+  setLoadingTodoIds,
   setTodos,
   handleError,
 }) => {
@@ -28,11 +28,11 @@ export const TodoList: React.FC<Props> = ({
       {filteredTodos.map(todo => (
         <TodoItem
           todo={todo}
-          TodoDeleteButton={TodoDeleteButton}
+          onTodoDeleteButton={onTodoDeleteButton}
           key={todo.id}
-          todoStatus={todoStatus}
-          setIsLoading={setIsLoading}
-          isLoading={isLoading}
+          onTodoStatus={onTodoStatus}
+          setLoadingTodoIds={setLoadingTodoIds}
+          loadingTodoIds={loadingTodoIds}
           setTodos={setTodos}
           handleError={handleError}
         />
@@ -40,11 +40,11 @@ export const TodoList: React.FC<Props> = ({
       {tempTodo && (
         <TodoItem
           todo={tempTodo}
-          TodoDeleteButton={TodoDeleteButton}
+          onTodoDeleteButton={onTodoDeleteButton}
           key={tempTodo.id}
-          todoStatus={todoStatus}
-          setIsLoading={setIsLoading}
-          isLoading={isLoading}
+          onTodoStatus={onTodoStatus}
+          setLoadingTodoIds={setLoadingTodoIds}
+          loadingTodoIds={loadingTodoIds}
           setTodos={setTodos}
           handleError={handleError}
         />

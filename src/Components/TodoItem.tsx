@@ -5,21 +5,21 @@ import { deleteTodo, updateTodo } from '../api/todos';
 import { ErrorTypes } from '../types/ErrorTypes';
 
 type Props = {
-  TodoDeleteButton: (todoId: number) => void;
+  onTodoDeleteButton: (todoId: number) => void;
   todo: Todo;
-  isLoading: number[];
-  todoStatus: (todoId: number, completed: boolean) => void;
-  setIsLoading: React.Dispatch<React.SetStateAction<number[]>>;
+  loadingTodoIds: number[];
+  onTodoStatus: (todoId: number, completed: boolean) => void;
+  setLoadingTodoIds: React.Dispatch<React.SetStateAction<number[]>>;
   setTodos: React.Dispatch<React.SetStateAction<Todo[]>>;
   handleError: (errorMessage: ErrorTypes) => void;
 };
 
 export const TodoItem: React.FC<Props> = ({
-  TodoDeleteButton,
+  onTodoDeleteButton,
   todo,
-  isLoading,
-  todoStatus,
-  setIsLoading,
+  loadingTodoIds,
+  onTodoStatus,
+  setLoadingTodoIds,
   setTodos,
   handleError,
 }) => {
@@ -32,14 +32,14 @@ export const TodoItem: React.FC<Props> = ({
     e.preventDefault();
     const { checked } = e.target;
 
-    todoStatus(todo.id, checked);
+    onTodoStatus(todo.id, checked);
   };
 
   const handleBlur = () => {
     const trimmedTitle = newTitle.trim();
 
     if (!trimmedTitle) {
-      setIsLoading(prev => [...prev, todo.id]);
+      setLoadingTodoIds(prev => [...prev, todo.id]);
 
       deleteTodo(todo.id)
         .then(() => {
@@ -51,7 +51,7 @@ export const TodoItem: React.FC<Props> = ({
           handleError(ErrorTypes.UnableToDelete);
         });
     } else if (todo.title !== trimmedTitle) {
-      setIsLoading(prev => [...prev, todo.id]);
+      setLoadingTodoIds(prev => [...prev, todo.id]);
       updateTodo(todo.id, trimmedTitle, todo.completed)
         .then(updatedTodo => {
           setIsEditMode(false);
@@ -69,7 +69,7 @@ export const TodoItem: React.FC<Props> = ({
           handleError(ErrorTypes.UnableToUpdate);
         })
         .finally(() => {
-          setIsLoading(prev => prev.filter(item => item !== todo.id));
+          setLoadingTodoIds(prev => prev.filter(item => item !== todo.id));
         });
     } else {
       setIsEditMode(false);
@@ -150,7 +150,7 @@ export const TodoItem: React.FC<Props> = ({
             type="button"
             className="todo__remove"
             data-cy="TodoDelete"
-            onClick={() => TodoDeleteButton(todo.id)}
+            onClick={() => onTodoDeleteButton(todo.id)}
           >
             ×
           </button>
@@ -160,7 +160,7 @@ export const TodoItem: React.FC<Props> = ({
       <div
         data-cy="TodoLoader"
         className={classNames('modal overlay', {
-          'is-active': isLoading.includes(todo.id),
+          'is-active': loadingTodoIds.includes(todo.id),
         })}
       >
         <div className="modal-background has-background-white-ter" />

@@ -22,7 +22,7 @@ export const App: React.FC = () => {
   const [error, setError] = useState<string>('');
   const [value, setValue] = useState('');
   const [inputDisabled, setInputDisabled] = useState(false);
-  const [isLoading, setIsLoading] = useState<number[]>([]);
+  const [loadingTodoIds, setLoadingTodoIds] = useState<number[]>([]);
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
 
   const inputRef = useRef<HTMLInputElement>(null);
@@ -42,8 +42,8 @@ export const App: React.FC = () => {
     getTodos()
       .then(setTodos)
       .then(() => {
-        if (isLoading.length > 0) {
-          setIsLoading([]);
+        if (loadingTodoIds.length > 0) {
+          setLoadingTodoIds([]);
         }
       })
       .catch(() => {
@@ -53,15 +53,17 @@ export const App: React.FC = () => {
   }, []);
 
   const removeTodo = (todoId: number) => {
-    setIsLoading(prev => [...prev, todoId]);
+    setLoadingTodoIds(prev => [...prev, todoId]);
     deleteTodo(todoId)
       .then(() => {
         setTodos(prevTodos => prevTodos.filter(todo => todo.id !== todoId));
-        setIsLoading([]);
       })
       .catch(() => {
-        setIsLoading([]);
+        // setLoadingTodoIds([]);
         handleError(ErrorTypes.UnableToDelete);
+      })
+      .finally(() => {
+        setLoadingTodoIds(prev => prev.filter(item => item !== todoId));
       });
   };
 
@@ -74,7 +76,7 @@ export const App: React.FC = () => {
       completed: false,
       userId: USER_ID,
     });
-    setIsLoading(prev => [...prev, 0]);
+    setLoadingTodoIds(prev => [...prev, 0]);
     postTodo(trimmedTitle)
       .then(savedTodo => {
         setTodos(prevTodos => [...prevTodos, savedTodo]);
@@ -86,12 +88,12 @@ export const App: React.FC = () => {
       .finally(() => {
         setInputDisabled(false);
         setTempTodo(null);
-        setIsLoading([]);
+        setLoadingTodoIds([]);
       });
   };
 
   const todoStatus = (todoId: number) => {
-    setIsLoading(prev => [...prev, todoId]);
+    setLoadingTodoIds(prev => [...prev, todoId]);
     const todoToUpdate = todos.find(todo => todo.id === todoId);
 
     if (todoToUpdate) {
@@ -106,13 +108,10 @@ export const App: React.FC = () => {
           );
         })
         .catch(() => {
-          setError(ErrorTypes.UnableToUpdate);
-          setTimeout(() => {
-            setError('');
-          }, 3000);
+          handleError(ErrorTypes.UnableToUpdate);
         })
         .finally(() => {
-          setIsLoading(prev => prev.filter(item => item !== todoId));
+          setLoadingTodoIds(prev => prev.filter(item => item !== todoId));
         });
     }
   };
@@ -127,7 +126,7 @@ export const App: React.FC = () => {
     });
 
     filteredTodos.forEach(todo => {
-      setIsLoading(prev => [...prev, todo.id]);
+      setLoadingTodoIds(prev => [...prev, todo.id]);
     });
 
     Promise.all(updateRequests)
@@ -144,7 +143,7 @@ export const App: React.FC = () => {
       })
       .finally(() => {
         filteredTodos.forEach(todo => {
-          setIsLoading(prev => prev.filter(item => item !== todo.id));
+          setLoadingTodoIds(prev => prev.filter(item => item !== todo.id));
         });
       });
   };
@@ -155,10 +154,7 @@ export const App: React.FC = () => {
     event.preventDefault();
 
     if (!value.trim()) {
-      setError(ErrorTypes.TitleNotEmpty);
-      setTimeout(() => {
-        setError('');
-      }, 3000);
+      handleError(ErrorTypes.TitleNotEmpty);
     } else {
       setInputDisabled(true);
       addTodo(value.trim());
@@ -204,11 +200,11 @@ export const App: React.FC = () => {
         />
         <TodoList
           filteredTodos={filteredTodos}
-          TodoDeleteButton={TodoDeleteButton}
+          onTodoDeleteButton={TodoDeleteButton}
           tempTodo={tempTodo}
-          todoStatus={todoStatus}
-          setIsLoading={setIsLoading}
-          isLoading={isLoading}
+          onTodoStatus={todoStatus}
+          setLoadingTodoIds={setLoadingTodoIds}
+          loadingTodoIds={loadingTodoIds}
           setTodos={setTodos}
           handleError={handleError}
         />

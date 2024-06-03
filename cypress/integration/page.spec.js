@@ -1,5 +1,5 @@
 /// <reference types='cypress' />
-/// <reference types='../support' />
+// / <reference types='../support'/>
 
 import mixedTodos from '../fixtures/todos.json';
 
@@ -116,7 +116,7 @@ Cypress.on('fail', (e) => {
 
 describe('', () => {
   beforeEach(() => {
-    if (failed) Cypress.runner.stop();
+    if (failed) Cypress.runner;
   });
 
   describe('Page with no todos', () => {

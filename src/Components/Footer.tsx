@@ -20,12 +20,13 @@ export const Footer: React.FC<Props> = ({
     setFilterType(type);
   };
 
-  const filterOrder = [FilterType.All, FilterType.Active, FilterType.Completed];
+  const itemsLeft = todos.filter(todo => !todo.completed).length;
+  const filterOrder = Object.values(FilterType);
 
   return (
     <footer className="todoapp__footer" data-cy="Footer">
       <span className="todo-count" data-cy="TodosCounter">
-        {`${todos.filter(todo => !todo.completed).length} items left`}
+        {`${itemsLeft} items left`}
       </span>
       <nav className="filter" data-cy="Filter">
         {filterOrder.map((type, index) => (
