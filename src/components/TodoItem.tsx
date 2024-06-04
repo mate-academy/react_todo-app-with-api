@@ -79,7 +79,7 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
     setHandleDeleteTodoId(todo.id);
   };
 
-  const handleSave = () => {
+  const renameCallback = () => {
     if (editedTitle.trim().length === 0) {
       removeTodo(todo.id);
     } else if (editedTitle.trim() !== todo.title) {
@@ -102,7 +102,7 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
 
   const handleKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
     if (event.key === 'Enter') {
-      handleSave();
+      renameCallback();
     } else if (event.key === 'Escape') {
       setEditedTitle(todo.title);
       setIsEditing(false);
@@ -134,7 +134,7 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
             className="todo__title-field"
             value={editedTitle}
             onChange={handleEditTodo}
-            onBlur={handleSave}
+            onBlur={renameCallback}
             // eslint-disable-next-line jsx-a11y/no-autofocus
             autoFocus
             onKeyDown={handleKeyDown}

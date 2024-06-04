@@ -6,6 +6,7 @@ import { TodoFilter } from './TodoFilter';
 import { TodoErrors } from './TodoErrors';
 import { TodosContext } from './Todos.Context';
 import { updateTodos } from '../api/todos';
+import { Todo } from '../types/Todo';
 
 export const TodoApp: React.FC = () => {
   const {
@@ -79,29 +80,38 @@ export const TodoApp: React.FC = () => {
   const handleToggleAll = () => {
     // eslint-disable-next-line @typescript-eslint/no-shadow
     const newTodo = [...todos];
-    // const allCompleted = newTodo.every(item => item.completed);
-    const filteredTodos = newTodo.filter(item => !item.completed);
+    const allCompleted = newTodo.every(item => item.completed);
+    const isOneOrMoreCompleted = newTodo.some(item => item.completed);
+    let updatePromises: Promise<Todo>[] = [];
 
-    const updatePromises = newTodo.map(todo => {
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      const { id, userId, title, completed } = todo;
+    if (!allCompleted && isOneOrMoreCompleted) {
+      updatePromises = newTodo.map(todo => {
+        if (!todo.completed) {
+          const { id, userId, title, completed } = todo;
 
-      setLoading(prevLoading => ({
-        ...prevLoading,
-        [id]: true,
-      }));
+          setLoading(prevLoading => ({
+            ...prevLoading,
+            [id]: true,
+          }));
 
-      if (filteredTodos.length > 0) {
-        // eslint-disable-next-line consistent-return
-        filteredTodos.forEach(item => {
-          if (item.id === todo.id) {
-            return updateTodos({ id, userId, title, completed: !completed });
-          }
-        });
-      }
+          return updateTodos({ id, userId, title, completed: !completed });
+        }
 
-      return updateTodos({ id, userId, title, completed: !completed });
-    });
+        return Promise.resolve(todo);
+      });
+    } else {
+      updatePromises = newTodo.map(todo => {
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        const { id, userId, title, completed } = todo;
+
+        setLoading(prevLoading => ({
+          ...prevLoading,
+          [id]: true,
+        }));
+
+        return updateTodos({ id, userId, title, completed: !completed });
+      });
+    }
 
     Promise.all(updatePromises)
       .then(updatedTodos => {
