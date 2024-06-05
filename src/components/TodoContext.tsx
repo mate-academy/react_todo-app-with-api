@@ -25,6 +25,7 @@ const initialTodoContext: TodoContextType = {
   tempTodo: null,
   setTempTodo: () => {},
   handleCompleted: () => {},
+  clearCompletedTodos: () => {},
 };
 
 const TodoContext = React.createContext<TodoContextType>(initialTodoContext);
@@ -115,6 +116,10 @@ export const TodoContextProvider: React.FC<Props> = ({ children }) => {
     [setTodos],
   );
 
+  const clearCompletedTodos = useCallback(() => {
+    setTodos(prevTodos => prevTodos.filter(todo => !todo.completed));
+  }, [setTodos]);
+
   const todosContextValue = useMemo(
     () => ({
       todos,
@@ -130,6 +135,7 @@ export const TodoContextProvider: React.FC<Props> = ({ children }) => {
       tempTodo,
       setTempTodo,
       handleCompleted,
+      clearCompletedTodos,
     }),
     [
       todos,
@@ -143,6 +149,7 @@ export const TodoContextProvider: React.FC<Props> = ({ children }) => {
       setErrMessage,
       setTempTodo,
       handleCompleted,
+      clearCompletedTodos,
     ],
   );
 

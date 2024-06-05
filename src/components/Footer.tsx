@@ -4,7 +4,7 @@ import classNames from 'classnames';
 import { useTodos } from './TodoContext';
 
 export const Footer: React.FC = () => {
-  const { todos, status, setStatus } = useTodos();
+  const { todos, status, setStatus, clearCompletedTodos } = useTodos();
   const todosLeft = todos.filter(todo => !todo.completed).length;
   const hasCompleted = todos.some(todo => todo.completed);
 
@@ -55,6 +55,7 @@ export const Footer: React.FC = () => {
         className="todoapp__clear-completed"
         data-cy="ClearCompletedButton"
         disabled={!hasCompleted}
+        onClick={clearCompletedTodos}
       >
         Clear completed
       </button>
