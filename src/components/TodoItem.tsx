@@ -18,6 +18,8 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
 
   const inputRef = useRef<HTMLInputElement>(null);
 
+  const { id, userId, title, completed } = todo;
+
   useEffect(() => {
     if (isEditing && inputRef.current) {
       inputRef.current.focus();
@@ -35,8 +37,6 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
   }, [handleDeleteTodoId]);
 
   const handleToggleCompleted = () => {
-    const { id, userId, title, completed } = todo;
-
     setLoading(prevLoading => ({
       ...prevLoading,
       [id]: true,
@@ -75,19 +75,19 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
   };
 
   const handleRemoveTodo = () => {
-    removeTodo(todo.id);
-    setHandleDeleteTodoId(todo.id);
+    removeTodo(id);
+    setHandleDeleteTodoId(id);
   };
 
   const renameCallback = () => {
     if (editedTitle.trim().length === 0) {
-      removeTodo(todo.id);
-    } else if (editedTitle.trim() !== todo.title) {
+      removeTodo(id);
+    } else if (editedTitle.trim() !== title) {
       const todoNew = {
-        id: todo.id,
-        userId: todo.userId,
+        id,
+        userId,
         title: editedTitle,
-        completed: todo.completed,
+        completed,
       };
 
       editTodo(todoNew.id, todoNew.userId, todoNew.title, todoNew.completed);
@@ -104,7 +104,7 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
     if (event.key === 'Enter') {
       renameCallback();
     } else if (event.key === 'Escape') {
-      setEditedTitle(todo.title);
+      setEditedTitle(title);
       setIsEditing(false);
     }
   };
@@ -121,7 +121,7 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
           data-cy="TodoStatus"
           type="checkbox"
           className="todo__status"
-          checked={todo.completed}
+          checked={completed}
           onChange={handleToggleCompleted}
         />
       </label>
@@ -163,12 +163,10 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
         </>
       )}
 
-      {/* overlay will cover the todo while it is being deleted or updated */}
       <div
         data-cy="TodoLoader"
         className={classNames('modal overlay', {
-          'is-active':
-            todo.id === 0 || handleDeleteTodoId === todo.id || loading[todo.id],
+          'is-active': id === 0 || handleDeleteTodoId === id || loading[id],
         })}
       >
         <div className="modal-background has-background-white-ter" />

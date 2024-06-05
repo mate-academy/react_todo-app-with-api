@@ -1,19 +1,15 @@
+/* eslint-disable prettier/prettier */
 import { useContext } from 'react';
 import classNames from 'classnames';
 import { TodosContext } from './Todos.Context';
 import { Status } from '../types/Todo';
-// import { deleteTodo } from '../api/todos';
 
 export const TodoFilter: React.FC = () => {
-  const {
-    todos,
-    setStatus,
-    filteredTodos,
-    // setTodos,
-    status,
-    // setError,
-    removeTodo,
-  } = useContext(TodosContext);
+  const { todos, setStatus, filteredTodos, status, removeTodo }
+    = useContext(TodosContext);
+
+  const disabledButton = filteredTodos.filter(
+    item => item.completed).length === 0;
 
   const filterTodos = (s: Status) => {
     setStatus(s);
@@ -23,28 +19,6 @@ export const TodoFilter: React.FC = () => {
     const completedTodos = todos.filter(todo => todo.completed);
 
     completedTodos.forEach(todo => removeTodo(todo.id));
-    // const todoInput = document.getElementById('todoInput');
-
-    // const clear = todos.filter(todo => !todo.completed);
-    // const deletePromises = todos
-    //   .filter(todo => todo.completed)
-    //   .map(todo => deleteTodo(todo));
-
-    // Promise.all(deletePromises)
-    //   .then(() => {
-    //     setTodos(clear);
-    //   })
-    //   .catch(error => {
-    //     // eslint-disable-next-line no-console
-    //     console.error('Error deleting todos:', error);
-    //     setError('Unable to delete a todo');
-    //     setTimeout(() => {
-    //       setError('');
-    //     }, 3000);
-    //   })
-    //   .finally(() => {
-    //     todoInput?.focus();
-    //   });
   };
 
   const itemsLeft = `${todos.filter(item => !item.completed).length} items left`;
@@ -91,14 +65,12 @@ export const TodoFilter: React.FC = () => {
         </a>
       </nav>
 
-      {/* this button should be disabled if there are no completed todos */}
-
       <button
         type="button"
         className="todoapp__clear-completed"
         data-cy="ClearCompletedButton"
         onClick={clearCompleted}
-        disabled={filteredTodos.filter(item => item.completed).length === 0}
+        disabled={disabledButton}
       >
         Clear completed
       </button>

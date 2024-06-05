@@ -145,7 +145,6 @@ export const TodoApp: React.FC = () => {
 
       <div className="todoapp__content">
         <header className="todoapp__header">
-          {/* this button should have `active` class only if all todos are completed */}
           {!!todos.length && (
             <button
               type="button"
@@ -157,7 +156,6 @@ export const TodoApp: React.FC = () => {
             />
           )}
 
-          {/* Add a todo on form submit */}
           <form onSubmit={handleSubmit}>
             <input
               data-cy="NewTodoField"

@@ -6,9 +6,6 @@ import { TodosContext } from './Todos.Context';
 export const TodoErrors: React.FC = () => {
   const { error, setError } = useContext(TodosContext);
 
-  // {/* DON'T use conditional rendering to hide the notification */}
-  // {/* Add the 'hidden' class to hide the message smoothly */}
-
   return (
     <>
       <div
@@ -29,15 +26,6 @@ export const TodoErrors: React.FC = () => {
         />
 
         {error}
-        {/* Unable to load todos
-        <br />
-        Title should not be empty
-        <br />
-        Unable to add a todo
-        <br />
-        Unable to delete a todo
-        <br />
-        Unable to update a todo */}
       </div>
     </>
   );

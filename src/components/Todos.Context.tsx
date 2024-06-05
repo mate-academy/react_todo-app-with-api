@@ -181,28 +181,28 @@ export const TodosProvider: React.FC<Props> = ({ children }) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [status, todos]);
 
+  const contextValue = {
+    todos,
+    addTodo,
+    removeTodo,
+    editTodo,
+    setTodos,
+    status,
+    setStatus,
+    filteredTodos,
+    error,
+    setError,
+    submitting,
+    setNewTodo,
+    newTodo,
+    setTempTodo,
+    tempTodo,
+    loading,
+    setLoading,
+  };
+
   return (
-    <TodosContext.Provider
-      value={{
-        todos,
-        addTodo,
-        removeTodo,
-        editTodo,
-        setTodos,
-        status,
-        setStatus,
-        filteredTodos,
-        error,
-        setError,
-        submitting,
-        setNewTodo,
-        newTodo,
-        setTempTodo,
-        tempTodo,
-        loading,
-        setLoading,
-      }}
-    >
+    <TodosContext.Provider value={contextValue}>
       {children}
     </TodosContext.Provider>
   );
