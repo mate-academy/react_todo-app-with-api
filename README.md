@@ -4,9 +4,8 @@ _Design:_
 
 [design](https://www.figma.com/file/uEetgWenSRxk9jgiym6Yzp/Phone-catalog-redesign?node-id=1%3A2)
 
----
 
-_Description:_
+#_Description:_
 
 Simple responsive todo-app example with creating, deleting, changing, toggling and filtering. Based on free learning api Mate-academy.
 
