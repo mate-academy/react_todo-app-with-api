@@ -27,8 +27,8 @@ export const App: React.FC = () => {
             <Footer />
           </>
         )}
-        <ErrorNotification />
       </div>
+      <ErrorNotification />
     </div>
   );
 };

@@ -105,12 +105,13 @@ export const TodoItems: React.FC<Props> = ({ todo }) => {
       {isEditing ? (
         <input
           ref={inputRef}
-          className="edit"
+          className="todoapp__edit"
           value={newTitle}
           onChange={handleChange}
           onBlur={handleBlur}
           onKeyUp={handleKeyUp}
           disabled={loading}
+          placeholder="Empty todo will be deleted"
         />
       ) : (
         <span
