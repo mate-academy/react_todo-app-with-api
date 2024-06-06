@@ -60,4 +60,4 @@ npm start
 
 # Reflection
 
-Building a todo app in React JS will enhance your skills in managing asynchronous data with Promises. Set up your project, create components for tasks, and fetch data using Fetch API or Axios. Store tasks in local state, Redux, or local storage and update the UI using async/await. This project will improve your understanding of state management and error handling in React. Thank you for watching 👨‍🦲
+Building a todo app in React JS was a valuable experience that enhanced my skills in managing asynchronous data and state. Storing tasks in local state, React Context, and updating the UI with async/await ensured responsiveness. Managing state and implementing error handling deepened my React knowledge. Overall, this project significantly improved my proficiency in React, particularly in asynchronous data management, state management, and error handling. Stay tuned 👨‍🦲
