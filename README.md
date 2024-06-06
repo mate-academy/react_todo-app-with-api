@@ -6,13 +6,16 @@ Small and shy todo app maden on React JS. Create, delete, toggle, filter and cha
 
 # [Demolink](https://haduigon.github.io/react_todo-app-with-api/#/)
 
-# _Status:_
+# Status:
 
 Done
 
 [![GitHub license](https://img.shields.io/github/license/haduigon/react_phone-catalog)](https://github.com/haduigon/react_phone-catalog/blob/master/LICENSE)
+
 [![GitHub stars](https://img.shields.io/github/stars/haduigon/react_phone-catalog)](https://github.com/haduigon/react_phone-catalog/stargazers)
+
 [![GitHub issues](https://img.shields.io/github/issues/haduigon/react_phone-catalog)](https://github.com/haduigon/react_phone-catalog/issues)
+
 [![GitHub forks](https://img.shields.io/github/forks/haduigon/react_phone-catalog)](https://github.com/haduigon/react_phone-catalog/network)
 
 # Technologies list:
