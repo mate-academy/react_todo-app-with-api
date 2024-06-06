@@ -21,31 +21,16 @@ Done
 
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.4.5-green)](https://www.typescriptlang.org/)
 
-[![React-router-dom](https://img.shields.io/badge/React%20Router%20Dom-6.23.1-yellow)](https://reactrouter.com/en/main)
-
 [![React Context](https://img.shields.io/badge/React%20Context-0.0.3-blue)](https://reactjs.org/docs/context.html)
 
-[![Axios](https://img.shields.io/badge/Axios-18.3.1-orange)](https://axios.com)
+[![Fetch](https://img.shields.io/badge/Fetch-1.1.0-orange)](https://axios.com)
+[![React-transition-group](https://img.shields.io/badge/react-transition-group-4.4.5-orange)](https://axios.com)
 
-# React phone catalog features:
+# React todo app has next features:
 
-- Main data storing is realized through react context.
+- User can create, store, delete, update, toggle and filter his tasks.
 
-- Cart stores in Local Storage.
-
-- React-router-dom and urlParams are widly used.
-
-- You can sort a list of products.
-
-- There are the breadcrumbs.
-
-- A few sliders exist. Main with timer and steering buttons and two more, smaller.
-
-- Search is working with debounce and stores in url.
-
-- Cart total sum is shared among every item and works well, what is amazing.
-
-- Pagination is customizible by setting amount of items on page.
+- 
 
 # _Usage as always is very simple:_
 
