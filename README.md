@@ -1,12 +1,10 @@
 # React-todo-app
 
-# Inspired by [that game 2048](https://play2048.co/)
+# Description:
 
-# _Description:_
+Small and shy todo app maden on React JS. Create, delete, toggle, filter and change your tasks.
 
-Simple responsive internet-shop with favourites, cart, search, slider. Done with React Context, router-dom, axios etc. I made a simple node js backend which always returns the same data, provided for the catalog.
-
-# [Demolink](https://haduigon.github.io/react_phone-catalog/#/)
+# [Demolink](https://haduigon.github.io/react_todo-app-with-api/#/)
 
 # _Status:_
 
