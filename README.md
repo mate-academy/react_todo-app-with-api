@@ -1,6 +1,6 @@
 # React-todo-app
 
-# Pretending to be copy of[that game 2048](https://play2048.co/)
+# Inspired by [that game 2048](https://play2048.co/)
 
 # _Description:_
 
