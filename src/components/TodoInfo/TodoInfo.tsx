@@ -42,28 +42,30 @@ export const TodoInfo: React.FC<Props> = ({
   };
 
   const handleChangeSubmit = () => {
-    setLoader(true);
+    if (changedTitle.trim() !== title) {
+      setLoader(true);
 
-    if (changedTitle.trim() === '') {
-      handleDelete();
-    } else {
-      updateTodo({ title: changedTitle.trim() }, id)
-        .then(updatedTodo => {
-          setTodos(prev => {
-            const prevTodos = [...prev];
-            const index = prevTodos.findIndex(t => t.id === updatedTodo.id);
+      if (changedTitle.trim() === '') {
+        handleDelete();
+      } else {
+        updateTodo({ title: changedTitle.trim() }, id)
+          .then(updatedTodo => {
+            setTodos(prev => {
+              const prevTodos = [...prev];
+              const index = prevTodos.findIndex(t => t.id === updatedTodo.id);
 
-            prevTodos.splice(index, 1, updatedTodo);
+              prevTodos.splice(index, 1, updatedTodo);
 
-            return prevTodos;
+              return prevTodos;
+            });
+          })
+          .catch(() => setErrorMessage('Unable to update a todo'))
+          .finally(() => {
+            setLoader(false);
+            setIsEditing(false);
+            setChangedTitle(changedTitle.trim());
           });
-        })
-        .catch(() => setErrorMessage('Unable to update a todo'))
-        .finally(() => {
-          setLoader(false);
-          setIsEditing(false);
-          setChangedTitle(changedTitle.trim());
-        });
+      }
     }
   };
 

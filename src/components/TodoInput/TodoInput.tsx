@@ -59,8 +59,9 @@ export const TodoInput: React.FC<Props> = ({ setTempTodo, inputRef }) => {
 
   const switchCompleted = () => {
     const val = todos.filter(t => t.completed).length !== todos.length;
+    const copyOfTodos = val ? todos.filter(t => !t.completed) : [...todos];
 
-    todos.map(todo => {
+    copyOfTodos.map(todo => {
       updateTodo({ completed: val }, todo.id)
         .then(updatedTodo => {
           setTodos(prev => {
@@ -90,17 +91,18 @@ export const TodoInput: React.FC<Props> = ({ setTempTodo, inputRef }) => {
 
   return (
     <header className="todoapp__header">
-      {/* this button should have `active` class only if all todos are completed */}
-      <button
-        type="button"
-        className={classNames('todoapp__toggle-all', {
-          active:
-            todos.filter(t => t.completed).length === todos.length &&
-            !!todos.length,
-        })}
-        data-cy="ToggleAllButton"
-        onClick={switchCompleted}
-      />
+      {!!todos.length && (
+        <button
+          type="button"
+          className={classNames('todoapp__toggle-all', {
+            active:
+              todos.filter(t => t.completed).length === todos.length &&
+              !!todos.length,
+          })}
+          data-cy="ToggleAllButton"
+          onClick={switchCompleted}
+        />
+      )}
 
       <form onSubmit={handleSubmit}>
         <input
