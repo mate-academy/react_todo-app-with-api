@@ -6,7 +6,6 @@ import React, {
   useEffect,
   SetStateAction,
   useState,
-  useRef,
 } from 'react';
 import cn from 'classnames';
 import { Todo } from '../types/Todo';
