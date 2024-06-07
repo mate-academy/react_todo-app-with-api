@@ -192,6 +192,23 @@ export const TodoItem: React.FC<Props> = React.memo(({ todo, handleError }) => {
     }
   }, [isDoubleClicked.id, todos, todo]);
 
+  const doubleClick = (event: React.KeyboardEvent<HTMLInputElement>) => {
+    if (event.key === 'Escape') {
+      dispatch({
+        type: 'setIsDoubleClicked',
+        payload: { state: false, id: null },
+      });
+    }
+  };
+
+  const onDoubleClick = () => {
+    dispatch({
+      type: 'setIsDoubleClicked',
+      payload: { state: true, id },
+    });
+    setEditedTitle(title);
+  };
+
   return (
     <div
       data-cy="Todo"
@@ -219,14 +236,7 @@ export const TodoItem: React.FC<Props> = React.memo(({ todo, handleError }) => {
             onBlur={e => handleBlur(e, todo)}
             className="todo__title-field"
             placeholder="Empty todo will be deleted"
-            onKeyUp={event => {
-              if (event.key === 'Escape') {
-                dispatch({
-                  type: 'setIsDoubleClicked',
-                  payload: { state: false, id: null },
-                });
-              }
-            }}
+            onKeyUp={doubleClick}
             onChange={e => setEditedTitle(e.target.value)}
           />
         </form>
@@ -235,13 +245,7 @@ export const TodoItem: React.FC<Props> = React.memo(({ todo, handleError }) => {
           <span
             data-cy="TodoTitle"
             className="todo__title"
-            onDoubleClick={() => {
-              dispatch({
-                type: 'setIsDoubleClicked',
-                payload: { state: true, id },
-              });
-              setEditedTitle(title);
-            }}
+            onDoubleClick={onDoubleClick}
           >
             {title}
           </span>
