@@ -29,7 +29,7 @@ export const Header: React.FC<Props> = ({
     if (inputRef.current) {
       inputRef.current.focus();
     }
-  }, [isDisabled, todos.length]);
+  }, [todos]);
 
   const handleSubmit = useCallback(() => {
     if (!title.trim()) {
