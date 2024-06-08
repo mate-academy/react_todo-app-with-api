@@ -13,12 +13,12 @@ type Props = {
 export const TodoInput: React.FC<Props> = ({ setTempTodo, inputRef }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [title, setTitle] = useState('');
-  const { todos, setTodos, setErrorMessage } = useContext(Context);
+  const { todos, setTodos, setErrorMessage, setToggleAllLoaderIds } =
+    useContext(Context);
 
   const addTodo = (newTodo: Omit<Todo, 'id'>) => {
-    setIsLoading(true);
-
     if (newTodo.title !== '') {
+      setIsLoading(true);
       setTempTodo({ ...newTodo, id: 0 });
 
       return createTodo(newTodo)
@@ -41,8 +41,6 @@ export const TodoInput: React.FC<Props> = ({ setTempTodo, inputRef }) => {
       setErrorMessage('Title should not be empty');
     }
 
-    setIsLoading(false);
-
     return null;
   };
 
@@ -58,11 +56,16 @@ export const TodoInput: React.FC<Props> = ({ setTempTodo, inputRef }) => {
   };
 
   const switchCompleted = () => {
-    const val = todos.filter(t => t.completed).length !== todos.length;
-    const copyOfTodos = val ? todos.filter(t => !t.completed) : [...todos];
+    const isAllCompleted =
+      todos.filter(t => t.completed).length !== todos.length;
+    const todosToToggle = isAllCompleted
+      ? todos.filter(t => !t.completed)
+      : [...todos];
 
-    copyOfTodos.map(todo => {
-      updateTodo({ completed: val }, todo.id)
+    todosToToggle.forEach(todo => {
+      setToggleAllLoaderIds(prev => [...prev, todo.id]);
+
+      updateTodo({ completed: isAllCompleted }, todo.id)
         .then(updatedTodo => {
           setTodos(prev => {
             const prevTodos = [...prev];

@@ -1,7 +1,7 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable jsx-a11y/label-has-associated-control */
 /* eslint-disable jsx-a11y/control-has-associated-label */
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { UserWarning } from './UserWarning';
 import { USER_ID } from './api/todos';
 import { client } from './utils/fetchClient';
@@ -20,9 +20,10 @@ export const App: React.FC = () => {
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
-  const [todosToDelete, setTodosToDelete] = useState<number[]>([]);
+  const [todosIdsToDelete, setTodosToDelete] = useState<number[]>([]);
+  const [toggleAllLoaderIds, setToggleAllLoaderIds] = useState<number[]>([]);
 
-  const getFilteredTodos = () => {
+  const filteredTodos = useMemo(() => {
     switch (filter) {
       case Filter.Active:
         return todos.filter(todo => !todo.completed);
@@ -31,9 +32,7 @@ export const App: React.FC = () => {
       default:
         return todos;
     }
-  };
-
-  const todosToRender = getFilteredTodos();
+  }, [filter, todos]);
 
   useEffect(() => {
     const fetchTodos = async () => {
@@ -81,7 +80,9 @@ export const App: React.FC = () => {
           filter: filter,
           setFilter: setFilter,
           setTodosToDelete: setTodosToDelete,
-          todosToDelete: todosToDelete,
+          todosIdsToDelete: todosIdsToDelete,
+          toggleAllLoaderIds: toggleAllLoaderIds,
+          setToggleAllLoaderIds: setToggleAllLoaderIds,
         }}
       >
         <h1 className="todoapp__title">todos</h1>
@@ -92,7 +93,7 @@ export const App: React.FC = () => {
           {!!todos.length && (
             <>
               <TodoList
-                todos={todosToRender}
+                todos={filteredTodos}
                 tempTodo={tempTodo}
                 inputRef={inputRef}
               />

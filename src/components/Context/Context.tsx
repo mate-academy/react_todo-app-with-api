@@ -10,8 +10,10 @@ export type ContextProps = {
   setErrorMessage: React.Dispatch<React.SetStateAction<string>>;
   filter: Filter;
   setFilter: React.Dispatch<React.SetStateAction<Filter>>;
-  todosToDelete: number[];
+  todosIdsToDelete: number[];
   setTodosToDelete: React.Dispatch<React.SetStateAction<number[]>>;
+  toggleAllLoaderIds: number[];
+  setToggleAllLoaderIds: React.Dispatch<React.SetStateAction<number[]>>;
 };
 
 export const Context = React.createContext<ContextProps>({
@@ -21,6 +23,8 @@ export const Context = React.createContext<ContextProps>({
   setErrorMessage: () => {},
   filter: Filter.All,
   setFilter: () => {},
-  todosToDelete: [],
+  todosIdsToDelete: [],
   setTodosToDelete: () => {},
+  toggleAllLoaderIds: [],
+  setToggleAllLoaderIds: () => {},
 });

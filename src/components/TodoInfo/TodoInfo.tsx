@@ -17,8 +17,15 @@ export const TodoInfo: React.FC<Props> = ({
   isTemp = false,
   inputRef,
 }) => {
-  const { setTodos, setErrorMessage, todosToDelete, setTodosToDelete } =
-    useContext(Context);
+  const {
+    setTodos,
+    setErrorMessage,
+    todosIdsToDelete,
+    setTodosToDelete,
+    toggleAllLoaderIds,
+    setToggleAllLoaderIds,
+  } = useContext(Context);
+
   const { title, id, completed } = todo;
   const [isEditing, setIsEditing] = useState(false);
   const [changedTitle, setChangedTitle] = useState(title);
@@ -99,13 +106,38 @@ export const TodoInfo: React.FC<Props> = ({
   };
 
   useEffect(() => {
-    todosToDelete.forEach((idToDelete, index) => {
+    todosIdsToDelete.forEach((idToDelete, index) => {
       if (todo.id === idToDelete) {
         handleDelete();
         setTodosToDelete(prev => prev.filter((_, i) => i !== index));
       }
     });
-  }, [todosToDelete, todo.id, setTodosToDelete]);
+  }, [todosIdsToDelete, todo.id, setTodosToDelete]);
+
+  useEffect(() => {
+    if (isEditing) {
+      document.addEventListener('keyup', eventListenerKeyboard);
+    } else {
+      document.removeEventListener('keyup', eventListenerKeyboard);
+    }
+
+    return () => {
+      document.removeEventListener('keyup', eventListenerKeyboard);
+    };
+  }, [isEditing]);
+
+  useEffect(() => {
+    const idExists = toggleAllLoaderIds.includes(todo.id);
+
+    if (idExists) {
+      setLoader(true);
+      setToggleAllLoaderIds(prev =>
+        prev.filter(idToToggle => id !== idToToggle),
+      );
+    } else {
+      setLoader(false);
+    }
+  }, [toggleAllLoaderIds]);
 
   return (
     <div
@@ -161,9 +193,6 @@ export const TodoInfo: React.FC<Props> = ({
               handleChangeSubmit();
               setIsEditing(false);
             }}
-            onKeyUp={() =>
-              document.addEventListener('keyup', eventListenerKeyboard)
-            }
           />
         </form>
       )}
