@@ -35,11 +35,12 @@ export const Footer: React.FC<FooterType> = ({
     todo => !todo.completed && todo.id !== 0,
   ).length;
   const hasCompleted = !todos.some(todo => todo.completed);
+  const isPlural = todosLength === 1 ? 'item' : 'items';
 
   return (
     <footer className="todoapp__footer" data-cy="Footer">
       <span className="todo-count" data-cy="TodosCounter">
-        {todosLength} items left
+        {todosLength} {isPlural} left
       </span>
 
       {/* Active link should have the 'selected' class */}

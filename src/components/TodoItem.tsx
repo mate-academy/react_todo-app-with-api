@@ -22,7 +22,7 @@ export const TodoItem: React.FC<TodotodoType> = ({ todo, inputRef }) => {
   const { isDeleteActive } = useContext(DeletingContext);
   const [deletedId, setDeletedId] = useState(0);
   const [isEdited, setIsEdited] = useState(false);
-  const [textEdited, setTextEdited] = useState('');
+  const [textEdited, setTextEdited] = useState<string | null>(null);
 
   const editForm = useRef<HTMLInputElement>(null);
   const formRef = useRef<HTMLFormElement>(null);
@@ -82,17 +82,25 @@ export const TodoItem: React.FC<TodotodoType> = ({ todo, inputRef }) => {
   const looseFocusEdited = () => {
     setIsEdited(true);
 
-    titleChanged(id, textEdited)
-      .then(response => {
-        dispatch({ type: ActionType.EDITED, payload: response });
-      })
-      .catch(() => {
-        setError('Unable to update a todo');
-      })
-      .finally(() => {
-        setIsEdited(false);
-        setTextEdited('');
-      });
+    if (textEdited !== null) {
+      if (textEdited === '') {
+        deleteTodo();
+
+        return;
+      }
+
+      titleChanged(id, textEdited)
+        .then(response => {
+          dispatch({ type: ActionType.EDITED, payload: response });
+        })
+        .catch(() => {
+          setError('Unable to update a todo');
+        })
+        .finally(() => {
+          setIsEdited(false);
+          setTextEdited(null);
+        });
+    }
   };
 
   const onEditedText = (e: React.FormEvent<HTMLFormElement>) => {
@@ -119,7 +127,7 @@ export const TodoItem: React.FC<TodotodoType> = ({ todo, inputRef }) => {
         />
       </label>
 
-      {!textEdited ? (
+      {textEdited === null ? (
         <>
           <span
             data-cy="TodoTitle"

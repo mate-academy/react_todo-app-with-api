@@ -1,16 +1,9 @@
 /* eslint-disable max-len */
 /* eslint-disable jsx-a11y/label-has-associated-control */
 /* eslint-disable jsx-a11y/control-has-associated-label */
-import React, {
-  useCallback,
-  useContext,
-  useEffect,
-  useRef,
-  useState,
-} from 'react';
+import React, { useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { UserWarning } from './UserWarning';
 import { USER_ID, deletePost, getTodos } from './api/todos';
-import { Todo } from './types/Todo';
 import classNames from 'classnames';
 import { TodoContext } from './contexts/TodoContext';
 import { Footer } from './components/Footer';
@@ -48,24 +41,21 @@ export const App: React.FC = () => {
     }
   }, [dispatch, setError]);
 
-  const getFormedTodos = useCallback(
-    (todosItems: Todo[]) => {
-      switch (filter) {
-        case FilterType.ALL: {
-          return todosItems;
-        }
-
-        case FilterType.ACTIVE: {
-          return todosItems.filter(todo => !todo.completed);
-        }
-
-        case FilterType.COMPLETED: {
-          return todosItems.filter(todo => todo.completed);
-        }
+  const getFormedTodos = useMemo(() => {
+    switch (filter) {
+      case FilterType.ALL: {
+        return todos;
       }
-    },
-    [filter],
-  );
+
+      case FilterType.ACTIVE: {
+        return todos.filter(todo => !todo.completed);
+      }
+
+      case FilterType.COMPLETED: {
+        return todos.filter(todo => todo.completed);
+      }
+    }
+  }, [filter, todos]);
 
   const deleteAll = () => {
     const promiseArr: Array<Promise<void>> = [];
@@ -106,9 +96,7 @@ export const App: React.FC = () => {
 
         <section className="todoapp__main" data-cy="TodoList">
           <div>
-            {todos && (
-              <TodoList todos={getFormedTodos(todos)} inputRef={inputRef} />
-            )}
+            {todos && <TodoList todos={getFormedTodos} inputRef={inputRef} />}
           </div>
         </section>
 
