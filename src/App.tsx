@@ -103,14 +103,15 @@ export const App: React.FC = () => {
 
     return postService
       .updateTodo(updateTodo)
-      .then(todo => {
+      .then(() => {
         setTodosFromServer(currentTodos => {
-          const newTodos = [...currentTodos];
-          const index = newTodos.findIndex(item => item.id === updateTodo.id);
+          return currentTodos.map(item => {
+            if (item.id === updateTodo.id) {
+              return updateTodo;
+            }
 
-          newTodos.splice(index, 1, todo);
-
-          return newTodos;
+            return item;
+          });
         });
       })
       .catch(error => {

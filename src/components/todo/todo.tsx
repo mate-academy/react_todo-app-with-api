@@ -39,6 +39,8 @@ export const ToDo: React.FC<Props> = ({
     onIdTodo(id);
 
     if (updateTodo === null) {
+      setIsSubmitting(false);
+
       return;
     }
 
@@ -59,6 +61,7 @@ export const ToDo: React.FC<Props> = ({
 
       if (todoActual && updateTodo.title === todoActual.title) {
         setUpdateTodo(null);
+        setIsSubmitting(false);
 
         return;
       }
@@ -144,7 +147,7 @@ export const ToDo: React.FC<Props> = ({
           data-cy="TodoStatus"
           type="checkbox"
           className="todo__status"
-          checked={completed ? true : false}
+          checked={completed}
           onClick={() => handleChecked({ title, id, userId, completed })}
         />
       </label>
@@ -164,7 +167,7 @@ export const ToDo: React.FC<Props> = ({
             placeholder="Empty todo will be deleted"
             onChange={event => handleChangeTitle(event)}
             onBlur={handleBlur}
-            onKeyUp={e => handleKeyUp(e)}
+            onKeyUp={handleKeyUp}
           />
         </form>
       ) : (
