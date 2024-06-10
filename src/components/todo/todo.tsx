@@ -84,13 +84,12 @@ export const ToDo: React.FC<Props> = ({
     }, 1000);
   };
 
-  const handleChecked = (post: Todo) => {
+  const handleChecked = () => {
     onLoading(true);
-    onIdTodo(post.id);
-
+    onIdTodo(id);
     const updateCompletedTodo = {
-      ...post,
-      completed: !post.completed,
+      ...todo,
+      completed: !completed,
     };
 
     onUpdate(updateCompletedTodo)

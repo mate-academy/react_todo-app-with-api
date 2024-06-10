@@ -1,6 +1,6 @@
 /* eslint-disable jsx-a11y/label-has-associated-control */
 /* eslint-disable jsx-a11y/control-has-associated-label */
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { ChangeEvent, useCallback, useEffect, useState } from 'react';
 import { UserWarning } from './UserWarning';
 import * as postService from './api/todos';
 import { Errors } from './components/errors/errors';
@@ -44,9 +44,9 @@ export const App: React.FC = () => {
 
   const filterTodos = useCallback(() => {
     switch (status) {
-      case Status.active:
+      case Status.Active:
         return todosFromServer.filter(todo => !todo.completed);
-      case Status.completed:
+      case Status.Completed:
         return todosFromServer.filter(todo => todo.completed);
       default:
         return todosFromServer;
@@ -121,11 +121,11 @@ export const App: React.FC = () => {
       });
   }
 
-  function handleChangeTitle(value: string) {
+  function handleChangeTitle(e: ChangeEvent<HTMLInputElement>) {
     setErrorMessage('');
     setNewTodo(currentTodo => ({
       ...currentTodo,
-      title: value,
+      title: e.target.value,
     }));
   }
 

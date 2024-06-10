@@ -1,4 +1,4 @@
-import { FormEvent, useEffect, useRef } from 'react';
+import { ChangeEvent, FormEvent, useEffect, useRef } from 'react';
 import { Todo } from '../../types/Todo';
 import classNames from 'classnames';
 
@@ -9,7 +9,7 @@ type Props = {
   todosFromServer: Todo[];
   leftTodos: Todo[];
   onSubmit: (todo: Omit<Todo, 'id'>) => Promise<void>;
-  onChange: (value: string) => void;
+  onChange: (event: ChangeEvent<HTMLInputElement>) => void;
   onReset: () => void;
   onError: (error: string) => void;
   onLoading: (status: boolean) => void;
@@ -75,8 +75,8 @@ export const Header: React.FC<Props> = ({
           type="text"
           className="todoapp__new-todo"
           placeholder="What needs to be done?"
-          onChange={event => onChange(event.target.value)}
-          disabled={loading ? true : false}
+          onChange={event => onChange(event)}
+          disabled={loading}
         />
       </form>
     </header>
