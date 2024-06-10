@@ -147,7 +147,7 @@ export const ToDo: React.FC<Props> = ({
           type="checkbox"
           className="todo__status"
           checked={completed}
-          onClick={() => handleChecked({ title, id, userId, completed })}
+          onClick={handleChecked}
         />
       </label>
 
