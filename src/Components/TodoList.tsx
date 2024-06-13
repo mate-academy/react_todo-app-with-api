@@ -8,7 +8,7 @@ type Props = {
   deleteTodo: (id: number) => void;
   tempTodo: Todo | null;
   loadingTodoId: number[];
-  updateTodo: (updatedTodo: Todo) => void;
+  updateTodo: (updatedTodo: Todo) => Promise<void>;
 };
 
 export const TodoList: React.FC<Props> = ({

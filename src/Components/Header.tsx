@@ -12,6 +12,7 @@ type Props = {
   isResponding: boolean;
   allCompleted: boolean;
   updateAllToggle: () => void;
+  listOfTodos: Todo[];
 };
 
 export const Header: React.FC<Props> = ({
@@ -22,6 +23,7 @@ export const Header: React.FC<Props> = ({
   isResponding,
   allCompleted,
   updateAllToggle,
+  listOfTodos,
 }) => {
   const inputRef = useRef<HTMLInputElement | null>(null);
 
@@ -60,13 +62,16 @@ export const Header: React.FC<Props> = ({
 
   return (
     <header className="todoapp__header">
-      {/* this button should have `active` class only if all todos are completed */}
-      <button
-        type="button"
-        className={cn('todoapp__toggle-all', { active: allCompleted })}
-        data-cy="ToggleAllButton"
-        onClick={updateAllToggle}
-      />
+      {!!listOfTodos.length && (
+        <button
+          type="button"
+          className={cn('todoapp__toggle-all', {
+            active: allCompleted,
+          })}
+          data-cy="ToggleAllButton"
+          onClick={updateAllToggle}
+        />
+      )}
 
       {/* Add a todo on form submit */}
       <form onSubmit={formSubmitHandler}>

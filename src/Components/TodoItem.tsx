@@ -7,7 +7,7 @@ type Props = {
   updateToggle: (toggleTodo: Todo) => void;
   deleteTodo: (id: number) => void;
   loadingTodoId: number[];
-  updateTodo: (updatedTodo: Todo) => void;
+  updateTodo: (updatedTodo: Todo) => Promise<void>;
 };
 
 export const TodoItem: React.FC<Props> = ({
@@ -31,17 +31,31 @@ export const TodoItem: React.FC<Props> = ({
 
   const handleEditSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    const updatedTodo = { ...todo, title: editedTitle };
+    const trimmedTitle = editedTitle.trim();
+    const reset = () => setEditing(false);
 
-    updateTodo(updatedTodo);
-    setEditing(false);
+    if (trimmedTitle.length === 0) {
+      deleteTodo(todo.id);
+
+      return;
+    }
+
+    if (trimmedTitle === title) {
+      reset();
+
+      return;
+    }
+
+    const updatedTodo = { ...todo, title: trimmedTitle };
+
+    updateTodo(updatedTodo).then(reset);
   };
 
   return (
     <div
       data-cy="Todo"
       className={cn('todo', {
-        completed,
+        completed: completed,
       })}
     >
       {/* eslint-disable jsx-a11y/label-has-associated-control */}
@@ -50,13 +64,17 @@ export const TodoItem: React.FC<Props> = ({
           data-cy="TodoStatus"
           type="checkbox"
           className="todo__status"
-          checked={completed}
+          checked={todo.completed}
           onChange={() => updateToggle(todo)}
         />
       </label>
 
       {editing ? (
-        <form onSubmit={handleEditSubmit} onBlur={handleEditSubmit}>
+        <form
+          onSubmit={handleEditSubmit}
+          onBlur={handleEditSubmit}
+          onKeyUp={e => (e.key === 'Escape' ? setEditing(false) : '')}
+        >
           <input
             ref={inputFocusRef}
             data-cy="TodoTitleField"

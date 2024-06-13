@@ -95,7 +95,7 @@ export const App: React.FC = () => {
   const updateTodo = (todo: Todo) => {
     setLoadingTodoId(carrent => [...carrent, todo.id]);
 
-    todoService
+    return todoService
       .updateTodo(todo)
       .then(todoFromServer => {
         setListOfTodos(currentTodos =>
@@ -104,11 +104,12 @@ export const App: React.FC = () => {
           ),
         );
       })
-      .catch(() => {
+      .catch(err => {
         setErrorMessage(ErrorTypes.UnableToUpdate);
         setTimeout(() => {
           setErrorMessage(null);
         }, 3000);
+        throw err;
       })
       .finally(() => {
         setLoadingTodoId([]);
@@ -117,13 +118,14 @@ export const App: React.FC = () => {
 
   const updateToggle = (toggleTodo: Todo) => {
     setLoadingTodoId(current => [...current, toggleTodo.id]);
+    const updatedTodo = { ...toggleTodo, completed: !toggleTodo.completed };
 
     todoService
-      .updateTodo({ ...toggleTodo, completed: !toggleTodo.completed })
-      .then(updatedTodo => {
+      .updateTodo(updatedTodo)
+      .then(todoFromServer => {
         setListOfTodos(currentTodos =>
           currentTodos.map(currentTodo =>
-            currentTodo.id === updatedTodo.id ? updatedTodo : currentTodo,
+            currentTodo.id === todoFromServer.id ? todoFromServer : currentTodo,
           ),
         );
       })
@@ -134,90 +136,81 @@ export const App: React.FC = () => {
   };
 
   const completedTodos = listOfTodos.filter(todo => todo.completed);
-  // const activeTodos = listOfTodos.filter(todo => !todo.completed);
+  const activeTodos = listOfTodos.filter(todo => !todo.completed);
   const todosLeft = listOfTodos.length - completedTodos.length;
-  const allCompleted = listOfTodos.every(todo => todo.completed);
 
   const deleteAllCompleted = () => {
     completedTodos.forEach(todo => deleteTodo(todo.id));
   };
 
   const updateAllToggle = () => {
-    setListOfTodos(currentTodos => {
-      if (allCompleted) {
-        return currentTodos.map(todo => ({ ...todo, completed: false }));
-      } else {
-        return currentTodos.map(todo =>
-          !todo.completed ? { ...todo, completed: true } : todo,
-        );
-      }
-    });
+    if (!activeTodos.length) {
+      completedTodos.forEach(todo => updateToggle(todo));
+    } else {
+      activeTodos.forEach(todo => updateToggle(todo));
+    }
   };
+
+  const allCompleted = !activeTodos.length;
 
   return (
     <section className="section container">
-      <p className="title is-4">
-        <div className="todoapp">
-          <h1 className="todoapp__title">todos</h1>
+      <div className="todoapp">
+        <h1 className="todoapp__title">todos</h1>
 
-          <div className="todoapp__content">
-            <Header
-              setQuery={setQuery}
-              title={query}
-              addTodo={addTodo}
-              setErrorMessage={setErrorMessage}
-              isResponding={isResponding}
-              allCompleted={allCompleted}
-              updateAllToggle={updateAllToggle}
+        <div className="todoapp__content">
+          <Header
+            setQuery={setQuery}
+            title={query}
+            addTodo={addTodo}
+            setErrorMessage={setErrorMessage}
+            isResponding={isResponding}
+            allCompleted={allCompleted}
+            updateAllToggle={updateAllToggle}
+            listOfTodos={listOfTodos}
+          />
+
+          {!!listOfTodos.length && (
+            <TodoList
+              mainTodoList={getFilteredTodos}
+              updateToggle={updateToggle}
+              deleteTodo={deleteTodo}
+              tempTodo={tempTodo}
+              loadingTodoId={loadingTodoId}
+              updateTodo={updateTodo}
             />
+          )}
 
-            {!!listOfTodos.length && (
-              <TodoList
-                mainTodoList={getFilteredTodos}
-                updateToggle={updateToggle}
-                deleteTodo={deleteTodo}
-                tempTodo={tempTodo}
-                loadingTodoId={loadingTodoId}
-                updateTodo={updateTodo}
-              />
-            )}
-
-            {!!listOfTodos.length && (
-              <Footer
-                todosLeft={todosLeft}
-                setSelectedValue={setSelectedValue}
-                selectedValue={selectedValue}
-                completedTodos={completedTodos}
-                deleteAllCompleted={deleteAllCompleted}
-              />
-            )}
-          </div>
-
-          {/* DON'T use conditional rendering to hide the notification */}
-          {/* Add the 'hidden' class to hide the message smoothly */}
-          <div
-            data-cy="ErrorNotification"
-            className={cn(
-              'notification is-danger is-light has-text-weight-normal',
-              { hidden: !errorMessage },
-            )}
-          >
-            <button
-              data-cy="HideErrorButton"
-              type="button"
-              className="delete"
-              onClick={() => setErrorMessage(null)}
+          {!!listOfTodos.length && (
+            <Footer
+              todosLeft={todosLeft}
+              setSelectedValue={setSelectedValue}
+              selectedValue={selectedValue}
+              completedTodos={completedTodos}
+              deleteAllCompleted={deleteAllCompleted}
             />
-            {errorMessage}
-          </div>
+          )}
         </div>
-        <br />
-        <a href="https://github.com/mate-academy/react_todo-app-add-and-delete#react-todo-app-add-and-delete">
-          React Todo App - Add and Delete
-        </a>
-      </p>
 
-      <p className="subtitle">Styles are already copied</p>
+        {/* DON'T use conditional rendering to hide the notification */}
+        {/* Add the 'hidden' class to hide the message smoothly */}
+        <div
+          data-cy="ErrorNotification"
+          className={cn(
+            'notification is-danger is-light has-text-weight-normal',
+            { hidden: !errorMessage },
+          )}
+        >
+          <button
+            data-cy="HideErrorButton"
+            type="button"
+            className="delete"
+            onClick={() => setErrorMessage(null)}
+          />
+          {errorMessage}
+        </div>
+      </div>
+      <br />
     </section>
   );
 };
