@@ -79,9 +79,6 @@ export const TodoItem: React.FC<TodoItemProps> = ({
         if (inputRef.current) {
           inputRef.current.focus();
         }
-      })
-      .finally(() => {
-        setIsUpdating(false);
       });
   };
 

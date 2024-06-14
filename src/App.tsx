@@ -104,22 +104,22 @@ export const App: React.FC = () => {
 
     return todoServise
       .updateTodos(todo)
-      .then(updateTodo =>
+      .then(updateTodo => {
         setTodos(currentTodos =>
           currentTodos.map(currentTodo =>
             currentTodo.id === updateTodo.id ? updateTodo : currentTodo,
           ),
-        ),
-      )
-      .catch(() => {
-        setError(errors.update);
-      })
-      .finally(() => {
+        );
+
         if (inputRef.current) {
           inputRef.current.disabled = false;
           inputRef.current.focus();
         }
-
+      })
+      .catch(() => {
+        setError(errors.update);
+      })
+      .finally(() => {
         setLoadingTodos(current => current.filter(id => id !== todo.id));
       });
   };
