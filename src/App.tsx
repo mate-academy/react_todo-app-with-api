@@ -118,6 +118,7 @@ export const App: React.FC = () => {
       })
       .catch(() => {
         setError(errors.update);
+        throw new Error('Unable to update a todo');
       })
       .finally(() => {
         setLoadingTodos(current => current.filter(id => id !== todo.id));

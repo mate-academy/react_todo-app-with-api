@@ -51,7 +51,6 @@ export const Header = forwardRef<HTMLInputElement, HeaderProps>(
 
       if (trimmedTitle.length === 0) {
         setError(errors.empty);
-        setTimeout(() => setError(null), 3000);
 
         return;
       }
@@ -65,9 +64,8 @@ export const Header = forwardRef<HTMLInputElement, HeaderProps>(
         completed: false,
       })
         .then(reset)
-        .catch(catchError => {
+        .catch(() => {
           setError(errors.add);
-          throw catchError;
         })
         .finally(() => {
           setLoadingTodos(loadingTodos.filter(todoId => todoId !== 0));
