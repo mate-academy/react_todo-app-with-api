@@ -1,5 +1,3 @@
-// import * as todosService from '../api/todos';
-// import { errors } from '../constans/Errors';
 import { Status } from '../types/Status';
 import { Todo } from '../types/Todo';
 import { FilteredTodos } from '../utils/FilteredTodos';
@@ -46,6 +44,7 @@ export const TodoList: React.FC<TodoListProps> = ({
         <TodoItem
           todo={tempTodo}
           onUpdate={onUpdate}
+          onDelete={onDelete}
           isSubmitting={isSubmitting}
           isLoading={loadingTodos.includes(0)}
           setError={setError}

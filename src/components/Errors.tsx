@@ -12,7 +12,11 @@ export const Errors: React.FC<ErrorsProps> = ({
   isSubmitting,
 }) => {
   useEffect(() => {
-    if (error !== null) {
+    if (!error) {
+      return;
+    }
+
+    if (error) {
       const timer = setTimeout(() => {
         setError(null);
       }, 3000);

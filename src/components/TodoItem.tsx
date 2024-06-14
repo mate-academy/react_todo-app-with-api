@@ -6,7 +6,7 @@ import { errors } from '../constans/Errors';
 
 interface TodoItemProps {
   todo: Todo;
-  onDelete?: (postId: number) => Promise<void>;
+  onDelete: (postId: number) => Promise<void>;
   isSubmitting: boolean;
   isLoading: boolean;
   onUpdate: (todo: Todo) => Promise<void>;
@@ -14,8 +14,8 @@ interface TodoItemProps {
 }
 export const TodoItem: React.FC<TodoItemProps> = ({
   todo,
-  onDelete = () => Promise.resolve(),
-  onUpdate = () => Promise.resolve(),
+  onDelete,
+  onUpdate,
   isSubmitting,
   isLoading,
   setError,

@@ -19,7 +19,7 @@ export const App: React.FC = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [loadingTodos, setLoadingTodos] = useState<number[]>([]);
 
-  const inputRef = useRef<HTMLInputElement | null>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
 
   const removeTempTodo = () => {
     setTempTodo(null);
@@ -32,18 +32,6 @@ export const App: React.FC = () => {
         setError(errors.load);
       });
   }, []);
-
-  useEffect(() => {
-    if (!error) {
-      return;
-    }
-
-    const timeout = setTimeout(() => setError(''), 3000);
-
-    return () => {
-      clearTimeout(timeout);
-    };
-  }, [error]);
 
   function addTodo({ title, userId, completed }: Omit<Todo, 'id'>) {
     setError('');
@@ -67,10 +55,6 @@ export const App: React.FC = () => {
         setTodos(currentTodo => [...currentTodo, newTodos]);
         setTempTodo(null);
       })
-      .catch(catchError => {
-        setError(errors.add);
-        throw catchError;
-      })
       .finally(() => {
         removeTempTodo();
         setIsSubmitting(false);
@@ -93,9 +77,8 @@ export const App: React.FC = () => {
       .then(() =>
         setTodos(currTodos => currTodos.filter(todo => todo.id !== todoId)),
       )
-      .catch(catchError => {
+      .catch(() => {
         setError(errors.delete);
-        throw catchError;
       })
       .finally(() => {
         if (inputRef.current) {
@@ -128,9 +111,8 @@ export const App: React.FC = () => {
           ),
         ),
       )
-      .catch(catchError => {
+      .catch(() => {
         setError(errors.update);
-        throw catchError;
       })
       .finally(() => {
         if (inputRef.current) {
@@ -159,38 +141,37 @@ export const App: React.FC = () => {
 
       <div className="todoapp__content">
         <Header
+          ref={inputRef}
           todos={todos}
           setError={setError}
           onSubmit={addTodo}
           isSubmitting={isSubmitting}
           setIsSubmitting={setIsSubmitting}
-          inputRef={inputRef}
           loadingTodos={loadingTodos}
           setLoadingTodos={setLoadingTodos}
           onToggleAll={toggleAllTodos}
         />
 
-        {todos.length !== 0 && (
-          <TodoList
-            todos={todos}
-            selectedFilter={selectedFilter}
-            isSubmitting={isSubmitting}
-            setIsSubmitting={setIsSubmitting}
-            tempTodo={tempTodo}
-            loadingTodos={loadingTodos}
-            onDelete={handleDeleteTodo}
-            onUpdate={handleUpdateTodo}
-            setError={setError}
-          />
-        )}
-
-        {todos.length !== 0 && (
-          <Footer
-            todos={todos}
-            selectedFilter={selectedFilter}
-            setSelectedFilter={setSelectedFilter}
-            onClearCompleted={deleteAllComleted}
-          />
+        {!!todos.length && (
+          <>
+            <TodoList
+              todos={todos}
+              selectedFilter={selectedFilter}
+              isSubmitting={isSubmitting}
+              setIsSubmitting={setIsSubmitting}
+              tempTodo={tempTodo}
+              loadingTodos={loadingTodos}
+              onDelete={handleDeleteTodo}
+              onUpdate={handleUpdateTodo}
+              setError={setError}
+            />
+            <Footer
+              todos={todos}
+              selectedFilter={selectedFilter}
+              setSelectedFilter={setSelectedFilter}
+              onClearCompleted={deleteAllComleted}
+            />
+          </>
         )}
       </div>
       <Errors error={error} setError={setError} isSubmitting={isSubmitting} />
