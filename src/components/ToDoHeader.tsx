@@ -9,6 +9,7 @@ type Props = {
   toDoTitle: string;
   setToDoTitle: (toDoTitle: string) => void;
   isLoading: boolean;
+  tempIds: number[];
 };
 export const TodoHeader = ({
   addTodos,
@@ -17,6 +18,8 @@ export const TodoHeader = ({
   toDoTitle,
   setToDoTitle,
   isLoading,
+  todos,
+  tempIds,
 }: Props) => {
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -29,14 +32,17 @@ export const TodoHeader = ({
   return (
     <header className="todoapp__header">
       {/* this button should have `active` class only if all todos are completed */}
-      <button
-        type="button"
-        className={classNames('todoapp__toggle-all', {
-          active: allTodosAreCompleted,
-        })}
-        data-cy="ToggleAllButton"
-        onClick={() => toggleButton()}
-      />
+      {todos.length > 0 && (
+        <button
+          type="button"
+          className={classNames('todoapp__toggle-all', {
+            active: allTodosAreCompleted,
+          })}
+          disabled={tempIds.length > 0 || isLoading}
+          data-cy="ToggleAllButton"
+          onClick={() => toggleButton()}
+        />
+      )}
 
       {/* Add a todo on form submit */}
       <form onSubmit={addTodos}>

@@ -189,6 +189,7 @@ export const App: React.FC = () => {
           toDoTitle={newToDoTitle}
           setToDoTitle={setNewToDoTitle}
           isLoading={isLoading}
+          tempIds={tempIds}
         />
         <TodoList
           todos={todos}
