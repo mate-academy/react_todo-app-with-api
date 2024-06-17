@@ -7,14 +7,13 @@ import {
   deleteTodo,
   getTodos,
   updateCompletedTodo,
-  updateTitleTodo,
 } from './api/todos';
-import { ToDoHeader } from './components/todoapp_header';
-import { TodoList } from './components/todoapp_todolist';
+import { ToDoHeader } from './components/Header/Header';
+import { TodoList } from './components/TodoList/TodoList';
 import { Todo } from './types/Todo';
 import { Status } from './types/Status';
 import { ErrorType } from './types/ErrorType';
-import { Errors } from './components/todoapp_error';
+import { Errors } from './components/Error/Error';
 import classNames from 'classnames';
 
 type TempTodo = {
@@ -34,8 +33,8 @@ export const App: React.FC = () => {
   const [tempTodo, setTempTodo] = useState<TempTodo | null>(null);
   const [deletingIds, setDeletingIds] = useState<number[]>([]);
   const [isUpdating, setIsUpdating] = useState<number[] | []>([]);
-  const [isEditing, setIsEditing] = useState<number | null>(null);
   const [newTitle, setNewTitle] = useState('');
+  const [canEdit, setCanEdit] = useState(false);
   const completedTodos = tasks?.filter(todo => todo.completed);
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -125,35 +124,43 @@ export const App: React.FC = () => {
   };
 
   const handleAllCompleted = () => {
-    const allCompleted = tasks.map(todo => {
-      if (!todo.completed) {
-        setAllDone(true);
+    const isAllDone = tasks.every(task => task.completed);
+    const updatedTasks = tasks.map(task => ({
+      ...task,
+      completed: !isAllDone,
+    }));
 
-        return { ...todo, completed: true };
+    updatedTasks.forEach(updatedTask => {
+      const originalTask = tasks.find(task => task.id === updatedTask.id);
+
+      if (originalTask && originalTask.completed !== updatedTask.completed) {
+        setIsUpdating(current => [...current, updatedTask.id]);
+        updateCompletedTodo(updatedTask.id, updatedTask)
+          .then(() => {
+            setIsUpdating(current =>
+              current.filter(id => id !== updatedTask.id),
+            );
+          })
+          .catch(() => {
+            handleError(errorType.updateTodo);
+            setIsUpdating(current =>
+              current.filter(id => id !== updatedTask.id),
+            );
+          });
       }
-
-      if (allDone && taskLeft == 0) {
-        setAllDone(false);
-
-        return { ...todo, completed: false };
-      }
-
-      return todo;
     });
 
-    allCompleted.map(task => {
-      setIsUpdating(current => [...current, task.id]);
-      updateCompletedTodo(task.id, task).then(() => {
-        setTasks(allCompleted);
-        setIsUpdating([]);
-      });
-    });
+    setTasks(updatedTasks);
   };
 
   const deleteTask = (id: number) => {
     setDeletingIds(prevIds => [...prevIds, id]);
     deleteTodo(id)
       .then(() => {
+        if (canEdit === true) {
+          setCanEdit(false);
+        }
+
         setTasks(currentTodos => currentTodos.filter(todo => todo.id !== id));
         setDeletingIds(prevIds =>
           prevIds.filter(deletingId => deletingId !== id),
@@ -161,6 +168,10 @@ export const App: React.FC = () => {
         focusInput();
       })
       .catch(() => {
+        if (canEdit === true) {
+          setCanEdit(true);
+        }
+
         handleError(errorType.deleteTask);
         setDeletingIds([]);
       });
@@ -189,68 +200,19 @@ export const App: React.FC = () => {
 
     const updatedTodo = { ...todoToUpdate, completed: !todoToUpdate.completed };
 
-    updateCompletedTodo(id, updatedTodo).then(() => {
-      const updatedTasks = tasks.map(todo =>
-        todo.id === id ? updatedTodo : todo,
-      );
-
-      setTasks(updatedTasks);
-      setIsUpdating([]);
-    });
-  };
-
-  const handleEdit = (id: number | null) => {
-    setIsEditing(id);
-  };
-
-  const updateNewTitle = (id: number, newTitl: string) => {
-    const todoToUpdate = tasks.find(todo => todo.id === id);
-
-    if (!todoToUpdate) {
-      setErrorMessage(errorType.found);
-
-      return;
-    }
-
-    const updatedTodo = { ...todoToUpdate, title: newTitl };
-
-    const updatedTasks = tasks.map(todo =>
-      todo.id === id ? { ...todo, title: newTitl } : todo,
-    );
-
-    setTasks(updatedTasks);
-
-    updateTitleTodo(id, updatedTodo)
+    updateCompletedTodo(id, updatedTodo)
       .then(() => {
+        const updatedTasks = tasks.map(todo =>
+          todo.id === id ? updatedTodo : todo,
+        );
+
+        setTasks(updatedTasks);
         setIsUpdating([]);
       })
       .catch(() => {
         handleError(errorType.updateTodo);
-
-        const revertedTasks = tasks.map(todo =>
-          todo.id === id ? { ...todo, title: todoToUpdate.title } : todo,
-        );
-
-        setIsEditing(id);
-        setTasks(revertedTasks);
-
         setIsUpdating([]);
       });
-    setIsSubmitting(false);
-  };
-
-  const handleSubmitNewTitle = (id: number, title: string) => {
-    setIsSubmitting(true);
-    setIsUpdating([id]);
-
-    if (!title.trim()) {
-      deleteTask(id);
-      setIsSubmitting(false);
-
-      return;
-    }
-
-    updateNewTitle(id, title);
   };
 
   useEffect(() => {
@@ -262,7 +224,7 @@ export const App: React.FC = () => {
   }, []);
 
   useEffect(() => {
-    const timeoutId = setTimeout(() => setErrorMessage(''), 2000);
+    const timeoutId = setTimeout(() => setErrorMessage(''), 3000);
 
     return () => clearTimeout(timeoutId);
   }, [errorMessage]);
@@ -301,11 +263,17 @@ export const App: React.FC = () => {
           deleteTask={deleteTask}
           deletingIds={deletingIds}
           onUpdate={isUpdating}
-          onEdit={handleEdit}
-          editId={isEditing}
-          onSubmitNewTitle={handleSubmitNewTitle}
           setNewTitle={setNewTitle}
           newTitle={newTitle}
+          handleError={handleError}
+          setTasks={setTasks}
+          setErrorMessage={setErrorMessage}
+          tasks={tasks}
+          setIsUpdating={setIsUpdating}
+          IsSubmitting={IsSubmitting}
+          setIsSubmitting={setIsSubmitting}
+          canEdit={canEdit}
+          setCanEdit={setCanEdit}
         />
 
         {/* Hide the footer if there are no todos */}
