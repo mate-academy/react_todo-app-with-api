@@ -1,5 +1,5 @@
 /* eslint-disable jsx-a11y/label-has-associated-control */
-import React, { useMemo } from 'react';
+import React, { Dispatch, useMemo } from 'react';
 import { Todo } from './types/Todo';
 import { FilterButtons } from './types/FilterType';
 import { ToDoItem } from './ToDoItem';
@@ -13,6 +13,7 @@ type Props = {
   temporaryTodo: Todo | null;
   editTodo: (todo: Todo) => Promise<void>;
   setError: (error: Errors) => void;
+  setTempIds: Dispatch<React.SetStateAction<number[]>>;
 };
 
 export const TodoList = ({
@@ -23,6 +24,7 @@ export const TodoList = ({
   temporaryTodo,
   editTodo,
   setError,
+  setTempIds,
 }: Props) => {
   const filteredTodos = (filtrTodos: Todo[], filterStatus: FilterButtons) => {
     const updateTodos = [...filtrTodos];
@@ -58,6 +60,7 @@ export const TodoList = ({
             isLoading={loadingTodos.includes(todo.id)}
             editTodo={editTodo}
             setError={setError}
+            setTempIds={setTempIds}
           />
         ))}
 

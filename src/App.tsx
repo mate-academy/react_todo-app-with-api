@@ -206,6 +206,7 @@ export const App: React.FC = () => {
           temporaryTodo={temporaryTodo}
           editTodo={handleEditionTodo}
           setError={setError}
+          setTempIds={setTempIds}
         />
         <TodoFooter
           todos={todos}

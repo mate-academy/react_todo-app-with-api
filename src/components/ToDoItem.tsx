@@ -1,5 +1,5 @@
 /* eslint-disable jsx-a11y/label-has-associated-control */
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useState, Dispatch } from 'react';
 import { Todo } from './types/Todo';
 import classNames from 'classnames';
 import { Errors } from './types/EnumedErrors';
@@ -10,6 +10,7 @@ type Props = {
   isLoading: boolean;
   editTodo: (todo: Todo) => Promise<void>;
   setError: (error: Errors) => void;
+  setTempIds: Dispatch<React.SetStateAction<number[]>>;
 };
 
 export const ToDoItem = ({
@@ -19,11 +20,8 @@ export const ToDoItem = ({
   editTodo,
   setError,
 }: Props) => {
-  const [edittedTitle, setEdittedTitle] = useState('');
+  const [edittedTitle, setEdittedTitle] = useState(todo.title);
   const [renamed, setRenamed] = useState(false);
-  const [updated, setUpdated] = useState(false);
-
-  const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => setRenamed(false), [todo]);
 
@@ -39,50 +37,22 @@ export const ToDoItem = ({
     }
 
     if (!trimmedTitle) {
-      setUpdated(true);
-      deleteTodo(todo.id)
-        .catch(() => {
-          setError(Errors.UnableToDelete);
-        })
-        .finally(() => {
-          setUpdated(false);
-        });
+      deleteTodo(todo.id).catch(() => {
+        setError(Errors.UnableToDelete);
+      });
     }
-
-    if (updated) {
-      return;
-    }
-
-    setUpdated(true);
 
     editTodo({ ...todo, title: trimmedTitle })
       .then(() => {
         setRenamed(false);
       })
-      .catch(() => {
-        setRenamed(true);
-        setError(Errors.UnableToUpdate);
-
-        if (inputRef.current) {
-          inputRef.current.focus();
-        }
-      });
+      .catch(() => {});
   };
 
   const handleChangeStatus = () => {
-    if (updated) {
-      return;
-    }
-
-    setUpdated(true);
-
-    editTodo({ ...todo, completed: !todo.completed })
-      .catch(() => {
-        setError(Errors.UnableToUpdate);
-      })
-      .finally(() => {
-        setUpdated(false);
-      });
+    editTodo({ ...todo, completed: !todo.completed }).catch(() => {
+      setError(Errors.UnableToUpdate);
+    });
   };
 
   return (
@@ -101,7 +71,18 @@ export const ToDoItem = ({
         />
       </label>
       {renamed ? (
-        <form onSubmit={handleSubmitEdittedTitle}>
+        <form
+          onSubmit={handleSubmitEdittedTitle}
+          onKeyUp={(event: React.KeyboardEvent) => {
+            if (event.key === 'Enter') {
+              setRenamed(false);
+              setEdittedTitle(edittedTitle);
+            } else if (event.key === 'Escape') {
+              setRenamed(false);
+            }
+          }}
+          onBlur={handleSubmitEdittedTitle}
+        >
           <input
             data-cy="TodoTitleField"
             type="text"
@@ -109,15 +90,6 @@ export const ToDoItem = ({
             placeholder="Empty todo will be deleted"
             value={edittedTitle}
             onChange={event => setEdittedTitle(event.target.value)}
-            onBlur={() => {
-              setRenamed(false);
-              setUpdated(true);
-            }}
-            onKeyUp={(event: React.KeyboardEvent) => {
-              if (event.key === 'Escape') {
-                setRenamed(false);
-              }
-            }}
             autoFocus
           />
         </form>
