@@ -145,22 +145,31 @@ export const App: React.FC = () => {
     todos.filter(todo => todo.completed).length === todos.length;
 
   const handleChangingStatusButton = () => {
-    if (allTodosAreCompleted) {
-      const updateTodos = todos.map(todo => {
-        return {
-          ...todo,
-          completed: false,
-        };
-      });
+    if (!allTodosAreCompleted) {
+      todos.forEach(todo => {
+        if (!todo.completed) {
+          handleEditionTodo({
+            ...todo,
+            completed: true,
+          });
+        } else if (todo.completed) {
+          const updateTodos = todos.map(restTodos => {
+            return {
+              ...restTodos,
+              completed: true,
+            };
+          });
 
-      setTodos(updateTodos);
-    } else {
-      todos.forEach(todo =>
+          setTodos(updateTodos);
+        }
+      });
+    } else if (allTodosAreCompleted) {
+      todos.forEach(todo => {
         handleEditionTodo({
           ...todo,
-          completed: true,
-        }),
-      );
+          completed: false,
+        });
+      });
     }
   };
 
