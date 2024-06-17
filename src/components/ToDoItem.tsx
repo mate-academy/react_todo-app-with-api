@@ -46,7 +46,9 @@ export const ToDoItem = ({
       .then(() => {
         setRenamed(false);
       })
-      .catch(() => {});
+      .catch(() => {
+        setRenamed(true);
+      });
   };
 
   const handleChangeStatus = () => {
