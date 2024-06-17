@@ -1,6 +1,6 @@
 /* eslint-disable jsx-a11y/label-has-associated-control */
 /* eslint-disable jsx-a11y/control-has-associated-label */
-import { Dispatch, FC, FormEvent, useState } from 'react';
+import { Dispatch, FC, FormEvent, SetStateAction, useState } from 'react';
 import classNames from 'classnames';
 
 import { Todo } from '../types/Todo';
@@ -11,15 +11,15 @@ interface Props {
   onToggle?: (todo: Todo) => void;
   isLoading: boolean;
   onRename?: (todo: Todo) => Promise<void>;
-  setLoadingTodosIds?: Dispatch<React.SetStateAction<number[]>>;
+  setLoadingTodosIds?: Dispatch<SetStateAction<number[]>>;
 }
 const TodoItem: FC<Props> = ({
   todo,
-  deleteTodo = () => {},
-  onToggle = () => {},
+  deleteTodo,
+  onToggle,
   isLoading,
-  onRename = () => {},
-  setLoadingTodosIds = () => {},
+  onRename,
+  setLoadingTodosIds,
 }) => {
   const [isRenaming, setIsRenaming] = useState(false);
   const [newTitle, setNewTitle] = useState('');
@@ -36,16 +36,16 @@ const TodoItem: FC<Props> = ({
     }
 
     if (!trimmedNewTitle) {
-      deleteTodo(todo.id);
+      deleteTodo?.(todo.id);
 
       return;
     }
 
-    onRename({ ...todo, title: trimmedNewTitle })
+    onRename?.({ ...todo, title: trimmedNewTitle })
       ?.then(() => setIsRenaming(false))
       .catch(() => {})
       .finally(() => {
-        setLoadingTodosIds(current => current.filter(id => id !== todo.id));
+        setLoadingTodosIds?.(current => current.filter(id => id !== todo.id));
       });
   };
 
@@ -62,7 +62,7 @@ const TodoItem: FC<Props> = ({
           type="checkbox"
           className="todo__status"
           checked={todo.completed}
-          onChange={() => onToggle(todo)}
+          onChange={() => onToggle?.(todo)}
         />
       </label>
 
@@ -98,7 +98,7 @@ const TodoItem: FC<Props> = ({
             type="button"
             className="todo__remove"
             data-cy="TodoDelete"
-            onClick={() => deleteTodo(todo.id)}
+            onClick={() => deleteTodo?.(todo.id)}
           >
             ×
           </button>

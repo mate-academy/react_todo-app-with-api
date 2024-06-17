@@ -1,4 +1,4 @@
-import { FC, useEffect, useRef, useState } from 'react';
+import { FC, FormEvent, useEffect, useRef, useState } from 'react';
 
 import { USER_ID, todoService } from './api/todos';
 import { UserWarning } from './UserWarning';
@@ -52,7 +52,7 @@ export const App: FC = () => {
     visibleTodos = completedTodos;
   }
 
-  const addTodo = (event: React.FormEvent<HTMLFormElement>) => {
+  const addTodo = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
     const normalizedTitle = title.trim();
@@ -173,7 +173,7 @@ export const App: FC = () => {
 
       <div className="todoapp__content">
         <Header
-          todos={todos}
+          hasTodos={!!todos.length}
           ref={inputRef}
           addTodo={addTodo}
           title={title}
@@ -198,7 +198,7 @@ export const App: FC = () => {
             selectedStatus={selectedStatus}
             setSelectedStatus={setSelectedStatus}
             deleteAllCompleted={deleteAllCompleted}
-            clearAllVisible={!!completedTodos.length}
+            canClearAllVisible={!!completedTodos.length}
           />
         )}
       </div>

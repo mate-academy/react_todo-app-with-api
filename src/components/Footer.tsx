@@ -8,7 +8,7 @@ interface Props {
   selectedStatus: Status;
   setSelectedStatus: (status: Status) => void;
   deleteAllCompleted: () => void;
-  clearAllVisible: boolean;
+  canClearAllVisible: boolean;
 }
 
 const Footer: FC<Props> = ({
@@ -16,7 +16,7 @@ const Footer: FC<Props> = ({
   selectedStatus,
   setSelectedStatus,
   deleteAllCompleted,
-  clearAllVisible,
+  canClearAllVisible,
 }) => {
   return (
     <footer className="todoapp__footer" data-cy="Footer">
@@ -62,7 +62,7 @@ const Footer: FC<Props> = ({
         className="todoapp__clear-completed"
         data-cy="ClearCompletedButton"
         onClick={deleteAllCompleted}
-        disabled={!clearAllVisible}
+        disabled={!canClearAllVisible}
       >
         Clear completed
       </button>
