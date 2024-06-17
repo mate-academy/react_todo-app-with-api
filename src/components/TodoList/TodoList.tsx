@@ -221,7 +221,6 @@ export const TodoList = ({
                   }
                   autoFocus={true}
                   onKeyDown={e => handleKeyDown(e, id)}
-                  // onKeyUp={e => e.keyCode == 27 && onEdit(null)}
                 />
               </form>
             ) : (
