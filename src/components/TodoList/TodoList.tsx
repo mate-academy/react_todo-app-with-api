@@ -70,21 +70,6 @@ export const TodoList = ({
 
     if (newTitle.trim() === '') {
       deleteTask(id);
-
-      // setDeletingIds((prevIds: number[]) => [...prevIds, id]);
-      // deleteTodo(id)
-      //   .then(() => {
-      //     setTasks(currentTodos => currentTodos.filter(todo => todo.id !== id));
-      //     setDeletingIds(prevIds =>
-      //       prevIds.filter(deletingId => deletingId !== id),
-      //     );
-      //     editRef.current = id;
-      //   })
-      //   .catch(() => {
-      //     handleError(errorType.deleteTask);
-      //     setCanEdit(true);
-      //     setDeletingIds([]);
-      //   });
     }
 
     updateTitleTodo(id, updatedTodo)
