@@ -1,5 +1,5 @@
 /* eslint-disable jsx-a11y/label-has-associated-control */
-import React, { useEffect, useState, Dispatch } from 'react';
+import React, { useEffect, useState, Dispatch, useRef } from 'react';
 import { Todo } from './types/Todo';
 import classNames from 'classnames';
 import { Errors } from './types/EnumedErrors';
@@ -22,8 +22,11 @@ export const ToDoItem = ({
 }: Props) => {
   const [edittedTitle, setEdittedTitle] = useState(todo.title);
   const [renamed, setRenamed] = useState(false);
+  const [updated, setUpdated] = useState(false);
 
   useEffect(() => setRenamed(false), [todo]);
+
+  const inputRef = useRef<HTMLInputElement>(null);
 
   const handleSubmitEdittedTitle = (event: React.FormEvent) => {
     event.preventDefault();
@@ -37,10 +40,21 @@ export const ToDoItem = ({
     }
 
     if (!trimmedTitle) {
-      deleteTodo(todo.id).catch(() => {
-        setError(Errors.UnableToDelete);
-      });
+      setUpdated(true);
+      deleteTodo(todo.id)
+        .catch(() => {
+          setError(Errors.UnableToDelete);
+        })
+        .finally(() => {
+          setUpdated(false);
+        });
     }
+
+    if (updated) {
+      return;
+    }
+
+    setUpdated(true);
 
     editTodo({ ...todo, title: trimmedTitle })
       .then(() => {
@@ -48,13 +62,27 @@ export const ToDoItem = ({
       })
       .catch(() => {
         setRenamed(true);
+        setError(Errors.UnableToUpdate);
+
+        if (inputRef.current) {
+          inputRef.current.focus();
+        }
       });
   };
 
   const handleChangeStatus = () => {
-    editTodo({ ...todo, completed: !todo.completed }).catch(() => {
-      setError(Errors.UnableToUpdate);
-    });
+    if (updated) {
+      return;
+    }
+
+    setUpdated(true);
+    editTodo({ ...todo, completed: !todo.completed })
+      .catch(() => {
+        setError(Errors.UnableToUpdate);
+      })
+      .finally(() => {
+        setUpdated(false);
+      });
   };
 
   return (
