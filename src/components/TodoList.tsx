@@ -6,7 +6,8 @@ type Props = {
   handleDeleteTodo: (id: number) => void;
   loadingTodos: number[];
   tempTodo: Todo | null;
-  onToggle: () => {};
+  onToggle: (todo: Todo) => void;
+  handleUpdateTodo: (updatedTodo: Todo) => void;
 };
 
 export const TodoList: React.FC<Props> = ({
