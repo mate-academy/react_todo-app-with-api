@@ -3,7 +3,7 @@ import cn from 'classnames';
 
 type Props = {
   error: string;
-  setError: (errorMesage: string) => void;
+  setError: (errorMessage: string) => void;
 };
 
 export const TodoError: React.FC<Props> = ({ error, setError }) => {
@@ -11,7 +11,7 @@ export const TodoError: React.FC<Props> = ({ error, setError }) => {
     <div
       data-cy="ErrorNotification"
       className={cn('notification is-danger is-light has-text-weight-normal', {
-        hidden: !error,
+        hidden: !error
       })}
     >
       <button

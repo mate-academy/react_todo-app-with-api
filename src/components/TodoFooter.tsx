@@ -44,7 +44,7 @@ export const TodoFooter: React.FC<Props> = ({
           })}
           data-cy="FilterLinkActive"
           onClick={() => setFilter(Filter.Active)}
-        > 
+        >
           Active
         </a>
 

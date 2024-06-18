@@ -79,7 +79,7 @@ export const App: React.FC = () => {
           todos.map(todo => (todo.id === updatedTodo.id ? updatedTodo : todo)),
         ),
       )
-      .catch(() => setErrorMessage(ErrorType.UPDATE_TODO))
+      .catch(() => handleError(ErrorType.UPDATE_TODO))
       .finally(() =>
         setLoadingTodos(current => current.filter(id => id !== updatedTodo.id)),
       );
@@ -207,6 +207,7 @@ export const App: React.FC = () => {
           tempTodo={tempTodo}
           onToggle={handleToggleStatus}
           handleUpdateTodo={handleRename}
+          handleRename={handleRename}
         />
 
         {!!todos.length && (
