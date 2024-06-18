@@ -56,6 +56,7 @@ export const TodoFooter: React.FC<Props> = ({
           data-cy="FilterLinkCompleted"
           onClick={() => setFilter(Filter.Completed)}
         >
+          Completed
         </a>
       </nav>
 
