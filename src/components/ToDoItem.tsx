@@ -104,10 +104,7 @@ export const ToDoItem = ({
         <form
           onSubmit={handleSubmitEdittedTitle}
           onKeyUp={(event: React.KeyboardEvent) => {
-            if (event.key === 'Enter') {
-              setRenamed(false);
-              setEdittedTitle(edittedTitle);
-            } else if (event.key === 'Escape') {
+            if (event.key === 'Escape') {
               setRenamed(false);
             }
           }}
@@ -118,6 +115,7 @@ export const ToDoItem = ({
             type="text"
             className="todo__title-field"
             placeholder="Empty todo will be deleted"
+            ref={inputRef}
             value={edittedTitle}
             onChange={event => setEdittedTitle(event.target.value)}
             autoFocus
