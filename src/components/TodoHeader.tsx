@@ -1,7 +1,7 @@
-import classNames from 'classnames';
 import React from 'react';
 import { useEffect, useRef } from 'react';
 import { Todo } from '../types/Todo';
+import classNames from 'classnames';
 
 interface Props {
   addTodo: (newTodoTitle: string) => void;
@@ -22,6 +22,10 @@ export const TodoHeader: React.FC<Props> = ({
 }) => {
   const inputRef = useRef<HTMLInputElement | null>(null);
 
+  const handleSetTitle = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setTitle(event.target.value.trimStart());
+  };
+
   useEffect(() => {
     if (inputRef.current) {
       inputRef.current.focus();
@@ -37,14 +41,16 @@ export const TodoHeader: React.FC<Props> = ({
 
   return (
     <header className="todoapp__header">
-      <button
-        type="button"
-        className={classNames('todoapp__toggle-all', {
-          active: everyCompletedTodo,
-        })}
-        data-cy="ToggleAllButton"
-        onClick={onToggleAll}
-      />
+      {todos.length > 0 && (
+        <button
+          type="button"
+          className={classNames('todoapp__toggle-all', {
+            active: everyCompletedTodo,
+          })}
+          data-cy="ToggleAllButton"
+          onClick={onToggleAll}
+        />
+      )}
 
       <form onSubmit={handleAddTodo}>
         <input
@@ -54,7 +60,7 @@ export const TodoHeader: React.FC<Props> = ({
           placeholder="What needs to be done?"
           ref={titleField}
           value={title}
-          onChange={event => setTitle(event.target.value.trimStart())}
+          onChange={handleSetTitle}
         />
       </form>
     </header>

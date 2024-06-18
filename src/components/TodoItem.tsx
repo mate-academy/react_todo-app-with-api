@@ -17,11 +17,16 @@ export const TodoItem: React.FC<Props> = ({
   onToggle,
 }) => {
   const [beingRemoved, setBeingRemoved] = useState(false);
+  const { title, id, completed } = todo;
+  const handleDeleting = () => {
+    handleDeleteTodo(id);
+    setBeingRemoved(true);
+  };
 
   return (
     <div
       data-cy="Todo"
-      className={classNames('todo', { completed: todo.completed })}
+      className={classNames('todo', { completed: completed })}
     >
       {/*eslint-disable-next-line jsx-a11y/label-has-associated-control*/}
       <label className="todo__status-label">
@@ -36,17 +41,14 @@ export const TodoItem: React.FC<Props> = ({
       {/* eslint-enable jsx-a11y/label-has-associated-control */}
 
       <span data-cy="TodoTitle" className="todo__title">
-        {todo.title}
+        {title}
       </span>
 
       <button
         type="button"
         className="todo__remove"
         data-cy="TodoDelete"
-        onClick={() => {
-          handleDeleteTodo(todo.id);
-          setBeingRemoved(true);
-        }}
+        onClick={handleDeleting}
       >
         ×
       </button>
