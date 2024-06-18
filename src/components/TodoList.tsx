@@ -6,8 +6,7 @@ type Props = {
   handleDeleteTodo: (id: number) => void;
   loadingTodos: number[];
   tempTodo: Todo | null;
-  onToggle = () => {};
-  handleUpdateTodo = () => {};
+  onToggle: () => {};
 };
 
 export const TodoList: React.FC<Props> = ({
@@ -16,7 +15,6 @@ export const TodoList: React.FC<Props> = ({
   loadingTodos,
   tempTodo,
   onToggle,
-  handleUpdateTodo,
 }) => {
   return (
     <section className="todoapp__main" data-cy="TodoList">
