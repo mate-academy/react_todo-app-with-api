@@ -14,8 +14,8 @@ export const App: FC = () => {
   const [todos, setTodos] = useState<Todo[]>([]);
   const [title, setTitle] = useState('');
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
-  const [errorMessage, setErrorMessage] = useState('');
-  const [selectedStatus, setSelectedStatus] = useState<Status>('all');
+  const [errorMessage, setErrorMessage] = useState(Errors.DEFAULT);
+  const [selectedStatus, setSelectedStatus] = useState(Status.ALL);
   const [loadingTodosIds, setLoadingTodosIds] = useState<number[]>([]);
 
   const inputRef = useRef<HTMLInputElement>(null);
@@ -44,11 +44,11 @@ export const App: FC = () => {
 
   let visibleTodos = todos;
 
-  if (selectedStatus === 'active') {
+  if (selectedStatus === Status.ACTIVE) {
     visibleTodos = activeTodos;
   }
 
-  if (selectedStatus === 'completed') {
+  if (selectedStatus === Status.COMPLETED) {
     visibleTodos = completedTodos;
   }
 

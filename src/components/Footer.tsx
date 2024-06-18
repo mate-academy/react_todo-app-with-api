@@ -27,9 +27,11 @@ const Footer: FC<Props> = ({
       <nav className="filter" data-cy="Filter">
         <a
           href="#/"
-          className={cn('filter__link', { selected: selectedStatus === 'all' })}
+          className={cn('filter__link', {
+            selected: selectedStatus === Status.ALL,
+          })}
           data-cy="FilterLinkAll"
-          onClick={() => setSelectedStatus('all')}
+          onClick={() => setSelectedStatus(Status.ALL)}
         >
           All
         </a>
@@ -37,10 +39,10 @@ const Footer: FC<Props> = ({
         <a
           href="#/active"
           className={cn('filter__link', {
-            selected: selectedStatus === 'active',
+            selected: selectedStatus === Status.ACTIVE,
           })}
           data-cy="FilterLinkActive"
-          onClick={() => setSelectedStatus('active')}
+          onClick={() => setSelectedStatus(Status.ACTIVE)}
         >
           Active
         </a>
@@ -48,10 +50,10 @@ const Footer: FC<Props> = ({
         <a
           href="#/completed"
           className={cn('filter__link', {
-            selected: selectedStatus === 'completed',
+            selected: selectedStatus === Status.COMPLETED,
           })}
           data-cy="FilterLinkCompleted"
-          onClick={() => setSelectedStatus('completed')}
+          onClick={() => setSelectedStatus(Status.COMPLETED)}
         >
           Completed
         </a>
