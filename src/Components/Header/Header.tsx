@@ -1,6 +1,7 @@
 import React, { useEffect, useRef } from 'react';
 import cn from 'classnames';
 import { Todo } from '../../types/Todo';
+import { USER_ID } from '../../api/todos';
 
 type Props = {
   onSubmit: (todo: Todo) => void;
@@ -39,7 +40,7 @@ export const Header: React.FC<Props> = ({
 
     onSubmit({
       id: 0,
-      userId: 762,
+      userId: USER_ID,
       title: inputTitle,
       completed: false,
     });

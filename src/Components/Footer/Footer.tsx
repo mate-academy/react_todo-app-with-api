@@ -6,7 +6,7 @@ type Props = {
   status: Status;
   onClick: (status: Status) => void;
   itemsLeft: number;
-  clearAllButtonActive: number;
+  clearAllButtonActive: boolean;
   deleteAllComplete: () => void;
 };
 

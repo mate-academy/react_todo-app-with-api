@@ -22,7 +22,7 @@ export const App: React.FC = () => {
   const [errorMessage, setErrorMessage] = useState<string>('');
   const [inputDisabled, setInputDisabled] = useState(false);
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
-  const [isLoading, setIsLoading] = useState<number[]>([]);
+  const [loadingTodoId, setLoadingTodoId] = useState<number[]>([]);
   const [inputTitle, setInputTitle] = useState('');
 
   const handleTitleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -31,7 +31,7 @@ export const App: React.FC = () => {
 
   const itemsLeft = todos.filter(todo => !todo.completed).length;
 
-  const clearAllButtonActive = todos.length - itemsLeft;
+  const isClearAllButtonActive = todos.length - itemsLeft > 0;
 
   function onAdd({ userId, completed }: Todo) {
     setInputDisabled(true);
@@ -52,23 +52,22 @@ export const App: React.FC = () => {
       completed: false,
     });
 
-    setIsLoading(current => [...current, 0]);
+    setLoadingTodoId(current => [...current, 0]);
 
     addTodos({ userId, title: trimmedTitle, completed })
       .then(newTodo => {
         setTodos(currentTodos => [...currentTodos, newTodo]);
         setInputTitle('');
       })
-      .catch(error => {
+      .catch(() => {
         setErrorMessage('Unable to add a todo');
         setInputDisabled(false);
         setTimeout(() => {
           setErrorMessage('');
         }, 3000);
-        throw error;
       })
       .finally(() => {
-        setIsLoading(current => current.filter(todoId => todoId !== 0));
+        setLoadingTodoId(current => current.filter(todoId => todoId !== 0));
         setInputDisabled(false);
         setTempTodo(null);
       });
@@ -76,22 +75,21 @@ export const App: React.FC = () => {
 
   function onDelete(todoId: number) {
     setInputDisabled(true);
-    setIsLoading(curr => [...curr, todoId]);
+    setLoadingTodoId(curr => [...curr, todoId]);
     deleteTodos(todoId)
       .then(() => {
         setTodos(currentTodos =>
           currentTodos.filter(todo => todo.id !== todoId),
         );
       })
-      .catch(error => {
+      .catch(() => {
         setErrorMessage('Unable to delete a todo');
         setTimeout(() => {
           setErrorMessage('');
         }, 3000);
-        throw error;
       })
       .finally(() => {
-        setIsLoading(curr =>
+        setLoadingTodoId(curr =>
           curr.filter(deletingTodoId => todoId !== deletingTodoId),
         );
         setInputDisabled(false);
@@ -127,7 +125,7 @@ export const App: React.FC = () => {
   }, [todos, status]);
 
   const toggleTodo = (todo: Todo) => {
-    setIsLoading(curr => [...curr, todo.id]);
+    setLoadingTodoId(curr => [...curr, todo.id]);
 
     updateTodos({
       ...todo,
@@ -140,15 +138,14 @@ export const App: React.FC = () => {
           ),
         ),
       )
-      .catch(error => {
+      .catch(() => {
         setErrorMessage('Unable to update a todo');
         setTimeout(() => {
           setErrorMessage('');
         }, 3000);
-        throw error;
       })
       .finally(() => {
-        setIsLoading(curr =>
+        setLoadingTodoId(curr =>
           curr.filter(updatedTodoId => updatedTodoId !== todo.id),
         );
       });
@@ -163,7 +160,7 @@ export const App: React.FC = () => {
   };
 
   function updateTodo(todo: Todo) {
-    setIsLoading(current => [...current, todo.id]);
+    setLoadingTodoId(current => [...current, todo.id]);
 
     return updateTodos(todo)
       .then(updatedTodo =>
@@ -181,7 +178,7 @@ export const App: React.FC = () => {
         throw error;
       })
       .finally(() => {
-        setIsLoading(current =>
+        setLoadingTodoId(current =>
           current.filter(deletingTodoId => todo.id !== deletingTodoId),
         );
       });
@@ -211,7 +208,7 @@ export const App: React.FC = () => {
         <TodoList
           todos={filteredTodos}
           onDelete={onDelete}
-          isLoading={isLoading}
+          isLoading={loadingTodoId}
           tempTodo={tempTodo}
           toggleTodo={toggleTodo}
           updateTodo={updateTodo}
@@ -223,7 +220,7 @@ export const App: React.FC = () => {
             status={status}
             onClick={setStatus}
             itemsLeft={itemsLeft}
-            clearAllButtonActive={clearAllButtonActive}
+            clearAllButtonActive={isClearAllButtonActive}
             deleteAllComplete={deleteAllComplete}
           />
         )}

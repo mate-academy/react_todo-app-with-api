@@ -38,7 +38,7 @@ export const TodoList: React.FC<Props> = ({
         <TodoItem
           todo={tempTodo}
           onDelete={() => {}}
-          isLoading={isLoading.includes(0)}
+          isLoading
           toggleTodo={toggleTodo}
           updateTodo={updateTodo}
         />
