@@ -11,7 +11,7 @@ export const TodoError: React.FC<Props> = ({ error, setError }) => {
     <div
       data-cy="ErrorNotification"
       className={cn('notification is-danger is-light has-text-weight-normal', {
-        hidden: !error
+        hidden: !error,
       })}
     >
       <button

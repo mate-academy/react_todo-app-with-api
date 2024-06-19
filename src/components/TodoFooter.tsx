@@ -19,6 +19,19 @@ export const TodoFooter: React.FC<Props> = ({
   const todosLeft = todos.filter(todo => !todo.completed).length;
   const hasCompleted = todos.some(todo => todo.completed);
 
+  const handleDatacy = (newFilter: Filter) => {
+    switch (newFilter) {
+      case Filter.All:
+        return 'FilterLinkAll';
+
+      case Filter.Active:
+        return 'FilterLinkActive';
+
+      default:
+        return 'FilterLinkCompleted';
+    }
+  };
+
   return (
     <footer className="todoapp__footer" data-cy="Footer">
       <span className="todo-count" data-cy="TodosCounter">
@@ -26,38 +39,19 @@ export const TodoFooter: React.FC<Props> = ({
       </span>
 
       <nav className="filter" data-cy="Filter">
-        <a
-          href="#/"
-          className={classNames('filter__link', {
-            selected: filter === Filter.All,
-          })}
-          data-cy="FilterLinkAll"
-          onClick={() => setFilter(Filter.All)}
-        >
-          All
-        </a>
-
-        <a
-          href="#/active"
-          className={classNames('filter__link', {
-            selected: filter === Filter.Active,
-          })}
-          data-cy="FilterLinkActive"
-          onClick={() => setFilter(Filter.Active)}
-        >
-          Active
-        </a>
-
-        <a
-          href="#/completed"
-          className={classNames('filter__link', {
-            selected: filter === Filter.Completed,
-          })}
-          data-cy="FilterLinkCompleted"
-          onClick={() => setFilter(Filter.Completed)}
-        >
-          Completed
-        </a>
+        {Object.values(Filter).map((filterItem: Filter) => (
+          <a
+            href={`#/${filterItem}`}
+            className={classNames('filter__link', {
+              selected: filter === filterItem,
+            })}
+            data-cy={handleDatacy(filterItem)}
+            onClick={() => setFilter(filterItem)}
+            key={filterItem}
+          >
+            {filterItem}
+          </a>
+        ))}
       </nav>
 
       <button
