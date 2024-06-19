@@ -3,45 +3,42 @@
 import classNames from 'classnames';
 import { Todo } from '../types/Todo';
 import { changeTodo, deleteTodo } from '../api/todos';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import { getTodosToToggle } from '../utils/functions';
+import { useTodoContext } from './GlobalProvider';
 
 type Props = {
   todo: Todo;
-  setTodos: React.Dispatch<React.SetStateAction<Todo[]>>;
-  setErrorMessage: (value: string) => void;
-  inputRef: React.RefObject<HTMLInputElement>;
-  editInputRef: React.RefObject<HTMLInputElement>;
-  completedTodoIds: number[];
-  makingChanges: boolean;
-  setMakingChanges: (value: boolean) => void;
-  editingTodoStatus?: Todo | null;
-  setEditingTodoStatus: (todo: Todo | null) => void;
-  clearCompleted?: boolean;
-  editingTodoTitle: Todo | null;
-  setEditingTodoTitle: (value: Todo | null) => void;
 };
 
-export const TodoItem: React.FC<Props> = ({
-  todo,
-  setTodos,
-  setErrorMessage,
-  inputRef,
-  editInputRef,
-  makingChanges,
-  completedTodoIds,
-  setMakingChanges,
-  editingTodoStatus,
-  setEditingTodoStatus,
-  clearCompleted,
-  editingTodoTitle,
-  setEditingTodoTitle,
-}) => {
+export const TodoItem: React.FC<Props> = ({ todo }) => {
   const [editValue, setEditValue] = useState<string>('');
+  const [editingTodoStatus, setEditingTodoStatus] = useState<Todo | null>(null);
+  const [editingTodoTitle, setEditingTodoTitle] = useState<Todo | null>(null);
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
+
+  const {
+    todos,
+    editInputRef,
+    setTodos,
+    inputRef,
+    setErrorMessage,
+    isToggling,
+    clearCompleted,
+  } = useTodoContext();
+
+  const completedTodos = todos.filter(item => item.completed);
+  const completedTodoIds = completedTodos.map(item => item.id);
+  const idsToToggle = getTodosToToggle(todos).map(item => item.id);
+
+  useEffect(() => {
+    if (editInputRef.current) {
+      editInputRef.current.focus();
+    }
+  }, [editingTodoTitle, editInputRef]);
 
   const handleCheckboxChange = (todoToChange: Todo) => {
     setEditingTodoStatus(todoToChange);
-    setMakingChanges(true);
     changeTodo(todoToChange.id, { completed: !todo.completed })
       .then(() => {
         setTodos((prevTodos: Todo[]) =>
@@ -64,14 +61,12 @@ export const TodoItem: React.FC<Props> = ({
         }, 3000);
       })
       .finally(() => {
-        setMakingChanges(false);
         setEditingTodoStatus(null);
       });
   };
 
   const handleTodoDelete = (todoToDelete: Todo) => {
     setEditingTodoStatus(todoToDelete);
-    setMakingChanges(true);
     deleteTodo(todoToDelete.id)
       .then(() => {
         setTodos((prevTodos: Todo[]) =>
@@ -88,7 +83,6 @@ export const TodoItem: React.FC<Props> = ({
         }, 3000);
       })
       .finally(() => {
-        setMakingChanges(false);
         setEditingTodoStatus(null);
       });
   };
@@ -100,7 +94,6 @@ export const TodoItem: React.FC<Props> = ({
 
   const handleEditSubmit = (todoToChange: Todo) => {
     setIsSubmitting(true);
-    setEditingTodoTitle(todoToChange);
 
     if (editingTodoTitle?.title === editValue) {
       setEditingTodoTitle(null);
@@ -215,9 +208,9 @@ export const TodoItem: React.FC<Props> = ({
         data-cy="TodoLoader"
         className={classNames('modal overlay', {
           'is-active':
+            (isToggling && idsToToggle.includes(todo.id)) ||
             isSubmitting ||
-            (makingChanges && editingTodoStatus?.id === todo.id) ||
-            (makingChanges && editingTodoTitle?.id === todo.id) ||
+            editingTodoStatus?.id === todo.id ||
             (clearCompleted && completedTodoIds.includes(todo.id)),
         })}
       >

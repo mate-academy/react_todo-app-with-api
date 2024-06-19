@@ -1,35 +1,23 @@
 import classNames from 'classnames';
-import { Filter } from '../types/Filter';
-import { Todo } from '../types/Todo';
 import { deleteTodo } from '../api/todos';
+import { useTodoContext } from './GlobalProvider';
 
-type Props = {
-  todos: Todo[];
-  setTodos: React.Dispatch<React.SetStateAction<Todo[]>>;
-  filteredButton: string;
-  filterBy: (value: Filter) => void;
-  setErrorMessage: (value: string) => void;
-  setMakingChanges: (value: boolean) => void;
-  inputRef: React.RefObject<HTMLInputElement>;
-  setClearCompleted: (value: boolean) => void;
-};
+export const Footer: React.FC = () => {
+  const {
+    todos,
+    setClearCompleted,
+    setTodos,
+    setErrorMessage,
+    inputRef,
+    filteredButton,
+    setFilteredButton,
+  } = useTodoContext();
 
-export const Footer: React.FC<Props> = ({
-  todos,
-  filteredButton,
-  filterBy,
-  setTodos,
-  setErrorMessage,
-  inputRef,
-  setMakingChanges,
-  setClearCompleted,
-}) => {
   const completedTodos = todos.filter(todo => todo.completed);
   const todosLeft = todos.length - completedTodos.length;
 
   const onDelete = (id: number) => {
     setClearCompleted(true);
-    setMakingChanges(true);
     deleteTodo(id)
       .then(() => {
         setTodos(todoState => todoState.filter(todo => todo.id !== id));
@@ -41,12 +29,11 @@ export const Footer: React.FC<Props> = ({
         }, 3000);
       })
       .finally(() => {
-        setMakingChanges(false);
         setClearCompleted(false);
       });
   };
 
-  const handleClearCompleted = async () => {
+  const handleClearCompleted = () => {
     completedTodos.forEach(todo => onDelete(todo.id));
     if (inputRef.current) {
       inputRef.current.focus();
@@ -65,7 +52,7 @@ export const Footer: React.FC<Props> = ({
           className={classNames('filter__link', {
             selected: filteredButton === 'all',
           })}
-          onClick={() => filterBy('all')}
+          onClick={() => setFilteredButton('all')}
           data-cy="FilterLinkAll"
         >
           All
@@ -76,7 +63,7 @@ export const Footer: React.FC<Props> = ({
           className={classNames('filter__link', {
             selected: filteredButton === 'active',
           })}
-          onClick={() => filterBy('active')}
+          onClick={() => setFilteredButton('active')}
           data-cy="FilterLinkActive"
         >
           Active
@@ -87,7 +74,7 @@ export const Footer: React.FC<Props> = ({
           className={classNames('filter__link', {
             selected: filteredButton === 'completed',
           })}
-          onClick={() => filterBy('completed')}
+          onClick={() => setFilteredButton('completed')}
           data-cy="FilterLinkCompleted"
         >
           Completed

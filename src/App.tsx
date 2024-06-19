@@ -1,105 +1,29 @@
-import React, { useEffect, useRef, useState } from 'react';
+import { TodoList } from './Components/TodoList';
+import { Header } from './Components/Header';
+import { useTodoContext } from './Components/GlobalProvider';
+import { Loader } from './Components/Loader';
+import { Footer } from './Components/Footer';
+import { chooseActіveArray } from './utils/functions';
 import classNames from 'classnames';
 
-import { UserWarning } from './UserWarning';
-import { USER_ID, getTodos } from './api/todos';
-import { Todo } from './types/Todo';
-import { TodoList } from './Components/TodoList';
-import { Footer } from './Components/Footer';
-import { Header } from './Components/Header';
-import { Loader } from './Components/Loader';
-import { Filter } from './types/Filter';
-import { chooseActіveArray } from './utils/functions';
-
 export const App: React.FC = () => {
-  const [todos, setTodos] = useState<Todo[]>([]);
-  const [filteredButton, setFilteredButton] = useState<Filter>('all');
-  const [isLoading, setIsLoading] = useState(false);
-  const [errorMessage, setErrorMessage] = useState('');
-  const [tempTodo, setTempTodo] = useState<Todo | null>(null);
-  const [makingChanges, setMakingChanges] = useState(false);
-  const [clearCompleted, setClearCompleted] = useState(false);
-  const [editingTodoStatus, setEditingTodoStatus] = useState<Todo | null>(null);
-  const [editingTodoTitle, setEditingTodoTitle] = useState<Todo | null>(null);
-
-  const inputRef = useRef<HTMLInputElement>(null);
-  const editInputRef = useRef<HTMLInputElement>(null);
-
-  const completedTodos = todos.filter(todo => todo.completed);
-  const completedTodoIds = completedTodos.map(todo => todo.id);
-
-  useEffect(() => {
-    setIsLoading(true);
-    getTodos()
-      .then(data => setTodos(data))
-      .catch(() => {
-        setErrorMessage('Unable to load todos');
-        setTodos([]);
-        setTimeout(() => {
-          setErrorMessage('');
-        }, 3000);
-      })
-      .finally(() => setIsLoading(false));
-  }, []);
-
-  useEffect(() => {
-    if (editInputRef.current) {
-      editInputRef.current.focus();
-    }
-  }, [editingTodoTitle]);
-
-  if (!USER_ID) {
-    return <UserWarning />;
-  }
+  const { isLoading, todos, filteredButton, errorMessage, setErrorMessage } =
+    useTodoContext();
 
   return (
     <div className="todoapp">
       <h1 className="todoapp__title">todos</h1>
 
       <div className="todoapp__content">
-        <Header
-          setErrorMessage={setErrorMessage}
-          todos={todos}
-          setTodos={setTodos}
-          completedTodos={completedTodos}
-          setTempTodo={setTempTodo}
-          inputRef={inputRef}
-          setMakingChanges={setMakingChanges}
-        />
+        <Header />
 
         {isLoading ? (
           <Loader />
         ) : (
-          <TodoList
-            todos={chooseActіveArray(filteredButton, todos)}
-            tempTodo={tempTodo}
-            setTodos={setTodos}
-            setErrorMessage={setErrorMessage}
-            inputRef={inputRef}
-            editInputRef={editInputRef}
-            completedTodoIds={completedTodoIds}
-            makingChanges={makingChanges}
-            setMakingChanges={setMakingChanges}
-            editingTodoStatus={editingTodoStatus}
-            setEditingTodoStatus={setEditingTodoStatus}
-            clearCompleted={clearCompleted}
-            editingTodoTitle={editingTodoTitle}
-            setEditingTodoTitle={setEditingTodoTitle}
-          />
+          <TodoList todos={chooseActіveArray(filteredButton, todos)} />
         )}
 
-        {todos.length > 0 && (
-          <Footer
-            todos={todos}
-            filteredButton={filteredButton}
-            filterBy={setFilteredButton}
-            setTodos={setTodos}
-            setErrorMessage={setErrorMessage}
-            inputRef={inputRef}
-            setMakingChanges={setMakingChanges}
-            setClearCompleted={setClearCompleted}
-          />
-        )}
+        {todos.length > 0 && <Footer />}
       </div>
 
       <div

@@ -2,28 +2,23 @@ import React, { useEffect, useState } from 'react';
 import { USER_ID, changeTodo, postTodo } from '../api/todos';
 import { Todo } from '../types/Todo';
 import classNames from 'classnames';
+import { getTodosToToggle } from '../utils/functions';
+import { useTodoContext } from './GlobalProvider';
 
-type Props = {
-  setErrorMessage: (value: string) => void;
-  todos: Todo[];
-  setTodos: React.Dispatch<React.SetStateAction<Todo[]>>;
-  completedTodos: Todo[];
-  setTempTodo: (value: Todo | null) => void;
-  inputRef: React.RefObject<HTMLInputElement>;
-  setMakingChanges: (value: boolean) => void;
-};
-
-export const Header: React.FC<Props> = ({
-  setErrorMessage,
-  completedTodos,
-  todos,
-  setTodos,
-  setTempTodo,
-  inputRef,
-  setMakingChanges,
-}) => {
+export const Header: React.FC = () => {
   const [input, setInput] = useState('');
   const [isAdding, setIsAdding] = useState(false);
+
+  const {
+    todos,
+    setTodos,
+    setTempTodo,
+    setErrorMessage,
+    inputRef,
+    setIsToggling,
+  } = useTodoContext();
+
+  const completedTodos = todos.filter(todo => todo.completed);
 
   useEffect(() => {
     if (inputRef.current) {
@@ -80,7 +75,7 @@ export const Header: React.FC<Props> = ({
   };
 
   const onToggle = (id: number) => {
-    setMakingChanges(true);
+    setIsToggling(true);
     changeTodo(id, { completed: todos.length !== completedTodos.length })
       .then(() => {
         setTodos((prevTodos: Todo[]) =>
@@ -91,18 +86,12 @@ export const Header: React.FC<Props> = ({
         );
       })
       .finally(() => {
-        setMakingChanges(false);
+        setIsToggling(false);
       });
   };
 
   const handleToggle = () => {
-    if (completedTodos.length === todos.length || completedTodos.length === 0) {
-      todos.forEach(todo => onToggle(todo.id));
-    } else {
-      const notCompletedTodos = todos.filter(todo => !todo.completed);
-
-      notCompletedTodos.forEach(todo => onToggle(todo.id));
-    }
+    getTodosToToggle(todos).forEach(todo => onToggle(todo.id));
   };
 
   return (

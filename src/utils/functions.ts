@@ -19,3 +19,13 @@ export function findMaxId(array: Todo[] | []) {
 
   return Math.max(...array.map((todo: Todo) => todo.id)) + 1;
 }
+
+export function getTodosToToggle(todos: Todo[]) {
+  const completedTodos = todos.filter(item => item.completed);
+
+  if (completedTodos.length === todos.length || completedTodos.length === 0) {
+    return todos;
+  } else {
+    return todos.filter(todo => !todo.completed);
+  }
+}
