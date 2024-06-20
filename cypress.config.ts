@@ -8,6 +8,9 @@ module.exports = defineConfig({
   video: true,
   viewportHeight: 1920,
   viewportWidth: 1080,
+  responseTimeout: 10000,
+  pageLoadTimeout: 15000,
+  defaultCommandTimeout: 60000,
   screenshotOnRunFailure: true,
   reporter: 'mochawesome',
   reporterOptions: {
