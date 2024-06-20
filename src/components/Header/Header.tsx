@@ -25,7 +25,6 @@ export const ToDoHeader = ({
   return (
     <header className="todoapp__header">
       {/* this button should have `active` class only if all todos are completed */}
-      {/* eslint-disable-next-line jsx-a11y/control-has-associated-label */}
       {taskLengthForButton > 0 && (
         <button
           type="button"
