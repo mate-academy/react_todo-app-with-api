@@ -1,10 +1,7 @@
 {
-  "name": "react_todo-app-with-api",
-  "homepage": ".",
-  "version": "0.1.0",
-  "keywords": [],
-  "author": "Mate Academy",
-  "license": "GPL-3.0",
+  "name": "gulp-boilerplate",
+  "version": "1.0.0",
+  "description": "Frontend boilerplate based on gulp",
   "dependencies": {
     "@cypress/react18": "^2.0.0",
     "@fortawesome/fontawesome-free": "^6.2.0",
