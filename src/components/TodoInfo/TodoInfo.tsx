@@ -1,26 +1,45 @@
 /* eslint-disable jsx-a11y/label-has-associated-control */
 import classNames from 'classnames';
 import { Todo } from '../../types/Todo';
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 
 interface Props {
   todoInfo: Todo;
   todosForProcesing?: number[];
-  updatedTodo: Todo | null;
   onDelete: (id: number[]) => void;
   onUpdate: (updatedTodo: Todo[]) => void;
-  onSelectTodo: (selectedTodo: Todo | null) => void;
 }
 
 export const TodoInfo: React.FC<Props> = ({
   todoInfo,
   todosForProcesing,
-  updatedTodo,
   onDelete = () => {},
   onUpdate = () => {},
-  onSelectTodo,
 }) => {
-  const [updatedTitle, setUpdatedTitle] = useState('');
+  const [updatedTitle, setUpdatedTitle] = useState(todoInfo.title);
+  const [isEdited, setIsEdited] = useState(false);
+  const updatedField = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    if (updatedField.current) {
+      updatedField.current.focus();
+    }
+  }, [isEdited]);
+
+  const handleTitleChange = (updatedTodo: Todo) => {
+    if (updatedTitle.length === 0) {
+      onDelete([updatedTodo.id]);
+    } else if (updatedTitle !== todoInfo.title) {
+      onUpdate([
+        {
+          ...updatedTodo,
+          title: updatedTitle,
+        },
+      ]);
+    }
+
+    setIsEdited(false);
+  };
 
   return (
     <div
@@ -47,35 +66,39 @@ export const TodoInfo: React.FC<Props> = ({
         />
       </label>
 
-      {updatedTodo?.id === todoInfo.id ? (
-        <input
-          data-cy="TodoTitle"
-          type="text"
-          className="todo__title-field"
-          value={updatedTitle}
-          // ref={focusField}
-          onChange={event => setUpdatedTitle(event.target.value)}
-        />
+      {isEdited ? (
+        <form
+          onSubmit={() => handleTitleChange(todoInfo)}
+          onBlur={() => handleTitleChange(todoInfo)}
+          onKeyDown={event => {
+            if (event.key === 'Escape') {
+              setUpdatedTitle(todoInfo.title);
+              setIsEdited(false);
+            }
+          }}
+        >
+          <input
+            data-cy="TodoTitleField"
+            type="text"
+            placeholder="Empty todo will be deleted"
+            className="todo__title-field"
+            value={updatedTitle}
+            ref={updatedField}
+            autoFocus
+            onChange={event => setUpdatedTitle(event.target.value)}
+          />
+        </form>
       ) : (
         <>
           <span
             data-cy="TodoTitle"
             className="todo__title"
             onDoubleClick={() => {
-              onSelectTodo(todoInfo);
               setUpdatedTitle(todoInfo.title);
-            }}
-            onSubmit={() => {
-              onUpdate([
-                {
-                  ...todoInfo,
-                  title: updatedTitle,
-                },
-              ]);
-              onSelectTodo(null);
+              setIsEdited(true);
             }}
           >
-            {todoInfo.title}
+            {updatedTitle || todoInfo.title}
           </span>
 
           {/* Remove button appears only on hover */}

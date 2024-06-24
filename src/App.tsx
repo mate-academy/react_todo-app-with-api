@@ -16,7 +16,6 @@ export const App: React.FC = () => {
   const [filter, setFilter] = useState<Filter>(Filter.All);
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
   const [errorMessage, setErrorMessage] = useState('');
-  const [selectedTodo, setSelectedTodo] = useState<Todo | null>(null);
   const [isLoading, setIsLoading] = useState<number[]>([]);
 
   const focusField = useRef<HTMLInputElement>(null);
@@ -92,8 +91,6 @@ export const App: React.FC = () => {
     setIsLoading(processingTodosIds);
 
     for (let i = 0; i < updatedTodo.length; i++) {
-      setSelectedTodo(updatedTodo[i]);
-
       postService
         .updateTodo(updatedTodo[i])
         .then(todoFromServer => {
@@ -114,7 +111,6 @@ export const App: React.FC = () => {
           return <UserWarning />;
         })
         .finally(() => {
-          setSelectedTodo(null);
           setIsLoading([]);
         });
     }
@@ -196,14 +192,16 @@ export const App: React.FC = () => {
       <div className="todoapp__content">
         <header className="todoapp__header">
           {/* this button should have `active` class only if all todos are completed */}
-          <button
-            type="button"
-            className={classNames('todoapp__toggle-all', {
-              active: todoCounter === 0,
-            })}
-            data-cy="ToggleAllButton"
-            onClick={handleToggleAll}
-          />
+          {todos.length !== 0 && (
+            <button
+              type="button"
+              className={classNames('todoapp__toggle-all', {
+                active: todoCounter === 0,
+              })}
+              data-cy="ToggleAllButton"
+              onClick={handleToggleAll}
+            />
+          )}
 
           {/* Add a todo on form submit */}
           <form onSubmit={handleFormSubmit}>
@@ -230,8 +228,6 @@ export const App: React.FC = () => {
                   onDelete={deleteTodo}
                   todosForProcesing={isLoading}
                   onUpdate={handleUpdateTodo}
-                  onSelectTodo={setSelectedTodo}
-                  updatedTodo={selectedTodo}
                 />
               </CSSTransition>
             ))}
