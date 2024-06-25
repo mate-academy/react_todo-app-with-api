@@ -44,7 +44,6 @@ export const TodoInfo: React.FC<Props> = ({
     }
 
     onUpdate([{ ...todoInfo, title: trimmedNewTitle }]);
-    setIsEdited(false);
   };
 
   return (
@@ -76,7 +75,7 @@ export const TodoInfo: React.FC<Props> = ({
         <form
           onSubmit={handleSubmit}
           onBlur={handleSubmit}
-          onKeyDown={event => {
+          onKeyUp={event => {
             if (event.key === 'Escape') {
               setUpdatedTitle(todoInfo.title);
               setIsEdited(false);
@@ -84,13 +83,12 @@ export const TodoInfo: React.FC<Props> = ({
           }}
         >
           <input
+            autoFocus
             data-cy="TodoTitleField"
             type="text"
-            placeholder="Empty todo will be deleted"
             className="todo__title-field"
+            placeholder="Empty todo will be deleted"
             value={updatedTitle}
-            ref={updatedField}
-            autoFocus
             onChange={event => setUpdatedTitle(event.target.value)}
           />
         </form>

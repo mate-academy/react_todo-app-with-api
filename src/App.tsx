@@ -83,8 +83,6 @@ export const App: React.FC = () => {
       });
   };
 
-  // ****************************************************************
-
   const handleUpdateTodo = (updatedTodo: Todo[]) => {
     const processingTodosIds = updatedTodo.map(todo => todo.id);
 
@@ -127,8 +125,6 @@ export const App: React.FC = () => {
 
     handleUpdateTodo(actualTodos);
   };
-
-  //  ****************************************************************
 
   const deleteTodo = (idsForDelete: number[]) => {
     setIsLoading(idsForDelete);
