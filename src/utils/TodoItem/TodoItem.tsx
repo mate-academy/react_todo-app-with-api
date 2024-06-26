@@ -6,7 +6,7 @@ type Props = {
   todo: Todo;
   handleTodoStatusChange: (id: number) => void;
   handleDeleteTodo: (id: number) => void;
-  loadingTodoId: number | null;
+  loadingTodoIds: number[];
   updateTodo: (object: Todo) => void;
 };
 
@@ -14,7 +14,7 @@ export const TodoItem: React.FC<Props> = ({
   todo,
   handleDeleteTodo,
   handleTodoStatusChange,
-  loadingTodoId,
+  loadingTodoIds,
   updateTodo,
 }) => {
   const [editedTodo, setEditedTodo] = useState<string>('');
@@ -33,7 +33,7 @@ export const TodoItem: React.FC<Props> = ({
       const newUpdatedTodo: Todo = {
         title: editedTodo.trim(),
         userId: todo.userId,
-        id: todo.id, // Keep the same ID
+        id: todo.id,
         completed: todo.completed,
       };
 
@@ -53,6 +53,8 @@ export const TodoItem: React.FC<Props> = ({
     }
   };
 
+  const isLoading = loadingTodoIds.includes(todo.id);
+
   return (
     <div data-cy="Todo" className={`todo ${todo.completed ? 'completed' : ''}`}>
       <label className="todo__status-label">
@@ -62,10 +64,11 @@ export const TodoItem: React.FC<Props> = ({
           className="todo__status"
           checked={todo.completed}
           onChange={() => handleTodoStatusChange(todo.id)}
+          disabled={isLoading}
         />
       </label>
 
-      {isDoubleClicked === todo.id ? ( //isAdditable
+      {isDoubleClicked === todo.id ? (
         <input
           data-cy="TodoInput"
           className="todo__title-field"
@@ -89,19 +92,18 @@ export const TodoItem: React.FC<Props> = ({
             className="todo__remove"
             data-cy="TodoDelete"
             onClick={() => handleDeleteTodo(todo.id)}
-            disabled={loadingTodoId === todo.id}
+            disabled={isLoading}
           >
             ×
           </button>
         </>
       )}
-      <div
-        data-cy="TodoLoader"
-        className={`modal overlay ${loadingTodoId === todo.id ? 'is-active' : ''}`}
-      >
-        <div className="modal-background has-background-white-ter" />
-        <div className="loader" />
-      </div>
+      {isLoading && (
+        <div data-cy="TodoLoader" className="modal overlay is-active">
+          <div className="modal-background has-background-white-ter" />
+          <div className="loader" />
+        </div>
+      )}
     </div>
   );
 };

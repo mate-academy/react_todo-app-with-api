@@ -7,7 +7,7 @@ type Props = {
   visibleTodos: Todo[];
   handleTodoStatusChange: (id: number) => void;
   handleDeleteTodo: (id: number) => void;
-  loadingTodoId: number | null;
+  loadingTodoIds: number[];
   tempTodo: Todo | null;
   updateTodo: (object: Todo) => void;
 };
@@ -16,7 +16,7 @@ export const TodoList: React.FC<Props> = ({
   visibleTodos,
   handleTodoStatusChange,
   handleDeleteTodo,
-  loadingTodoId,
+  loadingTodoIds,
   tempTodo,
   updateTodo,
 }) => {
@@ -28,7 +28,7 @@ export const TodoList: React.FC<Props> = ({
           todo={todo}
           handleTodoStatusChange={handleTodoStatusChange}
           handleDeleteTodo={handleDeleteTodo}
-          loadingTodoId={loadingTodoId}
+          loadingTodoIds={loadingTodoIds}
           updateTodo={updateTodo}
         />
       ))}

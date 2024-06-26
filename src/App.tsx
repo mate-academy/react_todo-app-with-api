@@ -24,7 +24,8 @@ export const App: React.FC = () => {
   const [newTodoTitle, setNewTodoTitle] = useState<string>('');
   const [allCompleted, setAllCompleted] = useState<boolean>(false);
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
-  const [loadingTodoId, setLoadingTodoId] = useState<number | null>(null);
+  // const [loadingTodoId, setLoadingTodoId] = useState<number | null>(null);
+  const [loadingTodoIds, setLoadingTodoIds] = useState<number[]>([]);
   const completedTodos = todos.filter(todo => todo.completed).length;
   const notCompletedTodos = todos.filter(todo => !todo.completed).length;
   const areAllCompleted =
@@ -57,21 +58,37 @@ export const App: React.FC = () => {
 
   //#region patchStatus
   const handleToggleAllCompleted = () => {
+    const arrayWithNotCompletedTodoIds = visibleTodos
+      .filter(todo => todo.completed === false)
+      .map(todo => todo.id);
+
     const updatedTodos = todos.map(todo => ({
       ...todo,
       completed: !allCompleted,
     }));
 
     setTodos(updatedTodos);
-    // Call API to update todos status
-    updatedTodos.forEach(todo => {
-      patchTodos(todo).catch(() => setError('Unable to update a todo'));
+    setLoadingTodoIds(arrayWithNotCompletedTodoIds);
+
+    Promise.all(
+      updatedTodos.map(todo =>
+        patchTodos(todo).catch(() => setError('Unable to update a todo')),
+      ),
+    ).finally(() => {
+      setLoadingTodoIds([]);
     });
+
     setAllCompleted(!allCompleted);
+
+    const arrayWithAllTodosId = visibleTodos
+      .filter(todo => !todo.completed)
+      .map(todo => todo.id);
+
+    setLoadingTodoIds(arrayWithAllTodosId);
   };
 
   const handleTodoStatusChange = (id: number) => {
-    setLoadingTodoId(id);
+    setLoadingTodoIds([id]);
 
     const todoToUpdate = todos.find(todo => todo.id === id);
 
@@ -90,7 +107,7 @@ export const App: React.FC = () => {
       )
       .catch(() => setError('Unable to update a todo'))
       .finally(() => {
-        setLoadingTodoId(null);
+        setLoadingTodoIds([]);
       });
   };
 
@@ -99,7 +116,7 @@ export const App: React.FC = () => {
   //#region editTodo
 
   function updateTodo(updatedTodo: Todo) {
-    setLoadingTodoId(updatedTodo.id);
+    setLoadingTodoIds([updatedTodo.id]);
 
     patchTodos(updatedTodo)
       .then(todo => {
@@ -116,7 +133,7 @@ export const App: React.FC = () => {
       })
       .catch(() => setError('Unable to update a todo'))
       .finally(() => {
-        setLoadingTodoId(null);
+        setLoadingTodoIds([]);
       });
   }
 
@@ -125,7 +142,7 @@ export const App: React.FC = () => {
   //#region delete
 
   const handleDeleteTodo = (id: number) => {
-    setLoadingTodoId(id);
+    setLoadingTodoIds([id]);
 
     deleteTodos(id)
       .then(() => {
@@ -133,15 +150,19 @@ export const App: React.FC = () => {
       })
       .catch(() => setError('Unable to delete a todo'))
       .finally(() => {
-        setLoadingTodoId(null);
+        setLoadingTodoIds([]);
         setTempTodo(null);
       });
   };
+
+  // eslint-disable-next-line max-len, prettier/prettier
 
   const handleClearCompleted = () => {
     const modifiedTodos = todos.filter(todo => todo.completed === true);
 
     const modifiedTodosIds = modifiedTodos.map(todo => todo.id);
+
+    setLoadingTodoIds(modifiedTodosIds);
 
     modifiedTodosIds.forEach(id => {
       deleteTodos(id)
@@ -224,7 +245,7 @@ export const App: React.FC = () => {
           visibleTodos={visibleTodos}
           handleDeleteTodo={handleDeleteTodo}
           handleTodoStatusChange={handleTodoStatusChange}
-          loadingTodoId={loadingTodoId}
+          loadingTodoIds={loadingTodoIds}
           tempTodo={tempTodo}
           updateTodo={updateTodo}
         />
