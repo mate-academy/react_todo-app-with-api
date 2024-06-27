@@ -1,16 +1,8 @@
 /* eslint-disable jsx-a11y/label-has-associated-control */
 import React, { useState } from 'react';
-import { Todo } from '../../types/Todo';
+import { ItemProps, Todo } from '../../types/Todo';
 
-type Props = {
-  todo: Todo;
-  handleTodoStatusChange: (id: number) => void;
-  handleDeleteTodo: (id: number) => void;
-  loadingTodoIds: number[];
-  updateTodo: (object: Todo) => void;
-};
-
-export const TodoItem: React.FC<Props> = ({
+export const TodoItem: React.FC<ItemProps> = ({
   todo,
   handleDeleteTodo,
   handleTodoStatusChange,
@@ -98,12 +90,13 @@ export const TodoItem: React.FC<Props> = ({
           </button>
         </>
       )}
-      {isLoading && (
-        <div data-cy="TodoLoader" className="modal overlay is-active">
-          <div className="modal-background has-background-white-ter" />
-          <div className="loader" />
-        </div>
-      )}
+      <div
+        data-cy="TodoLoader"
+        className={`modal overlay ${isLoading ? `is-active` : ``}`}
+      >
+        <div className="modal-background has-background-white-ter" />
+        <div className="loader" />
+      </div>
     </div>
   );
 };

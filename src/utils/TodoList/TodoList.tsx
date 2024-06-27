@@ -1,18 +1,9 @@
 /* eslint-disable jsx-a11y/label-has-associated-control */
 import React from 'react';
-import { Todo } from '../../types/Todo';
 import { TodoItem } from '../TodoItem/TodoItem';
+import { ListProps } from '../../types/Todo';
 
-type Props = {
-  visibleTodos: Todo[];
-  handleTodoStatusChange: (id: number) => void;
-  handleDeleteTodo: (id: number) => void;
-  loadingTodoIds: number[];
-  tempTodo: Todo | null;
-  updateTodo: (object: Todo) => void;
-};
-
-export const TodoList: React.FC<Props> = ({
+export const TodoList: React.FC<ListProps> = ({
   visibleTodos,
   handleTodoStatusChange,
   handleDeleteTodo,

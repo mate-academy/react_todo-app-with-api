@@ -59,7 +59,11 @@ export const App: React.FC = () => {
   //#region patchStatus
   const handleToggleAllCompleted = () => {
     const arrayWithNotCompletedTodoIds = visibleTodos
-      .filter(todo => todo.completed === false)
+      .filter(todo => !todo.completed)
+      .map(todo => todo.id);
+
+    const arrayWithCompletedTodoIds = visibleTodos
+      .filter(todo => todo.completed)
       .map(todo => todo.id);
 
     const updatedTodos = todos.map(todo => ({
@@ -67,24 +71,22 @@ export const App: React.FC = () => {
       completed: !allCompleted,
     }));
 
-    setTodos(updatedTodos);
-    setLoadingTodoIds(arrayWithNotCompletedTodoIds);
+    if (allCompleted) {
+      setLoadingTodoIds(arrayWithCompletedTodoIds);
+    } else {
+      setLoadingTodoIds(arrayWithNotCompletedTodoIds);
+    }
 
     Promise.all(
       updatedTodos.map(todo =>
         patchTodos(todo).catch(() => setError('Unable to update a todo')),
       ),
     ).finally(() => {
+      setTodos(updatedTodos);
       setLoadingTodoIds([]);
     });
 
     setAllCompleted(!allCompleted);
-
-    const arrayWithAllTodosId = visibleTodos
-      .filter(todo => !todo.completed)
-      .map(todo => todo.id);
-
-    setLoadingTodoIds(arrayWithAllTodosId);
   };
 
   const handleTodoStatusChange = (id: number) => {
