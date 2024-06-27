@@ -75,7 +75,7 @@ export const TodoItem: React.FC<Props> = ({
       </label>
 
       {isEditingTodo?.id === id ? (
-        <form>
+        <form onSubmit={e => e.preventDefault()}>
           <input
             data-cy="TodoTitleField"
             type="text"
