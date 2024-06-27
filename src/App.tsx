@@ -8,14 +8,9 @@ import { Footer } from './utils/Footer/Footer';
 import { Header } from './utils/Header/Header';
 import { TodoList } from './utils/TodoList/TodoList';
 import { deleteTodos, getTodos, patchTodos, postTodos } from './api/todos';
+import { Filter, getVisibleTodos } from './helpers';
 
 const USER_ID = 700;
-
-enum Filter {
-  All = 'all',
-  Active = 'active',
-  Completed = 'completed',
-}
 
 export const App: React.FC = () => {
   const [todos, setTodos] = useState<Todo[]>([]);
@@ -24,7 +19,6 @@ export const App: React.FC = () => {
   const [newTodoTitle, setNewTodoTitle] = useState<string>('');
   const [allCompleted, setAllCompleted] = useState<boolean>(false);
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
-  // const [loadingTodoId, setLoadingTodoId] = useState<number | null>(null);
   const [loadingTodoIds, setLoadingTodoIds] = useState<number[]>([]);
   const completedTodos = todos.filter(todo => todo.completed).length;
   const notCompletedTodos = todos.filter(todo => !todo.completed).length;
@@ -38,18 +32,6 @@ export const App: React.FC = () => {
       .catch(() => setError('Unable to load todos'));
   }, []);
 
-  const getVisibleTodos = (generalTodos: Todo[], generalFilter: string) => {
-    let filteredTodos = generalTodos;
-
-    if (generalFilter === Filter.Active) {
-      filteredTodos = filteredTodos.filter(todo => !todo.completed);
-    } else if (generalFilter === Filter.Completed) {
-      filteredTodos = filteredTodos.filter(todo => todo.completed);
-    }
-
-    return filteredTodos;
-  };
-
   const visibleTodos: Todo[] = useMemo(() => {
     return getVisibleTodos(todos, filter);
   }, [todos, filter]);
@@ -58,22 +40,22 @@ export const App: React.FC = () => {
 
   //#region patchStatus
   const handleToggleAllCompleted = () => {
-    const arrayWithNotCompletedTodoIds = visibleTodos
-      .filter(todo => !todo.completed)
-      .map(todo => todo.id);
-
-    const arrayWithCompletedTodoIds = visibleTodos
-      .filter(todo => todo.completed)
-      .map(todo => todo.id);
-
     const updatedTodos = todos.map(todo => ({
       ...todo,
       completed: !allCompleted,
     }));
 
     if (allCompleted) {
+      const arrayWithCompletedTodoIds = visibleTodos
+        .filter(todo => todo.completed)
+        .map(todo => todo.id);
+
       setLoadingTodoIds(arrayWithCompletedTodoIds);
     } else {
+      const arrayWithNotCompletedTodoIds = visibleTodos
+        .filter(todo => !todo.completed)
+        .map(todo => todo.id);
+
       setLoadingTodoIds(arrayWithNotCompletedTodoIds);
     }
 
@@ -160,7 +142,7 @@ export const App: React.FC = () => {
   // eslint-disable-next-line max-len, prettier/prettier
 
   const handleClearCompleted = () => {
-    const modifiedTodos = todos.filter(todo => todo.completed === true);
+    const modifiedTodos = todos.filter(todo => todo.completed);
 
     const modifiedTodosIds = modifiedTodos.map(todo => todo.id);
 
