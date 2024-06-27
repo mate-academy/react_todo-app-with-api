@@ -4,15 +4,15 @@ import { useEffect, useRef, useState } from 'react';
 
 type Props = {
   todo: Todo;
-  handleCompletedStatus: (id: number) => void;
   onDelete?: (id: number) => void;
+  onUpdate: (todo: Todo) => Promise<void>;
   processedId?: number[];
 };
 
 export const TodoItem: React.FC<Props> = ({
   todo,
-  handleCompletedStatus,
   onDelete = () => {},
+  onUpdate,
   processedId,
 }) => {
   const [isEditingTodo, setIsEditingTodo] = useState<Todo | null>(null);
@@ -29,6 +29,34 @@ export const TodoItem: React.FC<Props> = ({
     }
   }, [isEditingTodo]);
 
+  const handleTitleUpdate = (newTodo: Todo) => {
+    if (newTodo !== todo) {
+      onUpdate(newTodo).then(() => setIsEditingTodo(null));
+    }
+  };
+
+  const handleKeyUp = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    e.preventDefault();
+
+    if (e.key === 'Enter' && isEditingTodo) {
+      if (isEditingTodo.title.length > 0) {
+        handleTitleUpdate(isEditingTodo);
+      } else {
+        onDelete(isEditingTodo.id);
+      }
+    }
+
+    if (e.key === 'Escape') {
+      setIsEditingTodo(null);
+    }
+  };
+
+  const handleBlur = () => {
+    if (isEditingTodo) {
+      handleTitleUpdate(isEditingTodo);
+    }
+  };
+
   return (
     <div
       data-cy="Todo"
@@ -42,7 +70,7 @@ export const TodoItem: React.FC<Props> = ({
           type="checkbox"
           className="todo__status"
           checked={completed}
-          onChange={() => handleCompletedStatus(id)}
+          onChange={() => onUpdate({ ...todo, completed: !todo.completed })}
         />
       </label>
 
@@ -54,8 +82,11 @@ export const TodoItem: React.FC<Props> = ({
             className="todo__title-field"
             placeholder="Empty todo will be deleted"
             value={isEditingTodo.title}
-            onChange={e => setIsEditingTodo({ ...todo, title: e.target.value })}
-            onBlur={() => setIsEditingTodo(null)}
+            onChange={e => {
+              setIsEditingTodo({ ...isEditingTodo, title: e.target.value });
+            }}
+            onKeyUp={handleKeyUp}
+            onBlur={handleBlur}
             ref={todoField}
           />
         </form>

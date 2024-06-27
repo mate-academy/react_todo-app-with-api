@@ -46,14 +46,6 @@ export const App: React.FC = () => {
     });
   }, [todos, status]);
 
-  const handleCompletedStatus = (id: number) => {
-    const updatedTodos = todos.map(todo =>
-      todo.id === id ? { ...todo, completed: !todo.completed } : todo,
-    );
-
-    setTodos(updatedTodos);
-  };
-
   function addTodo({ title, userId, completed }: Todo) {
     handleErrorMessage('');
     setTempTodo({ title, userId, completed, id: 0 });
@@ -79,8 +71,28 @@ export const App: React.FC = () => {
       .then(() => {
         setTodos(currentTodos => currentTodos.filter(todo => todo.id !== id));
       })
-      .catch(() => {
-        handleErrorMessage('Unable to delete a todo');
+      .catch(() => handleErrorMessage('Unable to delete a todo'))
+      .finally(() => setProcessedId([]));
+  }
+
+  function updateTodo(updatedTodo: Todo) {
+    setProcessedId(ids => [...ids, updatedTodo.id]);
+
+    return todoApi
+      .updateTodo(updatedTodo)
+      .then(todo => {
+        setTodos(currentTodos => {
+          const newTodos = [...currentTodos];
+          const index = newTodos.findIndex(curTodo => curTodo.id === todo.id);
+
+          newTodos.splice(index, 1, todo);
+
+          return newTodos;
+        });
+      })
+      .catch(error => {
+        handleErrorMessage('Unable to update a todo');
+        throw error;
       })
       .finally(() => setProcessedId([]));
   }
@@ -98,14 +110,15 @@ export const App: React.FC = () => {
           todos={todos}
           handleErrorMessage={handleErrorMessage}
           onSubmit={addTodo}
+          onUpdate={updateTodo}
           userId={todoApi.USER_ID}
         />
 
         <TodoList
           todos={filteredTodos}
           tempTodo={tempTodo}
-          handleCompletedStatus={handleCompletedStatus}
           onDelete={deleteTodo}
+          onUpdate={updateTodo}
           processedId={processedId}
         />
 

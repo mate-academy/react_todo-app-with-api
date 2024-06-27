@@ -5,16 +5,16 @@ import { TodoItem } from './TodoItem';
 type Props = {
   todos: Todo[];
   tempTodo: Todo | null;
-  handleCompletedStatus: (id: number) => void;
   onDelete: (id: number) => void;
+  onUpdate: (todo: Todo) => Promise<void>;
   processedId: number[];
 };
 
 export const TodoList: React.FC<Props> = React.memo(function TodoList({
   todos,
   tempTodo,
-  handleCompletedStatus,
   onDelete,
+  onUpdate,
   processedId,
 }) {
   return (
@@ -23,17 +23,12 @@ export const TodoList: React.FC<Props> = React.memo(function TodoList({
         <TodoItem
           key={todo.id}
           todo={todo}
-          handleCompletedStatus={handleCompletedStatus}
           onDelete={onDelete}
+          onUpdate={onUpdate}
           processedId={processedId}
         />
       ))}
-      {tempTodo && (
-        <TodoItem
-          todo={tempTodo}
-          handleCompletedStatus={handleCompletedStatus}
-        />
-      )}
+      {tempTodo && <TodoItem todo={tempTodo} onUpdate={onUpdate} />}
     </section>
   );
 });

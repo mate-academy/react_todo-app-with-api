@@ -6,6 +6,7 @@ type Props = {
   todos: Todo[];
   handleErrorMessage: (error: string) => void;
   onSubmit: (todo: Todo) => Promise<void>;
+  onUpdate: (todo: Todo) => Promise<void>;
   userId: number;
 };
 
@@ -13,6 +14,7 @@ export const Header: React.FC<Props> = ({
   todos,
   handleErrorMessage,
   onSubmit,
+  onUpdate,
   userId,
 }) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -44,6 +46,28 @@ export const Header: React.FC<Props> = ({
       .finally(() => setIsSubmitting(false));
   };
 
+  const changeStatus = (status: boolean) => {
+    const changedTodos: Promise<void>[] = [];
+
+    todos.forEach(todo => {
+      if (todo.completed !== status) {
+        changedTodos.push(onUpdate({ ...todo, completed: status }));
+      }
+    });
+
+    Promise.allSettled(changedTodos);
+  };
+
+  const handleAllTodos = () => {
+    if (todos.every(todo => todo.completed === true)) {
+      return changeStatus(false);
+    }
+
+    if (todos.some(todo => todo.completed === false)) {
+      return changeStatus(true);
+    }
+  };
+
   const completedTodos = todos.every(todo => todo.completed);
   const inputField = useRef<HTMLInputElement>(null);
 
@@ -62,6 +86,7 @@ export const Header: React.FC<Props> = ({
             active: completedTodos,
           })}
           data-cy="ToggleAllButton"
+          onClick={handleAllTodos}
         />
       )}
 
