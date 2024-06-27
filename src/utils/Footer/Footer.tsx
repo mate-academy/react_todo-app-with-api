@@ -1,16 +1,12 @@
 import React from 'react';
-
-enum Filter {
-  All = 'all',
-  Active = 'active',
-  Completed = 'completed',
-}
+import { filterLinks } from '../../types/Todo';
+import { Filter } from '../../helpers';
 
 type Props = {
   completedTodos: number;
   notCompletedTodos: number;
   filter: string;
-  setFilter: (filter: string) => void;
+  setFilter: (filter: Filter) => void;
   handleClearCompleted: () => void;
 };
 
@@ -21,12 +17,6 @@ export const Footer: React.FC<Props> = ({
   setFilter,
   handleClearCompleted,
 }) => {
-  const filterLinks = [
-    { key: Filter.All, label: 'All', href: '#/' },
-    { key: Filter.Active, label: 'Active', href: '#/active' },
-    { key: Filter.Completed, label: 'Completed', href: '#/completed' },
-  ];
-
   return (
     <footer className="todoapp__footer" data-cy="Footer">
       <span className="todo-count" data-cy="TodosCounter">

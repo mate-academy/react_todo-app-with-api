@@ -1249,7 +1249,7 @@ describe('', () => {
           // if before each pass
         });
 
-        it.only('should make all todos active', () => {
+        it('should make all todos active', () => {
           todos.assertNotCompleted(0);
           todos.assertNotCompleted(1);
           todos.assertNotCompleted(2);

@@ -15,7 +15,7 @@ const USER_ID = 700;
 export const App: React.FC = () => {
   const [todos, setTodos] = useState<Todo[]>([]);
   const [error, setError] = useState<string>('');
-  const [filter, setFilter] = useState<string>(Filter.All);
+  const [filter, setFilter] = useState<Filter>(Filter.All);
   const [newTodoTitle, setNewTodoTitle] = useState<string>('');
   const [allCompleted, setAllCompleted] = useState<boolean>(false);
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);

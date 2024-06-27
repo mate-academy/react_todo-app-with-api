@@ -1,3 +1,5 @@
+import { Filter } from '../helpers';
+
 export interface Todo {
   id: number;
   title: string;
@@ -21,3 +23,9 @@ export type ListProps = {
   tempTodo: Todo | null;
   updateTodo: (object: Todo) => void;
 };
+
+export const filterLinks = [
+  { key: Filter.All, label: 'All', href: '#/' },
+  { key: Filter.Active, label: 'Active', href: '#/active' },
+  { key: Filter.Completed, label: 'Completed', href: '#/completed' },
+];

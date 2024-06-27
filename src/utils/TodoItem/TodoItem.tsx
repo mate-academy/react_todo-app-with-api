@@ -10,7 +10,7 @@ export const TodoItem: React.FC<ItemProps> = ({
   updateTodo,
 }) => {
   const [editedTodo, setEditedTodo] = useState<string>('');
-  const [isDoubleClicked, setIsDoubleClicked] = useState<number | null>(null);
+  const [isDoubleClicked, setIsDoubleClicked] = useState<boolean>(false);
 
   const handleInputChanged = (event: React.ChangeEvent<HTMLInputElement>) => {
     setEditedTodo(event.target.value);
@@ -20,7 +20,7 @@ export const TodoItem: React.FC<ItemProps> = ({
     if (editedTodo.trim() === '') {
       handleDeleteTodo(todo.id);
     } else if (editedTodo.trim() === todo.title) {
-      setIsDoubleClicked(null);
+      setIsDoubleClicked(false);
     } else {
       const newUpdatedTodo: Todo = {
         title: editedTodo.trim(),
@@ -30,7 +30,7 @@ export const TodoItem: React.FC<ItemProps> = ({
       };
 
       await updateTodo(newUpdatedTodo);
-      setIsDoubleClicked(null);
+      setIsDoubleClicked(false);
     }
   };
 
@@ -40,7 +40,7 @@ export const TodoItem: React.FC<ItemProps> = ({
     if (event.key === 'Enter') {
       await handleInputBlured();
     } else if (event.key === 'Escape') {
-      setIsDoubleClicked(null);
+      setIsDoubleClicked(false);
       setEditedTodo(todo.title);
     }
   };
@@ -60,7 +60,7 @@ export const TodoItem: React.FC<ItemProps> = ({
         />
       </label>
 
-      {isDoubleClicked === todo.id ? (
+      {isDoubleClicked ? (
         <input
           data-cy="TodoInput"
           className="todo__title-field"
@@ -75,7 +75,7 @@ export const TodoItem: React.FC<ItemProps> = ({
           <span
             data-cy="TodoTitle"
             className="todo__title"
-            onDoubleClick={() => setIsDoubleClicked(todo.id)}
+            onDoubleClick={() => setIsDoubleClicked(true)}
           >
             {todo.title}
           </span>
