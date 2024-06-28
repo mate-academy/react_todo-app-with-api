@@ -16,16 +16,16 @@ export const App: React.FC = () => {
   const [filter, setFilter] = useState<Filter>(Filter.All);
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
   const [errorMessage, setErrorMessage] = useState('');
-  const [isLoading, setIsLoading] = useState<number[]>([]);
+  const [isLoading, setIsLoading] = useState<Todo[]>([]);
 
   const focusField = useRef<HTMLInputElement>(null);
+  const activeTodos = todos.filter(todo => !todo.completed);
+  const completedTodos = todos.filter(todo => todo.completed);
 
   const handleError = (message: string) => {
     setErrorMessage(message);
 
-    setTimeout(() => {
-      setErrorMessage('');
-    }, 3000);
+    setTimeout(() => setErrorMessage(''), 3000);
   };
 
   useEffect(() => {
@@ -50,9 +50,9 @@ export const App: React.FC = () => {
   const handleFormSubmit = (event: React.FormEvent) => {
     event.preventDefault();
 
-    const titleChecked = title.trim();
+    const trimmedTitle = title.trim();
 
-    if (!titleChecked) {
+    if (!trimmedTitle) {
       handleError('Title should not be empty');
 
       return;
@@ -60,7 +60,7 @@ export const App: React.FC = () => {
 
     const currentTodo = {
       id: 0,
-      title: titleChecked,
+      title: trimmedTitle,
       userId: postService.USER_ID,
       completed: false,
     };
@@ -75,43 +75,35 @@ export const App: React.FC = () => {
       })
       .catch(() => {
         handleError(`Unable to add a todo`);
-
-        return <UserWarning />;
       })
       .finally(() => {
         setTempTodo(null);
       });
   };
 
-  const handleUpdateTodo = (updatedTodo: Todo[]) => {
-    const processingTodosIds = updatedTodo.map(todo => todo.id);
+  const handleUpdateTodo = async (updatedTodo: Todo) => {
+    setIsLoading([updatedTodo]);
 
-    setIsLoading(processingTodosIds);
+    postService
+      .updateTodo(updatedTodo)
+      .then(todoFromServer => {
+        setTodos(prevTodos => {
+          const newTodos = [...prevTodos];
+          const index = newTodos.findIndex(
+            todoItem => todoItem.id === updatedTodo.id,
+          );
 
-    for (let i = 0; i < updatedTodo.length; i++) {
-      postService
-        .updateTodo(updatedTodo[i])
-        .then(todoFromServer => {
-          setTodos(prevTodos => {
-            const newTodos = [...prevTodos];
-            const index = newTodos.findIndex(
-              todoItem => todoItem.id === updatedTodo[i].id,
-            );
+          newTodos.splice(index, 1, todoFromServer);
 
-            newTodos.splice(index, 1, todoFromServer);
-
-            return newTodos;
-          });
-        })
-        .catch(() => {
-          handleError(`Unable to update a todo`);
-
-          return <UserWarning />;
-        })
-        .finally(() => {
-          setIsLoading([]);
+          return newTodos;
         });
-    }
+      })
+      .catch(() => {
+        handleError(`Unable to update a todo`);
+      })
+      .finally(() => {
+        setIsLoading([]);
+      });
   };
 
   const handleToggleAll = () => {
@@ -123,15 +115,17 @@ export const App: React.FC = () => {
       actualTodos = actualTodos.map(todo => ({ ...todo, completed: true }));
     }
 
-    handleUpdateTodo(actualTodos);
+    for (let i = 0; i < actualTodos.length; i++) {
+      handleUpdateTodo(actualTodos[i]);
+    }
   };
 
-  const deleteTodo = (idsForDelete: number[]) => {
-    setIsLoading(idsForDelete);
+  const deleteTodo = (todosForDelete: Todo[]) => {
+    setIsLoading(todosForDelete);
 
-    for (let i = 0; i < idsForDelete.length; i++) {
+    for (let i = 0; i < todosForDelete.length; i++) {
       const todoForDelete = {
-        id: idsForDelete[i],
+        id: todosForDelete[i].id,
         title,
         userId: postService.USER_ID,
         completed: false,
@@ -140,10 +134,10 @@ export const App: React.FC = () => {
       setTempTodo(todoForDelete);
 
       postService
-        .delTodo(idsForDelete[i])
+        .delTodo(todosForDelete[i].id)
         .then(() => {
           setTodos(prevTodos =>
-            prevTodos.filter(todo => todo.id !== idsForDelete[i]),
+            prevTodos.filter(todo => todo.id !== todosForDelete[i].id),
           );
         })
         .catch(() => {
@@ -160,10 +154,6 @@ export const App: React.FC = () => {
   };
 
   const onDeleteCompletedTodos = () => {
-    const completedTodos = todos
-      .filter(todo => todo.completed)
-      .map(todo => todo.id);
-
     deleteTodo(completedTodos);
   };
 
@@ -178,9 +168,6 @@ export const App: React.FC = () => {
     }
   });
 
-  const todoCounter = todos.filter(todo => !todo.completed).length;
-  const completedTodoCounter = todos.length - todoCounter;
-
   return (
     <div className="todoapp">
       <h1 className="todoapp__title">todos</h1>
@@ -192,7 +179,7 @@ export const App: React.FC = () => {
             <button
               type="button"
               className={classNames('todoapp__toggle-all', {
-                active: todoCounter === 0,
+                active: activeTodos.length === 0,
               })}
               data-cy="ToggleAllButton"
               onClick={handleToggleAll}
@@ -240,7 +227,7 @@ export const App: React.FC = () => {
         {todos.length > 0 && (
           <footer className="todoapp__footer" data-cy="Footer">
             <span className="todo-count" data-cy="TodosCounter">
-              {todoCounter} items left
+              {activeTodos.length} items left
             </span>
 
             {/* Active link should have the 'selected' class */}
@@ -283,7 +270,7 @@ export const App: React.FC = () => {
             <button
               type="button"
               className="todoapp__clear-completed"
-              disabled={!completedTodoCounter}
+              disabled={!completedTodos.length}
               data-cy="ClearCompletedButton"
               onClick={onDeleteCompletedTodos}
             >

@@ -5,46 +5,49 @@ import React, { useEffect, useRef, useState } from 'react';
 
 interface Props {
   todoInfo: Todo;
-  todosForProcesing?: number[];
-  onDelete: (id: number[]) => void;
-  onUpdate: (updatedTodo: Todo[]) => void;
+  todosForProcesing?: Todo[];
+  onDelete: (todo: Todo[]) => void;
+  onUpdate: (updatedTodo: Todo) => Promise<void>;
 }
 
 export const TodoInfo: React.FC<Props> = ({
   todoInfo,
   todosForProcesing,
   onDelete = () => {},
-  onUpdate = () => {},
+  onUpdate,
 }) => {
   const [updatedTitle, setUpdatedTitle] = useState(todoInfo.title);
   const [isEdited, setIsEdited] = useState(false);
   const updatedField = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    if (updatedField.current) {
-      updatedField.current.focus();
-    }
+    updatedField.current?.focus();
   }, [isEdited]);
+
+  const processingIds = todosForProcesing?.map(todo => todo.id);
 
   const handleSubmit = (event: React.FormEvent) => {
     event.preventDefault();
 
-    const trimmedNewTitle = updatedTitle.trim();
+    const trimmedTitle = updatedTitle.trim();
 
-    if (trimmedNewTitle === todoInfo.title) {
+    if (trimmedTitle === todoInfo.title) {
       setIsEdited(false);
 
       return;
     }
 
-    if (!trimmedNewTitle) {
-      onDelete([todoInfo.id]);
+    if (!trimmedTitle) {
+      onDelete([todoInfo]);
 
       return;
     }
 
-    onUpdate([{ ...todoInfo, title: trimmedNewTitle }]);
-    setIsEdited(false);
+    setUpdatedTitle(trimmedTitle);
+
+    onUpdate({ ...todoInfo, title: updatedTitle }).then(() => {
+      setIsEdited(false);
+    });
   };
 
   return (
@@ -62,12 +65,10 @@ export const TodoInfo: React.FC<Props> = ({
           className="todo__status"
           checked={todoInfo.completed}
           onClick={() => {
-            onUpdate([
-              {
-                ...todoInfo,
-                completed: !todoInfo.completed,
-              },
-            ]);
+            onUpdate({
+              ...todoInfo,
+              completed: !todoInfo.completed,
+            });
           }}
         />
       </label>
@@ -84,14 +85,14 @@ export const TodoInfo: React.FC<Props> = ({
           }}
         >
           <input
+            autoFocus
             data-cy="TodoTitleField"
             type="text"
             placeholder="Empty todo will be deleted"
             className="todo__title-field"
             value={updatedTitle}
-            ref={updatedField}
-            autoFocus
             onChange={event => setUpdatedTitle(event.target.value)}
+            ref={updatedField}
           />
         </form>
       ) : (
@@ -104,7 +105,7 @@ export const TodoInfo: React.FC<Props> = ({
               setIsEdited(true);
             }}
           >
-            {updatedTitle || todoInfo.title}
+            {updatedTitle}
           </span>
 
           {/* Remove button appears only on hover */}
@@ -113,7 +114,7 @@ export const TodoInfo: React.FC<Props> = ({
             className="todo__remove"
             data-cy="TodoDelete"
             onClick={() => {
-              onDelete([todoInfo.id]);
+              onDelete([todoInfo]);
             }}
           >
             ×
@@ -125,7 +126,7 @@ export const TodoInfo: React.FC<Props> = ({
       <div
         data-cy="TodoLoader"
         className={classNames('modal overlay', {
-          'is-active': todosForProcesing?.includes(todoInfo.id),
+          'is-active': processingIds?.includes(todoInfo.id),
         })}
       >
         <div className="modal-background has-background-white-ter" />
