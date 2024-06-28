@@ -26,7 +26,6 @@ export const TempTodo: React.FC<Props> = ({ todo, deleteSingleTodo }) => {
             className="todo__status"
             value={title}
             checked={completed}
-            onChange={() => {}}
           />
         </label>
 

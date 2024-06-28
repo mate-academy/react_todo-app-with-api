@@ -30,20 +30,20 @@ export const App: React.FC = () => {
   const [loadingTodoIds, setLoadingTodoIds] = useState<number[]>([]);
   const [isInputDisabled, setIsInputDisabled] = useState(false);
 
-  const filteredTodos = todos.filter(todo => {
-    switch (filterStatus) {
-      case TodoStatus.Active:
-        return !todo.completed;
+  let filteredTodos: Todo[];
+  switch (filterStatus) {
+    case TodoStatus.Active:
+      filteredTodos = todos.filter(todo => !todo.completed);
+      break;
 
-      case TodoStatus.Completed:
-        return todo.completed;
+    case TodoStatus.Completed:
+      filteredTodos = todos.filter(todo => todo.completed);
+      break;
 
-      default:
-        return true;
-    }
-  });
+    default:
+      filteredTodos = todos;
+  }
 
-  // Sends a request to the server to get a list (todos).
   const handleRequest = async () => {
     try {
       const allTodo = await getTodos();
@@ -52,7 +52,6 @@ export const App: React.FC = () => {
       setError(null);
     } catch (errors) {
       setError('Unable to load todos');
-    } finally {
     }
   };
 
@@ -73,14 +72,12 @@ export const App: React.FC = () => {
   const isLoading = !!loadingTodoIds.length;
 
   const inputRef = useRef<HTMLInputElement>(null);
-  // adds focus to the input
   useEffect(() => {
     if (inputRef.current) {
       inputRef.current.focus();
     }
   }, [todos, isInputDisabled]);
 
-  // form event handling
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!title.trim()) {
@@ -98,14 +95,12 @@ export const App: React.FC = () => {
         completed: false,
         userId: USER_ID,
       });
-      // function 'createTodos', sends a request to the server and creates a new 'todo'
       const newTodo = await createTodos({
         title: title.trim(),
         completed: false,
         userId: USER_ID,
       });
 
-      // adds a new element to the todos array and updates its state
       setTodos(prevTodos => [...prevTodos, newTodo]);
       setTitle('');
     } catch (errors) {
@@ -125,7 +120,6 @@ export const App: React.FC = () => {
 
       setTodos(currentTodo => currentTodo.filter(todo => todo.id !== todoId));
     } catch (errors) {
-      // setTodos(todos);
       setError('Unable to delete a todo');
       throw Error('Unable to delete a todo');
     } finally {
@@ -135,7 +129,6 @@ export const App: React.FC = () => {
     }
   };
 
-  // The function is responsible for changing the task status
   const toggleTodoCompletion = async (todoId: number) => {
     try {
       setIsInputDisabled(true);
@@ -160,7 +153,6 @@ export const App: React.FC = () => {
       setError('Unable to update a todo');
     } finally {
       setLoadingTodoIds(prevLoading => prevLoading.filter(id => id !== todoId));
-      // setError(null);
       setIsInputDisabled(false);
     }
   };
@@ -168,7 +160,6 @@ export const App: React.FC = () => {
   const clearCompletedTodos = async () => {
     try {
       setIsInputDisabled(true);
-      // Selection of completed todos
       const completedTodosIds = todos
         .filter(todo => todo.completed)
         .map(todo => todo.id);
@@ -251,9 +242,6 @@ export const App: React.FC = () => {
           />
         )}
       </div>
-
-      {/* DON'T use conditional rendering to hide the notification */}
-      {/* Add the 'hidden' class to hide the message smoothly */}
       <div
         data-cy="ErrorNotification"
         className={classNames(
@@ -270,7 +258,6 @@ export const App: React.FC = () => {
           className="delete"
           onClick={() => setError(null)}
         />
-        {/* show only one message at a time */}
         {error}
       </div>
     </div>
