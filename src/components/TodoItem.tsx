@@ -16,6 +16,7 @@ export const TodoItem: React.FC<Props> = ({
   processedId,
 }) => {
   const [isEditingTodo, setIsEditingTodo] = useState<Todo | null>(null);
+  const [newTitle, setNewTitle] = useState('');
 
   const { id, completed, title } = todo;
 
@@ -29,22 +30,33 @@ export const TodoItem: React.FC<Props> = ({
     }
   }, [isEditingTodo]);
 
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setNewTitle(e.target.value);
+    setIsEditingTodo({ ...isEditingTodo, title: e.target.value } as Todo);
+  };
+
   const handleTitleUpdate = (newTodo: Todo) => {
-    if (newTodo !== todo) {
-      onUpdate(newTodo).then(() => setIsEditingTodo(null));
+    onUpdate(newTodo).then(() => setIsEditingTodo(null));
+  };
+
+  const handleEvent = (eventKey?: string) => {
+    const event = eventKey === undefined || eventKey === 'Enter';
+
+    if (event && isEditingTodo && isEditingTodo.title.length > 0) {
+      if (isEditingTodo.title.trim() !== todo.title) {
+        handleTitleUpdate({ ...isEditingTodo, title: newTitle.trim() });
+      } else {
+        setIsEditingTodo(null);
+      }
+    }
+
+    if (event && isEditingTodo?.title.length === 0) {
+      onDelete(isEditingTodo.id);
     }
   };
 
   const handleKeyUp = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    e.preventDefault();
-
-    if (e.key === 'Enter' && isEditingTodo) {
-      if (isEditingTodo.title.length > 0) {
-        handleTitleUpdate(isEditingTodo);
-      } else {
-        onDelete(isEditingTodo.id);
-      }
-    }
+    handleEvent(e.key);
 
     if (e.key === 'Escape') {
       setIsEditingTodo(null);
@@ -52,9 +64,7 @@ export const TodoItem: React.FC<Props> = ({
   };
 
   const handleBlur = () => {
-    if (isEditingTodo) {
-      handleTitleUpdate(isEditingTodo);
-    }
+    handleEvent();
   };
 
   return (
@@ -82,9 +92,7 @@ export const TodoItem: React.FC<Props> = ({
             className="todo__title-field"
             placeholder="Empty todo will be deleted"
             value={isEditingTodo.title}
-            onChange={e => {
-              setIsEditingTodo({ ...isEditingTodo, title: e.target.value });
-            }}
+            onChange={handleChange}
             onKeyUp={handleKeyUp}
             onBlur={handleBlur}
             ref={todoField}
