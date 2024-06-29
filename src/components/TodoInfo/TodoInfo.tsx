@@ -7,7 +7,7 @@ interface Props {
   todoInfo: Todo;
   todosForProcesing?: Todo[];
   onDelete: (todo: Todo[]) => void;
-  onUpdate: (updatedTodo: Todo) => Promise<void>;
+  onUpdate: (updatedTodo: Todo) => void;
 }
 
 export const TodoInfo: React.FC<Props> = ({
@@ -19,12 +19,45 @@ export const TodoInfo: React.FC<Props> = ({
   const [updatedTitle, setUpdatedTitle] = useState(todoInfo.title);
   const [isEdited, setIsEdited] = useState(false);
   const updatedField = useRef<HTMLInputElement>(null);
+  const processingIds = todosForProcesing?.map(todo => todo.id);
 
   useEffect(() => {
-    updatedField.current?.focus();
+    if (isEdited) {
+      updatedField.current?.focus();
+    }
   }, [isEdited]);
 
-  const processingIds = todosForProcesing?.map(todo => todo.id);
+  useEffect(() => setIsEdited(false), [todoInfo]);
+  //   event.preventDefault();
+
+  //   const trimmedTitle = updatedTitle.trim();
+
+  //   if (trimmedTitle === todoInfo.title) {
+  //     setIsEdited(false);
+
+  //     return;
+  //   }
+
+  //   if (!trimmedTitle) {
+  //     onDelete([todoInfo]);
+
+  //     return;
+  //   }
+
+  //   setUpdatedTitle(trimmedTitle);
+
+  //   onUpdate({ ...todoInfo, title: trimmedTitle })
+  //     .then(() => {
+  //       console.log('answer from App');
+
+  //       setIsEdited(false);
+  //     })
+  //     .catch(error => {
+  //       console.log(error);
+
+  //       throw error;
+  //     });
+  // };
 
   const handleSubmit = (event: React.FormEvent) => {
     event.preventDefault();
@@ -45,9 +78,7 @@ export const TodoInfo: React.FC<Props> = ({
 
     setUpdatedTitle(trimmedTitle);
 
-    onUpdate({ ...todoInfo, title: updatedTitle }).then(() => {
-      setIsEdited(false);
-    });
+    onUpdate({ ...todoInfo, title: updatedTitle });
   };
 
   return (
@@ -85,7 +116,6 @@ export const TodoInfo: React.FC<Props> = ({
           }}
         >
           <input
-            autoFocus
             data-cy="TodoTitleField"
             type="text"
             placeholder="Empty todo will be deleted"
@@ -101,8 +131,9 @@ export const TodoInfo: React.FC<Props> = ({
             data-cy="TodoTitle"
             className="todo__title"
             onDoubleClick={() => {
-              setUpdatedTitle(todoInfo.title);
-              setIsEdited(true);
+              if (!isEdited) {
+                setIsEdited(true);
+              }
             }}
           >
             {updatedTitle}
