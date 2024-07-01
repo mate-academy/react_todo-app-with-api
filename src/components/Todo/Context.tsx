@@ -1,4 +1,10 @@
-import React, { useContext, useEffect, useMemo, useState } from 'react';
+import React, {
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useState,
+} from 'react';
 import { Todo } from '../../types/Todo';
 import {
   USER_ID,
@@ -10,7 +16,11 @@ import {
 } from '../../api/todos';
 import { TodoRequestBody } from '../../types/requestBodies';
 import { TempTodo } from '../../types/types';
-import { ApiContextValue, TodosContextValue } from '../../types/contextValues';
+import {
+  TodoApiContextValue,
+  TodosContextValue,
+} from '../../types/contextValues';
+import { useErrorNotificationApi } from '../ErrorNotification/Context';
 
 const updateTodoInTodos = (todos: Todo[], modifiedTodo: Todo): Todo[] =>
   todos.map(todo => (todo.id === modifiedTodo.id ? modifiedTodo : todo));
@@ -28,8 +38,7 @@ const removeIdOfProcessedTodo = (
 
 const TodosContext = React.createContext<TodosContextValue | null>(null);
 const ProcessContext = React.createContext<number[] | null>(null);
-const ErrorContext = React.createContext<string | null>(null);
-const ApiContext = React.createContext<ApiContextValue | null>(null);
+const TodoApiContext = React.createContext<TodoApiContextValue | null>(null);
 
 type Props = React.PropsWithChildren;
 
@@ -37,116 +46,129 @@ export const TodoProvider = ({ children }: Props) => {
   const [todos, setTodos] = useState<Todo[]>([]);
   const [tempTodo, setTempTodo] = useState<TempTodo>(null);
   const [idsOfProcessedTodos, setIdsOfProcessedTodos] = useState<number[]>([]);
-  const [sentErrorMessage, setSentErrorMessage] = useState('');
+  const handleErrorMessageSend = useErrorNotificationApi();
 
-  const handleErrorMessageReceived = () => setSentErrorMessage('');
+  const handleCompletedChange = useCallback(
+    async (id: number, completed: boolean) => {
+      setIdsOfProcessedTodos(prevIdsOfProcessedTodos =>
+        addIdOfProcessedTodo(prevIdsOfProcessedTodos, id),
+      );
 
-  const handleCompletedChange = (id: number, completed: boolean) => {
-    setIdsOfProcessedTodos(prevIdsOfProcessedTodos =>
-      addIdOfProcessedTodo(prevIdsOfProcessedTodos, id),
-    );
+      try {
+        const modifiedTodo = await patchTodoCompleted(id, completed);
 
-    patchTodoCompleted(id, completed)
-      .then(todo => {
-        setTodos(prevTodos => updateTodoInTodos(prevTodos, todo));
-      })
-      .catch(() => {
-        setSentErrorMessage('Unable to update a todo');
-      })
-      .finally(() =>
+        setTodos(prevTodos => updateTodoInTodos(prevTodos, modifiedTodo));
+      } catch {
+        handleErrorMessageSend('Unable to update a todo');
+      } finally {
         setIdsOfProcessedTodos(prevIdsOfProcessedTodos =>
           removeIdOfProcessedTodo(prevIdsOfProcessedTodos, id),
-        ),
+        );
+      }
+    },
+    [handleErrorMessageSend],
+  );
+
+  const handleTitleChange = useCallback(
+    async (id: number, title: string): Promise<boolean> => {
+      setIdsOfProcessedTodos(prevIdsOfProcessedTodos =>
+        addIdOfProcessedTodo(prevIdsOfProcessedTodos, id),
       );
-  };
 
-  const handleTitleChange = (id: number, title: string): Promise<boolean> => {
-    setIdsOfProcessedTodos(prevIdsOfProcessedTodos =>
-      addIdOfProcessedTodo(prevIdsOfProcessedTodos, id),
-    );
+      try {
+        const modifiedTodo = await patchTodoTitle(id, title);
 
-    return patchTodoTitle(id, title)
-      .then(todo => {
-        setTodos(prevTodos => updateTodoInTodos(prevTodos, todo));
+        setTodos(prevTodos => updateTodoInTodos(prevTodos, modifiedTodo));
 
         return true;
-      })
-      .catch(() => {
-        setSentErrorMessage('Unable to update a todo');
+      } catch {
+        handleErrorMessageSend('Unable to update a todo');
 
         return false;
-      })
-      .finally(() =>
+      } finally {
         setIdsOfProcessedTodos(prevIdsOfProcessedTodos =>
           removeIdOfProcessedTodo(prevIdsOfProcessedTodos, id),
-        ),
-      );
-  };
+        );
+      }
+    },
+    [handleErrorMessageSend],
+  );
 
-  const handleTodoAdd = (title: string): Promise<boolean> => {
-    const trimmedTitle = title.trim();
+  const handleTodoAdd = useCallback(
+    async (title: string): Promise<boolean> => {
+      const trimmedTitle = title.trim();
 
-    if (trimmedTitle.length) {
-      const todoRequestBody: TodoRequestBody = {
-        userId: USER_ID,
-        title: trimmedTitle,
-        completed: false,
-      };
+      if (trimmedTitle.length) {
+        const todoRequestBody: TodoRequestBody = {
+          userId: USER_ID,
+          title: trimmedTitle,
+          completed: false,
+        };
 
-      setTempTodo({
-        ...todoRequestBody,
-        id: 0,
-      });
+        setTempTodo({
+          ...todoRequestBody,
+          id: 0,
+        });
 
-      return postTodo({ ...todoRequestBody })
-        .then(newTodo => {
+        try {
+          const newTodo = await postTodo({ ...todoRequestBody });
+
           setTodos(prevTodos => [...prevTodos, newTodo]);
 
           return true;
-        })
-        .catch(() => {
-          setSentErrorMessage('Unable to add a todo');
+        } catch {
+          handleErrorMessageSend('Unable to add a todo');
 
           return false;
-        })
-        .finally(() => setTempTodo(null));
-    }
+        } finally {
+          setTempTodo(null);
+        }
+      }
 
-    setSentErrorMessage('Title should not be empty');
+      handleErrorMessageSend('Title should not be empty');
 
-    return Promise.resolve(false);
-  };
+      return false;
+    },
+    [handleErrorMessageSend],
+  );
 
-  const handleTodoRemove = (id: number): Promise<boolean> => {
-    setIdsOfProcessedTodos(prevIdsOfProcessedTodos =>
-      addIdOfProcessedTodo(prevIdsOfProcessedTodos, id),
-    );
+  const handleTodoRemove = useCallback(
+    async (id: number): Promise<boolean> => {
+      setIdsOfProcessedTodos(prevIdsOfProcessedTodos =>
+        addIdOfProcessedTodo(prevIdsOfProcessedTodos, id),
+      );
 
-    return deleteTodo(id)
-      .then(() => {
+      try {
+        await deleteTodo(id);
         setTodos(prevTodos => prevTodos.filter(todo => todo.id !== id));
 
         return true;
-      })
-      .catch(() => {
-        setSentErrorMessage('Unable to delete a todo');
+      } catch {
+        handleErrorMessageSend('Unable to delete a todo');
 
         return false;
-      })
-      .finally(() =>
+      } finally {
         setIdsOfProcessedTodos(prevIdsOfProcessedTodos =>
           removeIdOfProcessedTodo(prevIdsOfProcessedTodos, id),
-        ),
-      );
-  };
+        );
+      }
+    },
+    [handleErrorMessageSend],
+  );
+
+  const loadTodos = useCallback(async () => {
+    try {
+      const loadedTodos = await getTodos();
+
+      setTodos(loadedTodos);
+    } catch {
+      handleErrorMessageSend('Unable to load todos');
+    }
+  }, [handleErrorMessageSend]);
 
   useEffect(() => {
-    getTodos()
-      .then(setTodos)
-      .catch(() => {
-        setSentErrorMessage('Unable to load todos');
-      });
-  }, []);
+    loadTodos();
+  }, [loadTodos]);
 
   const todosValue = useMemo(
     () => ({
@@ -158,25 +180,22 @@ export const TodoProvider = ({ children }: Props) => {
 
   const apiValue = useMemo(
     () => ({
-      handleErrorMessageReceived,
       handleCompletedChange,
       handleTitleChange,
       handleTodoAdd,
       handleTodoRemove,
     }),
-    [],
+    [handleCompletedChange, handleTitleChange, handleTodoAdd, handleTodoRemove],
   );
 
   return (
-    <ApiContext.Provider value={apiValue}>
-      <ErrorContext.Provider value={sentErrorMessage}>
-        <ProcessContext.Provider value={idsOfProcessedTodos}>
-          <TodosContext.Provider value={todosValue}>
-            {children}
-          </TodosContext.Provider>
-        </ProcessContext.Provider>
-      </ErrorContext.Provider>
-    </ApiContext.Provider>
+    <TodoApiContext.Provider value={apiValue}>
+      <ProcessContext.Provider value={idsOfProcessedTodos}>
+        <TodosContext.Provider value={todosValue}>
+          {children}
+        </TodosContext.Provider>
+      </ProcessContext.Provider>
+    </TodoApiContext.Provider>
   );
 };
 
@@ -200,18 +219,8 @@ export const useTodoProcess = () => {
   return value;
 };
 
-export const useTodoError = () => {
-  const value = useContext(ErrorContext);
-
-  if (!value && value !== '') {
-    throw new Error('TodoProvider is missing!!!');
-  }
-
-  return value;
-};
-
 export const useTodoApi = () => {
-  const value = useContext(ApiContext);
+  const value = useContext(TodoApiContext);
 
   if (!value) {
     throw new Error('TodoProvider is missing!!!');

@@ -1,6 +1,6 @@
 import { FilterOption } from '../../types/types';
+import { ErrorNotification } from '../ErrorNotification/ErrorNotification';
 import { useTodoTodos, useTodoApi } from './Context';
-import { ErrorNotification } from './ErrorNotification';
 import { Filter } from './Filter';
 import { NewTodo } from './NewTodo';
 import { TodoList } from './TodoList';

@@ -1,36 +1,25 @@
 import React, { useEffect, useState } from 'react';
-import { useTodoApi, useTodoError } from './Context';
 import classNames from 'classnames';
+import { useErrorNotificationErrorMessage } from './Context';
 
 let clearErrorTimeoutId = 0;
-let clearErrorMessageTimeoutId = 0;
 
 export const ErrorNotification = () => {
-  const sentErrorMessage = useTodoError();
-  const { handleErrorMessageReceived } = useTodoApi();
-  const [errorMessage, setErrorMessage] = useState('');
+  const { errorMessage, sendError } = useErrorNotificationErrorMessage();
   const [errorShown, setErrorShown] = useState(false);
 
   const handleErrorClear = () => {
-    window.clearTimeout(clearErrorMessageTimeoutId);
     window.clearTimeout(clearErrorTimeoutId);
     setErrorShown(false);
-    clearErrorMessageTimeoutId = window.setTimeout(
-      () => setErrorMessage(''),
-      1000,
-    );
   };
 
   useEffect(() => {
-    if (sentErrorMessage) {
-      clearTimeout(clearErrorMessageTimeoutId);
+    if (sendError) {
       clearTimeout(clearErrorTimeoutId);
-      setErrorMessage(sentErrorMessage);
-      handleErrorMessageReceived();
       setErrorShown(true);
       clearErrorTimeoutId = window.setTimeout(handleErrorClear, 3000);
     }
-  }, [handleErrorMessageReceived, sentErrorMessage]);
+  }, [sendError]);
 
   return (
     <div

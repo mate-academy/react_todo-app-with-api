@@ -21,24 +21,22 @@ export const TodoItem: React.FC<Props> = ({ todo, isProcessed }) => {
     event: React.ChangeEvent<HTMLInputElement>,
   ) => handleCompletedChange(id, event.currentTarget.checked);
 
-  const handleEditSave = () => {
+  const handleEditSave = async () => {
     if (!isProcessed && editValue !== null) {
       const trimmedTitle = editValue.trim();
-      let succeeded = Promise.resolve(true);
+      let succeeded = true;
 
       if (!trimmedTitle.length) {
-        succeeded = handleTodoRemove(id);
+        succeeded = await handleTodoRemove(id);
       } else if (title !== trimmedTitle) {
-        succeeded = handleTitleChange(id, trimmedTitle);
+        succeeded = await handleTitleChange(id, trimmedTitle);
       }
 
-      succeeded.then(success => {
-        if (success) {
-          setEditValue(null);
-        } else {
-          inputReference.current?.focus();
-        }
-      });
+      if (succeeded) {
+        setEditValue(null);
+      } else {
+        inputReference.current?.focus();
+      }
     }
   };
 
