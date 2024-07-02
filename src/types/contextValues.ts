@@ -1,6 +1,8 @@
 import { Todo } from './Todo';
 import {
   HandleCompletedChange,
+  HandleErrorMessageClear,
+  HandleErrorMessageSend,
   HandleTitleChange,
   HandleTodoAdd,
   HandleTodoRemove,
@@ -22,4 +24,9 @@ export type TodoApiContextValue = {
   handleTitleChange: HandleTitleChange;
   handleTodoAdd: HandleTodoAdd;
   handleTodoRemove: HandleTodoRemove;
+};
+
+export type ErrorNotificationApiContextValue = {
+  handleErrorMessageSend: HandleErrorMessageSend;
+  handleErrorMessageClear: HandleErrorMessageClear;
 };

@@ -46,7 +46,7 @@ export const TodoProvider = ({ children }: Props) => {
   const [todos, setTodos] = useState<Todo[]>([]);
   const [tempTodo, setTempTodo] = useState<TempTodo>(null);
   const [idsOfProcessedTodos, setIdsOfProcessedTodos] = useState<number[]>([]);
-  const handleErrorMessageSend = useErrorNotificationApi();
+  const { handleErrorMessageSend } = useErrorNotificationApi();
 
   const handleCompletedChange = useCallback(
     async (id: number, completed: boolean) => {

@@ -10,3 +10,4 @@ export type HandleTitleChange = (
 export type HandleTodoAdd = (title: string) => Promise<boolean>;
 export type HandleTodoRemove = (id: number) => Promise<boolean>;
 export type HandleErrorMessageSend = (newErrorMessage: string) => void;
+export type HandleErrorMessageClear = () => void;

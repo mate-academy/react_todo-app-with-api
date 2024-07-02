@@ -1,11 +1,13 @@
-import React, { useCallback, useContext, useState } from 'react';
-import { ErrorMessageContextValue } from '../../types/contextValues';
-import { HandleErrorMessageSend } from '../../types/handlers';
+import React, { useContext, useMemo, useState } from 'react';
+import {
+  ErrorMessageContextValue,
+  ErrorNotificationApiContextValue,
+} from '../../types/contextValues';
 
 const ErrorMessageContext =
   React.createContext<ErrorMessageContextValue | null>(null);
 const ErrorNotificationApiContext =
-  React.createContext<HandleErrorMessageSend | null>(null);
+  React.createContext<ErrorNotificationApiContextValue | null>(null);
 
 type Props = React.PropsWithChildren;
 
@@ -13,19 +15,31 @@ export const ErrorNotificationProvider = ({ children }: Props) => {
   const [errorMessage, setErrorMessage] = useState('');
   const [sendError, setSendError] = useState(false);
 
-  const handleErrorMessageSend = useCallback((newErrorMessage: string) => {
+  const handleErrorMessageSend = (newErrorMessage: string) => {
     setErrorMessage(newErrorMessage);
     setSendError(true);
     setTimeout(setSendError, 0, false);
-  }, []);
+  };
+
+  const handleErrorMessageClear = () => {
+    setErrorMessage('');
+  };
 
   const errorValue = {
     errorMessage,
     sendError,
   };
 
+  const apiValue = useMemo(
+    () => ({
+      handleErrorMessageSend,
+      handleErrorMessageClear,
+    }),
+    [],
+  );
+
   return (
-    <ErrorNotificationApiContext.Provider value={handleErrorMessageSend}>
+    <ErrorNotificationApiContext.Provider value={apiValue}>
       <ErrorMessageContext.Provider value={errorValue}>
         {children}
       </ErrorMessageContext.Provider>

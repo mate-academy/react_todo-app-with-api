@@ -25,6 +25,7 @@ export const NewTodo: React.FC = () => {
   return (
     <form onSubmit={handleSubmit}>
       <input
+        name="NewTodoField"
         data-cy="NewTodoField"
         type="text"
         className="todoapp__new-todo"

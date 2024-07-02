@@ -65,6 +65,7 @@ export const TodoItem: React.FC<Props> = ({ todo, isProcessed }) => {
     >
       <label className="todo__status-label">
         <input
+          name="TodoStatus"
           data-cy="TodoStatus"
           type="checkbox"
           className="todo__status"
@@ -76,6 +77,7 @@ export const TodoItem: React.FC<Props> = ({ todo, isProcessed }) => {
       {editValue !== null ? (
         <form onSubmit={handleSubmit}>
           <input
+            name="TodoTitleField"
             data-cy="TodoTitleField"
             type="text"
             className="todo__title-field"
