@@ -18,6 +18,7 @@ export enum Type {
   setTempTodo = 'setTempTodo',
   setDeletedTodos = 'setDeletedTodos',
   resetDeletedTodos = 'resetDeletedTodos',
+  setUpdatingId = 'setUpdatingId',
 }
 
 export type Action =
@@ -33,7 +34,8 @@ export type Action =
   | { type: Type.setTodos; payload: Todo[] }
   | { type: Type.setErrorMessage; payload: string }
   | { type: Type.setLoading; payload: boolean }
+  | { type: Type.setUpdatingId; payload: number | undefined }
   | { type: Type.setIsSubmitting; payload: boolean }
   | { type: Type.setTempTodo; payload: Todo | null }
-  | { type: Type.setDeletedTodos; payload: Todo }
-  | { type: Type.resetDeletedTodos; payload: Todo };
+  | { type: Type.setDeletedTodos; payload: number }
+  | { type: Type.resetDeletedTodos; payload: number };

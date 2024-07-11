@@ -18,7 +18,8 @@ export const TodoItem: React.FC<Props> = ({
   handleError,
 }) => {
   const [newTitle, setNewTitle] = useState(todo.title);
-  const { editingId, isSubmitting, deletedTodos } = useGlobalState();
+  const { editingId, isSubmitting, deletedTodos, updatingId } =
+    useGlobalState();
   const dispatch = useDispatch();
   const { id, completed, title } = todo;
 
@@ -26,7 +27,8 @@ export const TodoItem: React.FC<Props> = ({
 
   const updateTodoOnServer = (updatedTodo: Todo) => {
     dispatch({ type: Type.setErrorMessage, payload: '' });
-    dispatch({ type: Type.setIsSubmitting, payload: true });
+    dispatch({ type: Type.setUpdatingId, payload: updatedTodo.id });
+    // dispatch({ type: Type.setDeletedTodos, payload: todo.id });
 
     return updateTodos(updatedTodo)
       .then(item => {
@@ -36,7 +38,8 @@ export const TodoItem: React.FC<Props> = ({
         handleError(ErrorType.UPDATE_TODO);
       })
       .finally(() => {
-        dispatch({ type: Type.setIsSubmitting, payload: false });
+        dispatch({ type: Type.setUpdatingId, payload: undefined });
+        // dispatch({ type: Type.resetDeletedTodos, payload: todo.id });
       });
   };
 
@@ -50,7 +53,7 @@ export const TodoItem: React.FC<Props> = ({
 
   const handleRemoveButton = (removedTodo: Todo) => {
     deleteTodosFromServer(removedTodo);
-    dispatch({ type: Type.setDeletedTodos, payload: removedTodo });
+    dispatch({ type: Type.setDeletedTodos, payload: removedTodo.id });
   };
 
   const updateTodoCheckStatus = (updatedTodo: Todo) => {
@@ -68,11 +71,11 @@ export const TodoItem: React.FC<Props> = ({
       dispatch({ type: Type.setEditingId, payload: undefined });
 
       return;
-    } else {
-      setNewTitle(trimmedTitle);
-      updateTodo({ ...todo, title: trimmedTitle });
-      dispatch({ type: Type.setEditingId, payload: undefined });
     }
+
+    setNewTitle(trimmedTitle);
+    updateTodo({ ...todo, title: trimmedTitle });
+    dispatch({ type: Type.setEditingId, payload: undefined });
   };
 
   const handleUpdate = (e: React.FormEvent<HTMLFormElement>) => {
@@ -97,7 +100,8 @@ export const TodoItem: React.FC<Props> = ({
     setNewTitle(e.target.value);
   };
 
-  const loaderCheck = todo.id === 0 || deletedTodos.includes(todo);
+  const showLoader =
+    todo.id === 0 || deletedTodos.includes(todo.id) || todo.id === updatingId;
 
   return (
     <div
@@ -153,10 +157,7 @@ export const TodoItem: React.FC<Props> = ({
 
           <div
             data-cy="TodoLoader"
-            className={
-              'modal overlay ' +
-              (loaderCheck || isSubmitting ? 'is-active' : '')
-            }
+            className={'modal overlay ' + (showLoader ? 'is-active' : '')}
           >
             <div className="modal-background has-background-white-ter" />
             <div className="loader" />

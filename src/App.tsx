@@ -50,7 +50,7 @@ export const App: React.FC = () => {
       .then(() => dispatch({ type: Type.DeleteTodo, payload: item }))
       .catch(() => handleError(ErrorType.DELETE_TODO))
       .finally(() => {
-        dispatch({ type: Type.resetDeletedTodos, payload: item });
+        dispatch({ type: Type.resetDeletedTodos, payload: item.id });
         dispatch({ type: Type.setIsSubmitting, payload: false });
       });
   };

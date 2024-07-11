@@ -14,6 +14,7 @@ const initialState: State = {
   tempTodo: null,
   deletedTodos: [],
   resetDeletedTodos: [],
+  updatingId: undefined,
 };
 
 function reducer(state: State, action: Action): State {
@@ -105,7 +106,7 @@ function reducer(state: State, action: Action): State {
       return {
         ...state,
         deletedTodos: [
-          ...state.deletedTodos.filter(todo => todo.id != action.payload.id),
+          ...state.deletedTodos.filter(id => id != action.payload),
         ],
       };
 
@@ -125,6 +126,12 @@ function reducer(state: State, action: Action): State {
       return {
         ...state,
         isSubmitting: action.payload,
+      };
+
+    case Type.setUpdatingId:
+      return {
+        ...state,
+        updatingId: action.payload,
       };
 
     case Type.setTempTodo:
