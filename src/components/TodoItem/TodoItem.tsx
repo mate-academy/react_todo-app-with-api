@@ -3,13 +3,20 @@ import { useState } from 'react';
 import { Todo } from '../../types/Todo';
 import { useDispatch, useGlobalState } from '../../GlobalStateProvider';
 import { Type } from '../../types/Action';
+import { ErrorType } from '../../types/Errors';
+import { updateTodos } from '../../api/todos';
 
 type Props = {
   todo: Todo;
   deleteTodosFromServer: (a: Todo) => void;
+  handleError: (message: string) => void;
 };
 
-export const TodoItem: React.FC<Props> = ({ todo, deleteTodosFromServer }) => {
+export const TodoItem: React.FC<Props> = ({
+  todo,
+  deleteTodosFromServer,
+  handleError,
+}) => {
   const [newTitle, setNewTitle] = useState(todo.title);
   const { editingId, isSubmitting, deletedTodos } = useGlobalState();
   const dispatch = useDispatch();
@@ -17,11 +24,23 @@ export const TodoItem: React.FC<Props> = ({ todo, deleteTodosFromServer }) => {
 
   const isEditing = id === editingId;
 
+  const updateTodoOnServer = (updatedTodo: Todo) => {
+    dispatch({ type: Type.setErrorMessage, payload: '' });
+
+    return updateTodos(updatedTodo)
+      .then(newTodo => {
+        dispatch({ type: Type.UpdateTodo, payload: newTodo });
+      })
+      .catch(() => {
+        handleError(ErrorType.UPDATE_TODO);
+      });
+  };
+
   const updateTodo = (updatedTodo: Todo) => {
     if (updatedTodo.title) {
-      dispatch({ type: Type.UpdateTodo, payload: updatedTodo });
+      updateTodoOnServer(updatedTodo);
     } else {
-      dispatch({ type: Type.DeleteTodo, payload: updatedTodo });
+      deleteTodosFromServer(updatedTodo);
     }
   };
 

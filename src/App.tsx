@@ -61,7 +61,10 @@ export const App: React.FC = () => {
 
       <div className="todoapp__content">
         <Header handleError={handleError} />
-        <TodoList deleteTodosFromServer={deleteTodosFromServer} />
+        <TodoList
+          deleteTodosFromServer={deleteTodosFromServer}
+          handleError={handleError}
+        />
         <Footer deleteTodosFromServer={deleteTodosFromServer} />
       </div>
       <ErrorNotifications />

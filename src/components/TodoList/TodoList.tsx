@@ -6,9 +6,13 @@ import { CSSTransition, TransitionGroup } from 'react-transition-group';
 
 type Props = {
   deleteTodosFromServer: (arg: Todo) => void;
+  handleError: (message: string) => void;
 };
 
-export const TodoList: React.FC<Props> = ({ deleteTodosFromServer }) => {
+export const TodoList: React.FC<Props> = ({
+  deleteTodosFromServer,
+  handleError,
+}) => {
   const { todos, status, tempTodo } = useGlobalState();
 
   const getList = (sortType: Status): Todo[] => {
@@ -31,6 +35,7 @@ export const TodoList: React.FC<Props> = ({ deleteTodosFromServer }) => {
               deleteTodosFromServer={deleteTodosFromServer}
               key={todo.id}
               todo={todo}
+              handleError={handleError}
             />
           </CSSTransition>
         ))}
@@ -40,6 +45,7 @@ export const TodoList: React.FC<Props> = ({ deleteTodosFromServer }) => {
               deleteTodosFromServer={deleteTodosFromServer}
               key={tempTodo.id}
               todo={tempTodo}
+              handleError={handleError}
             />
           </CSSTransition>
         )}
