@@ -60,6 +60,12 @@ export const TodoItem: React.FC<Props> = ({
   const updateTitle = () => {
     const trimmedTitle = newTitle.trim();
 
+    if (trimmedTitle === title) {
+      dispatch({ type: Type.setEditingId, payload: undefined });
+
+      return;
+    }
+
     setNewTitle(trimmedTitle);
 
     updateTodo({ ...todo, title: trimmedTitle });
