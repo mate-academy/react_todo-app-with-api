@@ -26,13 +26,17 @@ export const TodoItem: React.FC<Props> = ({
 
   const updateTodoOnServer = (updatedTodo: Todo) => {
     dispatch({ type: Type.setErrorMessage, payload: '' });
+    dispatch({ type: Type.setIsSubmitting, payload: true });
 
     return updateTodos(updatedTodo)
-      .then(newTodo => {
-        dispatch({ type: Type.UpdateTodo, payload: newTodo });
+      .then(item => {
+        dispatch({ type: Type.UpdateTodo, payload: item });
       })
       .catch(() => {
         handleError(ErrorType.UPDATE_TODO);
+      })
+      .finally(() => {
+        dispatch({ type: Type.setIsSubmitting, payload: false });
       });
   };
 
@@ -64,12 +68,11 @@ export const TodoItem: React.FC<Props> = ({
       dispatch({ type: Type.setEditingId, payload: undefined });
 
       return;
+    } else {
+      setNewTitle(trimmedTitle);
+      updateTodo({ ...todo, title: trimmedTitle });
+      dispatch({ type: Type.setEditingId, payload: undefined });
     }
-
-    setNewTitle(trimmedTitle);
-
-    updateTodo({ ...todo, title: trimmedTitle });
-    dispatch({ type: Type.setEditingId, payload: undefined });
   };
 
   const handleUpdate = (e: React.FormEvent<HTMLFormElement>) => {
@@ -150,7 +153,10 @@ export const TodoItem: React.FC<Props> = ({
 
           <div
             data-cy="TodoLoader"
-            className={'modal overlay ' + (loaderCheck ? 'is-active' : '')}
+            className={
+              'modal overlay ' +
+              (loaderCheck || isSubmitting ? 'is-active' : '')
+            }
           >
             <div className="modal-background has-background-white-ter" />
             <div className="loader" />
