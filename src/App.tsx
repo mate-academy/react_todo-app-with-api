@@ -2,7 +2,7 @@
 /* eslint-disable jsx-a11y/control-has-associated-label */
 import React, { useEffect } from 'react';
 import { UserWarning } from './UserWarning';
-import { deleteTodos, getTodos, USER_ID } from './api/todos';
+import { deleteTodos, getTodos, updateTodoCheck, USER_ID } from './api/todos';
 import { Footer } from './components/Footer/Footer';
 import { Header } from './components/Header/Header';
 import { TodoList } from './components/TodoList/TodoList';
@@ -55,15 +55,35 @@ export const App: React.FC = () => {
       });
   };
 
+  const updateTodoCheckOnServer = (updatedTodo: Todo) => {
+    dispatch({ type: Type.setErrorMessage, payload: '' });
+    dispatch({ type: Type.setDeletedTodos, payload: updatedTodo.id });
+
+    return updateTodoCheck(updatedTodo)
+      .then(item => {
+        dispatch({ type: Type.UpdateTodoCheckStatus, payload: item });
+      })
+      .catch(() => {
+        handleError(ErrorType.UPDATE_TODO);
+      })
+      .finally(() => {
+        dispatch({ type: Type.resetDeletedTodos, payload: updatedTodo.id });
+      });
+  };
+
   return (
     <div className="todoapp">
       <h1 className="todoapp__title">todos</h1>
 
       <div className="todoapp__content">
-        <Header handleError={handleError} />
+        <Header
+          handleError={handleError}
+          updateTodoCheckOnServer={updateTodoCheckOnServer}
+        />
         <TodoList
           deleteTodosFromServer={deleteTodosFromServer}
           handleError={handleError}
+          updateTodoCheckOnServer={updateTodoCheckOnServer}
         />
         <Footer deleteTodosFromServer={deleteTodosFromServer} />
       </div>

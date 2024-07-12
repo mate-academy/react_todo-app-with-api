@@ -7,11 +7,13 @@ import { CSSTransition, TransitionGroup } from 'react-transition-group';
 type Props = {
   deleteTodosFromServer: (arg: Todo) => void;
   handleError: (message: string) => void;
+  updateTodoCheckOnServer: (arg: Todo) => void;
 };
 
 export const TodoList: React.FC<Props> = ({
   deleteTodosFromServer,
   handleError,
+  updateTodoCheckOnServer,
 }) => {
   const { todos, status, tempTodo } = useGlobalState();
 
@@ -36,6 +38,7 @@ export const TodoList: React.FC<Props> = ({
               key={todo.id}
               todo={todo}
               handleError={handleError}
+              updateTodoCheckOnServer={updateTodoCheckOnServer}
             />
           </CSSTransition>
         ))}
@@ -46,6 +49,7 @@ export const TodoList: React.FC<Props> = ({
               key={tempTodo.id}
               todo={tempTodo}
               handleError={handleError}
+              updateTodoCheckOnServer={updateTodoCheckOnServer}
             />
           </CSSTransition>
         )}

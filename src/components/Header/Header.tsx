@@ -1,19 +1,27 @@
 import { TodoForm } from '../TodoForm/TodoForm';
 import { useDispatch, useGlobalState } from '../../GlobalStateProvider';
 import { Type } from '../../types/Action';
+import { Todo } from '../../types/Todo';
 
 type Props = {
   handleError: (message: string) => void;
+  updateTodoCheckOnServer: (arg: Todo) => void;
 };
 
-export const Header: React.FC<Props> = ({ handleError }) => {
+export const Header: React.FC<Props> = ({
+  handleError,
+  updateTodoCheckOnServer,
+}) => {
   const { todos } = useGlobalState();
   const dispatch = useDispatch();
 
   const allChecked = todos.every(todo => todo.completed);
 
-  const toggleAllChecked = () => {
-    dispatch({ type: Type.ToggleAllChecked });
+  const toggleAllCheckedOnServer = () => {
+    return todos.forEach(todo => {
+      dispatch({ type: Type.setDeletedTodos, payload: todo.id });
+      updateTodoCheckOnServer({ ...todo, completed: !allChecked });
+    });
   };
 
   return (
@@ -23,7 +31,7 @@ export const Header: React.FC<Props> = ({ handleError }) => {
           type="button"
           className={'todoapp__toggle-all ' + (allChecked ? 'active' : '')}
           data-cy="ToggleAllButton"
-          onClick={toggleAllChecked}
+          onClick={toggleAllCheckedOnServer}
         />
       )}
       <TodoForm handleError={handleError} />
