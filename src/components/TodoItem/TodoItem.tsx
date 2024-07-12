@@ -35,12 +35,12 @@ export const TodoItem: React.FC<Props> = ({
     return updateTodos(updatedTodo)
       .then(item => {
         dispatch({ type: Type.UpdateTodo, payload: item });
+        dispatch({ type: Type.setEditingId, payload: undefined });
       })
       .catch(() => {
         handleError(ErrorType.UPDATE_TODO);
 
         dispatch({ type: Type.setEditingId, payload: updatedTodo.id });
-        // dispatch({ type: Type.setUpdatingId, payload: undefined });
       })
       .finally(() => {
         dispatch({ type: Type.setUpdatingId, payload: undefined });
@@ -51,6 +51,7 @@ export const TodoItem: React.FC<Props> = ({
     if (updatedTodo.title) {
       updateTodoOnServer(updatedTodo);
     } else {
+      dispatch({ type: Type.setLoadingTodos, payload: updatedTodo.id });
       deleteTodosFromServer(updatedTodo);
     }
   };
@@ -75,7 +76,6 @@ export const TodoItem: React.FC<Props> = ({
 
     setNewTitle(trimmedTitle);
     updateTodo({ ...todo, title: trimmedTitle });
-    dispatch({ type: Type.setEditingId, payload: undefined });
   };
 
   const handleUpdate = (e: React.FormEvent<HTMLFormElement>) => {
@@ -102,12 +102,6 @@ export const TodoItem: React.FC<Props> = ({
 
   const showLoader =
     todo.id === 0 || loadingTodos.includes(todo.id) || todo.id === updatingId;
-
-  // useEffect(() => {
-  //   if (inputRef.current && isEditing) {
-  //     inputRef.current.focus();
-  //   }
-  // }, [isEditing]);
 
   return (
     <div
