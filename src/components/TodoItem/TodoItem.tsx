@@ -20,7 +20,7 @@ export const TodoItem: React.FC<Props> = ({
   updateTodoCheckOnServer,
 }) => {
   const [newTitle, setNewTitle] = useState(todo.title);
-  const { editingId, isSubmitting, deletedTodos, updatingId } =
+  const { editingId, isSubmitting, loadingTodos, updatingId } =
     useGlobalState();
   const dispatch = useDispatch();
   const { id, completed, title } = todo;
@@ -30,7 +30,6 @@ export const TodoItem: React.FC<Props> = ({
   const updateTodoOnServer = (updatedTodo: Todo) => {
     dispatch({ type: Type.setErrorMessage, payload: '' });
     dispatch({ type: Type.setUpdatingId, payload: updatedTodo.id });
-    // dispatch({ type: Type.setDeletedTodos, payload: todo.id });
 
     return updateTodos(updatedTodo)
       .then(item => {
@@ -41,7 +40,6 @@ export const TodoItem: React.FC<Props> = ({
       })
       .finally(() => {
         dispatch({ type: Type.setUpdatingId, payload: undefined });
-        // dispatch({ type: Type.resetDeletedTodos, payload: todo.id });
       });
   };
 
@@ -55,7 +53,7 @@ export const TodoItem: React.FC<Props> = ({
 
   const handleRemoveButton = (removedTodo: Todo) => {
     deleteTodosFromServer(removedTodo);
-    dispatch({ type: Type.setDeletedTodos, payload: removedTodo.id });
+    dispatch({ type: Type.setLoadingTodos, payload: removedTodo.id });
   };
 
   const handleDoubleClick = (editedTodo: Todo) => {
@@ -99,7 +97,7 @@ export const TodoItem: React.FC<Props> = ({
   };
 
   const showLoader =
-    todo.id === 0 || deletedTodos.includes(todo.id) || todo.id === updatingId;
+    todo.id === 0 || loadingTodos.includes(todo.id) || todo.id === updatingId;
 
   return (
     <div

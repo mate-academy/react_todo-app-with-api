@@ -12,8 +12,8 @@ const initialState: State = {
   errorMessage: '',
   isSubmitting: false,
   tempTodo: null,
-  deletedTodos: [],
-  resetDeletedTodos: [],
+  loadingTodos: [],
+  resetLoadingTodos: [],
   updatingId: undefined,
 };
 
@@ -96,17 +96,17 @@ function reducer(state: State, action: Action): State {
         editingId: action.payload,
       };
 
-    case Type.setDeletedTodos:
+    case Type.setLoadingTodos:
       return {
         ...state,
-        deletedTodos: [...state.deletedTodos, action.payload],
+        loadingTodos: [...state.loadingTodos, action.payload],
       };
 
-    case Type.resetDeletedTodos:
+    case Type.resetLoadingTodos:
       return {
         ...state,
-        deletedTodos: [
-          ...state.deletedTodos.filter(id => id != action.payload),
+        loadingTodos: [
+          ...state.loadingTodos.filter(id => id != action.payload),
         ],
       };
 

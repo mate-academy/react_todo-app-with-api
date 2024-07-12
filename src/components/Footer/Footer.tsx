@@ -18,7 +18,7 @@ export const Footer: React.FC<Props> = ({ deleteTodosFromServer }) => {
 
   const clearCompletedFromServer = () => {
     return completedList.forEach(todo => {
-      dispatch({ type: Type.setDeletedTodos, payload: todo.id });
+      dispatch({ type: Type.setLoadingTodos, payload: todo.id });
       deleteTodosFromServer(todo);
     });
   };

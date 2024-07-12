@@ -50,14 +50,14 @@ export const App: React.FC = () => {
       .then(() => dispatch({ type: Type.DeleteTodo, payload: item }))
       .catch(() => handleError(ErrorType.DELETE_TODO))
       .finally(() => {
-        dispatch({ type: Type.resetDeletedTodos, payload: item.id });
+        dispatch({ type: Type.resetLoadingTodos, payload: item.id });
         dispatch({ type: Type.setIsSubmitting, payload: false });
       });
   };
 
   const updateTodoCheckOnServer = (updatedTodo: Todo) => {
     dispatch({ type: Type.setErrorMessage, payload: '' });
-    dispatch({ type: Type.setDeletedTodos, payload: updatedTodo.id });
+    dispatch({ type: Type.setLoadingTodos, payload: updatedTodo.id });
 
     return updateTodoCheck(updatedTodo)
       .then(item => {
@@ -67,7 +67,7 @@ export const App: React.FC = () => {
         handleError(ErrorType.UPDATE_TODO);
       })
       .finally(() => {
-        dispatch({ type: Type.resetDeletedTodos, payload: updatedTodo.id });
+        dispatch({ type: Type.resetLoadingTodos, payload: updatedTodo.id });
       });
   };
 

@@ -19,7 +19,7 @@ export const Header: React.FC<Props> = ({
 
   const toggleAllCheckedOnServer = () => {
     return todos.forEach(todo => {
-      dispatch({ type: Type.setDeletedTodos, payload: todo.id });
+      dispatch({ type: Type.setLoadingTodos, payload: todo.id });
       updateTodoCheckOnServer({ ...todo, completed: !allChecked });
     });
   };

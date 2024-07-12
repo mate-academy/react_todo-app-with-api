@@ -10,7 +10,7 @@ export interface State {
   errorMessage: string;
   isSubmitting: boolean;
   tempTodo: Todo | null;
-  deletedTodos: number[];
-  resetDeletedTodos: [];
+  loadingTodos: number[];
+  resetLoadingTodos: [];
   updatingId: number | undefined;
 }
