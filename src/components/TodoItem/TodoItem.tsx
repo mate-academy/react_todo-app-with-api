@@ -37,6 +37,7 @@ export const TodoItem: React.FC<Props> = ({
       })
       .catch(() => {
         handleError(ErrorType.UPDATE_TODO);
+        dispatch({ type: Type.setEditingId, payload: updatedTodo.id });
       })
       .finally(() => {
         dispatch({ type: Type.setUpdatingId, payload: undefined });
