@@ -4,7 +4,7 @@ import { Todo } from '../../types/Todo';
 import { useDispatch, useGlobalState } from '../../GlobalStateProvider';
 import { Type } from '../../types/Action';
 import { ErrorType } from '../../types/Errors';
-import { updateTodos } from '../../api/todos';
+import { updateTodoCheck, updateTodos } from '../../api/todos';
 
 type Props = {
   todo: Todo;
@@ -56,8 +56,20 @@ export const TodoItem: React.FC<Props> = ({
     dispatch({ type: Type.setDeletedTodos, payload: removedTodo.id });
   };
 
-  const updateTodoCheckStatus = (updatedTodo: Todo) => {
-    dispatch({ type: Type.UpdateTodoCheckStatus, payload: updatedTodo });
+  const updateTodoCheckOnServer = (updatedTodo: Todo) => {
+    dispatch({ type: Type.setErrorMessage, payload: '' });
+    dispatch({ type: Type.setDeletedTodos, payload: todo.id });
+
+    return updateTodoCheck(updatedTodo)
+      .then(item => {
+        dispatch({ type: Type.UpdateTodoCheckStatus, payload: item });
+      })
+      .catch(() => {
+        handleError(ErrorType.UPDATE_TODO);
+      })
+      .finally(() => {
+        dispatch({ type: Type.resetDeletedTodos, payload: todo.id });
+      });
   };
 
   const handleDoubleClick = (editedTodo: Todo) => {
@@ -93,7 +105,7 @@ export const TodoItem: React.FC<Props> = ({
   };
 
   const handleCheck = (e: React.ChangeEvent<HTMLInputElement>) => {
-    updateTodoCheckStatus({ ...todo, completed: e.target.checked });
+    updateTodoCheckOnServer({ ...todo, completed: e.target.checked });
   };
 
   const handleNewTitle = (e: React.ChangeEvent<HTMLInputElement>) => {
