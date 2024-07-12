@@ -10,7 +10,7 @@ type Props = {
 };
 
 export const TodoForm: React.FC<Props> = ({ handleError }) => {
-  const { title, isSubmitting, editingId } = useGlobalState();
+  const { title, isSubmitting, editingId, updatingId } = useGlobalState();
   const dispatch = useDispatch();
   const inputRef = useRef<HTMLInputElement | null>(null);
 
@@ -37,7 +37,7 @@ export const TodoForm: React.FC<Props> = ({ handleError }) => {
   };
 
   useEffect(() => {
-    if (inputRef.current && !editingId) {
+    if (inputRef.current && !editingId && !updatingId) {
       inputRef.current.focus();
     }
   });

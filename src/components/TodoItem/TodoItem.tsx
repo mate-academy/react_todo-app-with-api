@@ -1,5 +1,5 @@
 /* eslint-disable jsx-a11y/label-has-associated-control */
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { Todo } from '../../types/Todo';
 import { useDispatch, useGlobalState } from '../../GlobalStateProvider';
 import { Type } from '../../types/Action';
@@ -24,6 +24,7 @@ export const TodoItem: React.FC<Props> = ({
     useGlobalState();
   const dispatch = useDispatch();
   const { id, completed, title } = todo;
+  const inputRef = useRef<HTMLInputElement | null>(null);
 
   const isEditing = id === editingId;
 
@@ -37,7 +38,9 @@ export const TodoItem: React.FC<Props> = ({
       })
       .catch(() => {
         handleError(ErrorType.UPDATE_TODO);
+
         dispatch({ type: Type.setEditingId, payload: updatedTodo.id });
+        // dispatch({ type: Type.setUpdatingId, payload: undefined });
       })
       .finally(() => {
         dispatch({ type: Type.setUpdatingId, payload: undefined });
@@ -100,6 +103,12 @@ export const TodoItem: React.FC<Props> = ({
   const showLoader =
     todo.id === 0 || loadingTodos.includes(todo.id) || todo.id === updatingId;
 
+  // useEffect(() => {
+  //   if (inputRef.current && isEditing) {
+  //     inputRef.current.focus();
+  //   }
+  // }, [isEditing]);
+
   return (
     <div
       data-cy="Todo"
@@ -131,6 +140,7 @@ export const TodoItem: React.FC<Props> = ({
             onChange={handleNewTitle}
             onKeyUp={checkEsc}
             onBlur={updateTitle}
+            ref={inputRef}
             autoFocus
           />
         </form>
@@ -151,16 +161,16 @@ export const TodoItem: React.FC<Props> = ({
           >
             ×
           </button>
-
-          <div
-            data-cy="TodoLoader"
-            className={'modal overlay ' + (showLoader ? 'is-active' : '')}
-          >
-            <div className="modal-background has-background-white-ter" />
-            <div className="loader" />
-          </div>
         </>
       )}
+
+      <div
+        data-cy="TodoLoader"
+        className={'modal overlay ' + (showLoader ? 'is-active' : '')}
+      >
+        <div className="modal-background has-background-white-ter" />
+        <div className="loader" />
+      </div>
     </div>
   );
 };
