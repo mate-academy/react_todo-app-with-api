@@ -23,25 +23,7 @@ export const ErrorNotifications: React.FC = () => {
         className="delete"
         onClick={handleHideError}
       />
-      {/* show only one message at a time */}
-      {/* Unable to load todos
-      <br />
-      Title should not be empty
-      <br />
-      Unable to add a todo
-      <br />
-      Unable to delete a todo
-      <br />
-      Unable to update a todo */}
       {errorMessage}
     </div>
   );
 };
-
-{
-  /* DON'T use conditional rendering to hide the notification */
-}
-
-{
-  /* Add the 'hidden' class to hide the message smoothly */
-}
