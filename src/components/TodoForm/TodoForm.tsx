@@ -14,7 +14,7 @@ export const TodoForm: React.FC<Props> = ({ handleError }) => {
   const dispatch = useDispatch();
   const inputRef = useRef<HTMLInputElement | null>(null);
 
-  const addTodo = ({
+  const addTodo = async ({
     userId,
     title: newTitle,
     completed,
@@ -22,18 +22,17 @@ export const TodoForm: React.FC<Props> = ({ handleError }) => {
     dispatch({ type: Type.setErrorMessage, payload: '' });
     dispatch({ type: Type.setIsSubmitting, payload: true });
 
-    return addTodos({ userId, title: newTitle, completed })
-      .then(newTodo => {
-        dispatch({ type: Type.AddTodo, payload: newTodo });
-        dispatch({ type: Type.setTitle, payload: '' });
-      })
-      .catch(() => {
-        handleError(ErrorType.ADD_TODO);
-      })
-      .finally(() => {
-        dispatch({ type: Type.setIsSubmitting, payload: false });
-        dispatch({ type: Type.setTempTodo, payload: null });
-      });
+    try {
+      const newTodo = await addTodos({ userId, title: newTitle, completed });
+
+      dispatch({ type: Type.AddTodo, payload: newTodo });
+      dispatch({ type: Type.setTitle, payload: '' });
+    } catch {
+      handleError(ErrorType.ADD_TODO);
+    } finally {
+      dispatch({ type: Type.setIsSubmitting, payload: false });
+      dispatch({ type: Type.setTempTodo, payload: null });
+    }
   };
 
   useEffect(() => {

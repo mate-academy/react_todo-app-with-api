@@ -28,23 +28,21 @@ export const TodoItem: React.FC<Props> = ({
 
   const isEditing = id === editingId;
 
-  const updateTodoOnServer = (updatedTodo: Todo) => {
+  const updateTodoOnServer = async (updatedTodo: Todo) => {
     dispatch({ type: Type.setErrorMessage, payload: '' });
     dispatch({ type: Type.setUpdatingId, payload: updatedTodo.id });
 
-    return updateTodos(updatedTodo)
-      .then(item => {
-        dispatch({ type: Type.UpdateTodo, payload: item });
-        dispatch({ type: Type.setEditingId, payload: undefined });
-      })
-      .catch(() => {
-        handleError(ErrorType.UPDATE_TODO);
+    try {
+      const item = await updateTodos(updatedTodo);
 
-        dispatch({ type: Type.setEditingId, payload: updatedTodo.id });
-      })
-      .finally(() => {
-        dispatch({ type: Type.setUpdatingId, payload: undefined });
-      });
+      dispatch({ type: Type.UpdateTodo, payload: item });
+      dispatch({ type: Type.setEditingId, payload: undefined });
+    } catch {
+      handleError(ErrorType.UPDATE_TODO);
+      dispatch({ type: Type.setEditingId, payload: updatedTodo.id });
+    } finally {
+      dispatch({ type: Type.setUpdatingId, payload: undefined });
+    }
   };
 
   const updateTodo = (updatedTodo: Todo) => {

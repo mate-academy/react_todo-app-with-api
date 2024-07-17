@@ -32,43 +32,53 @@ export const App: React.FC = () => {
 
   // eslint-disable-next-line react-hooks/rules-of-hooks
   useEffect(() => {
-    dispatch({ type: Type.setLoading, payload: true });
+    const getTodosFromServer = async () => {
+      try {
+        dispatch({ type: Type.setLoading, payload: true });
 
-    getTodos()
-      .then(response => dispatch({ type: Type.setTodos, payload: response }))
-      .catch(() => {
+        const response = await getTodos();
+
+        dispatch({ type: Type.setTodos, payload: response });
+      } catch {
         handleError(ErrorType.LOAD_TODOS);
-      })
-      .finally(() => dispatch({ type: Type.setLoading, payload: false }));
+      } finally {
+        dispatch({ type: Type.setLoading, payload: false });
+      }
+    };
+
+    getTodosFromServer();
   }, []);
 
-  const deleteTodosFromServer = (item: Todo) => {
+  const deleteTodosFromServer = async (item: Todo) => {
     dispatch({ type: Type.setErrorMessage, payload: '' });
     dispatch({ type: Type.setIsSubmitting, payload: true });
 
-    return deleteTodos(item.id)
-      .then(() => dispatch({ type: Type.DeleteTodo, payload: item }))
-      .catch(() => handleError(ErrorType.DELETE_TODO))
-      .finally(() => {
+    try {
+      await deleteTodos(item.id);
+      dispatch({ type: Type.DeleteTodo, payload: item });
+    } catch {
+      handleError(ErrorType.DELETE_TODO);
+    } finally {
+      {
         dispatch({ type: Type.resetLoadingTodos, payload: item.id });
         dispatch({ type: Type.setIsSubmitting, payload: false });
-      });
+      }
+    }
   };
 
-  const updateTodoCheckOnServer = (updatedTodo: Todo) => {
+  const updateTodoCheckOnServer = async (updatedTodo: Todo) => {
     dispatch({ type: Type.setErrorMessage, payload: '' });
     dispatch({ type: Type.setLoadingTodos, payload: updatedTodo.id });
 
-    return updateTodoCheck(updatedTodo)
-      .then(item => {
-        dispatch({ type: Type.UpdateTodoCheckStatus, payload: item });
-      })
-      .catch(() => {
-        handleError(ErrorType.UPDATE_TODO);
-      })
-      .finally(() => {
-        dispatch({ type: Type.resetLoadingTodos, payload: updatedTodo.id });
-      });
+    try {
+      const item = await updateTodoCheck(updatedTodo);
+
+      dispatch({ type: Type.UpdateTodoCheckStatus, payload: item });
+    } catch {
+      handleError(ErrorType.UPDATE_TODO);
+    } finally {
+      dispatch({ type: Type.resetLoadingTodos, payload: updatedTodo.id });
+    }
   };
 
   return (
