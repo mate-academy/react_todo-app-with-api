@@ -13,7 +13,7 @@ export const ErrorMesages: React.FC<Props> = ({ loadError, setLoadError }) => {
     return () => {
       clearTimeout(timeout);
     };
-  }, [loadError]);
+  }, [loadError, setLoadError]);
 
   return (
     <div

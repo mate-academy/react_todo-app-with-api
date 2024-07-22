@@ -15,7 +15,7 @@ interface Props {
 export const TodoUser: React.FC<Props> = ({
   todo,
   loading,
-  onDelete =  async () => {},
+  onDelete = async () => {},
   onEdit,
 }) => {
   const [isEditingTodo, setIsEditingTodo] = useState<Todo | null>(null);
