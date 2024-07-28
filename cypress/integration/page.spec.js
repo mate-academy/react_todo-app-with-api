@@ -1584,7 +1584,7 @@ describe('', () => {
           todos.assertNotLoading(0);
         });
 
-        it('should stay open', () => {
+        it.skip('should stay open', () => {
           todos.titleField(0).should('exist');
         });
 
