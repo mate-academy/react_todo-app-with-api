@@ -1,50 +1,42 @@
-# React Todo App with API (complete)
+# **The Todo App**
 
-It is the third part of the React Todo App with API.
+1. **A brief description of the project:**
 
-Take your code implemented for [Add and Delete](https://github.com/mate-academy/react_todo-app-add-and-delete)
-and implement the ability to toggle and rename todos.
+  The Todo App is an intuitive and user-friendly task management application designed to streamline the process of organizing daily activities. Users can effortlessly create, edit, and delete tasks, as well as mark them as completed and filter them based on their status (All, Active, Completed). Built with modern web technologies, the app offers a seamless and responsive user experience, making it an essential tool for staying productive and organized.
 
-> Here is [the working example](https://mate-academy.github.io/react_todo-app-with-api/)
+2. **Technologies that were used:**
 
-## Toggling a todo status
+  - **React:** Utilizes a component-based architecture to build a dynamic and responsive user interface.
+  - **React Context API:** Manages global state across components efficiently.
+  - **TypeScript:** Provides static typing to enhance code quality and prevent runtime errors.
+  - **JavaScript (ES6+):** Powers dynamic functionality and interactive features.
+  - **CSS3:** Handles styling to ensure a modern and visually appealing interface.
+  - **Sass (SCSS):** Enhances CSS with variables, nesting, and mixins for maintainable and scalable styles.
+  - **React.memo:** Optimizes component rendering by memoizing and preventing unnecessary re-renders.
+  - **Webpack:** Bundles and optimizes JavaScript modules and assets for improved performance.
+  - **HTML5:** Provides the foundational structure and semantic elements for the application.
+  - **Bootstrap:** Provides responsive design elements and utilities for a consistent look and feel.
+  - **Bulma:** A CSS framework that offers modern and responsive design components.
+  - **Font Awesome:** Adds scalable vector icons for better visual representation.
+  - **React Transition Group:** Manages animations and transitions for a smoother user experience.
 
-Toggle the `completed` status on `TodoStatus` change:
-- Install Prettier Extention and use this [VSCode settings](https://mate-academy.github.io/fe-program/tools/vscode/settings.json) to enable format on save.
-- covered the todo with a loader overlay while waiting for API response;
-- the status should be changed on success;
-- show the `Unable to update a todo` notification in case of API error.
+3. **Useful Links:**
 
-Add the ability to toggle the completed status of all the todos with the `toggleAll` checkbox:
+  - [DEMO LINK](https://wasik07.github.io/react_todo-app-with-api/)
 
-- `toggleAll` button should have `active` class only if all the todos are completed;
-- `toggleAll` click changes its status to the opposite one, and sets this new status to all the todos;
-- it should work the same as several individual updates of the todos which statuses were actually changed;
-- do send requests for the todos that were not changed;
+4. **Any additional launch instructions:**
 
-## Renaming a todo
+  To run this project locally, follow these steps:
 
-Implement the ability to edit a todo title on double click:
+  1. Clone the repository:
+    git clone https://github.com/wasik07/react_todo-app-with-api.git
+  2. Navigate to the project directory:
+    cd react_todo-app-with-api
+  3. Install the dependencies:
+    npm install
+  4. Start the development server:
+    npm start
+  5. Open your browser and go to:
+    http://localhost:3000 to view and interact with the Todo App.
 
-- show the edit form instead of the title and remove button;
-- saves changes on the form submit (just press `Enter`);
-- save changes when the field loses focus (`onBlur`);
-- if the new title is the same as the old one just cancel editing;
-- cancel editing on `Esс` key `keyup` event;
-- if the new title is empty delete the todo the same way the `x` button does it;
-- if the title was changed show the loader while waiting for the API response;
-- update the todo title on success;
-- show `Unable to update a todo` in case of API error;
-- or the deletion error message if we tried to delete the todo.
-
-## If you want to enable tests
-- open `cypress/integration/page.spec.js`
-- replace `describe.skip` with `describe` for the root `describe`
-
-> ❗❗All tests should pass, even if some behaviour in not well explained in the task❗❗
-
-## Instructions
-
-- Implement a solution following the [React task guideline](https://github.com/mate-academy/react_task-guideline#react-tasks-guideline).
-- Use the [React TypeScript cheat sheet](https://mate-academy.github.io/fe-program/js/extra/react-typescript).
-- Replace `<your_account>` with your Github username in the [DEMO LINK](https://<your_account>.github.io/react_todo-app-with-api/) and add it to the PR description.
+  This will launch the Todo App on your local development server, allowing you to explore and test the project's features.
