@@ -4,6 +4,7 @@ import { useDeleteTodo } from '../../hooks/useDeleteTodo';
 import { useTodos } from '../../utils/TodoContext';
 import { ErrorType } from '../../types/ErrorType';
 import { useToggleTodoStatus } from '../../hooks/useToggleTodoStatus';
+import { patchTodo } from '../../api/todos';
 
 type TodoItemProps = {
   todo: Todo;
@@ -12,13 +13,15 @@ type TodoItemProps = {
 
 export const TodoItem: React.FC<TodoItemProps> = ({ todo, isTemp }) => {
   const { deleteTodo, isDeleting, error: deleteError } = useDeleteTodo();
-  const [showLoader, setShowLoader] = useState(false);
-  const { triggerFocus, setError } = useTodos();
+  const { triggerFocus, setError, setTodos } = useTodos();
   const {
     toggleTodoStatus,
     error: toggleError,
     isToggling,
   } = useToggleTodoStatus();
+  const [isEditing, setIsEditing] = useState(false);
+  const [newTitle, setNewTitle] = useState(todo.title);
+  const [showLoader, setShowLoader] = useState(false);
 
   const handleDelete = async () => {
     setShowLoader(true);
@@ -43,10 +46,66 @@ export const TodoItem: React.FC<TodoItemProps> = ({ todo, isTemp }) => {
     setShowLoader(false);
   };
 
+  const handleEdit = () => {
+    setIsEditing(true);
+    setTimeout(() => {
+      const input = document.getElementById(
+        `edit-${todo.id}`,
+      ) as HTMLInputElement;
+
+      if (input) {
+        input.focus();
+      }
+    }, 0);
+  };
+
+  const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setNewTitle(event.target.value);
+  };
+
+  const handleBlur = async () => {
+    if (newTitle.trim() === '') {
+      handleDelete();
+
+      return;
+    }
+
+    if (newTitle === todo.title) {
+      setIsEditing(false);
+
+      return;
+    }
+
+    setShowLoader(true);
+
+    try {
+      await patchTodo(todo.id, { title: newTitle });
+
+      setTodos(prevTodos =>
+        prevTodos.map(t => (t.id === todo.id ? { ...t, title: newTitle } : t)),
+      );
+      setShowLoader(false);
+      setIsEditing(false);
+    } catch {
+      setShowLoader(false);
+      setError(ErrorType.UnableToUpdateTodo);
+    }
+  };
+
+  const handleKeyUp = (event: React.KeyboardEvent<HTMLInputElement>) => {
+    if (event.key === 'Enter') {
+      handleBlur();
+    }
+
+    if (event.key === 'Escape') {
+      setIsEditing(false);
+      setNewTitle(todo.title);
+    }
+  };
+
   useEffect(() => {
     if (deleteError || toggleError) {
       setError(deleteError || toggleError);
-      setShowLoader(false);
     }
   }, [deleteError, toggleError, setError]);
 
@@ -61,21 +120,40 @@ export const TodoItem: React.FC<TodoItemProps> = ({ todo, isTemp }) => {
           className="todo__status"
           checked={todo.completed}
           onChange={handleToggle}
-          disabled={isDeleting || isToggling}
         />
       </label>
-      <span data-cy="TodoTitle" className="todo__title">
-        {todo.title}
-      </span>
-      <button
-        type="button"
-        className="todo__remove"
-        data-cy="TodoDelete"
-        onClick={handleDelete}
-        disabled={isDeleting || isToggling}
-      >
-        ×
-      </button>
+
+      {isEditing ? (
+        <input
+          id={`edit-${todo.id}`}
+          type="text"
+          className="todo__input"
+          value={newTitle}
+          onChange={handleChange}
+          onBlur={handleBlur}
+          onKeyUp={handleKeyUp}
+          autoFocus
+        />
+      ) : (
+        <>
+          <span
+            data-cy="TodoTitle"
+            className="todo__title"
+            onDoubleClick={handleEdit}
+          >
+            {todo.title}
+          </span>
+          <button
+            type="button"
+            className="todo__remove"
+            data-cy="TodoDelete"
+            onClick={handleDelete}
+            disabled={isDeleting || isToggling}
+          >
+            ×
+          </button>
+        </>
+      )}
       <div
         data-cy="TodoLoader"
         className={`overlay ${isTemp || showLoader ? 'is-active' : ''}`}
