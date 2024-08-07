@@ -1,14 +1,17 @@
 import * as React from 'react';
-import { ChangeEvent, FormEvent, useEffect, useState } from 'react';
+import { ChangeEvent, FormEvent, useState, useEffect } from 'react';
 import { usePostTodos } from '../../hooks/usePostTodos';
 import { useTodos } from '../../utils/TodoContext';
+import { useToggleTodoStatus } from '../../hooks/useToggleTodoStatus';
+import { ErrorType } from '../../types/ErrorType';
 
 export const TodoContent: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
   const [input, setInput] = useState('');
   const { postTodo, error, clearError, isSubmitting } = usePostTodos();
-  const { todos, inputRef, triggerFocus, setError } = useTodos();
+  const { todos, setError, inputRef, triggerFocus } = useTodos();
+  const { toggleTodoStatus } = useToggleTodoStatus();
 
   const handleInputChange = (event: ChangeEvent<HTMLInputElement>) => {
     setInput(event.target.value);
@@ -22,6 +25,26 @@ export const TodoContent: React.FC<{ children: React.ReactNode }> = ({
         triggerFocus();
       }
     });
+  };
+
+  const allTodosCompleted =
+    todos.length > 0 && todos.every(todo => todo.completed);
+
+  const handleToggleAll = async () => {
+    const newCompletedStatus = !allTodosCompleted;
+    const togglePromises = todos.map(todo => {
+      if (todo.completed !== newCompletedStatus) {
+        return toggleTodoStatus(todo.id, newCompletedStatus);
+      }
+
+      return Promise.resolve(true);
+    });
+
+    const results = await Promise.all(togglePromises);
+
+    if (results.some(result => !result)) {
+      setError(ErrorType.UnableToUpdateTodo);
+    }
   };
 
   useEffect(() => {
@@ -44,7 +67,8 @@ export const TodoContent: React.FC<{ children: React.ReactNode }> = ({
             <button
               data-cy="ToggleAllButton"
               type="button"
-              className="todoapp__toggle-all"
+              className={`todoapp__toggle-all ${allTodosCompleted ? 'active' : ''}`}
+              onClick={handleToggleAll}
             ></button>
           )}
           <form onSubmit={onFormSubmit}>
