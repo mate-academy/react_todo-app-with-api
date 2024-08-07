@@ -8,7 +8,7 @@ export const TodoContent: React.FC<{ children: React.ReactNode }> = ({
 }) => {
   const [input, setInput] = useState('');
   const { postTodo, error, clearError, isSubmitting } = usePostTodos();
-  const { inputRef, triggerFocus, setError } = useTodos();
+  const { todos, inputRef, triggerFocus, setError } = useTodos();
 
   const handleInputChange = (event: ChangeEvent<HTMLInputElement>) => {
     setInput(event.target.value);
@@ -40,11 +40,13 @@ export const TodoContent: React.FC<{ children: React.ReactNode }> = ({
       <h1 className="todoapp__title">todos</h1>
       <div className="todoapp__content">
         <header className="todoapp__header">
-          <button
-            data-cy="ToggleAllButton"
-            type="button"
-            className="todoapp__toggle-all"
-          ></button>
+          {todos.length > 0 && (
+            <button
+              data-cy="ToggleAllButton"
+              type="button"
+              className="todoapp__toggle-all"
+            ></button>
+          )}
           <form onSubmit={onFormSubmit}>
             <input
               ref={inputRef}
