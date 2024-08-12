@@ -99,7 +99,7 @@ export const TodoUser: React.FC<Props> = ({
           <span
             data-cy="TodoTitle"
             className="todo__title"
-            onDoubleClick={() => setIsEditingTodo(todo)}
+            onDoubleClick={() => setIsEditingTodo({...todo})}
           >
             {todo.title}
           </span>
