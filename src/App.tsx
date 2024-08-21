@@ -1,26 +1,58 @@
-/* eslint-disable max-len */
+/* eslint-disable react-hooks/exhaustive-deps */
+/* eslint-disable jsx-a11y/label-has-associated-control */
 /* eslint-disable jsx-a11y/control-has-associated-label */
-import React from 'react';
+import * as React from 'react';
+import { useState, useEffect } from 'react';
 import { UserWarning } from './UserWarning';
+import { USER_ID } from './api/todos';
 
-const USER_ID = 0;
+import { Header } from './components/Header/Header';
+import { Main } from './components/Main/Main';
+import { Footer } from './components/Footer/Footer';
+import { Errors } from './components/Errors/Errors';
+import { IsActiveLink } from './types/types';
+import { useAppDispatch, useAppSelector } from './app/hooks';
+import { loadTodos } from './app/features/todosSlice';
 
 export const App: React.FC = () => {
+  const dispatch = useAppDispatch();
+  const { todos, hasError } = useAppSelector(state => state.todos);
+
+  const [link, setLink] = useState(IsActiveLink.All);
+
+  useEffect(() => {
+    dispatch(loadTodos());
+  }, []);
+
+  const visibleTodos = React.useMemo(() => {
+    if (link === IsActiveLink.Active) {
+      return todos.filter(t => !t.completed);
+    }
+
+    if (link === IsActiveLink.Completed) {
+      return todos.filter(t => t.completed);
+    }
+
+    return todos;
+  }, [link, todos]);
+
   if (!USER_ID) {
     return <UserWarning />;
   }
 
   return (
-    <section className="section container">
-      <p className="title is-4">
-        Copy all you need from the prev task:
-        <br />
-        <a href="https://github.com/mate-academy/react_todo-app-add-and-delete#react-todo-app-add-and-delete">
-          React Todo App - Add and Delete
-        </a>
-      </p>
+    <div className="todoapp">
+      <h1 className="todoapp__title">todos</h1>
 
-      <p className="subtitle">Styles are already copied</p>
-    </section>
+      <div className="todoapp__content">
+        <Header />
+
+        <Main filteredTodos={visibleTodos} />
+
+        <Footer link={link} setLink={setLink} />
+      </div>
+
+      <Errors hasError={hasError} />
+    </div>
   );
 };

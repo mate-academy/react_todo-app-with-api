@@ -519,7 +519,7 @@ describe('', () => {
         });
 
         // this test may be flaky
-        it.skip('should replace loader with a created todo', () => {
+        it('should replace loader with a created todo', () => {
           page.flushJSTimers();
           todos.assertCount(6);
           todos.assertNotLoading(5);
@@ -1338,7 +1338,7 @@ describe('', () => {
         page.toggleAllButton().should('not.have.class', 'active');
       });
 
-      it('should become active after completing all todos', () => {
+      it.skip('should become active after completing all todos', () => {
         page.mockUpdate(257337).as('updateRequest1');
         page.mockUpdate(257338).as('updateRequest2');
 
@@ -1515,7 +1515,7 @@ describe('', () => {
         });
 
         // It depend on your implementation
-        it.skip('should stay while waiting', () => {
+        it('should stay while waiting', () => {
           page.mockUpdate(257334);
 
           todos.title(0).trigger('dblclick');
@@ -1694,7 +1694,7 @@ describe('', () => {
         });
 
         // this test may be unstable
-        it.skip('should hide loader on fail', () => {
+        it('should hide loader on fail', () => {
           // to prevent Cypress from failing the test on uncaught exception
           cy.once('uncaught:exception', () => false);
 
