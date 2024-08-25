@@ -6,6 +6,7 @@ import './styles/index.scss';
 
 import { App } from './App';
 import { TodosProvider } from './providers/TodosProvider';
+import React from 'react';
 
 createRoot(document.getElementById('root') as HTMLDivElement).render(
   <TodosProvider>

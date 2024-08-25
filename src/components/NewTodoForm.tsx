@@ -11,9 +11,7 @@ import { createTodo } from '../api/todos';
 import { USER_ID } from '../utils/constants';
 import { FocusContext } from '../providers/FocusProvider';
 
-type Props = {};
-
-export const NewTodoForm: React.FC<Props> = () => {
+export const NewTodoForm: React.FC = () => {
   const [todoTitle, setTodoTitle] = useState('');
   const [isLoading, setIsLoading] = useState(false);
 
@@ -21,16 +19,6 @@ export const NewTodoForm: React.FC<Props> = () => {
   const { setTodos } = useContext(TodosContext);
   const { setTempTodo } = useContext(TempTodoContext);
   const { inputRef, setFocus } = useContext(FocusContext);
-
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setFocus();
-    }, 0);
-
-    return () => {
-      clearTimeout(timer);
-    };
-  }, [setFocus]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setTodoTitle(e.target.value);
@@ -77,6 +65,16 @@ export const NewTodoForm: React.FC<Props> = () => {
         }, 0);
       });
   };
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setFocus();
+    }, 0);
+
+    return () => {
+      clearTimeout(timer);
+    };
+  }, [setFocus]);
 
   return (
     <form onSubmit={handleSubmit}>

@@ -10,6 +10,7 @@ and implement the ability to toggle and rename todos.
 ## Toggling a todo status
 
 Toggle the `completed` status on `TodoStatus` change:
+
 - Install Prettier Extention and use this [VSCode settings](https://mate-academy.github.io/fe-program/tools/vscode/settings.json) to enable format on save.
 - covered the todo with a loader overlay while waiting for API response;
 - the status should be changed on success;
@@ -38,6 +39,7 @@ Implement the ability to edit a todo title on double click:
 - or the deletion error message if we tried to delete the todo.
 
 ## If you want to enable tests
+
 - open `cypress/integration/page.spec.js`
 - replace `describe.skip` with `describe` for the root `describe`
 

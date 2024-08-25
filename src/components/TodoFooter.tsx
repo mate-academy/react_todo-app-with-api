@@ -23,17 +23,19 @@ export const TodoAppFooter: React.FC<Props> = ({ status, onStatusChange }) => {
   const remainingTodos = todos.filter(todo => !todo.completed).length;
   const canClearCompleted = todos.some(todo => todo.completed);
 
-  const handleClearCompleted = useCallback(() => {
-    const completedTodos = todos.filter(todo => todo.completed);
+  const completedTodoIds = todos
+    .filter(todo => todo.completed)
+    .map(todo => todo.id);
 
+  const handleClearCompleted = useCallback(() => {
     setDeletingTodosIds(prevDeletingIds => [
       ...prevDeletingIds,
-      ...completedTodos.map(todo => todo.id),
+      ...completedTodoIds,
     ]);
 
-    const deletePromises = completedTodos.map(todo => {
+    const deletePromises = completedTodoIds.map(todoId => {
       return deleteTodoItem({
-        todoId: todo.id,
+        todoId,
         setTodos,
         setErrorMessage,
         setDeletingTodosIds,
@@ -42,7 +44,15 @@ export const TodoAppFooter: React.FC<Props> = ({ status, onStatusChange }) => {
     });
 
     Promise.all(deletePromises);
-  }, [todos, setTodos, setErrorMessage, setDeletingTodosIds, setFocus]);
+  }, [
+    completedTodoIds,
+    setTodos,
+    setErrorMessage,
+    setDeletingTodosIds,
+    setFocus,
+  ]);
+
+  const statusEntries = Object.entries(Status);
 
   return (
     <footer className="todoapp__footer" data-cy="Footer">
@@ -51,7 +61,7 @@ export const TodoAppFooter: React.FC<Props> = ({ status, onStatusChange }) => {
       </span>
 
       <nav className="filter" data-cy="Filter">
-        {Object.entries(Status).map(([statusName, value]) => (
+        {statusEntries.map(([statusName, value]) => (
           <a
             key={statusName}
             href={value}

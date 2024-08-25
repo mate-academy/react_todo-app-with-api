@@ -13,6 +13,7 @@ export const ErrorNotification: React.FC = () => {
     if (errorMessage) {
       setIsVisible(true);
       setDisplayedError(errorMessage);
+
       timerId = setTimeout(() => {
         setErrorMessage('');
         setIsVisible(false);
@@ -48,8 +49,6 @@ export const ErrorNotification: React.FC = () => {
         onClick={() => setIsVisible(false)}
       />
       {displayedError}
-      {/* show only one message at a time */}
-      {/* Unable to update a todo */}
     </div>
   );
 };

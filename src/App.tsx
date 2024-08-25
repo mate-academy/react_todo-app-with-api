@@ -1,8 +1,8 @@
 /* eslint-disable jsx-a11y/control-has-associated-label */
 import React, { useContext, useState } from 'react';
 import { UserWarning } from './UserWarning';
-import { TodoAppHeader } from './components/TodoAppHeader';
-import { TodoAppFooter } from './components/TodoAppFooter';
+import { TodoAppHeader } from './components/TodoHeader';
+import { TodoAppFooter } from './components/TodoFooter';
 import { ErrorNotification } from './components/ErrorNotification';
 import { TodoList } from './components/TodoList';
 import { TodosContext } from './providers/TodosProvider';

@@ -47,7 +47,6 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
     }
   }, [isEditing]);
 
-  // need to normalize and update the title on server
   const handleUpdateTitle = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
       setNewTitle(e.target.value);
@@ -57,6 +56,7 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
 
   const handleDeleteTodo = useCallback(() => {
     setDeletingTodosIds([...deletingTodosIds, todo.id]);
+
     const originalTitle = todo.title;
     const isEditingNow = isEditing;
 
@@ -168,7 +168,6 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
         />
       </label>
 
-      {/* This form is shown instead of the title and remove button */}
       {isEditing ? (
         <form onSubmit={handleSumbitUpdatingTodoTitle}>
           <input
@@ -197,7 +196,6 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
             {newTitle}
           </span>
 
-          {/*  Remove button appears only on hover */}
           <button
             type="button"
             className="todo__remove"
@@ -209,8 +207,6 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
         </>
       )}
 
-      {/* overlay will cover the todo while it is being updated */}
-      {/* add class 'is active while it is being updated */}
       <div
         data-cy="TodoLoader"
         className={classNames('modal overlay', {
