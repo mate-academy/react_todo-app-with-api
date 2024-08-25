@@ -1,10 +1,11 @@
 {
   "extends": "@mate-academy/students-ts-config",
-  "include": [
-    "src"
-  ],
+  "include": ["src", ".eslintrc.js"],
   "compilerOptions": {
     "sourceMap": false,
-    "types": ["node", "cypress"]
+    "types": ["node", "cypress"],
+    "target": "es5",
+    "module": "commonjs",
+    "jsx": "react",
   }
 }
