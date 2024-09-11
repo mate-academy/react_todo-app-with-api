@@ -64,13 +64,15 @@ export const TodoItem: React.FC<TodoItemProps> = ({ todo, isTemp }) => {
   };
 
   const handleBlur = async () => {
-    if (newTitle.trim() === '') {
+    const trimmedTitle = newTitle.trim();
+
+    if (trimmedTitle === '') {
       handleDelete();
 
       return;
     }
 
-    if (newTitle === todo.title) {
+    if (trimmedTitle === todo.title) {
       setIsEditing(false);
 
       return;
@@ -79,10 +81,12 @@ export const TodoItem: React.FC<TodoItemProps> = ({ todo, isTemp }) => {
     setShowLoader(true);
 
     try {
-      await patchTodo(todo.id, { title: newTitle });
+      await patchTodo(todo.id, { title: trimmedTitle });
 
       setTodos(prevTodos =>
-        prevTodos.map(t => (t.id === todo.id ? { ...t, title: newTitle } : t)),
+        prevTodos.map(t =>
+          t.id === todo.id ? { ...t, title: trimmedTitle } : t,
+        ),
       );
       setShowLoader(false);
       setIsEditing(false);
@@ -128,6 +132,7 @@ export const TodoItem: React.FC<TodoItemProps> = ({ todo, isTemp }) => {
           id={`edit-${todo.id}`}
           type="text"
           className="todo__input"
+          data-cy="TodoTitleField"
           value={newTitle}
           onChange={handleChange}
           onBlur={handleBlur}
