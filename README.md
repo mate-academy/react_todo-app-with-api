@@ -1,50 +1,37 @@
-# React Todo App with API (complete)
+The React Todo App with API is designed to help users manage their tasks efficiently. It leverages modern web development technologies to provide a responsive and interactive user experience. Tasks can be created, updated, and deleted, with all changes being synchronized with a backend API for persistent storage.
 
-It is the third part of the React Todo App with API.
+Technologies Used
+This project is developed using the following technologies:
 
-Take your code implemented for [Add and Delete](https://github.com/mate-academy/react_todo-app-add-and-delete)
-and implement the ability to toggle and rename todos.
+React: A JavaScript library for building user interfaces. React is used to create reusable UI components and manage the application state.
+JavaScript (ES6+): Modern JavaScript features are utilized to write clean and efficient code.
+CSS: Used for styling the application and ensuring a responsive design.
+API Integration: The app interacts with a backend API to perform CRUD (Create, Read, Update, Delete) operations on the todo items.
 
-> Here is [the working example](https://mate-academy.github.io/react_todo-app-with-api/)
+Code Overview
+The codebase of the React Todo App with API is organized into several key components and files. Below is a high-level overview:
 
-## Toggling a todo status
+src/Components:
 
-Toggle the `completed` status on `TodoStatus` change:
-- Install Prettier Extention and use this [VSCode settings](https://mate-academy.github.io/fe-program/tools/vscode/settings.json) to enable format on save.
-- covered the todo with a loader overlay while waiting for API response;
-- the status should be changed on success;
-- show the `Unable to update a todo` notification in case of API error.
+Contains reusable React components such as TodoList, TodoItem, and TodoForm.
+Each component is responsible for a specific part of the user interface and functionality.
 
-Add the ability to toggle the completed status of all the todos with the `toggleAll` checkbox:
+src/App.js:
 
-- `toggleAll` button should have `active` class only if all the todos are completed;
-- `toggleAll` click changes its status to the opposite one, and sets this new status to all the todos;
-- it should work the same as several individual updates of the todos which statuses were actually changed;
-- do send requests for the todos that were not changed;
+The main application component that ties everything together.
+Manages the state of the todo items and handles interactions with the API.
 
-## Renaming a todo
+src/index.js:
 
-Implement the ability to edit a todo title on double click:
+The entry point of the application.
+Renders the App component into the DOM.
 
-- show the edit form instead of the title and remove button;
-- saves changes on the form submit (just press `Enter`);
-- save changes when the field loses focus (`onBlur`);
-- if the new title is the same as the old one just cancel editing;
-- cancel editing on `Esс` key `keyup` event;
-- if the new title is empty delete the todo the same way the `x` button does it;
-- if the title was changed show the loader while waiting for the API response;
-- update the todo title on success;
-- show `Unable to update a todo` in case of API error;
-- or the deletion error message if we tried to delete the todo.
+src/Services/api.js:
 
-## If you want to enable tests
-- open `cypress/integration/page.spec.js`
-- replace `describe.skip` with `describe` for the root `describe`
+Contains functions for interacting with the backend API.
+Includes methods for fetching, creating, updating, and deleting todo items.
 
-> ❗❗All tests should pass, even if some behaviour in not well explained in the task❗❗
+src/App.css:
 
-## Instructions
-
-- Implement a solution following the [React task guideline](https://github.com/mate-academy/react_task-guideline#react-tasks-guideline).
-- Use the [React TypeScript cheat sheet](https://mate-academy.github.io/fe-program/js/extra/react-typescript).
-- Replace `<your_account>` with your Github username in the [DEMO LINK](https://<your_account>.github.io/react_todo-app-with-api/) and add it to the PR description.
+Contains styles for the application.
+Ensures the app is visually appealing and responsive.
