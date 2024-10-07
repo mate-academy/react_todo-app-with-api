@@ -59,7 +59,7 @@ const handleSave = async (event?: React.FormEvent) => {
 
     if (newTitle.trim() === '' || newTitle === title) {
       onDeleteTodo(id);
-      setError(ErrorType.empty_changed_title);
+      setError(null);
       return;
     }
 

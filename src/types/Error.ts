@@ -6,5 +6,4 @@ export enum ErrorType {
   empty_title = 'Title should not be empty',
   not_found_todo = 'Todo not found',
   toggle_todo = 'Unable to toggle all todos',
-  empty_changed_title = 'Title should not be empty or unchanged.'
 }

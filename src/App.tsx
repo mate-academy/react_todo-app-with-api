@@ -33,7 +33,7 @@ export const App: React.FC = () => {
 
   const handleAddTodo = async (title: string, completed: boolean): Promise<Todo | undefined> => {
     const trimmedTitle = title.trim()
-    if (trimmedTitle === '') {
+    if (!trimmedTitle) {
       setError(ErrorType.empty_title);
       return;
     }
