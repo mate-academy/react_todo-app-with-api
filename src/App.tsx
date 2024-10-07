@@ -100,11 +100,18 @@ export const App: React.FC = () => {
 
   const handleStatusChange = (newStatus: StatusTodos) => setStatus(newStatus);
 
-  const filteredTodos = todos.filter(todo => {
-    if (status === StatusTodos.ACTIVE) return !todo.completed;
-    if (status === StatusTodos.COMPLETED) return todo.completed;
-    return true;
-  });
+  const filteredTodos = (() => {
+    switch (status) {
+      case StatusTodos.ACTIVE:
+        return todos.filter(todo => !todo.completed);
+
+      case StatusTodos.COMPLETED:
+        return todos.filter(todo => todo.completed);
+
+      default:
+        return todos;
+    }
+  })();
 
   const counterOfActiveTodos = todos.filter(todo => !todo.completed).length;
 
