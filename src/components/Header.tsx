@@ -75,9 +75,6 @@ export const Header: React.FC<HeaderProps> = ({
           onChange={(e) => setTitle(e.target.value)}
           disabled={isLoading}
         />
-        <button type="submit" disabled={isLoading}>
-          {isLoading ? '' : ''}
-        </button>
       </form>
     </header>
   );

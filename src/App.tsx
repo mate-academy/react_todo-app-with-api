@@ -27,7 +27,7 @@ export const App: React.FC = () => {
 
   useEffect(() => {
     getTodos(USER_ID)
-      .then(fetchedTodos => setTodos(fetchedTodos))
+      .then(setTodos)
       .catch(() => setError(ErrorType.load_todo));
   }, []);
 
@@ -197,7 +197,7 @@ export const App: React.FC = () => {
           isEditing={isEditing}
           setError={setError}
         />
-        {todos.length > 0 && (
+         {!!todos.length && (
           <Footer
             status={status}
             onChangeStatus={handleStatusChange}

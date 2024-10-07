@@ -23,7 +23,7 @@ export const Error: React.FC<ErrorProps> = ({ error, onClose }) => {
     <div
       data-cy="ErrorNotification"
       className={cn('notification', 'is-danger', 'is-light', 'has-text-weight-normal', {
-        hidden: error === null,
+        hidden: !error,
       })}
     >
       <button data-cy="HideErrorButton" type="button" className="delete" onClick={onClose} />
