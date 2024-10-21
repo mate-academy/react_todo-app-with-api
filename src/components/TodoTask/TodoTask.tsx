@@ -8,19 +8,19 @@ type Props = {
   todo: Todo;
   isLoading: boolean;
   onDeleteTodo: (todoId: number) => Promise<void>;
-  fetchUpdateTodoCompleted: (
+  onUpdateTodoCompleted: (
     todoId: number,
     isCompleted: boolean,
   ) => Promise<void>;
-  fetchUpdateTodoTitle: (todoId: number, newTitle: string) => Promise<boolean>;
+  onUpdateTodoTitle: (todoId: number, newTitle: string) => Promise<boolean>;
 };
 
 export const TodoTask: React.FC<Props> = ({
   todo,
   onDeleteTodo,
   isLoading,
-  fetchUpdateTodoCompleted,
-  fetchUpdateTodoTitle,
+  onUpdateTodoCompleted,
+  onUpdateTodoTitle,
 }) => {
   const [tempTodoTitle, setTempTodoTitle] = useState(todo.title);
   const [isEditing, setIsEditing] = useState(false);
@@ -42,7 +42,7 @@ export const TodoTask: React.FC<Props> = ({
     }
 
     if (title !== trimNewTitle) {
-      if (await fetchUpdateTodoTitle(id, tempTodoTitle)) {
+      if (await onUpdateTodoTitle(id, tempTodoTitle)) {
         setTempTodoTitle(trimNewTitle);
         setIsEditing(false);
       } else {
@@ -71,7 +71,7 @@ export const TodoTask: React.FC<Props> = ({
           type="checkbox"
           className="todo__status"
           checked={completed}
-          onClick={() => fetchUpdateTodoCompleted(id, !completed)}
+          onClick={() => onUpdateTodoCompleted(id, !completed)}
         />
       </label>
 

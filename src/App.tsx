@@ -21,7 +21,7 @@ export const App: React.FC = () => {
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
   const [completedCategory, setCompletedCategory] =
     useState<TodoCompletedCategory>(TodoCompletedCategory.all);
-  const [errorMessage, setErrorMessage] = useState<Errors>(Errors.noneError);
+  const [errorMessage, setErrorMessage] = useState<string>(Errors.noneError);
   const [updatedTodosId, setUpdatedTodosId] = useState([0]);
 
   const filtredTodos = filterTodosByComplated(todos, completedCategory);
@@ -39,10 +39,16 @@ export const App: React.FC = () => {
     }
   }
 
-  async function fetchAddTodo(newTitle: string) {
+  async function handleAddTodo(newTitle: string) {
+    const formatedTitle = newTitle.trim();
+
+    if (!formatedTitle) {
+      throw new Error(Errors.emptyTitleError);
+    }
+
     let newTodo: Todo = {
       id: 0,
-      title: newTitle,
+      title: formatedTitle,
       userId: 0,
       completed: false,
     };
@@ -50,22 +56,18 @@ export const App: React.FC = () => {
     setTempTodo(newTodo);
 
     try {
-      newTodo = await createTodo(newTitle);
+      newTodo = await createTodo(formatedTitle);
     } catch {
-      setErrorMessage(Errors.addError);
+      throw new Error(Errors.addError);
     } finally {
       setTempTodo(null);
       if (newTodo.id !== 0) {
         setTodos(currentTodos => [...currentTodos, newTodo]);
-
-        return true;
-      } else {
-        return false;
       }
     }
   }
 
-  async function fetchDeleteTodo(todoId: number) {
+  async function handleDeleteTodo(todoId: number) {
     try {
       setUpdatedTodosId(current => [...current, todoId]);
       await deleteTodo(todoId);
@@ -84,12 +86,12 @@ export const App: React.FC = () => {
 
     Promise.allSettled(
       completedTodosId.map(async id => {
-        await fetchDeleteTodo(id);
+        await handleDeleteTodo(id);
       }),
     );
   }
 
-  async function fetchUpdateTodoCompleted(
+  async function handleUpdateTodoCompleted(
     todoId: number,
     isCompleted: boolean,
   ) {
@@ -112,11 +114,11 @@ export const App: React.FC = () => {
     }
   }
 
-  async function UpdateAllTodosCompleted() {
+  async function updateAllTodosCompletion() {
     if (!countOfNotCompletedTodos) {
       Promise.allSettled(
         todos.map(async todo => {
-          await fetchUpdateTodoCompleted(todo.id, false);
+          await handleUpdateTodoCompleted(todo.id, false);
         }),
       );
     } else {
@@ -126,13 +128,13 @@ export const App: React.FC = () => {
 
       Promise.allSettled(
         notCompletedTodosId.map(async todoId => {
-          await fetchUpdateTodoCompleted(todoId, true);
+          await handleUpdateTodoCompleted(todoId, true);
         }),
       );
     }
   }
 
-  async function fetchUpdateTodoTitle(todoId: number, newTitle: string) {
+  async function handleUpdateTodoTitle(todoId: number, newTitle: string) {
     const trimedNewTitle = newTitle.trim();
 
     try {
@@ -171,9 +173,9 @@ export const App: React.FC = () => {
           countOfTodos={todos.length}
           countOfCompletedTodos={countOfCompletedTodos}
           isInputDisabled={!!tempTodo}
-          fetchAddTodo={fetchAddTodo}
+          onAddTodo={handleAddTodo}
           setErrorMessage={setErrorMessage}
-          UpdateAllTodosCompleted={UpdateAllTodosCompleted}
+          updateAllTodosCompletion={updateAllTodosCompletion}
         />
         {!!todos.length && (
           <>
@@ -181,9 +183,9 @@ export const App: React.FC = () => {
               todos={filtredTodos}
               tempTodo={tempTodo}
               updatedTodosId={updatedTodosId}
-              onDeleteTodo={fetchDeleteTodo}
-              fetchUpdateTodoCompleted={fetchUpdateTodoCompleted}
-              fetchUpdateTodoTitle={fetchUpdateTodoTitle}
+              onDeleteTodo={handleDeleteTodo}
+              onUpdateTodoCompleted={handleUpdateTodoCompleted}
+              onUpdateTodoTitle={handleUpdateTodoTitle}
             />
             <TodoFooter
               countOfNotCompletedTodos={countOfNotCompletedTodos}

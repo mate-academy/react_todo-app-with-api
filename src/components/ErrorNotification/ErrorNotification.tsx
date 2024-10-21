@@ -3,8 +3,8 @@ import { Errors } from '../../types/Errors';
 import classNames from 'classnames';
 
 type Props = {
-  errorMessage: Errors;
-  onErrorMessage: (error: Errors) => void;
+  errorMessage: string;
+  onErrorMessage: (error: string) => void;
 };
 
 export const ErrorNotification: React.FC<Props> = ({

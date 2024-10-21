@@ -7,11 +7,11 @@ type Props = {
   tempTodo: Todo | null;
   updatedTodosId: number[];
   onDeleteTodo: (todoId: number) => Promise<void>;
-  fetchUpdateTodoCompleted: (
+  onUpdateTodoCompleted: (
     todoId: number,
     isCompleted: boolean,
   ) => Promise<void>;
-  fetchUpdateTodoTitle: (todoId: number, newTitle: string) => Promise<boolean>;
+  onUpdateTodoTitle: (todoId: number, newTitle: string) => Promise<boolean>;
 };
 
 export const TodoList: React.FC<Props> = ({
@@ -19,8 +19,8 @@ export const TodoList: React.FC<Props> = ({
   tempTodo,
   updatedTodosId,
   onDeleteTodo,
-  fetchUpdateTodoCompleted,
-  fetchUpdateTodoTitle,
+  onUpdateTodoCompleted,
+  onUpdateTodoTitle,
 }) => {
   return (
     <section className="todoapp__main" data-cy="TodoList">
@@ -31,8 +31,8 @@ export const TodoList: React.FC<Props> = ({
             todo={todo}
             onDeleteTodo={onDeleteTodo}
             isLoading={updatedTodosId.includes(todo.id)}
-            fetchUpdateTodoCompleted={fetchUpdateTodoCompleted}
-            fetchUpdateTodoTitle={fetchUpdateTodoTitle}
+            onUpdateTodoCompleted={onUpdateTodoCompleted}
+            onUpdateTodoTitle={onUpdateTodoTitle}
           />
         );
       })}
@@ -42,8 +42,8 @@ export const TodoList: React.FC<Props> = ({
           todo={tempTodo}
           onDeleteTodo={onDeleteTodo}
           isLoading={true}
-          fetchUpdateTodoCompleted={fetchUpdateTodoCompleted}
-          fetchUpdateTodoTitle={fetchUpdateTodoTitle}
+          onUpdateTodoCompleted={onUpdateTodoCompleted}
+          onUpdateTodoTitle={onUpdateTodoTitle}
         />
       )}
     </section>
