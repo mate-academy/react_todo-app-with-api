@@ -25,10 +25,11 @@ export const TodoTask: React.FC<Props> = ({
   const [tempTodoTitle, setTempTodoTitle] = useState(todo.title);
   const [isEditing, setIsEditing] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
+  const { id, title, completed } = todo;
 
   const keyUpFunction = (event: React.KeyboardEvent<HTMLInputElement>) => {
     if (event.key === 'Escape') {
-      setTempTodoTitle(todo.title);
+      setTempTodoTitle(title);
       setIsEditing(false);
     }
   };
@@ -36,12 +37,12 @@ export const TodoTask: React.FC<Props> = ({
   async function updateTitle() {
     const trimNewTitle = tempTodoTitle.trim();
 
-    if (!trimNewTitle.length) {
-      onDeleteTodo(todo.id);
+    if (!trimNewTitle) {
+      onDeleteTodo(id);
     }
 
-    if (todo.title !== trimNewTitle) {
-      if (await fetchUpdateTodoTitle(todo.id, tempTodoTitle)) {
+    if (title !== trimNewTitle) {
+      if (await fetchUpdateTodoTitle(id, tempTodoTitle)) {
         setTempTodoTitle(trimNewTitle);
         setIsEditing(false);
       } else {
@@ -62,15 +63,15 @@ export const TodoTask: React.FC<Props> = ({
   return (
     <div
       data-cy="Todo"
-      className={classNames('todo', { 'todo completed': todo.completed })}
+      className={classNames('todo', { 'todo completed': completed })}
     >
       <label className="todo__status-label">
         <input
           data-cy="TodoStatus"
           type="checkbox"
           className="todo__status"
-          checked={todo.completed}
-          onClick={() => fetchUpdateTodoCompleted(todo.id, !todo.completed)}
+          checked={completed}
+          onClick={() => fetchUpdateTodoCompleted(id, !completed)}
         />
       </label>
 
@@ -81,14 +82,14 @@ export const TodoTask: React.FC<Props> = ({
             className="todo__title"
             onDoubleClick={() => setIsEditing(true)}
           >
-            {todo.title}
+            {title}
           </span>
 
           <button
             type="button"
             className={classNames('todo__remove')}
             data-cy="TodoDelete"
-            onClick={() => onDeleteTodo(todo.id)}
+            onClick={() => onDeleteTodo(id)}
           >
             ×
           </button>

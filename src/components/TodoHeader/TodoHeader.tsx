@@ -26,8 +26,10 @@ export const TodoHeader: React.FC<Props> = ({
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
 
-    if (inputText.trim()) {
-      if (await fetchAddTodo(inputText.trim())) {
+    const formattedTitle = inputText.trim();
+
+    if (formattedTitle) {
+      if (await fetchAddTodo(formattedTitle)) {
         setInputText('');
       }
     } else {
