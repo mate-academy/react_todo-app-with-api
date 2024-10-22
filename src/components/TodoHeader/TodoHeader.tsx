@@ -1,12 +1,13 @@
 import classNames from 'classnames';
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
+import { Errors } from '../../types/Errors';
 
 type Props = {
   countOfTodos: number;
   countOfCompletedTodos: number;
   isInputDisabled: boolean;
   onAddTodo: (title: string) => Promise<void>;
-  setErrorMessage: (error: string) => void;
+  setErrorMessage: (error: Errors) => void;
   updateAllTodosCompletion: () => void;
 };
 
@@ -19,7 +20,10 @@ export const TodoHeader: React.FC<Props> = ({
   updateAllTodosCompletion,
 }) => {
   const [inputText, setInputText] = useState('');
-  const isAllTodosCompleted = countOfCompletedTodos === countOfTodos;
+  const isAllTodosCompleted = useMemo(
+    () => countOfCompletedTodos === countOfTodos,
+    [countOfCompletedTodos, countOfTodos],
+  );
   const inputRef = useRef<HTMLInputElement>(null);
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
@@ -29,10 +33,10 @@ export const TodoHeader: React.FC<Props> = ({
       await onAddTodo(inputText);
       setInputText('');
     } catch (error) {
-      if (error instanceof Error) {
-        setErrorMessage(error.message);
+      if (Object.values(Errors).includes(error as Errors)) {
+        setErrorMessage(error as Errors);
       } else {
-        setErrorMessage(String(error));
+        setErrorMessage(Errors.unknownError);
       }
     }
   }
@@ -52,7 +56,7 @@ export const TodoHeader: React.FC<Props> = ({
             active: isAllTodosCompleted,
           })}
           data-cy="ToggleAllButton"
-          onClick={() => updateAllTodosCompletion()}
+          onClick={updateAllTodosCompletion}
         />
       )}
 

@@ -1,6 +1,7 @@
 import classNames from 'classnames';
 // eslint-disable-next-line max-len, prettier/prettier
 import { TodoCompletedCategory as CompletedCategory } from '../../types/TodoCompletedCategory';
+import { activityFilters } from '../../utils/constants';
 
 type Props = {
   countOfNotCompletedTodos: number;
@@ -8,12 +9,6 @@ type Props = {
   completedCategory: CompletedCategory;
   onCompletedCategory: (completedCategory: CompletedCategory) => void;
   deleteAllCompletedTodos: () => void;
-};
-
-const activityFilters = {
-  [CompletedCategory.active]: 'Active',
-  [CompletedCategory.completed]: 'Completed',
-  [CompletedCategory.all]: 'All',
 };
 
 export const TodoFooter: React.FC<Props> = ({
@@ -50,7 +45,7 @@ export const TodoFooter: React.FC<Props> = ({
         className="todoapp__clear-completed"
         data-cy="ClearCompletedButton"
         disabled={!isSomeTodoComplated}
-        onClick={() => deleteAllCompletedTodos()}
+        onClick={deleteAllCompletedTodos}
       >
         Clear completed
       </button>

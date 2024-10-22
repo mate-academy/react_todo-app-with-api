@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import {
   deleteTodo,
   getTodos,
@@ -21,13 +21,25 @@ export const App: React.FC = () => {
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
   const [completedCategory, setCompletedCategory] =
     useState<TodoCompletedCategory>(TodoCompletedCategory.all);
-  const [errorMessage, setErrorMessage] = useState<string>(Errors.noneError);
+  const [errorMessage, setErrorMessage] = useState<Errors>(Errors.noneError);
   const [updatedTodosId, setUpdatedTodosId] = useState([0]);
 
-  const filtredTodos = filterTodosByComplated(todos, completedCategory);
-  const countOfCompletedTodos = todos.filter(todo => todo.completed).length;
-  const countOfNotCompletedTodos = todos.length - countOfCompletedTodos;
-  const isSomeTodoComplated = todos.some(todo => todo.completed);
+  const filtredTodos = useMemo(
+    () => filterTodosByComplated(todos, completedCategory),
+    [todos, completedCategory],
+  );
+  const countOfCompletedTodos = useMemo(
+    () => todos.filter(todo => todo.completed).length,
+    [todos],
+  );
+  const countOfNotCompletedTodos = useMemo(
+    () => todos.length - countOfCompletedTodos,
+    [todos, countOfCompletedTodos],
+  );
+  const isSomeTodoComplated = useMemo(
+    () => todos.some(todo => todo.completed),
+    [todos],
+  );
 
   async function fetchTodosFromApi() {
     try {
@@ -39,11 +51,12 @@ export const App: React.FC = () => {
     }
   }
 
-  async function handleAddTodo(newTitle: string) {
+  const handleAddTodo = useCallback(async (newTitle: string) => {
     const formatedTitle = newTitle.trim();
 
     if (!formatedTitle) {
-      throw new Error(Errors.emptyTitleError);
+      // eslint-disable-next-line @typescript-eslint/no-throw-literal
+      throw Errors.emptyTitleError;
     }
 
     let newTodo: Todo = {
@@ -58,16 +71,17 @@ export const App: React.FC = () => {
     try {
       newTodo = await createTodo(formatedTitle);
     } catch {
-      throw new Error(Errors.addError);
+      // eslint-disable-next-line @typescript-eslint/no-throw-literal
+      throw Errors.addError;
     } finally {
       setTempTodo(null);
       if (newTodo.id !== 0) {
         setTodos(currentTodos => [...currentTodos, newTodo]);
       }
     }
-  }
+  }, []);
 
-  async function handleDeleteTodo(todoId: number) {
+  const handleDeleteTodo = useCallback(async (todoId: number) => {
     try {
       setUpdatedTodosId(current => [...current, todoId]);
       await deleteTodo(todoId);
@@ -77,9 +91,9 @@ export const App: React.FC = () => {
     } finally {
       setUpdatedTodosId(current => current.filter(id => id !== todoId));
     }
-  }
+  }, []);
 
-  function deleteAllCompletedTodos() {
+  const deleteAllCompletedTodos = useCallback(() => {
     const completedTodosId: number[] = todos
       .filter(todo => todo.completed)
       .map(todo => todo.id);
@@ -89,32 +103,32 @@ export const App: React.FC = () => {
         await handleDeleteTodo(id);
       }),
     );
-  }
+  }, [todos, handleDeleteTodo]);
 
-  async function handleUpdateTodoCompleted(
-    todoId: number,
-    isCompleted: boolean,
-  ) {
-    try {
-      setUpdatedTodosId(current => [...current, todoId]);
-      await updateTodoCompleted(todoId, isCompleted);
-      setTodos(currentTodos =>
-        currentTodos.map(todo => {
-          if (todo.id === todoId) {
-            return { ...todo, completed: isCompleted };
-          }
+  const handleUpdateTodoCompleted = useCallback(
+    async (todoId: number, isCompleted: boolean) => {
+      try {
+        setUpdatedTodosId(current => [...current, todoId]);
+        await updateTodoCompleted(todoId, isCompleted);
+        setTodos(currentTodos =>
+          currentTodos.map(todo => {
+            if (todo.id === todoId) {
+              return { ...todo, completed: isCompleted };
+            }
 
-          return todo;
-        }),
-      );
-    } catch {
-      setErrorMessage(Errors.updateError);
-    } finally {
-      setUpdatedTodosId(current => current.filter(id => id !== todoId));
-    }
-  }
+            return todo;
+          }),
+        );
+      } catch {
+        setErrorMessage(Errors.updateError);
+      } finally {
+        setUpdatedTodosId(current => current.filter(id => id !== todoId));
+      }
+    },
+    [],
+  );
 
-  async function updateAllTodosCompletion() {
+  const updateAllTodosCompletion = useCallback(async () => {
     if (!countOfNotCompletedTodos) {
       Promise.allSettled(
         todos.map(async todo => {
@@ -132,33 +146,36 @@ export const App: React.FC = () => {
         }),
       );
     }
-  }
+  }, [todos, handleUpdateTodoCompleted, countOfNotCompletedTodos]);
 
-  async function handleUpdateTodoTitle(todoId: number, newTitle: string) {
-    const trimedNewTitle = newTitle.trim();
+  const handleUpdateTodoTitle = useCallback(
+    async (todoId: number, newTitle: string) => {
+      const trimedNewTitle = newTitle.trim();
 
-    try {
-      setUpdatedTodosId(current => [...current, todoId]);
-      await updateTodoTitle(todoId, trimedNewTitle);
-      setTodos(currentTodos =>
-        currentTodos.map(todo => {
-          if (todo.id === todoId) {
-            return { ...todo, title: trimedNewTitle };
-          }
+      try {
+        setUpdatedTodosId(current => [...current, todoId]);
+        await updateTodoTitle(todoId, trimedNewTitle);
+        setTodos(currentTodos =>
+          currentTodos.map(todo => {
+            if (todo.id === todoId) {
+              return { ...todo, title: trimedNewTitle };
+            }
 
-          return todo;
-        }),
-      );
+            return todo;
+          }),
+        );
 
-      return true;
-    } catch {
-      setErrorMessage(Errors.updateError);
+        return true;
+      } catch {
+        setErrorMessage(Errors.updateError);
 
-      return false;
-    } finally {
-      setUpdatedTodosId(current => current.filter(id => id !== todoId));
-    }
-  }
+        return false;
+      } finally {
+        setUpdatedTodosId(current => current.filter(id => id !== todoId));
+      }
+    },
+    [],
+  );
 
   useEffect(() => {
     fetchTodosFromApi();
