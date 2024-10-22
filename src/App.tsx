@@ -106,7 +106,9 @@ export const App: FC = () => {
       })
       .catch(() => setErrorMessage(Errors.DELETE_TODO))
       .finally(() => {
-        setLoadingTodoIds([]);
+        setLoadingTodoIds(currentLoadingTodoIds =>
+          currentLoadingTodoIds.filter(id => id !== todoId),
+        );
       });
   }, []);
 
@@ -139,7 +141,11 @@ export const App: FC = () => {
           }
         })
         .catch(() => setErrorMessage(Errors.UPDATE_TODO))
-        .finally(() => setLoadingTodoIds([]));
+        .finally(() =>
+          setLoadingTodoIds(currentLoadingTodoIds =>
+            currentLoadingTodoIds.filter(id => id !== todoToUpdate.id),
+          ),
+        );
     },
     [],
   );
