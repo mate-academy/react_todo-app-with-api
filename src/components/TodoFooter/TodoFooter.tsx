@@ -7,6 +7,7 @@ type Props = {
   setStatus: (status: string) => void;
   status: string;
   deleteCompletedTodos: (todos: Todo[]) => void;
+  setTempArray: (todos: Todo[]) => void;
 };
 
 const getDataCYByStatus = (status: string) => {
@@ -25,6 +26,7 @@ export const TodoFooter: React.FC<Props> = ({
   setStatus,
   status,
   deleteCompletedTodos,
+  setTempArray,
 }) => {
   const itemsLeft = todos.filter(todo => !todo.completed).length;
   const handleTodosStatus = (currentStatus: string) => {
@@ -35,6 +37,7 @@ export const TodoFooter: React.FC<Props> = ({
     todos.filter(todo => todo.completed).length > 0 ? false : true;
 
   const handleDeleteAllCompleted = () => {
+    setTempArray(todos);
     deleteCompletedTodos(todos.filter(t => t.completed === true));
   };
 

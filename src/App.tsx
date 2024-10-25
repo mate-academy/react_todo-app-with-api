@@ -140,8 +140,8 @@ export const App: React.FC = () => {
     return <UserWarning />;
   }
 
-  const deleteCompletedTodos = (paramTodos: Todo[]) => {
-    paramTodos.forEach(todo => deleteTodo(todo));
+  const deleteCompletedTodos = (todosToDelete: Todo[]) => {
+    todosToDelete.forEach(todo => deleteTodo(todo));
   };
 
   return (
@@ -188,6 +188,7 @@ export const App: React.FC = () => {
             setStatus={setStatus}
             status={status}
             deleteCompletedTodos={deleteCompletedTodos}
+            setTempArray={setTempArray}
           />
         )}
       </div>
@@ -212,13 +213,9 @@ export const App: React.FC = () => {
         <button data-cy="HideErrorButton" type="button" className="delete" />
         {/* show only one message at a time */}
         {loadError && 'Unable to load todos'}
-        <br />
         {titleError && 'Title should not be empty'}
-        <br />
         {addError && 'Unable to add a todo'}
-        <br />
         {deleteError && 'Unable to delete a todo'}
-        <br />
         {updateError && 'Unable to update a todo'}
       </div>
     </div>

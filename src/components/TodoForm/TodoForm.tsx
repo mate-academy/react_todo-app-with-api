@@ -23,7 +23,7 @@ export const TodoForm: React.FC<Props> = ({
   const [title, setTitle] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const titleField = useRef<HTMLInputElement>(null);
-  const trig = todos.every(({ completed }) => completed);
+  const allCompleted = todos.every(({ completed }) => completed);
 
   useEffect(() => {
     titleField.current?.focus();
@@ -54,18 +54,19 @@ export const TodoForm: React.FC<Props> = ({
   const handleToggleAllTodo = () => {
     // проблема
     todos.forEach(currentTodo => {
-      setTempArray(currentTodo);
       if (!currentTodo.completed) {
         const newTodo = {
           ...currentTodo,
           completed: (currentTodo.completed = true),
         };
 
+        setTempArray(currentTodo);
+
         updateTodo(newTodo);
       }
     });
 
-    if (trig) {
+    if (allCompleted) {
       todos.forEach(currentTodo => {
         setTempArray(currentTodo);
 
@@ -86,7 +87,9 @@ export const TodoForm: React.FC<Props> = ({
         //   что значит !!
         <button
           type="button"
-          className={classNames('todoapp__toggle-all', { active: trig })}
+          className={classNames('todoapp__toggle-all', {
+            active: allCompleted,
+          })}
           data-cy="ToggleAllButton"
           onClick={handleToggleAllTodo}
         />

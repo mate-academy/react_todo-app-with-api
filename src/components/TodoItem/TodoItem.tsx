@@ -46,7 +46,7 @@ export const TodoItem: React.FC<Props> = ({
   const handleFormSubmit = (event: FormEvent) => {
     event.preventDefault();
 
-    if (!tempTitle) {
+    if (!tempTitle.trim()) {
       setTempArray(todo);
       deleteTodo(todo);
 
@@ -57,7 +57,7 @@ export const TodoItem: React.FC<Props> = ({
       setIsEdited(false);
     }
 
-    if (todo.title !== tempTitle) {
+    if (todo.title !== tempTitle.trim()) {
       setTempArray(todo);
 
       const newTodo = { ...todo, title: tempTitle.trim() };
@@ -89,13 +89,13 @@ export const TodoItem: React.FC<Props> = ({
       setIsEdited(false);
     }
 
-    if (!tempTitle) {
+    if (!tempTitle.trim()) {
       deleteTodo(todo);
 
       return;
     }
 
-    if (todo.title !== tempTitle) {
+    if (todo.title !== tempTitle.trim()) {
       setTempArray(todo);
 
       const newTodo = { ...todo, title: tempTitle.trim() };
@@ -175,6 +175,9 @@ export const TodoItem: React.FC<Props> = ({
       {/* overlay will cover the todo while it is being deleted or updated */}
       <div
         data-cy="TodoLoader"
+        // className={classNames('modal overlay', {
+        //   'is-active': !todo.id || tempArray.includes(todo),
+        // })}
         className={classNames('modal overlay', {
           'is-active': !todo.id || tempArray.includes(todo),
         })}
