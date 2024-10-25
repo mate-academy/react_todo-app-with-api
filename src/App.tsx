@@ -4,27 +4,22 @@ import React, { useEffect, useRef, useState } from 'react';
 import * as todoService from './api/todos';
 import { UserWarning } from './UserWarning';
 import { Todo } from './types/Todo';
-import { Filter } from './types/Filter';
 import { Header } from './components/Header';
 import { TodoList } from './components/TodoList';
 import { Footer } from './components/Footer';
 import { TempTodo } from './components/TempTodo';
 import { ErrorNotification } from './components/ErrorNotification';
+import { TodoFilter } from './types/TodoFilter';
 
 export const App: React.FC = () => {
   const [todos, setTodos] = useState<Todo[]>([]);
-  // for showing loading overlay while adding todo
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
-  // for input disabling
   const [isTodoLoading, setIsTodoLoading] = useState(false);
-  // for showing loading overlay while deleting or updating todo
   const [loadingTodoId, setLoadingTodoId] = useState(0);
-  // for redacting todos
   const [selectedTodo, setSelectedTodo] = useState<Todo | undefined>(undefined);
   const [errorMessage, setErrorMessage] = useState('');
 
   //#region effects
-  // hide error message in 3 secs
   useEffect(() => {
     if (errorMessage.length !== 0) {
       setTimeout(() => {
@@ -33,7 +28,6 @@ export const App: React.FC = () => {
     }
   }, [errorMessage]);
 
-  // load todos 1 time on page loading
   useEffect(() => {
     setIsTodoLoading(true);
     todoService
@@ -45,48 +39,36 @@ export const App: React.FC = () => {
   //#endregion
 
   //#region filter Todos
-  const [selectedFilter, setSelectedFilter] = useState<Filter>('All');
+  const [selectedFilter, setSelectedFilter] = useState<TodoFilter>(
+    TodoFilter.All,
+  );
 
   function getVisibleTodos() {
     let visibleTodos: Todo[];
 
     switch (selectedFilter) {
-      case 'All':
+      case TodoFilter.All:
         visibleTodos = todos;
         break;
-      case 'Active':
+      case TodoFilter.Active:
         visibleTodos = todos.filter(todo => !todo.completed);
         break;
-      case 'Completed':
+      case TodoFilter.Completed:
         visibleTodos = todos.filter(todo => todo.completed);
         break;
     }
 
     return visibleTodos;
   }
-
-  function handleFilterAll() {
-    setSelectedFilter('All');
-  }
-
-  function handleFilterActive() {
-    setSelectedFilter('Active');
-  }
-
-  function handleFilterCompleted() {
-    setSelectedFilter('Completed');
-  }
   //#endregion
 
   //#region focus change
-  // I want focus to jump again on input after adding or deleting todo
   const titleRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     titleRef.current?.focus();
   }, [todos, isTodoLoading, tempTodo]);
 
-  // the same for redacting input
   const redactingInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -95,13 +77,11 @@ export const App: React.FC = () => {
   //#endregion
 
   //#region add Todos
-  // input
   const [query, setQuery] = useState('');
 
   function addTodo({ title, completed, userId }: Omit<Todo, 'id'>) {
     setErrorMessage('');
     setIsTodoLoading(true);
-    // while real todo loading, this temporal todo takes it's place and shows loading animation
     setTempTodo({
       id: 0,
       userId: todoService.USER_ID,
@@ -112,7 +92,6 @@ export const App: React.FC = () => {
     return todoService
       .addTodo({ title, completed, userId })
       .then(newTodo => {
-        // TS thinks that newTodo should have array type for some reason
         setTodos(currTodos => [...currTodos, newTodo]);
       })
       .catch(error => {
@@ -184,7 +163,6 @@ export const App: React.FC = () => {
   function toggleTodo(currentTodo: Todo) {
     setLoadingTodoId(currentTodo.id);
     todoService
-      // should send request with changed value using patch method
       .updateTodo({ ...currentTodo, completed: !currentTodo.completed })
       .then(() => {
         // eslint-disable-next-line no-param-reassign
@@ -200,22 +178,16 @@ export const App: React.FC = () => {
   }
 
   function toggleAll() {
-    // different behaviour when all todos completed
     const areAllCompleted = todos.every(t => t.completed);
     const notCompletedTodos = todos.filter(t => !t.completed);
 
     if (areAllCompleted) {
-      // individual request for every todo
       todos.forEach(todo => {
-        // start loading
         setLoadingTodoId(todo.id);
         todoService
-          // if all completed just invert them
           .updateTodo({ ...todo, completed: false })
-          // receive request as changed todo
           .then(updatedTodo => {
             setTodos(currTodos =>
-              // iterate through todos and replace all todos with changed values
               currTodos.map(currTodo =>
                 currTodo.id === todo.id ? updatedTodo : currTodo,
               ),
@@ -230,7 +202,6 @@ export const App: React.FC = () => {
           });
       });
     } else {
-      // iterate only through not completed todos to make them completed
       notCompletedTodos.forEach(todo => {
         setLoadingTodoId(todo.id);
         todoService
@@ -257,17 +228,14 @@ export const App: React.FC = () => {
   //#region rename Todo
   const [redactingQuery, setRedactingQuery] = useState(selectedTodo?.title);
 
-  // this function will work upon double click on todo span
   function handleSelectTodoSpan(ev: React.MouseEvent<HTMLSpanElement>) {
     const selectedTodoTitle = ev.currentTarget.textContent;
 
     setRedactingQuery(selectedTodoTitle?.trim());
 
-    // find todo with the same title to set it to selected
     setSelectedTodo(todos.find(t => t.title === selectedTodoTitle));
   }
 
-  // for closing form upon pressing ESC
   function handleEscape(event: KeyboardEvent) {
     if (event.key === 'Escape') {
       setSelectedTodo(undefined);
@@ -279,7 +247,6 @@ export const App: React.FC = () => {
   document.addEventListener('keyup', handleEscape);
 
   function handleTitleChange(todoToUpdate: Todo) {
-    // if title hasn't change revert all changes
     if (todoToUpdate.title.trim() === redactingQuery?.trim()) {
       setSelectedTodo(undefined);
       redactingInputRef.current?.blur();
@@ -288,18 +255,14 @@ export const App: React.FC = () => {
       return;
     }
 
-    // start loading
     setLoadingTodoId(todoToUpdate.id);
 
     todoService
-      // we send request on server with changed title
       .updateTodo({
         ...todoToUpdate,
         title: redactingQuery?.trim(),
       })
-      // and receive answer from server as changed todo
       .then(updatedTodo => {
-        // if title is empty delete todo
         if (!updatedTodo.title) {
           setLoadingTodoId(0);
           deleteTodos(updatedTodo.id);
@@ -307,7 +270,6 @@ export const App: React.FC = () => {
           return;
         }
 
-        // replace changed todo and don't touch the others
         return setTodos(currTodos =>
           currTodos.map(todo =>
             todo.id === updatedTodo.id ? updatedTodo : todo,
@@ -318,11 +280,9 @@ export const App: React.FC = () => {
         setErrorMessage('Unable to update a todo');
         throw error;
       })
-      // end loading anyway
       .finally(() => setLoadingTodoId(0));
   }
 
-  // this will work upon submit (enter) and blur (tab)
   function handleTitleChangeSubmit(ev: React.FormEvent) {
     ev.preventDefault();
     handleTitleChange(selectedTodo);
@@ -351,7 +311,7 @@ export const App: React.FC = () => {
           titleRef={titleRef}
         />
 
-        {todos.length !== 0 && (
+        {!!todos.length && (
           <section className="todoapp__main" data-cy="TodoList">
             <TodoList
               todos={getVisibleTodos()}
@@ -366,18 +326,15 @@ export const App: React.FC = () => {
               loadingTodoId={loadingTodoId}
             />
 
-            {/* temp todo shown only after sending request before real todo loads */}
             {tempTodo && <TempTodo tempTodo={tempTodo} />}
           </section>
         )}
 
-        {todos.length !== 0 && (
+        {!!todos.length && (
           <Footer
             todos={todos}
             selectedFilter={selectedFilter}
-            onFilterAll={handleFilterAll}
-            onFilterActive={handleFilterActive}
-            onFilterCompleted={handleFilterCompleted}
+            setSelectedFilter={setSelectedFilter}
             onClearCompleted={handleClearCompleted}
           />
         )}

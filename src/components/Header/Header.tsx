@@ -31,11 +31,10 @@ export const Header: React.FC<Props> = ({
         <button
           type="button"
           className={cn('header__toggle-all', {
-            // only if all todos completed
             active: todos.every(todo => todo.completed),
           })}
           data-cy="ToggleAllButton"
-          onClick={() => onToggleAll()}
+          onClick={onToggleAll}
         />
       )}
 
@@ -48,7 +47,6 @@ export const Header: React.FC<Props> = ({
           type="text"
           className="header__new-todo"
           placeholder="What needs to be done?"
-          // disabled on adding or deleting todo
           disabled={isTodoLoading || loadingTodoId !== 0}
         />
       </form>

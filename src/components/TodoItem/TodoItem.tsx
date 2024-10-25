@@ -29,11 +29,13 @@ export const TodoItem: React.FC<Props> = ({
   onDelete,
   loadingTodoId,
 }) => {
+  const { completed, title, id } = todo;
+
   return (
     <div
       data-cy="Todo"
       className={cn('todo', {
-        completed: todo.completed,
+        completed: completed,
       })}
     >
       <label className="todo__status-label">
@@ -41,7 +43,7 @@ export const TodoItem: React.FC<Props> = ({
           data-cy="TodoStatus"
           type="checkbox"
           className="todo__status"
-          checked={todo.completed}
+          checked={completed}
           onChange={() => onToggle(todo)}
         />
       </label>
@@ -65,14 +67,13 @@ export const TodoItem: React.FC<Props> = ({
             className="todo__title"
             onDoubleClick={onTodoSelect}
           >
-            {todo.title}
+            {title}
           </span>
-          {/* already shown only on hover */}
           <button
             type="button"
             className="todo__remove"
             data-cy="TodoDelete"
-            onClick={() => onDelete(todo.id)}
+            onClick={() => onDelete(id)}
           >
             ×
           </button>
@@ -82,8 +83,7 @@ export const TodoItem: React.FC<Props> = ({
       <div
         data-cy="TodoLoader"
         className={cn('modal overlay', {
-          // overlay is shown upon deleting todo
-          'is-active': loadingTodoId === todo.id,
+          'is-active': loadingTodoId === id,
         })}
       >
         <div className="modal-background has-background-white-ter" />
