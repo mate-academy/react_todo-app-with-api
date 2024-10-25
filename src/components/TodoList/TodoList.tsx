@@ -12,7 +12,7 @@ type Props = {
   setRedactingQuery: (q: string | undefined) => void;
   onTodoSelect: (ev: React.MouseEvent<HTMLSpanElement>) => void;
   onDelete: (todoId: Todo['id']) => void;
-  loadingTodoId: number;
+  loadingTodoIdS: number[];
 };
 
 export const TodoList: React.FC<Props> = ({
@@ -25,7 +25,7 @@ export const TodoList: React.FC<Props> = ({
   setRedactingQuery,
   onTodoSelect,
   onDelete,
-  loadingTodoId,
+  loadingTodoIdS,
 }) => {
   return todos.map(todo => (
     <TodoItem
@@ -39,7 +39,7 @@ export const TodoList: React.FC<Props> = ({
       setRedactingQuery={setRedactingQuery}
       onTodoSelect={onTodoSelect}
       onDelete={onDelete}
-      loadingTodoId={loadingTodoId}
+      loadingTodoIdS={loadingTodoIdS}
     />
   ));
 };

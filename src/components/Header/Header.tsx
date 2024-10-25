@@ -11,7 +11,7 @@ type Props = {
   query: string;
   setQuery: (q: string) => void;
   isTodoLoading: boolean;
-  loadingTodoId: number;
+  loadingTodoIdS: number[];
   titleRef: React.RefObject<HTMLInputElement>;
 };
 
@@ -22,12 +22,12 @@ export const Header: React.FC<Props> = ({
   query,
   setQuery,
   isTodoLoading,
-  loadingTodoId,
+  loadingTodoIdS,
   titleRef,
 }) => {
   return (
     <header className="header">
-      {todos.length !== 0 && (
+      {!!todos.length && (
         <button
           type="button"
           className={cn('header__toggle-all', {
@@ -47,7 +47,7 @@ export const Header: React.FC<Props> = ({
           type="text"
           className="header__new-todo"
           placeholder="What needs to be done?"
-          disabled={isTodoLoading || loadingTodoId !== 0}
+          disabled={isTodoLoading || !loadingTodoIdS}
         />
       </form>
     </header>

@@ -15,9 +15,16 @@ export const App: React.FC = () => {
   const [todos, setTodos] = useState<Todo[]>([]);
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
   const [isTodoLoading, setIsTodoLoading] = useState(false);
-  const [loadingTodoId, setLoadingTodoId] = useState(0);
+  const [loadingTodoIdS, setLoadingTodoIdS] = useState<number[]>([]);
   const [selectedTodo, setSelectedTodo] = useState<Todo | undefined>(undefined);
   const [errorMessage, setErrorMessage] = useState('');
+
+  const completedTodosID = todos
+    .filter(todo => todo.completed)
+    .map(todo => todo.id);
+  const notCompletedTodosID = todos
+    .filter(todo => !todo.completed)
+    .map(todo => todo.id);
 
   //#region effects
   useEffect(() => {
@@ -126,7 +133,7 @@ export const App: React.FC = () => {
 
   //#region delete Todos and clear completed todos
   function deleteTodos(todoId: Todo['id']) {
-    setLoadingTodoId(todoId);
+    setLoadingTodoIdS([todoId]);
     todoService
       .deleteTodo(todoId)
       .then(() => {
@@ -137,15 +144,12 @@ export const App: React.FC = () => {
         throw error;
       })
       .finally(() => {
-        setLoadingTodoId(0);
+        setLoadingTodoIdS([]);
       });
   }
 
-  const completedTodosID = todos
-    .filter(todo => todo.completed)
-    .map(todo => todo.id);
-
   function handleClearCompleted() {
+    setLoadingTodoIdS(completedTodosID);
     completedTodosID.forEach(id =>
       todoService
         .deleteTodo(id)
@@ -154,36 +158,39 @@ export const App: React.FC = () => {
         })
         .catch(() => {
           setErrorMessage('Unable to delete a todo');
-        }),
+        })
+        .finally(() => setLoadingTodoIdS([])),
     );
   }
   //#endregion
 
   //#region toggle Todos
   function toggleTodo(currentTodo: Todo) {
-    setLoadingTodoId(currentTodo.id);
+    setLoadingTodoIdS([currentTodo.id]);
     todoService
       .updateTodo({ ...currentTodo, completed: !currentTodo.completed })
-      .then(() => {
-        // eslint-disable-next-line no-param-reassign
-        currentTodo.completed = !currentTodo.completed;
+      .then(updTodo => {
+        setTodos(
+          todos.map(todo => (todo.id === currentTodo.id ? updTodo : todo)),
+        );
       })
       .catch(error => {
         setErrorMessage('Unable to update a todo');
         throw error;
       })
       .finally(() => {
-        setLoadingTodoId(0);
+        setLoadingTodoIdS([]);
       });
   }
 
   function toggleAll() {
     const areAllCompleted = todos.every(t => t.completed);
+    const completedTodos = todos.filter(t => t.completed);
     const notCompletedTodos = todos.filter(t => !t.completed);
 
     if (areAllCompleted) {
-      todos.forEach(todo => {
-        setLoadingTodoId(todo.id);
+      setLoadingTodoIdS(completedTodosID);
+      completedTodos.forEach(todo => {
         todoService
           .updateTodo({ ...todo, completed: false })
           .then(updatedTodo => {
@@ -198,12 +205,12 @@ export const App: React.FC = () => {
             throw error;
           })
           .finally(() => {
-            setLoadingTodoId(0);
+            setLoadingTodoIdS([]);
           });
       });
     } else {
+      setLoadingTodoIdS(notCompletedTodosID);
       notCompletedTodos.forEach(todo => {
-        setLoadingTodoId(todo.id);
         todoService
           .updateTodo({ ...todo, completed: true })
           .then(updatedTodo => {
@@ -218,7 +225,7 @@ export const App: React.FC = () => {
             throw error;
           })
           .finally(() => {
-            setLoadingTodoId(0);
+            setLoadingTodoIdS([]);
           });
       });
     }
@@ -255,7 +262,7 @@ export const App: React.FC = () => {
       return;
     }
 
-    setLoadingTodoId(todoToUpdate.id);
+    setLoadingTodoIdS([todoToUpdate.id]);
 
     todoService
       .updateTodo({
@@ -264,7 +271,7 @@ export const App: React.FC = () => {
       })
       .then(updatedTodo => {
         if (!updatedTodo.title) {
-          setLoadingTodoId(0);
+          setLoadingTodoIdS([]);
           deleteTodos(updatedTodo.id);
 
           return;
@@ -280,7 +287,7 @@ export const App: React.FC = () => {
         setErrorMessage('Unable to update a todo');
         throw error;
       })
-      .finally(() => setLoadingTodoId(0));
+      .finally(() => setLoadingTodoIdS([]));
   }
 
   function handleTitleChangeSubmit(ev: React.FormEvent) {
@@ -307,7 +314,7 @@ export const App: React.FC = () => {
           query={query}
           setQuery={setQuery}
           isTodoLoading={isTodoLoading}
-          loadingTodoId={loadingTodoId}
+          loadingTodoIdS={loadingTodoIdS}
           titleRef={titleRef}
         />
 
@@ -323,7 +330,7 @@ export const App: React.FC = () => {
               setRedactingQuery={setRedactingQuery}
               onTodoSelect={handleSelectTodoSpan}
               onDelete={deleteTodos}
-              loadingTodoId={loadingTodoId}
+              loadingTodoIdS={loadingTodoIdS}
             />
 
             {tempTodo && <TempTodo tempTodo={tempTodo} />}

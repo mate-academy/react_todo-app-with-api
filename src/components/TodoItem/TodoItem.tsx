@@ -14,7 +14,7 @@ type Props = {
   setRedactingQuery: (q: string | undefined) => void;
   onTodoSelect: (ev: React.MouseEvent<HTMLSpanElement>) => void;
   onDelete: (todoId: Todo['id']) => void;
-  loadingTodoId: number;
+  loadingTodoIdS: number[];
 };
 
 export const TodoItem: React.FC<Props> = ({
@@ -27,7 +27,7 @@ export const TodoItem: React.FC<Props> = ({
   setRedactingQuery,
   onTodoSelect,
   onDelete,
-  loadingTodoId,
+  loadingTodoIdS,
 }) => {
   const { completed, title, id } = todo;
 
@@ -83,7 +83,7 @@ export const TodoItem: React.FC<Props> = ({
       <div
         data-cy="TodoLoader"
         className={cn('modal overlay', {
-          'is-active': loadingTodoId === id,
+          'is-active': loadingTodoIdS.includes(id),
         })}
       >
         <div className="modal-background has-background-white-ter" />
