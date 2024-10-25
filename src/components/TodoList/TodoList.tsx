@@ -6,7 +6,7 @@ type Props = {
   updateTodo: (todo: Todo) => Promise<void>;
   deleteTodo: (todo: Todo) => void;
   array: Todo[];
-  setTempArray: (todo: Todo) => void;
+  setLoadingTodos: (todo: Todo) => void;
   edit: boolean;
 };
 
@@ -15,7 +15,7 @@ export const TodoList: React.FC<Props> = ({
   updateTodo,
   deleteTodo,
   array,
-  setTempArray,
+  setLoadingTodos,
   edit,
 }) => {
   return (
@@ -27,8 +27,8 @@ export const TodoList: React.FC<Props> = ({
             todo={todo}
             updateTodo={updateTodo}
             deleteTodo={deleteTodo}
-            tempArray={array}
-            setTempArray={setTempArray}
+            loadingTodos={array}
+            setLoadingTodos={setLoadingTodos}
             edit={edit}
           />
         </section>

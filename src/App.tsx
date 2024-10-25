@@ -39,11 +39,11 @@ export const App: React.FC = () => {
   const [updateError, setUpdateError] = useState(false);
   const [status, setStatus] = useState('all');
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
-  const [tempArray, setTempArray] = useState<Todo[]>([]);
+  const [loadingTodos, setLoadingTodos] = useState<Todo[]>([]);
   const [edit, setEdit] = useState(false);
 
   const temp = (currentTodo: Todo) => {
-    setTempArray(prevArray => [...prevArray, currentTodo]);
+    setLoadingTodos(prevArray => [...prevArray, currentTodo]);
   };
 
   const filteredTodos = getTodosByStatus(status, todos);
@@ -107,7 +107,7 @@ export const App: React.FC = () => {
         setEdit(true);
         setUpdateError(true);
         wait(3000).then(() => setUpdateError(false));
-        setTempArray([]);
+        setLoadingTodos([]);
         throw error;
       });
   }
@@ -125,6 +125,7 @@ export const App: React.FC = () => {
         wait(3000).then(() => {
           setDeleteError(false);
         });
+        setLoadingTodos(array => array.filter(a => a.id !== paramTodo.id));
       });
   };
 
@@ -165,8 +166,8 @@ export const App: React.FC = () => {
           todos={filteredTodos}
           updateTodo={updateTodo}
           deleteTodo={deleteTodo}
-          array={tempArray}
-          setTempArray={temp}
+          array={loadingTodos}
+          setLoadingTodos={temp}
           edit={edit}
         />
 
@@ -175,8 +176,8 @@ export const App: React.FC = () => {
             todo={tempTodo}
             updateTodo={updateTodo}
             deleteTodo={deleteTodo}
-            tempArray={tempArray}
-            setTempArray={temp}
+            loadingTodos={loadingTodos}
+            setLoadingTodos={temp}
             edit={edit}
           />
         )}
@@ -188,7 +189,7 @@ export const App: React.FC = () => {
             setStatus={setStatus}
             status={status}
             deleteCompletedTodos={deleteCompletedTodos}
-            setTempArray={setTempArray}
+            setLoadingTodos={setLoadingTodos}
           />
         )}
       </div>

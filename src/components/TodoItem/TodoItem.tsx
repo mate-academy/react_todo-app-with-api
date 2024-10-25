@@ -7,8 +7,8 @@ type Props = {
   todo: Todo;
   updateTodo: (todo: Todo) => Promise<void>;
   deleteTodo: (todo: Todo) => void;
-  tempArray: Todo[];
-  setTempArray: (todo: Todo) => void;
+  loadingTodos: Todo[];
+  setLoadingTodos: (todo: Todo) => void;
   edit: boolean;
 };
 
@@ -16,22 +16,22 @@ export const TodoItem: React.FC<Props> = ({
   todo,
   updateTodo,
   deleteTodo,
-  tempArray,
-  setTempArray,
+  loadingTodos,
+  setLoadingTodos,
 }) => {
   const [isEdited, setIsEdited] = useState(false);
   const [tempTitle, setTempTitle] = useState(todo.title);
   const titleField = useRef<HTMLInputElement>(null);
 
   const handleIsCompleted = (paramTodo: Todo) => {
-    setTempArray(todo);
+    setLoadingTodos(todo);
     const newTodo = { ...paramTodo, completed: !paramTodo.completed };
 
     updateTodo(newTodo);
   };
 
   const handleDeleteButton = () => {
-    setTempArray(todo);
+    setLoadingTodos(todo);
     deleteTodo(todo);
   };
 
@@ -47,7 +47,7 @@ export const TodoItem: React.FC<Props> = ({
     event.preventDefault();
 
     if (!tempTitle.trim()) {
-      setTempArray(todo);
+      setLoadingTodos(todo);
       deleteTodo(todo);
 
       return;
@@ -58,7 +58,7 @@ export const TodoItem: React.FC<Props> = ({
     }
 
     if (todo.title !== tempTitle.trim()) {
-      setTempArray(todo);
+      setLoadingTodos(todo);
 
       const newTodo = { ...todo, title: tempTitle.trim() };
 
@@ -96,7 +96,7 @@ export const TodoItem: React.FC<Props> = ({
     }
 
     if (todo.title !== tempTitle.trim()) {
-      setTempArray(todo);
+      setLoadingTodos(todo);
 
       const newTodo = { ...todo, title: tempTitle.trim() };
 
@@ -113,10 +113,10 @@ export const TodoItem: React.FC<Props> = ({
   };
 
   useEffect(() => {
-    if (!todo.id || tempArray.includes(todo)) {
+    if (!todo.id || loadingTodos.includes(todo)) {
       titleField.current?.focus();
     }
-  }, [todo, tempArray]);
+  }, [todo, loadingTodos]);
 
   return (
     <div
@@ -179,7 +179,7 @@ export const TodoItem: React.FC<Props> = ({
         //   'is-active': !todo.id || tempArray.includes(todo),
         // })}
         className={classNames('modal overlay', {
-          'is-active': !todo.id || tempArray.includes(todo),
+          'is-active': !todo.id || loadingTodos.includes(todo),
         })}
       >
         <div className="modal-background has-background-white-ter" />
