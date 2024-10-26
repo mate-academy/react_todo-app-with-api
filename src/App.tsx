@@ -31,16 +31,17 @@ const getTodosByStatus = (status: string, todos: Todo[]) => {
 };
 
 export const App: React.FC = () => {
-  const [titleError, setTitleError] = useState(false);
+  // const [titleError, setTitleError] = useState(false);
   const [todos, setTodos] = useState<Todo[]>([]);
-  const [loadError, setLoadError] = useState(false);
-  const [addError, setAddError] = useState(false);
-  const [deleteError, setDeleteError] = useState(false);
-  const [updateError, setUpdateError] = useState(false);
+  // const [loadError, setLoadError] = useState(false);
+  // const [addError, setAddError] = useState(false);
+  // const [deleteError, setDeleteError] = useState(false);
+  // const [updateError, setUpdateError] = useState(false);
   const [status, setStatus] = useState('all');
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
   const [loadingTodos, setLoadingTodos] = useState<Todo[]>([]);
   const [edit, setEdit] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
 
   const temp = (currentTodo: Todo) => {
     setLoadingTodos(prevArray => [...prevArray, currentTodo]);
@@ -52,8 +53,8 @@ export const App: React.FC = () => {
     const editedTitle = newTodoTitle.trim();
 
     if (!editedTitle) {
-      setTitleError(true);
-      wait(3000).then(() => setTitleError(false));
+      setErrorMessage('Title should not be empty');
+      wait(3000).then(() => setErrorMessage('Title should not be empty'));
 
       return;
     } else {
@@ -75,9 +76,9 @@ export const App: React.FC = () => {
           setTempTodo(null);
         })
         .catch(error => {
-          setAddError(true);
+          setErrorMessage('Unable to add a todo');
           setTempTodo(null);
-          wait(3000).then(() => setAddError(false));
+          wait(3000).then(() => setErrorMessage(''));
           throw error;
         });
     }
@@ -105,8 +106,8 @@ export const App: React.FC = () => {
       })
       .catch(error => {
         setEdit(true);
-        setUpdateError(true);
-        wait(3000).then(() => setUpdateError(false));
+        setErrorMessage('Unable to update a todo');
+        wait(3000).then(() => setErrorMessage(''));
         setLoadingTodos([]);
         throw error;
       });
@@ -121,9 +122,9 @@ export const App: React.FC = () => {
         ),
       )
       .catch(() => {
-        setDeleteError(true);
+        setErrorMessage('Unable to delete a todo');
         wait(3000).then(() => {
-          setDeleteError(false);
+          setErrorMessage('');
         });
         setLoadingTodos(array => array.filter(a => a.id !== paramTodo.id));
       });
@@ -133,8 +134,8 @@ export const App: React.FC = () => {
     todosFromServer
       .getTodos()
       .then(setTodos)
-      .catch(() => setLoadError(true));
-    wait(3000).then(() => setLoadError(false));
+      .catch(() => setErrorMessage('Unable to load todos'));
+    wait(3000).then(() => setErrorMessage(''));
   }, []);
 
   if (!USER_ID) {
@@ -154,7 +155,7 @@ export const App: React.FC = () => {
           {/* Add a todo on form submit */}
           <TodoForm
             onSubmit={addTodo}
-            setTitleError={setTitleError}
+            setErrorMessage={setErrorMessage}
             todos={todos}
             updateTodo={updateTodo}
             setTempArray={temp}
@@ -197,27 +198,21 @@ export const App: React.FC = () => {
       {/* {error && ( */}
       {/* DON'T use conditional rendering to hide the notification */}
       {/* Add the 'hidden' class to hide the message smoothly */}
+
       <div
         data-cy="ErrorNotification"
         className={classNames(
           'notification is-danger is-light has-text-weight-normal',
           {
-            hidden:
-              !titleError &&
-              !loadError &&
-              !addError &&
-              !deleteError &&
-              !updateError,
+            hidden: !errorMessage,
           },
         )}
       >
+        {/* show only one message at a time  */}
+
         <button data-cy="HideErrorButton" type="button" className="delete" />
-        {/* show only one message at a time */}
-        {loadError && 'Unable to load todos'}
-        {titleError && 'Title should not be empty'}
-        {addError && 'Unable to add a todo'}
-        {deleteError && 'Unable to delete a todo'}
-        {updateError && 'Unable to update a todo'}
+
+        {errorMessage && errorMessage}
       </div>
     </div>
   );

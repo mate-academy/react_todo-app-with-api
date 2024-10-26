@@ -7,7 +7,7 @@ import { Todo } from '../../types/Todo';
 type Props = {
   todos: Todo[];
   onSubmit: (title: string) => Promise<void>;
-  setTitleError: (value: boolean) => void;
+  setErrorMessage: (value: string) => void;
   updateTodo: (todo: Todo) => Promise<void>;
   setTempArray: (todo: Todo) => void;
   edit: boolean;
@@ -15,7 +15,7 @@ type Props = {
 
 export const TodoForm: React.FC<Props> = ({
   onSubmit,
-  setTitleError,
+  setErrorMessage,
   todos,
   updateTodo,
   setTempArray,
@@ -36,8 +36,8 @@ export const TodoForm: React.FC<Props> = ({
   const handleFormSubmit = (event: FormEvent) => {
     event.preventDefault();
     if (!title.trim()) {
-      setTitleError(true);
-      wait(3000).then(() => setTitleError(false));
+      setErrorMessage('Title should not be empty');
+      wait(3000).then(() => setErrorMessage(''));
     }
 
     if (title.trim()) {
