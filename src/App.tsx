@@ -31,12 +31,7 @@ const getTodosByStatus = (status: string, todos: Todo[]) => {
 };
 
 export const App: React.FC = () => {
-  // const [titleError, setTitleError] = useState(false);
   const [todos, setTodos] = useState<Todo[]>([]);
-  // const [loadError, setLoadError] = useState(false);
-  // const [addError, setAddError] = useState(false);
-  // const [deleteError, setDeleteError] = useState(false);
-  // const [updateError, setUpdateError] = useState(false);
   const [status, setStatus] = useState('all');
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
   const [loadingTodos, setLoadingTodos] = useState<Todo[]>([]);
@@ -49,12 +44,12 @@ export const App: React.FC = () => {
 
   const filteredTodos = getTodosByStatus(status, todos);
 
-  async function addTodo(newTodoTitle: string) {
+  const addTodo = async (newTodoTitle: string) => {
     const editedTitle = newTodoTitle.trim();
 
     if (!editedTitle) {
       setErrorMessage('Title should not be empty');
-      wait(3000).then(() => setErrorMessage('Title should not be empty'));
+      wait(3000).finally(() => setErrorMessage('Title should not be empty'));
 
       return;
     } else {
@@ -78,16 +73,13 @@ export const App: React.FC = () => {
         .catch(error => {
           setErrorMessage('Unable to add a todo');
           setTempTodo(null);
-          wait(3000).then(() => setErrorMessage(''));
+          wait(3000).finally(() => setErrorMessage(''));
           throw error;
         });
     }
-  }
+  };
 
-  async function updateTodo(
-    updatedTodo: Todo,
-    // successUpdateState?: VoidFunction,
-  ): Promise<void> {
+  const updateTodo = async (updatedTodo: Todo): Promise<void> => {
     return todosFromServer
       .updateTodos(updatedTodo)
       .then((todo: Todo) => {
@@ -102,16 +94,15 @@ export const App: React.FC = () => {
           return newTodos;
         });
         setEdit(false);
-        // successUpdateState?.();
       })
       .catch(error => {
         setEdit(true);
         setErrorMessage('Unable to update a todo');
-        wait(3000).then(() => setErrorMessage(''));
+        wait(3000).finally(() => setErrorMessage(''));
         setLoadingTodos([]);
         throw error;
       });
-  }
+  };
 
   const deleteTodo = (paramTodo: Todo) => {
     todosFromServer
@@ -123,7 +114,7 @@ export const App: React.FC = () => {
       )
       .catch(() => {
         setErrorMessage('Unable to delete a todo');
-        wait(3000).then(() => {
+        wait(3000).finally(() => {
           setErrorMessage('');
         });
         setLoadingTodos(array => array.filter(a => a.id !== paramTodo.id));
@@ -135,7 +126,7 @@ export const App: React.FC = () => {
       .getTodos()
       .then(setTodos)
       .catch(() => setErrorMessage('Unable to load todos'));
-    wait(3000).then(() => setErrorMessage(''));
+    wait(3000).finally(() => setErrorMessage(''));
   }, []);
 
   if (!USER_ID) {

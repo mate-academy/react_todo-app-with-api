@@ -39,10 +39,6 @@ export const TodoItem: React.FC<Props> = ({
     setTempTitle(event.target.value);
   };
 
-  // const successUpdateState = () => {
-  //   setIsEdited(false);
-  // };
-
   const handleFormSubmit = (event: FormEvent) => {
     event.preventDefault();
 
@@ -61,8 +57,6 @@ export const TodoItem: React.FC<Props> = ({
       setLoadingTodos(todo);
 
       const newTodo = { ...todo, title: tempTitle.trim() };
-
-      // setIsEdited(true);
 
       updateTodo(newTodo)
         .then(() => {
@@ -175,9 +169,6 @@ export const TodoItem: React.FC<Props> = ({
       {/* overlay will cover the todo while it is being deleted or updated */}
       <div
         data-cy="TodoLoader"
-        // className={classNames('modal overlay', {
-        //   'is-active': !todo.id || tempArray.includes(todo),
-        // })}
         className={classNames('modal overlay', {
           'is-active': !todo.id || loadingTodos.includes(todo),
         })}
