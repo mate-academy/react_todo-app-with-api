@@ -41,7 +41,7 @@ Implement the ability to edit a todo title on double click:
 - open `cypress/integration/page.spec.js`
 - replace `describe.skip` with `describe` for the root `describe`
 
-> ❗❗All tests should pass, even if some behaviour in not well explained in the task❗❗
+> ❗❗All tests should pass, even if some behavior in not well explained in the task❗❗
 
 ## Instructions
 
