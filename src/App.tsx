@@ -49,7 +49,6 @@ export const App: React.FC = () => {
 
     if (!editedTitle) {
       setErrorMessage('Title should not be empty');
-      wait(3000).finally(() => setErrorMessage('Title should not be empty'));
 
       return;
     } else {
@@ -73,7 +72,6 @@ export const App: React.FC = () => {
         .catch(error => {
           setErrorMessage('Unable to add a todo');
           setTempTodo(null);
-          wait(3000).finally(() => setErrorMessage(''));
           throw error;
         });
     }
@@ -98,7 +96,6 @@ export const App: React.FC = () => {
       .catch(error => {
         setEdit(true);
         setErrorMessage('Unable to update a todo');
-        wait(3000).finally(() => setErrorMessage(''));
         setLoadingTodos([]);
         throw error;
       });
@@ -114,9 +111,6 @@ export const App: React.FC = () => {
       )
       .catch(() => {
         setErrorMessage('Unable to delete a todo');
-        wait(3000).finally(() => {
-          setErrorMessage('');
-        });
         setLoadingTodos(array => array.filter(a => a.id !== paramTodo.id));
       });
   };
@@ -126,8 +120,10 @@ export const App: React.FC = () => {
       .getTodos()
       .then(setTodos)
       .catch(() => setErrorMessage('Unable to load todos'));
-    wait(3000).finally(() => setErrorMessage(''));
-  }, []);
+    if (errorMessage) {
+      wait(3000).finally(() => setErrorMessage(''));
+    }
+  }, [errorMessage]);
 
   if (!USER_ID) {
     return <UserWarning />;
