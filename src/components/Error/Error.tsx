@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { FC, useEffect } from 'react';
 import cn from 'classnames';
 
 import { TypeError } from '../../types/TypeError';
@@ -8,7 +8,7 @@ type Props = {
   setErrorMessage: React.Dispatch<React.SetStateAction<TypeError>>;
 };
 
-export const Error: React.FC<Props> = ({ errorMessage, setErrorMessage }) => {
+export const Error: FC<Props> = ({ errorMessage, setErrorMessage }) => {
   useEffect(() => {
     let timer: NodeJS.Timeout;
 

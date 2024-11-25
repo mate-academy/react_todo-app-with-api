@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { FC } from 'react';
 import cn from 'classnames';
 
 import { SelectedType } from '../../types/SelectedType';
@@ -11,7 +11,7 @@ type Props = {
   handleDeleteTodo: (todoId: number) => void;
 };
 
-export const Footer: React.FC<Props> = ({
+export const Footer: FC<Props> = ({
   todos,
   selectedOption,
   setSelectedOption,

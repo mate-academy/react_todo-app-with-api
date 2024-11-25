@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import React, { FC, useEffect, useRef } from 'react';
 import cn from 'classnames';
 
 import { TypeError } from '../../types/TypeError';
@@ -17,7 +17,7 @@ type Props = {
   updateTodo: (updatedTodo: Todo) => void;
 };
 
-export const Header: React.FC<Props> = ({
+export const Header: FC<Props> = ({
   todos,
   setErrorMessage,
   newTitle,

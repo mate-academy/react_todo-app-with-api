@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { FC } from 'react';
 
 import { Todo } from '../../types/Todo';
 import { TodoItem } from '../TodoItem';
@@ -13,7 +13,7 @@ type Props = {
   setEditingTodoId: React.Dispatch<React.SetStateAction<number | null>>;
 };
 
-export const TodoList: React.FC<Props> = ({
+export const TodoList: FC<Props> = ({
   todos,
   temptTodo,
   onDeleteTodo,

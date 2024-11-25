@@ -1,7 +1,7 @@
 /* eslint-disable jsx-a11y/label-has-associated-control */
 /* eslint-disable jsx-a11y/control-has-associated-label */
 
-import React, { useState } from 'react';
+import React, { FC, useState } from 'react';
 import cn from 'classnames';
 
 import { Todo } from '../../types/Todo';
@@ -16,7 +16,7 @@ type Props = {
   setEditingTodoId: React.Dispatch<React.SetStateAction<number | null>>;
 };
 
-export const TodoItem: React.FC<Props> = ({
+export const TodoItem: FC<Props> = ({
   onDeleteTodo,
   todo,
   loadingTodoId,
@@ -64,6 +64,7 @@ export const TodoItem: React.FC<Props> = ({
 
   const handleEscape = (event: React.KeyboardEvent<HTMLInputElement>) => {
     if (event.key === 'Escape') {
+      setChangedTitle(todo.title);
       setEditingTodoId(null);
     }
   };
