@@ -8,7 +8,7 @@ type Props = {
   onDelete: (postId: number) => Promise<unknown>;
   todosInProcess: number[];
   updateTodo: (
-    todoid: number,
+    todoId: number,
     newTitle: string,
     completed?: boolean,
   ) => Promise<void> | undefined;
@@ -39,7 +39,7 @@ export const TodoInfo: React.FC<Props> = ({
     event.preventDefault();
     const trimmedTitle = selectTitle.trim();
 
-    if (trimmedTitle === '') {
+    if (trimmedTitle === title) {
       setChangeTitle(false);
 
       return;

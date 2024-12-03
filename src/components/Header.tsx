@@ -12,7 +12,7 @@ type Props = {
   updateTodo: (
     todoId: number,
     newTitle: string,
-    complated?: boolean,
+    completed?: boolean,
   ) => Promise<void> | undefined;
   newTitleTodo: string;
   setNewTitleTodo: React.Dispatch<React.SetStateAction<string>>;

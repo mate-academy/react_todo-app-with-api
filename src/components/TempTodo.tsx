@@ -23,7 +23,7 @@ export const TempTodo: React.FC<Props> = ({ tempTitle: { title } }) => {
       <button
         type="button"
         className="todo__remove"
-        data-cy="Tododelete"
+        data-cy="TodoDelete"
         disabled
       >
         ×
