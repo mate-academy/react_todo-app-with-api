@@ -1,0 +1,34 @@
+{
+    "sourceFile": "src/components/TodoItem.tsx",
+    "activeCommit": 0,
+    "commits": [
+        {
+            "activePatchIndex": 4,
+            "patches": [
+                {
+                    "date": 1715339716099,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n"
+                },
+                {
+                    "date": 1715339745683,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -22,12 +22,10 @@\n \n   const handleButtonClick = () => {\n     setIsBeingSaved(true);\n \n-    deleteTodo(todo.id).then(didSucceed => {\n-      if (!didSucceed) {\n-        setIsBeingSaved(false);\n-      }\n+    deleteTodo(todo.id).then(() => {\n+      setIsBeingSaved(false);\n     });\n   };\n \n   const handleCheckboxClick = () => {\n"
+                },
+                {
+                    "date": 1715339828894,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -57,9 +57,8 @@\n               type=\"checkbox\"\n               className=\"todo__status\"\n               readOnly\n               checked={todo.completed}\n-              // onChange={handleChange}\n             />\n           </label>\n \n           <span data-cy=\"TodoTitle\" className=\"todo__title\">\n@@ -76,9 +75,9 @@\n \n           <div\n             data-cy=\"TodoLoader\"\n             className={\n-              'modal overlay' + (isTemp || isBeingDeleted ? ' is-active' : '')\n+              'modal overlay' + (isTemp || isBeingSaved ? ' is-active' : '')\n             }\n           >\n             <div className=\"modal-background has-background-white-ter\" />\n             <div className=\"loader\" />\n"
+                },
+                {
+                    "date": 1715339968226,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -1,5 +1,5 @@\n-import { FC, useState } from 'react';\n+import { ChangeEvent, FC, useState } from 'react';\n import { Todo } from '../types/Todo';\n import React from 'react';\n \n type Props = {\n@@ -18,8 +18,9 @@\n   renameTodo,\n }) => {\n   const [isBeingEdited, setIsBeingEdited] = useState(false);\n   const [isBeingSaved, setIsBeingSaved] = useState(false);\n+  const [newTitle, setNewTitle] = useState('')\n \n   const handleButtonClick = () => {\n     setIsBeingSaved(true);\n \n@@ -35,8 +36,16 @@\n       setIsBeingSaved(false);\n     });\n   };\n \n+  const handleDoubleClickOnTitle = () => {\n+    setIsBeingEdited(true);\n+  };\n+\n+  const handleInputChange = (e: ChangeEvent<HTMLInputElement>) => {\n+    \n+  }\n+\n   return (\n     <div data-cy=\"Todo\" className={`todo ${todo.completed ? 'completed' : ''}`}>\n       {isBeingEdited ? (\n         <form>\n"
+                },
+                {
+                    "date": 1715339985705,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -40,9 +40,11 @@\n   const handleDoubleClickOnTitle = () => {\n     setIsBeingEdited(true);\n   };\n \n-  const handleInputChange = (e: ChangeEvent<HTMLInputElement>) => {};\n+  const handleInputChange = (e: ChangeEvent<HTMLInputElement>) => {\n+    setNewTitle(e.target.value);\n+  };\n \n   return (\n     <div data-cy=\"Todo\" className={`todo ${todo.completed ? 'completed' : ''}`}>\n       {isBeingEdited ? (\n"
+                }
+            ],
+            "date": 1715339716099,
+            "name": "Commit-0",
+            "content": "import { FC, useState } from 'react';\nimport { Todo } from '../types/Todo';\nimport React from 'react';\n\ntype Props = {\n  todo: Todo;\n  deleteTodo: (todoId: number) => Promise<boolean>;\n  isTemp?: boolean;\n  checkTodo(todoId: number, newStatus: boolean): Promise<boolean>;\n  renameTodo(todoId: number, newTitle: string): Promise<boolean>;\n};\n\nexport const TodoItem: FC<Props> = ({\n  todo,\n  deleteTodo,\n  isTemp,\n  checkTodo,\n  renameTodo\n}) => {\n  const [isBeingEdited, setIsBeingEdited] = useState(false);\n  const [isBeingSaved, setIsBeingSaved] = useState(false)\n\n  const handleButtonClick = () => {\n    setIsBeingSaved(true);\n\n    deleteTodo(todo.id).then(didSucceed => {\n      if (!didSucceed) {\n        setIsBeingSaved(false);\n      }\n    });\n  };\n\n  const handleCheckboxClick = () => {\n    setIsBeingSaved(true);\n\n    checkTodo(todo.id, !todo.completed)\n      .then(() => {\n        setIsBeingSaved(false);\n      })\n  }\n\n  return (\n    <div data-cy=\"Todo\" className={`todo ${todo.completed ? 'completed' : ''}`}>\n      {isBeingEdited ? (\n        <form>\n          <input\n            data-cy=\"TodoTitleField\"\n            type=\"text\"\n            className=\"todo__title-field\"\n            placeholder=\"Empty todo will be deleted\"\n            value=\"Todo is being edited now\"\n          />\n        </form>\n      ) : (\n        <>\n          {/* eslint-disable-next-line */}\n          <label className=\"todo__status-label\" htmlFor=\"label\">\n            <input\n              data-cy=\"TodoStatus\"\n              type=\"checkbox\"\n              className=\"todo__status\"\n              readOnly\n              checked={todo.completed}\n              // onChange={handleChange}\n            />\n          </label>\n\n          <span data-cy=\"TodoTitle\" className=\"todo__title\">\n            {todo.title}\n          </span>\n          <button\n            type=\"button\"\n            className=\"todo__remove\"\n            data-cy=\"TodoDelete\"\n            onClick={handleButtonClick}\n          >\n            ×\n          </button>\n\n          <div\n            data-cy=\"TodoLoader\"\n            className={\n              'modal overlay' + (isTemp || isBeingDeleted ? ' is-active' : '')\n            }\n          >\n            <div className=\"modal-background has-background-white-ter\" />\n            <div className=\"loader\" />\n          </div>\n        </>\n      )}\n    </div>\n  );\n};\n"
+        }
+    ]
+}
