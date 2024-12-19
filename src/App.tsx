@@ -1,26 +1,77 @@
-/* eslint-disable max-len */
-/* eslint-disable jsx-a11y/control-has-associated-label */
-import React from 'react';
-import { UserWarning } from './UserWarning';
+import { FC, useState } from 'react';
 
-const USER_ID = 0;
+import { getFilteredTodos } from './utils/getFilterdTodos';
+import { TodoList } from './components/TodoList';
+import { Footer } from './components/Footer';
+import { Error } from './components/Error';
+import { SelectedType } from './types/SelectedType';
+import { Header } from './components/Header';
+import { useTodos } from './hooks/useTodos';
 
-export const App: React.FC = () => {
-  if (!USER_ID) {
-    return <UserWarning />;
-  }
+export const App: FC = () => {
+  const {
+    todos,
+    errorMessage,
+    setErrorMessage,
+    handleAddTodo,
+    handleDeleteTodo,
+    updateTodo,
+    loading,
+    setLoading,
+    newTitle,
+    setNewTitle,
+    setTempTodo,
+    temptTodo,
+    loadingTodoId,
+    editingTodoId,
+    setEditingTodoId,
+  } = useTodos();
+  const [selectedOption, setSelectedOption] = useState<SelectedType>(
+    SelectedType.ALL,
+  );
+
+  const filteredTodos = getFilteredTodos(todos, selectedOption);
 
   return (
-    <section className="section container">
-      <p className="title is-4">
-        Copy all you need from the prev task:
-        <br />
-        <a href="https://github.com/mate-academy/react_todo-app-add-and-delete#react-todo-app-add-and-delete">
-          React Todo App - Add and Delete
-        </a>
-      </p>
+    <div className="todoapp">
+      <h1 className="todoapp__title">todos</h1>
 
-      <p className="subtitle">Styles are already copied</p>
-    </section>
+      <div className="todoapp__content">
+        <Header
+          todos={todos}
+          newTitle={newTitle}
+          setNewTitle={setNewTitle}
+          setErrorMessage={setErrorMessage}
+          onAddTodo={handleAddTodo}
+          setLoading={setLoading}
+          loading={loading}
+          setTempTodo={setTempTodo}
+          updateTodo={updateTodo}
+        />
+
+        {todos.length > 0 && (
+          <>
+            <TodoList
+              todos={filteredTodos}
+              temptTodo={temptTodo}
+              onDeleteTodo={handleDeleteTodo}
+              loadingTodoId={loadingTodoId}
+              updateTodo={updateTodo}
+              editingTodoId={editingTodoId}
+              setEditingTodoId={setEditingTodoId}
+            />
+
+            <Footer
+              todos={todos}
+              selectedOption={selectedOption}
+              setSelectedOption={setSelectedOption}
+              handleDeleteTodo={handleDeleteTodo}
+            />
+          </>
+        )}
+      </div>
+
+      <Error errorMessage={errorMessage} setErrorMessage={setErrorMessage} />
+    </div>
   );
 };
