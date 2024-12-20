@@ -1,26 +1,147 @@
 /* eslint-disable max-len */
+/* eslint-disable jsx-a11y/label-has-associated-control */
 /* eslint-disable jsx-a11y/control-has-associated-label */
-import React from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { UserWarning } from './UserWarning';
+import { USER_ID } from './api/todos';
+import * as servisesTodos from './api/todos';
+import { Todo } from './types/Todo';
+import { TodoInput } from './components/TodoInput/TodoInput';
+import { TodoList } from './components/TodoList/TodoList';
+import { ErrorNotification } from './components/ErrorNotification/ErrorNotification';
+import { Footer } from './components/Footer/Footer';
+import { Filter } from './types/Filter';
 
-const USER_ID = 0;
+export enum FilterParam {
+  All = 'All',
+  Active = 'Active',
+  Completed = 'Completed',
+}
 
 export const App: React.FC = () => {
+  const [todos, setTodos] = useState<Todo[]>([]);
+  const [errorMessage, setErrorMessage] = useState('');
+  const [filter, setFilter] = useState<Filter>(FilterParam.All);
+  const [tempTodo, setTempTodo] = useState(null);
+  const [loadingIds, setLoadingIds] = useState<number[]>([]);
+
+  useEffect(() => {
+    servisesTodos
+      .getTodos()
+      .then(setTodos)
+      .catch(() => {
+        setErrorMessage('Unable to load todos');
+      });
+  }, []);
+
+  useEffect(() => {
+    setTimeout(() => {
+      setErrorMessage('');
+    }, 3000);
+  }, [errorMessage]);
+
+  const filteredTodos = useMemo(() => {
+    if (filter === FilterParam.Active) {
+      return todos.filter(todo => !todo.completed);
+    }
+
+    if (filter === FilterParam.Completed) {
+      return todos.filter(todo => todo.completed);
+    }
+
+    return todos;
+  }, [filter, todos]);
+
+  const handleDeleteTodo = (todoId: number) => {
+    setLoadingIds(current => [...current, todoId]);
+
+    return servisesTodos
+      .deleteTodo(todoId)
+      .then(() => {
+        setTodos(currentTodo => currentTodo.filter(todo => todo.id !== todoId));
+      })
+      .catch(error => {
+        setErrorMessage('Unable to delete a todo');
+        throw error;
+      })
+      .finally(() => {
+        setLoadingIds(current => current.filter(id => id !== todoId));
+      });
+  };
+
+  const handleUpdateTodo = (
+    todoId: number,
+    newTitle: string,
+    completed: boolean,
+  ) => {
+    setLoadingIds(current => [...current, todoId]);
+    const todoToUpdate = todos.find(todo => todo.id === todoId);
+
+    if (!todoToUpdate) {
+      return;
+    }
+
+    const updatedTodo = {
+      ...todoToUpdate,
+      title: newTitle.trim(),
+      completed: completed,
+    };
+
+    return servisesTodos
+      .updateTodo(todoId, updatedTodo)
+      .then(() =>
+        setTodos(currentTodo =>
+          currentTodo.map(todo => (todo.id === todoId ? updatedTodo : todo)),
+        ),
+      )
+      .catch(error => {
+        setErrorMessage('Unable to update a todo');
+        throw error;
+      })
+      .finally(() => {
+        setLoadingIds(current => current.filter(id => id !== todoId));
+      });
+  };
+
   if (!USER_ID) {
     return <UserWarning />;
   }
 
   return (
-    <section className="section container">
-      <p className="title is-4">
-        Copy all you need from the prev task:
-        <br />
-        <a href="https://github.com/mate-academy/react_todo-app-add-and-delete#react-todo-app-add-and-delete">
-          React Todo App - Add and Delete
-        </a>
-      </p>
+    <div className="todoapp">
+      <h1 className="todoapp__title">todos</h1>
 
-      <p className="subtitle">Styles are already copied</p>
-    </section>
+      <div className="todoapp__content">
+        <TodoInput
+          setErrorMessage={setErrorMessage}
+          todos={todos}
+          setTodos={setTodos}
+          setTempTodo={setTempTodo}
+          tempTodo={tempTodo}
+          handleUpdateTodo={handleUpdateTodo}
+          loadingIds={loadingIds}
+        />
+
+        <TodoList
+          filteredTodos={filteredTodos}
+          tempTodo={tempTodo}
+          handleDeleteTodo={handleDeleteTodo}
+          handleUpdateTodo={handleUpdateTodo}
+          loadingIds={loadingIds}
+        />
+        {todos.length > 0 && (
+          <Footer
+            filter={filter}
+            setFilter={setFilter}
+            todos={todos}
+            handleDeleteTodo={handleDeleteTodo}
+          />
+        )}
+      </div>
+      <ErrorNotification
+        errorMessage={errorMessage}
+        setErrorMessage={setErrorMessage}
+      />
+    </div>
   );
 };
