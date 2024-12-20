@@ -33,6 +33,19 @@
 
     word-break: break-all;
     transition: color 0.4s;
+
+    &-change {
+      padding: 12px 15px;
+
+      border: none;
+      width: 100%;
+      word-break: break-all;
+      transition: color 0.4s;
+      font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+      font-size: 24px;
+      font-weight: 300;
+      color: #4d4d4d;
+    }
   }
 
   &.completed &__title {
