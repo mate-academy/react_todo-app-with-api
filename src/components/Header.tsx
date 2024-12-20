@@ -1,5 +1,6 @@
 import classNames from 'classnames';
 import React from 'react';
+import { Todo } from '../types/Todo';
 
 interface HeaderProps {  //+++
   onAdd: (title: string) => void;
@@ -7,9 +8,11 @@ interface HeaderProps {  //+++
   newTodoTitle: string;
   setNewTodoTitle: React.Dispatch<React.SetStateAction<string>>;
   inputRef: React.RefObject<HTMLInputElement>;
+  todos: Todo[];
+  onToggleAll: () => void;
 }
 
-export const Header: React.FC<HeaderProps> = ({ onAdd, isAdding, newTodoTitle, setNewTodoTitle, inputRef }) => { //+++
+export const Header: React.FC<HeaderProps> = ({ onAdd, isAdding, newTodoTitle, setNewTodoTitle, inputRef, todos, onToggleAll }) => { //+++
 
 
   const handleSubmit = (event: React.FormEvent) => { //+++
@@ -39,6 +42,17 @@ export const Header: React.FC<HeaderProps> = ({ onAdd, isAdding, newTodoTitle, s
           disabled={isAdding}
         />
       </form>
-    </header>
+      {todos.length > 0 && (
+      <button
+      type="button"
+      data-cy="ToggleAllButton"
+      className={classNames('todoapp__toggle-all', {
+      active: todos.every(todo => todo.completed),
+      })}
+      onClick={onToggleAll}
+      >
+    </button>
+    )}
+      </header>
   );
 };

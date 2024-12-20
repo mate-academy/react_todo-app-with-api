@@ -10,10 +10,11 @@ interface TodoListProps {
   filter: FilterType;
   onDelete: (todoId: number) => void;
   onUpdate: (updatedTodo: Todo) => void;
-  onTodoDoubleClick: (todo: Todo) => void;
+  onToggleCompletion: (todoId: number) => void;
+  onToggleAll: () => void;
 }
 
-export const TodoList: React.FC<TodoListProps> = ({ todos, tempTodo, filter, onDelete, onTodoDoubleClick, onUpdate }) => {
+export const TodoList: React.FC<TodoListProps> = ({ todos, tempTodo, filter, onDelete, onUpdate, onToggleCompletion }) => {
 
   const filteredTodos = todos.filter(todo => {
     if (filter === 'active') return !todo.completed;
@@ -30,8 +31,8 @@ export const TodoList: React.FC<TodoListProps> = ({ todos, tempTodo, filter, onD
           key={todo.id ? todo.id : 'temp'}
           todo={todo}
           onDelete={onDelete}
-          onTodoDoubleClick={onTodoDoubleClick}
           onUpdate={onUpdate}
+          onToggleCompletion={onToggleCompletion}
         />
       ))}
     </section>

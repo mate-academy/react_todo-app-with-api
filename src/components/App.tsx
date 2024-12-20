@@ -15,7 +15,7 @@ export const App: React.FC = () => {
   const [todos, setTodos] = useState<Todo[]>([]);
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
   const [newTodoTitle, setNewTodoTitle] = useState('');
-  const [selectedTodo, setSelectedTodo] = useState<Todo | null>(null);
+
 
   const [error, setError] = useState<string | null>(null);
   const [isErrorVisible, setIsErrorVisible] = useState(true);
@@ -23,6 +23,15 @@ export const App: React.FC = () => {
   const [isAdding, setIsAdding] = useState(false);
 
   const inputRef = React.useRef<HTMLInputElement>(null);
+
+
+  const handleUpdateTodo = (updatedTodo: Todo) => {
+    setTodos(prevTodos =>
+      prevTodos.map(todo =>
+        todo.id === updatedTodo.id ? { ...todo, title: updatedTodo.title } : todo
+      )
+    );
+  };
 
 
   const handleError = (errorType: string) => {
@@ -105,32 +114,33 @@ export const App: React.FC = () => {
       });
   };
 
-  const handleTodoDoubleClick = (todo: Todo) => {
-    setSelectedTodo(todo);
-  }
-
   const updateTodo = (updatedTodo: Todo) => {
     setError('');
 
+    setTodos((currentTodos) =>
+      currentTodos.map((todo) =>
+        todo.id === updatedTodo.id ? { ...todo, isLoading: true } : todo
+      )
+    );
+
     todoService
       .updateTodo(updatedTodo)
-      .then((todo) => {
-      setTodos((currentTodos) => {
-        const newTodos = [...currentTodos];
-        const index = newTodos.findIndex(todo => todo.id === updatedTodo.id);
-
-        if (index !== -1) {
-          newTodos[index] = todo;
-        }
-
-        return newTodos;
+      .then((updatedTodoResponse) => {
+        setTodos((currentTodos) =>
+          currentTodos.map((todo) =>
+            todo.id === updatedTodoResponse.id ? updatedTodoResponse : todo
+          )
+        );
+      })
+      .catch(() => {
+        setError('Unable to update a todo');
+        setTodos((currentTodos) =>
+          currentTodos.map((todo) =>
+            todo.id === updatedTodo.id ? { ...todo, isLoading: false } : todo
+          )
+        );
       });
-      setSelectedTodo(null);
-    })
-    .catch(() => {
-      setError(`Can't update a todo`)
-    });
-  }
+  };
 
   const clearCompletedTodos = () => {
     const completedTodos = todos.filter((todo) => todo.completed);
@@ -180,6 +190,49 @@ export const App: React.FC = () => {
     return <UserWarning />;
   }
 
+  const toggleTodoCompletion = (todoId: number) => {
+    const targetTodo = todos.find(todo => todo.id === todoId);
+
+    if (!targetTodo) return;
+
+    const updatedTodo = { ...targetTodo, completed: !targetTodo.completed };
+
+    updateTodo(updatedTodo);
+  };
+
+  const toggleAllTodos = () => {
+    const allCompleted = todos.every(todo => todo.completed);
+    const updatedStatus = !allCompleted;
+
+    const updatedTodos = todos.map(todo =>
+      todo.completed !== updatedStatus
+      ? { ...todo, completed: updatedStatus }
+      : todo
+    );
+
+    Promise.allSettled(
+      updatedTodos.map(todo =>
+        todo.completed !== updatedStatus ? todoService.updateTodo(todo) : null
+      )
+    )
+      .then(results => {
+        const successfulIds = results
+          .map((result, index) =>
+            result.status === 'fulfilled' ? updatedTodos[index].id : null
+        )
+        .filter((id): id is number => id !== null);
+
+      setTodos(currentTodos =>
+        currentTodos.map(todo =>
+          successfulIds.includes(todo.id)
+            ? { ...todo, completed: updatedStatus }
+            : todo
+        )
+      )
+      })
+      .catch(() => handleError('update'));
+  };
+
   return (
     <div className="todoapp">
       <h1 className="todoapp__title">todos</h1>
@@ -191,15 +244,18 @@ export const App: React.FC = () => {
           newTodoTitle={newTodoTitle}
           setNewTodoTitle={setNewTodoTitle}
           inputRef={inputRef}
+          todos={todos}
+          onToggleAll={toggleAllTodos}
         />
         <TodoList
           todos={todos}
           tempTodo={tempTodo}
           setTodos={setTodos}
           filter={filter}
+          onUpdate={handleUpdateTodo}
           onDelete={deleteTodo}
-          onTodoDoubleClick={handleTodoDoubleClick}
-          onUpdate={updateTodo}
+          onToggleCompletion={toggleTodoCompletion}
+          onToggleAll={toggleAllTodos}
           />
         {todos.length > 0 && (
           <Footer todos={todos} filter={filter} setFilter={setFilter} clearCompletedTodos={clearCompletedTodos}/>
