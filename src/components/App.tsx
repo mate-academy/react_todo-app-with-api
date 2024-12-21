@@ -204,33 +204,48 @@ export const App: React.FC = () => {
     const allCompleted = todos.every(todo => todo.completed);
     const updatedStatus = !allCompleted;
 
-    const updatedTodos = todos.map(todo =>
-      todo.completed !== updatedStatus
-      ? { ...todo, completed: updatedStatus }
-      : todo
+    setTodos(currentTodos =>
+      currentTodos.map(todo => ({ ...todo, isLoading: true }))
     );
 
     Promise.allSettled(
-      updatedTodos.map(todo =>
-        todo.completed !== updatedStatus ? todoService.updateTodo(todo) : null
+      todos.map(todo =>
+        todoService.updateTodo({ ...todo, completed: updatedStatus })
       )
     )
       .then(results => {
         const successfulIds = results
           .map((result, index) =>
-            result.status === 'fulfilled' ? updatedTodos[index].id : null
-        )
-        .filter((id): id is number => id !== null);
+            result.status === 'fulfilled' ? todos[index].id : null
+          )
+          .filter((id): id is number => id !== null);
 
-      setTodos(currentTodos =>
-        currentTodos.map(todo =>
-          successfulIds.includes(todo.id)
-            ? { ...todo, completed: updatedStatus }
-            : todo
-        )
-      )
+        const failedIds = results
+          .map((result, index) =>
+            result.status === 'rejected' ? todos[index].id : null
+          )
+          .filter((id): id is number => id !== null);
+
+        setTodos(currentTodos =>
+          currentTodos.map(todo =>
+            successfulIds.includes(todo.id)
+              ? { ...todo, completed: updatedStatus, isLoading: false }
+              : failedIds.includes(todo.id)
+              ? { ...todo, isLoading: false }
+              : todo
+          )
+        );
+
+        if (failedIds.length > 0) {
+          handleError('update');
+        }
       })
-      .catch(() => handleError('update'));
+      .catch(() => {
+        setTodos(currentTodos =>
+          currentTodos.map(todo => ({ ...todo, isLoading: false }))
+        );
+        handleError('update');
+      });
   };
 
   return (
