@@ -45,18 +45,16 @@ export const TodoItem: React.FC<TodoItemProps> = ({ todo, onDelete, onUpdate, on
           }}
         >
           <input
+            data-cy="TodoTitleField"
             type="text"
             className="todo__input"
-            onBlur={() => {
-              setIsEdit(false)
-              onUpdate({ ...todo, title: newTitle });
-            }}
+            onBlur={() => setIsEdit(false)}
             value={newTitle}
             onChange={event => setNewTitle(event.target.value)}
             onKeyDown={(e) => {
-              if (e.key === 'Enter') {
+              if (e.key === 'Escape') {
                 setIsEdit(false);
-                onUpdate({ ...todo, title: newTitle });
+                setNewTitle(todo.title);
               }
             }}
             autoFocus
@@ -68,11 +66,11 @@ export const TodoItem: React.FC<TodoItemProps> = ({ todo, onDelete, onUpdate, on
       </span>
       )}
 
-      {/* Remove button appears only on hover */}
-      <button type="button" className="todo__remove" data-cy="TodoDelete" onClick={() => onDelete(todo.id)} disabled={isTemporary}>
+      {!isEdit && (
+      <button type="button" className="todo__remove" data-cy="TodoDelete" onClick={() => onDelete(todo.id)} disabled={isTemporary || todo.isLoading}>
         ×
       </button>
-
+      )}
       {/* overlay will cover the todo while it is being deleted or updated */}
       <div data-cy="TodoLoader" className={classNames('modal overlay', { 'is-active' : isTemporary || todo.isLoading })}>
         <div className="modal-background has-background-white-ter" />

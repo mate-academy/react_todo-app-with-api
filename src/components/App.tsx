@@ -202,47 +202,47 @@ export const App: React.FC = () => {
 
   const toggleAllTodos = () => {
     const allCompleted = todos.every(todo => todo.completed);
-    const updatedStatus = !allCompleted;
+
+    // Фільтруємо лише завдання, які потребують змінення
+    const todosToUpdate = todos.filter(todo => todo.completed === allCompleted);
+
+    if (todosToUpdate.length === 0) return;
 
     setTodos(currentTodos =>
-      currentTodos.map(todo => ({ ...todo, isLoading: true }))
+      currentTodos.map(todo =>
+        todosToUpdate.some(updatedTodo => updatedTodo.id === todo.id)
+          ? { ...todo, isLoading: true }
+          : todo
+      )
     );
 
     Promise.allSettled(
-      todos.map(todo =>
-        todoService.updateTodo({ ...todo, completed: updatedStatus })
+      todosToUpdate.map(todo =>
+        todoService.updateTodo({ ...todo, completed: !allCompleted })
       )
     )
       .then(results => {
         const successfulIds = results
           .map((result, index) =>
-            result.status === 'fulfilled' ? todos[index].id : null
-          )
-          .filter((id): id is number => id !== null);
-
-        const failedIds = results
-          .map((result, index) =>
-            result.status === 'rejected' ? todos[index].id : null
+            result.status === 'fulfilled' ? todosToUpdate[index].id : null
           )
           .filter((id): id is number => id !== null);
 
         setTodos(currentTodos =>
           currentTodos.map(todo =>
             successfulIds.includes(todo.id)
-              ? { ...todo, completed: updatedStatus, isLoading: false }
-              : failedIds.includes(todo.id)
-              ? { ...todo, isLoading: false }
-              : todo
+              ? { ...todo, completed: !allCompleted, isLoading: false }
+              : { ...todo, isLoading: false }
           )
         );
-
-        if (failedIds.length > 0) {
-          handleError('update');
-        }
       })
       .catch(() => {
         setTodos(currentTodos =>
-          currentTodos.map(todo => ({ ...todo, isLoading: false }))
+          currentTodos.map(todo =>
+            todosToUpdate.some(updatedTodo => updatedTodo.id === todo.id)
+              ? { ...todo, isLoading: false }
+              : todo
+          )
         );
         handleError('update');
       });
