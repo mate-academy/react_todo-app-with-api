@@ -25,15 +25,6 @@ export const App: React.FC = () => {
   const inputRef = React.useRef<HTMLInputElement>(null);
 
 
-  const handleUpdateTodo = (updatedTodo: Todo) => {
-    setTodos(prevTodos =>
-      prevTodos.map(todo =>
-        todo.id === updatedTodo.id ? { ...todo, title: updatedTodo.title } : todo
-      )
-    );
-  };
-
-
   const handleError = (errorType: string) => {
     switch (errorType) {
       case 'load':
@@ -203,7 +194,6 @@ export const App: React.FC = () => {
   const toggleAllTodos = () => {
     const allCompleted = todos.every(todo => todo.completed);
 
-    // Фільтруємо лише завдання, які потребують змінення
     const todosToUpdate = todos.filter(todo => todo.completed === allCompleted);
 
     if (todosToUpdate.length === 0) return;
@@ -267,7 +257,7 @@ export const App: React.FC = () => {
           tempTodo={tempTodo}
           setTodos={setTodos}
           filter={filter}
-          onUpdate={handleUpdateTodo}
+          onUpdate={updateTodo}
           onDelete={deleteTodo}
           onToggleCompletion={toggleTodoCompletion}
           onToggleAll={toggleAllTodos}

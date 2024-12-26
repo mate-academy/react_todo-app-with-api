@@ -41,7 +41,7 @@ export const TodoItem: React.FC<TodoItemProps> = ({ todo, onDelete, onUpdate, on
           onSubmit={(e) => {
             e.preventDefault();
             setIsEdit(false);
-            onUpdate({ ...todo, title: newTitle });
+            onUpdate({ ...todo, title: newTitle.trim() });
           }}
         >
           <input
