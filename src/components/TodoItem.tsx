@@ -19,6 +19,22 @@ export const TodoItem: React.FC<TodoItemProps> = ({ todo, onDelete, onUpdate, on
     setIsEdit(true);
   }
 
+  const handleBlur = () => {
+    if (newTitle.trim() === '') {
+
+      return;
+    }
+
+    const updatedTodo = { ...todo, title: newTitle.trim() };
+
+    try {
+      onUpdate(updatedTodo);
+      setIsEdit(false);
+    } catch (error) {
+      setIsEdit(true);
+    }
+  };
+
   return (
     <div
       data-cy="Todo"
@@ -40,21 +56,24 @@ export const TodoItem: React.FC<TodoItemProps> = ({ todo, onDelete, onUpdate, on
         <form
           onSubmit={(e) => {
             e.preventDefault();
-            setIsEdit(false);
-            onUpdate({ ...todo, title: newTitle.trim() });
+            handleBlur();
           }}
         >
           <input
             data-cy="TodoTitleField"
             type="text"
             className="todo__input"
-            onBlur={() => setIsEdit(false)}
+            onBlur={handleBlur}
             value={newTitle}
             onChange={event => setNewTitle(event.target.value)}
             onKeyDown={(e) => {
               if (e.key === 'Escape') {
                 setIsEdit(false);
                 setNewTitle(todo.title);
+              }
+
+              if (e.key === 'Enter') {
+                handleBlur();
               }
             }}
             autoFocus
