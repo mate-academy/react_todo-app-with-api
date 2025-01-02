@@ -71,10 +71,6 @@ export const TodoItem: React.FC<TodoItemProps> = ({ todo, onDelete, onUpdate, on
                 setIsEdit(false);
                 setNewTitle(todo.title);
               }
-
-              if (e.key === 'Enter') {
-                handleBlur();
-              }
             }}
             autoFocus
           />
