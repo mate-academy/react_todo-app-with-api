@@ -114,7 +114,7 @@ export const App: React.FC = () => {
       )
     );
 
-    todoService
+    return todoService
       .updateTodo(updatedTodo)
       .then((updatedTodoResponse) => {
         setTodos((currentTodos) =>
@@ -122,14 +122,16 @@ export const App: React.FC = () => {
             todo.id === updatedTodoResponse.id ? updatedTodoResponse : todo
           )
         );
+        return updatedTodoResponse;
       })
-      .catch(() => {
-        setError('Unable to update a todo');
+      .catch((error) => {
+        handleError('update');
         setTodos((currentTodos) =>
           currentTodos.map((todo) =>
             todo.id === updatedTodo.id ? { ...todo, isLoading: false } : todo
           )
         );
+        throw error;
       });
   };
 

@@ -21,7 +21,6 @@ export const TodoItem: React.FC<TodoItemProps> = ({ todo, onDelete, onUpdate, on
 
   const handleBlur = () => {
     if (newTitle.trim() === '') {
-
       return;
     }
 
@@ -30,7 +29,7 @@ export const TodoItem: React.FC<TodoItemProps> = ({ todo, onDelete, onUpdate, on
     try {
       onUpdate(updatedTodo);
       setIsEdit(false);
-    } catch (error) {
+    } catch {
       setIsEdit(true);
     }
   };
