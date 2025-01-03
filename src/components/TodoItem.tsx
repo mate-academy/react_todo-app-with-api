@@ -51,34 +51,40 @@ export const TodoItem: React.FC<TodoItemProps> = ({ todo, onDelete, onUpdate, on
         />
       </label>
 
+      <form
+        onSubmit={(e) => {
+        e.preventDefault();
+        if (isEdit) {
+          handleBlur();
+        }
+        }}
+      >
       {isEdit ? (
-        <form
-          onSubmit={(e) => {
-            e.preventDefault();
-            handleBlur();
-          }}
-        >
-          <input
-            data-cy="TodoTitleField"
-            type="text"
-            className="todo__input"
-            onBlur={handleBlur}
-            value={newTitle}
-            onChange={event => setNewTitle(event.target.value)}
-            onKeyDown={(e) => {
-              if (e.key === 'Escape') {
-                setIsEdit(false);
-                setNewTitle(todo.title);
-              }
-            }}
-            autoFocus
-          />
-        </form>
+        <input
+        data-cy="TodoTitleField"
+        type="text"
+        className="todo__input"
+        onBlur={handleBlur}
+        value={newTitle}
+        onChange={(event) => setNewTitle(event.target.value)}
+        onKeyDown={(e) => {
+          if (e.key === 'Escape') {
+            setIsEdit(false);
+            setNewTitle(todo.title);
+          }
+        }}
+        autoFocus
+        />
       ) : (
-        <span data-cy="TodoTitle" className="todo__title">
+        <span
+          data-cy="TodoTitle"
+          className="todo__title"
+          onClick={() => setIsEdit(true)}
+        >
         {todo.title}
-      </span>
+        </span>
       )}
+      </form>
 
       {!isEdit && (
       <button type="button" className="todo__remove" data-cy="TodoDelete" onClick={() => onDelete(todo.id)} disabled={isTemporary || todo.isLoading}>
