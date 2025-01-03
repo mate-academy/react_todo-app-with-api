@@ -119,7 +119,9 @@ export const App: React.FC = () => {
       .then((updatedTodoResponse) => {
         setTodos((currentTodos) =>
           currentTodos.map((todo) =>
-            todo.id === updatedTodoResponse.id ? updatedTodoResponse : todo
+            todo.id === updatedTodoResponse.id
+              ? { ...updatedTodoResponse, isLoading: false }
+              : todo,
           )
         );
         return updatedTodoResponse;

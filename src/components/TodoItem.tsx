@@ -5,7 +5,7 @@ import { Todo } from '../types/Todo';
 interface TodoItemProps {
   todo: Todo;
   onDelete: (todoId: number) => void;
-  onUpdate: (updatedTodo: Todo) => void;
+  onUpdate: (updatedTodo: Todo) => Promise<Todo>;
   onToggleCompletion: (todoId: number) => void;
 }
 
@@ -19,7 +19,7 @@ export const TodoItem: React.FC<TodoItemProps> = ({ todo, onDelete, onUpdate, on
     setIsEdit(true);
   }
 
-  const handleBlur = () => {
+  const handleBlur = async () => {
     if (newTitle.trim() === '') {
       return;
     }
@@ -27,7 +27,7 @@ export const TodoItem: React.FC<TodoItemProps> = ({ todo, onDelete, onUpdate, on
     const updatedTodo = { ...todo, title: newTitle.trim() };
 
     try {
-      onUpdate(updatedTodo);
+      await onUpdate(updatedTodo);
       setIsEdit(false);
     } catch {
       setIsEdit(true);

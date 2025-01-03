@@ -9,7 +9,7 @@ interface TodoListProps {
   setTodos: React.Dispatch<React.SetStateAction<Todo[]>>;
   filter: FilterType;
   onDelete: (todoId: number) => void;
-  onUpdate: (updatedTodo: Todo) => void;
+  onUpdate: (updatedTodo: Todo) => Promise<Todo>;
   onToggleCompletion: (todoId: number) => void;
   onToggleAll: () => void;
 }
