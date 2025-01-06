@@ -12,6 +12,7 @@ interface TodoItemProps {
 export const TodoItem: React.FC<TodoItemProps> = ({ todo, onDelete, onUpdate, onToggleCompletion }) => {
   const [isEdit, setIsEdit] = useState(false);
   const [newTitle, setNewTitle] = useState(todo.title);
+  const [isUpdating, setIsUpdating] = useState(false);
 
   const isTemporary = todo.id === 0;
 
@@ -20,19 +21,23 @@ export const TodoItem: React.FC<TodoItemProps> = ({ todo, onDelete, onUpdate, on
   }
 
   const handleBlur = async () => {
-    if (newTitle.trim() === '') {
-      return;
-    }
+    if (isUpdating || newTitle.trim() === '') {
+    return;
+  }
 
-    const updatedTodo = { ...todo, title: newTitle.trim() };
+  setIsUpdating(true);
 
-    try {
-      await onUpdate(updatedTodo);
-      setIsEdit(false);
-    } catch {
-      setIsEdit(true);
-    }
-  };
+  const updatedTodo = { ...todo, title: newTitle.trim() };
+
+  try {
+    await onUpdate(updatedTodo);
+    setIsEdit(false);
+  } catch {
+    setIsEdit(true);
+  } finally {
+    setIsUpdating(false);
+  }
+};
 
   return (
     <div
