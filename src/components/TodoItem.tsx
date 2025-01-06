@@ -42,10 +42,15 @@ export const TodoItem: React.FC<TodoItemProps> = ({ todo, onDelete, onUpdate, on
 const handleEnterKey = async (e: React.KeyboardEvent<HTMLInputElement>) => {
   if (e.key === 'Enter') {
     e.preventDefault();
-    if (newTitle.trim() !== todo.title) {
-      await handleBlur();
+
+    if (newTitle.trim() === '') {
+      onDelete(todo.id);
     } else {
-      setIsEdit(false);
+      if (newTitle.trim() !== todo.title) {
+        await handleBlur();
+      } else {
+        setIsEdit(false);
+      }
     }
   }
 };
