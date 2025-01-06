@@ -22,6 +22,8 @@ export const TodoItem: React.FC<TodoItemProps> = ({ todo, onDelete, onUpdate, on
 
   const handleBlur = async () => {
     if (isUpdating || newTitle.trim() === '') {
+
+      onDelete(todo.id);
     return;
   }
 
