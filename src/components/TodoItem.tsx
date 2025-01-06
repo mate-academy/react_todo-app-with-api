@@ -82,15 +82,13 @@ const handleEscapeKey = (e: React.KeyboardEvent<HTMLInputElement>) => {
         />
       </label>
 
-      <form
-        onSubmit={(e) => {
-        e.preventDefault();
-        if (isEdit) {
+      {isEdit ? (
+        <form
+          onSubmit={(e) => {
+          e.preventDefault();
           handleBlur();
-        }
         }}
       >
-      {isEdit ? (
         <input
         data-cy="TodoTitleField"
         type="text"
@@ -101,17 +99,17 @@ const handleEscapeKey = (e: React.KeyboardEvent<HTMLInputElement>) => {
         onKeyDown={handleEnterKey}
         onKeyUp={handleEscapeKey}
         autoFocus
-        />
-      ) : (
-        <span
-          data-cy="TodoTitle"
-          className="todo__title"
-          onClick={() => setIsEdit(true)}
-        >
-        {todo.title}
-        </span>
-      )}
+      />
       </form>
+      ) : (
+      <span
+      data-cy="TodoTitle"
+      className="todo__title"
+      onClick={() => setIsEdit(true)}
+    >
+      {todo.title}
+    </span>
+    )}
 
       {!isEdit && (
       <button type="button" className="todo__remove" data-cy="TodoDelete" onClick={() => onDelete(todo.id)} disabled={isTemporary || todo.isLoading}>
