@@ -39,6 +39,25 @@ export const TodoItem: React.FC<TodoItemProps> = ({ todo, onDelete, onUpdate, on
   }
 };
 
+const handleEnterKey = async (e: React.KeyboardEvent<HTMLInputElement>) => {
+  if (e.key === 'Enter') {
+    e.preventDefault();
+    if (newTitle.trim() !== todo.title) {
+      await handleBlur();
+    } else {
+      setIsEdit(false);
+    }
+  }
+};
+
+const handleEscapeKey = (e: React.KeyboardEvent<HTMLInputElement>) => {
+  if (e.key === 'Escape') {
+    e.preventDefault();
+    setIsEdit(false);
+    setNewTitle(todo.title);
+  }
+};
+
   return (
     <div
       data-cy="Todo"
@@ -72,12 +91,8 @@ export const TodoItem: React.FC<TodoItemProps> = ({ todo, onDelete, onUpdate, on
         onBlur={handleBlur}
         value={newTitle}
         onChange={(event) => setNewTitle(event.target.value)}
-        onKeyDown={(e) => {
-          if (e.key === 'Escape') {
-            setIsEdit(false);
-            setNewTitle(todo.title);
-          }
-        }}
+        onKeyDown={handleEnterKey}
+        onKeyUp={handleEscapeKey}
         autoFocus
         />
       ) : (
