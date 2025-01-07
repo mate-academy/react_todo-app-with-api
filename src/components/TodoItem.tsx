@@ -65,6 +65,11 @@ const handleEscapeKey = (e: React.KeyboardEvent<HTMLInputElement>) => {
   }
 };
 
+const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  e.preventDefault();
+  handleBlur();
+}
+
   return (
     <div
       data-cy="Todo"
@@ -84,15 +89,12 @@ const handleEscapeKey = (e: React.KeyboardEvent<HTMLInputElement>) => {
 
       {isEdit ? (
         <form
-          onSubmit={(e) => {
-          e.preventDefault();
-          handleBlur();
-          }}
-        >
+          onSubmit={handleSubmit}>
           <input
             data-cy="TodoTitleField"
             type="text"
             className="todo__title-field"
+            placeholder='What needs to be done?'
             onBlur={handleBlur}
             value={newTitle}
             onChange={(event) => setNewTitle(event.target.value)}

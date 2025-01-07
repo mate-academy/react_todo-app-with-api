@@ -1,5 +1,5 @@
 import classNames from 'classnames';
-import React from 'react';
+import React, {useEffect} from 'react';
 import { Todo } from '../types/Todo';
 
 interface HeaderProps {  //+++
@@ -20,11 +20,11 @@ export const Header: React.FC<HeaderProps> = ({ onAdd, isAdding, newTodoTitle, s
     onAdd(newTodoTitle.trim());
   };
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (inputRef.current && !isAdding) {
       inputRef.current.focus();
     }
-  }, [isAdding]);
+  }, [isAdding, inputRef]);
 
   return (
     <header className="todoapp__header">

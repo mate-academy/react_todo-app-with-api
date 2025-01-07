@@ -126,14 +126,14 @@ export const App: React.FC = () => {
         );
         return updatedTodoResponse;
       })
-      .catch((error) => {
+      .catch((err) => {
         handleError('update');
         setTodos((currentTodos) =>
           currentTodos.map((todo) =>
             todo.id === updatedTodo.id ? { ...todo, isLoading: false } : todo
           )
         );
-        throw error;
+        throw err;
       });
   };
 

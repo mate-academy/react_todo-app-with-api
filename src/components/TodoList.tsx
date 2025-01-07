@@ -14,12 +14,24 @@ interface TodoListProps {
   onToggleAll: () => void;
 }
 
+enum FilterT {
+  All = 'all',
+  Active = 'active',
+  Completed = 'completed',
+}
+
 export const TodoList: React.FC<TodoListProps> = ({ todos, tempTodo, filter, onDelete, onUpdate, onToggleCompletion }) => {
 
   const filteredTodos = todos.filter(todo => {
-    if (filter === 'active') return !todo.completed;
-    if (filter === 'completed') return todo.completed;
-    return true;
+    switch (filter) {
+      case FilterT.Active:
+        return !todo.completed;
+      case FilterT.Completed:
+        return todo.completed;
+      case FilterT.All:
+      default:
+        return true;
+    }
   });
 
   const todosToRender = tempTodo ? [...filteredTodos, tempTodo] : filteredTodos;
