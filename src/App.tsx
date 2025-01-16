@@ -1,26 +1,87 @@
-/* eslint-disable max-len */
-/* eslint-disable jsx-a11y/control-has-associated-label */
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { UserWarning } from './UserWarning';
-
-const USER_ID = 0;
+import { getTodos, USER_ID } from './api/todos';
+import { Todo } from './Types/Todo';
+import { Footer } from './Components/Footer/Footer';
+import { Errors } from './Components/ErrorMessage/ErrorMessage';
+import { Header } from './Components/Header/Header';
+import { TodoFilter } from './Types/TodoFilter';
+import TodoList from './Components/TodoList/TodoList';
+import { TodoInfo } from './Components/Todo/TodoInfo';
 
 export const App: React.FC = () => {
+  const [todos, setTodos] = useState<Todo[]>([]);
+  const [toggleTodos, setToggleTodos] = useState<number[]>([]);
+  const [tempTodo, setTempTodo] = useState<Todo | null>(null);
+  const [error, setError] = useState('');
+  const [filter, setFilter] = useState<TodoFilter>(TodoFilter.All);
+
+  useEffect(() => {
+    getTodos()
+      .then(setTodos)
+      .catch(() => setError('Unable to load todos'));
+  }, []);
+
+  const filteredTodos = todos.filter(todo => {
+    switch (filter) {
+      case TodoFilter.Active:
+        return !todo.completed;
+      case TodoFilter.Completed:
+        return todo.completed;
+      default:
+        return true;
+    }
+  });
+
   if (!USER_ID) {
     return <UserWarning />;
   }
 
   return (
-    <section className="section container">
-      <p className="title is-4">
-        Copy all you need from the prev task:
-        <br />
-        <a href="https://github.com/mate-academy/react_todo-app-add-and-delete#react-todo-app-add-and-delete">
-          React Todo App - Add and Delete
-        </a>
-      </p>
+    <div className="todoapp">
+      <h1 className="todoapp__title">todos</h1>
 
-      <p className="subtitle">Styles are already copied</p>
-    </section>
+      <div className="todoapp__content">
+        <Header
+          todos={todos}
+          setTodos={setTodos}
+          setToggleTodos={setToggleTodos}
+          setTempTodo={setTempTodo}
+          setError={setError}
+        />
+
+        {tempTodo && (
+          <TodoInfo
+            todo={tempTodo}
+            toggleTodos={toggleTodos}
+            setTodos={setTodos}
+            setError={setError}
+            key={tempTodo.id}
+          />
+        )}
+
+        {/* Pass filteredTodos to TodoList */}
+        {filteredTodos.length > 0 && (
+          <TodoList
+            filteredTodos={filteredTodos}
+            toggleTodos={toggleTodos}
+            setTodos={setTodos}
+            setError={setError}
+          />
+        )}
+
+        {todos.length > 0 && (
+          <Footer
+            todos={todos}
+            setTodos={setTodos}
+            filter={filter}
+            setFilter={setFilter}
+            setError={setError}
+          />
+        )}
+      </div>
+
+      <Errors error={error} setError={setError} />
+    </div>
   );
 };
