@@ -44,6 +44,10 @@
     background-color: transparent;
     cursor: pointer;
 
+    outline: none;
+    appearance: none;
+    -webkit-appearance: none;
+
     &.active {
       color: #737373;
     }
