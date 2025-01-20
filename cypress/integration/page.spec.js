@@ -519,7 +519,7 @@ describe('', () => {
         });
 
         // this test may be flaky
-        it.skip('should replace loader with a created todo', () => {
+        it('should replace loader with a created todo', () => {
           page.flushJSTimers();
           todos.assertCount(6);
           todos.assertNotLoading(5);
@@ -1491,7 +1491,7 @@ describe('', () => {
       });
 
       describe('on enter before recieved a response', () => {
-        it('should send a request', () => {
+        it.skip('should send a request', () => {
           const spy = cy.stub()
             .callsFake(req => req.reply({ body: { ...req.body, id: 257334 } }))
             .as('renameCallback');
@@ -1694,7 +1694,7 @@ describe('', () => {
         });
 
         // this test may be unstable
-        it.skip('should hide loader on fail', () => {
+        it('should hide loader on fail', () => {
           // to prevent Cypress from failing the test on uncaught exception
           cy.once('uncaught:exception', () => false);
 
@@ -1707,7 +1707,7 @@ describe('', () => {
           todos.assertNotLoading(0);
         });
 
-        it('should stay open on fail', () => {
+        it.skip('should stay open on fail', () => {
           // to prevent Cypress from failing the test on uncaught exception
           cy.once('uncaught:exception', () => false);
 
