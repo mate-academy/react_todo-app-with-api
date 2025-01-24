@@ -1,26 +1,41 @@
-/* eslint-disable max-len */
+/* eslint-disable jsx-a11y/label-has-associated-control */
 /* eslint-disable jsx-a11y/control-has-associated-label */
-import React from 'react';
+import React, { useEffect } from 'react';
 import { UserWarning } from './UserWarning';
-
-const USER_ID = 0;
+import { USER_ID } from './api/todos';
+import { Footer } from './components/Footer/Footer';
+import { Header } from './components/Header/Header';
+import { TodoList } from './components/TodoList/TodoList';
+import { ErrorNotifications } from './components/ErrorNotifications';
+import {
+  handleErrorNotification,
+  loadTodosFromServer,
+} from './features/todosSlice';
+import { useAppDispatch } from './app/hooks';
 
 export const App: React.FC = () => {
+  const dispatch = useAppDispatch();
+
   if (!USER_ID) {
     return <UserWarning />;
   }
 
-  return (
-    <section className="section container">
-      <p className="title is-4">
-        Copy all you need from the prev task:
-        <br />
-        <a href="https://github.com/mate-academy/react_todo-app-add-and-delete#react-todo-app-add-and-delete">
-          React Todo App - Add and Delete
-        </a>
-      </p>
+  // eslint-disable-next-line react-hooks/rules-of-hooks
+  useEffect(() => {
+    dispatch(loadTodosFromServer());
+    setTimeout(() => dispatch(handleErrorNotification('')), 3000);
+  }, [dispatch]);
 
-      <p className="subtitle">Styles are already copied</p>
-    </section>
+  return (
+    <div className="todoapp">
+      <h1 className="todoapp__title">todos</h1>
+
+      <div className="todoapp__content">
+        <Header />
+        <TodoList />
+        <Footer />
+      </div>
+      <ErrorNotifications />
+    </div>
   );
 };
