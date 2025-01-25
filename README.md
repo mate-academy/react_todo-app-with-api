@@ -10,6 +10,7 @@ and implement the ability to toggle and rename todos.
 ## Toggling a todo status
 
 Toggle the `completed` status on `TodoStatus` change:
+
 - Install Prettier Extention and use this [VSCode settings](https://mate-academy.github.io/fe-program/tools/vscode/settings.json) to enable format on save.
 - covered the todo with a loader overlay while waiting for API response;
 - the status should be changed on success;
@@ -30,7 +31,7 @@ Implement the ability to edit a todo title on double click:
 - saves changes on the form submit (just press `Enter`);
 - save changes when the field loses focus (`onBlur`);
 - if the new title is the same as the old one just cancel editing;
-- cancel editing on `Esс` key `keyup` event;
+- cancel editing on `Esc` key `keyup` event;
 - if the new title is empty delete the todo the same way the `x` button does it;
 - if the title was changed show the loader while waiting for the API response;
 - update the todo title on success;
@@ -38,6 +39,7 @@ Implement the ability to edit a todo title on double click:
 - or the deletion error message if we tried to delete the todo.
 
 ## If you want to enable tests
+
 - open `cypress/integration/page.spec.js`
 - replace `describe.skip` with `describe` for the root `describe`
 
@@ -47,4 +49,4 @@ Implement the ability to edit a todo title on double click:
 
 - Implement a solution following the [React task guideline](https://github.com/mate-academy/react_task-guideline#react-tasks-guideline).
 - Use the [React TypeScript cheat sheet](https://mate-academy.github.io/fe-program/js/extra/react-typescript).
-- Replace `<your_account>` with your Github username in the [DEMO LINK](https://<your_account>.github.io/react_todo-app-with-api/) and add it to the PR description.
+- Replace `<your_account>` with your Github username in the [DEMO LINK](https://MaxF1996.github.io/react_todo-app-with-api/) and add it to the PR description.
