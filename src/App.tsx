@@ -1,6 +1,6 @@
 /* eslint-disable jsx-a11y/label-has-associated-control */
 /* eslint-disable jsx-a11y/control-has-associated-label */
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Todo } from './types/Todo';
 import * as apiService from './api/todos';
 import { TodoHeader } from './components/TodoHeader';
@@ -15,12 +15,13 @@ export const App: React.FC = () => {
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
 
   const [newTodoInput, setNewTodoInput] = useState('');
-  const [shouldFocus, setShouldFocus] = useState(true);
 
   const [errorMessage, setErrorMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [loadingIds, setLoadingIds] = useState<number[]>([]);
   const [filterBy, setFilterBy] = useState(TypeFilter.All);
+  const [hasTitleFocus, setHasTitleFocus] = useState(false);
+  const newInputRef = useRef<HTMLInputElement>(null);
 
   const notCompletedTasks = todos.filter(todo => !todo.completed);
   const notCompletedTasksCounter = notCompletedTasks.length;
@@ -41,6 +42,10 @@ export const App: React.FC = () => {
   };
 
   useEffect(() => {
+    newInputRef.current?.focus();
+  }, [hasTitleFocus]);
+
+  useEffect(() => {
     loadTodos();
   }, []);
 
@@ -50,6 +55,7 @@ export const App: React.FC = () => {
 
     if (title) {
       setIsLoading(true);
+      setHasTitleFocus(true);
 
       const userId = apiService.USER_ID;
       const completed = false;
@@ -66,7 +72,7 @@ export const App: React.FC = () => {
         .finally(() => {
           setTempTodo(null);
           setIsLoading(false);
-          setShouldFocus(true);
+          setHasTitleFocus(false);
         });
     } else {
       setErrorMessage('Title should not be empty');
@@ -77,6 +83,8 @@ export const App: React.FC = () => {
     if (todoIds.length === 0) {
       return;
     }
+
+    setHasTitleFocus(true);
 
     setLoadingIds(todoIds);
 
@@ -91,7 +99,7 @@ export const App: React.FC = () => {
         .catch(() => setErrorMessage('Unable to delete a todo'))
         .finally(() => {
           setLoadingIds([]);
-          setShouldFocus(true);
+          setHasTitleFocus(false);
         });
     });
   };
@@ -180,39 +188,39 @@ export const App: React.FC = () => {
   const clearCompletedTasks = () => {
     const todoCompletedIds = completedTasks.map(todo => todo.id);
 
-    setShouldFocus(true);
-
     handleDeleteTodo(todoCompletedIds);
   };
 
-  const updateTitleName = (todo: Todo, newTitle: string) => {
-    setLoadingIds([todo.id]);
+  const updateTitleName = (todosDataUpdate: Todo[]) => {
+    const todoIds = todosDataUpdate.map(todo => todo.id);
 
-    const updatedTodo = {
-      id: todo.id,
-      userId: todo.userId,
-      title: newTitle,
-      completed: todo.completed,
-    };
+    setLoadingIds(todoIds);
 
-    apiService
-      .updateTodo(updatedTodo)
-      .then(() => {
-        setTodos(currentTodos => {
-          return currentTodos.map(currentTodo =>
-            currentTodo.id === updatedTodo.id ? updatedTodo : currentTodo,
+    return todosDataUpdate.map(todoDataUpdate => {
+      return apiService
+        .updateTodo(todoDataUpdate)
+        .then(updatedTodo => {
+          setTodos(currentTodos =>
+            currentTodos.map(todo =>
+              todo.id === todoDataUpdate.id ? updatedTodo : todo,
+            ),
           );
+
+          return true;
+        })
+        .catch(() => {
+          setErrorMessage('Unable to update a todo');
+
+          return false;
+        })
+        .finally(() => {
+          setLoadingIds([]);
         });
-      })
-      .catch(() => setErrorMessage('Unable to update a todo'))
-      .finally(() => {
-        setLoadingIds([]);
-        setShouldFocus(false);
-      });
+    });
   };
 
   return (
-    <div className="todoapp">
+    <div className="tod``oapp">
       <h1 className="todoapp__title">todos</h1>
 
       <div className="todoapp__content">
@@ -222,9 +230,8 @@ export const App: React.FC = () => {
           setNewTodoInput={setNewTodoInput}
           addTodo={addTodo}
           isLoading={isLoading}
-          loadingIds={loadingIds}
           handleSwitchTodos={handleSwitchTodos}
-          shouldFocus={shouldFocus}
+          newInputRef={newInputRef}
         />
         <TodoList
           todos={filteredTodos}

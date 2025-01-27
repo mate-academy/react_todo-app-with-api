@@ -1,6 +1,6 @@
 import classNames from 'classnames';
 import { Todo } from '../types/Todo';
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 type Props = {
   todo: Todo;
@@ -8,7 +8,7 @@ type Props = {
   isLoading: boolean;
   loadingIds: number[];
   handleSwitchTodo: (todos: Todo[]) => void;
-  updateTitleName: (todo: Todo, newTitle: string) => void;
+  updateTitleName: (todosDataUpdate: Todo[]) => Promise<boolean>[];
 };
 
 export const TodoItem: React.FC<Props> = ({
@@ -21,34 +21,49 @@ export const TodoItem: React.FC<Props> = ({
 }) => {
   const { id, title, completed } = todo;
   const [editValue, setEditValue] = useState<string>(title);
-  const inputElement = useRef<HTMLInputElement | null>(null);
-  const [isEditing, setIsEditing] = useState(false);
+  const [hasEditTitleFocus, setHasEditTitleFocus] = useState(false);
+
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    inputRef.current?.focus();
+  }, [hasEditTitleFocus]);
 
   const handleSave = () => {
     const trimmedTitle = editValue.trim();
 
     if (!trimmedTitle) {
       handleDeleteTodo([id]);
-      setIsEditing(false);
 
       return;
     }
 
     if (title === trimmedTitle) {
       setEditValue(trimmedTitle);
-      setIsEditing(false);
+      setHasEditTitleFocus(false);
 
       return;
     }
 
+    setHasEditTitleFocus(false);
     setEditValue(trimmedTitle);
 
-    try {
-      updateTitleName(todo, trimmedTitle);
-      setIsEditing(false);
-    } catch (e) {
-      inputElement.current?.focus();
-    }
+    const updatedTodo = {
+      id: todo.id,
+      userId: todo.userId,
+      title: trimmedTitle,
+      completed: todo.completed,
+    };
+
+    updateTitleName([updatedTodo]).forEach(promise => {
+      promise.then(response => {
+        if (!response) {
+          setHasEditTitleFocus(true);
+        }
+      });
+    });
+
+    setHasEditTitleFocus(false);
   };
 
   const handleKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
@@ -56,7 +71,7 @@ export const TodoItem: React.FC<Props> = ({
       event.preventDefault();
       handleSave();
     } else if (event.key === 'Escape') {
-      setIsEditing(false);
+      setHasEditTitleFocus(false);
       setEditValue(title);
     }
   };
@@ -81,7 +96,7 @@ export const TodoItem: React.FC<Props> = ({
         />
       </label>
 
-      {isEditing ? (
+      {hasEditTitleFocus ? (
         <input
           data-cy="TodoTitleField"
           type="text"
@@ -93,8 +108,7 @@ export const TodoItem: React.FC<Props> = ({
           }}
           onKeyUp={handleKeyDown}
           onBlur={handleSave}
-          ref={inputElement}
-          autoFocus
+          ref={inputRef}
         />
       ) : (
         <>
@@ -102,8 +116,7 @@ export const TodoItem: React.FC<Props> = ({
             data-cy="TodoTitle"
             className="todo__title"
             onDoubleClick={() => {
-              setIsEditing(true);
-              setTimeout(() => inputElement.current?.focus(), 0);
+              setHasEditTitleFocus(true);
             }}
           >
             {editValue}

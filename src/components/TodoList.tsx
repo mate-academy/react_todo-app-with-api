@@ -9,7 +9,7 @@ type Props = {
   isLoading: boolean;
   loadingIds: number[];
   handleSwitchTodo: (todos: Todo[]) => void;
-  updateTitleName: (todo: Todo, newTitle: string) => void;
+  updateTitleName: (todosDataUpdate: Todo[]) => Promise<boolean>[];
 };
 
 export const TodoList: React.FC<Props> = ({

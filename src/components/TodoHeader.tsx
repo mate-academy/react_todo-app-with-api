@@ -1,6 +1,5 @@
 import classNames from 'classnames';
 import { Todo } from '../types/Todo';
-import { useEffect, useRef } from 'react';
 
 type Props = {
   todos: Todo[];
@@ -8,9 +7,8 @@ type Props = {
   setNewTodoInput: React.Dispatch<React.SetStateAction<string>>;
   addTodo: (event: React.FormEvent<HTMLFormElement>) => void;
   isLoading: boolean;
-  loadingIds: number[];
   handleSwitchTodos: (handleType: string) => void;
-  shouldFocus: boolean;
+  newInputRef: React.RefObject<HTMLInputElement>;
 };
 
 export const TodoHeader: React.FC<Props> = ({
@@ -19,13 +17,11 @@ export const TodoHeader: React.FC<Props> = ({
   setNewTodoInput,
   addTodo,
   isLoading,
-  loadingIds,
   handleSwitchTodos,
-  shouldFocus,
+  newInputRef,
 }) => {
   const completedTodos = todos.filter(todo => todo.completed);
   const activeTodos = todos.filter(todo => !todo.completed);
-  const inputRef = useRef<HTMLInputElement | null>(null);
 
   const handleClick = () => {
     if (activeTodos.length === 0) {
@@ -34,12 +30,6 @@ export const TodoHeader: React.FC<Props> = ({
       handleSwitchTodos('makeAllCompleted');
     }
   };
-
-  useEffect(() => {
-    if (shouldFocus) {
-      inputRef.current?.focus();
-    }
-  }, [shouldFocus, loadingIds, isLoading]);
 
   return (
     <header className="todoapp__header">
@@ -66,7 +56,7 @@ export const TodoHeader: React.FC<Props> = ({
           placeholder="What needs to be done?"
           value={newTodoInput}
           onChange={event => setNewTodoInput(event.target.value)}
-          ref={inputRef}
+          ref={newInputRef}
           disabled={isLoading}
         />
       </form>
