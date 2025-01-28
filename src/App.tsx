@@ -70,47 +70,26 @@ export const App: FC = () => {
     }
   };
 
-  const deleteTodos = async (todosIds: number[]) => {
-    if (todosIds.length === 0) {
-      return;
-    }
-
-    setLoadingIds(prev => [...prev, ...todosIds]);
+  const deleteTodo = async (todoId: number) => {
+    setLoadingIds(prev => [...prev, todoId]);
 
     try {
-      const results = await Promise.allSettled(
-        todosIds.map(todoId => todosApi.removeTodo(todoId)),
-      );
+      await todosApi.removeTodo(todoId);
 
-      const successfullyDeletedIds: number[] = [];
-      const failedIds: number[] = [];
-
-      results.forEach((result, index) => {
-        if (result.status === 'fulfilled') {
-          successfullyDeletedIds.push(todosIds[index]);
-        } else {
-          failedIds.push(todosIds[index]);
-        }
+      setTodos(prevTodos => {
+        return prevTodos.filter(todo => todo.id !== todoId);
       });
-
-      setTodos(prevTodos =>
-        prevTodos.filter(todo => !successfullyDeletedIds.includes(todo.id)),
-      );
-
-      if (failedIds.length > 0) {
-        setError(ErrorsEnum.DeleteTodo);
-      }
     } catch {
       setError(ErrorsEnum.DeleteTodo);
     } finally {
-      setLoadingIds(prev => prev.filter(id => !todosIds.includes(id)));
+      setLoadingIds(prev => prev.filter(id => id !== todoId));
     }
   };
 
   const clearCompletedTodos = async () => {
-    const completedIds = completedTodos.map(todo => todo.id);
-
-    await deleteTodos(completedIds);
+    completedTodos.forEach(todo => {
+      deleteTodo(todo.id);
+    });
   };
 
   const updateTodo = async (todoToUpdate: Todo) => {
@@ -167,7 +146,7 @@ export const App: FC = () => {
         <TodoList
           todos={filteredTodos}
           tempTodo={tempTodo}
-          deleteTodos={deleteTodos}
+          deleteTodo={deleteTodo}
           updateTodo={updateTodo}
           loadingIds={loadingIds}
           isLoading={isLoading}

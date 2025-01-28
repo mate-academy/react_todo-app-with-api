@@ -6,7 +6,7 @@ import { TodoItem } from './TodoItem';
 interface Props {
   todos: Todo[];
   tempTodo: Todo | null;
-  deleteTodos: (todosIds: number[]) => void;
+  deleteTodo: (todoId: number) => void;
   updateTodo: (todoToUpdate: Todo) => void;
   loadingIds: number[];
   isLoading: boolean;
@@ -15,7 +15,7 @@ interface Props {
 export const TodoList: FC<Props> = ({
   todos,
   tempTodo,
-  deleteTodos,
+  deleteTodo,
   updateTodo,
   loadingIds,
   isLoading,
@@ -29,7 +29,7 @@ export const TodoList: FC<Props> = ({
             <TodoItem
               key={todo.id}
               todo={todo}
-              deleteTodos={deleteTodos}
+              deleteTodo={deleteTodo}
               updateTodo={updateTodo}
               loadingIds={loadingIds}
               isLoading={false}

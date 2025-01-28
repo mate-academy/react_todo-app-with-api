@@ -6,7 +6,7 @@ import { Todo } from '../types/Todo';
 
 interface Props {
   todo: Todo;
-  deleteTodos?: (todosIds: number[]) => void;
+  deleteTodo?: (todoId: number) => void;
   updateTodo?: (todoToUpdate: Todo) => void;
   loadingIds: number[];
   isLoading: boolean;
@@ -14,7 +14,7 @@ interface Props {
 
 export const TodoItem: FC<Props> = ({
   todo,
-  deleteTodos = () => {},
+  deleteTodo = () => {},
   updateTodo = () => {},
   loadingIds,
   isLoading,
@@ -47,7 +47,7 @@ export const TodoItem: FC<Props> = ({
         type="button"
         className="todo__remove"
         data-cy="TodoDelete"
-        onClick={() => deleteTodos([todo.id])}
+        onClick={() => deleteTodo(todo.id)}
       >
         ×
       </button>
