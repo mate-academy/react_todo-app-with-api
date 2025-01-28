@@ -7,6 +7,7 @@ interface Props {
   todos: Todo[];
   tempTodo: Todo | null;
   deleteTodos: (todosIds: number[]) => void;
+  updateTodo: (todoToUpdate: Todo) => void;
   loadingIds: number[];
   isLoading: boolean;
 }
@@ -15,6 +16,7 @@ export const TodoList: FC<Props> = ({
   todos,
   tempTodo,
   deleteTodos,
+  updateTodo,
   loadingIds,
   isLoading,
 }) => {
@@ -28,6 +30,7 @@ export const TodoList: FC<Props> = ({
               key={todo.id}
               todo={todo}
               deleteTodos={deleteTodos}
+              updateTodo={updateTodo}
               loadingIds={loadingIds}
               isLoading={false}
             />

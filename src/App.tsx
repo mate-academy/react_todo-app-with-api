@@ -3,7 +3,7 @@ import { Todo } from './types/Todo';
 import { FilterStatusEnum } from './types/Status.enum';
 import { ErrorsEnum } from './types/Error.enum';
 import { filterTodos } from './utils/filterTodos';
-import { createTodo, getTodos, removeTodo, USER_ID } from './api/todos';
+import { todosApi, USER_ID } from './api/todos';
 import { Header } from './components/Header';
 import { Footer } from './components/Footer';
 import { TodoList } from './components/TodoList';
@@ -20,12 +20,13 @@ export const App: FC = () => {
 
   const filteredTodos = filterTodos(todos, filterStatus);
   const completedTodos = todos.filter(todo => todo.completed);
+  const uncompletedTodos = todos.filter(todo => !todo.completed);
   const activeTodosCount = todos.filter(todo => !todo.completed).length;
   const todosCount = todos.length;
 
   const loadTodos = async () => {
     try {
-      const responseTodos = await getTodos();
+      const responseTodos = await todosApi.getTodos();
 
       setTodos(responseTodos);
     } catch {
@@ -52,7 +53,7 @@ export const App: FC = () => {
 
     try {
       setIsLoading(true);
-      const responseTodo = await createTodo({
+      const responseTodo = await todosApi.createTodo({
         userId: USER_ID,
         title: trimmedQuery,
         completed: false,
@@ -78,7 +79,7 @@ export const App: FC = () => {
 
     try {
       const results = await Promise.allSettled(
-        todosIds.map(todoId => removeTodo(todoId)),
+        todosIds.map(todoId => todosApi.removeTodo(todoId)),
       );
 
       const successfullyDeletedIds: number[] = [];
@@ -112,6 +113,38 @@ export const App: FC = () => {
     await deleteTodos(completedIds);
   };
 
+  const updateTodo = async (todoToUpdate: Todo) => {
+    setLoadingIds(prev => [...prev, todoToUpdate.id]);
+
+    try {
+      const updatedTodo = await todosApi.updateTodo(todoToUpdate);
+
+      setTodos(prevTodos => {
+        return prevTodos.map(todo =>
+          todo.id === updatedTodo.id ? updatedTodo : todo,
+        );
+      });
+    } catch {
+      setError(ErrorsEnum.UpdateTodo);
+    } finally {
+      setLoadingIds(prev => {
+        return prev.filter(todoId => todoId !== todoToUpdate.id);
+      });
+    }
+  };
+
+  const toggleAllTodos = () => {
+    if (uncompletedTodos.length > 0) {
+      uncompletedTodos.forEach(todo => {
+        updateTodo({ ...todo, completed: true });
+      });
+    } else {
+      todos.forEach(todo => {
+        updateTodo({ ...todo, completed: false });
+      });
+    }
+  };
+
   useEffect(() => {
     loadTodos();
   }, []);
@@ -122,9 +155,11 @@ export const App: FC = () => {
 
       <div className="todoapp__content">
         <Header
+          todos={todos}
           query={query}
           onQueryChange={setQuery}
           addTodo={addTodo}
+          toggleAllTodos={toggleAllTodos}
           isLoading={isLoading}
           loadingIds={loadingIds}
         />
@@ -133,6 +168,7 @@ export const App: FC = () => {
           todos={filteredTodos}
           tempTodo={tempTodo}
           deleteTodos={deleteTodos}
+          updateTodo={updateTodo}
           loadingIds={loadingIds}
           isLoading={isLoading}
         />

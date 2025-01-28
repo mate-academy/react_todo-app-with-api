@@ -7,6 +7,7 @@ import { Todo } from '../types/Todo';
 interface Props {
   todo: Todo;
   deleteTodos?: (todosIds: number[]) => void;
+  updateTodo?: (todoToUpdate: Todo) => void;
   loadingIds: number[];
   isLoading: boolean;
 }
@@ -14,9 +15,14 @@ interface Props {
 export const TodoItem: FC<Props> = ({
   todo,
   deleteTodos = () => {},
+  updateTodo = () => {},
   loadingIds,
   isLoading,
 }) => {
+  const toggleTodoStatus = () => {
+    updateTodo({ ...todo, completed: !todo.completed });
+  };
+
   return (
     <div
       data-cy="Todo"
@@ -28,6 +34,7 @@ export const TodoItem: FC<Props> = ({
           type="checkbox"
           className="todo__status"
           checked={todo.completed}
+          onChange={toggleTodoStatus}
         />
       </label>
 
