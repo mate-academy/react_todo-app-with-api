@@ -1,15 +1,16 @@
-import { FC, FormEvent, useEffect, useState } from 'react';
+import { FC, FormEvent, useEffect, useRef, useState } from 'react';
 import { Todo } from './types/Todo';
 import { FilterStatusEnum } from './types/Status.enum';
 import { ErrorsEnum } from './types/Error.enum';
-import { filterTodos } from './utils/filterTodos';
 import { todosApi, USER_ID } from './api/todos';
+import { filterTodos } from './utils/filterTodos';
 import { Header } from './components/Header';
 import { Footer } from './components/Footer';
 import { TodoList } from './components/TodoList';
 import { Notification } from './components/Notification';
 
 export const App: FC = () => {
+  const todoFieldRef = useRef<HTMLInputElement | null>(null);
   const [filterStatus, setFilterStatus] = useState(FilterStatusEnum.All);
   const [query, setQuery] = useState('');
   const [todos, setTodos] = useState<Todo[]>([]);
@@ -70,7 +71,7 @@ export const App: FC = () => {
     }
   };
 
-  const deleteTodo = async (todoId: number) => {
+  const deleteTodo = async (todoId: number): Promise<boolean> => {
     setLoadingIds(prev => [...prev, todoId]);
 
     try {
@@ -79,8 +80,14 @@ export const App: FC = () => {
       setTodos(prevTodos => {
         return prevTodos.filter(todo => todo.id !== todoId);
       });
+
+      todoFieldRef.current?.focus();
+
+      return true;
     } catch {
       setError(ErrorsEnum.DeleteTodo);
+
+      return false;
     } finally {
       setLoadingIds(prev => prev.filter(id => id !== todoId));
     }
@@ -92,7 +99,7 @@ export const App: FC = () => {
     });
   };
 
-  const updateTodo = async (todoToUpdate: Todo) => {
+  const updateTodo = async (todoToUpdate: Todo): Promise<boolean> => {
     setLoadingIds(prev => [...prev, todoToUpdate.id]);
 
     try {
@@ -103,8 +110,14 @@ export const App: FC = () => {
           todo.id === updatedTodo.id ? updatedTodo : todo,
         );
       });
+
+      todoFieldRef.current?.focus();
+
+      return true;
     } catch {
       setError(ErrorsEnum.UpdateTodo);
+
+      return false;
     } finally {
       setLoadingIds(prev => {
         return prev.filter(todoId => todoId !== todoToUpdate.id);
@@ -134,13 +147,14 @@ export const App: FC = () => {
 
       <div className="todoapp__content">
         <Header
+          todoFieldRef={todoFieldRef}
           todos={todos}
           query={query}
           onQueryChange={setQuery}
           addTodo={addTodo}
           toggleAllTodos={toggleAllTodos}
           isLoading={isLoading}
-          loadingIds={loadingIds}
+          isTodosExist={!!todos.length}
         />
 
         <TodoList

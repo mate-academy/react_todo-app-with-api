@@ -1,7 +1,7 @@
 import { FC } from 'react';
 import classNames from 'classnames';
-import { FilterStatusEnum } from '../types/Status.enum';
 import { Todo } from '../types/Todo';
+import { FilterStatusEnum } from '../types/Status.enum';
 
 interface Props {
   activeTodosCount: number;
@@ -21,13 +21,11 @@ export const Footer: FC<Props> = ({
   const isOneTodoCompleted = completedTodos.length > 0;
 
   return (
-    /* Hide the footer if there are no todos */
     <footer className="todoapp__footer" data-cy="Footer">
       <span className="todo-count" data-cy="TodosCounter">
         {activeTodosCount} items left
       </span>
 
-      {/* Active link should have the selected class **/}
       <nav className="filter" data-cy="Filter">
         <a
           href="#/"
@@ -62,7 +60,7 @@ export const Footer: FC<Props> = ({
           Completed
         </a>
       </nav>
-      {/* this button should be disabled if there are no completed todos */}
+
       <button
         data-cy="ClearCompletedButton"
         type="button"

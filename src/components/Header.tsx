@@ -1,45 +1,48 @@
-import { FC, FormEvent, useEffect, useRef } from 'react';
+import { FC, FormEvent, MutableRefObject, useEffect } from 'react';
 import classNames from 'classnames';
 import { Todo } from '../types/Todo';
 
 interface Props {
+  todoFieldRef: MutableRefObject<HTMLInputElement | null>;
   todos: Todo[];
   query: string;
   onQueryChange: (newQuery: string) => void;
   addTodo: (event: FormEvent<HTMLFormElement>) => void;
   toggleAllTodos: () => void;
   isLoading: boolean;
-  loadingIds: number[];
+  isTodosExist: boolean;
 }
 
 export const Header: FC<Props> = ({
+  todoFieldRef,
   todos,
   query,
   onQueryChange,
   addTodo,
   toggleAllTodos,
   isLoading,
-  loadingIds,
+  isTodosExist,
 }) => {
-  const todoFieldRef = useRef<HTMLInputElement>(null);
   const isAllTodosCompleted = todos.every(todo => todo.completed);
 
   useEffect(() => {
-    if (todoFieldRef.current) {
-      todoFieldRef.current.focus();
+    if (!isLoading) {
+      todoFieldRef.current?.focus();
     }
-  }, [isLoading, loadingIds]);
+  }, [isLoading, todoFieldRef]);
 
   return (
     <header className="todoapp__header">
-      <button
-        type="button"
-        className={classNames('todoapp__toggle-all', {
-          active: isAllTodosCompleted,
-        })}
-        data-cy="ToggleAllButton"
-        onClick={toggleAllTodos}
-      />
+      {isTodosExist && (
+        <button
+          type="button"
+          className={classNames('todoapp__toggle-all', {
+            active: isAllTodosCompleted,
+          })}
+          data-cy="ToggleAllButton"
+          onClick={toggleAllTodos}
+        />
+      )}
 
       {/* Add a todo on form submit */}
       <form onSubmit={event => addTodo(event)}>

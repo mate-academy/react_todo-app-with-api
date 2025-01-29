@@ -1,13 +1,13 @@
 /* eslint-disable jsx-a11y/label-has-associated-control */
 /* eslint-disable jsx-a11y/control-has-associated-label */
-import { FC } from 'react';
+import { FC, useRef, useState, KeyboardEvent } from 'react';
 import classNames from 'classnames';
 import { Todo } from '../types/Todo';
 
 interface Props {
   todo: Todo;
-  deleteTodo?: (todoId: number) => void;
-  updateTodo?: (todoToUpdate: Todo) => void;
+  deleteTodo?: (todoId: number) => Promise<boolean>;
+  updateTodo?: (todoToUpdate: Todo) => Promise<boolean>;
   loadingIds: number[];
   isLoading: boolean;
 }
@@ -19,6 +19,56 @@ export const TodoItem: FC<Props> = ({
   loadingIds,
   isLoading,
 }) => {
+  const editFieldRef = useRef<HTMLInputElement>(null);
+  const [isEditing, setIsEditing] = useState(false);
+  const [newTitle, setNewTitle] = useState(todo.title);
+
+  const handleDoubleClick = () => {
+    setIsEditing(true);
+  };
+
+  const handleTodoEdit = async () => {
+    const trimmedTitle = newTitle.trim();
+
+    if (todo.title === trimmedTitle) {
+      setIsEditing(false);
+
+      return;
+    }
+
+    if (trimmedTitle === '') {
+      const successDelete = await deleteTodo(todo.id);
+
+      if (!successDelete) {
+        editFieldRef.current?.focus();
+      }
+
+      return;
+    }
+
+    const successUpdate = await updateTodo({
+      ...todo,
+      title: trimmedTitle,
+    } as Todo);
+
+    if (successUpdate) {
+      setIsEditing(false);
+    } else {
+      editFieldRef.current?.focus();
+    }
+  };
+
+  const handleKeyUp = (event: KeyboardEvent<HTMLInputElement>) => {
+    if (event.key === 'Enter') {
+      handleTodoEdit();
+    }
+
+    if (event.key === 'Escape') {
+      setNewTitle(todo.title);
+      setIsEditing(false);
+    }
+  };
+
   const toggleTodoStatus = () => {
     updateTodo({ ...todo, completed: !todo.completed });
   };
@@ -38,21 +88,42 @@ export const TodoItem: FC<Props> = ({
         />
       </label>
 
-      <span data-cy="TodoTitle" className="todo__title">
-        {todo.title}
-      </span>
+      {isEditing ? (
+        <form onSubmit={e => e.preventDefault()}>
+          <input
+            autoFocus
+            ref={editFieldRef}
+            data-cy="TodoTitleField"
+            type="text"
+            className="todo__title-field"
+            placeholder="Empty todo will be deleted"
+            value={newTitle}
+            onChange={e => setNewTitle(e.target.value)}
+            onBlur={handleTodoEdit}
+            onKeyUp={handleKeyUp}
+          />
+        </form>
+      ) : (
+        <>
+          <span
+            data-cy="TodoTitle"
+            className="todo__title"
+            onDoubleClick={handleDoubleClick}
+          >
+            {todo.title}
+          </span>
 
-      {/* Remove button appears only on hover */}
-      <button
-        type="button"
-        className="todo__remove"
-        data-cy="TodoDelete"
-        onClick={() => deleteTodo(todo.id)}
-      >
-        ×
-      </button>
+          <button
+            type="button"
+            className="todo__remove"
+            data-cy="TodoDelete"
+            onClick={() => deleteTodo(todo.id)}
+          >
+            ×
+          </button>
+        </>
+      )}
 
-      {/* overlay will cover the todo while it is being deleted or updated */}
       <div
         data-cy="TodoLoader"
         className={classNames('modal overlay', {
