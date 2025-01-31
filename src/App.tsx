@@ -1,26 +1,55 @@
-/* eslint-disable max-len */
-/* eslint-disable jsx-a11y/control-has-associated-label */
-import React from 'react';
+import React, { useEffect } from 'react';
 import { UserWarning } from './UserWarning';
+import { getTodos, USER_ID } from './api/todos';
+import { Header } from './components/Header';
+import { TodoList } from './components/TodoList';
+import { Footer } from './components/Footer';
+import { ErrorNotifications } from './components/ErrorNotifications';
+import { AppProvider, useAppContext } from './HooksContext';
 
-const USER_ID = 0;
+const AppContent: React.FC = () => {
+  const { setLoading, setAllTodos, setErrorMessage, allTodos } =
+    useAppContext();
 
-export const App: React.FC = () => {
+  useEffect(() => {
+    setLoading(true);
+    getTodos()
+      .then(todosFromServer => {
+        setAllTodos(todosFromServer);
+      })
+      .catch(() => {
+        setErrorMessage('Unable to load todos');
+      })
+      .finally(() => {
+        setLoading(false);
+      });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   if (!USER_ID) {
     return <UserWarning />;
   }
 
   return (
-    <section className="section container">
-      <p className="title is-4">
-        Copy all you need from the prev task:
-        <br />
-        <a href="https://github.com/mate-academy/react_todo-app-add-and-delete#react-todo-app-add-and-delete">
-          React Todo App - Add and Delete
-        </a>
-      </p>
+    <div className="todoapp">
+      <h1 className="todoapp__title">todos</h1>
 
-      <p className="subtitle">Styles are already copied</p>
-    </section>
+      <div className="todoapp__content">
+        <Header />
+        <TodoList />
+
+        {allTodos.length > 0 && <Footer />}
+      </div>
+
+      <ErrorNotifications />
+    </div>
+  );
+};
+
+export const App: React.FC = () => {
+  return (
+    <AppProvider>
+      <AppContent />
+    </AppProvider>
   );
 };
