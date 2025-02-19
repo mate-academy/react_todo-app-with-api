@@ -24,7 +24,9 @@ export const App: React.FC = () => {
   const [errorMessage, setErrorMessage] = useState('');
   const [loader, setLoader] = useState<number>(0);
   const [isSubmiting, setIsSubmiting] = useState(false);
+  const [loaderAll, setLoaderAll] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
+  const todosAllComleted = todos.every(todo => todo.completed);
 
   const handleErrorMessage = (message: string) => {
     setErrorMessage(message);
@@ -148,11 +150,11 @@ export const App: React.FC = () => {
     inputRef.current?.focus();
   };
 
-  const handleUpdate = (id: number, completed: boolean) => {
+  const handleUpdate = (title: string, id: number, completed: boolean) => {
     setLoader(id);
     const updatedCompleted = !completed;
 
-    updateTodo({ id, completed: updatedCompleted })
+    updateTodo({ title, id, completed: updatedCompleted })
       .then(updatedTodo => {
         setTodos(prevTodos =>
           prevTodos.map(t =>
@@ -169,6 +171,38 @@ export const App: React.FC = () => {
       });
   };
 
+  const handleUpdateAllCompleted = () => {
+    setLoaderAll(true);
+    const allCompletedTodos = todos.every(todo => todo.completed);
+    const newCompletedStatus = !allCompletedTodos;
+    const notCompletedTodos = todos.filter(todo => !todo.completed);
+
+    Promise.all(
+      (allCompletedTodos ? todos : notCompletedTodos).map(todo =>
+        updateTodo({
+          id: todo.id,
+          title: todo.title,
+          completed: newCompletedStatus,
+        })
+          .then(updatedTodo => {
+            setTodos(prevTodos =>
+              prevTodos.map(t =>
+                t.id === updatedTodo.id
+                  ? { ...t, completed: updatedTodo.completed }
+                  : t,
+              ),
+            );
+          })
+          .catch(() => {
+            handleErrorMessage('Unable to update a todo');
+          })
+          .finally(() => {
+            setLoaderAll(false);
+          }),
+      ),
+    );
+  };
+
   if (!USER_ID) {
     return <UserWarning />;
   }
@@ -180,11 +214,17 @@ export const App: React.FC = () => {
       <div className="todoapp__content">
         <header className="todoapp__header">
           {/* this button should have `active` class only if all todos are completed */}
-          <button
-            type="button"
-            className="todoapp__toggle-all active"
-            data-cy="ToggleAllButton"
-          />
+          {todos.length > 0 && (
+            <button
+              type="button"
+              className={classNames(
+                'todoapp__toggle-all',
+                todosAllComleted && 'active',
+              )}
+              data-cy="ToggleAllButton"
+              onClick={handleUpdateAllCompleted}
+            />
+          )}
 
           {/* Add a todo on form submit */}
           <AddTodo
@@ -198,11 +238,16 @@ export const App: React.FC = () => {
 
         <TodoList
           tempTodo={tempTodo}
+          todos={todos}
+          setTodos={setTodos}
           filteredTodos={filteredTodos}
           handleUpdate={handleUpdate}
           handleDelete={handleDelete}
           isSubmiting={isSubmiting}
           loader={loader}
+          setLoader={setLoader}
+          handleErrorMessage={handleErrorMessage}
+          loaderAll={loaderAll}
         />
 
         {/* Hide the footer if there are no todos */}
