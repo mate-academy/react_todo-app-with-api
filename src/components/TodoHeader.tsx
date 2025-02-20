@@ -1,0 +1,76 @@
+import React, { useState } from 'react';
+import classNames from 'classnames';
+
+import { MessageError } from '../types/ErrorMessage';
+import { Todo } from '../types/Todo';
+
+interface Props {
+  todos: Todo[];
+  loading: boolean;
+  addTodo: (text: string) => Promise<boolean>;
+  setIsError: (value: boolean) => void;
+  setErrorMessage: (str: MessageError) => void;
+  inputRef: React.RefObject<HTMLInputElement>;
+  toggleAll: () => void;
+}
+
+export const TodoHeader: React.FC<Props> = ({
+  todos,
+  loading,
+  addTodo,
+  setIsError,
+  setErrorMessage,
+  inputRef,
+  toggleAll,
+}) => {
+  const [query, setQuery] = useState('');
+
+  const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setQuery(event.target.value);
+  };
+
+  const handleSubmit = (event: React.FormEvent) => {
+    event.preventDefault();
+
+    if (!query.trim()) {
+      setIsError(true);
+      setErrorMessage(MessageError.queryError);
+
+      return;
+    }
+
+    addTodo(query).then(isSuccess => {
+      if (isSuccess) {
+        setQuery('');
+      }
+    });
+  };
+
+  return (
+    <header className="todoapp__header">
+      {todos.length > 0 && (
+        <button
+          type="button"
+          className={classNames('todoapp__toggle-all', {
+            active: todos.every(todo => todo.completed),
+          })}
+          data-cy="ToggleAllButton"
+          onClick={toggleAll}
+        />
+      )}
+
+      <form onSubmit={handleSubmit}>
+        <input
+          ref={inputRef}
+          data-cy="NewTodoField"
+          type="text"
+          className="todoapp__new-todo"
+          placeholder="What needs to be done?"
+          value={query}
+          onChange={handleInputChange}
+          disabled={loading}
+        />
+      </form>
+    </header>
+  );
+};
