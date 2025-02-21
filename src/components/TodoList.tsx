@@ -10,8 +10,12 @@ interface Props {
   loading: boolean;
   deletingTodoIds: number[];
   updatingTodoIds: number[];
+  editingTodoId: number | null;
+  setEditingTodoId: (id: number | null) => void;
   deleteTodo: (id: number) => Promise<boolean>;
-  toggleCompletedField: (id: number) => Promise<void> | undefined;
+  toggleCompletedField: (id: number) => Promise<boolean>;
+  editingField: React.RefObject<HTMLInputElement>;
+  editTodo: (id: number, title: string) => Promise<boolean>;
 }
 
 export const TodoList: React.FC<Props> = ({
@@ -20,8 +24,12 @@ export const TodoList: React.FC<Props> = ({
   loading,
   deletingTodoIds,
   updatingTodoIds,
+  editingTodoId,
+  setEditingTodoId,
   deleteTodo,
   toggleCompletedField,
+  editingField,
+  editTodo,
 }) => {
   return (
     <section className="todoapp__main" data-cy="TodoList">
@@ -36,6 +44,10 @@ export const TodoList: React.FC<Props> = ({
               }
               deleteTodo={deleteTodo}
               toggleCompletedField={toggleCompletedField}
+              setEditingTodoId={setEditingTodoId}
+              editingTodoId={editingTodoId}
+              editingField={editingField}
+              editTodo={editTodo}
             />
           </CSSTransition>
         ))}
@@ -47,6 +59,10 @@ export const TodoList: React.FC<Props> = ({
               loading={loading}
               deleteTodo={deleteTodo}
               toggleCompletedField={toggleCompletedField}
+              setEditingTodoId={setEditingTodoId}
+              editingTodoId={editingTodoId}
+              editingField={editingField}
+              editTodo={editTodo}
             />
           </CSSTransition>
         )}

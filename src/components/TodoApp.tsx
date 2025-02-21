@@ -21,7 +21,11 @@ export const TodoApp = () => {
   const [loading, setLoading] = useState(false);
   const [deletingTodoIds, setDeletingTodoIds] = useState<number[]>([]);
   const [updatingTodoIds, setUpdatingTodoIds] = useState<number[]>([]);
+
+  const [editingTodoId, setEditingTodoId] = useState<number | null>(null);
+
   const inputRef = useRef<HTMLInputElement>(null);
+  const editingField = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     inputRef.current?.focus();
@@ -119,7 +123,7 @@ export const TodoApp = () => {
     const selectedTodo = todos.find(todo => todo.id === todoId);
 
     if (!selectedTodo) {
-      return;
+      return Promise.reject();
     }
 
     return todoService
@@ -132,10 +136,14 @@ export const TodoApp = () => {
               : todo,
           );
         });
+
+        return true;
       })
       .catch(() => {
         setIsError(true);
         setErrorMessage(MessageError.updateError);
+
+        return false;
       })
       .finally(() => {
         setUpdatingTodoIds(current => current.filter(id => id !== todoId));
@@ -150,6 +158,32 @@ export const TodoApp = () => {
 
       todosToUpdate.forEach(todo => toggleCompletedField(todo.id));
     }
+  };
+
+  const editTodo = (todoId: number, newTitle: string) => {
+    setUpdatingTodoIds(current => [...current, todoId]);
+
+    return todoService
+      .updateTodo(todoId, { title: newTitle })
+      .then(() => {
+        setTodos(currentTodos =>
+          currentTodos.map(todo =>
+            todo.id === todoId ? { ...todo, title: newTitle } : todo,
+          ),
+        );
+
+        return true;
+      })
+      .catch(() => {
+        setIsError(true);
+        setErrorMessage(MessageError.updateError);
+
+        return false;
+      })
+      .finally(() => {
+        setEditingTodoId(null);
+        setUpdatingTodoIds(current => current.filter(id => id !== todoId));
+      });
   };
 
   const filterTodos = () => {
@@ -185,10 +219,14 @@ export const TodoApp = () => {
               todos={filteredTodos}
               tempTodo={tempTodo}
               loading={loading}
-              deleteTodo={deleteTodo}
               deletingTodoIds={deletingTodoIds}
+              deleteTodo={deleteTodo}
               toggleCompletedField={toggleCompletedField}
               updatingTodoIds={updatingTodoIds}
+              editingTodoId={editingTodoId}
+              setEditingTodoId={setEditingTodoId}
+              editingField={editingField}
+              editTodo={editTodo}
             />
             <TodoFooter
               todos={todos}

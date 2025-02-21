@@ -1,15 +1,19 @@
 /* eslint-disable jsx-a11y/label-has-associated-control */
 /* eslint-disable jsx-a11y/control-has-associated-label */
 import classNames from 'classnames';
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 
 import { Todo } from '../types/Todo';
 
 interface Props {
   todo: Todo;
   loading: boolean;
+  editingTodoId: number | null;
+  editingField: React.RefObject<HTMLInputElement>;
   deleteTodo: (id: number) => Promise<boolean>;
-  toggleCompletedField: (id: number) => Promise<void> | undefined;
+  toggleCompletedField: (id: number) => Promise<boolean>;
+  setEditingTodoId: (id: number | null) => void;
+  editTodo: (id: number, title: string) => Promise<boolean>;
 }
 
 export const TodoItem: React.FC<Props> = ({
@@ -17,8 +21,54 @@ export const TodoItem: React.FC<Props> = ({
   loading,
   deleteTodo,
   toggleCompletedField,
+  setEditingTodoId,
+  editingTodoId,
+  editingField,
+  editTodo,
 }) => {
+  const [editedTitle, setEditedTitle] = useState('');
   const { id, title, completed } = todo;
+
+  useEffect(() => {
+    if (editingTodoId === id) {
+      setEditedTitle(title);
+      editingField.current?.focus();
+    }
+  }, [editingTodoId]);
+
+  const saveChanges = () => {
+    if (!editedTitle) {
+      deleteTodo(id);
+      setEditingTodoId(null);
+      setEditedTitle('');
+
+      return;
+    }
+
+    if (editedTitle === title) {
+      setEditingTodoId(null);
+    } else {
+      editTodo(id, editedTitle.trim());
+    }
+  };
+
+  const submitForm = (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    saveChanges();
+  };
+
+  const handleKeyUp = (event: React.KeyboardEvent) => {
+    if (event.key === 'Escape') {
+      setEditedTitle(title);
+      setEditingTodoId(null);
+    }
+  };
+
+  const handleBlur = () => {
+    if (editingTodoId === id) {
+      saveChanges();
+    }
+  };
 
   return (
     <div
@@ -31,23 +81,45 @@ export const TodoItem: React.FC<Props> = ({
           data-cy="TodoStatus"
           type="checkbox"
           className="todo__status"
-          defaultChecked={completed}
-          onClick={() => toggleCompletedField(id)}
+          checked={completed}
+          onChange={() => toggleCompletedField(id)}
         />
       </label>
 
-      <span data-cy="TodoTitle" className="todo__title">
-        {title}
-      </span>
+      {editingTodoId !== id ? (
+        <>
+          <span
+            data-cy="TodoTitle"
+            className="todo__title"
+            onDoubleClick={() => setEditingTodoId(id)}
+          >
+            {title}
+          </span>
 
-      <button
-        type="button"
-        className="todo__remove"
-        data-cy="TodoDelete"
-        onClick={() => deleteTodo(id)}
-      >
-        ×
-      </button>
+          <button
+            type="button"
+            className="todo__remove"
+            data-cy="TodoDelete"
+            onClick={() => deleteTodo(id)}
+          >
+            ×
+          </button>
+        </>
+      ) : (
+        <form onSubmit={submitForm}>
+          <input
+            ref={editingField}
+            data-cy="TodoTitleField"
+            type="text"
+            className="todo__title-field"
+            placeholder="Empty todo will be deleted"
+            value={editedTitle}
+            onChange={e => setEditedTitle(e.target.value)}
+            onKeyUp={handleKeyUp}
+            onBlur={handleBlur}
+          />
+        </form>
+      )}
 
       <div
         data-cy="TodoLoader"
