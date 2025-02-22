@@ -38,9 +38,12 @@ export const TodoItem: React.FC<Props> = ({
 
   const saveChanges = () => {
     if (!editedTitle) {
-      deleteTodo(id);
-      setEditingTodoId(null);
-      setEditedTitle('');
+      deleteTodo(id).then(success => {
+        if (success) {
+          setEditingTodoId(null);
+          setEditedTitle('');
+        }
+      });
 
       return;
     }
@@ -48,7 +51,12 @@ export const TodoItem: React.FC<Props> = ({
     if (editedTitle === title) {
       setEditingTodoId(null);
     } else {
-      editTodo(id, editedTitle.trim());
+      editTodo(id, editedTitle.trim()).then(success => {
+        if (success) {
+          setEditedTitle('');
+          setEditingTodoId(null);
+        }
+      });
     }
   };
 

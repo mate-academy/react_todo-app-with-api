@@ -39,14 +39,14 @@ export const TodoApp = () => {
   }, []);
 
   useEffect(() => {
-    const timer = setTimeout(() => {
+    const timerId = setTimeout(() => {
       if (isError) {
         setIsError(false);
         setErrorMessage(MessageError.default);
       }
     }, 3000);
 
-    return () => clearTimeout(timer);
+    return () => clearTimeout(timerId);
   }, [isError]);
 
   const addTodo = (str: string) => {
@@ -97,6 +97,7 @@ export const TodoApp = () => {
       .catch(() => {
         setIsError(true);
         setErrorMessage(MessageError.deleteError);
+        editingField.current?.focus();
 
         return false;
       })
@@ -181,7 +182,6 @@ export const TodoApp = () => {
         return false;
       })
       .finally(() => {
-        setEditingTodoId(null);
         setUpdatingTodoIds(current => current.filter(id => id !== todoId));
       });
   };
