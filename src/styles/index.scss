@@ -9,17 +9,22 @@ body {
 }
 
 .notification {
-  transition-property: opacity, min-height;
-  transition-duration: 1s;
-  min-height: 36px;
+  position: relative;
+  z-index: 1;
+  transform: translateY(0);
+  transition: 0.5s ease;
+  transition-property: opacity, transform;
+  opacity: 1;
 }
 
 .notification.hidden {
-  min-height: 0;
-  opacity: 0;
+  transform: translateY(-120%);
+  overflow: hidden;
   pointer-events: none;
+  opacity: 0;
 }
 
-@import "./todoapp";
-@import "./todo";
-@import "./filter";
+@import './todoapp';
+@import './todo';
+@import './filter';
+@import './animatiom.scss';
