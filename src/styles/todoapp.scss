@@ -82,6 +82,12 @@
     border-top: 1px solid #e6e6e6;
   }
 
+ .span-block {
+  display: block;
+  width: 100%;
+  border-width: 100%;
+ }
+
   &__footer {
     display: flex;
     justify-content: space-between;
