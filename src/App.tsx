@@ -1,26 +1,117 @@
-/* eslint-disable max-len */
-/* eslint-disable jsx-a11y/control-has-associated-label */
-import React from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { UserWarning } from './UserWarning';
+import { deleteTodo, getTodos, updateTodoStatus, USER_ID } from './api/todos';
 
-const USER_ID = 0;
+import { Todo } from './types/Todo';
+import { TodoList } from './components/TodoList';
+import { TodoState } from './types/TodoState';
+
+import { Header } from './components/Header';
+import { Footer } from './components/Footer';
+
+import { ErrorField } from './components/ErrorNotification';
+import { getPreparedTodos } from './utils/getPreparedTodos';
 
 export const App: React.FC = () => {
+  const [todos, setTodos] = useState<Todo[]>([]);
+  const [tempTodo, setTempTodo] = useState<Todo | null>(null);
+  const [errorMessage, setErrorMessage] = useState('');
+  const [activeFilter, setActiveFilter] = useState<TodoState>(TodoState.ALL);
+
+  const activeTodos = todos.filter(todo => !todo.completed).length;
+  const completedTodos = todos.filter(todo => todo.completed).length;
+  const preparedTodos = getPreparedTodos(todos, activeFilter);
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    getTodos()
+      .then(setTodos)
+      .catch(() => setErrorMessage('Unable to load todos'));
+  }, []);
+
+  const handleClearCompleted = async () => {
+    const completedTodosToDelete = todos.filter(todo => todo.completed);
+
+    const deletionPromises = completedTodosToDelete.map(todo =>
+      deleteTodo(todo.id)
+        .then(() => {
+          setTodos(currentTodos => currentTodos.filter(t => t.id !== todo.id));
+        })
+        .catch(() => {
+          setErrorMessage(`Unable to delete a todo`);
+        }),
+    );
+
+    await Promise.all(deletionPromises);
+
+    inputRef.current?.focus();
+  };
+
+  const handleToggleAll = async () => {
+    const allCompleted = completedTodos === todos.length;
+    const newStatus = !allCompleted;
+
+    const updatePromises = todos
+      .filter(todo => todo.completed !== newStatus)
+      .map(todo =>
+        updateTodoStatus(todo.id, newStatus)
+          .then(updatedTodo => {
+            setTodos(currentTodos =>
+              currentTodos.map(item =>
+                item.id === updatedTodo.id ? updatedTodo : item,
+              ),
+            );
+          })
+          .catch(() => {
+            setErrorMessage('Unable to update todos');
+          }),
+      );
+
+    await Promise.all(updatePromises);
+  };
+
   if (!USER_ID) {
     return <UserWarning />;
   }
 
   return (
-    <section className="section container">
-      <p className="title is-4">
-        Copy all you need from the prev task:
-        <br />
-        <a href="https://github.com/mate-academy/react_todo-app-add-and-delete#react-todo-app-add-and-delete">
-          React Todo App - Add and Delete
-        </a>
-      </p>
+    <div className="todoapp">
+      <h1 className="todoapp__title">todos</h1>
 
-      <p className="subtitle">Styles are already copied</p>
-    </section>
+      <div className="todoapp__content">
+        <Header
+          setErrorMessage={setErrorMessage}
+          setTodos={setTodos}
+          setTempTodo={setTempTodo}
+          inputRef={inputRef}
+          onToggleAll={handleToggleAll}
+          someTodosExist={!!todos.length}
+          allTodosCompleted={!!todos.length && completedTodos === todos.length}
+        />
+
+        <TodoList
+          todos={preparedTodos}
+          tempTodo={tempTodo}
+          setTodos={setTodos}
+          setErrorMessage={setErrorMessage}
+          inputRef={inputRef}
+        />
+
+        {todos.length !== 0 && (
+          <Footer
+            activeTodos={activeTodos}
+            completedTodos={completedTodos}
+            activeFilter={activeFilter}
+            setActiveFilter={setActiveFilter}
+            onClearCompleted={handleClearCompleted}
+          />
+        )}
+      </div>
+
+      <ErrorField
+        errorMessage={errorMessage}
+        setErrorMessage={setErrorMessage}
+      />
+    </div>
   );
 };
