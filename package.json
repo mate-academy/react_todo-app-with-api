@@ -15,7 +15,7 @@
   },
   "devDependencies": {
     "@cypress/react18": "^2.0.1",
-    "@mate-academy/scripts": "^1.8.5",
+    "@mate-academy/scripts": "^2.1.0",
     "@mate-academy/students-ts-config": "*",
     "@mate-academy/stylelint-config": "*",
     "@types/node": "^20.14.10",
@@ -78,5 +78,18 @@
       "_comment": "Add `cypressComponents: true` to enable component tests",
       "cypress": true
     }
-  }
+  },
+  "files.autoSave": "afterDelay",
+  "files.autoSaveDelay": 500,
+  "editor.fontSize": 15,
+  "editor.tabSize": 2,
+  "editor.renderWhitespace": "boundary",
+  "editor.detectIndentation": false,
+  "editor.codeActionsOnSave": {
+    "source.fixAll": "always",
+    "source.fixAll.eslint": "always"
+  },
+  "editor.defaultFormatter": "esbenp.prettier-vscode",
+  "editor.formatOnType": true,
+  "editor.formatOnSave": true
 }
