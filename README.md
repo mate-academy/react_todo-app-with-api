@@ -1,9 +1,13 @@
-# React Todo App with API (complete)
+# React To-Do App
+A simple and efficient To-Do List app built with React and TypeScript to help you organize tasks effortlessly.
 
-It is the third part of the React Todo App with API.
+Features
+- Add, edit, and delete tasks
+- Mark tasks as completed
+- Filter tasks (All, Active, Completed)
+- Responsive design for a seamless experience on any device
+- TypeScript for better code safety and maintainability
 
-Take your code implemented for [Add and Delete](https://github.com/mate-academy/react_todo-app-add-and-delete)
-and implement the ability to toggle and rename todos.
 
 > Here is [the working example](https://mate-academy.github.io/react_todo-app-with-api/)
 
@@ -45,6 +49,4 @@ Implement the ability to edit a todo title on double click:
 
 ## Instructions
 
-- Implement a solution following the [React task guideline](https://github.com/mate-academy/react_task-guideline#react-tasks-guideline).
-- Use the [React TypeScript cheat sheet](https://mate-academy.github.io/fe-program/js/extra/react-typescript).
-- Replace `<your_account>` with your Github username in the [DEMO LINK](https://<your_account>.github.io/react_todo-app-with-api/) and add it to the PR description.
+- [DEMO LINK](https://hrebinets.github.io/react_todo-app-with-api/)
