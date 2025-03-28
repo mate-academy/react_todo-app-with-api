@@ -519,7 +519,7 @@ describe('', () => {
         });
 
         // this test may be flaky
-        it.skip('should replace loader with a created todo', () => {
+        it('should replace loader with a created todo', () => {
           page.flushJSTimers();
           todos.assertCount(6);
           todos.assertNotLoading(5);
@@ -1587,6 +1587,7 @@ describe('', () => {
         it('should stay open', () => {
           todos.titleField(0).should('exist');
         });
+
 
         it('should show error message', () => {
           errorMessage.assertVisible();
