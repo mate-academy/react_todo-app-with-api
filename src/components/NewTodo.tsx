@@ -34,7 +34,7 @@ export const NewTodo: React.FC<Props> = ({
         <button
           type="button"
           className={classNames('todoapp__toggle-all', {
-            active: activeCount === 0,
+            active: !activeCount,
           })}
           data-cy="ToggleAllButton"
           onClick={() => handleToggle(undefined)}

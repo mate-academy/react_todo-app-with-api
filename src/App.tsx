@@ -8,17 +8,18 @@ import React, {
 } from 'react';
 import { Todo } from './types/Todo';
 import { createTodo, deleteTodo, getTodos, updateTodo } from './api/todo';
-import { Filter } from './components/Filter';
 import { NewTodo } from './components/NewTodo';
 import { TodoList } from './components/TodoList';
 import { Error } from './components/Error';
+import { Filter } from './components/Filter';
+import { FilterValue } from './types/Filters';
 
 export const App: React.FC = () => {
   const [focused, setFocused] = useState(true);
   const [newTodoTitle, setNewTodoTitle] = useState('');
   const [todos, setTodos] = useState<Todo[]>([]);
   const [error, setError] = useState('');
-  const [filter, setFilter] = useState('all');
+  const [filter, setFilter] = useState(FilterValue.All);
   const [loading, setLoading] = useState(false);
   const [tempTodo, setTempTodo] = useState<Todo | undefined>();
   const [isDisabled, setIsDisabled] = useState(false);
@@ -300,11 +301,11 @@ export const App: React.FC = () => {
   const getFilteredTodos = useMemo(() => {
     let filteredTodos = todos;
 
-    if (filter === 'all') {
+    if (filter === FilterValue.All) {
       filteredTodos = todos;
-    } else if (filter === 'active') {
+    } else if (filter === FilterValue.Active) {
       filteredTodos = todos.filter(todo => !todo.completed);
-    } else if (filter === 'completed') {
+    } else if (filter === FilterValue.Completed) {
       filteredTodos = todos.filter(todo => todo.completed);
     }
 

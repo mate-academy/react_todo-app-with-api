@@ -1,10 +1,11 @@
 import classNames from 'classnames';
 import React from 'react';
 import { Todo } from '../types/Todo';
+import { FilterValue } from '../types/Filters';
 
 type Props = {
-  setFilter: (filter: string) => void;
-  filter: string;
+  setFilter: (filter: FilterValue) => void;
+  filter: FilterValue;
   todos: Todo[];
   handleDelete: (id: number | undefined) => void;
   activeCount: number;
@@ -27,10 +28,10 @@ export const Filter: React.FC<Props> = ({
       <a
         href="#/"
         className={classNames('filter__link', {
-          selected: filter === 'all',
+          selected: filter === FilterValue.All,
         })}
         data-cy="FilterLinkAll"
-        onClick={() => setFilter('all')}
+        onClick={() => setFilter(FilterValue.All)}
       >
         All
       </a>
@@ -38,10 +39,10 @@ export const Filter: React.FC<Props> = ({
       <a
         href="#/active"
         className={classNames('filter__link', {
-          selected: filter === 'active',
+          selected: filter === FilterValue.Active,
         })}
         data-cy="FilterLinkActive"
-        onClick={() => setFilter('active')}
+        onClick={() => setFilter(FilterValue.Active)}
       >
         Active
       </a>
@@ -49,10 +50,10 @@ export const Filter: React.FC<Props> = ({
       <a
         href="#/completed"
         className={classNames('filter__link', {
-          selected: filter === 'completed',
+          selected: filter === FilterValue.Completed,
         })}
         data-cy="FilterLinkCompleted"
-        onClick={() => setFilter('completed')}
+        onClick={() => setFilter(FilterValue.Completed)}
       >
         Completed
       </a>
