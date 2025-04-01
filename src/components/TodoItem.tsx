@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useRef, useState } from 'react';
 import { Todo } from '../types/Todo';
 import classNames from 'classnames';
 
@@ -19,6 +19,7 @@ export const TodoItem: React.FC<Props> = ({
 }) => {
   const [isEditing, setIsEditing] = useState(false);
   const [newTitle, setNewTitle] = useState(todo.title);
+  const inputRef = useRef<HTMLInputElement>(null);
 
   const handleDoubleClick = () => {
     setIsEditing(true);
@@ -28,13 +29,18 @@ export const TodoItem: React.FC<Props> = ({
     const newTitleTrimmed = newTitle.trim();
 
     if (newTitleTrimmed !== todo.title) {
-      handleUpdateTodoTitle(todo.id, newTitleTrimmed).catch(() => {
-        setIsEditing(true);
-      });
+      handleUpdateTodoTitle(todo.id, newTitleTrimmed)
+         .then(() => {
+          setIsEditing(false);
+         })
+        .catch(() => {
+          setTimeout(() => inputRef.current?.focus(), 0);
+        });
+    } else {
+      setIsEditing(false);
     }
 
     setNewTitle(newTitleTrimmed);
-    setIsEditing(false);
   };
 
   const handleKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
@@ -69,6 +75,7 @@ export const TodoItem: React.FC<Props> = ({
 
       {isEditing ? (
         <input
+          ref={inputRef}
           autoFocus
           type="text"
           className="todo__title-field"
