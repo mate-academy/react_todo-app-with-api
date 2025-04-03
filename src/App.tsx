@@ -43,7 +43,26 @@ export const App: React.FC = () => {
     shouldFocusCreationForm.current = false;
   }, []);
 
-  const handleCreateTodo = (title: string) => {
+  const withLoading = async (
+    todoId: number,
+    asyncCallback: () => Promise<void>,
+    options: { focusAfter?: boolean } = {},
+  ) => {
+    setLoadedTodoIds(current => [...current, todoId]);
+
+    try {
+      await asyncCallback();
+    } catch (error) {
+      throw error;
+    } finally {
+      setLoadedTodoIds(current => current.filter(id => id !== todoId));
+      if (options.focusAfter) {
+        shouldFocusCreationForm.current = true;
+      }
+    }
+  };
+
+  const handleCreateTodo = async (title: string) => {
     if (!title.trim()) {
       setErrorMessage(Errors.EMPTY);
 
@@ -61,57 +80,45 @@ export const App: React.FC = () => {
 
     setTempTodo(newTodo);
 
-    return addTodo(newTodo)
-      .then(todo => {
-        setTodos(currentTodos => [...currentTodos, todo]);
-        setNewTodoTitle('');
-      })
-      .catch(() => {
-        setErrorMessage(Errors.ADD);
-      })
-      .finally(() => {
-        setIsLoading(false);
-        setTempTodo(null);
-        shouldFocusCreationForm.current = true;
-      });
+    try {
+      const todo = await addTodo(newTodo);
+
+      setTodos(currentTodos => [...currentTodos, todo]);
+      setNewTodoTitle('');
+    } catch {
+      setErrorMessage(Errors.ADD);
+    } finally {
+      setIsLoading(false);
+      setTempTodo(null);
+      shouldFocusCreationForm.current = true;
+    }
   };
 
   const handleDeleteTodo = (todoId: number) => {
-    setLoadedTodoIds(currentIds => [...currentIds, todoId]);
-
-    return deleteTodo(todoId)
-      .then(() => {
-        setTodos(currentTodos =>
-          currentTodos.filter(todo => todo.id !== todoId),
-        );
-      })
-      .catch(error => {
-        setErrorMessage(Errors.DELETE);
-        throw error;
-      })
-      .finally(() => {
-        setLoadedTodoIds(currentIds => currentIds.filter(id => id !== todoId));
-        shouldFocusCreationForm.current = true;
-      });
+    return withLoading(
+      todoId,
+      async () => {
+        await deleteTodo(todoId);
+        setTodos(current => current.filter(todo => todo.id !== todoId));
+      },
+      { focusAfter: true },
+    ).catch(error => {
+      setErrorMessage(Errors.DELETE);
+      throw error;
+    });
   };
 
   const handleToggleTodo = (todoId: number, completed: boolean) => {
-    setLoadedTodoIds(currentIds => [...currentIds, todoId]);
-
-    return updateTodo(todoId, { completed })
-      .then(() => {
-        setTodos(currentTodos =>
-          currentTodos.map(todo =>
-            todo.id === todoId ? { ...todo, completed } : todo,
-          ),
-        );
-      })
-      .catch(() => {
-        setErrorMessage(Errors.UPDATE);
-      })
-      .finally(() => {
-        setLoadedTodoIds(currentIds => currentIds.filter(id => id !== todoId));
-      });
+    return withLoading(todoId, async () => {
+      await updateTodo(todoId, { completed });
+      setTodos(current =>
+        current.map(todo =>
+          todo.id === todoId ? { ...todo, completed } : todo,
+        ),
+      );
+    }).catch(() => {
+      setErrorMessage(Errors.UPDATE);
+    });
   };
 
   const handleUpdateTodoTitle = (
@@ -122,23 +129,15 @@ export const App: React.FC = () => {
       return handleDeleteTodo(todoId);
     }
 
-    setLoadedTodoIds(currentIds => [...currentIds, todoId]);
-
-    return updateTodo(todoId, { title })
-      .then(() => {
-        setTodos(currentTodos =>
-          currentTodos.map(todo =>
-            todo.id === todoId ? { ...todo, title } : todo,
-          ),
-        );
-      })
-      .catch(error => {
-        setErrorMessage(Errors.UPDATE);
-        throw error;
-      })
-      .finally(() => {
-        setLoadedTodoIds(currentIds => currentIds.filter(id => id !== todoId));
-      });
+    return withLoading(todoId, async () => {
+      await updateTodo(todoId, { title });
+      setTodos(current =>
+        current.map(todo => (todo.id === todoId ? { ...todo, title } : todo)),
+      );
+    }).catch(error => {
+      setErrorMessage(Errors.UPDATE);
+      throw error;
+    });
   };
 
   const filteredTodos = filter(todos, filterBy);
