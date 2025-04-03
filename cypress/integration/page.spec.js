@@ -1756,7 +1756,7 @@ describe('', () => {
           page.mockUpdate(257334, spy);
 
           todos.title(0).trigger('dblclick');
-          todos.titleField(0).blur();
+          todos.titleField(0).focus().blur();
 
           cy.get('@renameCallback').should('not.be.called');
           page.flushJSTimers();
