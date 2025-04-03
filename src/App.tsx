@@ -1,26 +1,64 @@
-/* eslint-disable max-len */
+/* eslint-disable jsx-a11y/label-has-associated-control */
 /* eslint-disable jsx-a11y/control-has-associated-label */
 import React from 'react';
-import { UserWarning } from './UserWarning';
-
-const USER_ID = 0;
+import { TodoList } from './components/TodoList';
+import { HeaderTodoApp } from './components/HeaderTodoApp';
+import { FooterTodoApp } from './components/FooterTodoApp';
+import { TodoError } from './components/TodoError';
+import { useTodoController } from './useTodoController';
 
 export const App: React.FC = () => {
-  if (!USER_ID) {
-    return <UserWarning />;
-  }
+  const {
+    setFilterStatus,
+    handleCheckAll,
+    handleAddTodo,
+    setErrorDefault,
+    handleOnDelete,
+    handleUpdateTodo,
+    handleClearAllCompleted,
+    setErrorMessage,
+    filterStatus,
+    errorMessage,
+    isFocusAddForm,
+    filteredTodos,
+    tempTodo,
+    todos,
+  } = useTodoController();
 
   return (
-    <section className="section container">
-      <p className="title is-4">
-        Copy all you need from the prev task:
-        <br />
-        <a href="https://github.com/mate-academy/react_todo-app-add-and-delete#react-todo-app-add-and-delete">
-          React Todo App - Add and Delete
-        </a>
-      </p>
+    <div className="todoapp">
+      <h1 className="todoapp__title">todos</h1>
 
-      <p className="subtitle">Styles are already copied</p>
-    </section>
+      <div className="todoapp__content">
+        <HeaderTodoApp
+          onCheckAll={handleCheckAll}
+          onAddTodo={handleAddTodo}
+          todos={todos}
+          isFocusAddForm={isFocusAddForm.current}
+          setErrorMessage={setErrorMessage}
+        />
+
+        <TodoList
+          tempTodo={tempTodo}
+          todos={filteredTodos}
+          onUpdateTodo={handleUpdateTodo}
+          onDelete={handleOnDelete}
+        />
+
+        {!!todos.length && (
+          <FooterTodoApp
+            todos={todos}
+            setFilterStatus={setFilterStatus}
+            filterStatus={filterStatus}
+            onClearCompleted={handleClearAllCompleted}
+          />
+        )}
+      </div>
+
+      <TodoError
+        errorMessage={errorMessage}
+        setErrorDefault={setErrorDefault}
+      />
+    </div>
   );
 };
