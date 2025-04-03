@@ -39,10 +39,6 @@ export const App: React.FC = () => {
 
   const shouldFocusCreationForm = useRef(false);
 
-  useEffect(() => {
-    shouldFocusCreationForm.current = false;
-  }, []);
-
   const withLoading = async (
     todoId: number,
     asyncCallback: () => Promise<void>,
@@ -150,6 +146,10 @@ export const App: React.FC = () => {
       .catch(() => {
         setErrorMessage(Errors.LOAD);
       });
+  }, []);
+
+  useEffect(() => {
+    shouldFocusCreationForm.current = false;
   }, []);
 
   return (

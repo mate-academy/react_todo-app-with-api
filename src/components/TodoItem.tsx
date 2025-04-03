@@ -18,13 +18,15 @@ export const TodoItem: React.FC<Props> = React.memo(
     handleToggleTodo,
     handleUpdateTodoTitle,
   }) => {
+    const {id, title, completed} = todo;
+
     const [isEditing, setIsEditing] = useState(false);
-    const [newTitle, setNewTitle] = useState(todo.title);
+    const [newTitle, setNewTitle] = useState(title);
     const inputRef = useRef<HTMLInputElement>(null);
 
     const todoClassName = useMemo(() => {
-      return classNames('todo', { completed: todo.completed });
-    }, [todo.completed]);
+      return classNames('todo', { completed: completed });
+    }, [completed]);
 
     const handleDoubleClick = () => {
       setIsEditing(true);
@@ -35,9 +37,9 @@ export const TodoItem: React.FC<Props> = React.memo(
 
       setNewTitle(newTitleTrimmed);
 
-      if (newTitleTrimmed !== todo.title) {
+      if (newTitleTrimmed !== title) {
         try {
-          await handleUpdateTodoTitle(todo.id, newTitleTrimmed);
+          await handleUpdateTodoTitle(id, newTitleTrimmed);
           setIsEditing(false);
         } catch {
           setTimeout(() => inputRef.current?.focus(), 0);
@@ -54,7 +56,7 @@ export const TodoItem: React.FC<Props> = React.memo(
       }
 
       if (event.key === 'Escape') {
-        setNewTitle(todo.title);
+        setNewTitle(title);
         setIsEditing(false);
       }
     };
@@ -65,16 +67,16 @@ export const TodoItem: React.FC<Props> = React.memo(
         className={todoClassName}
         onDoubleClick={handleDoubleClick}
       >
-        <label htmlFor={`todo-${todo.id}`} className="todo__status-label">
+        <label htmlFor={`todo-${id}`} className="todo__status-label">
           <input
-            id={`todo-${todo.id}`}
+            id={`todo-${id}`}
             aria-label="Toggle todo"
             data-cy="TodoStatus"
             type="checkbox"
             className="todo__status"
-            checked={todo.completed}
+            checked={completed}
             disabled={isLoading}
-            onChange={() => handleToggleTodo(todo.id, !todo.completed)}
+            onChange={() => handleToggleTodo(id, !completed)}
           />
         </label>
 
@@ -102,7 +104,7 @@ export const TodoItem: React.FC<Props> = React.memo(
             type="button"
             className="todo__remove"
             data-cy="TodoDelete"
-            onClick={() => deleteTodo(todo.id)}
+            onClick={() => deleteTodo(id)}
           >
             ×
           </button>

@@ -24,10 +24,6 @@ export const Header: React.FC<Props> = ({
   const inputRef = useRef<HTMLInputElement>(null);
   const isAllCompleted = todos.every(todo => todo.completed);
 
-  useEffect(() => {
-    inputRef.current?.focus();
-  }, [shouldFocusCreationForm]);
-
   const onSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     if (!newTodoTitle.trim()) {
@@ -43,9 +39,12 @@ export const Header: React.FC<Props> = ({
       .forEach(todo => handleToggleTodo(todo.id, !isAllCompleted));
   };
 
+  useEffect(() => {
+    inputRef.current?.focus();
+  }, [shouldFocusCreationForm]);
+
   return (
     <header className="todoapp__header">
-      {/* this button should have `active` class only if all todos are completed */}
       {!isLoading && todos.length > 0 && (
         <button
           type="button"
