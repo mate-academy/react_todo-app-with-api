@@ -18,7 +18,7 @@ export const TodoItem: React.FC<Props> = React.memo(
     handleToggleTodo,
     handleUpdateTodoTitle,
   }) => {
-    const {id, title, completed} = todo;
+    const { id, title, completed } = todo;
 
     const [isEditing, setIsEditing] = useState(false);
     const [newTitle, setNewTitle] = useState(title);

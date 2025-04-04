@@ -1,6 +1,6 @@
 /* eslint-disable jsx-a11y/label-has-associated-control */
 /* eslint-disable jsx-a11y/control-has-associated-label */
-import React, { useRef, useEffect, useState } from 'react';
+import React, { useRef, useEffect, useState, useMemo } from 'react';
 import { Header } from './components/Header';
 import { TodoList } from './components/TodoList';
 import { Todo } from './types/Todo';
@@ -30,7 +30,7 @@ const filter = (todos: Todo[], filterBy: FilterBy) => {
 
 export const App: React.FC = () => {
   const [todos, setTodos] = useState<Todo[]>([]);
-  const [errorMessage, setErrorMessage] = useState(Errors.DEFAULT);
+  const [errorMessage, setErrorMessage] = useState<string>(Errors.DEFAULT);
   const [filterBy, setFilterBy] = useState(FilterBy.All);
   const [newTodoTitle, setNewTodoTitle] = useState('');
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
@@ -39,9 +39,15 @@ export const App: React.FC = () => {
 
   const shouldFocusCreationForm = useRef(false);
 
+  const handleError = (message: Errors) => {
+    setErrorMessage(message);
+    setTimeout(() => setErrorMessage(''), 3000);
+  };
+
   const withLoading = async (
     todoId: number,
     asyncCallback: () => Promise<void>,
+    errorText: Errors,
     options: { focusAfter?: boolean } = {},
   ) => {
     setLoadedTodoIds(current => [...current, todoId]);
@@ -49,6 +55,7 @@ export const App: React.FC = () => {
     try {
       await asyncCallback();
     } catch (error) {
+      handleError(errorText);
       throw error;
     } finally {
       setLoadedTodoIds(current => current.filter(id => id !== todoId));
@@ -58,10 +65,26 @@ export const App: React.FC = () => {
     }
   };
 
+  const updateTodoFields = async (
+    todoId: number,
+    fieldsToUpdate: Partial<Pick<Todo, 'title' | 'completed'>>,
+  ) => {
+    await updateTodo(todoId, fieldsToUpdate);
+    setTodos(current =>
+      current.map(todo =>
+        todo.id === todoId ? { ...todo, ...fieldsToUpdate } : todo,
+      ),
+    );
+  };
+
+  const removeTodoById = async (todoId: number) => {
+    await deleteTodo(todoId);
+    setTodos(current => current.filter(todo => todo.id !== todoId));
+  };
+
   const handleCreateTodo = async (title: string) => {
     if (!title.trim()) {
-      setErrorMessage(Errors.EMPTY);
-
+      handleError(Errors.EMPTY);
       return;
     }
 
@@ -82,7 +105,7 @@ export const App: React.FC = () => {
       setTodos(currentTodos => [...currentTodos, todo]);
       setNewTodoTitle('');
     } catch {
-      setErrorMessage(Errors.ADD);
+      handleError(Errors.ADD);
     } finally {
       setIsLoading(false);
       setTempTodo(null);
@@ -91,30 +114,17 @@ export const App: React.FC = () => {
   };
 
   const handleDeleteTodo = (todoId: number) => {
-    return withLoading(
-      todoId,
-      async () => {
-        await deleteTodo(todoId);
-        setTodos(current => current.filter(todo => todo.id !== todoId));
-      },
-      { focusAfter: true },
-    ).catch(error => {
-      setErrorMessage(Errors.DELETE);
-      throw error;
+    return withLoading(todoId, () => removeTodoById(todoId), Errors.DELETE, {
+      focusAfter: true,
     });
   };
 
   const handleToggleTodo = (todoId: number, completed: boolean) => {
-    return withLoading(todoId, async () => {
-      await updateTodo(todoId, { completed });
-      setTodos(current =>
-        current.map(todo =>
-          todo.id === todoId ? { ...todo, completed } : todo,
-        ),
-      );
-    }).catch(() => {
-      setErrorMessage(Errors.UPDATE);
-    });
+    return withLoading(
+      todoId,
+      () => updateTodoFields(todoId, { completed }),
+      Errors.UPDATE,
+    );
   };
 
   const handleUpdateTodoTitle = (
@@ -125,18 +135,17 @@ export const App: React.FC = () => {
       return handleDeleteTodo(todoId);
     }
 
-    return withLoading(todoId, async () => {
-      await updateTodo(todoId, { title });
-      setTodos(current =>
-        current.map(todo => (todo.id === todoId ? { ...todo, title } : todo)),
-      );
-    }).catch(error => {
-      setErrorMessage(Errors.UPDATE);
-      throw error;
-    });
+    return withLoading(
+      todoId,
+      () => updateTodoFields(todoId, { title }),
+      Errors.UPDATE,
+    );
   };
 
-  const filteredTodos = filter(todos, filterBy);
+  const filteredTodos = useMemo(
+    () => filter(todos, filterBy),
+    [todos, filterBy],
+  );
 
   useEffect(() => {
     getTodos()
@@ -144,7 +153,7 @@ export const App: React.FC = () => {
         setTodos(todosFromServer);
       })
       .catch(() => {
-        setErrorMessage(Errors.LOAD);
+        handleError(Errors.LOAD);
       });
   }, []);
 
