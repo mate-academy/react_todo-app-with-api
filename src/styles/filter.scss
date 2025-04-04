@@ -1,5 +1,6 @@
 .filter {
   display: flex;
+  justify-content: space-between;
 
   &__link {
     margin: 3px;
@@ -19,4 +20,8 @@
       border-color: rgba(175, 47, 47, 0.2);
     }
   }
+}
+
+.hiddenBtn {
+  visibility: hidden;
 }
