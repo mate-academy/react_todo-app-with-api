@@ -1,26 +1,86 @@
-/* eslint-disable max-len */
+/* eslint-disable jsx-a11y/label-has-associated-control */
 /* eslint-disable jsx-a11y/control-has-associated-label */
-import React from 'react';
-import { UserWarning } from './UserWarning';
+import React, { useEffect } from 'react';
+import { TodoList } from './components/TodoList';
+import { TodoForm } from './components/TodoForm';
+import { TodoFilter } from './components/TodoFilter';
+import { ErrorNotification } from './components/ErrorNotification';
+import { TodoProvider, useTodoContext } from './context/TodoContext';
 
-const USER_ID = 0;
+const TodoApp: React.FC = () => {
+  const {
+    todos,
+    errorMessage,
+    setErrorMessage,
+    activeTodosCount,
+    completedTodosCount,
+    hasTodos,
+    handleClearCompleted,
+    handleToggleAll,
+  } = useTodoContext();
 
-export const App: React.FC = () => {
-  if (!USER_ID) {
-    return <UserWarning />;
-  }
+  useEffect(() => {
+    if (errorMessage) {
+      const timer = setTimeout(() => {
+        setErrorMessage('');
+      }, 3000);
+
+      return () => clearTimeout(timer);
+    }
+
+    return () => {};
+  }, [errorMessage, setErrorMessage]);
 
   return (
-    <section className="section container">
-      <p className="title is-4">
-        Copy all you need from the prev task:
-        <br />
-        <a href="https://github.com/mate-academy/react_todo-app-add-and-delete#react-todo-app-add-and-delete">
-          React Todo App - Add and Delete
-        </a>
-      </p>
+    <div className="todoapp">
+      <h1 className="todoapp__title">todos</h1>
 
-      <p className="subtitle">Styles are already copied</p>
-    </section>
+      <div className="todoapp__content">
+        {hasTodos && (
+          <button
+            type="button"
+            className={`todoapp__toggle-all ${todos.every(todo => todo.completed) ? 'active' : ''}`}
+            data-cy="ToggleAllButton"
+            onClick={handleToggleAll}
+            aria-label="Toggle all todos"
+          />
+        )}
+
+        <TodoForm key={todos.length} />
+
+        <TodoList />
+
+        {hasTodos && (
+          <footer className="todoapp__footer" data-cy="Footer">
+            <span className="todo-count" data-cy="TodosCounter">
+              {`${activeTodosCount} items left`}
+            </span>
+
+            <TodoFilter />
+
+            <button
+              type="button"
+              className="todoapp__clear-completed"
+              data-cy="ClearCompletedButton"
+              onClick={handleClearCompleted}
+              disabled={completedTodosCount === 0}
+            >
+              Clear completed
+            </button>
+          </footer>
+        )}
+      </div>
+
+      <ErrorNotification
+        errorMessage={errorMessage}
+        onClose={() => setErrorMessage('')}
+      />
+    </div>
   );
 };
+
+export const App: React.FC = () => (
+  <TodoProvider>
+    <TodoApp />
+  </TodoProvider>
+);
