@@ -66,7 +66,7 @@ export const TodoList: React.FC<Props> = ({
                     setFocusForm(true);
                     setNewTitle(todo.title);
                   }}
-                  className="todoapp__new-todo"
+                  className="todoapp__new-todo todoapp__renaming"
                   onChange={e => setNewTitle(e.target.value)}
                   value={newTitle}
                 />

@@ -27,7 +27,6 @@ export const App: React.FC = () => {
   const [renaming, setRenaming] = useState<Todo | undefined>();
   const [focusedForm, setFocusForm] = useState(false);
   const [newTitle, setNewTitle] = useState('');
-  const [isRenaming, setIsRenaming] = useState(false);
 
   const timerRef = useRef<NodeJS.Timeout | null>(null);
   const inputRef = useRef<HTMLInputElement | null>(null);
@@ -97,11 +96,10 @@ export const App: React.FC = () => {
     async (event?: React.FormEvent<HTMLFormElement>) => {
       event?.preventDefault();
 
-      if (isRenaming) {
+      if (!renaming) {
         return;
       }
 
-      setIsRenaming(true);
       setError('');
       const trimmedTitle = newTitle.trim();
 
@@ -116,22 +114,17 @@ export const App: React.FC = () => {
           errorTimeout('Unable to delete a todo');
         } finally {
           setLoadingMultiplueTodo(prev => prev.filter(todoId => todoId !== id));
-          setIsRenaming(false);
         }
       };
 
-      if (!trimmedTitle && renaming) {
+      if (!trimmedTitle) {
         await handleRenameDelete(renaming.id);
 
         return;
       }
 
-      if (
-        !renaming ||
-        trimmedTitle === todos.find(t => t.id === renaming.id)?.title
-      ) {
+      if (trimmedTitle === todos.find(t => t.id === renaming.id)?.title) {
         setRenaming(undefined);
-        setIsRenaming(false);
 
         return;
       }
@@ -152,10 +145,9 @@ export const App: React.FC = () => {
         errorTimeout('Unable to update a todo');
       } finally {
         setLoadingMultiplueTodo(prev => prev.filter(id => id !== renaming.id));
-        setIsRenaming(false);
       }
     },
-    [isRenaming, newTitle, renaming, todos],
+    [newTitle, renaming, todos],
   );
 
   const eventListener = useRef<(key: KeyboardEvent) => void>();

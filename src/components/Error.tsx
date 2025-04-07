@@ -24,7 +24,6 @@ export const Error: React.FC<Props> = ({ error, setError }) => {
         className="delete"
         onClick={() => setError('')}
       />
-      <br />
       {error}
     </div>
   );
