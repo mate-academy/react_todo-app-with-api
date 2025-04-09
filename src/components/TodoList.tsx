@@ -2,6 +2,7 @@
 import React, { MutableRefObject } from 'react';
 import { Todo } from '../types/Todo';
 import classNames from 'classnames';
+import { TodoItem } from './TodoItem';
 
 type Props = {
   tempTodo: Todo | undefined;
@@ -36,77 +37,23 @@ export const TodoList: React.FC<Props> = ({
 }) => {
   return (
     <section className="todoapp__main" data-cy="TodoList">
-      {getFilteredTodos.map(todo => {
-        return (
-          <div
-            data-cy="Todo"
-            key={todo.id}
-            className={classNames('todo', { completed: todo.completed })}
-          >
-            <label className="todo__status-label">
-              <input
-                data-cy="TodoStatus"
-                type="checkbox"
-                className="todo__status"
-                checked={todo.completed}
-                onClick={() => handleToggle(todo)}
-              />
-            </label>
-            {renaming && renaming.id === todo.id ? (
-              <form
-                onSubmit={e => handleRename(e)}
-                onBlur={e => handleRename(e)}
-              >
-                <input
-                  data-cy="TodoTitleField"
-                  type="text"
-                  ref={formRef}
-                  onBlur={() => setFocusForm(false)}
-                  onFocus={() => {
-                    setFocusForm(true);
-                    setNewTitle(todo.title);
-                  }}
-                  className="todoapp__new-todo todoapp__renaming"
-                  onChange={e => setNewTitle(e.target.value)}
-                  value={newTitle}
-                />
-              </form>
-            ) : (
-              <span
-                data-cy="TodoTitle"
-                className="todo__title"
-                onDoubleClick={() => {
-                  setFocusForm(true);
-                  setRenaming(todo);
-                }}
-              >
-                {todo.title}
-              </span>
-            )}
-
-            {!renaming && (
-              <button
-                type="button"
-                className="todo__remove"
-                data-cy="TodoDelete"
-                onClick={() => handleDelete(todo.id)}
-              >
-                ×
-              </button>
-            )}
-
-            <div
-              data-cy="TodoLoader"
-              className={classNames('modal overlay', {
-                'is-active': loading || todoForDelete.includes(todo.id),
-              })}
-            >
-              <div className="modal-background has-background-white-ter" />
-              <div className="loader" />
-            </div>
-          </div>
-        );
-      })}
+      {getFilteredTodos.map(todo => (
+        <TodoItem
+          key={todo.id}
+          todo={todo}
+          renaming={renaming}
+          handleToggle={handleToggle}
+          handleRename={handleRename}
+          setNewTitle={setNewTitle}
+          newTitle={newTitle}
+          setFocusForm={setFocusForm}
+          setRenaming={setRenaming}
+          handleDelete={handleDelete}
+          loading={loading}
+          todoForDelete={todoForDelete}
+          formRef={formRef}
+        />
+      ))}
 
       {tempTodo && (
         <div
