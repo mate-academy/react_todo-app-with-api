@@ -6,4 +6,10 @@ import './styles/index.scss';
 
 import { App } from './App';
 
-createRoot(document.getElementById('root') as HTMLDivElement).render(<App />);
+import MainContextProvider from './ContextProvider/ContextProvider';
+
+createRoot(document.getElementById('root') as HTMLDivElement).render(
+  <MainContextProvider>
+    <App />
+  </MainContextProvider>,
+);
