@@ -49,6 +49,7 @@ export const App: React.FC = () => {
     options: { focusAfter?: boolean } = {},
   ) => {
     setLoadedTodoIds(current => [...current, todoId]);
+
     try {
       await asyncCallback();
     } catch {
@@ -56,6 +57,7 @@ export const App: React.FC = () => {
       throw new Error(errorText);
     } finally {
       setLoadedTodoIds(current => current.filter(id => id !== todoId));
+
       if (options.focusAfter) {
         shouldFocusCreationForm.current = true;
       }
@@ -67,6 +69,7 @@ export const App: React.FC = () => {
     fieldsToUpdate: Partial<Pick<Todo, 'title' | 'completed'>>,
   ) => {
     await updateTodo(todoId, fieldsToUpdate);
+
     setTodos(current =>
       current.map(todo =>
         todo.id === todoId ? { ...todo, ...fieldsToUpdate } : todo,
@@ -76,6 +79,7 @@ export const App: React.FC = () => {
 
   const removeTodoById = async (todoId: number) => {
     await deleteTodo(todoId);
+
     setTodos(current => current.filter(todo => todo.id !== todoId));
   };
 
@@ -127,9 +131,13 @@ export const App: React.FC = () => {
     );
   };
 
-  const handleUpdateTodoTitle = (todoId: number, title: string) => {
+  const handleUpdateTodoTitle = async (todoId: number, title: string) => {
     if (title.trim().length === 0) {
-      return handleDeleteTodo(todoId);
+      try {
+        await handleDeleteTodo(todoId);
+      } catch (error) {}
+
+      return;
     }
 
     return withLoading(
