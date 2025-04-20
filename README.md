@@ -37,7 +37,8 @@ Implement the ability to edit a todo title on double click:
 - show `Unable to update a todo` in case of API error;
 - or the deletion error message if we tried to delete the todo.
 
-## If you want to enable tests
+## If you want to enable t
+ests
 - open `cypress/integration/page.spec.js`
 - replace `describe.skip` with `describe` for the root `describe`
 
@@ -47,4 +48,4 @@ Implement the ability to edit a todo title on double click:
 
 - Implement a solution following the [React task guideline](https://github.com/mate-academy/react_task-guideline#react-tasks-guideline).
 - Use the [React TypeScript cheat sheet](https://mate-academy.github.io/fe-program/js/extra/react-typescript).
-- Replace `<your_account>` with your Github username in the [DEMO LINK](https://<your_account>.github.io/react_todo-app-with-api/) and add it to the PR description.
+- Replace `<igols>` with your Github username in the [DEMO LINK](https://igols.github.io/react_todo-app-with-api/) and add it to the PR description.
