@@ -17,7 +17,6 @@ export const App: React.FC = () => {
   const [showError, setShowError] = useState(false);
   const [loading, setLoading] = useState(true);
   const [filteredBy, setFilteredBy] = useState(Filter.All);
-  const [todosCounter, setTodosCounter] = useState(0);
   const [editingTodosIds, setEditingTodosIds] = useState<number[]>([]);
 
   const shouldRenderFooter = todos && todos.length > 0;
@@ -51,6 +50,11 @@ export const App: React.FC = () => {
         return todos;
     }
   }, [todos, filteredBy]);
+
+  const todosCounter = useMemo(
+    () => todos.filter(todo => !todo.completed).length,
+    [todos],
+  );
 
   const addTodo = (newTodo: Todo) => {
     const { userId, title, completed } = newTodo;
@@ -229,14 +233,6 @@ export const App: React.FC = () => {
   useEffect(() => {
     loadTodos();
   }, [loadTodos]);
-
-  useEffect(() => {
-    if (todos) {
-      const notCompleted = todos.filter(todo => !todo.completed).length;
-
-      setTodosCounter(notCompleted);
-    }
-  }, [todos, todosCounter]);
 
   if (!todoService.USER_ID) {
     return <UserWarning />;
