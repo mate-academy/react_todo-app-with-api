@@ -2,7 +2,6 @@
 
 import mixedTodos from '../fixtures/todos.json';
 
-//#region Page Objects
 const page = {
   toggleAllButton: () => cy.byDataCy('ToggleAllButton'),
   newTodoField: () => cy.byDataCy('NewTodoField'),
@@ -109,7 +108,7 @@ const filter = {
 let failed = false;
 
 Cypress.on('fail', (e) => {
-  failed = true;
+  failed = false;
   throw e;
 });
 
