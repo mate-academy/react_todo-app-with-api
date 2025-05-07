@@ -8,6 +8,7 @@ type Props = {
   setTodo: (todo: Todo | undefined) => void;
   updateStatusTodo: (todo: Todo[]) => void;
   isDisabled: boolean;
+  isDeleted: boolean;
   error: string;
 };
 
@@ -16,6 +17,7 @@ export const Header: React.FC<Props> = ({
   setError,
   onSubmit,
   isDisabled,
+  isDeleted,
   error,
   updateStatusTodo,
 }) => {
@@ -25,7 +27,7 @@ export const Header: React.FC<Props> = ({
 
   useEffect(() => {
     inputRef.current?.focus();
-  }, [query, error, todos]);
+  }, [query, error, isDeleted]);
 
   const reset = () => {
     setQuery('');
@@ -59,8 +61,6 @@ export const Header: React.FC<Props> = ({
       });
   };
 
-  // console.log('header render');
-
   return (
     <header className="todoapp__header">
       {todos && todos.length > 0 && (
@@ -78,7 +78,6 @@ export const Header: React.FC<Props> = ({
         />
       )}
 
-      {/* Add a todo on form submit */}
       <form onSubmit={handleSubmit}>
         <input
           data-cy="NewTodoField"

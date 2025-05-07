@@ -15,6 +15,7 @@ export const App: React.FC = () => {
   const [todo, setTodo] = useState<Todo>();
   const [todosIsLoading, setTodosIsLoading] = useState<number[]>([]);
   const [isInputDisabled, setInputDisabled] = useState(false);
+  const [isDeleted, setIsDeleted] = useState(false);
 
   useEffect(() => {
     todosService
@@ -24,7 +25,7 @@ export const App: React.FC = () => {
         setError('Unable to load todos');
       })
       .finally(() => {});
-  }, [todosIsLoading, todos]);
+  }, [todosIsLoading]);
 
   const filteredTodos = useMemo(() => {
     let fltrdTodos: Todo[] | undefined = todos;
@@ -82,9 +83,15 @@ export const App: React.FC = () => {
 
   function deleteTodo(todoId: number[]) {
     setTodosIsLoading(todoId);
+    setIsDeleted(true);
 
     Promise.allSettled(
-      todoId.map(td => todosService.deleteTodos(td).then(() => td)),
+      todoId.map(td =>
+        todosService
+          .deleteTodos(td)
+          .then(() => td)
+          .finally(() => setIsDeleted(false)),
+      ),
     )
       .then(values => {
         values.map(value1 => {
@@ -102,7 +109,6 @@ export const App: React.FC = () => {
       .finally(() => {});
   }
 
-  //update function, add todo.title
   function updateStatusTodo(tod: Todo[]) {
     setTodosIsLoading(tod.map(td => td.id));
 
@@ -141,6 +147,7 @@ export const App: React.FC = () => {
           setTodo={setTodo}
           onSubmit={addTodo}
           isDisabled={isInputDisabled}
+          isDeleted={isDeleted}
           error={error}
           updateStatusTodo={updateStatusTodo}
         />
@@ -151,6 +158,7 @@ export const App: React.FC = () => {
             removeTodo={deleteTodo}
             todosIsLoading={todosIsLoading}
             updateStatusTodo={updateStatusTodo}
+            // setError={setError}
           />
         )}
         {todo && (
@@ -159,6 +167,7 @@ export const App: React.FC = () => {
             removeTodo={deleteTodo}
             updateStatusTodo={updateStatusTodo}
             isLoading={todo ? true : false}
+            // setError={setError}
           />
         )}
 

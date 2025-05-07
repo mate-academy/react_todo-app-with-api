@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Todo } from '../../types/Todo';
 
 type Props = {
@@ -6,6 +6,7 @@ type Props = {
   isLoading?: boolean;
   removeTodo: (todoId: number[]) => void;
   updateStatusTodo: (todo: Todo[]) => void;
+  // setError: (error: string) => void;
 };
 
 export const TodoItem: React.FC<Props> = ({
@@ -15,46 +16,60 @@ export const TodoItem: React.FC<Props> = ({
   updateStatusTodo,
 }) => {
   const [query, setQuery] = useState(todo.title);
-  // const [isOnBlur, setIsOnBlur] = useState(false);
-  const [currentTodo, setCurrentTodo] = useState<Todo>();
+  const [isEditing, setIsEditing] = useState(false);
+  // const [pressedEsc, setPressedEsc] = useState('');
+
+  useEffect(() => {
+    const handleEsc = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        setQuery(query);
+        setIsEditing(false);
+      }
+    };
+
+    window.addEventListener('keydown', handleEsc);
+
+    return () => {
+      window.removeEventListener('keydown', handleEsc);
+    };
+  }, [query]);
 
   const handleQueryChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setQuery(event.target.value);
   };
 
+  const handleDoubleClick = () => {
+    setIsEditing(true);
+  };
+
   const handleSubmit = (event: React.FormEvent) => {
     event.preventDefault();
+    setIsEditing(false);
 
-    // if (!query) {
-    //   setError('Title should not be empty');
+    if (!query) {
+      removeTodo([todo.id]);
 
-    //   return;
-    // }
-
-    if (!currentTodo) {
       return;
     }
 
-    // updateStatusTodo([currentTodo])
-    //   .then(reset)
-    //   .catch(() => {
-    //     setError('Unable to update a todo');
-    //   });
+    if (query === todo.title) {
+      return;
+    }
+
+    updateStatusTodo([
+      {
+        id: todo.id,
+        userId: todo.userId,
+        title: query,
+        completed: !todo.completed,
+      },
+    ]);
   };
-
-  // console.log('item render');
-
-  // const inputRef = useRef<HTMLInputElement>(null);
-
-  // useEffect(() => {
-  //   inputRef.current?.focus();
-  // }, [query]);
 
   return (
     <div
       data-cy="Todo"
       className={`todo ${todo.completed ? 'completed' : 'active'}`}
-      onDoubleClick={() => setCurrentTodo(todo)}
     >
       {/*eslint-disable-next-line jsx-a11y/label-has-associated-control*/}
       <label className="todo__status-label">
@@ -67,7 +82,7 @@ export const TodoItem: React.FC<Props> = ({
         />
       </label>
 
-      {currentTodo ? (
+      {isEditing ? (
         <form onSubmit={handleSubmit}>
           <input
             data-cy="NewTodoField"
@@ -76,11 +91,17 @@ export const TodoItem: React.FC<Props> = ({
             placeholder="Empty todo will be deleted"
             value={query}
             onChange={handleQueryChange}
+            autoFocus
+            onBlur={handleSubmit}
           />
         </form>
       ) : (
         <>
-          <span data-cy="TodoTitle" className="todo__title">
+          <span
+            data-cy="TodoTitle"
+            className="todo__title"
+            onDoubleClick={handleDoubleClick}
+          >
             {todo.title}
           </span>
           <button
@@ -93,8 +114,6 @@ export const TodoItem: React.FC<Props> = ({
           </button>
         </>
       )}
-
-      {/* overlay will cover the todo while it is being deleted or updated */}
 
       <div
         data-cy="TodoLoader"
