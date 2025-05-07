@@ -1,0 +1,33 @@
+import React from 'react';
+import { Todo } from '../../types/Todo';
+import { TodoItem } from '../TodoItem/TodoItem';
+
+type Props = {
+  todos: Todo[];
+  todosIsLoading: number[];
+  removeTodo: (todoId: number[]) => void;
+  updateStatusTodo: (todo: Todo[]) => void;
+};
+
+export const TodoList: React.FC<Props> = ({
+  todos,
+  todosIsLoading,
+  removeTodo,
+  updateStatusTodo,
+}) => {
+  // console.log('list render');
+
+  return (
+    <section className="todoapp__main" data-cy="TodoList">
+      {todos?.map(todo => (
+        <TodoItem
+          key={todo.id}
+          todo={todo}
+          removeTodo={removeTodo}
+          updateStatusTodo={updateStatusTodo}
+          isLoading={todosIsLoading.includes(todo.id)}
+        />
+      ))}
+    </section>
+  );
+};
