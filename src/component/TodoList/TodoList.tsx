@@ -5,19 +5,17 @@ import { TodoItem } from '../TodoItem/TodoItem';
 type Props = {
   todos: Todo[];
   todosIsLoading: number[];
-  // isEditing: boolean;
+  // isDeleted: boolean;
   removeTodo: (todoId: number[]) => void;
-  updateStatusTodo: (todo: Todo[]) => void;
-  // setIsEditing: (isEditing: boolean) => void;
+  updateStatusTodo: (todo: Todo[]) => Promise<void>;
 };
 
 export const TodoList: React.FC<Props> = ({
   todos,
   todosIsLoading,
-  // isEditing,
+  // isDeleted,
   removeTodo,
   updateStatusTodo,
-  // setIsEditing,
 }) => {
   return (
     <section className="todoapp__main" data-cy="TodoList">
@@ -28,8 +26,7 @@ export const TodoList: React.FC<Props> = ({
           removeTodo={removeTodo}
           updateStatusTodo={updateStatusTodo}
           isLoading={todosIsLoading.includes(todo.id)}
-          // setIsEditing={setIsEditing}
-          // isEditing={isEditing}
+          // isDeleted={isDeleted}
         />
       ))}
     </section>

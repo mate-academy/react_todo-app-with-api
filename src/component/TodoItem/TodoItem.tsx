@@ -4,20 +4,18 @@ import { Todo } from '../../types/Todo';
 type Props = {
   todo: Todo;
   isLoading?: boolean;
-  // isEditing: boolean;
+  // isDeleted: boolean;
   removeTodo: (todoId: number[]) => void;
-  updateStatusTodo: (todo: Todo[]) => void;
-  // setIsEditing: (isEditing: boolean) => void;
+  updateStatusTodo: (todo: Todo[]) => Promise<void>;
   // setError: (error: string) => void;
 };
 
 export const TodoItem: React.FC<Props> = ({
   todo,
   isLoading,
-  // isEditing,
   removeTodo,
   updateStatusTodo,
-  // setIsEditing,
+  // isDeleted,
 }) => {
   const [query, setQuery] = useState(todo.title);
   const [isEditing, setIsEditing] = useState(false);
@@ -45,11 +43,12 @@ export const TodoItem: React.FC<Props> = ({
     setIsEditing(true);
   };
 
-  const handleSubmit = (event: React.FormEvent) => {
+  const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
     setIsEditing(false);
     const tempQuery = query.trim();
 
+    // update like statusTodo
     if (!tempQuery) {
       removeTodo([todo.id]);
 
@@ -60,14 +59,20 @@ export const TodoItem: React.FC<Props> = ({
       return;
     }
 
-    updateStatusTodo([
-      {
-        id: todo.id,
-        userId: todo.userId,
-        title: tempQuery,
-        completed: !todo.completed,
-      },
-    ]);
+    try {
+      await updateStatusTodo([
+        {
+          id: todo.id,
+          userId: todo.userId,
+          title: tempQuery,
+          completed: !todo.completed,
+        },
+      ]);
+      setIsEditing(false);
+    } catch (err) {
+      setIsEditing(true);
+      setQuery(todo.title);
+    }
   };
 
   return (

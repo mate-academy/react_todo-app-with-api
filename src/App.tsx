@@ -7,10 +7,13 @@ import { Header } from './component/Header/Header';
 import { TodoList } from './component/TodoList/TodoList';
 import { Footer } from './component/Footer/Footer';
 import { TodoItem } from './component/TodoItem/TodoItem';
+import { ErrorComponent } from './component/Error/ErrorComponent';
 
 export const App: React.FC = () => {
   const [todos, setTodos] = useState<Todo[]>([]);
   const [error, setError] = useState('');
+  const [isUpdateError, setIsUpdateError] = useState('');
+  const [isDeleteError, setIsDeleteError] = useState('');
   const [status, setStatus] = useState('all');
   const [todo, setTodo] = useState<Todo>();
   const [todosIsLoading, setTodosIsLoading] = useState<number[]>([]);
@@ -49,13 +52,6 @@ export const App: React.FC = () => {
     setStatus(event.currentTarget.innerHTML.toLowerCase());
   };
 
-  //CHANGE IF
-  if (error) {
-    setTimeout(() => {
-      setError('');
-    }, 3000);
-  }
-
   function addTodo({ userId, title, completed }: Todo) {
     setTodo({
       id: 0,
@@ -84,6 +80,7 @@ export const App: React.FC = () => {
   function deleteTodo(todoId: number[]) {
     setTodosIsLoading(todoId);
     setIsDeleted(true);
+
     Promise.allSettled(
       todoId.map(td => todosService.deleteTodos(td).then(() => td)),
     )
@@ -95,6 +92,8 @@ export const App: React.FC = () => {
 
         if (anyRejected) {
           setError('Unable to delete a todo');
+          setIsDeleteError('Unable to delete a todo');
+          throw new Error('Unable to delete a todo');
         }
 
         setTodos(prevTodos => {
@@ -109,43 +108,33 @@ export const App: React.FC = () => {
 
   async function updateStatusTodo(tod: Todo[]) {
     setTodosIsLoading(tod.map(td => td.id));
-
-    Promise.allSettled(
+    const results = await Promise.allSettled(
       tod.map(td => {
         const newTd = { ...td, completed: !td.completed };
 
-        return todosService
-          .updateTodos(newTd)
-          .then(() => newTd)
-          .finally(() => {
-            setTodosIsLoading([]);
-          });
+        return todosService.updateTodos(newTd).then(() => newTd);
       }),
-    )
-      .then(values => {
-        values.map(value1 => {
-          if (value1.status === 'rejected') {
-            setError('Unable to update a todo');
+    );
 
-            return false;
-          } else {
-            const updatedTodo = value1.value as Todo;
+    setTodosIsLoading([]);
+    const errors = results.filter(r => r.status === 'rejected');
 
-            setTodos(prevTodos => {
-              return prevTodos.map(todo1 =>
-                todo1.id === updatedTodo.id ? { ...updatedTodo } : todo1,
-              );
-            });
-          }
+    if (errors.length > 0) {
+      setIsUpdateError('Unable to update a todo');
+      throw new Error('Unable to update a todo');
+    }
 
-          return true;
-        });
-      })
-      .finally(() => {
-        return false;
-      });
+    results.forEach(result => {
+      if (result.status === 'fulfilled') {
+        const updatedTodo = result.value as Todo;
 
-    // console.log(promise);
+        setTodos(prevTodos =>
+          prevTodos.map(todo1 =>
+            todo1.id === updatedTodo.id ? { ...updatedTodo } : todo1,
+          ),
+        );
+      }
+    });
   }
 
   return (
@@ -170,8 +159,7 @@ export const App: React.FC = () => {
             removeTodo={deleteTodo}
             todosIsLoading={todosIsLoading}
             updateStatusTodo={updateStatusTodo}
-            // setIsEditing={setIsEditing}
-            // isEditing={isEditing}
+            // isDeleted={isDeleted}
           />
         )}
         {todo && (
@@ -180,8 +168,7 @@ export const App: React.FC = () => {
             removeTodo={deleteTodo}
             updateStatusTodo={updateStatusTodo}
             isLoading={todo ? true : false}
-            // setIsEditing={setIsEditing}
-            // isEditing={isEditing}
+            // isDeleted={isDeleted}
           />
         )}
 
@@ -198,24 +185,14 @@ export const App: React.FC = () => {
       {/* DON'T use conditional rendering to hide the notification */}
       {/* Add the 'hidden' class to hide the message smoothly */}
       {/* move this component to ErrorComponent */}
-      <div
-        data-cy="ErrorNotification"
-        className={`notification is-danger is-light has-text-weight-normal ${error ? '' : 'hidden'}`}
-      >
-        <button
-          data-cy="HideErrorButton"
-          type="button"
-          className="delete"
-          onClick={() => {
-            setError('');
-          }}
-        />
-        {/* show only one message at a time */}
-        {error}
-        {/* <br />
-        <br />
-        Unable to update a todo */}
-      </div>
+      <ErrorComponent
+        isError={error}
+        setError={setError}
+        isUpdateError={isUpdateError}
+        setIsUpdateError={setIsUpdateError}
+        isDeleteError={isDeleteError}
+        setIsDeleteError={setIsDeleteError}
+      />
     </div>
   );
 };
