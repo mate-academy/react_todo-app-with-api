@@ -93,7 +93,6 @@ export const App: React.FC = () => {
         if (anyRejected) {
           setError('Unable to delete a todo');
           setIsDeleteError('Unable to delete a todo');
-          throw new Error('Unable to delete a todo');
         }
 
         setTodos(prevTodos => {
