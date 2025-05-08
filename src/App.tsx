@@ -25,7 +25,7 @@ export const App: React.FC = () => {
         setError('Unable to load todos');
       })
       .finally(() => {});
-  }, [todosIsLoading]);
+  }, []);
 
   const filteredTodos = useMemo(() => {
     let fltrdTodos: Todo[] | undefined = todos;
@@ -84,29 +84,27 @@ export const App: React.FC = () => {
   function deleteTodo(todoId: number[]) {
     setTodosIsLoading(todoId);
     setIsDeleted(true);
-
     Promise.allSettled(
-      todoId.map(td =>
-        todosService
-          .deleteTodos(td)
-          .then(() => td)
-          .finally(() => setIsDeleted(false)),
-      ),
+      todoId.map(td => todosService.deleteTodos(td).then(() => td)),
     )
       .then(values => {
-        values.map(value1 => {
-          if (value1.status === 'rejected') {
-            setError('Unable to delete a todo');
-          } else {
-            setTodos(prevTodos => {
-              const todoID = value1.value as number;
+        const deletedIds = values
+          .filter(value1 => value1.status === 'fulfilled')
+          .map(value1 => (value1 as PromiseFulfilledResult<number>).value);
+        const anyRejected = values.some(value1 => value1.status === 'rejected');
 
-              return prevTodos.filter(todo1 => todo1.id !== todoID);
-            });
-          }
+        if (anyRejected) {
+          setError('Unable to delete a todo');
+        }
+
+        setTodos(prevTodos => {
+          return prevTodos.filter(todo1 => !deletedIds.includes(todo1.id));
         });
       })
-      .finally(() => {});
+      .finally(() => {
+        setTodosIsLoading([]);
+        setIsDeleted(false);
+      });
   }
 
   function updateStatusTodo(tod: Todo[]) {
@@ -116,10 +114,12 @@ export const App: React.FC = () => {
       tod.map(td => {
         const newTd = { ...td, completed: !td.completed };
 
-        todosService
+        return todosService
           .updateTodos(newTd)
-          .then(() => td)
-          .finally(() => setTodosIsLoading([]));
+          .then(() => newTd)
+          .finally(() => {
+            setTodosIsLoading([]);
+          });
       }),
     )
       .then(values => {
@@ -127,8 +127,14 @@ export const App: React.FC = () => {
           if (value1.status === 'rejected') {
             setError('Unable to update a todo');
           } else {
+            const updatedTodo = value1.value as Todo;
+
             setTodos(prevTodos => {
-              return prevTodos.map(todo1 => todo1);
+              return prevTodos.map(todo1 =>
+                todo1.id === updatedTodo.id
+                  ? { ...todo1, completed: updatedTodo.completed }
+                  : todo1,
+              );
             });
           }
         });
@@ -158,7 +164,6 @@ export const App: React.FC = () => {
             removeTodo={deleteTodo}
             todosIsLoading={todosIsLoading}
             updateStatusTodo={updateStatusTodo}
-            // setError={setError}
           />
         )}
         {todo && (
@@ -167,7 +172,6 @@ export const App: React.FC = () => {
             removeTodo={deleteTodo}
             updateStatusTodo={updateStatusTodo}
             isLoading={todo ? true : false}
-            // setError={setError}
           />
         )}
 

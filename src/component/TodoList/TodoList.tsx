@@ -7,7 +7,6 @@ type Props = {
   todosIsLoading: number[];
   removeTodo: (todoId: number[]) => void;
   updateStatusTodo: (todo: Todo[]) => void;
-  // setError: (error: string) => void;
 };
 
 export const TodoList: React.FC<Props> = ({
@@ -15,7 +14,6 @@ export const TodoList: React.FC<Props> = ({
   todosIsLoading,
   removeTodo,
   updateStatusTodo,
-  // setError,
 }) => {
   return (
     <section className="todoapp__main" data-cy="TodoList">
@@ -26,7 +24,6 @@ export const TodoList: React.FC<Props> = ({
           removeTodo={removeTodo}
           updateStatusTodo={updateStatusTodo}
           isLoading={todosIsLoading.includes(todo.id)}
-          // setError={setError}
         />
       ))}
     </section>

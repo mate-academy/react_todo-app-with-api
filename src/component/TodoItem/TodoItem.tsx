@@ -17,7 +17,6 @@ export const TodoItem: React.FC<Props> = ({
 }) => {
   const [query, setQuery] = useState(todo.title);
   const [isEditing, setIsEditing] = useState(false);
-  // const [pressedEsc, setPressedEsc] = useState('');
 
   useEffect(() => {
     const handleEsc = (event: KeyboardEvent) => {
@@ -67,10 +66,7 @@ export const TodoItem: React.FC<Props> = ({
   };
 
   return (
-    <div
-      data-cy="Todo"
-      className={`todo ${todo.completed ? 'completed' : 'active'}`}
-    >
+    <div data-cy="Todo" className={`todo${todo.completed ? ' completed' : ''}`}>
       {/*eslint-disable-next-line jsx-a11y/label-has-associated-control*/}
       <label className="todo__status-label">
         <input
@@ -78,7 +74,9 @@ export const TodoItem: React.FC<Props> = ({
           type="checkbox"
           className="todo__status"
           defaultChecked={todo.completed}
-          onClick={() => updateStatusTodo([todo])}
+          onClick={() => {
+            updateStatusTodo([todo]);
+          }}
         />
       </label>
 
