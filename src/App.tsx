@@ -1,5 +1,3 @@
-/* eslint-disable jsx-a11y/label-has-associated-control */
-/* eslint-disable jsx-a11y/control-has-associated-label */
 import React, { useEffect, useRef, useState } from 'react';
 import { UserWarning } from './UserWarning';
 import {
@@ -369,6 +367,7 @@ export const App: React.FC = () => {
                 setTodoTitle(todo.title);
               }}
             >
+              {/* eslint-disable-next-line jsx-a11y/label-has-associated-control */}
               <label className="todo__status-label">
                 <input
                   data-cy="TodoStatus"
