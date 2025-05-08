@@ -107,7 +107,7 @@ export const App: React.FC = () => {
       });
   }
 
-  function updateStatusTodo(tod: Todo[]) {
+  async function updateStatusTodo(tod: Todo[]) {
     setTodosIsLoading(tod.map(td => td.id));
 
     Promise.allSettled(
@@ -126,20 +126,26 @@ export const App: React.FC = () => {
         values.map(value1 => {
           if (value1.status === 'rejected') {
             setError('Unable to update a todo');
+
+            return false;
           } else {
             const updatedTodo = value1.value as Todo;
 
             setTodos(prevTodos => {
               return prevTodos.map(todo1 =>
-                todo1.id === updatedTodo.id
-                  ? { ...todo1, completed: updatedTodo.completed }
-                  : todo1,
+                todo1.id === updatedTodo.id ? { ...updatedTodo } : todo1,
               );
             });
           }
+
+          return true;
         });
       })
-      .finally(() => {});
+      .finally(() => {
+        return false;
+      });
+
+    // console.log(promise);
   }
 
   return (
@@ -164,6 +170,8 @@ export const App: React.FC = () => {
             removeTodo={deleteTodo}
             todosIsLoading={todosIsLoading}
             updateStatusTodo={updateStatusTodo}
+            // setIsEditing={setIsEditing}
+            // isEditing={isEditing}
           />
         )}
         {todo && (
@@ -172,6 +180,8 @@ export const App: React.FC = () => {
             removeTodo={deleteTodo}
             updateStatusTodo={updateStatusTodo}
             isLoading={todo ? true : false}
+            // setIsEditing={setIsEditing}
+            // isEditing={isEditing}
           />
         )}
 

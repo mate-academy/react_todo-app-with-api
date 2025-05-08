@@ -4,16 +4,20 @@ import { Todo } from '../../types/Todo';
 type Props = {
   todo: Todo;
   isLoading?: boolean;
+  // isEditing: boolean;
   removeTodo: (todoId: number[]) => void;
   updateStatusTodo: (todo: Todo[]) => void;
+  // setIsEditing: (isEditing: boolean) => void;
   // setError: (error: string) => void;
 };
 
 export const TodoItem: React.FC<Props> = ({
   todo,
   isLoading,
+  // isEditing,
   removeTodo,
   updateStatusTodo,
+  // setIsEditing,
 }) => {
   const [query, setQuery] = useState(todo.title);
   const [isEditing, setIsEditing] = useState(false);
@@ -31,7 +35,7 @@ export const TodoItem: React.FC<Props> = ({
     return () => {
       window.removeEventListener('keydown', handleEsc);
     };
-  }, [query]);
+  }, [query, setIsEditing]);
 
   const handleQueryChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setQuery(event.target.value);
@@ -44,14 +48,15 @@ export const TodoItem: React.FC<Props> = ({
   const handleSubmit = (event: React.FormEvent) => {
     event.preventDefault();
     setIsEditing(false);
+    const tempQuery = query.trim();
 
-    if (!query) {
+    if (!tempQuery) {
       removeTodo([todo.id]);
 
       return;
     }
 
-    if (query === todo.title) {
+    if (tempQuery === todo.title) {
       return;
     }
 
@@ -59,21 +64,21 @@ export const TodoItem: React.FC<Props> = ({
       {
         id: todo.id,
         userId: todo.userId,
-        title: query,
+        title: tempQuery,
         completed: !todo.completed,
       },
     ]);
   };
 
   return (
-    <div data-cy="Todo" className={`todo${todo.completed ? ' completed' : ''}`}>
+    <div data-cy="Todo" className={`todo ${todo.completed ? 'completed' : ''}`}>
       {/*eslint-disable-next-line jsx-a11y/label-has-associated-control*/}
       <label className="todo__status-label">
         <input
           data-cy="TodoStatus"
           type="checkbox"
           className="todo__status"
-          defaultChecked={todo.completed}
+          checked={todo.completed}
           onClick={() => {
             updateStatusTodo([todo]);
           }}
@@ -83,7 +88,7 @@ export const TodoItem: React.FC<Props> = ({
       {isEditing ? (
         <form onSubmit={handleSubmit}>
           <input
-            data-cy="NewTodoField"
+            data-cy="TodoTitleField"
             type="text"
             className="todoapp__new-todo"
             placeholder="Empty todo will be deleted"
