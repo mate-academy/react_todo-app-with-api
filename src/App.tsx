@@ -11,21 +11,24 @@ import { ErrorComponent } from './component/Error/ErrorComponent';
 
 export const App: React.FC = () => {
   const [todos, setTodos] = useState<Todo[]>([]);
-  const [error, setError] = useState('');
+
+  const [isLoadingError, setIsLoadingError] = useState('');
+  const [isAddError, setIsAddError] = useState('');
   const [isUpdateError, setIsUpdateError] = useState('');
   const [isDeleteError, setIsDeleteError] = useState('');
+
   const [status, setStatus] = useState('all');
   const [todo, setTodo] = useState<Todo>();
   const [todosIsLoading, setTodosIsLoading] = useState<number[]>([]);
   const [isInputDisabled, setInputDisabled] = useState(false);
-  const [isDeleted, setIsDeleted] = useState(false);
+  const [isFocus, setIsFocus] = useState(true);
 
   useEffect(() => {
     todosService
       .getTodos()
       .then(setTodos)
       .catch(() => {
-        setError('Unable to load todos');
+        setIsLoadingError('Unable to load todos');
       })
       .finally(() => {});
   }, []);
@@ -68,7 +71,7 @@ export const App: React.FC = () => {
         setTodos(currentTodos => [...currentTodos, newTodo]);
       })
       .catch(e => {
-        setError('Unable to add a todo');
+        setIsAddError('Unable to add a todo');
         throw e;
       })
       .finally(() => {
@@ -77,9 +80,9 @@ export const App: React.FC = () => {
       });
   }
 
-  function deleteTodo(todoId: number[]) {
+  function deleteTodo(todoId: number[], isInUpdate: boolean) {
+    setIsFocus(false);
     setTodosIsLoading(todoId);
-    setIsDeleted(true);
 
     Promise.allSettled(
       todoId.map(td => todosService.deleteTodos(td).then(() => td)),
@@ -91,8 +94,15 @@ export const App: React.FC = () => {
         const anyRejected = values.some(value1 => value1.status === 'rejected');
 
         if (anyRejected) {
-          setError('Unable to delete a todo');
           setIsDeleteError('Unable to delete a todo');
+
+          if (isInUpdate) {
+            setIsFocus(false);
+          } else {
+            // setIsFocus(true);
+          }
+        } else {
+          setIsFocus(true);
         }
 
         setTodos(prevTodos => {
@@ -101,11 +111,11 @@ export const App: React.FC = () => {
       })
       .finally(() => {
         setTodosIsLoading([]);
-        setIsDeleted(false);
       });
   }
 
   async function updateStatusTodo(tod: Todo[]) {
+    setIsFocus(false);
     setTodosIsLoading(tod.map(td => td.id));
     const results = await Promise.allSettled(
       tod.map(td => {
@@ -143,12 +153,12 @@ export const App: React.FC = () => {
       <div className="todoapp__content">
         <Header
           todos={todos}
-          setError={setError}
+          setIsAddError={setIsAddError}
           setTodo={setTodo}
           onSubmit={addTodo}
           isDisabled={isInputDisabled}
-          isDeleted={isDeleted}
-          error={error}
+          isAddError={isAddError}
+          isFocus={isFocus}
           updateStatusTodo={updateStatusTodo}
         />
 
@@ -158,7 +168,6 @@ export const App: React.FC = () => {
             removeTodo={deleteTodo}
             todosIsLoading={todosIsLoading}
             updateStatusTodo={updateStatusTodo}
-            // isDeleted={isDeleted}
           />
         )}
         {todo && (
@@ -167,7 +176,6 @@ export const App: React.FC = () => {
             removeTodo={deleteTodo}
             updateStatusTodo={updateStatusTodo}
             isLoading={todo ? true : false}
-            // isDeleted={isDeleted}
           />
         )}
 
@@ -181,16 +189,15 @@ export const App: React.FC = () => {
         )}
       </div>
 
-      {/* DON'T use conditional rendering to hide the notification */}
-      {/* Add the 'hidden' class to hide the message smoothly */}
-      {/* move this component to ErrorComponent */}
       <ErrorComponent
-        isError={error}
-        setError={setError}
+        isAddError={isAddError}
+        setIsAddError={setIsAddError}
         isUpdateError={isUpdateError}
         setIsUpdateError={setIsUpdateError}
         isDeleteError={isDeleteError}
         setIsDeleteError={setIsDeleteError}
+        isLoadingError={isLoadingError}
+        setIsLoadingError={setIsLoadingError}
       />
     </div>
   );

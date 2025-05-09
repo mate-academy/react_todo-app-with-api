@@ -5,15 +5,13 @@ import { TodoItem } from '../TodoItem/TodoItem';
 type Props = {
   todos: Todo[];
   todosIsLoading: number[];
-  // isDeleted: boolean;
-  removeTodo: (todoId: number[]) => void;
+  removeTodo: (todoId: number[], isInUpdate: boolean) => void;
   updateStatusTodo: (todo: Todo[]) => Promise<void>;
 };
 
 export const TodoList: React.FC<Props> = ({
   todos,
   todosIsLoading,
-  // isDeleted,
   removeTodo,
   updateStatusTodo,
 }) => {
@@ -26,7 +24,6 @@ export const TodoList: React.FC<Props> = ({
           removeTodo={removeTodo}
           updateStatusTodo={updateStatusTodo}
           isLoading={todosIsLoading.includes(todo.id)}
-          // isDeleted={isDeleted}
         />
       ))}
     </section>

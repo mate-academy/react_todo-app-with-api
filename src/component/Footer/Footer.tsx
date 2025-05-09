@@ -5,7 +5,7 @@ type Props = {
   todos: Todo[];
   status: string;
   handleClick: (event: React.MouseEvent) => void;
-  deleteTodos: (todos: number[]) => void;
+  deleteTodos: (todos: number[], isInUpdate: boolean) => void;
 };
 
 export const Footer: React.FC<Props> = ({
@@ -64,6 +64,7 @@ export const Footer: React.FC<Props> = ({
         onClick={() =>
           deleteTodos(
             todos?.filter(todo => todo.completed === true).map(td => td.id),
+            false,
           )
         }
         disabled={

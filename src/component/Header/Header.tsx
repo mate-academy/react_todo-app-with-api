@@ -3,22 +3,21 @@ import { Todo } from '../../types/Todo';
 
 type Props = {
   todos: Todo[];
-  setError: (error: string) => void;
+  setIsAddError: (error: string) => void;
   onSubmit: (todo: Todo) => Promise<void>;
   setTodo: (todo: Todo | undefined) => void;
   updateStatusTodo: (todo: Todo[]) => void;
   isDisabled: boolean;
-  isDeleted: boolean;
-  error: string;
+  isAddError: string;
+  isFocus: boolean;
 };
 
 export const Header: React.FC<Props> = ({
   todos,
-  setError,
+  setIsAddError,
   onSubmit,
   isDisabled,
-  isDeleted,
-  error,
+  isFocus,
   updateStatusTodo,
 }) => {
   const [query, setQuery] = useState('');
@@ -26,25 +25,33 @@ export const Header: React.FC<Props> = ({
   const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    inputRef.current?.focus();
-  }, [query, error, isDeleted]);
+    if (!isDisabled) {
+      inputRef.current?.focus();
+    }
+  }, [isDisabled]);
+
+  useEffect(() => {
+    if (isFocus) {
+      inputRef.current?.focus();
+    }
+  }, [isFocus]);
 
   const reset = () => {
     setQuery('');
   };
 
   const handleQueryChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setError('');
+    setIsAddError('');
     setQuery(event.target.value);
   };
 
   const handleSubmit = (event: React.FormEvent) => {
     event.preventDefault();
 
-    setError('');
+    setIsAddError('');
 
     if (!query.trim()) {
-      setError('Title should not be empty');
+      setIsAddError('Title should not be empty');
 
       return;
     }
@@ -57,7 +64,7 @@ export const Header: React.FC<Props> = ({
     })
       .then(reset)
       .catch(() => {
-        setError('Unable to add a todo');
+        setIsAddError('Unable to add a todo');
       });
   };
 
@@ -88,6 +95,7 @@ export const Header: React.FC<Props> = ({
           onChange={handleQueryChange}
           disabled={isDisabled}
           ref={inputRef}
+          autoFocus={isFocus}
         />
       </form>
     </header>

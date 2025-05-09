@@ -4,10 +4,8 @@ import { Todo } from '../../types/Todo';
 type Props = {
   todo: Todo;
   isLoading?: boolean;
-  // isDeleted: boolean;
-  removeTodo: (todoId: number[]) => void;
+  removeTodo: (todoId: number[], isInUpdate: boolean) => void;
   updateStatusTodo: (todo: Todo[]) => Promise<void>;
-  // setError: (error: string) => void;
 };
 
 export const TodoItem: React.FC<Props> = ({
@@ -15,15 +13,15 @@ export const TodoItem: React.FC<Props> = ({
   isLoading,
   removeTodo,
   updateStatusTodo,
-  // isDeleted,
 }) => {
   const [query, setQuery] = useState(todo.title);
   const [isEditing, setIsEditing] = useState(false);
+  const [isFocus, setIsFocus] = useState(false);
 
   useEffect(() => {
     const handleEsc = (event: KeyboardEvent) => {
       if (event.key === 'Escape') {
-        setQuery(query);
+        setQuery(todo.title);
         setIsEditing(false);
       }
     };
@@ -33,7 +31,7 @@ export const TodoItem: React.FC<Props> = ({
     return () => {
       window.removeEventListener('keydown', handleEsc);
     };
-  }, [query, setIsEditing]);
+  }, [todo.title, setIsEditing]);
 
   const handleQueryChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setQuery(event.target.value);
@@ -41,21 +39,23 @@ export const TodoItem: React.FC<Props> = ({
 
   const handleDoubleClick = () => {
     setIsEditing(true);
+    setIsFocus(true);
   };
 
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
-    setIsEditing(false);
     const tempQuery = query.trim();
 
-    // update like statusTodo
     if (!tempQuery) {
-      removeTodo([todo.id]);
+      removeTodo([todo.id], true);
 
       return;
     }
 
     if (tempQuery === todo.title) {
+      setIsFocus(false);
+      setIsEditing(false);
+
       return;
     }
 
@@ -69,8 +69,10 @@ export const TodoItem: React.FC<Props> = ({
         },
       ]);
       setIsEditing(false);
+      setIsFocus(false);
     } catch (err) {
       setIsEditing(true);
+      setIsFocus(true);
       setQuery(todo.title);
     }
   };
@@ -99,7 +101,7 @@ export const TodoItem: React.FC<Props> = ({
             placeholder="Empty todo will be deleted"
             value={query}
             onChange={handleQueryChange}
-            autoFocus
+            autoFocus={isFocus}
             onBlur={handleSubmit}
           />
         </form>
@@ -116,7 +118,7 @@ export const TodoItem: React.FC<Props> = ({
             type="button"
             className="todo__remove"
             data-cy="TodoDelete"
-            onClick={() => removeTodo([todo.id])}
+            onClick={() => removeTodo([todo.id], false)}
           >
             ×
           </button>
