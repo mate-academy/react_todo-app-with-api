@@ -1,50 +1,74 @@
-# React Todo App with API (complete)
+# React Todo App with API
 
-It is the third part of the React Todo App with API.
+This project is an advanced version of the "React ToDo App", now enhanced with full API integration for managing tasks remotely. It is built using React with TypeScript and follows clean architecture practices with a focus on interactivity, usability, and real-time API synchronization.
 
-Take your code implemented for [Add and Delete](https://github.com/mate-academy/react_todo-app-add-and-delete)
-and implement the ability to toggle and rename todos.
+> [LIVE DEMO](https://mateuszcieplak.github.io/react_todo-app-with-api/).
 
-> Here is [the working example](https://mate-academy.github.io/react_todo-app-with-api/)
+![todoapp](./description/todoapp.gif)
 
-## Toggling a todo status
+## Tech Stack
 
-Toggle the `completed` status on `TodoStatus` change:
-- Install Prettier Extention and use this [VSCode settings](https://mate-academy.github.io/fe-program/tools/vscode/settings.json) to enable format on save.
-- covered the todo with a loader overlay while waiting for API response;
-- the status should be changed on success;
-- show the `Unable to update a todo` notification in case of API error.
+- **React (with hooks)**
+- **TypeScript**
+- **CSS Modules**
+- **REST API Integration**
+- **Prettier + ESLint**
 
-Add the ability to toggle the completed status of all the todos with the `toggleAll` checkbox:
+## Features
 
-- `toggleAll` button should have `active` class only if all the todos are completed;
-- `toggleAll` click changes its status to the opposite one, and sets this new status to all the todos;
-- it should work the same as several individual updates of the todos which statuses were actually changed;
-- don't send requests for the todos that were not changed;
+### 🧠 Core Functionality
 
-## Renaming a todo
+- **Create, edit, delete, and filter tasks**
+- **Mark tasks as completed/incomplete**
+- **Toggle all tasks' status**
+- **Persistent state via API**
+- **Inline editing with full keyboard support**
 
-Implement the ability to edit a todo title on double click:
+### 🌐 API Integration
 
-- show the edit form instead of the title and remove button;
-- saves changes on the form submit (just press `Enter`);
-- save changes when the field loses focus (`onBlur`);
-- if the new title is the same as the old one just cancel editing;
-- cancel editing on `Esс` key `keyup` event;
-- if the new title is empty delete the todo the same way the `x` button does it;
-- if the title was changed show the loader while waiting for the API response;
-- update the todo title on success;
-- show `Unable to update a todo` in case of API error;
-- or the deletion error message if we tried to delete the todo.
+- **Add/Delete Todos**
+  Based on the work from [react_todo-app-add-and-delete](https://github.com/mate-academy/react_todo-app-add-and-delete).
 
-## If you want to enable tests
-- open `cypress/integration/page.spec.js`
-- replace `describe.skip` with `describe` for the root `describe`
+- **Toggle Todo Status**
 
-> ❗❗All tests should pass, even if some behaviour is not well explained in the task❗❗
+  - Task status changes only on successful API response
+  - Displays loading indicator while updating
+  - Error notifications for failed updates
 
-## Instructions
+- **Rename Todo Titles**
 
-- Implement a solution following the [React task guideline](https://github.com/mate-academy/react_task-guideline#react-tasks-guideline).
-- Use the [React TypeScript cheat sheet](https://mate-academy.github.io/fe-program/js/extra/react-typescript).
-- Replace `<your_account>` with your Github username in the [DEMO LINK](https://<your_account>.github.io/react_todo-app-with-api/) and add it to the PR description.
+  - Double-click to enable inline editing
+  - Save changes on "Enter" key or when the input loses focus
+  - Cancel editing with "Escape" or if no changes were made
+  - Delete todo if new title is empty
+  - Show loader while waiting for API response
+  - Show appropriate error messages on failure
+
+  ![todoedit](./description/edittodo.gif)
+
+- **Toggle All Todos**
+  - Toggle all items' status at once
+  - Only send requests for items that were actually changed
+  - "Toggle All" button reflects current global status
+
+### 💡 UX Enhancements
+
+- Loading overlays on individual todos
+- Error messages for failed operations
+- Prettier formatting with VSCode settings for auto-format on save
+
+### ⚙️ State Management
+
+- Uses **React Context API** for global state
+
+---
+
+## 🚀 Getting Started
+
+```bash
+git clone https://github.com/MateuszCieplak/react_todo-app-with-api
+cd react_todo-app-with-api
+npm install
+npm start
+
+```
