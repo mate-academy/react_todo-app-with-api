@@ -1,5 +1,6 @@
 import React from 'react';
 import { Todo } from '../types/Todo';
+import classNames from 'classnames';
 
 type Props = {
   todo: Todo;
@@ -15,7 +16,7 @@ type Props = {
 };
 
 export const TodoItem: React.FC<Props> = ({
-  todo,
+  todo: { id, title, completed },
   isLoading,
   isEditing,
   editingTitle,
@@ -27,18 +28,21 @@ export const TodoItem: React.FC<Props> = ({
   onKeyDown,
 }) => {
   return (
-    <div data-cy="Todo" className={`todo${todo.completed ? ' completed' : ''}`}>
+    <div
+      data-cy="Todo"
+      className={classNames('todo', { completed: completed })}
+    >
       <label
         className="todo__status-label"
-        htmlFor={`todo-status-${todo.id}`}
+        htmlFor={`todo-status-${id}`}
         aria-label="Toggle todo status"
       >
         <input
-          id={`todo-status-${todo.id}`}
+          id={`todo-status-${id}`}
           data-cy="TodoStatus"
           type="checkbox"
           className="todo__status"
-          checked={todo.completed}
+          checked={completed}
           onChange={onToggle}
         />
       </label>
@@ -63,7 +67,7 @@ export const TodoItem: React.FC<Props> = ({
           className="todo__title"
           onDoubleClick={onDoubleClick}
         >
-          {todo.title}
+          {title}
         </span>
       )}
 
@@ -80,7 +84,7 @@ export const TodoItem: React.FC<Props> = ({
 
       <div
         data-cy="TodoLoader"
-        className={`modal overlay${isLoading ? ' is-active' : ''}`}
+        className={classNames('modal overlay', { 'is-active': isLoading })}
       >
         <div className="modal-background has-background-white-ter" />
         <div className="loader" />
