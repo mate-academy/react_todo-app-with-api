@@ -1,26 +1,158 @@
-/* eslint-disable max-len */
+/* eslint-disable jsx-a11y/label-has-associated-control */
 /* eslint-disable jsx-a11y/control-has-associated-label */
-import React from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { UserWarning } from './UserWarning';
+import * as postService from './api/todos';
 
-const USER_ID = 0;
+import { Todo } from './types/Todo';
+import { TodoList } from './components/TodoList/TodoList';
 
 export const App: React.FC = () => {
-  if (!USER_ID) {
+  const [todos, setTodos] = useState<Todo[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [selectedStatus, setSelectedStatus] = useState('all');
+  const [errorMessage, setErrorMessage] = useState('');
+  const [inputDisabled, setInputDisabled] = useState(false);
+  const [tempTodo, setTempTodo] = useState<Todo | null>(null);
+  const [newTodoTitle, setNewTodoTitle] = useState('');
+  const [updatingTodoId, setUpdatingTodoId] = useState<number | null>(null);
+  const [editingTitleId, setEditingTitleId] = useState<number | null>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  function loadTodos() {
+    setLoading(true);
+
+    postService
+      .getTodos()
+      .then(setTodos)
+      .catch(() => setErrorMessage('Unable to load todos'))
+      .finally(() => setLoading(false));
+  }
+
+  function addTodo(newTitle: string) {
+    setInputDisabled(true);
+    const trimmedTitle = newTitle.trim();
+
+    setTempTodo({
+      id: 0,
+      userId: postService.USER_ID,
+      title: trimmedTitle,
+      completed: false,
+    });
+
+    const newToDo = {
+      userId: postService.USER_ID,
+      title: trimmedTitle,
+      completed: false,
+    };
+
+    postService
+      .addTodo(newToDo)
+      .then(addedTodo => {
+        setTodos(prev => [...prev, addedTodo]);
+        setNewTodoTitle('');
+      })
+      .catch(() => {
+        setErrorMessage('Unable to add a todo');
+      })
+      .finally(() => {
+        setInputDisabled(false);
+        setTempTodo(null);
+      });
+  }
+
+  function updateTodo(todoId: number, data: object) {
+    setUpdatingTodoId(todoId);
+
+    if ('title' in data) {
+      setEditingTitleId(todoId);
+    }
+
+    postService
+      .updateTodo(todoId, data)
+      .then(() => {
+        setTodos(prevTodos =>
+          prevTodos.map(todo =>
+            todo.id === todoId ? { ...todo, ...data } : todo,
+          ),
+        );
+        setEditingTitleId(null);
+      })
+      .catch(() => {
+        setErrorMessage('Unable to update a todo');
+      })
+      .finally(() => {
+        setUpdatingTodoId(null);
+      });
+  }
+
+  function deleteTodo(todoId: number) {
+    setUpdatingTodoId(todoId);
+
+    postService
+      .deleteTodo(todoId)
+      .then(() => {
+        setTodos(prevTodos => prevTodos.filter(todo => todo.id !== todoId));
+      })
+      .catch(() => {
+        setErrorMessage('Unable to delete a todo');
+      })
+      .finally(() => {
+        setUpdatingTodoId(null);
+      });
+  }
+
+  function clearCompletedTodos(todoIds: number[]) {
+    for (const id of todoIds) {
+      deleteTodo(id);
+    }
+  }
+
+  //Set focus to the input field
+  useEffect(() => {
+    if (inputRef.current && !inputDisabled && editingTitleId === null) {
+      inputRef.current.focus();
+    }
+  }, [inputDisabled, updatingTodoId, editingTitleId]);
+
+  useEffect(loadTodos, []);
+
+  //Show error message for 3 seconds (if any)
+  useEffect(() => {
+    if (!errorMessage) {
+      return;
+    }
+
+    const timerId = setTimeout(() => setErrorMessage(''), 3000);
+
+    return () => clearTimeout(timerId); // clear if component re-renders
+  }, [errorMessage]);
+
+  //Show warning if USER_ID is not provided
+  if (!postService.USER_ID) {
     return <UserWarning />;
   }
 
   return (
-    <section className="section container">
-      <p className="title is-4">
-        Copy all you need from the prev task:
-        <br />
-        <a href="https://github.com/mate-academy/react_todo-app-add-and-delete#react-todo-app-add-and-delete">
-          React Todo App - Add and Delete
-        </a>
-      </p>
-
-      <p className="subtitle">Styles are already copied</p>
-    </section>
+    <TodoList
+      loading={loading}
+      todos={todos}
+      setSelectedStatus={setSelectedStatus}
+      selectedStatus={selectedStatus}
+      setErrorMessage={setErrorMessage}
+      errorMessage={errorMessage}
+      onDelete={deleteTodo}
+      onAdd={addTodo}
+      onUpdate={updateTodo}
+      inputDisabled={inputDisabled}
+      tempTodo={tempTodo}
+      newTodoTitle={newTodoTitle}
+      setNewTodoTitle={setNewTodoTitle}
+      inputRef={inputRef}
+      updatingTodoId={updatingTodoId}
+      clearCompletedTodos={clearCompletedTodos}
+      editingTitleId={editingTitleId}
+      setEditingTitleId={setEditingTitleId}
+    />
   );
 };
