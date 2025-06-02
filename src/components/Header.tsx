@@ -72,10 +72,13 @@ export const Header: React.FC<Props> = ({
     try {
       setIsLoading(true);
 
-      const todosToUpdate = todos.filter(todo => todo.completed === allCompleted);
+      const todosToUpdate = todos.filter(
+        todo => todo.completed === allCompleted,
+      );
 
       const updatePromises = todosToUpdate.map(todo => {
         const updatedTodo = { ...todo, completed: !allCompleted };
+
         return onUpdate(updatedTodo);
       });
 
@@ -94,7 +97,6 @@ export const Header: React.FC<Props> = ({
       setIsLoading(false);
     }
   }
-
 
   return (
     <header className="todoapp__header">

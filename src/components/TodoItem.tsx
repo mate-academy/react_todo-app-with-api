@@ -64,12 +64,15 @@ export const TodoItem: React.FC<Props> = ({
 
   const handleTodoEditTitle = async (event: React.FormEvent) => {
     event.preventDefault();
-    if (isSubmitting) return;
+    if (isSubmitting) {
+      return;
+    }
 
     const trimmedTitle = editedTitle.trim();
 
     if (trimmedTitle === todo.title.trim()) {
       setIsTodoEditing(false);
+
       return;
     }
 
@@ -91,7 +94,6 @@ export const TodoItem: React.FC<Props> = ({
       setIsSubmitting(false);
     }
   };
-
 
   return (
     <div
@@ -120,7 +122,7 @@ export const TodoItem: React.FC<Props> = ({
             onChange={event => setEditedTitle(event.target.value)}
             onBlur={handleTodoEditTitle}
             disabled={isLoading}
-            onKeyDown={(event) => {
+            onKeyDown={event => {
               if (event.key === 'Escape') {
                 setIsTodoEditing(false);
                 setEditedTitle(todo.title);
