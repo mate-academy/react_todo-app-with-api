@@ -8,7 +8,7 @@ interface Props {
   onUpdate?: (todoId: number, data: object) => void;
   isUpdating: boolean;
   isEditingTitle: boolean;
-  setIsEditingTitle: (todoId: number | null) => void;
+  setEditingTitleId: (todoId: number | null) => void;
 }
 
 export const TodoItem: React.FC<Props> = ({
@@ -17,7 +17,7 @@ export const TodoItem: React.FC<Props> = ({
   onUpdate = () => {},
   isUpdating,
   isEditingTitle,
-  setIsEditingTitle = () => {},
+  setEditingTitleId = () => {},
 }) => {
   const [editedTitle, setEditedTitle] = useState(todo.title);
   const [hasUpdated, setHasUpdated] = useState(false);
@@ -39,7 +39,7 @@ export const TodoItem: React.FC<Props> = ({
       return;
     }
 
-    setIsEditingTitle(null);
+    setEditingTitleId(null);
   };
 
   return (
@@ -70,7 +70,7 @@ export const TodoItem: React.FC<Props> = ({
               handleBlur();
             } else if (event.key === 'Escape') {
               setEditedTitle(todo.title);
-              setIsEditingTitle(null);
+              setEditingTitleId(null);
             }
           }}
           autoFocus
@@ -82,7 +82,7 @@ export const TodoItem: React.FC<Props> = ({
           onDoubleClick={() => {
             setEditedTitle(todo.title);
             setHasUpdated(false);
-            setIsEditingTitle(todo.id);
+            setEditingTitleId(todo.id);
           }}
         >
           {todo.title}

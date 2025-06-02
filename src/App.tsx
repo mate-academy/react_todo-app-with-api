@@ -15,8 +15,8 @@ export const App: React.FC = () => {
   const [inputDisabled, setInputDisabled] = useState(false);
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
   const [newTodoTitle, setNewTodoTitle] = useState('');
-  const [isUpdating, setIsUpdating] = useState<number | null>(null);
-  const [isEditingTitle, setIsEditingTitle] = useState<number | null>(null);
+  const [updatingTodoId, setUpdatingTodoId] = useState<number | null>(null);
+  const [editingTitleId, setEditingTitleId] = useState<number | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
   function loadTodos() {
@@ -62,10 +62,10 @@ export const App: React.FC = () => {
   }
 
   function updateTodo(todoId: number, data: object) {
-    setIsUpdating(todoId);
+    setUpdatingTodoId(todoId);
 
     if ('title' in data) {
-      setIsEditingTitle(todoId);
+      setEditingTitleId(todoId);
     }
 
     postService
@@ -76,18 +76,18 @@ export const App: React.FC = () => {
             todo.id === todoId ? { ...todo, ...data } : todo,
           ),
         );
-        setIsEditingTitle(null);
+        setEditingTitleId(null);
       })
       .catch(() => {
         setErrorMessage('Unable to update a todo');
       })
       .finally(() => {
-        setIsUpdating(null);
+        setUpdatingTodoId(null);
       });
   }
 
   function deleteTodo(todoId: number) {
-    setIsUpdating(todoId);
+    setUpdatingTodoId(todoId);
 
     postService
       .deleteTodo(todoId)
@@ -98,7 +98,7 @@ export const App: React.FC = () => {
         setErrorMessage('Unable to delete a todo');
       })
       .finally(() => {
-        setIsUpdating(null);
+        setUpdatingTodoId(null);
       });
   }
 
@@ -110,10 +110,10 @@ export const App: React.FC = () => {
 
   //Set focus to the input field
   useEffect(() => {
-    if (inputRef.current && !inputDisabled && isEditingTitle === null) {
+    if (inputRef.current && !inputDisabled && editingTitleId === null) {
       inputRef.current.focus();
     }
-  }, [inputDisabled, isUpdating, isEditingTitle]);
+  }, [inputDisabled, updatingTodoId, editingTitleId]);
 
   useEffect(loadTodos, []);
 
@@ -134,25 +134,25 @@ export const App: React.FC = () => {
   }
 
   return (
-      <TodoList
-        loading={loading}
-        todos={todos}
-        setSelectedStatus={setSelectedStatus}
-        selectedStatus={selectedStatus}
-        setErrorMessage={setErrorMessage}
-        errorMessage={errorMessage}
-        onDelete={deleteTodo}
-        onAdd={addTodo}
-        onUpdate={updateTodo}
-        inputDisabled={inputDisabled}
-        tempTodo={tempTodo}
-        newTodoTitle={newTodoTitle}
-        setNewTodoTitle={setNewTodoTitle}
-        inputRef={inputRef}
-        isUpdating={isUpdating}
-        clearCompletedTodos={clearCompletedTodos}
-        isEditingTitle={isEditingTitle}
-        setIsEditingTitle={setIsEditingTitle}
-      />
+    <TodoList
+      loading={loading}
+      todos={todos}
+      setSelectedStatus={setSelectedStatus}
+      selectedStatus={selectedStatus}
+      setErrorMessage={setErrorMessage}
+      errorMessage={errorMessage}
+      onDelete={deleteTodo}
+      onAdd={addTodo}
+      onUpdate={updateTodo}
+      inputDisabled={inputDisabled}
+      tempTodo={tempTodo}
+      newTodoTitle={newTodoTitle}
+      setNewTodoTitle={setNewTodoTitle}
+      inputRef={inputRef}
+      updatingTodoId={updatingTodoId}
+      clearCompletedTodos={clearCompletedTodos}
+      editingTitleId={editingTitleId}
+      setEditingTitleId={setEditingTitleId}
+    />
   );
 };

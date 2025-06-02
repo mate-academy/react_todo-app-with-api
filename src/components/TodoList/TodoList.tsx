@@ -18,10 +18,10 @@ interface Props {
   newTodoTitle: string;
   setNewTodoTitle: (title: string) => void;
   inputRef: React.RefObject<HTMLInputElement>;
-  isUpdating: number | null;
+  updatingTodoId: number | null;
   clearCompletedTodos: (ids: number[]) => void;
-  isEditingTitle: number | null;
-  setIsEditingTitle: (todoId: number | null) => void;
+  editingTitleId: number | null;
+  setEditingTitleId: (todoId: number | null) => void;
 }
 
 export const TodoList: React.FC<Props> = ({
@@ -39,10 +39,10 @@ export const TodoList: React.FC<Props> = ({
   newTodoTitle,
   setNewTodoTitle,
   inputRef,
-  isUpdating,
+  updatingTodoId,
   clearCompletedTodos,
-  isEditingTitle,
-  setIsEditingTitle,
+  editingTitleId,
+  setEditingTitleId,
 }) => {
   // Selecting todos to be displayed based on the filter status
   const visibleTodos = todos.filter(todo => {
@@ -131,9 +131,9 @@ export const TodoList: React.FC<Props> = ({
                 todo={todo}
                 onDelete={onDelete}
                 onUpdate={onUpdate}
-                isUpdating={isUpdating === todo.id}
-                isEditingTitle={isEditingTitle === todo.id}
-                setIsEditingTitle={setIsEditingTitle}
+                isUpdating={updatingTodoId === todo.id}
+                isEditingTitle={editingTitleId === todo.id}
+                setEditingTitleId={setEditingTitleId}
               />
             ))}
 
