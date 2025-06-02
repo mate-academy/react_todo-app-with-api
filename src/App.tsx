@@ -134,31 +134,25 @@ export const App: React.FC = () => {
   }
 
   return (
-    <>
-      {loading && <div>Loading...</div>}
-
-      {!loading && (
-        <TodoList
-          loading={loading}
-          todos={todos}
-          setSelectedStatus={setSelectedStatus}
-          selectedStatus={selectedStatus}
-          setErrorMessage={setErrorMessage}
-          errorMessage={errorMessage}
-          onDelete={deleteTodo}
-          onAdd={addTodo}
-          onUpdate={updateTodo}
-          inputDisabled={inputDisabled}
-          tempTodo={tempTodo}
-          newTodoTitle={newTodoTitle}
-          setNewTodoTitle={setNewTodoTitle}
-          inputRef={inputRef}
-          isUpdating={isUpdating}
-          clearCompletedTodos={clearCompletedTodos}
-          isEditingTitle={isEditingTitle}
-          setIsEditingTitle={setIsEditingTitle}
-        />
-      )}
-    </>
+      <TodoList
+        loading={loading}
+        todos={todos}
+        setSelectedStatus={setSelectedStatus}
+        selectedStatus={selectedStatus}
+        setErrorMessage={setErrorMessage}
+        errorMessage={errorMessage}
+        onDelete={deleteTodo}
+        onAdd={addTodo}
+        onUpdate={updateTodo}
+        inputDisabled={inputDisabled}
+        tempTodo={tempTodo}
+        newTodoTitle={newTodoTitle}
+        setNewTodoTitle={setNewTodoTitle}
+        inputRef={inputRef}
+        isUpdating={isUpdating}
+        clearCompletedTodos={clearCompletedTodos}
+        isEditingTitle={isEditingTitle}
+        setIsEditingTitle={setIsEditingTitle}
+      />
   );
 };
