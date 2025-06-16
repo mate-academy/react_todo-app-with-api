@@ -519,7 +519,7 @@ describe('', () => {
         });
 
         // this test may be flaky
-        it.skip('should replace loader with a created todo', () => {
+        it('should replace loader with a created todo', () => { //skip
           page.flushJSTimers();
           todos.assertCount(6);
           todos.assertNotLoading(5);
@@ -1515,7 +1515,7 @@ describe('', () => {
         });
 
         // It depend on your implementation
-        it.skip('should stay while waiting', () => {
+        it('should stay while waiting', () => { //skip
           page.mockUpdate(257334);
 
           todos.title(0).trigger('dblclick');
@@ -1694,7 +1694,7 @@ describe('', () => {
         });
 
         // this test may be unstable
-        it.skip('should hide loader on fail', () => {
+        it('should hide loader on fail', () => { //skip
           // to prevent Cypress from failing the test on uncaught exception
           cy.once('uncaught:exception', () => false);
 
