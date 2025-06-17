@@ -1,10 +1,10 @@
 /* eslint-disable jsx-a11y/label-has-associated-control */
 /* eslint-disable jsx-a11y/control-has-associated-label */
 
-import React, { useEffect, useRef, useState } from 'react';
 import { Todo } from '../../types/Todo';
 import classNames from 'classnames';
 import { UpdateTodo } from '../../types/UpdateTodo';
+import { useTodoItem } from '../../hooks/useTodoItem';
 
 interface TodoProps {
   todo: Todo;
@@ -31,87 +31,24 @@ export const TodoItem: React.FC<TodoProps> = ({
   onToggledTodoId,
   onUpdateTitle,
 }) => {
-  const [isVisibleFormForChange, setIsVisibleFormForChange] = useState(true);
-  const inputRef = useRef<HTMLInputElement>(null);
-
-  useEffect(() => {
-    inputRef.current?.focus();
-  }, [isVisibleFormForChange]);
-
-  const handleChangeTitle = (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-
-    inputRef.current?.blur();
-  };
-
-  const handleOnDelete = async () => {
-    onChangeDeletedTodoId(todo.id);
-    onDeleteTodo(todo.id);
-  };
-
-  const handleChangeTitleOnBlur = async ({
-    id,
-    title,
-    completed,
-  }: Omit<Todo, 'userId'>) => {
-    if (updateTitle === '') {
-      try {
-        await handleOnDelete();
-      } finally {
-        onToggledTodoId(0);
-        setIsVisibleFormForChange(false);
-      }
-    } else {
-      if (updateTitle !== todo.title) {
-        try {
-          await onChangeTodo({
-            id,
-            title,
-            completed,
-          });
-        } catch (error) {
-          if (error instanceof Error) {
-            setIsVisibleFormForChange(false);
-          }
-        }
-      } else {
-        onToggledTodoId(0);
-      }
-    }
-
-    inputRef.current?.blur();
-  };
-
-  const handleOnBlur = () => {
-    const trimedTitle = updateTitle.trim();
-
-    setIsVisibleFormForChange(true);
-    onToggledTodoId(todo.id);
-
-    handleChangeTitleOnBlur({
-      id: todo.id,
-      title: trimedTitle,
-      completed: todo.completed,
-    });
-
-    onUpdateTitle(todo.title);
-  };
-
-  const handleOnKeyUp = (event: React.KeyboardEvent<HTMLInputElement>) => {
-    if (event.key === 'Escape') {
-      setIsVisibleFormForChange(true);
-      onUpdateTitle(todo.title);
-    }
-  };
-
-  const handleClickCheckbox = () => {
-    onChangeTodo({
-      id: todo.id,
-      title: todo.title,
-      completed: !todo.completed,
-    });
-    onToggledTodoId(todo.id);
-  };
+  const {
+    isVisibleFormForChange,
+    setIsVisibleFormForChange,
+    inputRef,
+    handleChangeTitle,
+    handleOnDelete,
+    handleOnBlur,
+    handleOnKeyUp,
+    handleClickCheckbox,
+  } = useTodoItem({
+    todo,
+    updateTitle,
+    onChangeDeletedTodoId,
+    onDeleteTodo,
+    onChangeTodo,
+    onToggledTodoId,
+    onUpdateTitle,
+  });
 
   return (
     <div

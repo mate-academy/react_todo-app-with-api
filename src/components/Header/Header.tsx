@@ -1,8 +1,8 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React from 'react';
 import classNames from 'classnames';
 import { Todo } from '../../types/Todo';
-import { USER_ID } from '../../api/todos';
 import { ErrorNotificationMessage } from '../../types/ErrorNotificationMessage';
+import { useHeader } from '../../hooks/useHeader';
 
 interface HeaderProps {
   isLoadingTodos: boolean;
@@ -25,39 +25,13 @@ export const Header: React.FC<HeaderProps> = ({
   onErrorMessage,
   onChangeAllTodos,
 }) => {
-  const [isDisabledInput, setIsDisabledInput] = useState(false);
-  const inputRef = useRef<HTMLInputElement>(null);
-
-  useEffect(() => {
-    inputRef.current?.focus();
-  }, [isDisabledInput, todosLength]);
-
-  const onSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-
-    setIsDisabledInput(true);
-
-    const normalizeNewTitle = newTitle.trim();
-
-    if (normalizeNewTitle.length <= 0) {
-      onErrorMessage(ErrorNotificationMessage.TitleShouldNotBeEmpty);
-      setIsDisabledInput(false);
-
-      return;
-    }
-
-    try {
-      await addTodo({
-        title: normalizeNewTitle,
-        completed: false,
-        userId: USER_ID,
-      });
-    } catch (error) {
-      onErrorMessage(ErrorNotificationMessage.UnableToAddTodos);
-    } finally {
-      setIsDisabledInput(false);
-    }
-  };
+  const { isDisabledInput, inputRef, onSubmit } = useHeader({
+    newTitle,
+    onChangeNewTitle,
+    addTodo,
+    onErrorMessage,
+    todosLength,
+  });
 
   return (
     <header className="todoapp__header">
