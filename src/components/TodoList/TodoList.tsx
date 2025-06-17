@@ -38,7 +38,7 @@ export const TodoList: React.FC<TodoListProps> = ({
               todo={tempTodo}
               onTodoDelete={() => handleTodoDelete(tempTodo.id)}
               isProcessingDeleteTodo={true}
-              onToggleCompleted={() => handleTodoStatusToggle(todo)}
+              onToggleCompleted={() => handleTodoStatusToggle(tempTodo)}
             />
           </CSSTransition>
         )}
