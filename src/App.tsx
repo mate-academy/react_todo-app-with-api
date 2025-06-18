@@ -1,6 +1,6 @@
 /* eslint-disable jsx-a11y/label-has-associated-control */
 /* eslint-disable jsx-a11y/control-has-associated-label */
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { UserWarning } from './UserWarning';
 import { USER_ID } from './api/todos';
 import { getTodos } from './api/todos';
@@ -13,12 +13,9 @@ import { ErrorMessages } from './types/messages';
 export const App: React.FC = () => {
   const [data, setData] = useState<Todo[]>([]);
   const [newTodoTitle, setNewTodoTitle] = useState<string>('');
-  const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
-  const [isLoading, setLoading] = useState<boolean>(false);
-  const [previousActiveCount, setPreviousActiveCount] = useState<number>(
-    data.filter(todo => !todo.completed).length,
-  );
-  const [isDeleting, setIsDeleting] = useState<boolean>(false);
+
+  const [todoInOperation, setTodoInOperation] = useState<number[]>([]);
+
   const [deletingId, setDeletingId] = useState<number | null>(null);
 
   const [filter, setFilter] = useState<FilterParams>(FilterParams.All);
@@ -26,27 +23,24 @@ export const App: React.FC = () => {
     ErrorMessages.None,
   );
 
+  const previousActiveCountRef = useRef<number>(0);
+  const inputRef = useRef<HTMLInputElement>(null);
+  const [editingId, setEditingId] = useState<number | null>(null);
+  const [newTitle, setNewTitle] = useState<string>('');
+
+  const addOperation = (id: number) => {
+    setTodoInOperation((prev) => [...prev, id]);
+  };
+
+  const removeOperation = (id: number) => {
+    setTodoInOperation(prev => prev.filter(todoId => todoId !== id));
+  };
+
   useEffect(() => {
-    const inputField = document.querySelector(
-      '.todoapp__new-todo',
-    ) as HTMLInputElement;
-
-    if (inputField) {
-      inputField.focus();
+    if (todoInOperation.length === 0 && editingId === null) {
+      inputRef.current?.focus();
     }
-  }, [isDeleting]);
-
-  useEffect(() => {
-    if (!isSubmitting) {
-      const inputField = document.querySelector(
-        '.todoapp__new-todo',
-      ) as HTMLInputElement;
-
-      if (inputField) {
-        inputField.focus();
-      }
-    }
-  }, [isSubmitting]);
+  }, [todoInOperation]);
 
   useEffect(() => {
     setErrorMessage(ErrorMessages.None);
@@ -80,6 +74,11 @@ export const App: React.FC = () => {
     return <UserWarning />;
   }
 
+  function handleEditClick(id: number) {
+    setEditingId(id);
+    setNewTitle(data.find(todo => todo.id === id)?.title || '');
+  }
+
   function createTodo() {
     if (newTodoTitle.trim() === '') {
       setErrorMessage(ErrorMessages.OnEmptyTitle);
@@ -93,7 +92,9 @@ export const App: React.FC = () => {
       completed: false,
     };
 
-    setPreviousActiveCount(data.filter(todo => !todo.completed).length);
+    previousActiveCountRef.current = data.filter(
+      todo => !todo.completed,
+    ).length;
 
     const tempTodo = {
       id: 0,
@@ -102,9 +103,8 @@ export const App: React.FC = () => {
       completed: false,
     };
 
+    addOperation(0);
     setData(currentTodos => [...currentTodos, tempTodo]);
-    setIsSubmitting(true);
-    setLoading(true);
 
     postService
       .createTodo(newTodoData)
@@ -119,8 +119,9 @@ export const App: React.FC = () => {
         setErrorMessage(ErrorMessages.OnPost);
       })
       .finally(() => {
-        setIsSubmitting(false);
-        setLoading(false);
+        removeOperation(0);
+
+        inputRef.current?.focus();
       });
   }
 
@@ -153,21 +154,13 @@ export const App: React.FC = () => {
       })
       .catch(() => {
         setErrorMessage(ErrorMessages.OnDelete);
-      })
-      .finally(() => { });
+      });
 
-    const inputField = document.querySelector(
-      '.todoapp__new-todo',
-    ) as HTMLInputElement;
-
-    if (inputField) {
-      inputField.focus();
-    }
+    inputRef.current?.focus();
   }
 
   function deleteTodo(id: number) {
-    setLoading(true);
-    setIsDeleting(true);
+    addOperation(id);
     setDeletingId(id);
 
     postService
@@ -179,10 +172,69 @@ export const App: React.FC = () => {
         setErrorMessage(ErrorMessages.OnDelete);
       })
       .finally(() => {
-        setLoading(false);
-        setIsDeleting(false);
+        removeOperation(id);
         setDeletingId(null);
+
+        inputRef.current?.focus();
       });
+  }
+
+  function updateTodo(todo: Todo) {
+    const trimmedTitle = newTitle.trim();
+
+    if (trimmedTitle === '') {
+      deleteTodo(todo.id);
+
+      return;
+    }
+
+    addOperation(todo.id);
+
+    postService
+      .updateTodo(todo)
+      .then(updatedTodo => {
+        setData(currentTodos =>
+          currentTodos.map(existingTodo =>
+            existingTodo.id === updatedTodo.id ? updatedTodo : existingTodo
+          )
+        );
+      })
+      .catch(() => {
+        setErrorMessage(ErrorMessages.OnPatch);
+      })
+      .finally(() => {
+        removeOperation(todo.id);
+
+        inputRef.current?.focus();
+      });
+  }
+
+  function handleBlurOrKeyDown(
+    e: React.KeyboardEvent<HTMLInputElement>,
+    id: number,
+  ) {
+    const newEditedTitle = e.currentTarget.value.trim();
+
+    if (e.key === 'Enter' || e.type === 'blur') {
+      if (newEditedTitle === '') {
+        const todo = data.find(todo => todo.id === id);
+
+        if (todo) {
+          deleteTodo(todo.id);
+        }
+      } else {
+        const todo = data.find(todo => todo.id === id);
+
+        if (todo) {
+          todo.title = newEditedTitle;
+          updateTodo(todo);
+        }
+      }
+
+      setEditingId(null);
+    } else if (e.key === 'Escape') {
+      setEditingId(null);
+    }
   }
 
   function handleToggle(id: number) {
@@ -200,10 +252,9 @@ export const App: React.FC = () => {
       currentTodos.map(todo => ({
         ...todo,
         completed: !allCompleted,
-      }))
+      })),
     );
   };
-
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     const isEnterKey = e.key === 'Enter';
@@ -229,10 +280,12 @@ export const App: React.FC = () => {
               data-cy="ToggleAllButton"
               aria-label="Toggle all todos"
               onClick={toggleAllTodos}
+              disabled={!data.every(todo => todo.completed)}
             />
           )}
 
           <input
+            ref={inputRef}
             data-cy="NewTodoField"
             type="text"
             className="todoapp__new-todo"
@@ -240,7 +293,7 @@ export const App: React.FC = () => {
             value={newTodoTitle}
             onChange={e => setNewTodoTitle(e.target.value)}
             onKeyDown={handleKeyDown}
-            disabled={isSubmitting}
+            disabled={todoInOperation.length > 0}
           />
         </header>
 
@@ -265,23 +318,41 @@ export const App: React.FC = () => {
                 </label>
 
                 <span data-cy="TodoTitle" className="todo__title">
-                  {todo.title}
+                  {editingId === todo.id ? (
+                    <input
+                      data-cy="TodoTitleField"
+                      type="text"
+                      className="todo__title-field"
+                      placeholder="Empty todo will be deleted"
+                      value={newTitle}
+                      onChange={(e) => setNewTitle(e.target.value)}
+                      onBlur={(e) => handleBlurOrKeyDown(e, todo.id)}
+                      onKeyDown={(e) => handleBlurOrKeyDown(e, todo.id)}
+                      autoFocus
+                      ref={inputRef}
+                    />
+                  ) : (
+                    <span onDoubleClick={() => handleEditClick(todo.id)}>
+                      {todo.title}
+                    </span>
+                  )}
                 </span>
 
-                <button
-                  type="button"
-                  className="todo__remove"
-                  data-cy="TodoDelete"
-                  onClick={() => deleteTodo(todo.id)}
-                >
-                  ×
-                </button>
+                {editingId !== todo.id && (
+                  <button
+                    type="button"
+                    className="todo__remove"
+                    data-cy="TodoDelete"
+                    onClick={() => deleteTodo(todo.id)}
+                  >
+                    ×
+                  </button>
+                )}
 
                 <div
                   data-cy="TodoLoader"
                   className={classNames('modal overlay', {
-                    'is-active':
-                      (todo.id === 0 && isLoading) || (todo.id === deletingId && isLoading && isDeleting),
+                    'is-active': todoInOperation.includes(todo.id),
                   })}
                 >
                   <div className="modal-background has-background-white-ter" />
@@ -295,8 +366,8 @@ export const App: React.FC = () => {
         {data.length > 0 && (
           <footer className="todoapp__footer" data-cy="Footer">
             <span className="todo-count" data-cy="TodosCounter">
-              {isSubmitting
-                ? previousActiveCount
+              {todoInOperation.length > 0
+                ? previousActiveCountRef.current
                 : data.filter(todo => !todo.completed).length}{' '}
               items left
             </span>
