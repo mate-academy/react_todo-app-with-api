@@ -16,7 +16,7 @@ export const App: React.FC = () => {
 
   const [todoInOperation, setTodoInOperation] = useState<number[]>([]);
 
-  const [deletingId, setDeletingId] = useState<number | null>(null);
+  // const [deletingId, setDeletingId] = useState<number | null>(null);
 
   const [filter, setFilter] = useState<FilterParams>(FilterParams.All);
   const [errorMessage, setErrorMessage] = useState<ErrorMessages>(
@@ -29,7 +29,7 @@ export const App: React.FC = () => {
   const [newTitle, setNewTitle] = useState<string>('');
 
   const addOperation = (id: number) => {
-    setTodoInOperation((prev) => [...prev, id]);
+    setTodoInOperation(prev => [...prev, id]);
   };
 
   const removeOperation = (id: number) => {
@@ -40,7 +40,7 @@ export const App: React.FC = () => {
     if (todoInOperation.length === 0 && editingId === null) {
       inputRef.current?.focus();
     }
-  }, [todoInOperation]);
+  }, [todoInOperation, editingId]);
 
   useEffect(() => {
     setErrorMessage(ErrorMessages.None);
@@ -195,8 +195,8 @@ export const App: React.FC = () => {
       .then(updatedTodo => {
         setData(currentTodos =>
           currentTodos.map(existingTodo =>
-            existingTodo.id === updatedTodo.id ? updatedTodo : existingTodo
-          )
+            existingTodo.id === updatedTodo.id ? updatedTodo : existingTodo,
+          ),
         );
       })
       .catch(() => {
@@ -217,13 +217,13 @@ export const App: React.FC = () => {
 
     if (e.key === 'Enter' || e.type === 'blur') {
       if (newEditedTitle === '') {
-        const todo = data.find(todo => todo.id === id);
+        const todo = data.find(todoItem => todoItem.id === id);
 
         if (todo) {
           deleteTodo(todo.id);
         }
       } else {
-        const todo = data.find(todo => todo.id === id);
+        const todo = data.find(todoItem => todoItem.id === id);
 
         if (todo) {
           todo.title = newEditedTitle;
@@ -325,9 +325,9 @@ export const App: React.FC = () => {
                       className="todo__title-field"
                       placeholder="Empty todo will be deleted"
                       value={newTitle}
-                      onChange={(e) => setNewTitle(e.target.value)}
-                      onBlur={(e) => handleBlurOrKeyDown(e, todo.id)}
-                      onKeyDown={(e) => handleBlurOrKeyDown(e, todo.id)}
+                      onChange={e => setNewTitle(e.target.value)}
+                      onBlur={e => handleBlurOrKeyDown(e, todo.id)}
+                      onKeyDown={e => handleBlurOrKeyDown(e, todo.id)}
                       autoFocus
                       ref={inputRef}
                     />
