@@ -2,6 +2,7 @@ import React, { RefObject } from 'react';
 import { NewTodo } from '../../types/NewTodo';
 import { Todo } from '../../types/Todo';
 import { patchTodoStatus } from '../../api/todos';
+import classNames from 'classnames';
 
 type Props = {
   todos: Todo[];
@@ -57,32 +58,32 @@ export const Header: React.FC<Props> = ({
       });
   };
 
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+
+    const clearQuery = query.trim();
+
+    if (clearQuery) {
+      addTodo({ title: clearQuery });
+    } else {
+      showError('Title should not be empty');
+    }
+  };
+
   return (
     <header className="todoapp__header">
       {/* this button should have `active` class only if all todos are completed */}
       {todos.length > 0 && (
         <button
           type="button"
-          className={`todoapp__toggle-all ${isAllActive ? 'active' : ''}`}
+          className={classNames('todoapp__toggle-all', { active: isAllActive })}
           data-cy="ToggleAllButton"
           onClick={changeStatus}
         />
       )}
 
       {/* Add a todo on form submit */}
-      <form
-        onSubmit={e => {
-          e.preventDefault();
-
-          const clearQuery = query.trim();
-
-          if (clearQuery) {
-            addTodo({ title: clearQuery });
-          } else {
-            showError('Title should not be empty');
-          }
-        }}
-      >
+      <form onSubmit={handleSubmit}>
         <input
           ref={inputRef}
           data-cy="NewTodoField"

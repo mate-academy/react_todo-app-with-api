@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Todo } from '../../types/Todo';
 import { patchTodoStatus, patchTodoTitle } from '../../api/todos';
+import classNames from 'classnames';
 
 type Props = {
   todo: Todo;
@@ -32,7 +33,7 @@ export const TodoItem: React.FC<Props> = ({
     }
   }, [hasDoubleClick]);
 
-  const handleClick = () => {
+  const handelToggle = () => {
     const updated = { ...todo, completed: !todo.completed };
 
     setIsLoading(true);
@@ -139,8 +140,32 @@ export const TodoItem: React.FC<Props> = ({
     }
   };
 
+  const handleDoubleClick = () => {
+    setHasDoubleClick(true);
+    setStartTitle(title);
+
+    window.getSelection()?.removeAllRanges();
+  };
+
+  const handleEscapeKey = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Escape') {
+      setTitle(startTitle);
+      setHasDoubleClick(false);
+    }
+  };
+
+  const handleClick = () => {
+    if (onDelete) {
+      setIsLoading(true);
+      onDelete(todo.id).finally(() => setIsLoading(false));
+    }
+  };
+
   return (
-    <div data-cy="Todo" className={`todo ${todo.completed ? 'completed' : ''}`}>
+    <div
+      data-cy="Todo"
+      className={classNames('todo', { completed: todo.completed })}
+    >
       <label className="todo__status-label">
         <input
           data-cy="TodoStatus"
@@ -148,7 +173,7 @@ export const TodoItem: React.FC<Props> = ({
           className="todo__status"
           aria-label="Mark todo as done"
           checked={todo.completed}
-          onChange={handleClick}
+          onChange={handelToggle}
         />
       </label>
 
@@ -156,12 +181,7 @@ export const TodoItem: React.FC<Props> = ({
         <span
           data-cy="TodoTitle"
           className="todo__title"
-          onDoubleClick={() => {
-            setHasDoubleClick(true);
-            setStartTitle(title);
-
-            window.getSelection()?.removeAllRanges();
-          }}
+          onDoubleClick={handleDoubleClick}
         >
           {title}
         </span>
@@ -176,12 +196,7 @@ export const TodoItem: React.FC<Props> = ({
             onChange={e => {
               setTitle(e.target.value);
             }}
-            onKeyDown={e => {
-              if (e.key === 'Escape') {
-                setTitle(startTitle);
-                setHasDoubleClick(false);
-              }
-            }}
+            onKeyDown={handleEscapeKey}
             onBlur={handleTitleBlur}
           />
         </form>
@@ -193,12 +208,7 @@ export const TodoItem: React.FC<Props> = ({
           type="button"
           className="todo__remove"
           data-cy="TodoDelete"
-          onClick={() => {
-            if (onDelete) {
-              setIsLoading(true);
-              onDelete(todo.id).finally(() => setIsLoading(false));
-            }
-          }}
+          onClick={handleClick}
         >
           ×
         </button>
@@ -207,7 +217,9 @@ export const TodoItem: React.FC<Props> = ({
       {/* overlay will cover the todo while it is being deleted or updated */}
       <div
         data-cy="TodoLoader"
-        className={`modal overlay ${isActive ? 'is-active' : ''} ${isLoading ? 'is-active' : ''} ${loadingTodoIds ? 'is-active' : ''}`}
+        className={classNames('modal overlay', {
+          'is-active': isActive || isLoading || loadingTodoIds,
+        })}
       >
         <div className="modal-background has-background-white-ter" />
         <div className="loader" />

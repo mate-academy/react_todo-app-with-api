@@ -1,19 +1,20 @@
 import React from 'react';
 import { StatusFilter } from '../../types/TodoStatus';
+import classNames from 'classnames';
 
 type Props = {
   quantityActiveItems: number;
-  statusFilter: string;
   onStatusFilter: (status: StatusFilter) => void;
   isActive: boolean;
+  statusFilter: StatusFilter;
   onDeleteActive: () => void;
 };
 
 export const Footer: React.FC<Props> = ({
   quantityActiveItems,
-  statusFilter,
   onStatusFilter,
   isActive,
+  statusFilter,
   onDeleteActive,
 }) => {
   return (
@@ -24,32 +25,19 @@ export const Footer: React.FC<Props> = ({
 
       {/* Active link should have the 'selected' class */}
       <nav className="filter" data-cy="Filter">
-        <a
-          href="#/"
-          className={`filter__link ${statusFilter === 'all' ? 'selected ' : ''}`}
-          data-cy="FilterLinkAll"
-          onClick={() => onStatusFilter(StatusFilter.All)}
-        >
-          All
-        </a>
-
-        <a
-          href="#/active"
-          className={`filter__link ${statusFilter === 'active' ? 'selected ' : ''}`}
-          data-cy="FilterLinkActive"
-          onClick={() => onStatusFilter(StatusFilter.Active)}
-        >
-          Active
-        </a>
-
-        <a
-          href="#/completed"
-          className={`filter__link ${statusFilter === 'completed' ? 'selected ' : ''}`}
-          data-cy="FilterLinkCompleted"
-          onClick={() => onStatusFilter(StatusFilter.Completed)}
-        >
-          Completed
-        </a>
+        {Object.values(StatusFilter).map((item, index) => (
+          <a
+            key={index}
+            href="#/"
+            className={classNames('filter__link', {
+              selected: statusFilter === item,
+            })}
+            data-cy={`FilterLink${item}`}
+            onClick={() => onStatusFilter(item)}
+          >
+            {item}
+          </a>
+        ))}
       </nav>
 
       <button
