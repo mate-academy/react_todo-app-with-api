@@ -17,7 +17,7 @@ export const App: React.FC = () => {
     statusFilter,
     setStatusFilter,
     handleHideError,
-    visibleFooter,
+    hasTodos,
     filteredTodos,
     activeTodos,
     handleTodoDelete,
@@ -31,6 +31,8 @@ export const App: React.FC = () => {
     todoInOperation,
     handleUseToggle,
     handleTodoStatusToggle,
+    handleTodoTitleUpdate,
+    isLoading,
   } = useTodos();
 
   if (!USER_ID) {
@@ -49,6 +51,8 @@ export const App: React.FC = () => {
           setTempTodo={setTempTodo}
           inputFocus={inputFocus}
           onToggle={handleUseToggle}
+          isLoading={isLoading}
+          hasTodos={hasTodos}
         />
 
         <TodoList
@@ -57,8 +61,9 @@ export const App: React.FC = () => {
           tempTodo={tempTodo}
           todoInOperation={todoInOperation}
           handleTodoStatusToggle={handleTodoStatusToggle}
+          handleTodoTitleUpdate={handleTodoTitleUpdate}
         />
-        {visibleFooter && (
+        {hasTodos && (
           <Footer
             activeTodos={activeTodos}
             statusFilter={statusFilter}

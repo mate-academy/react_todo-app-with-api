@@ -9,6 +9,10 @@ interface TodoListProps {
   tempTodo: Todo | null;
   todoInOperation: number[];
   handleTodoStatusToggle: (todo: Todo) => void;
+  handleTodoTitleUpdate: (
+    todoToUpdate: Todo,
+    newTitle: string,
+  ) => Promise<void>;
 }
 
 export const TodoList: React.FC<TodoListProps> = ({
@@ -17,6 +21,7 @@ export const TodoList: React.FC<TodoListProps> = ({
   tempTodo,
   todoInOperation,
   handleTodoStatusToggle,
+  handleTodoTitleUpdate,
 }) => {
   return (
     <section className="todoapp__main" data-cy="TodoList">
@@ -28,6 +33,7 @@ export const TodoList: React.FC<TodoListProps> = ({
               onTodoDelete={() => handleTodoDelete(todo.id)}
               isProcessingDeleteTodo={todoInOperation.includes(todo.id)}
               onToggleCompleted={() => handleTodoStatusToggle(todo)}
+              onTitleUpdate={handleTodoTitleUpdate}
             />
           </CSSTransition>
         ))}
@@ -39,6 +45,7 @@ export const TodoList: React.FC<TodoListProps> = ({
               onTodoDelete={() => handleTodoDelete(tempTodo.id)}
               isProcessingDeleteTodo={true}
               onToggleCompleted={() => handleTodoStatusToggle(tempTodo)}
+              onTitleUpdate={handleTodoTitleUpdate}
             />
           </CSSTransition>
         )}

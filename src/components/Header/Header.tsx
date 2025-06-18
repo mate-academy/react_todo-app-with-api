@@ -10,6 +10,8 @@ interface HeaderProps {
   setTempTodo: Dispatch<React.SetStateAction<Todo | null>>;
   inputFocus: React.RefObject<HTMLInputElement>;
   onToggle: () => void;
+  isLoading: boolean;
+  hasTodos: boolean;
 }
 
 export const Header: React.FC<HeaderProps> = ({
@@ -19,6 +21,8 @@ export const Header: React.FC<HeaderProps> = ({
   setTempTodo,
   inputFocus,
   onToggle,
+  isLoading,
+  hasTodos,
 }) => {
   const [title, setTitle] = useState<string>('');
 
@@ -64,14 +68,16 @@ export const Header: React.FC<HeaderProps> = ({
 
   return (
     <header className="todoapp__header">
-      <button
-        type="button"
-        className={cn('todoapp__toggle-all', {
-          active: allTodosCompleted,
-        })}
-        data-cy="ToggleAllButton"
-        onClick={onToggle}
-      />
+      {!isLoading && hasTodos && (
+        <button
+          type="button"
+          className={cn('todoapp__toggle-all', {
+            active: allTodosCompleted,
+          })}
+          data-cy="ToggleAllButton"
+          onClick={onToggle}
+        />
+      )}
 
       <form onSubmit={handleOnSubmit}>
         <input

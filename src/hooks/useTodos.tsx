@@ -9,6 +9,7 @@ export const useTodos = () => {
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [statusFilter, setStatusFilter] = useState(StatusFilterOptions.all);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
   const [todoInOperation, setTodoInOperation] = useState<number[]>([]);
 
   const handleHideError = useCallback(() => setErrorMessage(null), []);
@@ -20,7 +21,7 @@ export const useTodos = () => {
     [todos],
   );
 
-  const visibleFooter = useMemo(() => todos.length > 0, [todos]);
+  const hasTodos = useMemo(() => todos.length > 0, [todos]);
 
   const filteredTodos = useMemo(
     () => getFilteredTodos(todos, { status: statusFilter }),
@@ -43,12 +44,12 @@ export const useTodos = () => {
   );
 
   useEffect(() => {
+    setIsLoading(true);
     todosService
       .getTodos()
       .then(setTodos)
-      .catch(() => {
-        setErrorMessage(todosService.TodosError.unableToLoad);
-      });
+      .catch(() => setErrorMessage(todosService.TodosError.unableToLoad))
+      .finally(() => setIsLoading(false));
   }, []);
 
   const handleTodoDelete = (todoId: number) => {
@@ -156,13 +157,39 @@ export const useTodos = () => {
       });
   };
 
+  const handleTodoTitleUpdate = (todoToUpdate: Todo, newTitle: string) => {
+    const updatedTodo = {
+      ...todoToUpdate,
+      title: newTitle,
+    };
+
+    setTodoInOperation(current => [...current, todoToUpdate.id]);
+
+    return todosService
+      .updateTodos(updatedTodo)
+      .then(updated => {
+        setTodos(currentTodos =>
+          currentTodos.map(todo => (todo.id === updated.id ? updated : todo)),
+        );
+      })
+      .catch(() => {
+        setErrorMessage(todosService.TodosError.unableToUpdate);
+        throw new Error('Unable to update');
+      })
+      .finally(() => {
+        setTodoInOperation(current =>
+          current.filter(id => id !== updatedTodo.id),
+        );
+      });
+  };
+
   return {
     errorMessage,
     setErrorMessage,
     statusFilter,
     setStatusFilter,
     handleHideError,
-    visibleFooter,
+    hasTodos,
     filteredTodos,
     activeTodos,
     allTodosCompleted,
@@ -176,5 +203,7 @@ export const useTodos = () => {
     todoInOperation,
     handleUseToggle,
     handleTodoStatusToggle,
+    handleTodoTitleUpdate,
+    isLoading,
   };
 };
