@@ -15,18 +15,20 @@ export const App: React.FC = () => {
   const [newTodoTitle, setNewTodoTitle] = useState<string>('');
   const [todoInOperation, setTodoInOperation] = useState<number[]>([]);
   const [filter, setFilter] = useState<FilterParams>(FilterParams.All);
-  const [errorMessage, setErrorMessage] = useState<ErrorMessages>(ErrorMessages.None);
+  const [errorMessage, setErrorMessage] = useState<ErrorMessages>(
+    ErrorMessages.None,
+  );
   const previousActiveCountRef = useRef<number>(0);
   const inputRef = useRef<HTMLInputElement>(null);
   const [editingId, setEditingId] = useState<number | null>(null);
   const [newTitle, setNewTitle] = useState<string>('');
 
   const addOperation = (id: number) => {
-    setTodoInOperation((prev) => [...prev, id]);
+    setTodoInOperation(prev => [...prev, id]);
   };
 
   const removeOperation = (id: number) => {
-    setTodoInOperation((prev) => prev.filter((todoId) => todoId !== id));
+    setTodoInOperation(prev => prev.filter(todoId => todoId !== id));
   };
 
   useEffect(() => {
@@ -52,7 +54,7 @@ export const App: React.FC = () => {
     }
   }, [errorMessage]);
 
-  const filteredTodos = data.filter((todo) => {
+  const filteredTodos = data.filter(todo => {
     switch (filter) {
       case FilterParams.Active:
         return !todo.completed;
@@ -69,12 +71,13 @@ export const App: React.FC = () => {
 
   function handleEditClick(id: number) {
     setEditingId(id);
-    setNewTitle(data.find((todo) => todo.id === id)?.title || '');
+    setNewTitle(data.find(todo => todo.id === id)?.title || '');
   }
 
   function createTodo() {
     if (newTodoTitle.trim() === '') {
       setErrorMessage(ErrorMessages.OnEmptyTitle);
+
       return;
     }
 
@@ -84,7 +87,9 @@ export const App: React.FC = () => {
       completed: false,
     };
 
-    previousActiveCountRef.current = data.filter((todo) => !todo.completed).length;
+    previousActiveCountRef.current = data.filter(
+      todo => !todo.completed,
+    ).length;
 
     const tempTodo = {
       id: 0,
@@ -94,16 +99,18 @@ export const App: React.FC = () => {
     };
 
     addOperation(0);
-    setData((currentTodos) => [...currentTodos, tempTodo]);
+    setData(currentTodos => [...currentTodos, tempTodo]);
 
     postService
       .createTodo(newTodoData)
-      .then((newTodo) => {
-        setData((currentTodos) => currentTodos.map((todo) => (todo.id === 0 ? newTodo : todo)));
+      .then(newTodo => {
+        setData(currentTodos =>
+          currentTodos.map(todo => (todo.id === 0 ? newTodo : todo)),
+        );
         setNewTodoTitle('');
       })
       .catch(() => {
-        setData((currentTodos) => currentTodos.filter((todo) => todo.id !== 0));
+        setData(currentTodos => currentTodos.filter(todo => todo.id !== 0));
         setErrorMessage(ErrorMessages.OnPost);
       })
       .finally(() => {
@@ -113,32 +120,32 @@ export const App: React.FC = () => {
   }
 
   function deleteCompletedTodos() {
-    const completedTodos = data.filter((todo) => todo.completed);
-    const completedIds = completedTodos.map((todo) => todo.id);
+    const completedTodos = data.filter(todo => todo.completed);
+    const completedIds = completedTodos.map(todo => todo.id);
 
     // Додаємо всі ID у операції
     completedIds.forEach(addOperation);
 
-    const deletePromises = completedIds.map((id) =>
-      postService.deleteTodo(id).then(() => id)
+    const deletePromises = completedIds.map(id =>
+      postService.deleteTodo(id).then(() => id),
     );
 
     Promise.allSettled(deletePromises)
-      .then((results) => {
+      .then(results => {
         const successIds = results
-          .filter((result) => result.status === 'fulfilled')
-          .map((result) => result.value as number);
+          .filter(result => result.status === 'fulfilled')
+          .map(result => result.value as number);
 
         const isSomeFailed = results.some(
-          (result) => result.status === 'rejected'
+          result => result.status === 'rejected',
         );
 
         if (isSomeFailed) {
           setErrorMessage(ErrorMessages.OnDelete);
         }
 
-        setData((currentTodos) =>
-          currentTodos.filter((todo) => !successIds.includes(todo.id))
+        setData(currentTodos =>
+          currentTodos.filter(todo => !successIds.includes(todo.id)),
         );
       })
       .catch(() => {
@@ -156,7 +163,7 @@ export const App: React.FC = () => {
     postService
       .deleteTodo(id)
       .then(() => {
-        setData((currentTodos) => currentTodos.filter((todo) => todo.id !== id));
+        setData(currentTodos => currentTodos.filter(todo => todo.id !== id));
       })
       .catch(() => {
         setErrorMessage(ErrorMessages.OnDelete);
@@ -172,6 +179,7 @@ export const App: React.FC = () => {
 
     if (trimmedTitle === '') {
       deleteTodo(todo.id);
+
       return;
     }
 
@@ -180,10 +188,10 @@ export const App: React.FC = () => {
     postService
       .updateTodo(todo)
       .then((updatedTodo: Todo) => {
-        setData((currentTodos) =>
-          currentTodos.map((existingTodo) =>
-            existingTodo.id === updatedTodo.id ? updatedTodo : existingTodo
-          )
+        setData(currentTodos =>
+          currentTodos.map(existingTodo =>
+            existingTodo.id === updatedTodo.id ? updatedTodo : existingTodo,
+          ),
         );
       })
       .catch(() => {
@@ -195,27 +203,23 @@ export const App: React.FC = () => {
       });
   }
 
-  function handleBlurOrKeyDown(e: React.KeyboardEvent<HTMLInputElement>, id: number) {
+  function handleBlurOrKeyDown(e: React.KeyboardEvent<HTMLInputElement> | React.FocusEvent<HTMLInputElement>, id: number) {
     const newEditedTitle = e.currentTarget.value.trim();
 
-    if (e.key === 'Enter' || e.type === 'blur') {
-      if (newEditedTitle === '') {
-        const todo = data.find((todoItem) => todoItem.id === id);
+    if (e.type === 'blur' || (e as React.KeyboardEvent).key === 'Enter') {
+      const todo = data.find((todoItem) => todoItem.id === id);
 
-        if (todo) {
+      if (todo) {
+        if (newEditedTitle === '') {
           deleteTodo(todo.id);
-        }
-      } else {
-        const todo = data.find((todoItem) => todoItem.id === id);
-
-        if (todo) {
-          todo.title = newEditedTitle;
-          updateTodo(todo);
+        } else if (todo.title !== newEditedTitle) {
+          const updatedTodo = { ...todo, title: newEditedTitle };
+          updateTodo(updatedTodo);
         }
       }
 
       setEditingId(null);
-    } else if (e.key === 'Escape') {
+    } else if ((e as React.KeyboardEvent).key === 'Escape') {
       setEditingId(null);
     }
   }
@@ -223,17 +227,18 @@ export const App: React.FC = () => {
   const handleToggle = (id: number) => {
     addOperation(id);
 
-    const todo = data.find((todo) => todo.id === id);
+    const todo = data.find(todo => todo.id === id);
 
     if (todo) {
       const updatedTodo = { ...todo, completed: !todo.completed };
 
-      postService.updateTodo(updatedTodo)
+      postService
+        .updateTodo(updatedTodo)
         .then((updatedTodo: Todo) => {
-          setData((currentTodos) =>
-            currentTodos.map((existingTodo) =>
-              existingTodo.id === updatedTodo.id ? updatedTodo : existingTodo
-            )
+          setData(currentTodos =>
+            currentTodos.map(existingTodo =>
+              existingTodo.id === updatedTodo.id ? updatedTodo : existingTodo,
+            ),
           );
         })
         .catch(() => {
@@ -246,24 +251,27 @@ export const App: React.FC = () => {
     }
   };
 
-  const allCompleted = data.every((todo) => todo.completed);
+  const allCompleted = data.every(todo => todo.completed);
 
   const toggleAllTodos = () => {
     const shouldBeCompleted = !allCompleted;
 
-    const todosToUpdate = data.filter(todo => todo.completed !== shouldBeCompleted);
+    const todosToUpdate = data.filter(
+      todo => todo.completed !== shouldBeCompleted,
+    );
 
     todosToUpdate.forEach(todo => {
       const updatedTodo = { ...todo, completed: shouldBeCompleted };
 
       addOperation(todo.id);
 
-      postService.updateTodo(updatedTodo)
-        .then((updated) => {
+      postService
+        .updateTodo(updatedTodo)
+        .then(updated => {
           setData(currentTodos =>
             currentTodos.map(current =>
-              current.id === updated.id ? updated : current
-            )
+              current.id === updated.id ? updated : current,
+            ),
           );
         })
         .catch(() => {
@@ -294,7 +302,7 @@ export const App: React.FC = () => {
             <button
               type="button"
               className={classNames('todoapp__toggle-all', {
-                active: data.every((todo) => todo.completed),
+                active: data.every(todo => todo.completed),
               })}
               data-cy="ToggleAllButton"
               aria-label="Toggle all todos"
@@ -310,7 +318,7 @@ export const App: React.FC = () => {
             className="todoapp__new-todo"
             placeholder="What needs to be done?"
             value={newTodoTitle}
-            onChange={(e) => setNewTodoTitle(e.target.value)}
+            onChange={e => setNewTodoTitle(e.target.value)}
             onKeyDown={handleKeyDown}
             disabled={todoInOperation.length > 0}
           />
@@ -318,7 +326,7 @@ export const App: React.FC = () => {
 
         {data.length > 0 && (
           <section className="todoapp__main" data-cy="TodoList">
-            {filteredTodos.map((todo) => (
+            {filteredTodos.map(todo => (
               <div
                 data-cy="Todo"
                 className={classNames('todo', {
@@ -336,36 +344,38 @@ export const App: React.FC = () => {
                   />
                 </label>
 
-                <span data-cy="TodoTitle" className="todo__title">
-                  {editingId === todo.id ? (
-                    <input
-                      data-cy="TodoTitleField"
-                      type="text"
-                      className="todo__title-field"
-                      placeholder="Empty todo will be deleted"
-                      value={newTitle}
-                      onChange={(e) => setNewTitle(e.target.value)}
-                      onBlur={(e) => handleBlurOrKeyDown(e, todo.id)}
-                      onKeyDown={(e) => handleBlurOrKeyDown(e, todo.id)}
-                      autoFocus
-                      ref={inputRef}
-                    />
-                  ) : (
-                    <span onDoubleClick={() => handleEditClick(todo.id)}>
+                {editingId === todo.id ? (
+                  <input
+                    data-cy="TodoTitleField"
+                    type="text"
+                    className="todo__title-field"
+                    placeholder="Empty todo will be deleted"
+                    value={newTitle}
+                    onChange={e => setNewTitle(e.target.value)}
+                    onBlur={e => handleBlurOrKeyDown(e, todo.id)}
+                    onKeyDown={e => handleBlurOrKeyDown(e, todo.id)}
+                    autoFocus
+                    ref={inputRef}
+                  />
+                ) : (
+                  <>
+                    <span
+                      className="todo__title"
+                      data-cy="TodoTitle"
+                      onDoubleClick={() => handleEditClick(todo.id)}
+                    >
                       {todo.title}
                     </span>
-                  )}
-                </span>
 
-                {editingId !== todo.id && (
-                  <button
-                    type="button"
-                    className="todo__remove"
-                    data-cy="TodoDelete"
-                    onClick={() => deleteTodo(todo.id)}
-                  >
-                    ×
-                  </button>
+                    <button
+                      type="button"
+                      className="todo__remove"
+                      data-cy="TodoDelete"
+                      onClick={() => deleteTodo(todo.id)}
+                    >
+                      ×
+                    </button>
+                  </>
                 )}
 
                 <div
@@ -387,7 +397,7 @@ export const App: React.FC = () => {
             <span className="todo-count" data-cy="TodosCounter">
               {todoInOperation.length > 0
                 ? previousActiveCountRef.current
-                : data.filter((todo) => !todo.completed).length}{' '}
+                : data.filter(todo => !todo.completed).length}{' '}
               items left
             </span>
 
@@ -430,7 +440,7 @@ export const App: React.FC = () => {
               type="button"
               className="todoapp__clear-completed"
               data-cy="ClearCompletedButton"
-              disabled={data.filter((todo) => todo.completed).length === 0}
+              disabled={data.filter(todo => todo.completed).length === 0}
               onClick={deleteCompletedTodos}
             >
               Clear completed
@@ -446,7 +456,7 @@ export const App: React.FC = () => {
           'is-danger',
           'is-light',
           'has-text-weight-normal',
-          { hidden: errorMessage === ErrorMessages.None }
+          { hidden: errorMessage === ErrorMessages.None },
         )}
       >
         <button
