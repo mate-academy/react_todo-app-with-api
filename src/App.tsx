@@ -1,26 +1,79 @@
-/* eslint-disable max-len */
+/* eslint-disable jsx-a11y/label-has-associated-control */
 /* eslint-disable jsx-a11y/control-has-associated-label */
 import React from 'react';
 import { UserWarning } from './UserWarning';
-
-const USER_ID = 0;
+import { TEMP_TODO_ID, USER_ID } from './api/todos';
+import { TodoList } from './components/TodoList';
+import { ErrorMessage } from './components/ErrorMessage';
+import { Footer } from './components/Footer';
+import { Header } from './components/Header';
+import { useTodoController } from './hooks/useTodoController';
 
 export const App: React.FC = () => {
+  const {
+    isThereAlLeastOneTodo,
+    isInitialLoading,
+    errorMessage,
+    setErrorMessage,
+    tempTodo,
+    isTodoLoading,
+    isAlLeastOneTodoLoading,
+    isAllTodosCompleted,
+    onAddTodo,
+    inputFocusRef,
+    onTodoDelete,
+    onClearCompletedTodos,
+    onTodoUpdate,
+    onToggleTodos,
+    statusFilter,
+    setStatusFilter,
+    filteredTodos,
+    activeTodosCount,
+    isThereAtLeastOneCompletedTodo,
+  } = useTodoController();
+
   if (!USER_ID) {
     return <UserWarning />;
   }
 
   return (
-    <section className="section container">
-      <p className="title is-4">
-        Copy all you need from the prev task:
-        <br />
-        <a href="https://github.com/mate-academy/react_todo-app-add-and-delete#react-todo-app-add-and-delete">
-          React Todo App - Add and Delete
-        </a>
-      </p>
+    <div className="todoapp">
+      <h1 className="todoapp__title">todos</h1>
 
-      <p className="subtitle">Styles are already copied</p>
-    </section>
+      <div className="todoapp__content">
+        <Header
+          isLoading={isTodoLoading(TEMP_TODO_ID)}
+          isThereAlLeastOneTodo={isThereAlLeastOneTodo}
+          onAddTodo={onAddTodo}
+          isAlLeastOneTodoLoading={isAlLeastOneTodoLoading}
+          isAllTodosCompleted={isAllTodosCompleted}
+          onToggleTodos={onToggleTodos}
+          ref={inputFocusRef}
+        />
+
+        <TodoList
+          todos={filteredTodos}
+          tempTodo={tempTodo}
+          isTodoLoading={isTodoLoading}
+          onTodoDelete={onTodoDelete}
+          onTodoUpdate={onTodoUpdate}
+        />
+
+        {!isInitialLoading && isThereAlLeastOneTodo && (
+          <Footer
+            activeTodosCount={activeTodosCount}
+            statusFilter={statusFilter}
+            onStatusFilterChange={setStatusFilter}
+            isThereAtLeastOneCompletedTodo={isThereAtLeastOneCompletedTodo}
+            onClearCompletedTodos={onClearCompletedTodos}
+          />
+        )}
+      </div>
+
+      <ErrorMessage
+        errorMessage={errorMessage}
+        setErrorMessage={setErrorMessage}
+      />
+    </div>
   );
 };
