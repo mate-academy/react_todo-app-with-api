@@ -20,8 +20,9 @@ export const App: React.FC = () => {
   );
   const previousActiveCountRef = useRef<number>(0);
   const inputRef = useRef<HTMLInputElement>(null);
-  const [editingId, setEditingId] = useState<number | null>(null);
+  const [isEdited, setIsEdited] = useState<boolean>(false);
   const [newTitle, setNewTitle] = useState<string>('');
+  const [editingId, setEditingId] = useState<number | null>(null);
 
   const addOperation = (id: number) => {
     setTodoInOperation(prev => [...prev, id]);
@@ -32,10 +33,10 @@ export const App: React.FC = () => {
   };
 
   useEffect(() => {
-    if (todoInOperation.length === 0 && editingId === null) {
+    if (todoInOperation.length === 0 && !isEdited) {
       inputRef.current?.focus();
     }
-  }, [todoInOperation, editingId]);
+  }, [todoInOperation, isEdited]);
 
   useEffect(() => {
     setErrorMessage(ErrorMessages.None);
@@ -72,6 +73,7 @@ export const App: React.FC = () => {
   function handleEditClick(id: number) {
     setEditingId(id);
     setNewTitle(data.find(todo => todo.id === id)?.title || '');
+    setIsEdited(true);
   }
 
   function createTodo() {
@@ -123,7 +125,6 @@ export const App: React.FC = () => {
     const completedTodos = data.filter(todo => todo.completed);
     const completedIds = completedTodos.map(todo => todo.id);
 
-    // Додаємо всі ID у операції
     completedIds.forEach(addOperation);
 
     const deletePromises = completedIds.map(id =>
@@ -152,7 +153,6 @@ export const App: React.FC = () => {
         setErrorMessage(ErrorMessages.OnDelete);
       })
       .finally(() => {
-        // Видаляємо всі ID з операцій
         completedIds.forEach(removeOperation);
       });
   }
@@ -174,6 +174,7 @@ export const App: React.FC = () => {
       });
   }
 
+  /* eslint-disable @typescript-eslint/no-unused-vars */
   function updateTodo(todo: Todo) {
     const trimmedTitle = newTitle.trim();
 
@@ -196,6 +197,7 @@ export const App: React.FC = () => {
       })
       .catch(() => {
         setErrorMessage(ErrorMessages.OnPatch);
+        setIsEdited(true);
       })
       .finally(() => {
         removeOperation(todo.id);
@@ -203,23 +205,73 @@ export const App: React.FC = () => {
       });
   }
 
-  function handleBlurOrKeyDown(e: React.KeyboardEvent<HTMLInputElement> | React.FocusEvent<HTMLInputElement>, id: number) {
+  function keepEditingOnError(id: number) {
+    setIsEdited(true);
+    setEditingId(id);
+  }
+
+  function handleBlurOrKeyDown(
+    e: /* eslint-disable @typescript-eslint/no-unused-vars */
+    React.KeyboardEvent<HTMLInputElement> | React.FocusEvent<HTMLInputElement>,
+    id: number,
+  ) {
     const newEditedTitle = e.currentTarget.value.trim();
 
     if (e.type === 'blur' || (e as React.KeyboardEvent).key === 'Enter') {
-      const todo = data.find((todoItem) => todoItem.id === id);
+      const currentTodo = data.find(todoItem => todoItem.id === id);
 
-      if (todo) {
+      if (currentTodo) {
         if (newEditedTitle === '') {
-          deleteTodo(todo.id);
-        } else if (todo.title !== newEditedTitle) {
-          const updatedTodo = { ...todo, title: newEditedTitle };
-          updateTodo(updatedTodo);
+          addOperation(currentTodo.id);
+
+          postService
+            .deleteTodo(currentTodo.id)
+            .then(() => {
+              setData(currentTodos =>
+                currentTodos.filter(item => item.id !== currentTodo.id),
+              );
+              setIsEdited(false);
+              setEditingId(null);
+            })
+            .catch(() => {
+              setErrorMessage(ErrorMessages.OnDelete);
+              keepEditingOnError(currentTodo.id);
+            })
+            .finally(() => {
+              removeOperation(currentTodo.id);
+            });
+        } else if (currentTodo.title !== newEditedTitle) {
+          const updatedTodo = { ...currentTodo, title: newEditedTitle };
+
+          addOperation(currentTodo.id);
+
+          postService
+            .updateTodo(updatedTodo)
+            .then((editedTodo: Todo) => {
+              setData(currentTodos =>
+                currentTodos.map(existingTodo =>
+                  existingTodo.id === editedTodo.id ? editedTodo : existingTodo,
+                ),
+              );
+              setIsEdited(false);
+              setEditingId(null);
+            })
+            .catch(() => {
+              setErrorMessage(ErrorMessages.OnPatch);
+              keepEditingOnError(currentTodo.id);
+            })
+            .finally(() => {
+              removeOperation(currentTodo.id);
+            });
+
+          return;
+        } else {
+          setIsEdited(false);
+          setEditingId(null);
         }
       }
-
-      setEditingId(null);
     } else if ((e as React.KeyboardEvent).key === 'Escape') {
+      setIsEdited(false);
       setEditingId(null);
     }
   }
@@ -227,17 +279,17 @@ export const App: React.FC = () => {
   const handleToggle = (id: number) => {
     addOperation(id);
 
-    const todo = data.find(todo => todo.id === id);
+    const todo = data.find(findedTodo => findedTodo.id === id);
 
     if (todo) {
       const updatedTodo = { ...todo, completed: !todo.completed };
 
       postService
         .updateTodo(updatedTodo)
-        .then((updatedTodo: Todo) => {
+        .then((editedTodo: Todo) => {
           setData(currentTodos =>
             currentTodos.map(existingTodo =>
-              existingTodo.id === updatedTodo.id ? updatedTodo : existingTodo,
+              existingTodo.id === editedTodo.id ? editedTodo : existingTodo,
             ),
           );
         })
@@ -344,7 +396,7 @@ export const App: React.FC = () => {
                   />
                 </label>
 
-                {editingId === todo.id ? (
+                {isEdited && editingId === todo.id ? (
                   <input
                     data-cy="TodoTitleField"
                     type="text"
