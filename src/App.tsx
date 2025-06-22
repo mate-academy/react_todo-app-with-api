@@ -9,6 +9,9 @@ import classNames from 'classnames';
 import * as postService from './api/todos';
 import { FilterParams } from './types/messages';
 import { ErrorMessages } from './types/messages';
+import { ErrorNotification } from './components/ErrorNotification';
+import { TodoHeader } from './components/TodoHeader';
+import { TodoList } from './components/TodoList';
 
 export const App: React.FC = () => {
   const [data, setData] = useState<Todo[]>([]);
@@ -303,6 +306,15 @@ export const App: React.FC = () => {
     }
   };
 
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    const isEnterKey = e.key === 'Enter';
+
+    if (isEnterKey) {
+      e.preventDefault();
+      createTodo();
+    }
+  };
+
   const allCompleted = data.every(todo => todo.completed);
 
   const toggleAllTodos = () => {
@@ -335,113 +347,36 @@ export const App: React.FC = () => {
     });
   };
 
-  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    const isEnterKey = e.key === 'Enter';
-
-    if (isEnterKey) {
-      e.preventDefault();
-      createTodo();
-    }
-  };
-
   return (
     <div className="todoapp">
       <h1 className="todoapp__title">todos</h1>
 
       <div className="todoapp__content">
-        <header className="todoapp__header">
-          {data.length > 0 && (
-            <button
-              type="button"
-              className={classNames('todoapp__toggle-all', {
-                active: data.every(todo => todo.completed),
-              })}
-              data-cy="ToggleAllButton"
-              aria-label="Toggle all todos"
-              onClick={toggleAllTodos}
-              disabled={data.length === 0}
-            />
-          )}
-
-          <input
-            ref={inputRef}
-            data-cy="NewTodoField"
-            type="text"
-            className="todoapp__new-todo"
-            placeholder="What needs to be done?"
-            value={newTodoTitle}
-            onChange={e => setNewTodoTitle(e.target.value)}
-            onKeyDown={handleKeyDown}
-            disabled={todoInOperation.length > 0}
-          />
-        </header>
+        <TodoHeader
+          data={data}
+          newTodoTitle={newTodoTitle}
+          setNewTodoTitle={setNewTodoTitle}
+          handleKeyDown={handleKeyDown}
+          todoInOperation={todoInOperation}
+          isEdited={isEdited}
+          inputRef={inputRef}
+          toggleAllTodos={toggleAllTodos}
+        />
 
         {data.length > 0 && (
-          <section className="todoapp__main" data-cy="TodoList">
-            {filteredTodos.map(todo => (
-              <div
-                data-cy="Todo"
-                className={classNames('todo', {
-                  completed: todo.completed,
-                })}
-                key={todo.id}
-              >
-                <label className="todo__status-label">
-                  <input
-                    data-cy="TodoStatus"
-                    type="checkbox"
-                    className="todo__status"
-                    checked={todo.completed}
-                    onChange={() => handleToggle(todo.id)}
-                  />
-                </label>
-
-                {isEdited && editingId === todo.id ? (
-                  <input
-                    data-cy="TodoTitleField"
-                    type="text"
-                    className="todo__title-field"
-                    placeholder="Empty todo will be deleted"
-                    value={newTitle}
-                    onChange={e => setNewTitle(e.target.value)}
-                    onBlur={e => handleBlurOrKeyDown(e, todo.id)}
-                    onKeyDown={e => handleBlurOrKeyDown(e, todo.id)}
-                    autoFocus
-                    ref={inputRef}
-                  />
-                ) : (
-                  <>
-                    <span
-                      className="todo__title"
-                      data-cy="TodoTitle"
-                      onDoubleClick={() => handleEditClick(todo.id)}
-                    >
-                      {todo.title}
-                    </span>
-
-                    <button
-                      type="button"
-                      className="todo__remove"
-                      data-cy="TodoDelete"
-                      onClick={() => deleteTodo(todo.id)}
-                    >
-                      ×
-                    </button>
-                  </>
-                )}
-
-                <div
-                  data-cy="TodoLoader"
-                  className={classNames('modal overlay', {
-                    'is-active': todoInOperation.includes(todo.id),
-                  })}
-                >
-                  <div className="modal-background has-background-white-ter" />
-                  <div className="loader" />
-                </div>
-              </div>
-            ))}
-          </section>
+          <TodoList
+            filteredTodos={filteredTodos}
+            handleToggle={handleToggle}
+            handleEditClick={handleEditClick}
+            deleteTodo={deleteTodo}
+            isEdited={isEdited}
+            editingId={editingId}
+            newTitle={newTitle}
+            setNewTitle={setNewTitle}
+            handleBlurOrKeyDown={handleBlurOrKeyDown}
+            todoInOperation={todoInOperation}
+            inputRef={inputRef}
+          />
         )}
 
         {data.length > 0 && (
@@ -501,25 +436,10 @@ export const App: React.FC = () => {
         )}
       </div>
 
-      <div
-        data-cy="ErrorNotification"
-        className={classNames(
-          'notification',
-          'is-danger',
-          'is-light',
-          'has-text-weight-normal',
-          { hidden: errorMessage === ErrorMessages.None },
-        )}
-      >
-        <button
-          data-cy="HideErrorButton"
-          type="button"
-          className="delete"
-          onClick={() => setErrorMessage(ErrorMessages.None)}
-          aria-label="Hide error notification"
-        />
-        {errorMessage}
-      </div>
+      <ErrorNotification
+        errorMessage={errorMessage}
+        setErrorMessage={setErrorMessage}
+      />
     </div>
   );
 };
