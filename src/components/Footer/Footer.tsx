@@ -2,6 +2,7 @@ import React from 'react';
 import { Filter } from '../../types/FilterType';
 import classNames from 'classnames';
 import { Todo } from '../../types/Todo';
+import { FiltersLabel } from '../constants/FiltersLabel';
 
 type Props = {
   counterValue: number;
@@ -12,13 +13,6 @@ type Props = {
   removeCompleted: () => void;
 };
 
-// should i create a separate file for filters?
-const filters = [
-  { value: Filter.All, label: 'All', cy: 'FilterLinkAll' },
-  { value: Filter.Active, label: 'Active', cy: 'FilterLinkActive' },
-  { value: Filter.Completed, label: 'Completed', cy: 'FilterLinkCompleted' },
-] as const;
-
 export const Footer: React.FC<Props> = ({
   counterValue,
   filter,
@@ -27,6 +21,8 @@ export const Footer: React.FC<Props> = ({
   isLoading,
   removeCompleted,
 }) => {
+  const isTodoCompleted = todos.some(todo => todo.completed);
+
   return (
     <footer className="todoapp__footer" data-cy="Footer">
       <span className="todo-count" data-cy="TodosCounter">
@@ -34,10 +30,10 @@ export const Footer: React.FC<Props> = ({
       </span>
 
       <nav className="filter" data-cy="Filter">
-        {filters.map(({ value, label, cy }) => (
+        {FiltersLabel.map(({ value, label, cy }) => (
           <a
             key={value}
-            href={`#/${value === 'all' ? '' : value}`}
+            href={`#/${value === Filter.All ? '' : value}`}
             className={classNames('filter__link', {
               selected: filter === value,
             })}
@@ -57,7 +53,7 @@ export const Footer: React.FC<Props> = ({
         type="button"
         className="clear-completed"
         onClick={removeCompleted}
-        disabled={isLoading || !todos.some(todo => todo.completed)}
+        disabled={isLoading || !isTodoCompleted}
       >
         Clear completed
       </button>

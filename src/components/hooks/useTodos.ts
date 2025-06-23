@@ -1,8 +1,9 @@
 import { useEffect, useState } from 'react';
 import { getTodos, addTodo, deleteTodo, updateTodo } from '../../api/todos';
 import { Todo } from '../../types/Todo';
-import { TodoTypeError, TodoTypeErrors } from '../../types/TodoTypeErrors';
+import { TodoTypeError, TodoTypeErrors } from '../constants/TodoTypeErrors';
 import { USER_ID } from '../../api/todos';
+import { Filter } from '../../types/FilterType';
 
 export const useTodos = () => {
   const [todos, setTodos] = useState<Todo[]>([]);
@@ -10,8 +11,8 @@ export const useTodos = () => {
   const [error, setError] = useState<TodoTypeError | null>(null);
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
   const [processingTodoID, setProcessingTodoID] = useState<number[]>([]);
+  const [filter, setFilter] = useState<Filter>(Filter.All);
 
-  // get todos
   useEffect(() => {
     setIsLoading(true);
     setError(null);
@@ -23,7 +24,6 @@ export const useTodos = () => {
       .finally(() => setIsLoading(false));
   }, []);
 
-  // add todo and validate
   const add = async (title: string) => {
     const trimmedTitle = title.trim();
 
@@ -63,7 +63,6 @@ export const useTodos = () => {
     }
   };
 
-  // delete todo and validate
   const remove = async (todoId: number) => {
     setProcessingTodoID(id => [...id, todoId]);
     setIsLoading(true);
@@ -80,14 +79,12 @@ export const useTodos = () => {
     }
   };
 
-  // toggle todo and validate
   const toggle = async (todo: Todo) => {
     setProcessingTodoID(ids => [...ids, todo.id]);
     setIsLoading(true);
     setError(null);
     try {
       const updatedTodo = await updateTodo(todo.id, {
-        ...todo,
         completed: !todo.completed,
       });
 
@@ -101,7 +98,6 @@ export const useTodos = () => {
     }
   };
 
-  // remove all completed todo
   const removeCompleted = async () => {
     setIsLoading(true);
     setError(null);
@@ -131,7 +127,6 @@ export const useTodos = () => {
     }
   };
 
-  // toggle all status
   const toggleAll = async () => {
     const areAllCompleted = todos.every(todo => todo.completed);
     const newCompleted = !areAllCompleted;
@@ -165,7 +160,6 @@ export const useTodos = () => {
     }
   };
 
-  // update title in current todo
   const updateTitle = async (todoId: number, newTitle: string) => {
     setProcessingTodoID(prev => [...prev, todoId]);
     setIsLoading(true);
@@ -191,6 +185,17 @@ export const useTodos = () => {
     }
   };
 
+  const filteredTodos = todos.filter(todo => {
+    switch (filter) {
+      case Filter.Active:
+        return !todo.completed;
+      case Filter.Completed:
+        return todo.completed;
+      default:
+        return true;
+    }
+  });
+
   const hideError = () => {
     setError(null);
   };
@@ -210,5 +215,8 @@ export const useTodos = () => {
     removeCompleted,
     toggleAll,
     updateTitle,
+    filter,
+    setFilter,
+    filteredTodos,
   };
 };

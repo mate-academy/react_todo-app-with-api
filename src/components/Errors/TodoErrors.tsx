@@ -1,6 +1,6 @@
 import classNames from 'classnames';
 import React, { useEffect } from 'react';
-import { TodoTypeError } from '../../types/TodoTypeErrors';
+import { TodoTypeError } from '../constants/TodoTypeErrors';
 
 type Props = {
   error: TodoTypeError | null;
@@ -8,17 +8,16 @@ type Props = {
 };
 
 export const TodoErrors: React.FC<Props> = ({ error, setError }) => {
-  // Hide error after 3 seconds
   useEffect(() => {
-    if (error) {
-      const timer = setTimeout(() => {
-        setError(null);
-      }, 3000);
-
-      return () => clearTimeout(timer);
+    if (!error) {
+      return;
     }
 
-    return undefined;
+    const timer = setTimeout(() => {
+      setError(null);
+    }, 3000);
+
+    return () => clearTimeout(timer);
   }, [error, setError]);
 
   return (

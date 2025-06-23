@@ -1,7 +1,7 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { Todo } from '../../types/Todo';
 import classNames from 'classnames';
-import { TodoTypeErrors, TodoTypeError } from '../../types/TodoTypeErrors';
+import { TodoTypeErrors, TodoTypeError } from '../constants/TodoTypeErrors';
 
 type Props = {
   todos: Todo[];
@@ -10,9 +10,11 @@ type Props = {
   handleToggleCompleted: (todo: Todo) => void;
   isLoading: boolean;
   processingTodoID: number[];
-  setProcessingTodoID: React.Dispatch<React.SetStateAction<number[]>>;
-  updateTitle: (id: number, newTitle: string) => void;
-  setError: React.Dispatch<React.SetStateAction<TodoTypeError | null>>;
+  setProcessingTodoID: (
+    value: number[] | ((prev: number[]) => number[]),
+  ) => void;
+  updateTitle: (id: number, newTitle: string) => Promise<void>;
+  setError: (error: TodoTypeError | null) => void;
 };
 
 export const TodoList: React.FC<Props> = ({
@@ -36,6 +38,16 @@ export const TodoList: React.FC<Props> = ({
       inputRef.current?.focus();
     }
   }, [editingId]);
+
+  const createDeleteHandler = useCallback(
+    (id: number) => () => handleTodoDeleted(id),
+    [handleTodoDeleted],
+  );
+
+  const createToggleHandler = useCallback(
+    (todo: Todo) => () => handleToggleCompleted(todo),
+    [handleToggleCompleted],
+  );
 
   const handleEdit = (todo: Todo) => {
     setEditingId(todo.id);
@@ -155,15 +167,15 @@ export const TodoList: React.FC<Props> = ({
                 type="checkbox"
                 className="todo__status"
                 checked={todo.completed}
-                onChange={() => handleToggleCompleted(todo)}
+                onChange={createToggleHandler(todo)}
                 disabled={isProcessing}
               />
             </label>
 
             {isEditing ? (
               <form
-                onSubmit={e => {
-                  e.preventDefault();
+                onSubmit={event => {
+                  event.preventDefault();
                   handleSubmit();
                 }}
               >
@@ -173,7 +185,7 @@ export const TodoList: React.FC<Props> = ({
                   type="text"
                   className="todo__title-field"
                   value={editingTitle}
-                  onChange={e => setEditingTitle(e.target.value)}
+                  onChange={event => setEditingTitle(event.target.value)}
                   onBlur={handleSubmit}
                   onKeyUp={handleKeyUp}
                 />
@@ -193,7 +205,7 @@ export const TodoList: React.FC<Props> = ({
                 type="button"
                 className="todo__remove"
                 data-cy="TodoDelete"
-                onClick={() => handleTodoDeleted(todo.id)}
+                onClick={createDeleteHandler(todo.id)}
                 disabled={isLoading}
               >
                 ×

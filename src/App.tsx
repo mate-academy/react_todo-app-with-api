@@ -1,11 +1,10 @@
 /* eslint-disable jsx-a11y/label-has-associated-control */
 /* eslint-disable jsx-a11y/control-has-associated-label */
-import React, { useState } from 'react';
+import React from 'react';
 import { Header } from './components/Header';
 import { TodoList } from './components/TodoList';
 import { Footer } from './components/Footer';
 import { TodoErrors } from './components/Errors/TodoErrors';
-import { Filter } from './types/FilterType';
 import { useTodos } from './components/hooks/useTodos';
 
 export const App: React.FC = () => {
@@ -24,22 +23,12 @@ export const App: React.FC = () => {
     removeCompleted,
     toggleAll,
     updateTitle,
+    filter,
+    setFilter,
+    filteredTodos,
   } = useTodos();
 
-  const [filter, setFilter] = useState<Filter>(Filter.All);
-
-  // Filter todos based on the selected filter
-  const filteredTodos = todos.filter(todo => {
-    if (filter === 'active') {
-      return !todo.completed;
-    }
-
-    if (filter === 'completed') {
-      return todo.completed;
-    }
-
-    return todo;
-  });
+  const isTodosLengthPositive = todos.length > 0;
 
   return (
     <div className="todoapp">
@@ -62,7 +51,7 @@ export const App: React.FC = () => {
           updateTitle={updateTitle}
           setError={setError}
         />
-        {todos.length > 0 && (
+        {isTodosLengthPositive && (
           <Footer
             counterValue={todos.filter(todo => !todo.completed).length}
             filter={filter}
