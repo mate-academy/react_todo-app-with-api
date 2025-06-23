@@ -1,26 +1,69 @@
-/* eslint-disable max-len */
+/* eslint-disable jsx-a11y/label-has-associated-control */
 /* eslint-disable jsx-a11y/control-has-associated-label */
 import React from 'react';
-import { UserWarning } from './UserWarning';
-
-const USER_ID = 0;
+import { Header } from './components/Header';
+import { TodoList } from './components/TodoList';
+import { Footer } from './components/Footer';
+import { TodoErrors } from './components/Errors/TodoErrors';
+import { useTodos } from './components/hooks/useTodos';
 
 export const App: React.FC = () => {
-  if (!USER_ID) {
-    return <UserWarning />;
-  }
+  const {
+    todos,
+    isLoading,
+    error,
+    setError,
+    add,
+    remove,
+    toggle,
+    hideError,
+    tempTodo,
+    processingTodoID,
+    setProcessingTodoID,
+    removeCompleted,
+    toggleAll,
+    updateTitle,
+    filter,
+    setFilter,
+    filteredTodos,
+  } = useTodos();
+
+  const isTodosLengthPositive = todos.length > 0;
 
   return (
-    <section className="section container">
-      <p className="title is-4">
-        Copy all you need from the prev task:
-        <br />
-        <a href="https://github.com/mate-academy/react_todo-app-add-and-delete#react-todo-app-add-and-delete">
-          React Todo App - Add and Delete
-        </a>
-      </p>
+    <div className="todoapp">
+      <h1 className="todoapp__title">todos</h1>
+      <div className="todoapp__content">
+        <Header
+          onTodoAdded={add}
+          isLoading={isLoading}
+          toggleAll={toggleAll}
+          todos={todos}
+        />
+        <TodoList
+          todos={filteredTodos}
+          tempTodo={tempTodo}
+          handleTodoDeleted={remove}
+          handleToggleCompleted={toggle}
+          isLoading={isLoading}
+          processingTodoID={processingTodoID}
+          setProcessingTodoID={setProcessingTodoID}
+          updateTitle={updateTitle}
+          setError={setError}
+        />
+        {isTodosLengthPositive && (
+          <Footer
+            counterValue={todos.filter(todo => !todo.completed).length}
+            filter={filter}
+            setFilter={setFilter}
+            todos={todos}
+            isLoading={isLoading}
+            removeCompleted={removeCompleted}
+          />
+        )}
+      </div>
 
-      <p className="subtitle">Styles are already copied</p>
-    </section>
+      <TodoErrors error={error} setError={hideError} />
+    </div>
   );
 };
