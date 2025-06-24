@@ -5,13 +5,13 @@ import { UserWarning } from './UserWarning';
 import { USER_ID } from './api/todos';
 import { getTodos } from './api/todos';
 import { Todo } from './types/Todo';
-import classNames from 'classnames';
 import * as postService from './api/todos';
 import { FilterParams } from './types/messages';
 import { ErrorMessages } from './types/messages';
 import { ErrorNotification } from './components/ErrorNotification';
 import { TodoHeader } from './components/TodoHeader';
 import { TodoList } from './components/TodoList';
+import { TodoFooter } from './components/TodoFooter';
 
 export const App: React.FC = () => {
   const [data, setData] = useState<Todo[]>([]);
@@ -79,7 +79,7 @@ export const App: React.FC = () => {
     setIsEdited(true);
   }
 
-  function createTodo() {
+  const createTodo = () => {
     if (newTodoTitle.trim() === '') {
       setErrorMessage(ErrorMessages.OnEmptyTitle);
 
@@ -122,9 +122,9 @@ export const App: React.FC = () => {
         removeOperation(0);
         inputRef.current?.focus();
       });
-  }
+  };
 
-  function deleteCompletedTodos() {
+  const deleteCompletedTodos = () => {
     const completedTodos = data.filter(todo => todo.completed);
     const completedIds = completedTodos.map(todo => todo.id);
 
@@ -158,9 +158,9 @@ export const App: React.FC = () => {
       .finally(() => {
         completedIds.forEach(removeOperation);
       });
-  }
+  };
 
-  function deleteTodo(id: number) {
+  const deleteTodo = (id: number) => {
     addOperation(id);
 
     postService
@@ -175,7 +175,7 @@ export const App: React.FC = () => {
         removeOperation(id);
         inputRef.current?.focus();
       });
-  }
+  };
 
   /* eslint-disable @typescript-eslint/no-unused-vars */
   function updateTodo(todo: Todo) {
@@ -347,6 +347,13 @@ export const App: React.FC = () => {
     });
   };
 
+  const disabledButton = data.filter(todo => todo.completed).length === 0;
+
+  const itemsLeft =
+    todoInOperation.length > 0
+      ? previousActiveCountRef.current
+      : data.filter(filteredTodo => !filteredTodo.completed).length;
+
   return (
     <div className="todoapp">
       <h1 className="todoapp__title">todos</h1>
@@ -380,59 +387,13 @@ export const App: React.FC = () => {
         )}
 
         {data.length > 0 && (
-          <footer className="todoapp__footer" data-cy="Footer">
-            <span className="todo-count" data-cy="TodosCounter">
-              {todoInOperation.length > 0
-                ? previousActiveCountRef.current
-                : data.filter(todo => !todo.completed).length}{' '}
-              items left
-            </span>
-
-            <nav className="filter" data-cy="Filter">
-              <a
-                href="#/"
-                className={classNames('filter__link', {
-                  selected: filter === FilterParams.All,
-                })}
-                data-cy="FilterLinkAll"
-                onClick={() => setFilter(FilterParams.All)}
-              >
-                All
-              </a>
-
-              <a
-                href="#/active"
-                className={classNames('filter__link', {
-                  selected: filter === FilterParams.Active,
-                })}
-                data-cy="FilterLinkActive"
-                onClick={() => setFilter(FilterParams.Active)}
-              >
-                Active
-              </a>
-
-              <a
-                href="#/completed"
-                className={classNames('filter__link', {
-                  selected: filter === FilterParams.Completed,
-                })}
-                data-cy="FilterLinkCompleted"
-                onClick={() => setFilter(FilterParams.Completed)}
-              >
-                Completed
-              </a>
-            </nav>
-
-            <button
-              type="button"
-              className="todoapp__clear-completed"
-              data-cy="ClearCompletedButton"
-              disabled={data.filter(todo => todo.completed).length === 0}
-              onClick={deleteCompletedTodos}
-            >
-              Clear completed
-            </button>
-          </footer>
+          <TodoFooter
+            itemsLeft={itemsLeft}
+            setFilter={setFilter}
+            filter={filter}
+            disabledButton={disabledButton}
+            deleteCompletedTodos={deleteCompletedTodos}
+          />
         )}
       </div>
 

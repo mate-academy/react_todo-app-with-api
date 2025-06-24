@@ -12,9 +12,8 @@ interface TodoListProps {
   newTitle: string;
   setNewTitle: (title: string) => void;
   handleBlurOrKeyDown: (
-    e:
-    | React.KeyboardEvent<HTMLInputElement>
-    | React.FocusEvent<HTMLInputElement>,
+    e: /* eslint-disable @typescript-eslint/no-unused-vars */
+    React.KeyboardEvent<HTMLInputElement> | React.FocusEvent<HTMLInputElement>,
     id: number,
   ) => void;
   todoInOperation: number[];
@@ -44,6 +43,7 @@ export const TodoList: React.FC<TodoListProps> = ({
           })}
           key={todo.id}
         >
+          {/*eslint-disable-next-line*/}
           <label className="todo__status-label">
             <input
               data-cy="TodoStatus"
