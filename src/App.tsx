@@ -66,24 +66,27 @@ export const App: React.FC = () => {
     setEditingTitle(event.target.value);
   };
 
-  const handleEditSubmit = async (todo: Todo) => {
+  const handleEditSubmit = async (
+    todo: Todo,
+    eventType: 'enter' | 'blur' = 'enter',
+  ) => {
     const newTitle = editingTitle.trim();
 
     if (newTitle === todo.title) {
-      handleEditCancel();
+      setEditingTodoId(null);
+      setEditingTitle('');
 
       return;
     }
 
     if (!newTitle) {
-      try {
+      if (eventType === 'enter') {
         // eslint-disable-next-line @typescript-eslint/no-use-before-define
         await handleDeleteTodo(todo.id);
-        handleEditCancel();
-      } catch {
-        setError('Unable to delete a todo');
-
-        return;
+        setEditingTodoId(null);
+        setEditingTitle('');
+      } else {
+        setError('Title should not be empty');
       }
 
       return;

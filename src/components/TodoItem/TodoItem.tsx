@@ -14,7 +14,7 @@ interface TodoItemProps {
   onEditStart?: (todo: Todo) => void;
   onEditCancel?: () => void;
   onEditChange?: (event: React.ChangeEvent<HTMLInputElement>) => void;
-  onEditSubmit?: (todo: Todo) => void;
+  onEditSubmit?: (todo: Todo, eventType?: 'enter' | 'blur') => void;
 }
 
 export const TodoItem: React.FC<TodoItemProps> = ({
@@ -37,16 +37,6 @@ export const TodoItem: React.FC<TodoItemProps> = ({
       inputRef.current?.focus();
     }
   }, [isEditing]);
-
-  const handleKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
-    if (event.key === 'Escape') {
-      onEditCancel?.();
-    }
-
-    if (event.key === 'Enter') {
-      onEditSubmit?.(todo);
-    }
-  };
 
   return (
     <div
@@ -91,8 +81,34 @@ export const TodoItem: React.FC<TodoItemProps> = ({
           data-cy="TodoTitleField"
           value={editingTitle}
           onChange={onEditChange}
-          onBlur={() => onEditSubmit?.(todo)}
-          onKeyDown={handleKeyDown}
+          onBlur={() => {
+            if (editingTitle.trim() === '') {
+              inputRef.current?.focus();
+              onDelete(todo.id);
+
+              return;
+            }
+
+            onEditSubmit?.(todo, 'blur');
+          }}
+          onKeyDown={event => {
+            if (event.key === 'Escape') {
+              onEditCancel?.();
+            }
+
+            if (event.key === 'Enter') {
+              if (editingTitle.trim() === '') {
+                event.preventDefault();
+                inputRef.current?.focus();
+
+                onDelete(todo.id);
+
+                return;
+              }
+
+              onEditSubmit?.(todo, 'enter');
+            }
+          }}
           disabled={isProcessing}
         />
       )}
