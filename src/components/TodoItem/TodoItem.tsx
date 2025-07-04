@@ -19,6 +19,8 @@ export const TodoItem: React.FC<TodoItemProps> = ({
   todo,
   onEditTodo,
 }) => {
+  const { id, title, completed } = todo;
+
   const [editField, setEditField] = useState(false);
   const [editTitle, setEditTitle] = useState(todo.title);
   const [hide, setHide] = useState(false);
@@ -28,13 +30,11 @@ export const TodoItem: React.FC<TodoItemProps> = ({
     if (editField && focusToEdit.current) {
       focusToEdit.current.focus();
     }
-  }, [editField, todo.id]);
+  }, [editField, id]);
 
   useEffect(() => {
-    setEditTitle(todo.title);
-  }, [todo.title]);
-
-  const { id, title, completed } = todo;
+    setEditTitle(title);
+  }, [title]);
 
   const onDelete = () => {
     handleActiveTodo(id);
@@ -42,7 +42,7 @@ export const TodoItem: React.FC<TodoItemProps> = ({
   };
 
   const changeStatus = async (todoForChange: Todo) => {
-    const changedItems = { id: todoForChange.id, completed: !todo.completed };
+    const changedItems = { id: todoForChange.id, completed: !completed };
 
     onEditTodo(changedItems);
   };
@@ -60,7 +60,7 @@ export const TodoItem: React.FC<TodoItemProps> = ({
 
   const submitChanges = async (event: React.FormEvent) => {
     event.preventDefault();
-    const changedItems = { id: todo.id, title: editTitle };
+    const changedItems = { id: id, title: editTitle };
 
     if (changedItems.title.length === 0) {
       onDelete();
@@ -81,7 +81,7 @@ export const TodoItem: React.FC<TodoItemProps> = ({
 
   const handleKey = (event: React.KeyboardEvent<HTMLInputElement>) => {
     if (event.key === 'Escape') {
-      setEditTitle(todo.title);
+      setEditTitle(title);
       setHide(false);
       setEditField(false);
     }
@@ -90,7 +90,7 @@ export const TodoItem: React.FC<TodoItemProps> = ({
   return (
     <>
       <div
-        key={todo.id}
+        key={id}
         data-cy="Todo"
         className={classNames('todo', {
           completed: completed,
@@ -102,9 +102,9 @@ export const TodoItem: React.FC<TodoItemProps> = ({
             data-cy="TodoStatus"
             type="checkbox"
             className={classNames('todo__status', {
-              success: todo.completed === true,
+              success: completed,
             })}
-            checked={todo.completed}
+            checked={completed}
             onChange={() => changeStatus(todo)}
           />
         </label>

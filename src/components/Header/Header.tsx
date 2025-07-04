@@ -38,7 +38,7 @@ export const Header: React.FC<HeaderProps> = ({
     } else {
       setActiveToggle(false);
     }
-  }, [todoList, todoTitle, isSubmiting, edit]);
+  }, [todoTitle, isSubmiting, edit, todoList]);
 
   const checkArrow =
     todoList.length > 0 && todoList.every(todoItem => todoItem.completed);
@@ -69,7 +69,7 @@ export const Header: React.FC<HeaderProps> = ({
         <button
           type="button"
           className={classNames('todoapp__toggle-all', {
-            active: checkArrow === true,
+            active: checkArrow,
           })}
           data-cy="ToggleAllButton"
           onClick={handleToggleAll}

@@ -11,7 +11,6 @@ type TodoListProps = {
   handleActiveTodo: (todoId: Todo['id']) => void;
   activeTodo: Todo[];
   onEditTodo: (todo: PartialTodo) => Promise<boolean | null>;
-  filteredContent: Todo[] | null;
 };
 
 export const TodoList: React.FC<TodoListProps> = ({
@@ -21,13 +20,10 @@ export const TodoList: React.FC<TodoListProps> = ({
   handleActiveTodo,
   activeTodo,
   onEditTodo,
-  filteredContent,
 }) => {
-  const visibleTodo = filteredContent !== null ? filteredContent : todos;
-
   return (
     <section className={classNames('todoapp__main')} data-cy="TodoList">
-      {visibleTodo.map(todo => (
+      {todos.map(todo => (
         <TodoItem
           key={todo.id}
           todo={todo}

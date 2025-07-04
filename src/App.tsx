@@ -17,9 +17,7 @@ const ERROR_TIMER = 3000;
 
 export const App: React.FC = () => {
   const [todoTitle, setTodoTitle] = useState('');
-
   const [loadContent, setLoadedContent] = useState<Todo[]>([]);
-  const [filteredContent, setFilteredContent] = useState<Todo[] | null>(null);
   const [errorMessage, setErrorMessage] = useState('');
   const [titleInputState, setTitleInputState] = useState(false);
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
@@ -29,6 +27,7 @@ export const App: React.FC = () => {
   const [edit, setEdit] = useState<Todo['id'] | null>(null);
   const [activeFilter, setActiveFilter] = useState<ButtonName>(ButtonName.ALL);
   const todoStatus = useRef<boolean | null>(null);
+  const filteredContent = filterServises.filter(loadContent, activeFilter);
 
   useEffect(() => {
     todoService
@@ -237,12 +236,6 @@ export const App: React.FC = () => {
           : todoItem,
       );
 
-      if (activeFilter && activeFilter !== ButtonName.ALL) {
-        const filtered = filterServises.filter(updatedList, activeFilter);
-
-        setFilteredContent(filtered);
-      }
-
       setLoadedContent(updatedList);
       setActiveTodo([]);
 
@@ -259,21 +252,11 @@ export const App: React.FC = () => {
 
   const handleFilter = async (filter: ButtonName) => {
     setActiveFilter(filter);
-
-    if (filter === ButtonName.ALL) {
-      setFilteredContent(null);
-    } else {
-      const filteredTodos = filterServises.filter(loadContent, filter);
-
-      setFilteredContent(filteredTodos);
-    }
   };
 
   const handleEachTodoStatus = async (status: Todo['completed']) => {
     try {
       setActiveTodo(loadContent);
-
-      // await wait(LOADING_TIMER);
 
       const updatedList = await Promise.all(
         loadContent.map(async (todoItem: Todo) => {
@@ -313,13 +296,12 @@ export const App: React.FC = () => {
         />
 
         <TodoList
-          todos={loadContent}
+          todos={filteredContent}
           tempTodo={tempTodo}
           handleActiveTodo={handleActiveRemoving}
           deleteTodo={handleDeleteTodo}
           activeTodo={activeTodo}
           onEditTodo={handleTodoUpdate}
-          filteredContent={filteredContent}
         />
 
         {activeFooter && (
