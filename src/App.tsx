@@ -1,26 +1,227 @@
-/* eslint-disable max-len */
+/* eslint-disable jsx-a11y/label-has-associated-control */
 /* eslint-disable jsx-a11y/control-has-associated-label */
-import React from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { UserWarning } from './UserWarning';
+import * as service from './api/todos';
+import { Todo } from './types/Todo';
+import { Header } from './components/Header';
+import { TodoList } from './components/TodoList';
+import { Footer } from './components/Footer';
+import { ErrorNotification } from './components/ErrorNotification';
 
-const USER_ID = 0;
+export enum FilterType {
+  All = 'all',
+  Active = 'active',
+  Completed = 'completed',
+}
 
 export const App: React.FC = () => {
-  if (!USER_ID) {
+  const [todos, setTodos] = useState<Todo[]>([]);
+  const [tempTodo, setTempTodo] = useState<Todo | null>(null);
+  const [title, setTitle] = useState('');
+  const [filter, setFilter] = useState<FilterType>(FilterType.All);
+  const [errorMsg, setErrorMsg] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [loadingTodoId, setloadingTodoId] = useState<number[]>([]);
+  const [isSubmiting, setIsSubmiting] = useState(false);
+
+  const visibleTodos = todos.filter(todo => {
+    switch (filter) {
+      case FilterType.Active:
+        return !todo.completed;
+      case FilterType.Completed:
+        return todo.completed;
+      case FilterType.All:
+      default:
+        return true;
+    }
+  });
+
+  const countActiveTodos = todos.filter(item => !item.completed).length;
+  const allCompleted = todos.length > 0 && todos.every(todo => todo.completed);
+
+  const handleError = (message: string) => {
+    setErrorMsg(message);
+
+    setTimeout(() => {
+      setErrorMsg('');
+    }, 3000);
+  };
+
+  useEffect(() => {
+    setLoading(true);
+    service
+      .getTodos()
+      .then(setTodos)
+      .catch(error => {
+        handleError('Unable to load todos');
+        throw error;
+      })
+      .finally(() => setLoading(false));
+  }, []);
+
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    if (!loading && !tempTodo && !isSubmiting) {
+      inputRef.current?.focus();
+    }
+  }, [loading, tempTodo, todos.length, isSubmiting]);
+
+  const addTodo = ({ userId, title: newTitle, completed }: Todo) => {
+    handleError('');
+
+    const newTempTodo: Todo = {
+      id: 0,
+      userId,
+      title: newTitle,
+      completed,
+    };
+
+    setLoading(true);
+    setTempTodo(newTempTodo);
+
+    return service
+      .addTodo({ userId, title: newTitle, completed })
+      .then(newTodo => {
+        setTodos(currentTodos => [...currentTodos, newTodo]);
+        setTitle('');
+      })
+      .catch(error => {
+        handleError('Unable to add a todo');
+        throw error;
+      })
+      .finally(() => {
+        setTempTodo(null);
+        setLoading(false);
+        inputRef.current?.focus();
+      });
+  };
+
+  const updatedTodo = (updateTodo: Todo) => {
+    handleError('');
+    setloadingTodoId(prev => [...prev, updateTodo.id]);
+
+    return service
+      .updateTodo(updateTodo)
+      .then(todo => {
+        setTodos(currentTodos => {
+          const index = currentTodos.findIndex(t => t.id === todo.id);
+          const updatedTodos = [...currentTodos];
+
+          updatedTodos.splice(index, 1, todo);
+
+          return updatedTodos;
+        });
+        setTitle('');
+      })
+      .catch(error => {
+        handleError('Unable to update a todo');
+        throw error;
+      })
+      .finally(() => {
+        setloadingTodoId(prev => prev.filter(id => id !== updateTodo.id));
+        inputRef.current?.focus();
+      });
+  };
+
+  const deleteTodo = (todoId: number) => {
+    handleError('');
+    setloadingTodoId(prev => [...prev, todoId]);
+
+    return service
+      .deleteTodo(todoId)
+      .then(() => {
+        setTodos(prev => prev.filter(todo => todo.id !== todoId));
+      })
+      .catch(() => {
+        handleError('Unable to delete a todo');
+      })
+      .finally(() => {
+        setloadingTodoId(prev => prev.filter(id => id !== todoId));
+      });
+  };
+
+  const reset = () => {
+    setTitle('');
+    inputRef.current?.focus();
+  };
+
+  const clearCompletedTodos = () => {
+    const completedTodos = todos.filter(todo => todo.completed);
+
+    completedTodos.forEach(todo => {
+      service
+        .deleteTodo(todo.id)
+        .then(() => {
+          setTodos(current => current.filter(t => t.id !== todo.id));
+        })
+        .catch(() => {
+          handleError('Unable to delete a todo');
+        });
+    });
+  };
+
+  const toggleAllTodos = () => {
+    const newCompleted = !allCompleted;
+
+    const todosToUpdate = todos.filter(todo => todo.completed !== newCompleted);
+
+    todosToUpdate.forEach(todo => {
+      service
+        .updateTodo({ ...todo, completed: newCompleted })
+        .then(updateTodo => {
+          setTodos(current =>
+            current.map(t => (t.id === updateTodo.id ? updateTodo : t)),
+          );
+        });
+    });
+  };
+
+  if (!service.USER_ID) {
     return <UserWarning />;
   }
 
   return (
-    <section className="section container">
-      <p className="title is-4">
-        Copy all you need from the prev task:
-        <br />
-        <a href="https://github.com/mate-academy/react_todo-app-add-and-delete#react-todo-app-add-and-delete">
-          React Todo App - Add and Delete
-        </a>
-      </p>
+    <div className="todoapp">
+      <h1 className="todoapp__title">todos</h1>
 
-      <p className="subtitle">Styles are already copied</p>
-    </section>
+      <div className="todoapp__content">
+        <Header
+          todo={tempTodo}
+          onAddTodo={addTodo}
+          handleError={handleError}
+          title={title}
+          setTitle={setTitle}
+          onReset={reset}
+          inputRef={inputRef}
+          isSubmiting={isSubmiting}
+          loading={loading}
+          setIsSubmiting={setIsSubmiting}
+          onToggleComplete={toggleAllTodos}
+          allCompleted={allCompleted}
+          todosCount={todos.length}
+        />
+
+        <TodoList
+          tempTodo={tempTodo}
+          todos={visibleTodos}
+          onDelete={deleteTodo}
+          loadingTodoId={loadingTodoId}
+          onUpdateTodo={updatedTodo}
+        />
+
+        {todos.length > 0 && (
+          <Footer
+            countActiveTodos={countActiveTodos}
+            countCompletedTodos={todos.length - countActiveTodos}
+            filter={filter}
+            setFilter={setFilter}
+            onClearCompleted={clearCompletedTodos}
+          />
+        )}
+      </div>
+      <ErrorNotification error={errorMsg} setError={setErrorMsg} />
+    </div>
   );
 };
