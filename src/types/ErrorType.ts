@@ -6,4 +6,5 @@ export enum ErrorType {
   UPDATE_TODO_FAILED = 'Unable to update a todo',
   // eslint-disable-next-line max-len
   CLEAR_COMPLETED_FAILED = 'Failed to delete some completed todos. Please try again.',
+  TODO_CONTEXT_LOAD_FAILED = 'Failed to load Todo Context',
 }

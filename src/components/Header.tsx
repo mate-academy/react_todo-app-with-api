@@ -1,30 +1,15 @@
 import classNames from 'classnames';
-import { ErrorType } from '../types/ErrorType';
 import { NewTodoInput } from './NewTodoInput';
+import { useTodosContext } from '../context/TodoContextProvider';
 
 interface Props {
-  isAddingTodo: boolean;
-  handleAddTodo: (title: string) => Promise<void>;
-  setErrorMessage: React.Dispatch<React.SetStateAction<ErrorType | null>>;
-  focusTrigger: number;
-  allCompleted: boolean;
-  handleToggleAll: () => Promise<void>;
-  isAnyTodoProcessing: boolean;
-  isLoadingTodos: boolean;
   hasTodos: boolean;
 }
 
-export const Header: React.FC<Props> = ({
-  isAddingTodo,
-  handleAddTodo,
-  setErrorMessage,
-  focusTrigger,
-  allCompleted,
-  handleToggleAll,
-  isAnyTodoProcessing,
-  isLoadingTodos,
-  hasTodos,
-}) => {
+export const Header: React.FC<Props> = ({ hasTodos }) => {
+  const { allCompleted, handleToggleAll, isAnyTodoProcessing, isLoadingTodos } =
+    useTodosContext();
+
   return (
     <header className="todoapp__header">
       {!isLoadingTodos && hasTodos && (
@@ -40,12 +25,7 @@ export const Header: React.FC<Props> = ({
       )}
 
       {/* Add a todo on form submit */}
-      <NewTodoInput
-        onSubmit={handleAddTodo}
-        isDisabled={isAddingTodo}
-        setErrorMessage={setErrorMessage}
-        focusTrigger={focusTrigger}
-      />
+      <NewTodoInput />
     </header>
   );
 };

@@ -1,20 +1,10 @@
 import classNames from 'classnames';
-import { FilterValues, Filter } from '../types/Filter';
-import { Todo } from '../types/Todo';
+import { FilterValues } from '../types/Filter';
+import { useTodosContext } from '../context/TodoContextProvider';
 
-interface Props {
-  todos: Todo[];
-  filter: Filter;
-  setFilter: React.Dispatch<React.SetStateAction<Filter>>;
-  handleClearCompleted: () => void;
-}
+export const Footer: React.FC = () => {
+  const { todos, filter, setFilter, handleClearCompleted } = useTodosContext();
 
-export const Footer: React.FC<Props> = ({
-  todos,
-  filter,
-  setFilter,
-  handleClearCompleted,
-}) => {
   return (
     <footer className="todoapp__footer" data-cy="Footer">
       <span className="todo-count" data-cy="TodosCounter">

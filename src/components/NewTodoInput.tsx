@@ -1,27 +1,22 @@
 import { memo, useState, useRef, useEffect } from 'react';
 import { ErrorType } from '../types/ErrorType';
+import { useTodosContext } from '../context/TodoContextProvider';
 
-interface Props {
-  onSubmit: (title: string) => Promise<void>;
-  setErrorMessage: React.Dispatch<React.SetStateAction<ErrorType | null>>;
-  isDisabled: boolean;
-  focusTrigger: number;
-}
-
-export const NewTodoInput: React.FC<Props> = memo(function NewTodoInput({
-  onSubmit,
-  isDisabled,
-  setErrorMessage,
-  focusTrigger,
-}) {
+export const NewTodoInput: React.FC = memo(function NewTodoInput() {
   const [inputValue, setInputValue] = useState('');
   const inputRef = useRef<HTMLInputElement>(null);
+  const {
+    handleAddTodo,
+    isAddingTodo,
+    setErrorMessage,
+    lastOperationTimestamp,
+  } = useTodosContext();
 
   useEffect(() => {
-    if (!isDisabled && inputRef.current) {
+    if (!isAddingTodo && inputRef.current) {
       inputRef.current.focus();
     }
-  }, [isDisabled, focusTrigger]);
+  }, [isAddingTodo, lastOperationTimestamp]);
 
   const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setInputValue(event.target.value);
@@ -38,7 +33,7 @@ export const NewTodoInput: React.FC<Props> = memo(function NewTodoInput({
       setErrorMessage(null);
 
       try {
-        await onSubmit(trimmedTitle);
+        await handleAddTodo(trimmedTitle);
         setInputValue('');
       } catch (error) {}
     }
@@ -55,7 +50,7 @@ export const NewTodoInput: React.FC<Props> = memo(function NewTodoInput({
         value={inputValue}
         onChange={handleInputChange}
         autoFocus
-        disabled={isDisabled}
+        disabled={isAddingTodo}
       />
     </form>
   );

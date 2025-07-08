@@ -1,26 +1,21 @@
 import classNames from 'classnames';
-import { Todo } from '../types/Todo';
 import { useEffect, useState } from 'react';
+import { useTodosContext } from '../context/TodoContextProvider';
+import { Todo } from '../types/Todo';
 
 interface Props {
   todo: Todo;
-  handleToggleTodo: (todo: Todo) => void;
-  handleDeleteTodo: (id: number) => void;
   isProcessing: boolean;
-  editingTodoId: number | null;
-  setEditingTodoId: React.Dispatch<React.SetStateAction<number | null>>;
-  handleUpdateTodoTitle: (id: number, newTitle: string) => Promise<void>;
 }
 
-export const TodoItem: React.FC<Props> = ({
-  todo,
-  handleToggleTodo,
-  handleDeleteTodo,
-  isProcessing,
-  editingTodoId,
-  setEditingTodoId,
-  handleUpdateTodoTitle,
-}) => {
+export const TodoItem: React.FC<Props> = ({ todo, isProcessing }) => {
+  const {
+    handleToggleTodo,
+    handleDeleteTodo,
+    editingTodoId,
+    setEditingTodoId,
+    handleUpdateTodoTitle,
+  } = useTodosContext();
   const [editedTitle, setEditedTitle] = useState(todo.title);
 
   useEffect(() => {

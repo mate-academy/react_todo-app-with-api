@@ -1,14 +1,8 @@
-import { ErrorType } from '../types/ErrorType';
+import { useTodosContext } from '../context/TodoContextProvider';
 
-interface Props {
-  errorMessage: ErrorType | null;
-  setErrorMessage: React.Dispatch<React.SetStateAction<ErrorType | null>>;
-}
+export const ErrorNotification: React.FC = () => {
+  const { errorMessage, setErrorMessage } = useTodosContext();
 
-export const ErrorNotification: React.FC<Props> = ({
-  errorMessage,
-  setErrorMessage,
-}) => {
   return (
     <div
       data-cy="ErrorNotification"
