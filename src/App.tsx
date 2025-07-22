@@ -1,26 +1,76 @@
-/* eslint-disable max-len */
-/* eslint-disable jsx-a11y/control-has-associated-label */
-import React from 'react';
+import { useTodos } from './hooks/useTodos';
+import { USER_ID } from './api/todos';
 import { UserWarning } from './UserWarning';
-
-const USER_ID = 0;
+import { Header } from './components/Header';
+import { TodoList } from './components/TodoList';
+import { Footer } from './components/Footer';
+import { ErrorMessage } from './components/ErrorMessage/ErrorMessage';
 
 export const App: React.FC = () => {
+  const {
+    isAllCompleted,
+    handleSubmit,
+    setNewTodoTitle,
+    newTodoTitle,
+    isLoading,
+    inputRef,
+    toggleAllTodos,
+    isTodoListNotEmpty,
+    shouldShowTodoList,
+    filteredTodos,
+    tempTodo,
+    handleDelete,
+    pendingTodoIds,
+    updateTodo,
+    numberOfActiveTodos,
+    selectedFilterParam,
+    handleChangeFilterParam,
+    clearCompletedTodos,
+    hasCompletedTodo,
+    errorMessage,
+    clearMessage,
+  } = useTodos();
+
   if (!USER_ID) {
     return <UserWarning />;
   }
 
   return (
-    <section className="section container">
-      <p className="title is-4">
-        Copy all you need from the prev task:
-        <br />
-        <a href="https://github.com/mate-academy/react_todo-app-add-and-delete#react-todo-app-add-and-delete">
-          React Todo App - Add and Delete
-        </a>
-      </p>
+    <div className="todoapp">
+      <h1 className="todoapp__title">todos</h1>
 
-      <p className="subtitle">Styles are already copied</p>
-    </section>
+      <div className="todoapp__content">
+        <Header
+          isAllCompleted={isAllCompleted}
+          handleSubmit={handleSubmit}
+          setNewTodoTitle={setNewTodoTitle}
+          newTodoTitle={newTodoTitle}
+          isLoading={isLoading}
+          inputRef={inputRef}
+          toggleAllTodos={toggleAllTodos}
+          isTodoListNotEmpty={isTodoListNotEmpty}
+        />
+
+        {shouldShowTodoList && (
+          <TodoList
+            todos={filteredTodos}
+            tempTodo={tempTodo}
+            onDelete={handleDelete}
+            pendingTodoIds={pendingTodoIds}
+            updateTodo={updateTodo}
+          />
+        )}
+        {isTodoListNotEmpty && (
+          <Footer
+            numberOfActiveTodos={numberOfActiveTodos}
+            selectedFilterParam={selectedFilterParam}
+            handleChangeFilterParam={handleChangeFilterParam}
+            clearCompletedTodos={clearCompletedTodos}
+            hasCompletedTodo={hasCompletedTodo}
+          />
+        )}
+      </div>
+      <ErrorMessage message={errorMessage} clearMessage={clearMessage} />
+    </div>
   );
 };
