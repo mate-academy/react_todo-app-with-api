@@ -135,7 +135,7 @@ export const App: React.FC = () => {
             showError(ErrorMessage.Update);
             finalizeAction([todo.id]);
 
-            return Promise.reject(new Error('Update failed'));
+            return Promise.reject(new Error(ErrorMessage.Update));
           })
           .finally(() => finalizeAction([todo.id]));
       };
@@ -153,7 +153,7 @@ export const App: React.FC = () => {
           showError(ErrorMessage.TitleValidation);
           finalizeAction([todo.id]);
 
-          return Promise.reject(new Error('Validation failed'));
+          return Promise.reject(new Error(ErrorMessage.TitleValidation));
         }
 
         const updatedTodo = { ...todo, title: trimmedTitle };
