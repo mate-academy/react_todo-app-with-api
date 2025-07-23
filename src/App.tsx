@@ -1,26 +1,83 @@
-/* eslint-disable max-len */
+/* eslint-disable jsx-a11y/label-has-associated-control */
 /* eslint-disable jsx-a11y/control-has-associated-label */
-import React from 'react';
+import { FC } from 'react';
 import { UserWarning } from './UserWarning';
+import * as todoService from './api/todos';
+import { TodoHeader } from './components/TodoHeader';
+import { TodoList } from './components/TodoList';
+import { TodoFooter } from './components/TodoFooter';
+import { TodoErrorMessage } from './components/TodoErrorMessage';
+import { TodoItem } from './components/TodoItem';
+import { useTodos } from './hooks/useTodos';
 
-const USER_ID = 0;
+export const App: FC = () => {
+  const {
+    todos,
+    visibleTodos,
+    tempTodo,
+    status,
+    loading,
+    isSubmitting,
+    errorMessage,
+    submittingTodoIds,
+    setStatus,
+    setErrorMessage,
+    createTodo,
+    updateTodo,
+    deleteTodo,
+    deleteCompletedTodos,
+    toggleAll,
+  } = useTodos();
 
-export const App: React.FC = () => {
-  if (!USER_ID) {
+  if (!todoService.USER_ID) {
     return <UserWarning />;
   }
 
   return (
-    <section className="section container">
-      <p className="title is-4">
-        Copy all you need from the prev task:
-        <br />
-        <a href="https://github.com/mate-academy/react_todo-app-add-and-delete#react-todo-app-add-and-delete">
-          React Todo App - Add and Delete
-        </a>
-      </p>
+    <div className="todoapp">
+      <h1 className="todoapp__title">todos</h1>
+      <div className="todoapp__content">
+        <TodoHeader
+          todos={todos}
+          isSubmitting={isSubmitting}
+          onCreate={createTodo}
+          onToggle={toggleAll}
+          onError={setErrorMessage}
+        />
 
-      <p className="subtitle">Styles are already copied</p>
-    </section>
+        {!loading && (
+          <>
+            <TodoList
+              todos={visibleTodos}
+              submittingTodoIds={submittingTodoIds}
+              onUpdate={updateTodo}
+              onDelete={deleteTodo}
+            />
+
+            {tempTodo && (
+              <TodoItem
+                todo={tempTodo}
+                isSubmitting={isSubmitting}
+                onUpdate={() => Promise.resolve()}
+                onDelete={() => Promise.resolve()}
+              />
+            )}
+          </>
+        )}
+
+        {!loading && todos.length > 0 && (
+          <TodoFooter
+            todos={todos}
+            status={status}
+            onStatusChange={setStatus}
+            onDeleteCompletedTodos={deleteCompletedTodos}
+          />
+        )}
+      </div>
+      <TodoErrorMessage
+        errorMessage={errorMessage}
+        setErrorMessage={setErrorMessage}
+      />
+    </div>
   );
 };
