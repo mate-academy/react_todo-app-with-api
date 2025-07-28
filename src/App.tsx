@@ -34,11 +34,14 @@ export const App: React.FC = () => {
 
   useEffect(() => {
     if (errorMessage !== null) {
-      const timer = setTimeout(() => {
+      const timer: ReturnType<typeof setTimeout> = setTimeout(() => {
         setErrorMessage(null);
       }, 3000);
+
       return () => clearTimeout(timer);
     }
+
+    return undefined;
   }, [errorMessage]);
 
   useEffect(() => {
@@ -51,10 +54,12 @@ export const App: React.FC = () => {
     return <UserWarning />;
   }
 
-  // Видалення виконаних тасок
   const handleClearCompleted = () => {
     const completedTodos = todos.filter(todo => todo.completed);
-    if (completedTodos.length === 0) return;
+
+    if (completedTodos.length === 0) {
+      return;
+    }
 
     Promise.allSettled(completedTodos.map(todo => deleteTodo(todo.id))).then(
       results => {
@@ -73,7 +78,6 @@ export const App: React.FC = () => {
     );
   };
 
-  // Видалення однієї таски
   const handleDelete = (id: number) => {
     setProcessingTodoId(id);
     deleteTodo(id)
@@ -84,7 +88,6 @@ export const App: React.FC = () => {
       .finally(() => setProcessingTodoId(null));
   };
 
-  // Перемикання статусу однієї таски
   const handleToggle = (todoToToggle: Todo) => {
     setProcessingTodoId(todoToToggle.id);
     updateTodo(todoToToggle.id, { completed: !todoToToggle.completed })
@@ -99,11 +102,15 @@ export const App: React.FC = () => {
       .finally(() => setProcessingTodoId(null));
   };
 
-  // Перемикання статусу всіх тасок
   const handleToggleAll = () => {
     const shouldBeCompleted = !todos.every(todo => todo.completed);
-    const todosToUpdate = todos.filter(todo => todo.completed !== shouldBeCompleted);
-    if (todosToUpdate.length === 0) return;
+    const todosToUpdate = todos.filter(
+      todo => todo.completed !== shouldBeCompleted,
+    );
+
+    if (todosToUpdate.length === 0) {
+      return;
+    }
 
     setIsTogglingAll(true);
     Promise.allSettled(
@@ -113,10 +120,12 @@ export const App: React.FC = () => {
     )
       .then(results => {
         const updatedTodos = [...todos];
+
         results.forEach(result => {
           if (result.status === 'fulfilled') {
             const updated = result.value;
             const i = updatedTodos.findIndex(todo => todo.id === updated.id);
+
             if (i !== -1) {
               updatedTodos[i] = updated;
             }
@@ -130,27 +139,30 @@ export const App: React.FC = () => {
       .finally(() => setIsTogglingAll(false));
   };
 
-  // Оновлення заголовку таски (rename)
   const handleUpdateTitle = (id: number, newTitle: string) => {
     setProcessingTodoId(id);
     updateTodo(id, { title: newTitle })
       .then(updatedTodo => {
         setTodos(prevTodos =>
-          prevTodos.map(todo => (todo.id === updatedTodo.id ? updatedTodo : todo)),
+          prevTodos.map(todo =>
+            todo.id === updatedTodo.id ? updatedTodo : todo,
+          ),
         );
       })
       .catch(() => setErrorMessage(ErrorMessage.Update))
       .finally(() => setProcessingTodoId(null));
   };
 
-  // Додавання нової таски
   const handleSubmit = (event: React.FormEvent) => {
     event.preventDefault();
     const trimmedTitle = title.trim();
+
     if (!trimmedTitle) {
       setErrorMessage(ErrorMessage.Title);
+
       return;
     }
+
     setLoading(true);
     setTempTodo({
       id: -Date.now(),
@@ -171,8 +183,8 @@ export const App: React.FC = () => {
       });
   };
 
-  // Фільтрація тасок
   let filteredTodos = todos;
+
   if (filterBy === FilterType.Active) {
     filteredTodos = todos.filter(todo => !todo.completed);
   } else if (filterBy === FilterType.Completed) {
