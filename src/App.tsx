@@ -1,26 +1,61 @@
 /* eslint-disable max-len */
 /* eslint-disable jsx-a11y/control-has-associated-label */
-import React from 'react';
+import React, { useContext, useEffect } from 'react';
 import { UserWarning } from './UserWarning';
+import { ToDoHeader } from './components/ToDoHeader';
+import { ToDoList } from './components/ToDoList';
+import { ToDoFooter } from './components/ToDoFooter';
+import { getTodos } from './api/todos';
+import { DispatchContext, StateContext } from './components/StateContext';
+import { ErrorNotification } from './components/ErrorNotification';
 
-const USER_ID = 0;
+const USER_ID = 1008;
 
 export const App: React.FC = () => {
+  const dispatch = useContext(DispatchContext);
+  const { errorMessage } = useContext(StateContext);
+
+  useEffect(() => {
+    getTodos()
+      .then(todosFromServer => {
+        dispatch({
+          type: 'GET_TODOS',
+          todos: todosFromServer,
+        });
+      })
+      .catch(() => {
+        dispatch({
+          type: 'SHOW_ERROR',
+          message: 'Unable to load todos',
+        });
+      });
+  }, []);
+
+  useEffect(() => {
+    if (errorMessage) {
+      const timeoutId = setTimeout(() => {
+        dispatch({ type: 'SHOW_ERROR', message: '' });
+      }, 3000);
+
+      return () => clearTimeout(timeoutId);
+    }
+
+    return;
+  }, [dispatch, errorMessage]);
+
   if (!USER_ID) {
     return <UserWarning />;
   }
 
   return (
-    <section className="section container">
-      <p className="title is-4">
-        Copy all you need from the prev task:
-        <br />
-        <a href="https://github.com/mate-academy/react_todo-app-add-and-delete#react-todo-app-add-and-delete">
-          React Todo App - Add and Delete
-        </a>
-      </p>
-
-      <p className="subtitle">Styles are already copied</p>
-    </section>
+    <>
+      <div className="todoapp">
+        <h1 className="todoapp__title">todos</h1>
+        <ToDoHeader />
+        <ToDoList />
+        <ToDoFooter />
+      </div>
+      <ErrorNotification />
+    </>
   );
 };
