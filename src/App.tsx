@@ -1,26 +1,224 @@
-/* eslint-disable max-len */
-/* eslint-disable jsx-a11y/control-has-associated-label */
-import React from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { UserWarning } from './UserWarning';
-
-const USER_ID = 0;
+import { ErrorMessage } from './types/ErrorMessage';
+import { Footer } from './components/Footer';
+import { Header } from './components/Header';
+import { TodoList } from './components/TodoList';
+import { ErrorNotification } from './components/ErrorNotification';
+import { Todo } from './types/Todo';
+import {
+  USER_ID,
+  getTodos,
+  createTodo,
+  deleteTodo,
+  updateTodo,
+} from './api/todos';
+import { FilterType } from './constants/constants';
 
 export const App: React.FC = () => {
+  const [todos, setTodos] = useState<Todo[]>([]);
+  const [errorMessage, setErrorMessage] = useState<ErrorMessage | null>(null);
+  const [filterBy, setFilterBy] = useState<FilterType>(FilterType.All);
+  const [title, setTitle] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [tempTodo, setTempTodo] = useState<Todo | null>(null);
+  const [processingTodoId, setProcessingTodoId] = useState<number | null>(null);
+  const [isTogglingAll, setIsTogglingAll] = useState(false);
+  const newTodoField = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    getTodos()
+      .then(setTodos)
+      .catch(() => setErrorMessage(ErrorMessage.Load));
+  }, []);
+
+  useEffect(() => {
+    if (errorMessage !== null) {
+      const timer = setTimeout(() => {
+        setErrorMessage(null);
+      }, 3000);
+      return () => clearTimeout(timer);
+    }
+  }, [errorMessage]);
+
+  useEffect(() => {
+    if (newTodoField.current && !loading) {
+      newTodoField.current.focus();
+    }
+  }, [todos.length, loading]);
+
   if (!USER_ID) {
     return <UserWarning />;
   }
 
-  return (
-    <section className="section container">
-      <p className="title is-4">
-        Copy all you need from the prev task:
-        <br />
-        <a href="https://github.com/mate-academy/react_todo-app-add-and-delete#react-todo-app-add-and-delete">
-          React Todo App - Add and Delete
-        </a>
-      </p>
+  // Видалення виконаних тасок
+  const handleClearCompleted = () => {
+    const completedTodos = todos.filter(todo => todo.completed);
+    if (completedTodos.length === 0) return;
 
-      <p className="subtitle">Styles are already copied</p>
-    </section>
+    Promise.allSettled(completedTodos.map(todo => deleteTodo(todo.id))).then(
+      results => {
+        const successfulIds = completedTodos
+          .filter((_, index) => results[index].status === 'fulfilled')
+          .map(todo => todo.id);
+
+        setTodos(prevTodos =>
+          prevTodos.filter(todo => !successfulIds.includes(todo.id)),
+        );
+
+        if (results.some(result => result.status === 'rejected')) {
+          setErrorMessage(ErrorMessage.Delete);
+        }
+      },
+    );
+  };
+
+  // Видалення однієї таски
+  const handleDelete = (id: number) => {
+    setProcessingTodoId(id);
+    deleteTodo(id)
+      .then(() => {
+        setTodos(prevTodos => prevTodos.filter(todo => todo.id !== id));
+      })
+      .catch(() => setErrorMessage(ErrorMessage.Delete))
+      .finally(() => setProcessingTodoId(null));
+  };
+
+  // Перемикання статусу однієї таски
+  const handleToggle = (todoToToggle: Todo) => {
+    setProcessingTodoId(todoToToggle.id);
+    updateTodo(todoToToggle.id, { completed: !todoToToggle.completed })
+      .then(updatedTodo => {
+        setTodos(prevTodos =>
+          prevTodos.map(todo =>
+            todo.id === updatedTodo.id ? updatedTodo : todo,
+          ),
+        );
+      })
+      .catch(() => setErrorMessage(ErrorMessage.Update))
+      .finally(() => setProcessingTodoId(null));
+  };
+
+  // Перемикання статусу всіх тасок
+  const handleToggleAll = () => {
+    const shouldBeCompleted = !todos.every(todo => todo.completed);
+    const todosToUpdate = todos.filter(todo => todo.completed !== shouldBeCompleted);
+    if (todosToUpdate.length === 0) return;
+
+    setIsTogglingAll(true);
+    Promise.allSettled(
+      todosToUpdate.map(todo =>
+        updateTodo(todo.id, { completed: shouldBeCompleted }),
+      ),
+    )
+      .then(results => {
+        const updatedTodos = [...todos];
+        results.forEach(result => {
+          if (result.status === 'fulfilled') {
+            const updated = result.value;
+            const i = updatedTodos.findIndex(todo => todo.id === updated.id);
+            if (i !== -1) {
+              updatedTodos[i] = updated;
+            }
+          }
+        });
+        setTodos(updatedTodos);
+        if (results.some(r => r.status === 'rejected')) {
+          setErrorMessage(ErrorMessage.Update);
+        }
+      })
+      .finally(() => setIsTogglingAll(false));
+  };
+
+  // Оновлення заголовку таски (rename)
+  const handleUpdateTitle = (id: number, newTitle: string) => {
+    setProcessingTodoId(id);
+    updateTodo(id, { title: newTitle })
+      .then(updatedTodo => {
+        setTodos(prevTodos =>
+          prevTodos.map(todo => (todo.id === updatedTodo.id ? updatedTodo : todo)),
+        );
+      })
+      .catch(() => setErrorMessage(ErrorMessage.Update))
+      .finally(() => setProcessingTodoId(null));
+  };
+
+  // Додавання нової таски
+  const handleSubmit = (event: React.FormEvent) => {
+    event.preventDefault();
+    const trimmedTitle = title.trim();
+    if (!trimmedTitle) {
+      setErrorMessage(ErrorMessage.Title);
+      return;
+    }
+    setLoading(true);
+    setTempTodo({
+      id: -Date.now(),
+      userId: USER_ID,
+      title: trimmedTitle,
+      completed: false,
+    });
+    createTodo(trimmedTitle)
+      .then(newTodo => {
+        setTodos(prevTodos => [...prevTodos, newTodo]);
+        setTitle('');
+      })
+      .catch(() => setErrorMessage(ErrorMessage.Add))
+      .finally(() => {
+        setLoading(false);
+        setTempTodo(null);
+        newTodoField.current?.focus();
+      });
+  };
+
+  // Фільтрація тасок
+  let filteredTodos = todos;
+  if (filterBy === FilterType.Active) {
+    filteredTodos = todos.filter(todo => !todo.completed);
+  } else if (filterBy === FilterType.Completed) {
+    filteredTodos = todos.filter(todo => todo.completed);
+  }
+
+  return (
+    <div className="todoapp">
+      <h1 className="todoapp__title">todos</h1>
+      <Header
+        title="todos"
+        newTitle={title}
+        setNewTitle={setTitle}
+        onSubmit={handleSubmit}
+        loading={loading}
+        inputRef={newTodoField}
+        todos={todos}
+        handleToggleAll={handleToggleAll}
+      />
+      <div className="todoapp__content">
+        {todos.length > 0 && (
+          <>
+            <TodoList
+              todos={filteredTodos}
+              onToggle={handleToggle}
+              onDelete={handleDelete}
+              onUpdateTitle={handleUpdateTitle}
+              processingTodoId={processingTodoId}
+              tempTodo={tempTodo}
+              isTogglingAll={isTogglingAll}
+              handleToggleAll={handleToggleAll}
+            />
+            <Footer
+              todosCount={todos.filter(todo => !todo.completed).length}
+              filterBy={filterBy}
+              setFilterBy={setFilterBy}
+              hasCompleted={todos.some(todo => todo.completed)}
+              handleClearCompleted={handleClearCompleted}
+            />
+          </>
+        )}
+        <ErrorNotification
+          message={errorMessage}
+          onClose={() => setErrorMessage(null)}
+        />
+      </div>
+    </div>
   );
 };
