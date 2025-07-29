@@ -139,18 +139,29 @@ export const App: React.FC = () => {
       .finally(() => setIsTogglingAll(false));
   };
 
-  const handleUpdateTitle = (id: number, newTitle: string) => {
+  const handleUpdateTitle = async (
+    id: number,
+    newTitle: string,
+  ): Promise<boolean> => {
     setProcessingTodoId(id);
-    updateTodo(id, { title: newTitle })
-      .then(updatedTodo => {
-        setTodos(prevTodos =>
-          prevTodos.map(todo =>
-            todo.id === updatedTodo.id ? updatedTodo : todo,
-          ),
-        );
-      })
-      .catch(() => setErrorMessage(ErrorMessage.Update))
-      .finally(() => setProcessingTodoId(null));
+
+    try {
+      const updatedTodo = await updateTodo(id, { title: newTitle });
+
+      setTodos(prevTodos =>
+        prevTodos.map(todo =>
+          todo.id === updatedTodo.id ? updatedTodo : todo,
+        ),
+      );
+
+      return true;
+    } catch {
+      setErrorMessage(ErrorMessage.Update);
+
+      return false;
+    } finally {
+      setProcessingTodoId(null);
+    }
   };
 
   const handleSubmit = (event: React.FormEvent) => {

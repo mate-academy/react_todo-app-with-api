@@ -7,7 +7,7 @@ interface Props {
   todos: Todo[];
   onToggle: (todoToToggle: Todo) => void;
   onDelete: (id: number) => void;
-  onUpdateTitle: (id: number, newTitle: string) => void;
+  onUpdateTitle: (id: number, newTitle: string) => Promise<boolean>;
   processingTodoId: number | null;
   tempTodo: Todo | null;
   isTogglingAll: boolean;

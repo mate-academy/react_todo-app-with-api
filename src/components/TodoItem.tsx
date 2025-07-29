@@ -6,7 +6,7 @@ interface Props {
   todo: Todo;
   onToggle: (todo: Todo) => void;
   onDelete: (id: number) => void;
-  onUpdateTitle: (id: number, newTitle: string) => void;
+  onUpdateTitle: (id: number, newTitle: string) => Promise<boolean>;
   processing: boolean;
 }
 
@@ -28,6 +28,15 @@ export const TodoItem: React.FC<Props> = ({
     }
   }, [isEditing]);
 
+  useEffect(() => {
+    setIsEditing(false);
+  }, [todo.title, todo.completed]);
+
+  const handleToggle = () => {
+    onToggle(todo);
+    setIsEditing(false);
+  };
+
   const saveEditing = () => {
     const trimmed = editedTitle.trim();
 
@@ -37,11 +46,17 @@ export const TodoItem: React.FC<Props> = ({
       return;
     }
 
-    if (trimmed !== todo.title) {
-      onUpdateTitle(todo.id, trimmed);
+    if (trimmed === todo.title) {
+      setIsEditing(false);
+
+      return;
     }
 
-    setIsEditing(false);
+    onUpdateTitle(todo.id, trimmed).then(success => {
+      if (success) {
+        setIsEditing(false);
+      }
+    });
   };
 
   const cancelEditing = () => {
@@ -75,7 +90,7 @@ export const TodoItem: React.FC<Props> = ({
           type="checkbox"
           className="todo__status"
           checked={todo.completed}
-          onChange={() => onToggle(todo)}
+          onChange={handleToggle}
           disabled={processing}
         />
       </label>
@@ -84,7 +99,11 @@ export const TodoItem: React.FC<Props> = ({
         <span
           data-cy="TodoTitle"
           className="todo__title"
-          onDoubleClick={() => !processing && setIsEditing(true)}
+          onDoubleClick={() => {
+            if (!processing) {
+              setIsEditing(true);
+            }
+          }}
         >
           {todo.title}
         </span>
