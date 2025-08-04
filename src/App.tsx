@@ -4,18 +4,12 @@
 /* eslint-disable jsx-a11y/control-has-associated-label */
 import React, { useEffect, useRef, useState } from 'react';
 import { UserWarning } from './UserWarning';
-import {
-  deleteTodo,
-  getTodos,
-  postTodo,
-  updateTodo,
-  USER_ID,
-} from './api/todos';
+import { deleteTodo, getTodos, updateTodo, USER_ID } from './api/todos';
 import { Todo } from './types/Todo';
 import { Header } from './components/Header';
 import { Footer } from './components/Footer';
 import { Filter } from './types/Filter';
-import { TodoItem } from './components/Todo';
+import { TodoItem } from './components/TodoItem';
 
 export const App: React.FC = () => {
   if (!USER_ID) {
@@ -23,9 +17,9 @@ export const App: React.FC = () => {
   }
 
   const [todos, setTodos] = useState<Todo[]>([]);
-  const [filterStatus, setFilterStatus] = useState('');
+  const [filterStatus, setFilterStatus] = useState<Filter>('');
   const [errorMessage, setErrorMessage] = useState('');
-  const [newTodoTitle, setNewTodoTitle] = useState('');
+  // const [newTodoTitle, setNewTodoTitle] = useState('');
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
   const [isCreating, setIsCreating] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -62,7 +56,7 @@ export const App: React.FC = () => {
   };
 
   const handleDeleteTodo = (todoId: number) => {
-    setDeletingTodoIds(prev => [...prev, todoId]); // показати лоудер
+    setDeletingTodoIds(prev => [...prev, todoId]);
 
     deleteTodo(todoId)
       .then(() => {
@@ -72,7 +66,7 @@ export const App: React.FC = () => {
         setErrorMessage('Unable to delete a todo');
       })
       .finally(() => {
-        setDeletingTodoIds(prev => prev.filter(id => id !== todoId)); // прибрати лоудер
+        setDeletingTodoIds(prev => prev.filter(id => id !== todoId));
       });
   };
 
@@ -96,43 +90,43 @@ export const App: React.FC = () => {
     );
   };
 
-  const handleAddTodo = () => {
-    const trimmedTitle = newTodoTitle.trim();
+  // const handleAddTodo = () => {
+  //   const trimmedTitle = newTodoTitle.trim();
 
-    if (!trimmedTitle) {
-      setErrorMessage('Title should not be empty');
+  //   if (!trimmedTitle) {
+  //     setErrorMessage('Title should not be empty');
 
-      return;
-    }
+  //     return;
+  //   }
 
-    const newTempTodo: Todo = {
-      id: 0,
-      title: trimmedTitle,
-      completed: false,
-      userId: USER_ID,
-    };
+  //   const newTempTodo: Todo = {
+  //     id: 0,
+  //     title: trimmedTitle,
+  //     completed: false,
+  //     userId: USER_ID,
+  //   };
 
-    setIsCreating(true);
-    setTempTodo(newTempTodo);
+  //   setIsCreating(true);
+  //   setTempTodo(newTempTodo);
 
-    postTodo({
-      title: trimmedTitle,
-      completed: false,
-      userId: USER_ID,
-    } as Omit<Todo, 'id'>)
-      .then((createdTodo: Todo) => {
-        setTodos(prev => [...prev, createdTodo]);
-        setNewTodoTitle('');
-      })
-      .catch(() => {
-        setErrorMessage('Unable to add a todo');
-      })
-      .finally(() => {
-        setTempTodo(null);
-        setIsCreating(false);
-        inputRef.current?.focus();
-      });
-  };
+  //   postTodo({
+  //     title: trimmedTitle,
+  //     completed: false,
+  //     userId: USER_ID,
+  //   } as Omit<Todo, 'id'>)
+  //     .then((createdTodo: Todo) => {
+  //       setTodos(prev => [...prev, createdTodo]);
+  //       setNewTodoTitle('');
+  //     })
+  //     .catch(() => {
+  //       setErrorMessage('Unable to add a todo');
+  //     })
+  //     .finally(() => {
+  //       setTempTodo(null);
+  //       setIsCreating(false);
+  //       inputRef.current?.focus();
+  //     });
+  // };
 
   const handleStatusTodo = (todo: Todo) => {
     setUpdatingTodoIds(prev => [...prev, todo.id]);
@@ -260,15 +254,16 @@ export const App: React.FC = () => {
 
       <div className="todoapp__content">
         <Header
-          newTodoTitle={newTodoTitle}
-          setNewTodoTitle={setNewTodoTitle}
           isCreating={isCreating}
           inputRef={inputRef}
-          handleAddTodo={handleAddTodo}
           allCompleted={todos.length > 0 && todos.every(todo => todo.completed)}
           handleToggleAll={handleToggleAll}
           isLoading={isCreating}
           todos={todos}
+          setTempTodo={setTempTodo}
+          setIsCreating={setIsCreating}
+          setErrorMessage={setErrorMessage}
+          setTodos={setTodos}
         />
 
         <section className="todoapp__main" data-cy="TodoList">
@@ -283,7 +278,6 @@ export const App: React.FC = () => {
                 todo={todo}
                 isDeleting={isDeleting}
                 isUpdating={isUpdating}
-                isEditing={editingTodo === todo.id}
                 handleDeleteTodo={handleDeleteTodo}
                 handleStatusTodo={handleStatusTodo}
                 handleEditTodo={handleEditTodo}
