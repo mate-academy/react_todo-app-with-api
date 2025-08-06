@@ -6,6 +6,7 @@ import { useContext } from 'react';
 import { DispatchContext, StateContext } from './StateContext';
 import { Todo } from '../types/Todo';
 import { deleteTodo, updateTodo } from '../api/todos';
+import { EnumedError } from '../types/EnumedError';
 
 type Props = {
   todo: Todo;
@@ -24,6 +25,10 @@ export const ToDoItem = ({ todo }: Props) => {
       type: 'LOADING_TODOS',
       id: [todoId],
     });
+    dispatch({
+      type: 'FOCUS_ON_INPUT',
+      value: false,
+    });
 
     deleteTodo(todoId)
       .then(() => {
@@ -35,7 +40,7 @@ export const ToDoItem = ({ todo }: Props) => {
       .catch(() => {
         dispatch({
           type: 'SHOW_ERROR',
-          message: 'Unable to delete a todo',
+          message: EnumedError.DeleteError,
         });
       })
       .finally(() => {
@@ -67,7 +72,7 @@ export const ToDoItem = ({ todo }: Props) => {
       .catch(() => {
         dispatch({
           type: 'SHOW_ERROR',
-          message: 'Cannot change status',
+          message: EnumedError.UpdateError,
         });
       })
       .finally(() => {
@@ -133,7 +138,7 @@ export const ToDoItem = ({ todo }: Props) => {
         .catch(() => {
           dispatch({
             type: 'SHOW_ERROR',
-            message: 'Unable to delete a todo',
+            message: EnumedError.DeleteError,
           });
           dispatch({
             type: 'LOADING_TODOS',
@@ -157,7 +162,7 @@ export const ToDoItem = ({ todo }: Props) => {
       .catch(() => {
         dispatch({
           type: 'SHOW_ERROR',
-          message: 'Unable to update a todo',
+          message: EnumedError.UpdateError,
         });
       })
       .finally(() => {

@@ -2,6 +2,7 @@ import React, { FormEvent, useContext, useEffect, useRef } from 'react';
 import { DispatchContext, StateContext } from './StateContext';
 import classNames from 'classnames';
 import { addTodo, updateTodo, USER_ID } from '../api/todos';
+import { EnumedError } from '../types/EnumedError';
 
 export const ToDoHeader = () => {
   const { toDoTitle, todos, tempTodo, focusOnInput } = useContext(StateContext);
@@ -22,7 +23,7 @@ export const ToDoHeader = () => {
     if (!trimmedToDoTitle) {
       dispatch({
         type: 'SHOW_ERROR',
-        message: 'Title should not be empty',
+        message: EnumedError.TitleEmpty,
       });
 
       return;
@@ -58,7 +59,7 @@ export const ToDoHeader = () => {
       .catch(() => {
         dispatch({
           type: 'SHOW_ERROR',
-          message: 'Unable to add a todo',
+          message: EnumedError.AddError,
         });
       })
       .finally(() => {
@@ -81,11 +82,9 @@ export const ToDoHeader = () => {
     let loadingTodos: number[];
 
     if (allTodosAreCompleted) {
-      // All todos will be set to completed: false
       targetTodos = todos;
       loadingTodos = todos.map(todo => todo.id);
     } else {
-      // Only incomplete todos will be set to completed: true
       targetTodos = todos.filter(todo => !todo.completed);
       loadingTodos = targetTodos.map(todo => todo.id);
     }
@@ -95,7 +94,6 @@ export const ToDoHeader = () => {
       id: loadingTodos,
     });
 
-    // Send update requests
     const results = await Promise.allSettled(
       targetTodos.map(todo =>
         updateTodo(todo.id, {
@@ -104,7 +102,6 @@ export const ToDoHeader = () => {
       ),
     );
 
-    // Prepare updated todos array: only update those that succeeded
     const updatedTodos = todos.map(todo => {
       const idx = targetTodos.findIndex(t => t.id === todo.id);
 
@@ -118,11 +115,10 @@ export const ToDoHeader = () => {
       return todo;
     });
 
-    // Show error if any update failed
     if (results.some(res => res.status === 'rejected')) {
       dispatch({
         type: 'SHOW_ERROR',
-        message: 'Unable to update a todo',
+        message: EnumedError.UpdateError,
       });
 
       dispatch({

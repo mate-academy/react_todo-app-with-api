@@ -109,7 +109,6 @@ const reducer = (state: StateContextType, action: Action): StateContextType => {
       return {
         ...state,
         errorMessage: action.message,
-        focusOnInput: !state.focusOnInput,
       };
     case 'FOCUS_ON_INPUT':
       return {

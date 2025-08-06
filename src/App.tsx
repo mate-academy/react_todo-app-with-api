@@ -8,6 +8,7 @@ import { ToDoFooter } from './components/ToDoFooter';
 import { getTodos } from './api/todos';
 import { DispatchContext, StateContext } from './components/StateContext';
 import { ErrorNotification } from './components/ErrorNotification';
+import { EnumedError } from './types/EnumedError';
 
 const USER_ID = 1008;
 
@@ -26,7 +27,7 @@ export const App: React.FC = () => {
       .catch(() => {
         dispatch({
           type: 'SHOW_ERROR',
-          message: 'Unable to load todos',
+          message: EnumedError.LoadError,
         });
       });
   }, []);
