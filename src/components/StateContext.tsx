@@ -14,10 +14,6 @@ type StateContextType = {
   errorMessage: string;
 };
 
-type RefContextType = {
-  inputRef: React.RefObject<HTMLInputElement>;
-};
-
 const reducer = (state: StateContextType, action: Action): StateContextType => {
   switch (action.type) {
     case 'GET_TODOS':
@@ -155,13 +151,7 @@ const InitialState: StateContextType = {
   errorMessage: '',
 };
 
-export const RefState: RefContextType = {
-  inputRef: React.createRef<HTMLInputElement>(),
-};
-
 export const StateContext = createContext(InitialState);
-
-export const RefContext = createContext(RefState);
 
 type Props = {
   children: React.ReactNode;
@@ -189,9 +179,7 @@ export const GlobalStateProvider = ({ children }: Props) => {
   return (
     <StateContext.Provider value={state}>
       <DispatchContext.Provider value={dispatch}>
-        <RefContext.Provider value={{ inputRef }}>
-          {children}
-        </RefContext.Provider>
+        {children}
       </DispatchContext.Provider>
     </StateContext.Provider>
   );
