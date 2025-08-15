@@ -77,7 +77,7 @@ export const TodoItem: React.FC<Props> = ({
           onChange={e => setEditTitle(e.target.value)}
           onBlur={handleBlur}
           onKeyUp={handleKeyUp}
-          className="todo__title"
+          className="todo__title-field"
         />
       ) : (
         <span
