@@ -70,6 +70,13 @@
     opacity: 1;
   }
 
+  &.editing {
+    &__title,
+    &__remove {
+      display: none;
+    }
+  }
+
   &__title-field {
     width: 100%;
     padding: 11px 14px;
