@@ -4,7 +4,7 @@ import { FilterType } from '../types/FilterType';
 
 type Props = {
   filtered: string;
-  onFiltered: (v: string) => void;
+  onFiltered: (v: FilterType) => void;
   activeTodos: number;
   completeTodos: number;
   onClearCompletedTodos: () => void;
@@ -22,7 +22,6 @@ export const Footer: React.FC<Props> = ({
       {activeTodos} items left
     </span>
 
-    {/* Active link should have the 'selected' class */}
     <nav className="filter" data-cy="Filter">
       <a
         href="#/"

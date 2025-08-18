@@ -10,13 +10,14 @@ import { Footer } from './components/Footer';
 import classNames from 'classnames';
 import { TodoItem } from './components/TodoItem';
 import { FilterType } from './types/FilterType';
+import { ErrorMessages } from './types/ErrorMessages';
 
 export const App: React.FC = () => {
   // #region state
   const [todos, setTodos] = useState<Todo[]>([]);
-  const [error, setError] = useState('');
+  const [error, setError] = useState<ErrorMessages | ''>('');
   const [hasErrorMessage, setHasErrorMessage] = useState(false);
-  const [filter, setFilter] = useState('all');
+  const [filter, setFilter] = useState(FilterType.All);
   const [title, setTitle] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
@@ -35,7 +36,7 @@ export const App: React.FC = () => {
       .getTodos()
       .then(setTodos)
       .catch(() => {
-        setError('Unable to load todos');
+        setError(ErrorMessages.UnableToLoad);
         setHasErrorMessage(true);
         setTimeout(() => {
           setHasErrorMessage(false);
@@ -87,7 +88,7 @@ export const App: React.FC = () => {
         );
       })
       .catch(() => {
-        setError('Unable to delete a todo');
+        setError(ErrorMessages.UnableToDelete);
         setHasErrorMessage(true);
         setTimeout(() => {
           setHasErrorMessage(false);
@@ -116,7 +117,7 @@ export const App: React.FC = () => {
       const results = await Promise.allSettled(
         completedIds.map(id => todoService.deleteTodos(id)),
       );
-      // id тих, які видалились успішно
+
       const fulfilledIds = completedIds.filter(
         (_, i) => results[i].status === 'fulfilled',
       );
@@ -124,9 +125,9 @@ export const App: React.FC = () => {
       setTodos(current =>
         current.filter(todo => !fulfilledIds.includes(todo.id)),
       );
-      // якщо хоча б один не вдалось видалити — показати помилку
+
       if (results.some(result => result.status === 'rejected')) {
-        setError('Unable to delete a todo');
+        setError(ErrorMessages.UnableToDelete);
         setHasErrorMessage(true);
         setTimeout(() => setHasErrorMessage(false), 3000);
       }
@@ -152,7 +153,7 @@ export const App: React.FC = () => {
         currentTodos.map(t => (t.id === updatedTodo.id ? updatedTodo : t)),
       );
     } catch {
-      setError('Unable to update a todo');
+      setError(ErrorMessages.UnableToUpdate);
       setHasErrorMessage(true);
 
       setTimeout(() => {
@@ -220,7 +221,7 @@ export const App: React.FC = () => {
 
       return true;
     } catch (e) {
-      setError('Unable to update a todo');
+      setError(ErrorMessages.UnableToUpdate);
       setHasErrorMessage(true);
 
       setTimeout(() => {
@@ -242,7 +243,7 @@ export const App: React.FC = () => {
     const trimmedTitle = title.trim();
 
     if (!trimmedTitle) {
-      setError('Title should not be empty');
+      setError(ErrorMessages.TitleNotEmpty);
       setHasErrorMessage(true);
       setTimeout(() => {
         setHasErrorMessage(false);
@@ -268,7 +269,7 @@ export const App: React.FC = () => {
       await addTodo(trimmedTitle);
       setTitle('');
     } catch (e) {
-      setError('Unable to add a todo');
+      setError(ErrorMessages.UnableToAdd);
       setHasErrorMessage(true);
       setTimeout(() => {
         setHasErrorMessage(false);
@@ -290,7 +291,6 @@ export const App: React.FC = () => {
 
       <div className="todoapp__content">
         <header className="todoapp__header">
-          {/* this button should have `active` class only if all todos are completed */}
           {todos.length > 0 && (
             <button
               type="button"
@@ -303,7 +303,6 @@ export const App: React.FC = () => {
             />
           )}
 
-          {/* Add a todo on form submit */}
           <form onSubmit={handleSubmit}>
             <input
               ref={field}
@@ -345,7 +344,7 @@ export const App: React.FC = () => {
           )}
         </section>
 
-        {todos.length !== 0 && (
+        {!!todos.length && (
           <Footer
             filtered={filter}
             onFiltered={setFilter}
