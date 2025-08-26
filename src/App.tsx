@@ -1,5 +1,6 @@
 // #region imports
 import React, { useEffect, useMemo, useRef, useState } from 'react';
+
 import * as todoService from './api/todos';
 import { Todo } from './types/Todo';
 import { TodoList } from './components/TodoList';
@@ -216,9 +217,7 @@ export const App: React.FC = () => {
           .filter(todo => todo.completed === areAllCompleted)
           .map(todo => handleToggleTodoStatus(todo.id, todo.completed)),
       );
-    } catch {
-      showError('Unable to toggle all todos');
-    }
+    } catch {}
   };
 
   const filteredTodos = useMemo(() => {

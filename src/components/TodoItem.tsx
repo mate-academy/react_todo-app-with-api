@@ -1,8 +1,9 @@
 /* eslint-disable jsx-a11y/label-has-associated-control */
 /* eslint-disable jsx-a11y/control-has-associated-label */
-import React, { useEffect, useLayoutEffect, useRef, useState } from 'react';
-import { Todo } from '../types/Todo';
+import React, { useLayoutEffect, useRef, useState } from 'react';
 import classNames from 'classnames';
+
+import { Todo } from '../types/Todo';
 
 type Props = {
   todo: Todo;
@@ -31,7 +32,6 @@ export const TodoItem: React.FC<Props> = ({
 }) => {
   const [title, setTitle] = useState<string>('');
 
-  const inputRef = useRef<HTMLInputElement>(null);
   const submittedRef = useRef(false);
 
   const isLoading = isTempTodo || isDeleting || isToggling || isUpdating;
@@ -42,19 +42,6 @@ export const TodoItem: React.FC<Props> = ({
       setTitle(todo.title);
     }
   }, [isEditing, todo.title]);
-
-  // useEffect(() => {
-  //   if (isEditing && inputRef.current) {
-  //     inputRef.current.focus();
-  //     inputRef.current.select();
-  //   }
-  // }, [isEditing]);
-
-  useEffect(() => {
-    if (selectedTodo?.id === todo.id) {
-      setTitle(selectedTodo.title);
-    }
-  }, [selectedTodo, todo.id]);
 
   return (
     <div data-cy="Todo" className={`todo ${todo.completed ? 'completed' : ''}`}>
@@ -94,7 +81,6 @@ export const TodoItem: React.FC<Props> = ({
               onDoubleClick(null);
             }
           }}
-          ref={inputRef}
           autoFocus
           onFocus={e => e.currentTarget.select()}
         />
