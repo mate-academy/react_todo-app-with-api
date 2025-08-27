@@ -22,7 +22,7 @@ enum ERROR {
 export const App: React.FC = () => {
   const [todoList, setTodoList] = useState<Todo[]>([]);
   const [filter, setFilter] = useState('all');
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState<ERROR | null>(null);
   const [shouldFocus, setShouldFocus] = useState(true);
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
 
