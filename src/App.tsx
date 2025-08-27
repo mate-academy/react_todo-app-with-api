@@ -1,26 +1,237 @@
+/* eslint-disable jsx-a11y/label-has-associated-control */
+/* eslint-disable @typescript-eslint/no-shadow */
 /* eslint-disable max-len */
 /* eslint-disable jsx-a11y/control-has-associated-label */
-import React from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { UserWarning } from './UserWarning';
-
-const USER_ID = 0;
+import * as todosService from './api/todos';
+import { Todo } from './types/Todo';
+import { ToDo } from './components/ToDo';
+import { Header } from './components/Header';
+import { Footer } from './components/Footer';
+import { Filter } from './types/Filter';
+import { ErrorNotification } from './components/ErrorNotification';
 
 export const App: React.FC = () => {
-  if (!USER_ID) {
+  const [todos, setTodos] = useState<Todo[]>([]);
+  const [title, setTitle] = useState('');
+  const [filterBy, setFilterBy] = useState<Filter>(Filter.all);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [tempTodo, setTempTodo] = useState<Todo | null>(null);
+  const [changingTodoId, setChangingTodoId] = useState<number | null>(null);
+  const [changingTodoIds, setChangingTodoIds] = useState<number[]>([]);
+  const [error, setError] = useState<string | null>(null);
+
+  const activeCount = todos.filter(todo => !todo.completed).length;
+  const mainInput = useRef<HTMLInputElement>(null);
+
+  const allErrors = {
+    loadingTodos: 'Unable to load todos',
+    addingTodo: 'Unable to add a todo',
+    deletingTodo: 'Unable to delete a todo',
+    updatingTodo: 'Unable to update a todo',
+    checkingEmptyTitle: 'Title should not be empty',
+  };
+
+  const visibleTodos = useMemo(() => {
+    return todos.filter(todo => {
+      if (filterBy === Filter.active) {
+        return !todo.completed;
+      }
+
+      if (filterBy === Filter.completed) {
+        return todo.completed;
+      }
+
+      return true;
+    });
+  }, [todos, filterBy]);
+
+  // eslint-disable-next-line @typescript-eslint/no-shadow
+  function addTodo({ title, completed, userId }: Omit<Todo, 'id'>) {
+    setError('');
+
+    return todosService
+      .addTodo({ title, completed, userId })
+      .then(newTodo => {
+        setTodos(currentTodos => {
+          return [...currentTodos, newTodo];
+        });
+      })
+      .catch(e => {
+        setError(allErrors.addingTodo);
+        throw e;
+      });
+  }
+
+  function deleteTodo(id: number) {
+    setChangingTodoId(id);
+
+    setChangingTodoIds(ids => [...ids, id]);
+
+    return todosService
+      .deleteTodo(id)
+      .then(() => {
+        setTodos(currentTodos => currentTodos.filter(todo => todo.id !== id));
+        mainInput.current?.focus();
+      })
+      .catch(e => {
+        setError(allErrors.deletingTodo);
+        throw e;
+      })
+      .finally(() => {
+        setChangingTodoId(null);
+        setChangingTodoIds(ids => ids.filter(item => item !== id));
+      });
+  }
+
+  function handleSubmit(event: React.FormEvent) {
+    event.preventDefault();
+    const normalizedTitle = title.trim();
+
+    if (!normalizedTitle) {
+      setError(allErrors.checkingEmptyTitle);
+      mainInput.current?.focus();
+
+      return;
+    }
+
+    setIsSubmitting(true);
+
+    setTempTodo({
+      id: 0,
+      title: normalizedTitle,
+      completed: false,
+      userId: todosService.USER_ID,
+    });
+
+    addTodo({
+      title: normalizedTitle,
+      completed: false,
+      userId: todosService.USER_ID,
+    })
+      .then(() => {
+        setTitle('');
+        setTempTodo(null);
+        mainInput.current?.focus();
+      })
+      .catch(() => setTempTodo(null))
+      .finally(() => setIsSubmitting(false));
+  }
+
+  function updateTodo(todo: Todo) {
+    const updatedTodo = {
+      ...todo,
+      completed: !todo.completed,
+    };
+
+    setChangingTodoId(updatedTodo.id);
+    setChangingTodoIds(ids => [...ids, updatedTodo.id]);
+
+    return todosService
+      .updateTodo(updatedTodo)
+      .then(() =>
+        setTodos(tds => {
+          return tds.map(todo =>
+            todo.id === updatedTodo.id
+              ? { ...todo, completed: !todo.completed }
+              : todo,
+          );
+        }),
+      )
+      .catch(e => {
+        setError(allErrors.updatingTodo);
+        throw e;
+      })
+      .finally(() => {
+        setChangingTodoId(null);
+        setChangingTodoIds(ids => ids.filter(item => item !== updatedTodo.id));
+      });
+  }
+
+  useEffect(() => {
+    mainInput.current?.focus();
+
+    todosService
+      .getTodos()
+      .then(setTodos)
+      .catch(() => setError(allErrors.loadingTodos));
+  }, []);
+
+  useEffect(() => {
+    if (error) {
+      const timer = setTimeout(() => setError(''), 3000);
+
+      return () => clearTimeout(timer);
+    }
+  }, [error]);
+
+  useEffect(() => {
+    if (!isSubmitting) {
+      setTimeout(() => mainInput.current?.focus(), 0);
+    }
+  }, [isSubmitting]);
+
+  if (!todosService.USER_ID) {
     return <UserWarning />;
   }
 
   return (
-    <section className="section container">
-      <p className="title is-4">
-        Copy all you need from the prev task:
-        <br />
-        <a href="https://github.com/mate-academy/react_todo-app-add-and-delete#react-todo-app-add-and-delete">
-          React Todo App - Add and Delete
-        </a>
-      </p>
+    <div className="todoapp">
+      <h1 className="todoapp__title">todos</h1>
+      <Header
+        todos={todos}
+        title={title}
+        setTitle={setTitle}
+        mainInput={mainInput}
+        handleSubmit={handleSubmit}
+        isSubmitting={isSubmitting}
+        updateTodo={updateTodo}
+      />
+      <div className="todoapp__content">
+        <section className="todoapp__main" data-cy="TodoList">
+          {visibleTodos.map(todo => (
+            <ToDo
+              updateTodo={updateTodo}
+              todo={todo}
+              deleteTodo={deleteTodo}
+              isChanging={changingTodoId === todo.id}
+              isChangingSeveral={changingTodoIds.includes(todo.id)}
+              setTodos={setTodos}
+              setChangingTodoId={setChangingTodoId}
+              setError={setError}
+              allErrors={allErrors}
+              key={todo.id}
+            />
+          ))}
+          {tempTodo && (
+            <ToDo
+              updateTodo={updateTodo}
+              todo={tempTodo}
+              deleteTodo={deleteTodo}
+              isChanging={changingTodoId === tempTodo.id}
+              isChangingSeveral={changingTodoIds.includes(tempTodo.id)}
+              setTodos={setTodos}
+              setChangingTodoId={setChangingTodoId}
+              setError={setError}
+              allErrors={allErrors}
+              isSubmitting={isSubmitting}
+            />
+          )}
+        </section>
 
-      <p className="subtitle">Styles are already copied</p>
-    </section>
+        {todos.length > 0 && (
+          <Footer
+            filterBy={filterBy}
+            activeCount={activeCount}
+            setFilterBy={setFilterBy}
+            visibleTodos={visibleTodos}
+            deleteTodo={deleteTodo}
+          />
+        )}
+      </div>
+
+      <ErrorNotification error={error} setError={setError} />
+    </div>
   );
 };
