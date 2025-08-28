@@ -1756,7 +1756,10 @@ describe('', () => {
           page.mockUpdate(257334, spy);
 
           todos.title(0).trigger('dblclick');
-          todos.titleField(0).blur();
+          // Ensure the input is focused before blur
+          todos.titleField(0).should('be.focused').then($input => {
+            cy.wrap($input).blur();
+          });
 
           cy.get('@renameCallback').should('not.be.called');
           page.flushJSTimers();
