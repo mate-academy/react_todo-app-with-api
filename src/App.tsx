@@ -242,23 +242,14 @@ export const App: React.FC = () => {
           />
         </header>
 
-        {todos.length > 0 && (
-          <TodoList
-            todos={filteredTodos}
-            onDeleteTodo={handleDeleteTodo}
-            loadingIds={loadingIds}
-            toggleOneTodo={toggleOneTodo}
-            editTodoTitle={editTodoTitle}
-          />
-        )}
-
-        {tempTodo && (
-          <TodoList
-            todos={[tempTodo]}
-            loadingIds={loadingIds}
-            isTodoTemp={true}
-          />
-        )}
+        <TodoList
+          todos={filteredTodos}
+          tempTodo={tempTodo}
+          onDeleteTodo={handleDeleteTodo}
+          loadingIds={loadingIds}
+          toggleOneTodo={toggleOneTodo}
+          editTodoTitle={editTodoTitle}
+        />
 
         {todos.length > 0 && (
           <Footer
