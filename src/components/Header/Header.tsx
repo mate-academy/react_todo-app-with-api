@@ -6,17 +6,21 @@ type Props = {
   areAllCompleted: boolean;
   adding: boolean;
   loading: boolean;
+  editing: boolean;
   query: string;
+  emptyTodos: boolean;
   onQueryChange?: (newQuery: string) => void;
   onNewTodo?: (title: string) => void;
-  onCompleteToggle?: () => void;
+  onCompleteToggle?: (areAllCompleted: boolean) => void;
 };
 
 export const Header: React.FC<Props> = ({
   areAllCompleted,
   adding,
   loading,
+  editing,
   query,
+  emptyTodos,
   onQueryChange = () => {},
   onNewTodo = () => {},
   onCompleteToggle = () => {},
@@ -30,21 +34,23 @@ export const Header: React.FC<Props> = ({
   };
 
   useEffect(() => {
-    if (adding || loading) {
+    if (adding || loading || editing) {
       inputElement.current?.blur();
     } else {
       inputElement.current?.focus();
     }
-  }, [loading, adding]);
+  }, [loading, adding, editing]);
 
   return (
     <header className="todoapp__header">
-      <button
-        type="button"
-        className={cn('todoapp__toggle-all', { active: areAllCompleted })}
-        data-cy="ToggleAllButton"
-        onClick={() => onCompleteToggle()}
-      />
+      {!emptyTodos && (
+        <button
+          type="button"
+          className={cn('todoapp__toggle-all', { active: areAllCompleted })}
+          data-cy="ToggleAllButton"
+          onClick={() => onCompleteToggle(areAllCompleted)}
+        />
+      )}
 
       <form onSubmit={handleSubmit}>
         <input

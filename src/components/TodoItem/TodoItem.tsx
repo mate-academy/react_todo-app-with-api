@@ -1,38 +1,48 @@
 import cn from 'classnames';
 
 import { Todo } from '../../types/Todo';
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
+import React from 'react';
 
 type Props = {
   todo: Todo;
   isEditing: boolean;
   isLoading: boolean;
-  editQuery: string;
+  isEditLoading: boolean;
   onOneTodoToggle?: (id: number) => void;
-  onEditSubmit?: () => void;
-  onEditQueryChange?: (newQuery: string) => void;
+  onEditTodo?: (title: string, id: number) => void;
   onDoubleClick?: (id: number) => void;
   onTodoRemove?: (id: number) => void;
 };
 
-export const TodoItem: React.FC<Props> = ({
+export const TodoItemComponent: React.FC<Props> = ({
   todo,
   isEditing,
   isLoading,
-  editQuery,
+  isEditLoading,
   onOneTodoToggle = () => {},
-  onEditSubmit = () => {},
-  onEditQueryChange = () => {},
+  onEditTodo = () => {},
   onDoubleClick = () => {},
   onTodoRemove = () => {},
 }) => {
   const inputEditElement = useRef<HTMLInputElement>(null);
+  const [editQuery, setEditQuery] = useState(todo.title);
+  const [isProcessing, setIsProcessing] = useState(false);
 
   useEffect(() => {
     if (inputEditElement.current) {
       inputEditElement.current.focus();
     }
-  }, [isEditing]);
+  }, [isEditing, isEditLoading]);
+
+  const handleSubmit = () => {
+    if (isProcessing) return;
+    setIsProcessing(true);
+
+    onEditTodo(editQuery.trim(), todo.id);
+
+    setTimeout(() => setIsProcessing(false), 0);
+  }
 
   return (
     <div
@@ -47,15 +57,16 @@ export const TodoItem: React.FC<Props> = ({
           type="checkbox"
           className="todo__status"
           checked={todo.completed}
+          readOnly
           onClick={() => onOneTodoToggle(todo.id)}
         />
       </label>
 
-      {isEditing ? (
+      {isEditing || isEditLoading ? (
         <form
           onSubmit={event => {
             event.preventDefault();
-            onEditSubmit();
+            handleSubmit();
           }}
         >
           <input
@@ -65,8 +76,9 @@ export const TodoItem: React.FC<Props> = ({
             className="todo__title-field"
             placeholder="Empty todo will be deleted"
             value={editQuery}
-            onChange={event => onEditQueryChange(event.target.value)}
-            onBlur={() => onEditSubmit()}
+            onChange={event => setEditQuery(event.target.value)}
+            onBlur={() => handleSubmit()}
+            disabled={isLoading}
           />
         </form>
       ) : (
@@ -102,3 +114,5 @@ export const TodoItem: React.FC<Props> = ({
     </div>
   );
 };
+
+export const TodoItem = React.memo(TodoItemComponent);

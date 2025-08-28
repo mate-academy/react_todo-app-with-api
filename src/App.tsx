@@ -6,7 +6,13 @@ import { Footer } from './components/Footer';
 import { Todo } from './types/Todo';
 import { Todos } from './components/Todos';
 import { SelectedFilter } from './types/SelectedFilter';
-import { addTodo, deleteTodo, getTodos, USER_ID } from './api/todos';
+import {
+  addTodo,
+  deleteTodo,
+  getTodos,
+  updateTodo,
+  USER_ID,
+} from './api/todos';
 import { ErrorMessages } from './types/ErrorMessages';
 import classNames from 'classnames';
 
@@ -38,6 +44,8 @@ export const App: React.FC = () => {
   const [query, setQuery] = useState('');
   const [loadingTodoIds, setLoadingTodoIds] = useState<number[]>([]);
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
+  const [editLoadingTodoIds, setEditLoadingTodoIds] = useState<number[]>([]);
+  const [editingTodoId, setEditingTodoId] = useState<number | null>(null);
 
   const errorTimeoutId = useRef<number | null>(null);
 
@@ -110,18 +118,13 @@ export const App: React.FC = () => {
   };
 
   const handleTodoDelete = useCallback(
-    (id: number, inCycle = false) => {
-      if (!inCycle) {
-        clearError();
-      }
-
+    (id: number) => {
+      clearError();
       setLoadingTodoIds(prev => [...prev, id]);
       deleteTodo(id)
         .then(() => {
           setTodos(prev => {
-            const idIndex = prev.findIndex(elem => elem.id === id);
-
-            return [...prev.slice(0, idIndex), ...prev.slice(idIndex + 1)];
+            return prev.filter(todo => todo.id !== id);
           });
         })
         .catch(() => {
@@ -176,16 +179,192 @@ export const App: React.FC = () => {
       });
   };
 
+  const handleTodoCompletedToggle = useCallback(
+    (id: number) => {
+      clearError();
+
+      const updatingTodo = todos.find(todo => todo.id === id);
+
+      if (!updatingTodo) {
+        return;
+      }
+
+      const newCompleted = !updatingTodo.completed;
+
+      setLoadingTodoIds(prev => [...prev, id]);
+
+      updateTodo(id, { completed: newCompleted })
+        .then(({ id: todoId, userId, title, completed }) => {
+          const updatedTodo: Todo = {
+            id: todoId,
+            userId: userId,
+            title: title,
+            completed: completed,
+          };
+
+          setTodos(prev => {
+            return prev.map(todo =>
+              todo.id === updatedTodo.id ? updatedTodo : todo,
+            );
+          });
+        })
+        .catch(() => {
+          handleError(ErrorMessages.ErrorToUpdateTodo);
+        })
+        .finally(() => {
+          setLoadingTodoIds(prev => prev.filter(prevId => prevId !== id));
+        });
+    },
+    [handleError, clearError, todos],
+  );
+
+  const handleTodoAllCompletedToggle = (areAllCompleted: boolean) => {
+    const ids = todos
+      .filter(todo => todo.completed == areAllCompleted)
+      .map(todo => todo.id);
+
+    const toggleTo = !areAllCompleted;
+
+    clearError();
+    setLoadingTodoIds(prev => [...prev, ...ids]);
+
+    Promise.allSettled(ids.map(id => updateTodo(id, { completed: toggleTo })))
+      .then(responses => {
+        type Reduce = {
+          fulfilled: Todo[];
+          rejected: number[];
+        };
+
+        const { fulfilled, rejected } = responses.reduce<Reduce>(
+          (filteredResponses, currentResponse, index) => {
+            if (currentResponse.status === 'fulfilled') {
+              const updatedTodo = {
+                id: currentResponse.value.id,
+                userId: currentResponse.value.userId,
+                title: currentResponse.value.title,
+                completed: currentResponse.value.completed,
+              };
+
+              filteredResponses.fulfilled.push(updatedTodo);
+            } else {
+              filteredResponses.rejected.push(ids[index]);
+            }
+
+            return filteredResponses;
+          },
+          {
+            fulfilled: [],
+            rejected: [],
+          },
+        );
+
+        if (rejected.length > 0) {
+          handleError(ErrorMessages.ErrorToUpdateTodo);
+        }
+
+        if (fulfilled.length > 0) {
+          setTodos(prev => {
+            const fulfilledMapped = new Map(
+              fulfilled.map(todo => [todo.id, todo]),
+            );
+
+            return prev.map(todo =>
+              fulfilledMapped.has(todo.id)
+                ? (fulfilledMapped.get(todo.id) as Todo)
+                : todo,
+            );
+          });
+        }
+      })
+      .finally(() => {
+        setLoadingTodoIds(prev => prev.filter(prevId => !ids.includes(prevId)));
+      });
+  };
+
+  const handleEditTodo = useCallback(
+    (title: string, id: number) => {
+      if (!title) {
+        handleTodoDelete(id);
+
+        return;
+      }
+
+      const pastTodo = todos.find(todo => todo.id === id) as Todo;
+
+      if (pastTodo.title === title) {
+        setEditingTodoId(null);
+
+        return;
+      }
+
+      clearError();
+      setEditLoadingTodoIds(prev => [...prev, id]);
+      setLoadingTodoIds(prev => [...prev, id]);
+
+      updateTodo(id, { title: title })
+        .then(response => {
+          if (editingTodoId === id) {
+            setEditingTodoId(null);
+          }
+
+          const updatedTodo: Todo = {
+            id: response.id,
+            title: response.title,
+            userId: response.userId,
+            completed: response.completed,
+          };
+
+          setTodos(prev => {
+            return prev.map(todo =>
+              todo.id === updatedTodo.id ? updatedTodo : todo,
+            );
+          });
+        })
+        .catch(() => {
+          handleError(ErrorMessages.ErrorToUpdateTodo);
+        })
+        .finally(() => {
+          setLoadingTodoIds(prev => {
+            const idIndex = prev.findIndex(elem => elem === id);
+
+            return [...prev.slice(0, idIndex), ...prev.slice(idIndex + 1)];
+          });
+          setEditLoadingTodoIds(prev => {
+            const idIndex = prev.findIndex(elem => elem === id);
+
+            return [...prev.slice(0, idIndex), ...prev.slice(idIndex + 1)];
+          });
+        });
+    },
+    [clearError, todos, handleError, editingTodoId, handleTodoDelete],
+  );
+
   const handleDeleteError = () => {
     setErrorMessage(ErrorMessages.None);
   };
 
   useEffect(() => {
+    const handleCancelEditing = () => {
+      setEditingTodoId(null);
+    };
+
     getTodos()
       .then(setTodos)
       .catch(() => {
         handleError(ErrorMessages.ErrorTodoLoad);
       });
+
+    const handleEscape = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        handleCancelEditing();
+      }
+    };
+
+    document.addEventListener('keyup', handleEscape);
+
+    return () => {
+      document.removeEventListener('keyup', handleEscape);
+    };
   }, [handleError]);
 
   const visibleTodos = prepareTodos(todos, filterQuery);
@@ -196,6 +375,9 @@ export const App: React.FC = () => {
   const areNoneCompleted = todos.every(todo => !todo.completed);
   const areAllCompleted = todos.every(todo => todo.completed);
 
+  const isEditing = editingTodoId !== null;
+  const emptyTodos = todos.length === 0;
+
   return (
     <div className="todoapp">
       <h1 className="todoapp__title">todos</h1>
@@ -205,16 +387,24 @@ export const App: React.FC = () => {
           areAllCompleted={areAllCompleted}
           adding={isLoadingAddingTodo}
           loading={isLoadingSomething}
+          editing={isEditing}
           query={query}
+          emptyTodos={emptyTodos}
           onQueryChange={handleQueryChange}
           onNewTodo={handleNewTodo}
+          onCompleteToggle={handleTodoAllCompletedToggle}
         />
 
         <Todos
           todos={visibleTodos}
           loadingTodoIds={loadingTodoIds}
           tempTodo={tempTodo}
+          editLoadingTodoIds={editLoadingTodoIds}
+          editingTodoId={editingTodoId}
           onTodoDelete={handleTodoDelete}
+          onOneTodoToggle={handleTodoCompletedToggle}
+          onSettingEditingTodo={setEditingTodoId}
+          onEditTodo={handleEditTodo}
         />
 
         {todos.length > 0 && (
