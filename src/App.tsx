@@ -28,14 +28,16 @@ export const App: React.FC = () => {
   const [todos, setTodos] = useState<Todo[]>([]);
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
   const [isFormSubmitting, setIsFormSubmitting] = useState<boolean>(false);
-  const [errorMessage, setErrorMessage] = useState<TodoErrors | null>(null);
+  const [errorMessage, setErrorMessage] = useState<TodoErrors>(
+    TodoErrors.DEFAULT_VALUE,
+  );
   const [filter, setFilter] = useState<Filter>(Filter.ALL);
   const [loadingIds, setLoadingIds] = useState<number[]>([]);
   const formRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     const fetchTodos = async () => {
-      setErrorMessage(null);
+      setErrorMessage(TodoErrors.DEFAULT_VALUE);
 
       try {
         const todosFromServer = await getTodos();
@@ -140,7 +142,7 @@ export const App: React.FC = () => {
   }, [todos]);
 
   const handleClearErrorNotification = () => {
-    setErrorMessage(null);
+    setErrorMessage(TodoErrors.DEFAULT_VALUE);
   };
 
   const toggleOneTodo = useCallback(async (todo: Todo) => {
