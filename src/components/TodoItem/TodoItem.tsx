@@ -29,14 +29,13 @@ export const TodoItem: React.FC<Props> = ({
   const [updateInputData, setUpdateInputData] = useState('');
   const isEditing = currentEditingTodoId === todo.id;
 
-  const inputRef = useRef<HTMLInputElement>(null); // add link to ref on Input Element
+  const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     if (isEditing && inputRef) {
       inputRef.current?.focus();
     } else {
       inputRef.current?.blur();
-      // setIsEditingTodo(null);
     }
   }, [isEditing]);
 
@@ -63,14 +62,6 @@ export const TodoItem: React.FC<Props> = ({
             data-cy="TodoStatus"
             type="checkbox"
             className="todo__status"
-            // onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
-            //   event.preventDefault();
-            //   onClickToggleCompleted({
-            //     id: todo.id,
-            //     title: todo.title,
-            //     completed: !todo.completed,
-            //   });
-            // }}
             checked={todo.completed}
             aria-label="Mark todo as completed"
           />

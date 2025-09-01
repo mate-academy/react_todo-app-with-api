@@ -142,13 +142,13 @@ export const App: React.FC = () => {
 
           return newTodos;
         });
+        setEditingTodoId(null);
       })
       .catch(() => {
         setErrorMessage(TodoError.UPDATE_FAILED);
       })
       .finally(() => {
         setListTodoId([]);
-        setEditingTodoId(null);
       });
   }
 
@@ -181,7 +181,6 @@ export const App: React.FC = () => {
 
     if (updateTodoTitle.title.length === 0) {
       removeTodo(updateTodoTitle.id);
-      setEditingTodoId(null);
 
       return;
     }
@@ -316,14 +315,6 @@ export const App: React.FC = () => {
         />
         {/* show only one message at a time */}
         {errorMessage}
-        {/* <br />
-        Title should not be empty
-        <br />
-        Unable to add a todo
-        <br />
-        Unable to delete a todo
-        <br />
-        Unable to update a todo */}
       </div>
     </div>
   );

@@ -28,7 +28,7 @@ export const Header: React.FC<Props> = ({
   isLoadingSpinner,
   onClickAllToggleButton,
 }) => {
-  const inputRef = useRef<HTMLInputElement>(null); // add link to ref on Input Element
+  const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     if (isFocusHeaderInput && inputRef) {
@@ -57,9 +57,7 @@ export const Header: React.FC<Props> = ({
           event.preventDefault();
           handleEmptyInputError();
 
-          // send data to SERVER
           if (inputValue.trim().length !== 0) {
-            // add tempTodo
             onSubmitAddTempTodo({
               id: 0,
               title: inputValue.trim(),

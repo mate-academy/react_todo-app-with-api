@@ -6,7 +6,7 @@ import { TempTodoItem } from '../TempTodoItem/TempTodoItem';
 type Props = {
   visibleData: Todo[];
   isLoadingSpinner: boolean;
-  tempTodo: Omit<Todo, 'userId'> | null; //we take all besides userId
+  tempTodo: Omit<Todo, 'userId'> | null;
   onClickDeleteTodo: (todoId: number) => void;
   listTodoId: number[];
   onClickToggleCompleted: ({
