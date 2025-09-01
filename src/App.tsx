@@ -211,7 +211,6 @@ export const App: React.FC = () => {
 
   const handleEditingTodo = (todoId: number) => {
     setEditingTodoId(todoId);
-    console.log(todoId);
   };
 
   const handleKeyEscape = (event: KeyboardEvent) => {
@@ -250,9 +249,9 @@ export const App: React.FC = () => {
     };
   }, []);
 
-  if (!USER_ID) {
-    return <UserWarning />;
-  }
+  // if (!USER_ID) {
+  //   return <UserWarning />;
+  // }
 
   return (
     <div className="todoapp">
