@@ -50,15 +50,15 @@ export const App: React.FC = () => {
         ? tempStatuses[todo.id]
         : todo.completed;
 
-    if (filterType === 'active') {
-      return !statusForFiltering;
+    // Fixed, now using switch case.
+    switch (filterType) {
+      case 'active':
+        return !statusForFiltering;
+      case 'completed':
+        return statusForFiltering;
+      default:
+        return true;
     }
-
-    if (filterType === 'completed') {
-      return statusForFiltering;
-    }
-
-    return true;
   });
 
   const clearErrors = () => {
@@ -233,8 +233,14 @@ export const App: React.FC = () => {
     updateTodo({ ...todo, completed: newStatus }, false);
   };
 
-  const handleClearCompleted = () => {
-    todos.filter(t => t.completed).forEach(t => deleteTodo(t.id, false, ''));
+  const handleClearCompleted = async () => {
+    const completedTodos = todos.filter(todo => todo.completed);
+
+    const deletePromises = completedTodos.map(todo =>
+      deleteTodo(todo.id, false, todo.title),
+    );
+
+    await Promise.all(deletePromises);
   };
 
   useEffect(() => {
