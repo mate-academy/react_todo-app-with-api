@@ -249,9 +249,9 @@ export const App: React.FC = () => {
     };
   }, []);
 
-  // if (!USER_ID) {
-  //   return <UserWarning />;
-  // }
+  if (!USER_ID) {
+    return <UserWarning />;
+  }
 
   return (
     <div className="todoapp">
