@@ -101,6 +101,39 @@ export const App: React.FC = () => {
     todos.filter(todo => todo.completed).map(todo => deleteTodo(todo.id));
   }
 
+  function makeTodoComplete(todo: Todo) {
+    setProcessTodoIds(ids => [...ids, todo.id]);
+
+    setLoader(true);
+
+    const todoChange = { ...todo };
+
+    if (todoChange.completed === false) {
+      todoChange.completed = true;
+    } else {
+      todoChange.completed = false;
+    }
+
+    todoService
+      .updateTodo(todoChange)
+      .catch(() => setError('UPDATE'))
+      .then(() => {
+        todoService.getTodos().then(setTodos);
+      })
+      .finally(() => {
+        setLoader(false);
+        setProcessTodoIds([]);
+      });
+  }
+
+  function makeAllTodoComplete() {
+    if (todos.every(todo => todo.completed)) {
+      todos.filter(todo => todo.completed).map(todo => makeTodoComplete(todo));
+    } else {
+      todos.filter(todo => !todo.completed).map(todo => makeTodoComplete(todo));
+    }
+  }
+
   function handleSubmit(event: React.FormEvent) {
     event.preventDefault();
 
@@ -134,6 +167,7 @@ export const App: React.FC = () => {
             type="button"
             className="todoapp__toggle-all active"
             data-cy="ToggleAllButton"
+            onClick={makeAllTodoComplete}
           />
 
           <form onSubmit={handleSubmit}>
@@ -161,6 +195,7 @@ export const App: React.FC = () => {
                 key={todo.id}
                 chosenTodoIds={processTodoIds}
                 deleteTodo={deleteTodo}
+                makeTodoComplete={makeTodoComplete}
               />
             );
           })}

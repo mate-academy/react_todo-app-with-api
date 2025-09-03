@@ -7,6 +7,7 @@ type Props = {
   loader: boolean;
   chosenTodoIds: number[];
   deleteTodo: (todoId: number) => void;
+  makeTodoComplete: (todo: Todo) => void;
 };
 
 export const TodoRow: React.FC<Props> = ({
@@ -14,6 +15,7 @@ export const TodoRow: React.FC<Props> = ({
   loader,
   chosenTodoIds,
   deleteTodo,
+  makeTodoComplete,
 }) => {
   return (
     <div
@@ -27,6 +29,9 @@ export const TodoRow: React.FC<Props> = ({
           type="checkbox"
           className="todo__status"
           checked={todo.completed}
+          onChange={() => {
+            makeTodoComplete(todo);
+          }}
         />
       </label>
       <span data-cy="TodoTitle" className="todo__title">
