@@ -1,5 +1,5 @@
 import { CSSTransition, TransitionGroup } from 'react-transition-group';
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useState, useRef, useMemo } from 'react';
 import { Todo } from './types/Todo';
 import * as todoService from './api/todos';
 import Footer from './components/Footer/Footer';
@@ -17,11 +17,10 @@ export const App = () => {
   const [loadingTodoIds, setLoadingTodoIds] = useState<number[]>([]);
   const [error, setError] = useState<ErrorMessage>(ErrorMessage.EMPTY);
   const [filter, setFilter] = useState<FilterTypes>(FilterTypes.All);
-  const timeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const timeoutRef = useRef<number | null>(null);
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const prevTodosLengthRef = useRef(todos.length);
-
 
   const showError = (message: ErrorMessage) => {
     setError(message);
@@ -94,14 +93,14 @@ export const App = () => {
       });
 
       setTodos(prev => [...prev, newTodo]);
-      setTempTodo(null);
-
       return true;
+
     } catch {
       showError(ErrorMessage.ADD);
-      setTempTodo(null);
 
       return false;
+    } finally {
+      setTempTodo(null);
     }
   };
 
@@ -223,17 +222,19 @@ export const App = () => {
     setLoadingTodoIds(prev => prev.filter(id => !completedIds.includes(id)));
   };
 
-  const filteredTodos = todos.filter(todo => {
-    switch (filter) {
-      case FilterTypes.Active:
-        return !todo.completed;
-      case FilterTypes.Completed:
-        return todo.completed;
-      case FilterTypes.All:
-      default:
-        return true;
-    }
-  });
+  const filteredTodos = useMemo(() => {
+    return todos.filter(todo => {
+      switch (filter) {
+        case FilterTypes.Active:
+          return !todo.completed;
+        case FilterTypes.Completed:
+          return todo.completed;
+        case FilterTypes.All:
+        default:
+          return true;
+      }
+    });
+  }, [todos, filter]);
 
   const activeTodos = todos.filter(todo => !todo.completed).length;
   const allCompleted = todos.length > 0 && todos.every(todo => todo.completed);
@@ -296,9 +297,9 @@ export const App = () => {
                 title={tempTodo.title}
                 id={tempTodo.id}
                 loading={true}
-                onToggle={() => {}}
-                onDelete={() => {}}
-                onUpdate={() => {}}
+                onToggle={() => { }}
+                onDelete={() => { }}
+                onUpdate={() => { }}
               />
             </CSSTransition>
           )}

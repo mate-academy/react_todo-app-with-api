@@ -23,9 +23,10 @@ const TodoItem: React.FC<Props> = ({
 }) => {
   const [isEditing, setIsEditing] = useState(false);
   const [newTitle, setNewTitle] = useState(title);
-  const [isExiting, setIsExiting] = useState(false);
 
-  const handleEdit = () => setIsEditing(true);
+  const handleEdit = () => {
+    setIsEditing(true);
+  };
 
   const handleSave = () => {
     const trimmed = newTitle.trim();
@@ -36,12 +37,7 @@ const TodoItem: React.FC<Props> = ({
       onUpdate(id, trimmed);
     }
 
-    setIsExiting(true);
-
-    setTimeout(() => {
-      setIsExiting(false);
-      setIsEditing(false);
-    }, 300);
+    setIsEditing(false);
   };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
@@ -49,12 +45,7 @@ const TodoItem: React.FC<Props> = ({
       handleSave();
     } else if (e.key === 'Escape') {
       setNewTitle(title);
-      setIsExiting(true);
-
-      setTimeout(() => {
-        setIsExiting(false);
-        setIsEditing(false);
-      }, 300);
+      setIsEditing(false);
     }
   };
 
@@ -70,7 +61,7 @@ const TodoItem: React.FC<Props> = ({
         />
       </label>
 
-      {isEditing || isExiting ? (
+      {isEditing ? (
         <input
           autoFocus
           type="text"
@@ -92,7 +83,7 @@ const TodoItem: React.FC<Props> = ({
         </span>
       )}
 
-      {!isEditing && !isExiting && (
+      {!isEditing && (
         <button
           type="button"
           className="todo__remove"

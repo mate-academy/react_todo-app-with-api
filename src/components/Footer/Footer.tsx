@@ -19,7 +19,6 @@ const Footer: React.FC<Props> = ({
   onClearCompleted,
 }) => {
   const hasCompleted = todos.some(todo => todo.completed);
-  const capitalize = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
 
   return (
     <footer className="todoapp__footer" data-cy="Footer">
@@ -31,17 +30,17 @@ const Footer: React.FC<Props> = ({
         {Object.values(FilterTypes).map(filterType => (
           <a
             key={filterType}
-            href={`#/${filterType === FilterTypes.All ? '' : filterType}`}
+            href={`#/${filterType === FilterTypes.All ? '' : filterType.toLowerCase()}`}
             className={classNames('filter__link', {
               selected: filter === filterType,
             })}
-            data-cy={`FilterLink${capitalize(filterType)}`}
+            data-cy={`FilterLink${filterType}`}
             onClick={e => {
               e.preventDefault();
               setFilterBy(filterType);
             }}
           >
-            {capitalize(filterType)}
+            {filterType}
           </a>
         ))}
       </nav>
