@@ -2,19 +2,10 @@ import cn from 'classnames';
 
 type Props = {
   isLoading: boolean;
-  // isInputProcessing: boolean;
-  // processingId: number;
   isProcessing: boolean;
-  // todoId: number;
 };
 
-export const Loader: React.FC<Props> = ({
-  isLoading,
-  // isInputProcessing,
-  // processingId,
-  isProcessing,
-  // todoId,
-}) => {
+export const Loader: React.FC<Props> = ({ isLoading, isProcessing }) => {
   const isActive = isProcessing || isLoading;
   // todoId === processingId && isProcessing && (isLoading || isInputProcessing);
 

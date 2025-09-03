@@ -17,7 +17,6 @@ export const TodoHeader: React.FC<Props> = ({
   todosAmount,
   handleSubmit,
   handleToggleStatusAll,
-  // isErrorState,
 }) => {
   const [inputValue, setInputValue] = useState('');
   const inputRef = useRef<HTMLInputElement>(null);
