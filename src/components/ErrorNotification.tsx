@@ -1,15 +1,11 @@
 import React from 'react';
 
-
 interface Props {
   error: string;
   setError: React.Dispatch<React.SetStateAction<string>>;
 }
 
-export const ErrorNotification: React.FC<Props> = ({
-  error,
-  setError,
-}) => {
+export const ErrorNotification: React.FC<Props> = ({ error, setError }) => {
   return (
     <div
       data-cy="ErrorNotification"

@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/indent */
+
 import React from 'react';
 import { Todo } from '../types/Todo';
 
@@ -6,7 +8,9 @@ interface Props {
   activeTodos: Todo[];
   completedTodos: Todo[];
   filter: string;
-  setFilter: React.Dispatch<React.SetStateAction<"all" | "active" | "completed">>
+  setFilter: React.Dispatch<
+    React.SetStateAction<'all' | 'active' | 'completed'>
+  >;
   handleClearAllCompleted: () => void;
 }
 

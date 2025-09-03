@@ -1,3 +1,5 @@
+/* eslint-disable jsx-a11y/label-has-associated-control */
+
 import React from 'react';
 import { Todo } from '../types/Todo';
 
@@ -55,7 +57,7 @@ export const ListOfTodos: React.FC<Props> = ({
             {editingTodoId === todo.id ? (
               <input
                 data-cy="TodoTitleField"
-                className="todo__title todo__edit"
+                className="todoapp__new-todo"
                 value={editingTitle}
                 onChange={e => setEditingTitle(e.target.value)}
                 onBlur={() => saveEditing(todo)}
@@ -94,7 +96,9 @@ export const ListOfTodos: React.FC<Props> = ({
             <div
               data-cy="TodoLoader"
               className={`modal overlay ${
-                isDelete === todo.id || updatingTodos[todo.id] ? 'is-active' : ''
+                isDelete === todo.id || updatingTodos[todo.id]
+                  ? 'is-active'
+                  : ''
               }`}
             >
               <div className="modal-background has-background-white-ter" />

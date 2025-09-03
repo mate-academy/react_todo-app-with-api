@@ -273,9 +273,7 @@ export const App: React.FC = () => {
           handleClearAllCompleted={handleClearAllCompleted}
         />
       </div>
-      <ErrorNotification
-        error={error}
-        setError={setError} />
+      <ErrorNotification error={error} setError={setError} />
     </div>
   );
 };
