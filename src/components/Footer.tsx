@@ -29,6 +29,7 @@ function Footer({
           value={Filters.All}
           onChangeFilter={onChangeFilter}
         />
+
         <FilterButton
           link="#/active"
           isActive={filter === Filters.Active}

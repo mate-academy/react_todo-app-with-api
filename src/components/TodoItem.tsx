@@ -23,6 +23,7 @@ function TodoItem({
   onSetLoading,
 }: TodoItemProps) {
   const [isEditing, setIsEditing] = useState(false);
+
   function handleDoubleClick() {
     setIsEditing(true);
   }
@@ -43,10 +44,13 @@ function TodoItem({
 
   async function handleUpdateTitle(id: number, newTitle: string) {
     const preparedTitle = newTitle.trim();
+
     if (newTitle === todo.title) {
       setIsEditing(false);
+
       return;
     }
+
     if (!preparedTitle) {
       await handleDelete();
     } else {
@@ -70,12 +74,14 @@ function TodoItem({
     const formData = new FormData(e.currentTarget);
     const newTitle = formData.get('title') as string;
     const { id } = todo;
+
     await handleUpdateTitle(id, newTitle);
   }
 
   async function handleBlur(e: React.FocusEvent<HTMLInputElement>) {
     const newTitle = e.target.value;
     const { id } = todo;
+
     await handleUpdateTitle(id, newTitle);
   }
 
@@ -94,13 +100,16 @@ function TodoItem({
       onSetLoading([]);
     }
   }
+
   function handleCancelEditing(e: React.KeyboardEvent<HTMLFormElement>) {
     e.preventDefault();
     if (e.key === 'Escape') {
       setIsEditing(false);
+
       return;
     }
   }
+
   return (
     <div
       data-cy="Todo"

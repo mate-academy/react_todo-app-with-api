@@ -32,9 +32,11 @@ function TodoList({
       case Filters.Active: {
         return todos.filter(todo => !todo.completed);
       }
+
       case Filters.Completed: {
         return todos.filter(todo => todo.completed);
       }
+
       case Filters.All:
       default:
         return todos;
@@ -53,6 +55,7 @@ function TodoList({
 
   async function handleClearTodos() {
     const completedTodos = todos.filter(todo => todo.completed);
+
     onSetLoading(completedTodos.map(todo => todo.id));
     try {
       const res = await Promise.allSettled(
@@ -63,10 +66,12 @@ function TodoList({
           if (curr.status === 'fulfilled') {
             acc.push(completedTodos[ind].id);
           }
+
           return acc;
         },
         [],
       );
+
       handleDelete(successfulIndexes);
       onSetLoading([]);
 
@@ -81,6 +86,7 @@ function TodoList({
     } finally {
     }
   }
+
   return (
     <>
       <section className="todoapp__main" data-cy="TodoList">
