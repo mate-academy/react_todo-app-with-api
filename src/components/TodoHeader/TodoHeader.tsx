@@ -12,7 +12,7 @@ type TodoHeaderProps = {
   onError: (message: string) => void;
 };
 
-export const TodoHeader: React.FC<TodoHeaderProps> = ({
+const TodoHeader: React.FC<TodoHeaderProps> = ({
   todos,
   isAdding,
   selectedTodo,
@@ -28,22 +28,22 @@ export const TodoHeader: React.FC<TodoHeaderProps> = ({
     }
   }, [isAdding, selectedTodo, todos.length]);
 
-const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
-  event.preventDefault();
-  const title = inputRef.current?.value.trim() ?? '';
+  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    const title = inputRef.current?.value.trim() ?? '';
 
-  if (!title) {
-    onError(ERROR_MESSAGES.EMPTY_TITLE);
-    return;
-  }
+    if (!title) {
+      onError(ERROR_MESSAGES.EMPTY_TITLE);
 
-  onAddTodo(title, () => {
-    if (inputRef.current) {
-      inputRef.current.value = '';
+      return;
     }
-  });
-};
 
+    onAddTodo(title, () => {
+      if (inputRef.current) {
+        inputRef.current.value = '';
+      }
+    });
+  };
 
   return (
     <header className="todoapp__header">
@@ -72,3 +72,5 @@ const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     </header>
   );
 };
+
+export default TodoHeader;

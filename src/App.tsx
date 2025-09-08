@@ -4,10 +4,10 @@ import { UserWarning } from './UserWarning';
 import { getTodos, addTodo, updateTodo, deleteTodo } from './api/todos';
 import { Todo, TodoId } from './types/Todo';
 import { USER_ID } from './api/todos';
-import { TodoHeader } from './components/TodoHeader/TodoHeader';
-import { TodoList } from './components/TodoList/TodoList';
-import { TodoFooter } from './components/TodoFooter/TodoFooter';
-import { ErrorNotification } from './components/ErrorNotification/ErrorNotification';
+import { TodoHeader } from './components/TodoHeader';
+import { TodoList } from './components/TodoList';
+import { TodoFooter } from './components/TodoFooter';
+import { ErrorNotification } from './components/ErrorNotification';
 import { ERROR_MESSAGES, errorDelay, TodoStatus } from './utils/constants';
 import { filterTodos } from './utils/FilterTodos';
 
@@ -37,8 +37,6 @@ export const App: React.FC = () => {
     return () => {};
   }, [error]);
 
-
-
   const filteredTodos = useMemo(() => {
     return filterTodos(todos, tempTodo, status);
   }, [todos, tempTodo, status]);
@@ -50,11 +48,17 @@ export const App: React.FC = () => {
   const handleAddTodo = (title: string, onSuccess?: () => void) => {
     if (!title) {
       setError(ERROR_MESSAGES.EMPTY_TITLE);
+
       return;
     }
 
     const tempId = Date.now();
-    const newTemp: Todo = { id: tempId, userId: USER_ID, title, completed: false };
+    const newTemp: Todo = {
+      id: tempId,
+      userId: USER_ID,
+      title,
+      completed: false,
+    };
 
     setTempTodo(newTemp);
     setProcessingIds(prev => [...prev, tempId]);
@@ -76,8 +80,6 @@ export const App: React.FC = () => {
         setIsAdding(false);
       });
   };
-
-
 
   const handleDeleteTodo = (todoId: number) => {
     setError(null);
@@ -158,8 +160,6 @@ export const App: React.FC = () => {
           onAddTodo={handleAddTodo}
           onError={setError}
         />
-
-
 
         {filteredTodos.length > 0 && (
           <TodoList

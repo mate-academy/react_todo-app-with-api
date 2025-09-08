@@ -5,7 +5,7 @@ type ErrorNotificationProps = {
   onClose: () => void;
 };
 
-export const ErrorNotification: React.FC<ErrorNotificationProps> = ({
+const ErrorNotification: React.FC<ErrorNotificationProps> = ({
   error,
   onClose,
 }) => {
@@ -26,3 +26,5 @@ export const ErrorNotification: React.FC<ErrorNotificationProps> = ({
     </div>
   );
 };
+
+export default ErrorNotification;

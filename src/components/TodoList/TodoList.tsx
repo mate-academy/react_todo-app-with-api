@@ -39,3 +39,5 @@ export const TodoList: React.FC<TodoListProps> = ({
     ))}
   </section>
 );
+
+export default TodoList;

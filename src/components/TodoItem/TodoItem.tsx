@@ -109,3 +109,5 @@ export const TodoItem: React.FC<TodoItemProps> = ({
     </div>
   );
 };
+
+export default TodoItem;

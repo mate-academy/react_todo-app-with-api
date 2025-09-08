@@ -62,3 +62,5 @@ export const TodoFooter: React.FC<TodoFooterProps> = ({
     </footer>
   );
 };
+
+export default TodoFooter;
