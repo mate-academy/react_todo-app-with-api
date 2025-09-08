@@ -11,3 +11,5 @@ export const ERROR_MESSAGES = {
   UPDATE_TODO: 'Unable to update a todo',
   EMPTY_TITLE: 'Title should not be empty',
 };
+
+export const errorDelay = 3000;

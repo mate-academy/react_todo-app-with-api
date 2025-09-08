@@ -2,14 +2,14 @@ import * as React from 'react';
 import { useState, useEffect, useMemo } from 'react';
 import { UserWarning } from './UserWarning';
 import { getTodos, addTodo, updateTodo, deleteTodo } from './api/todos';
-import { Todo } from './types/Todo';
+import { Todo, TodoId } from './types/Todo';
 import { USER_ID } from './api/todos';
 import { TodoHeader } from './components/TodoHeader/TodoHeader';
 import { TodoList } from './components/TodoList/TodoList';
 import { TodoFooter } from './components/TodoFooter/TodoFooter';
-// eslint-disable-next-line max-len
 import { ErrorNotification } from './components/ErrorNotification/ErrorNotification';
-import { ERROR_MESSAGES, TodoStatus } from './utils/constants';
+import { ERROR_MESSAGES, errorDelay, TodoStatus } from './utils/constants';
+import { filterTodos } from './utils/FilterTodos';
 
 export const App: React.FC = () => {
   const [todos, setTodos] = useState<Todo[]>([]);
@@ -17,7 +17,7 @@ export const App: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [status, setStatus] = useState<TodoStatus>(TodoStatus.All);
   const [selectedTodo, setSelectedTodo] = useState<Todo | null>(null);
-  const [processingIds, setProcessingIds] = useState<Todo['id'][]>([]);
+  const [processingIds, setProcessingIds] = useState<TodoId[]>([]);
   const [isAdding, setIsAdding] = useState(false);
 
   useEffect(() => {
@@ -29,64 +29,32 @@ export const App: React.FC = () => {
 
   useEffect(() => {
     if (error) {
-      const timer = setTimeout(() => setError(null), 3000);
+      const timer = setTimeout(() => setError(null), errorDelay);
 
       return () => clearTimeout(timer);
     }
+
+    return () => {};
   }, [error]);
 
+
+
   const filteredTodos = useMemo(() => {
-    const list = [...todos];
-
-    if (tempTodo) {
-      list.push(tempTodo);
-    }
-
-    return list.filter(todo => {
-      switch (status) {
-        case 'active':
-          return !todo.completed;
-        case 'completed':
-          return todo.completed;
-        default:
-          return true;
-      }
-    });
+    return filterTodos(todos, tempTodo, status);
   }, [todos, tempTodo, status]);
-
-  useEffect(() => {
-    if (!isAdding && !selectedTodo) {
-      const input = document.querySelector<HTMLInputElement>(
-        'input.todoapp__new-todo',
-      );
-
-      input?.focus();
-    }
-  }, [isAdding, todos.length, selectedTodo]);
 
   if (!USER_ID) {
     return <UserWarning />;
   }
 
-  const handleAddTodo = (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    const form = event.currentTarget;
-    const input = form.elements.namedItem('NewTodoField') as HTMLInputElement;
-    const title = input.value.trim();
-
+  const handleAddTodo = (title: string, onSuccess?: () => void) => {
     if (!title) {
       setError(ERROR_MESSAGES.EMPTY_TITLE);
-
       return;
     }
 
     const tempId = Date.now();
-    const newTemp: Todo = {
-      id: tempId,
-      userId: USER_ID,
-      title,
-      completed: false,
-    };
+    const newTemp: Todo = { id: tempId, userId: USER_ID, title, completed: false };
 
     setTempTodo(newTemp);
     setProcessingIds(prev => [...prev, tempId]);
@@ -97,7 +65,7 @@ export const App: React.FC = () => {
       .then(newTodo => {
         setTodos(current => [...current, newTodo]);
         setTempTodo(null);
-        form.reset();
+        onSuccess?.();
       })
       .catch(() => {
         setTempTodo(null);
@@ -108,6 +76,8 @@ export const App: React.FC = () => {
         setIsAdding(false);
       });
   };
+
+
 
   const handleDeleteTodo = (todoId: number) => {
     setError(null);
@@ -183,9 +153,13 @@ export const App: React.FC = () => {
         <TodoHeader
           todos={todos}
           isAdding={isAdding}
+          selectedTodo={selectedTodo}
           handleToggleAll={handleToggleAll}
-          handleAddTodo={handleAddTodo}
+          onAddTodo={handleAddTodo}
+          onError={setError}
         />
+
+
 
         {filteredTodos.length > 0 && (
           <TodoList
@@ -205,7 +179,7 @@ export const App: React.FC = () => {
             todos={todos}
             status={status}
             setStatus={setStatus}
-            handleDeleteTodo={handleDeleteTodo}
+            onDeleteTodo={handleDeleteTodo}
           />
         )}
       </div>

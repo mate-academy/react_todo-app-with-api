@@ -6,14 +6,14 @@ type TodoFooterProps = {
   todos: Todo[];
   status: TodoStatus;
   setStatus: (status: TodoStatus) => void;
-  handleDeleteTodo: (id: number) => void;
+  onDeleteTodo: (id: number) => void;
 };
 
 export const TodoFooter: React.FC<TodoFooterProps> = ({
   todos,
   status,
   setStatus,
-  handleDeleteTodo,
+  onDeleteTodo: handleDeleteTodo,
 }) => {
   const completedIds = todos.filter(t => t.completed).map(t => t.id);
 

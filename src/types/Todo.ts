@@ -1,5 +1,6 @@
+export type TodoId = number;
 export interface Todo {
-  id: number;
+  id: TodoId;
   userId: number;
   title: string;
   completed: boolean;

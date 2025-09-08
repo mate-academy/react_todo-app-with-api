@@ -1,14 +1,15 @@
 import * as React from 'react';
 import { Todo } from '../../types/Todo';
+import classNames from 'classnames';
 
 type TodoItemProps = {
   todo: Todo;
   tempTodoId: number | null;
   selectedTodo: Todo | null;
-  setSelectedTodo: (todo: Todo | null) => void;
-  handleUpdateTodo: (id: number, data: Partial<Todo>) => void;
-  handleDeleteTodo: (id: number) => void;
-  handleEditTodo: (todo: Todo) => void;
+  onSelected: (todo: Todo | null) => void;
+  onUpdate: (id: number, data: Partial<Todo>) => void;
+  onDelete: (id: number) => void;
+  onEdit: (todo: Todo) => void;
   processingIds: number[];
 };
 
@@ -16,10 +17,10 @@ export const TodoItem: React.FC<TodoItemProps> = ({
   todo,
   tempTodoId,
   selectedTodo,
-  setSelectedTodo,
-  handleUpdateTodo,
-  handleDeleteTodo,
-  handleEditTodo,
+  onSelected: setSelectedTodo,
+  onUpdate: handleUpdateTodo,
+  onDelete: handleDeleteTodo,
+  onEdit: handleEditTodo,
   processingIds,
 }) => {
   const isEditing = selectedTodo?.id === todo.id;
@@ -29,7 +30,10 @@ export const TodoItem: React.FC<TodoItemProps> = ({
   return (
     <div
       data-cy="Todo"
-      className={`todo ${todo.completed ? 'completed' : ''} ${isEditing ? 'editing' : ''}`}
+      className={classNames('todo', {
+        completed: todo.completed,
+        editing: isEditing,
+      })}
     >
       {/* eslint-disable-next-line jsx-a11y/label-has-associated-control */}
       <label className="todo__status-label">

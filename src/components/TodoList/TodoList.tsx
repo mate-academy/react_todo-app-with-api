@@ -30,10 +30,10 @@ export const TodoList: React.FC<TodoListProps> = ({
         todo={todo}
         tempTodoId={tempTodoId}
         selectedTodo={selectedTodo}
-        setSelectedTodo={setSelectedTodo}
-        handleUpdateTodo={handleUpdateTodo}
-        handleDeleteTodo={handleDeleteTodo}
-        handleEditTodo={handleEditTodo}
+        onSelected={setSelectedTodo}
+        onUpdate={handleUpdateTodo}
+        onDelete={handleDeleteTodo}
+        onEdit={handleEditTodo}
         processingIds={processingIds}
       />
     ))}
