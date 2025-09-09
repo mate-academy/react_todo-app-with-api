@@ -1,16 +1,16 @@
 /* eslint-disable @typescript-eslint/indent */
 
 import React from 'react';
+import classNames from 'classnames';
 import { Todo } from '../types/Todo';
+import { Filter } from './Enums';
 
 interface Props {
   todos: Todo[];
   activeTodos: Todo[];
   completedTodos: Todo[];
-  filter: string;
-  setFilter: React.Dispatch<
-    React.SetStateAction<'all' | 'active' | 'completed'>
-  >;
+  filter: Filter;
+  setFilter: React.Dispatch<React.SetStateAction<Filter>>;
   handleClearAllCompleted: () => void;
 }
 
@@ -22,7 +22,7 @@ export const Footer: React.FC<Props> = ({
   setFilter,
   handleClearAllCompleted,
 }) => {
-  if (todos.length === 0) {
+  if (!todos.length) {
     return null;
   }
 
@@ -35,25 +35,33 @@ export const Footer: React.FC<Props> = ({
       <nav className="filter" data-cy="Filter">
         <a
           href="#/"
-          className={`filter__link ${filter === 'all' ? 'selected' : ''}`}
+          className={classNames('filter__link', {
+            selected: filter === Filter.ALL,
+          })}
           data-cy="FilterLinkAll"
-          onClick={() => setFilter('all')}
+          onClick={() => setFilter(Filter.ALL)}
         >
           All
         </a>
+
         <a
           href="#/active"
-          className={`filter__link ${filter === 'active' ? 'selected' : ''}`}
+          className={classNames('filter__link', {
+            selected: filter === Filter.ACTIVE,
+          })}
           data-cy="FilterLinkActive"
-          onClick={() => setFilter('active')}
+          onClick={() => setFilter(Filter.ACTIVE)}
         >
           Active
         </a>
+
         <a
           href="#/completed"
-          className={`filter__link ${filter === 'completed' ? 'selected' : ''}`}
+          className={classNames('filter__link', {
+            selected: filter === Filter.COMPLETED,
+          })}
           data-cy="FilterLinkCompleted"
-          onClick={() => setFilter('completed')}
+          onClick={() => setFilter(Filter.COMPLETED)}
         >
           Completed
         </a>
@@ -63,7 +71,7 @@ export const Footer: React.FC<Props> = ({
         type="button"
         className="todoapp__clear-completed"
         data-cy="ClearCompletedButton"
-        disabled={completedTodos.length === 0}
+        disabled={!completedTodos.length}
         onClick={handleClearAllCompleted}
       >
         Clear completed

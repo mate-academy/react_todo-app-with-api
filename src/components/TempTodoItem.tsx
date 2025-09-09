@@ -1,11 +1,12 @@
 /* eslint-disable jsx-a11y/label-has-associated-control */
 import React from 'react';
 import { Todo } from '../types/Todo';
+import classNames from 'classnames';
 
 interface Props {
   tempTodo: Todo;
   isAdding: boolean;
-  updatingTodos: { [key: number]: boolean };
+  processingIds: Record<number, boolean>;
   handleToggleTodo: (id: number) => void;
   handleDeleteTodo: (id: number) => void;
 }
@@ -13,7 +14,7 @@ interface Props {
 export const TempTodoItem: React.FC<Props> = ({
   tempTodo,
   isAdding,
-  updatingTodos,
+  processingIds,
   handleToggleTodo,
   handleDeleteTodo,
 }) => {
@@ -26,7 +27,7 @@ export const TempTodoItem: React.FC<Props> = ({
           className="todo__status"
           checked={tempTodo.completed}
           onChange={() => handleToggleTodo(tempTodo.id)}
-          disabled={!!updatingTodos[tempTodo.id]}
+          disabled={!!processingIds[tempTodo.id]}
         />
       </label>
 
@@ -45,7 +46,7 @@ export const TempTodoItem: React.FC<Props> = ({
 
       <div
         data-cy="TodoLoader"
-        className={`modal overlay ${isAdding ? 'is-active' : ''}`}
+        className={classNames('modal overlay', { 'is-active': isAdding })}
       >
         <div className="modal-background has-background-white-ter" />
         <div className="loader" />

@@ -1,15 +1,15 @@
 /* eslint-disable jsx-a11y/label-has-associated-control */
 
 import React from 'react';
+import classNames from 'classnames';
 import { Todo } from '../types/Todo';
 
 interface Props {
   loading: boolean;
   visibleTodos: Todo[];
-  updatingTodos: Record<number, boolean>;
+  processingIds: Record<number, boolean>;
   editingTodoId: number | null;
   editingTitle: string;
-  isDelete: number | null;
   editInputRef: React.RefObject<HTMLInputElement>;
   setEditingTitle: (title: string) => void;
   startEditing: (todo: Todo) => void;
@@ -19,13 +19,12 @@ interface Props {
   handleDeleteTodo: (id: number) => void;
 }
 
-export const ListOfTodos: React.FC<Props> = ({
+export const TodosList: React.FC<Props> = ({
   loading,
   visibleTodos,
-  updatingTodos,
+  processingIds,
   editingTodoId,
   editingTitle,
-  isDelete,
   editInputRef,
   setEditingTitle,
   startEditing,
@@ -37,75 +36,80 @@ export const ListOfTodos: React.FC<Props> = ({
   return (
     <section className="todoapp__main" data-cy="TodoList">
       {!loading &&
-        visibleTodos.map(todo => (
-          <div
-            key={todo.id}
-            data-cy="Todo"
-            className={`todo ${todo.completed ? 'completed' : ''}`}
-          >
-            <label className="todo__status-label">
-              <input
-                data-cy="TodoStatus"
-                type="checkbox"
-                className="todo__status"
-                checked={todo.completed}
-                onChange={() => handleToggleTodo(todo.id)}
-                disabled={!!updatingTodos[todo.id]}
-              />
-            </label>
+        visibleTodos.map(todo => {
+          const isProcessing = !!processingIds[todo.id];
 
-            {editingTodoId === todo.id ? (
-              <input
-                data-cy="TodoTitleField"
-                className="todoapp__new-todo"
-                value={editingTitle}
-                onChange={e => setEditingTitle(e.target.value)}
-                onBlur={() => saveEditing(todo)}
-                onKeyDown={e => {
-                  if (e.key === 'Enter') {
-                    saveEditing(todo);
-                  }
-
-                  if (e.key === 'Escape') {
-                    cancelEditing();
-                  }
-                }}
-                ref={editInputRef}
-              />
-            ) : (
-              <span
-                className="todo__title"
-                data-cy="TodoTitle"
-                onDoubleClick={() => startEditing(todo)}
-              >
-                {todo.title}
-              </span>
-            )}
-
-            {editingTodoId === todo.id ? null : (
-              <button
-                type="button"
-                className="todo__remove"
-                data-cy="TodoDelete"
-                onClick={() => handleDeleteTodo(todo.id)}
-              >
-                ×
-              </button>
-            )}
-
+          return (
             <div
-              data-cy="TodoLoader"
-              className={`modal overlay ${
-                isDelete === todo.id || updatingTodos[todo.id]
-                  ? 'is-active'
-                  : ''
-              }`}
+              key={todo.id}
+              data-cy="Todo"
+              className={classNames('todo', {
+                completed: todo.completed,
+              })}
             >
-              <div className="modal-background has-background-white-ter" />
-              <div className="loader" />
+              <label className="todo__status-label">
+                <input
+                  data-cy="TodoStatus"
+                  type="checkbox"
+                  className="todo__status"
+                  checked={todo.completed}
+                  onChange={() => handleToggleTodo(todo.id)}
+                  disabled={isProcessing}
+                />
+              </label>
+
+              {editingTodoId === todo.id ? (
+                <input
+                  data-cy="TodoTitleField"
+                  className="todoapp__new-todo"
+                  value={editingTitle}
+                  onChange={e => setEditingTitle(e.target.value)}
+                  onBlur={() => saveEditing(todo)}
+                  onKeyDown={e => {
+                    if (e.key === 'Enter') {
+                      saveEditing(todo);
+                    }
+
+                    if (e.key === 'Escape') {
+                      cancelEditing();
+                    }
+                  }}
+                  ref={editInputRef}
+                />
+              ) : (
+                <span
+                  className="todo__title"
+                  data-cy="TodoTitle"
+                  onDoubleClick={() => startEditing(todo)}
+                >
+                  {todo.title}
+                </span>
+              )}
+
+              {editingTodoId === todo.id ? null : (
+                <button
+                  type="button"
+                  className="todo__remove"
+                  data-cy="TodoDelete"
+                  onClick={() => handleDeleteTodo(todo.id)}
+                  disabled={isProcessing}
+                >
+                  ×
+                </button>
+              )}
+
+              <div
+                data-cy="TodoLoader"
+                className={classNames('modal overlay', {
+                  'is-active': isProcessing,
+                })}
+              >
+                <div className="modal-background has-background-white-ter" />
+                <div className="loader" />
+              </div>
             </div>
-          </div>
-        ))}
+          );
+        })}
     </section>
   );
 };

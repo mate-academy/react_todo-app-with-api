@@ -1,5 +1,6 @@
 import React from 'react';
 import { Todo } from '../types/Todo';
+import classNames from 'classnames';
 
 interface Props {
   todos: Todo[];
@@ -29,9 +30,9 @@ export const TodoHeader: React.FC<Props> = ({
       {!loading && todos.length > 0 && (
         <button
           type="button"
-          className={`todoapp__toggle-all ${
-            activeTodos.length === 0 ? 'active' : ''
-          }`}
+          className={classNames('todoapp__toggle-all', {
+            active: activeTodos.length === 0,
+          })}
           data-cy="ToggleAllButton"
           onClick={handleToggleAllTodos}
         />
