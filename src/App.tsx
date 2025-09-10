@@ -1,26 +1,19 @@
-/* eslint-disable max-len */
-/* eslint-disable jsx-a11y/control-has-associated-label */
 import React from 'react';
-import { UserWarning } from './UserWarning';
-
-const USER_ID = 0;
+import { TodoApp } from './components/TodoApp/TodoApp';
+// eslint-disable-next-line max-len
+import { ErrorNotification } from './components/ErrorNotification/ErrorNotification';
+import { useErrorReset } from './hooks/useErrorReset';
 
 export const App: React.FC = () => {
-  if (!USER_ID) {
-    return <UserWarning />;
-  }
+  const { currentError, setCurrentError } = useErrorReset();
 
   return (
-    <section className="section container">
-      <p className="title is-4">
-        Copy all you need from the prev task:
-        <br />
-        <a href="https://github.com/mate-academy/react_todo-app-add-and-delete#react-todo-app-add-and-delete">
-          React Todo App - Add and Delete
-        </a>
-      </p>
-
-      <p className="subtitle">Styles are already copied</p>
-    </section>
+    <>
+      <ErrorNotification
+        currentError={currentError}
+        handleHideError={() => setCurrentError('')}
+      />
+      <TodoApp setCurrentError={setCurrentError} />;
+    </>
   );
 };
