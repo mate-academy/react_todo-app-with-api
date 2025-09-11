@@ -2,15 +2,16 @@ import React, { useEffect, useMemo, useRef, useState } from 'react';
 import * as todoService from './api/todos';
 import { Todo } from './types/Todo';
 import { TodoList } from './components/TodoList';
-import { FILTER, Filter } from './types/Filter';
+import { Filter } from './types/Filter';
 import { Header } from './components/Header';
 import { Footer } from './components/Footer';
 import { ErrorNotification } from './components/ErrorNotification';
 import { TodoItem } from './components/TodoItem';
+import { TodoError } from './types/Error';
 
 export const App: React.FC = () => {
   const [todos, setTodos] = useState<Todo[]>([]);
-  const [filterBy, setFilterBy] = useState<Filter>(FILTER.ALL);
+  const [filterBy, setFilterBy] = useState<Filter>(Filter.ALL);
 
   const [selectedTodo, setSelectedTodo] = useState<Todo | null>(null);
 
@@ -23,7 +24,7 @@ export const App: React.FC = () => {
 
   const mainInput = useRef<HTMLInputElement>(null);
 
-  const showError = (errorMsg: string) => {
+  const showError = (errorMsg: TodoError) => {
     if (errorTimerId.current) {
       window.clearTimeout(errorTimerId.current);
     }
@@ -53,7 +54,7 @@ export const App: React.FC = () => {
 
         setTodos(data);
       } catch {
-        showError('Unable to load todos');
+        showError(TodoError.LOAD);
       }
     };
 
@@ -80,7 +81,7 @@ export const App: React.FC = () => {
 
       return true;
     } catch {
-      showError('Unable to add a todo');
+      showError(TodoError.ADD);
 
       return false;
     } finally {
@@ -95,7 +96,7 @@ export const App: React.FC = () => {
       setTodos(currentTodos => currentTodos.filter(todo => todo.id !== todoId));
       mainInput.current?.focus();
     } catch (deleteError) {
-      showError('Unable to delete a todo');
+      showError(TodoError.DELETE);
       throw deleteError;
     } finally {
       setProcessingIds(currentIds => {
@@ -130,7 +131,7 @@ export const App: React.FC = () => {
         currentTodos.map(todo => (todo.id === todoId ? updatedStatus : todo)),
       );
     } catch {
-      showError('Unable to update a todo');
+      showError(TodoError.UPDATE);
     } finally {
       setProcessingIds(currentIds => {
         const next = new Set(currentIds);
@@ -183,7 +184,7 @@ export const App: React.FC = () => {
       );
       setSelectedTodo(null);
     } catch {
-      showError('Unable to update a todo');
+      showError(TodoError.UPDATE);
     } finally {
       setProcessingIds(currentIds => {
         const next = new Set(currentIds);
@@ -213,18 +214,18 @@ export const App: React.FC = () => {
           .map(todo => handleToggleTodoStatus(todo.id, todo.completed)),
       );
     } catch {
-      showError('Unable to toggle all todos');
+      showError(TodoError.TOOGLE_ALL);
     }
   };
 
   const filteredTodos = useMemo(() => {
     return todos.filter(todo => {
       switch (filterBy) {
-        case FILTER.ALL:
+        case Filter.ALL:
           return true;
-        case FILTER.COMPLETED:
+        case Filter.COMPLETED:
           return todo.completed;
-        case FILTER.ACTIVE:
+        case Filter.ACTIVE:
           return !todo.completed;
         default:
           return true;

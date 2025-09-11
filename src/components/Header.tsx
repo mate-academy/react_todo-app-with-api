@@ -2,12 +2,13 @@ import classNames from 'classnames';
 import React, { useEffect, useState } from 'react';
 
 import { Todo } from '../types/Todo';
+import { TodoError } from '../types/Error';
 
 type Props = {
   todos: Todo[];
   inputRef: React.RefObject<HTMLInputElement>;
   onSubmit: (title: string) => Promise<boolean>;
-  onError: (msg: string) => void;
+  onError: (msg: TodoError) => void;
   onToggleAll: () => void;
 };
 
@@ -35,7 +36,7 @@ export const Header: React.FC<Props> = ({
     event.preventDefault();
 
     if (!title.trim()) {
-      onError('Title should not be empty');
+      onError(TodoError.EMPTY_TITTLE);
       inputRef.current?.focus();
 
       return;
