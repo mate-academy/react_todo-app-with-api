@@ -7,9 +7,6 @@ import classNames from 'classnames';
 type Props = {
   todo: Todo;
   isTempTodo?: boolean;
-  isDeleting?: boolean;
-  isToggling?: boolean;
-  isUpdating?: boolean;
   onDelete?: (id: number) => void;
   onToggle?: (id: number, status: boolean) => void;
   onDoubleClick?: (todo: Todo | null) => void;
@@ -24,9 +21,6 @@ export const TodoItem: React.FC<Props> = ({
   onDoubleClick = () => {},
   selectedTodo = null,
   isTempTodo = false,
-  isDeleting = false,
-  isToggling = false,
-  isUpdating = false,
   onUpdate = () => {},
 }) => {
   const [title, setTitle] = useState<string>('');
@@ -34,7 +28,7 @@ export const TodoItem: React.FC<Props> = ({
   const inputRef = useRef<HTMLInputElement>(null);
   const submittedRef = useRef(false);
 
-  const isLoading = isTempTodo || isDeleting || isToggling || isUpdating;
+  const isLoading = isTempTodo;
   const isEditing = selectedTodo?.id === todo.id;
 
   useLayoutEffect(() => {
@@ -42,13 +36,6 @@ export const TodoItem: React.FC<Props> = ({
       setTitle(todo.title);
     }
   }, [isEditing, todo.title]);
-
-  // useEffect(() => {
-  //   if (isEditing && inputRef.current) {
-  //     inputRef.current.focus();
-  //     inputRef.current.select();
-  //   }
-  // }, [isEditing]);
 
   useEffect(() => {
     if (selectedTodo?.id === todo.id) {
