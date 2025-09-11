@@ -7,7 +7,7 @@ type Props = {
   onDelete: (id: number) => void;
   onToggle?: (id: number, status: boolean) => void;
   onDoubleClick: (todo: Todo | null) => void;
-
+  processingIds: Set<number>;
   selectedTodo: Todo | null;
   onUpdate: (id: number, title: string) => void;
 };
@@ -15,6 +15,7 @@ type Props = {
 export const TodoList: React.FC<Props> = ({
   todos,
   onDelete,
+  processingIds,
   onToggle = () => {},
   onDoubleClick = () => {},
   selectedTodo = null,
@@ -27,6 +28,7 @@ export const TodoList: React.FC<Props> = ({
           key={todo.id}
           todo={todo}
           onDelete={onDelete}
+          isProcessing={processingIds.has(todo.id)}
           onToggle={onToggle}
           onDoubleClick={onDoubleClick}
           selectedTodo={selectedTodo}

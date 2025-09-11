@@ -10,11 +10,17 @@ import { TodoItem } from './components/TodoItem';
 
 export const App: React.FC = () => {
   const [todos, setTodos] = useState<Todo[]>([]);
-  const [tempTodo, setTempTodo] = useState<Todo | null>(null);
   const [filterBy, setFilterBy] = useState<Filter>(FILTER.ALL);
+
   const [selectedTodo, setSelectedTodo] = useState<Todo | null>(null);
+
+  const [processingIds, setProcessingIds] = useState<Set<number>>(new Set());
+
+  const [tempTodo, setTempTodo] = useState<Todo | null>(null);
+
   const [error, setError] = useState('');
   const errorTimerId = useRef(0);
+
   const mainInput = useRef<HTMLInputElement>(null);
 
   const showError = (errorMsg: string) => {
@@ -83,6 +89,7 @@ export const App: React.FC = () => {
   };
 
   const deleteTodo = async (todoId: number) => {
+    setProcessingIds(currentIds => new Set(currentIds).add(todoId));
     try {
       await todoService.deleteTodo(todoId);
       setTodos(currentTodos => currentTodos.filter(todo => todo.id !== todoId));
@@ -90,6 +97,14 @@ export const App: React.FC = () => {
     } catch (deleteError) {
       showError('Unable to delete a todo');
       throw deleteError;
+    } finally {
+      setProcessingIds(currentIds => {
+        const next = new Set(currentIds);
+
+        next.delete(todoId);
+
+        return next;
+      });
     }
   };
 
@@ -98,6 +113,13 @@ export const App: React.FC = () => {
     currentTodoStatus: boolean,
   ) => {
     hideError();
+    setProcessingIds(currentIds => {
+      const next = new Set(currentIds);
+
+      next.add(todoId);
+
+      return next;
+    });
     try {
       const updatedStatus = await todoService.toggleTodoStatus(
         todoId,
@@ -109,6 +131,14 @@ export const App: React.FC = () => {
       );
     } catch {
       showError('Unable to update a todo');
+    } finally {
+      setProcessingIds(currentIds => {
+        const next = new Set(currentIds);
+
+        next.delete(todoId);
+
+        return next;
+      });
     }
   };
 
@@ -137,6 +167,14 @@ export const App: React.FC = () => {
     }
 
     hideError();
+    setProcessingIds(currentIds => {
+      const next = new Set(currentIds);
+
+      next.add(todoId);
+
+      return next;
+    });
+
     try {
       const updated = await todoService.updateTodo(todoId, trimmedTitle);
 
@@ -146,6 +184,14 @@ export const App: React.FC = () => {
       setSelectedTodo(null);
     } catch {
       showError('Unable to update a todo');
+    } finally {
+      setProcessingIds(currentIds => {
+        const next = new Set(currentIds);
+
+        next.delete(todoId);
+
+        return next;
+      });
     }
   };
 
@@ -202,6 +248,7 @@ export const App: React.FC = () => {
         <TodoList
           todos={filteredTodos}
           onDelete={deleteTodo}
+          processingIds={processingIds}
           onToggle={handleToggleTodoStatus}
           onDoubleClick={setSelectedTodo}
           selectedTodo={selectedTodo}
