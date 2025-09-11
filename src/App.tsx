@@ -20,25 +20,14 @@ export const App: React.FC = () => {
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
 
   const [error, setError] = useState('');
-  const errorTimerId = useRef(0);
 
   const mainInput = useRef<HTMLInputElement>(null);
 
   const showError = (errorMsg: TodoError) => {
-    if (errorTimerId.current) {
-      window.clearTimeout(errorTimerId.current);
-    }
-
     setError(errorMsg);
-    errorTimerId.current = window.setTimeout(() => setError(''), 3000);
   };
 
   const hideError = () => {
-    if (errorTimerId.current) {
-      clearTimeout(errorTimerId.current);
-      errorTimerId.current = 0;
-    }
-
     setError('');
   };
 
