@@ -33,7 +33,10 @@ export const TodoItem: React.FC<Props> = ({
   const [title, setTitle] = useState<string>(todo.title);
 
   return (
-    <div data-cy="Todo" className={`todo ${todo.completed ? 'completed' : ''}`}>
+    <div
+      data-cy="Todo"
+      className={classNames('todo', { completed: todo.completed })}
+    >
       <label className="todo__status-label">
         <input
           data-cy="TodoStatus"
