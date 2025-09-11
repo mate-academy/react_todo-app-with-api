@@ -1,6 +1,6 @@
 /* eslint-disable jsx-a11y/label-has-associated-control */
 /* eslint-disable jsx-a11y/control-has-associated-label */
-import React, { useEffect, useLayoutEffect, useRef, useState } from 'react';
+import React, { useRef, useState } from 'react';
 import { Todo } from '../types/Todo';
 import classNames from 'classnames';
 
@@ -25,25 +25,12 @@ export const TodoItem: React.FC<Props> = ({
   isProcessing = false,
   onUpdate = () => {},
 }) => {
-  const [title, setTitle] = useState<string>('');
-
   const inputRef = useRef<HTMLInputElement>(null);
   const submittedRef = useRef(false);
 
   const isLoading = isTempTodo || isProcessing;
   const isEditing = selectedTodo?.id === todo.id;
-
-  useLayoutEffect(() => {
-    if (isEditing) {
-      setTitle(todo.title);
-    }
-  }, [isEditing, todo.title]);
-
-  useEffect(() => {
-    if (selectedTodo?.id === todo.id) {
-      setTitle(selectedTodo.title);
-    }
-  }, [selectedTodo, todo.id]);
+  const [title, setTitle] = useState<string>(todo.title);
 
   return (
     <div data-cy="Todo" className={`todo ${todo.completed ? 'completed' : ''}`}>
