@@ -25,14 +25,16 @@ export const App: React.FC = () => {
   const [isCompleted, setIsCompleted] = useState(false);
   const [isAllCompleted, setIsAllCompleted] = useState(false);
   const [isToggleButtonHidden, setIsToggleButtonHidden] = useState(true);
+  const [isErrorHidden, setIsErrorHidden] = useState(true);
 
   const inputRef = useRef<HTMLInputElement>(null);
 
   const handleErrorMessage = (message: string) => {
     setErrorMessage(message);
+    setIsErrorHidden(false);
 
     setTimeout(() => {
-      handleErrorMessage('');
+      setIsErrorHidden(true);
     }, 3000);
   };
 
@@ -196,7 +198,7 @@ export const App: React.FC = () => {
         });
       })
       .catch(error => {
-        setErrorMessage('Unable to update a todo');
+        handleErrorMessage('Unable to update a todo');
         throw error;
       })
       .finally(() => {
@@ -212,20 +214,20 @@ export const App: React.FC = () => {
     if (!trimmedTitle) {
       handleErrorMessage('Title should not be empty');
 
-      return Promise.resolve();
+      return;
     }
 
     if (todo.title === trimmedTitle) {
       setEditedTodoTitle('');
       handleEditTodo(null);
 
-      return Promise.resolve();
+      return;
     }
 
-    setEditedTodoTitle('');
-    handleEditTodo(null);
-
-    return updateTodo(todo);
+    updateTodo({ ...todo, title: trimmedTitle }).then(() => {
+      setEditedTodoTitle('');
+      handleEditTodo(null);
+    });
   };
 
   const handleToggleCompleted = (todo: Todo) => {
@@ -306,7 +308,7 @@ export const App: React.FC = () => {
 
       {/* DON'T use conditional rendering to hide the notification */}
       {/* Add the 'hidden' class to hide the message smoothly */}
-      <ErrorNotification errorMessage={errorMessage} />
+      <ErrorNotification errorMessage={errorMessage} isHidden={isErrorHidden} />
     </div>
   );
 };

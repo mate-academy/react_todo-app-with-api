@@ -32,7 +32,6 @@ export const TodoItem: React.FC<Props> = ({
   handleSubmitUpdateTodo,
   setIsCompleted,
   handleTogleCompleted,
-  handleErrorMessage,
   renameCallback,
 }) => {
   const [hovered, setHovered] = useState(false);
@@ -42,7 +41,7 @@ export const TodoItem: React.FC<Props> = ({
     const trimmedTitle = editedTodoTitle.trim();
 
     if (!trimmedTitle) {
-      handleErrorMessage('Title should not be empty');
+      deleteTodo(todo.id);
 
       return;
     }
@@ -51,7 +50,7 @@ export const TodoItem: React.FC<Props> = ({
       renameCallback();
     }
 
-    handleSubmitUpdateTodo({ ...todo, title: trimmedTitle });
+    handleSubmitUpdateTodo(todo);
   };
 
   useEffect(() => {
@@ -102,7 +101,10 @@ export const TodoItem: React.FC<Props> = ({
             placeholder="Empty todo will be deleted"
             value={editedTodoTitle}
             onChange={e => setEditedTodoTitle(e.target.value)}
-            onBlur={submitEdit}
+            onBlur={e => {
+              e.preventDefault();
+              submitEdit();
+            }}
             onKeyDown={handleKeyDown}
             autoFocus
           />

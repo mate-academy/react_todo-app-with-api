@@ -2,9 +2,13 @@ import classNames from 'classnames';
 
 interface Props {
   errorMessage: string;
+  isHidden: boolean;
 }
 
-export const ErrorNotification: React.FC<Props> = ({ errorMessage }) => {
+export const ErrorNotification: React.FC<Props> = ({
+  errorMessage,
+  isHidden,
+}) => {
   return (
     <div
       data-cy="ErrorNotification"
@@ -13,7 +17,7 @@ export const ErrorNotification: React.FC<Props> = ({ errorMessage }) => {
         'is-danger',
         'is-light',
         'has-text-weight-normal',
-        { hidden: !errorMessage },
+        { hidden: isHidden },
       )}
     >
       <button data-cy="HideErrorButton" type="button" className="delete" />
