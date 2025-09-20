@@ -1,24 +1,20 @@
 import { Todo } from '../types/Todo';
 import { client } from '../utils/fetchClient';
 
-export const USER_ID = 6666;
+export const USER_ID = 3326;
 
 export const getTodos = () => {
   return client.get<Todo[]>(`/todos?userId=${USER_ID}`);
 };
 
-export function addTodo({ userId, title, completed }: Omit<Todo, 'id'>) {
-  return client.post<Todo>(`/todos/`, { userId, title, completed });
-}
+export const addTodo = (data: Omit<Todo, 'id'>): Promise<Todo> => {
+  return client.post<Todo>(`/todos`, data);
+};
 
-export function updateCompleted(todoId: number, completed: boolean) {
-  return client.patch<Todo>(`/todos/${todoId}`, { completed });
-}
-
-export function deleteTodo(todoId: number) {
+export const deleteTodo = (todoId: number) => {
   return client.delete(`/todos/${todoId}`);
-}
+};
 
-export function updateTitle(todoId: number, title: string) {
-  return client.patch<Todo>(`/todos/${todoId}`, { title });
-}
+export const updateTodo = ({ id, ...todoData }: Todo) => {
+  return client.patch<Todo>(`/todos/${id}`, todoData);
+};
