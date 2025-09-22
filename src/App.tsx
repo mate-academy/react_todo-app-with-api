@@ -162,36 +162,38 @@ export const App: React.FC = () => {
       })
       .catch(() => {
         setError(ERROR.add);
-        setTodos(prev => prev.filter(t => t.id !== tempId));
+        setTodos(prev => prev.filter(todo => todo.id !== tempId));
       })
       .finally(() => setIsSubmitting(false));
   };
 
   const toggleTodo = (id: number) => {
-    const todo = todos.find(t => t.id === id);
+    const targetTodo = todos.find(todo => todo.id === id);
 
-    if (!todo) {
+    if (!targetTodo) {
       return;
     }
 
-    const updatedTodo = { ...todo, completed: !todo.completed };
+    const updatedTodo = { ...targetTodo, completed: !targetTodo.completed };
 
     setTodos(prev =>
-      prev.map(t => (t.id === id ? { ...t, loading: true } : t)),
+      prev.map(todo => (todo.id === id ? { ...todo, loading: true } : todo)),
     );
 
     patchTodo(id, { completed: updatedTodo.completed })
       .then(todoFromServer => {
         setTodos(prev =>
-          prev.map(t =>
-            t.id === id ? { ...todoFromServer, loading: false } : t,
+          prev.map(todo =>
+            todo.id === id ? { ...todoFromServer, loading: false } : todo,
           ),
         );
       })
       .catch(() => {
         setError(ERROR.update);
         setTodos(prev =>
-          prev.map(t => (t.id === id ? { ...todo, loading: false } : t)),
+          prev.map(todo =>
+            todo.id === id ? { ...todo, loading: false } : todo,
+          ),
         );
       });
   };
@@ -206,21 +208,31 @@ export const App: React.FC = () => {
       }
 
       setTodos(prev =>
-        prev.map(t => (t.id === todo.id ? { ...t, loading: true } : t)),
+        prev.map(currentTodo =>
+          currentTodo.id === currentTodo.id
+            ? { ...currentTodo, loading: true }
+            : currentTodo,
+        ),
       );
 
       patchTodo(todo.id, { completed: newCompleted })
         .then(todoFromServer => {
           setTodos(prev =>
-            prev.map(t =>
-              t.id === todo.id ? { ...todoFromServer, loading: false } : t,
+            prev.map(currentTodo =>
+              currentTodo.id === todo.id
+                ? { ...todoFromServer, loading: false }
+                : currentTodo,
             ),
           );
         })
         .catch(() => {
           setError(ERROR.update);
           setTodos(prev =>
-            prev.map(t => (t.id === todo.id ? { ...t, loading: false } : t)),
+            prev.map(currentTodo =>
+              currentTodo.id === todo.id
+                ? { ...currentTodo, loading: false }
+                : currentTodo,
+            ),
           );
         });
     });
@@ -231,17 +243,27 @@ export const App: React.FC = () => {
 
     completedTodos.forEach(todo => {
       setTodos(prev =>
-        prev.map(t => (t.id === todo.id ? { ...t, loading: true } : t)),
+        prev.map(currentTodo =>
+          currentTodo.id === todo.id
+            ? { ...currentTodo, loading: true }
+            : currentTodo,
+        ),
       );
 
       deleteTodo(todo.id)
         .then(() => {
-          setTodos(prev => prev.filter(t => t.id !== todo.id));
+          setTodos(prev =>
+            prev.filter(currentTodo => currentTodo.id !== todo.id),
+          );
         })
         .catch(() => {
           setError(ERROR.delete);
           setTodos(prev =>
-            prev.map(t => (t.id === todo.id ? { ...t, loading: false } : t)),
+            prev.map(currentTodo =>
+              currentTodo.id === todo.id
+                ? { ...currentTodo, loading: false }
+                : currentTodo,
+            ),
           );
         });
     });
@@ -280,8 +302,7 @@ export const App: React.FC = () => {
           <Footer
             filter={filter}
             setFilter={setFilter}
-            todosLeft={todos.filter(t => !t.completed && !t.loading).length}
-            hasCompleted={todos.some(t => t.completed)}
+            todos={todos}
             clearCompleted={clearCompleted}
           />
         )}
