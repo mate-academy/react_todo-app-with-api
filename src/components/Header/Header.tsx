@@ -23,7 +23,7 @@ export const Header: React.FC<Props> = ({
   setTempTodo,
   isLoading,
   setIsLoading,
-  setIsToggleAllPressed
+  setIsToggleAllPressed,
 }) => {
   const [todoTitle, setTodoTitle] = useState('');
 

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Todo } from '../../types/Todo';
 import { ErrorType, Filter } from '../../App';
 import { TodoItem } from '../TodoItem';
@@ -7,10 +7,6 @@ import { CSSTransition, TransitionGroup } from 'react-transition-group';
 
 type Props = {
   visibleTodos: Todo[];
-  isTodoEditing: boolean;
-  selectedPostId: number;
-  setIsTodoEditing: React.Dispatch<React.SetStateAction<boolean>>;
-  setSelectedPostId: React.Dispatch<React.SetStateAction<number>>;
   selectedFilter: Filter;
   tempTodo: null | Todo;
   setTodos: React.Dispatch<React.SetStateAction<Todo[]>>;
@@ -23,10 +19,6 @@ type Props = {
 
 export const TodoList: React.FC<Props> = ({
   visibleTodos,
-  isTodoEditing,
-  selectedPostId,
-  setIsTodoEditing,
-  setSelectedPostId,
   selectedFilter,
   tempTodo,
   setTodos,
@@ -36,6 +28,8 @@ export const TodoList: React.FC<Props> = ({
   isDeleteAllPressed,
   isToggleAllPressed,
 }) => {
+  const [selectedPostId, setSelectedPostId] = useState(0);
+
   let todosCopy: Todo[];
 
   switch (selectedFilter) {
@@ -78,9 +72,7 @@ export const TodoList: React.FC<Props> = ({
             <TodoItem
               todo={todo}
               key={todo.id}
-              isTodoEditing={isTodoEditing}
               selectedPostId={selectedPostId}
-              setIsTodoEditing={setIsTodoEditing}
               setSelectedPostId={setSelectedPostId}
               handleTodoDelete={handleTodoDelete}
               isLoading={isLoading}
@@ -98,7 +90,6 @@ export const TodoList: React.FC<Props> = ({
           <CSSTransition timeout={300} key={0} classNames="temp-item">
             <TodoItem
               todo={tempTodo}
-              setIsTodoEditing={setIsTodoEditing}
               setSelectedPostId={setSelectedPostId}
               handleTodoDelete={handleTodoDelete}
               isLoading={isLoading}

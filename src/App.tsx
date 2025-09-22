@@ -23,8 +23,6 @@ export enum Filter {
 }
 
 export const App: React.FC = () => {
-  const [isTodoEditing, setIsTodoEditing] = useState(false);
-  const [selectedPostId, setSelectedPostId] = useState(0);
   const [currentError, setCurrentError] = useState<ErrorType | ''>('');
   const [selectedFilter, setSelectedFilter] = useState(Filter.all);
   const [todos, setTodos] = useState<Todo[]>([]);
@@ -79,10 +77,6 @@ export const App: React.FC = () => {
         <TodoList
           selectedFilter={selectedFilter}
           visibleTodos={todos}
-          isTodoEditing={isTodoEditing}
-          selectedPostId={selectedPostId}
-          setIsTodoEditing={setIsTodoEditing}
-          setSelectedPostId={setSelectedPostId}
           tempTodo={tempTodo}
           setTodos={setTodos}
           setCurrentError={setCurrentError}

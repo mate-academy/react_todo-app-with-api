@@ -6,9 +6,7 @@ import { ErrorType } from '../../App';
 
 type Props = {
   todo: Todo;
-  isTodoEditing?: boolean;
   selectedPostId?: number;
-  setIsTodoEditing: React.Dispatch<React.SetStateAction<boolean>>;
   setSelectedPostId: React.Dispatch<React.SetStateAction<number>>;
   handleTodoDelete: (v: number) => void;
   isLoading: boolean;
@@ -22,9 +20,7 @@ type Props = {
 
 export const TodoItem: React.FC<Props> = ({
   todo,
-  isTodoEditing,
   selectedPostId,
-  setIsTodoEditing,
   setSelectedPostId,
   handleTodoDelete,
   isLoading,
@@ -40,6 +36,8 @@ export const TodoItem: React.FC<Props> = ({
   const [isCurrentTodoEditing, setIsCurrentTodoEditing] = useState(false);
   const inputRef = useRef<HTMLInputElement | null>(null);
   const [targetTodo, setTargetTodo] = useState(false);
+
+  const [isTodoEditing, setIsTodoEditing] = useState(false);
 
   const handleStatusChange = (todoId: number, status: boolean) => {
     setIsCurrentTodoEditing(true);
