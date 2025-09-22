@@ -209,7 +209,7 @@ export const App: React.FC = () => {
 
       setTodos(prev =>
         prev.map(currentTodo =>
-          currentTodo.id === currentTodo.id
+          currentTodo.id === todo.id
             ? { ...currentTodo, loading: true }
             : currentTodo,
         ),
@@ -269,6 +269,9 @@ export const App: React.FC = () => {
     });
   };
 
+  const hasTodos = todos.length > 0;
+  const focusTrigger = todos.length;
+
   return (
     <div className="todoapp">
       <h1 className="todoapp__title">todos</h1>
@@ -286,8 +289,8 @@ export const App: React.FC = () => {
           handleSubmit={handleSubmit}
           toggleAll={toggleAll}
           loading={isSubmitting}
-          hasTodos={todos.length > 0}
-          focusTrigger={todos.length}
+          hasTodos={hasTodos}
+          focusTrigger={focusTrigger}
           todos={visibleTodos}
         />
 

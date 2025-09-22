@@ -22,8 +22,10 @@ export const Footer: React.FC<Props> = ({
   todos,
   clearCompleted,
 }) => {
-  const todosLeft = todos.filter(t => !t.completed && !t.loading).length;
-  const hasCompleted = todos.some(t => t.completed);
+  const todosLeft = todos.filter(
+    todo => !todo.completed && !todo.loading,
+  ).length;
+  const hasCompleted = todos.some(todo => todo.completed);
 
   return (
     <footer className="todoapp__footer" data-cy="Footer">
