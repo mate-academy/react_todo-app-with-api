@@ -1,4 +1,5 @@
 import React, { useEffect, useRef } from 'react';
+import classNames from 'classnames';
 import { Todo } from '../../types/Todo';
 
 type Props = {
@@ -35,7 +36,9 @@ export const Header: React.FC<Props> = ({
       {hasTodos && (
         <button
           type="button"
-          className={`todoapp__toggle-all ${todos.every(t => t.completed) ? 'active' : ''}`}
+          className={classNames('todoapp__toggle-all', {
+            active: todos.every(t => t.completed),
+          })}
           data-cy="ToggleAllButton"
           onClick={toggleAll}
         />

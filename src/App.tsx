@@ -6,6 +6,7 @@ import React, { useEffect, useState } from 'react';
 import { USER_ID, addTodo, deleteTodo, getTodos, patchTodo } from './api/todos';
 import { Header, Footer, TodoList, ErrorNotification } from './components';
 import { Todo } from './types/Todo';
+import { Filter } from './types/Filter';
 
 enum ERROR {
   load,
@@ -28,16 +29,16 @@ export const App: React.FC = () => {
   const [query, setQuery] = useState('');
   const [error, setError] = useState<ERROR | null>(null);
   const [showError, setShowError] = useState(false);
-  const [filter, setFilter] = useState<'all' | 'active' | 'completed'>('all');
+  const [filter, setFilter] = useState<Filter>(Filter.All);
 
   const [isFetching, setIsFetching] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const visibleTodos = todos.filter(todo => {
     switch (filter) {
-      case 'active':
+      case Filter.Active:
         return !todo.completed;
-      case 'completed':
+      case Filter.Completed:
         return todo.completed;
       default:
         return true;

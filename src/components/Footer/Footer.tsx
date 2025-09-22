@@ -1,12 +1,19 @@
 import React from 'react';
 import classNames from 'classnames';
+import { Filter } from '../../types/Filter';
 
 type Props = {
-  filter: 'all' | 'active' | 'completed';
-  setFilter: (filter: 'all' | 'active' | 'completed') => void;
+  filter: Filter;
+  setFilter: (filter: Filter) => void;
   todosLeft: number;
   hasCompleted: boolean;
   clearCompleted: () => void;
+};
+
+const FILTER_LABELS: Record<Filter, string> = {
+  [Filter.All]: 'All',
+  [Filter.Active]: 'Active',
+  [Filter.Completed]: 'Completed',
 };
 
 export const Footer: React.FC<Props> = ({
@@ -22,45 +29,22 @@ export const Footer: React.FC<Props> = ({
     </span>
 
     <nav className="filter" data-cy="Filter">
-      <a
-        href="#/"
-        className={classNames('filter__link', { selected: filter === 'all' })}
-        data-cy="FilterLinkAll"
-        onClick={e => {
-          e.preventDefault();
-          setFilter('all');
-        }}
-      >
-        All
-      </a>
-
-      <a
-        href="#/active"
-        className={classNames('filter__link', {
-          selected: filter === 'active',
-        })}
-        data-cy="FilterLinkActive"
-        onClick={e => {
-          e.preventDefault();
-          setFilter('active');
-        }}
-      >
-        Active
-      </a>
-
-      <a
-        href="#/completed"
-        className={classNames('filter__link', {
-          selected: filter === 'completed',
-        })}
-        data-cy="FilterLinkCompleted"
-        onClick={e => {
-          e.preventDefault();
-          setFilter('completed');
-        }}
-      >
-        Completed
-      </a>
+      {Object.values(Filter).map(option => (
+        <a
+          key={option}
+          href={`#/${option === Filter.All ? '' : option}`}
+          className={classNames('filter__link', {
+            selected: filter === option,
+          })}
+          data-cy={`FilterLink${FILTER_LABELS[option]}`}
+          onClick={e => {
+            e.preventDefault();
+            setFilter(option);
+          }}
+        >
+          {FILTER_LABELS[option]}
+        </a>
+      ))}
     </nav>
 
     <button

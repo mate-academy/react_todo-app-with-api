@@ -16,8 +16,10 @@ export const TodoItem: React.FC<Props> = ({
   handleDelete,
   handleUpdate,
 }) => {
+  const { title, completed, loading, id } = todo;
+
   const [isEditing, setIsEditing] = useState(false);
-  const [editTitle, setEditTitle] = useState(todo.title);
+  const [editTitle, setEditTitle] = useState(title);
   const inputRef = useRef<HTMLInputElement>(null);
   const isEditingRef = useRef(false);
 
@@ -33,22 +35,22 @@ export const TodoItem: React.FC<Props> = ({
 
   useEffect(() => {
     if (!isEditingRef.current) {
-      setEditTitle(todo.title);
+      setEditTitle(title);
     }
-  }, [todo.title]);
+  }, [title]);
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter') {
       const newTitle = editTitle.trim();
 
       if (!newTitle) {
-        handleDelete(todo.id);
+        handleDelete(id);
 
         return;
       }
 
-      if (newTitle !== todo.title) {
-        handleUpdate(todo.id, newTitle)
+      if (newTitle !== title) {
+        handleUpdate(id, newTitle)
           .then(() => {
             setIsEditing(false);
           })
@@ -62,7 +64,7 @@ export const TodoItem: React.FC<Props> = ({
 
     if (e.key === 'Escape') {
       setIsEditing(false);
-      setEditTitle(todo.title);
+      setEditTitle(title);
     }
   };
 
@@ -70,14 +72,14 @@ export const TodoItem: React.FC<Props> = ({
     const newTitle = editTitle.trim();
 
     if (!newTitle) {
-      handleDelete(todo.id);
+      handleDelete(id);
       setIsEditing(false);
 
       return;
     }
 
-    if (newTitle !== todo.title) {
-      handleUpdate(todo.id, newTitle)
+    if (newTitle !== title) {
+      handleUpdate(id, newTitle)
         .then(() => setIsEditing(false))
         .catch(() => {});
     } else {
@@ -88,15 +90,15 @@ export const TodoItem: React.FC<Props> = ({
   return (
     <div
       data-cy="Todo"
-      className={classNames('todo', { completed: todo.completed })}
+      className={classNames('todo', { completed: completed })}
     >
       <label className="todo__status-label">
         <input
           data-cy="TodoStatus"
           type="checkbox"
           className="todo__status"
-          checked={todo.completed}
-          onChange={() => toggleTodo(todo.id)}
+          checked={completed}
+          onChange={() => toggleTodo(id)}
         />
       </label>
 
@@ -118,7 +120,7 @@ export const TodoItem: React.FC<Props> = ({
           className={classNames('todo__title', { hidden: isEditing })}
           onDoubleClick={() => setIsEditing(true)}
         >
-          {todo.title}
+          {title}
         </span>
       )}
 
@@ -127,8 +129,8 @@ export const TodoItem: React.FC<Props> = ({
           type="button"
           className="todo__remove"
           data-cy="TodoDelete"
-          disabled={todo.loading}
-          onClick={() => handleDelete(todo.id)}
+          disabled={loading}
+          onClick={() => handleDelete(id)}
         >
           ×
         </button>
@@ -136,7 +138,7 @@ export const TodoItem: React.FC<Props> = ({
 
       <div
         data-cy="TodoLoader"
-        className={classNames('modal overlay', { 'is-active': todo.loading })}
+        className={classNames('modal overlay', { 'is-active': loading })}
       >
         <div className="modal-background has-background-white-ter" />
         <div className="loader" />
