@@ -1,6 +1,6 @@
 /* eslint-disable jsx-a11y/label-has-associated-control */
 /* eslint-disable jsx-a11y/control-has-associated-label */
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { UserWarning } from './UserWarning';
 import {
   getTodos,
@@ -55,21 +55,23 @@ export const App: React.FC = () => {
     return <UserWarning />;
   }
 
-  const visibleTodos = todos.filter(todo => {
-    if (loadingTodosIds.includes(todo.id)) {
+  const visibleTodos = useMemo(() => {
+    return todos.filter(todo => {
+      if (loadingTodosIds.includes(todo.id)) {
+        return true;
+      }
+
+      if (selectedFilter === Filter.Active) {
+        return !todo.completed;
+      }
+
+      if (selectedFilter === Filter.Completed) {
+        return todo.completed;
+      }
+
       return true;
-    }
-
-    if (selectedFilter === Filter.Active) {
-      return !todo.completed;
-    }
-
-    if (selectedFilter === Filter.Completed) {
-      return todo.completed;
-    }
-
-    return true;
-  });
+    });
+  }, [todos, loadingTodosIds, selectedFilter]);
 
   const deleteTodoHandler = async (id: number) => {
     try {
@@ -225,7 +227,6 @@ export const App: React.FC = () => {
           updateTodoTitle={updateTitlehandler}
         />
 
-        {/* Hide the footer if there are no todos */}
         {todos.length > 0 && (
           <Footer
             todos={todos}
@@ -236,8 +237,6 @@ export const App: React.FC = () => {
         )}
       </div>
 
-      {/* DON'T use conditional rendering to hide the notification */}
-      {/* Add the 'hidden' class to hide the message smoothly */}
       <ErrorNotification
         errorMessage={errorMessage}
         setError={setErrorMessage}

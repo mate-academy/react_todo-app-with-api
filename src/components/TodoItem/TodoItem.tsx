@@ -85,7 +85,6 @@ const TodoItem: React.FC<Props> = ({
             {todo.title}
           </span>
 
-          {/* Remove button appears only on hover */}
           <button
             type="button"
             className="todo__remove"
@@ -111,7 +110,6 @@ const TodoItem: React.FC<Props> = ({
         </form>
       )}
 
-      {/* overlay will cover the todo while it is being deleted or updated */}
       <div
         data-cy="TodoLoader"
         className={classNames('modal overlay', {
