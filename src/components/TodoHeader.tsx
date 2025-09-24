@@ -32,7 +32,7 @@ export const TodoHeader: React.FC<Props> = ({
       inputRef.current?.focus();
       onClear(false);
     }
-  }, [loaded]);
+  }, [loaded, onClear]);
 
   const onSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();

@@ -25,51 +25,60 @@ export const TodoItem: React.FC<Props> = ({
   useEffect(() => {
     const handleEsc = (event: KeyboardEvent) => {
       if (event.key === 'Escape') {
-        event.preventDefault()
-        setEditTodoId(null)
+        event.preventDefault();
+        setEditTodoId(null);
       }
     };
 
-    window.addEventListener('keydown', handleEsc)
+    window.addEventListener('keydown', handleEsc);
 
     return () => {
-      window.removeEventListener('keydown', handleEsc)
-    }
-  }, [])
+      window.removeEventListener('keydown', handleEsc);
+    };
+  }, []);
 
-
-  async function handleTitleEdit(event: React.FormEvent<HTMLFormElement> | React.FocusEvent<HTMLInputElement>) {
+  async function handleTitleEdit(
+    event:
+      | React.FormEvent<HTMLFormElement>
+      | React.FocusEvent<HTMLInputElement>,
+  ) {
     event.preventDefault();
     const trimmed = editTitle.trim();
+
     try {
       if (trimmed === todo.title) {
-        setEditTodoId(null)
-        return
+        setEditTodoId(null);
+
+        return;
       }
+
       if (trimmed === '') {
         if (onDelete) {
           await onDelete(todo.id);
-           setEditTodoId(null);
-          return
+          setEditTodoId(null);
+
+          return;
         }
       }
+
       if (onUpdate) {
-        await onUpdate(todo.id, { title: trimmed })
-        setEditTodoId(null)
-        return
+        await onUpdate(todo.id, { title: trimmed });
+        setEditTodoId(null);
+
+        return;
       }
     } catch (error) {
       throw error;
     }
-}
+  }
 
   const handleCheckedClick = () => {
     if (todo.completed && onUpdate) {
-      onUpdate(todo.id, { completed: false })
+      onUpdate(todo.id, { completed: false });
     } else if (!todo.completed && onUpdate) {
-      onUpdate(todo.id, { completed: true })
+      onUpdate(todo.id, { completed: true });
     }
-  }
+  };
 
   return (
     <div
@@ -96,7 +105,7 @@ export const TodoItem: React.FC<Props> = ({
             placeholder="Empty todo will be deleted"
             value={editTitle}
             onChange={e => setEditTitle(e.target.value)}
-            onBlur={(e) => handleTitleEdit(e)}
+            onBlur={e => handleTitleEdit(e)}
             autoFocus
           />
         </form>
