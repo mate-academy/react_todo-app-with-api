@@ -12,6 +12,10 @@ type Props = {
   onUpdate?: (todoId: number, update: Partial<Omit<Todo, 'id'>>) => void;
 };
 
+type TitleEditEvent =
+  | React.FormEvent<HTMLFormElement>
+  | React.FocusEvent<HTMLInputElement>;
+
 export const TodoItem: React.FC<Props> = ({
   todo,
   isLoading,
@@ -37,11 +41,7 @@ export const TodoItem: React.FC<Props> = ({
     };
   }, []);
 
-  async function handleTitleEdit(
-    event:
-      | React.FormEvent<HTMLFormElement>
-      | React.FocusEvent<HTMLInputElement>,
-  ) {
+  async function handleTitleEdit(event: TitleEditEvent) {
     event.preventDefault();
     const trimmed = editTitle.trim();
 
