@@ -4,9 +4,8 @@ import { useEffect, useRef } from 'react';
 
 type Props = {
   areAllCompleted: boolean;
-  adding: boolean;
-  loading: boolean;
-  editing: boolean;
+  isProcessing: boolean;
+  isAdding: boolean;
   query: string;
   emptyTodos: boolean;
   onQueryChange?: (newQuery: string) => void;
@@ -16,9 +15,8 @@ type Props = {
 
 export const Header: React.FC<Props> = ({
   areAllCompleted,
-  adding,
-  loading,
-  editing,
+  isAdding,
+  isProcessing,
   query,
   emptyTodos,
   onQueryChange = () => {},
@@ -34,12 +32,12 @@ export const Header: React.FC<Props> = ({
   };
 
   useEffect(() => {
-    if (adding || loading || editing) {
+    if (isProcessing) {
       inputElement.current?.blur();
     } else {
       inputElement.current?.focus();
     }
-  }, [loading, adding, editing]);
+  }, [isProcessing]);
 
   return (
     <header className="todoapp__header">
@@ -61,7 +59,7 @@ export const Header: React.FC<Props> = ({
           placeholder="What needs to be done?"
           value={query}
           onChange={event => onQueryChange(event.target.value)}
-          disabled={adding}
+          disabled={isAdding}
         />
       </form>
     </header>

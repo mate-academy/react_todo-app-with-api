@@ -3,12 +3,12 @@ import cn from 'classnames';
 import { Todo } from '../../types/Todo';
 import { useEffect, useRef, useState } from 'react';
 import React from 'react';
+import { TodoState } from '../../types/TodoState';
 
 type Props = {
   todo: Todo;
   isEditing: boolean;
-  isLoading: boolean;
-  isEditLoading: boolean;
+  loadingState: TodoState | null;
   onOneTodoToggle?: (id: number) => void;
   onEditTodo?: (title: string, id: number) => void;
   onDoubleClick?: (id: number) => void;
@@ -18,8 +18,7 @@ type Props = {
 export const TodoItemComponent: React.FC<Props> = ({
   todo,
   isEditing,
-  isLoading,
-  isEditLoading,
+  loadingState,
   onOneTodoToggle = () => {},
   onEditTodo = () => {},
   onDoubleClick = () => {},
@@ -28,6 +27,8 @@ export const TodoItemComponent: React.FC<Props> = ({
   const inputEditElement = useRef<HTMLInputElement>(null);
   const [editQuery, setEditQuery] = useState(todo.title);
   const [isProcessing, setIsProcessing] = useState(false);
+  const isEditLoading = loadingState?.state === 'editloading';
+  const isLoading = isEditLoading || loadingState?.state === 'loading';
 
   useEffect(() => {
     if (inputEditElement.current) {

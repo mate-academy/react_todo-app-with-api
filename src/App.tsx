@@ -15,18 +15,19 @@ import {
 } from './api/todos';
 import { ErrorMessages } from './types/ErrorMessages';
 import classNames from 'classnames';
+import { TodoState } from './types/TodoState';
 
 function prepareTodos(todos: Todo[], filterQuery: SelectedFilter) {
   let visibleTodos = [...todos];
 
   switch (filterQuery) {
-    case 'active':
+    case SelectedFilter.Active:
       visibleTodos = visibleTodos.filter(todo => !todo.completed);
       break;
-    case 'completed':
+    case SelectedFilter.Completed:
       visibleTodos = visibleTodos.filter(todo => todo.completed);
       break;
-    case 'all':
+    case SelectedFilter.All:
       break;
   }
 
@@ -37,14 +38,15 @@ const ERROR_MESSAGE_TIMEOUT = 3000;
 
 export const App: React.FC = () => {
   const [todos, setTodos] = useState<Todo[]>([]);
-  const [filterQuery, setFilterQuery] = useState<SelectedFilter>('all');
+  const [filterQuery, setFilterQuery] = useState<SelectedFilter>(
+    SelectedFilter.All,
+  );
   const [errorMessage, setErrorMessage] = useState<ErrorMessages>(
     ErrorMessages.None,
   );
   const [query, setQuery] = useState('');
-  const [loadingTodoIds, setLoadingTodoIds] = useState<number[]>([]);
+  const [processingTodoIds, setProcessingTodoIds] = useState<TodoState[]>([]);
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
-  const [editLoadingTodoIds, setEditLoadingTodoIds] = useState<number[]>([]);
   const [editingTodoId, setEditingTodoId] = useState<number | null>(null);
 
   const errorTimeoutId = useRef<number | null>(null);
@@ -120,7 +122,13 @@ export const App: React.FC = () => {
   const handleTodoDelete = useCallback(
     (id: number) => {
       clearError();
-      setLoadingTodoIds(prev => [...prev, id]);
+      setProcessingTodoIds(prev => [
+        ...prev,
+        {
+          id: id,
+          state: 'loading',
+        },
+      ]);
       deleteTodo(id)
         .then(() => {
           setTodos(prev => {
@@ -131,8 +139,8 @@ export const App: React.FC = () => {
           handleError(ErrorMessages.ErrorToDeleteTodo);
         })
         .finally(() => {
-          setLoadingTodoIds(prev => {
-            const idIndex = prev.findIndex(elem => elem === id);
+          setProcessingTodoIds(prev => {
+            const idIndex = prev.findIndex(elem => elem.id === id);
 
             return [...prev.slice(0, idIndex), ...prev.slice(idIndex + 1)];
           });
@@ -142,12 +150,17 @@ export const App: React.FC = () => {
   );
 
   const handleAllCompletedDelete = () => {
-    const ids = todos.filter(todo => todo.completed).map(todo => todo.id);
+    const ids: TodoState[] = todos
+      .filter(todo => todo.completed)
+      .map(todo => ({
+        id: todo.id,
+        state: 'loading',
+      }));
 
-    setLoadingTodoIds(prev => [...prev, ...ids]);
+    setProcessingTodoIds(prev => [...prev, ...ids]);
     clearError();
 
-    Promise.allSettled(ids.map(id => deleteTodo(id)))
+    Promise.allSettled(ids.map(todo => deleteTodo(todo.id)))
       .then(responses => {
         type Reduce = {
           fulfilled: number[];
@@ -156,7 +169,7 @@ export const App: React.FC = () => {
 
         const { fulfilled, rejected } = responses.reduce<Reduce>(
           (idsStatuses, response, index) => {
-            idsStatuses[response.status].push(ids[index]);
+            idsStatuses[response.status].push(ids[index].id);
 
             return idsStatuses;
           },
@@ -175,7 +188,7 @@ export const App: React.FC = () => {
         }
       })
       .finally(() => {
-        setLoadingTodoIds(prev => prev.filter(id => !ids.includes(id)));
+        setProcessingTodoIds(prev => prev.filter(todo => !ids.includes(todo)));
       });
   };
 
@@ -191,7 +204,13 @@ export const App: React.FC = () => {
 
       const newCompleted = !updatingTodo.completed;
 
-      setLoadingTodoIds(prev => [...prev, id]);
+      setProcessingTodoIds(prev => [
+        ...prev,
+        {
+          id: id,
+          state: 'loading',
+        },
+      ]);
 
       updateTodo(id, { completed: newCompleted })
         .then(({ id: todoId, userId, title, completed }) => {
@@ -212,23 +231,30 @@ export const App: React.FC = () => {
           handleError(ErrorMessages.ErrorToUpdateTodo);
         })
         .finally(() => {
-          setLoadingTodoIds(prev => prev.filter(prevId => prevId !== id));
+          setProcessingTodoIds(prev =>
+            prev.filter(prevTodo => prevTodo.id !== id),
+          );
         });
     },
     [handleError, clearError, todos],
   );
 
   const handleTodoAllCompletedToggle = (areAllCompleted: boolean) => {
-    const ids = todos
+    const ids: TodoState[] = todos
       .filter(todo => todo.completed == areAllCompleted)
-      .map(todo => todo.id);
+      .map(todo => ({
+        id: todo.id,
+        state: 'loading',
+      }));
 
     const toggleTo = !areAllCompleted;
 
     clearError();
-    setLoadingTodoIds(prev => [...prev, ...ids]);
+    setProcessingTodoIds(prev => [...prev, ...ids]);
 
-    Promise.allSettled(ids.map(id => updateTodo(id, { completed: toggleTo })))
+    Promise.allSettled(
+      ids.map(todo => updateTodo(todo.id, { completed: toggleTo })),
+    )
       .then(responses => {
         type Reduce = {
           fulfilled: Todo[];
@@ -247,7 +273,7 @@ export const App: React.FC = () => {
 
               filteredResponses.fulfilled.push(updatedTodo);
             } else {
-              filteredResponses.rejected.push(ids[index]);
+              filteredResponses.rejected.push(ids[index].id);
             }
 
             return filteredResponses;
@@ -277,7 +303,9 @@ export const App: React.FC = () => {
         }
       })
       .finally(() => {
-        setLoadingTodoIds(prev => prev.filter(prevId => !ids.includes(prevId)));
+        setProcessingTodoIds(prev =>
+          prev.filter(prevId => !ids.includes(prevId)),
+        );
       });
   };
 
@@ -298,8 +326,13 @@ export const App: React.FC = () => {
       }
 
       clearError();
-      setEditLoadingTodoIds(prev => [...prev, id]);
-      setLoadingTodoIds(prev => [...prev, id]);
+      setProcessingTodoIds(prev => [
+        ...prev,
+        {
+          id: id,
+          state: 'editloading',
+        },
+      ]);
 
       updateTodo(id, { title: title })
         .then(response => {
@@ -324,13 +357,8 @@ export const App: React.FC = () => {
           handleError(ErrorMessages.ErrorToUpdateTodo);
         })
         .finally(() => {
-          setLoadingTodoIds(prev => {
-            const idIndex = prev.findIndex(elem => elem === id);
-
-            return [...prev.slice(0, idIndex), ...prev.slice(idIndex + 1)];
-          });
-          setEditLoadingTodoIds(prev => {
-            const idIndex = prev.findIndex(elem => elem === id);
+          setProcessingTodoIds(prev => {
+            const idIndex = prev.findIndex(elem => elem.id === id);
 
             return [...prev.slice(0, idIndex), ...prev.slice(idIndex + 1)];
           });
@@ -371,12 +399,14 @@ export const App: React.FC = () => {
   const remainingTodos = todos.reduce((acc, todo) => acc + +!todo.completed, 0);
 
   const isLoadingAddingTodo = tempTodo !== null;
-  const isLoadingSomething = loadingTodoIds.length > 0;
+  const isLoadingSomething = processingTodoIds.length > 0;
   const areNoneCompleted = todos.every(todo => !todo.completed);
   const areAllCompleted = todos.every(todo => todo.completed);
 
   const isEditing = editingTodoId !== null;
   const emptyTodos = todos.length === 0;
+
+  const isProcessing = isLoadingAddingTodo || isLoadingSomething || isEditing;
 
   return (
     <div className="todoapp">
@@ -385,9 +415,8 @@ export const App: React.FC = () => {
       <div className="todoapp__content">
         <Header
           areAllCompleted={areAllCompleted}
-          adding={isLoadingAddingTodo}
-          loading={isLoadingSomething}
-          editing={isEditing}
+          isProcessing={isProcessing}
+          isAdding={isLoadingAddingTodo}
           query={query}
           emptyTodos={emptyTodos}
           onQueryChange={handleQueryChange}
@@ -397,9 +426,8 @@ export const App: React.FC = () => {
 
         <Todos
           todos={visibleTodos}
-          loadingTodoIds={loadingTodoIds}
+          loadingTodoIds={processingTodoIds}
           tempTodo={tempTodo}
-          editLoadingTodoIds={editLoadingTodoIds}
           editingTodoId={editingTodoId}
           onTodoDelete={handleTodoDelete}
           onOneTodoToggle={handleTodoCompletedToggle}

@@ -5,11 +5,11 @@ import React, { useCallback } from 'react';
 import { Todo } from '../../types/Todo';
 import { TodoItem } from '../TodoItem';
 import { CSSTransition, TransitionGroup } from 'react-transition-group';
+import { TodoState } from '../../types/TodoState';
 
 type Props = {
   todos: Todo[];
-  loadingTodoIds: number[];
-  editLoadingTodoIds: number[];
+  loadingTodoIds: TodoState[];
   tempTodo: Todo | null;
   editingTodoId: number | null;
   onEditTodo?: (title: string, id: number) => void;
@@ -22,7 +22,6 @@ export const Todos: React.FC<Props> = ({
   todos,
   loadingTodoIds,
   tempTodo = null,
-  editLoadingTodoIds,
   editingTodoId,
   onEditTodo = () => {},
   onTodoDelete = () => {},
@@ -40,17 +39,16 @@ export const Todos: React.FC<Props> = ({
     <section className="todoapp__main" data-cy="TodoList">
       <TransitionGroup>
         {todos.map(todo => {
+          const loadingState: TodoState | null =
+            loadingTodoIds.find(elem => elem.id === todo.id) || null;
           const isEditing = todo.id === editingTodoId;
-          const isLoading = loadingTodoIds.includes(todo.id);
-          const isEditLoading = editLoadingTodoIds.includes(todo.id);
 
           return (
             <CSSTransition key={todo.id} timeout={300} classNames="item">
               <TodoItem
                 todo={todo}
+                loadingState={loadingState}
                 isEditing={isEditing}
-                isLoading={isLoading}
-                isEditLoading={isEditLoading}
                 onOneTodoToggle={onOneTodoToggle}
                 onEditTodo={onEditTodo}
                 onDoubleClick={handleDoubleClick}
@@ -64,8 +62,10 @@ export const Todos: React.FC<Props> = ({
             <TodoItem
               todo={tempTodo}
               isEditing={false}
-              isLoading={true}
-              isEditLoading={false}
+              loadingState={{
+                id: 0,
+                state: 'loading',
+              }}
             />
           </CSSTransition>
         )}

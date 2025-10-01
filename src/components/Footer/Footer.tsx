@@ -9,6 +9,17 @@ type Props = {
   onCompletedDelete?: () => void;
 };
 
+const getCyData = (enumFilter: SelectedFilter) => {
+  switch (enumFilter) {
+    case SelectedFilter.All:
+      return 'FilterLinkAll';
+    case SelectedFilter.Active:
+      return 'FilterLinkActive';
+    case SelectedFilter.Completed:
+      return 'FilterLinkCompleted';
+  }
+};
+
 export const Footer: React.FC<Props> = ({
   selected,
   itemCount,
@@ -23,34 +34,19 @@ export const Footer: React.FC<Props> = ({
       </span>
 
       <nav className="filter" data-cy="Filter">
-        <a
-          href="#/"
-          className={cn('filter__link', { selected: selected === 'all' })}
-          data-cy="FilterLinkAll"
-          onClick={() => onSelect('all')}
-        >
-          All
-        </a>
-
-        <a
-          href="#/active"
-          className={cn('filter__link', { selected: selected === 'active' })}
-          data-cy="FilterLinkActive"
-          onClick={() => onSelect('active')}
-        >
-          Active
-        </a>
-
-        <a
-          href="#/completed"
-          className={cn('filter__link', {
-            selected: selected === 'completed',
-          })}
-          data-cy="FilterLinkCompleted"
-          onClick={() => onSelect('completed')}
-        >
-          Completed
-        </a>
+        {Object.values(SelectedFilter).map(selectFilter => (
+          <a
+            href="#/"
+            className={cn('filter__link', {
+              selected: selected === selectFilter,
+            })}
+            data-cy={getCyData(selectFilter)}
+            onClick={() => onSelect(selectFilter)}
+            key={selectFilter}
+          >
+            {selectFilter}
+          </a>
+        ))}
       </nav>
 
       <button
