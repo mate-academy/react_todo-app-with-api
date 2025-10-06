@@ -26,7 +26,6 @@ export const TodoItem: React.FC<Props> = ({
 }) => {
   const editInputRef = useRef<HTMLInputElement>(null);
 
-  // Focus input when editing starts
   useEffect(() => {
     if (isEditing && editInputRef.current) {
       editInputRef.current.focus();

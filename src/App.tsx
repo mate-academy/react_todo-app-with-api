@@ -8,7 +8,7 @@ import { TodoList } from './components/TodoList';
 import { Header } from './components/Header';
 import { ErrorNotification } from './components/ErrorNotification';
 
-const USER_ID = 1;
+const USER_ID = 0;
 
 export const App: React.FC = () => {
   const [todos, setTodos] = useState<Todo[]>([]);
@@ -115,14 +115,12 @@ export const App: React.FC = () => {
         return;
       }
 
-      // If title didn't change, just cancel editing
       if (trimmedTitle === todoToEdit.title) {
         setEditingId(null);
 
         return;
       }
 
-      // Update todo title
       setLoadingIds(prev => [...prev, todoId]);
       try {
         const updatedTodo = await updateTodo(todoId, { title: trimmedTitle });
@@ -140,12 +138,11 @@ export const App: React.FC = () => {
     [todos, editTitle],
   );
 
-  // Handle Escape key press to cancel editing
   useEffect(() => {
     const handleEscape = (event: KeyboardEvent) => {
       if (event.key === 'Escape') {
         setEditingId(null);
-        // Reset edit title to original when escaping
+
         const currentTodo = todos.find(todo => todo.id === editingId);
 
         if (currentTodo) {
