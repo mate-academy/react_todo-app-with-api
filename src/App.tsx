@@ -140,7 +140,9 @@ export const App: React.FC = () => {
 
     try {
       await Promise.all(
-        todosToUpdate.map(todo => updateTodo(todo.id, { completed: newStatus })),
+        todosToUpdate.map(todo =>
+          updateTodo(todo.id, { completed: newStatus }),
+        ),
       );
     } catch {
       // Error is already shown in updateTodo
