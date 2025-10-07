@@ -19,7 +19,7 @@ body {
 }
 
 .notification.hidden {
-  min-height: 0;
   pointer-events: none;
+  min-height: 0;
   opacity: 0;
 }
