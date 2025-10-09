@@ -7,10 +7,13 @@ import { Todo } from './types/Todo';
 import { TodoList } from './components/TodoList';
 import { Header } from './components/Header';
 import { ErrorNotification } from './components/ErrorNotification';
+import { User } from './types/User';
 
-const USER_ID = 0;
+type Props = {
+  user: User;
+};
 
-export const App: React.FC = () => {
+export const App: React.FC<Props> = ({ user }) => {
   const [todos, setTodos] = useState<Todo[]>([]);
   const [errorMessage, setErrorMessage] = useState('');
   const [loading, setLoading] = useState(true);
@@ -18,14 +21,14 @@ export const App: React.FC = () => {
   const [editingId, setEditingId] = useState<number | null>(null);
   const [editTitle, setEditTitle] = useState('');
 
+  const userId = user.id;
+
   useEffect(() => {
-    if (USER_ID) {
-      getTodos(USER_ID)
-        .then(setTodos)
-        .catch(() => setErrorMessage('Unable to load todos'))
-        .finally(() => setLoading(false));
-    }
-  }, []);
+    getTodos(userId)
+      .then(setTodos)
+      .catch(() => setErrorMessage('Unable to load todos'))
+      .finally(() => setLoading(false));
+  }, [userId]);
 
   const handleToggleTodo = useCallback(
     async (todoId: number) => {
@@ -142,7 +145,6 @@ export const App: React.FC = () => {
     const handleEscape = (event: KeyboardEvent) => {
       if (event.key === 'Escape') {
         setEditingId(null);
-
         const currentTodo = todos.find(todo => todo.id === editingId);
 
         if (currentTodo) {
@@ -168,7 +170,7 @@ export const App: React.FC = () => {
     }
   }, []);
 
-  if (!USER_ID) {
+  if (!userId) {
     return <UserWarning />;
   }
 
@@ -186,16 +188,14 @@ export const App: React.FC = () => {
           onToggleAll={handleToggleAll}
           setErrorMessage={setErrorMessage}
           setTodos={setTodos}
-          userId={USER_ID}
+          userId={userId}
           setLoadingIds={setLoadingIds}
         />
 
         <TodoList
           todos={todos}
-          setTodos={setTodos}
           setErrorMessage={setErrorMessage}
           loadingIds={loadingIds}
-          setLoadingIds={setLoadingIds}
           onToggleTodo={handleToggleTodo}
           onDeleteTodo={handleDeleteTodo}
           editingId={editingId}
@@ -203,6 +203,8 @@ export const App: React.FC = () => {
           onEditTodo={handleEditTodo}
           editTitle={editTitle}
           setEditTitle={setEditTitle}
+          setTodos={setTodos}
+          setLoadingIds={setLoadingIds}
         />
       </div>
 
