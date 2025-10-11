@@ -1,25 +1,24 @@
 import React from 'react';
 
 import { Todo } from '../types/Todo';
+import Filter from '../types/FilterTypes';
 
 type Props = {
   todos: Todo[];
-  todosLength: number;
   filterType: string;
-  setFilterType: (filter: 'all' | 'active' | 'completed') => void;
+  setFilterType: (filterType: Filter) => void;
   remainingTodos: number;
   handleClearCompleted: () => void;
 };
 
 export const TodoFooter: React.FC<Props> = ({
   todos,
-  todosLength,
   filterType,
   setFilterType,
   remainingTodos,
   handleClearCompleted,
 }) => {
-  if (!todosLength) {
+  if (!todos.length) {
     return null;
   }
 

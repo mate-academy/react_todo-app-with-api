@@ -12,7 +12,6 @@ import { TodoList } from './components/TodoList';
 import { ErrorNotification } from './components/ErrorNotification';
 
 import Filter from './types/FilterTypes';
-import { TempTodo } from './types/TempTodo';
 
 export const App: React.FC = () => {
   const [todos, setTodos] = useState<Todo[]>([]);
@@ -87,12 +86,11 @@ export const App: React.FC = () => {
 
     const tempId = Math.max(...todos.map(t => t.id), 0) + 1;
 
-    const tempTodo: TempTodo = {
+    const tempTodo: Todo = {
       id: 0 || tempId,
       userId: USER_ID,
       title: addTodo,
       completed: false,
-      isTemp: true,
     };
 
     setTodos(prev => [...prev, tempTodo]);
@@ -360,7 +358,6 @@ export const App: React.FC = () => {
       />
       <TodoFooter
         todos={todos}
-        todosLength={todos.length}
         filterType={filterType}
         setFilterType={setFilterType}
         remainingTodos={todosCount}
