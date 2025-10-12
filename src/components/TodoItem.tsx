@@ -31,23 +31,31 @@ export const TodoItem: React.FC<Props> = ({
     }
   }, [isEditing]);
 
+  // TodoItem.tsx
   const save = async () => {
     if (savingRef.current) {
       return;
     }
 
     savingRef.current = true;
+
     const trimmed = draft.trim();
 
     if (trimmed === '') {
-      await onDelete(todo.id);
-      setIsEditing(false);
+      const ok = await onRename(todo.id, '');
+
+      if (ok) {
+        setIsEditing(false);
+      } else {
+        setTimeout(() => inputRef.current?.focus(), 0);
+      }
+
       savingRef.current = false;
 
       return;
     }
 
-    if (trimmed !== todo.title) {
+    if (trimmed === todo.title) {
       setIsEditing(false);
       savingRef.current = false;
 
@@ -63,27 +71,6 @@ export const TodoItem: React.FC<Props> = ({
     }
 
     savingRef.current = false;
-  };
-
-  const handleSubmit: React.FormEventHandler = e => {
-    e.preventDefault();
-    // единственное место, где мы сохраняем на Enter
-    void save();
-  };
-
-  const handleBlur: React.FocusEventHandler<HTMLInputElement> = () => {
-    // сохраняем по blur только если сохранение ещё не идёт
-    if (!savingRef.current) {
-      void save();
-    }
-  };
-
-  const handleKeyDown: React.KeyboardEventHandler<HTMLInputElement> = e => {
-    if (e.key === 'Escape') {
-      setDraft(todo.title);
-      setIsEditing(false);
-    }
-    // ВАЖНО: не вызываем save() на Enter здесь.
   };
 
   return (
@@ -124,16 +111,30 @@ export const TodoItem: React.FC<Props> = ({
           </button>
         </>
       ) : (
-        <form onSubmit={handleSubmit}>
+        <form onSubmit={e => e.preventDefault()}>
           <input
             data-cy="TodoTitleField"
-            type="text"
+            ref={inputRef}
             className="todo__title-field"
+            type="text"
             value={draft}
             onChange={e => setDraft(e.target.value)}
-            onBlur={handleBlur}
-            onKeyUp={handleKeyDown}
-            ref={inputRef}
+            onKeyDown={e => {
+              if (e.key === 'Enter') {
+                e.preventDefault();
+                void save();
+              }
+
+              if (e.key === 'Escape') {
+                setDraft(todo.title);
+                setIsEditing(false);
+              }
+            }}
+            onBlur={() => {
+              if (!savingRef.current) {
+                void save();
+              }
+            }}
           />
         </form>
       )}

@@ -105,13 +105,25 @@ export const App: React.FC = () => {
 
     if (trimmed === '') {
       // eslint-disable-next-line @typescript-eslint/no-use-before-define
-      await handleDeleteOne(id);
+      startDeleting([id]);
+      try {
+        await removeTodo(id);
+        setTodos(prev => prev.filter(t => t.id !== id));
 
-      return true;
+        return true;
+      } catch {
+        // eslint-disable-next-line @typescript-eslint/no-use-before-define
+        showError('Unable to delete a todo');
+
+        return false;
+      } finally {
+        // eslint-disable-next-line @typescript-eslint/no-use-before-define
+        stopDeleting([id]);
+        // не форсай фокус на NewTodoField здесь — мы ещё редактируем
+      }
     }
 
     startUpdating([id]);
-
     try {
       const updated = await updateTodo(id, { title: trimmed });
 
