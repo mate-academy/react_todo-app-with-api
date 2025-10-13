@@ -1,58 +1,33 @@
 import React, { useState } from 'react';
 import { Todo } from '../types/Todo';
-import { createTodo } from '../api/todos';
 
 interface Props {
   todos: Todo[];
-  onToggleAll: () => void;
-  setErrorMessage: (message: string) => void;
-  setTodos: React.Dispatch<React.SetStateAction<Todo[]>>;
-  userId: number;
-  setLoadingIds: React.Dispatch<React.SetStateAction<number[]>>;
+  onToggleAll: () => Promise<void>;
+  onAddTodo: (title: string) => Promise<void>;
+  isAdding: boolean;
 }
 
 export const Header: React.FC<Props> = ({
   todos,
   onToggleAll,
-  setErrorMessage,
-  setTodos,
-  userId,
-  setLoadingIds,
+  onAddTodo,
+  isAdding,
 }) => {
   const [title, setTitle] = useState('');
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleSubmit = async (event: React.FormEvent) => {
+    event.preventDefault();
 
-    if (!title.trim()) {
-      setErrorMessage('Title should not be empty');
-
+    if (!title.trim() || isAdding) {
       return;
     }
 
-    const newTodo = {
-      userId,
-      title: title.trim(),
-      completed: false,
-    };
-
-    const tempTodoId = 0;
-
-    setLoadingIds(prev => [...prev, tempTodoId]);
+    await onAddTodo(title);
     setTitle('');
-
-    try {
-      const createdTodo = await createTodo(newTodo);
-
-      setTodos(prev => [...prev, createdTodo]);
-    } catch {
-      setErrorMessage('Unable to add a todo');
-    } finally {
-      setLoadingIds(prev => prev.filter(id => id !== tempTodoId));
-    }
   };
 
-  const isAllCompleted =
+  const areAllCompleted =
     todos.length > 0 && todos.every(todo => todo.completed);
 
   return (
@@ -60,7 +35,7 @@ export const Header: React.FC<Props> = ({
       {todos.length > 0 && (
         <button
           type="button"
-          className={`todoapp__toggle-all ${isAllCompleted ? 'active' : ''}`}
+          className={`todoapp__toggle-all ${areAllCompleted ? 'active' : ''}`}
           onClick={onToggleAll}
         />
       )}
@@ -72,6 +47,7 @@ export const Header: React.FC<Props> = ({
           placeholder="What needs to be done?"
           value={title}
           onChange={e => setTitle(e.target.value)}
+          disabled={isAdding}
         />
       </form>
     </header>

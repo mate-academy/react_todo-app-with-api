@@ -4,15 +4,12 @@ import { TodoItem } from './TodoItem';
 
 interface Props {
   todos: Todo[];
-  setTodos: React.Dispatch<React.SetStateAction<Todo[]>>;
-  setErrorMessage: (message: string) => void;
   loadingIds: number[];
-  setLoadingIds: React.Dispatch<React.SetStateAction<number[]>>;
-  onToggleTodo: (id: number) => void;
-  onDeleteTodo: (id: number) => void;
+  onToggleTodo: (todoId: number) => Promise<void>;
+  onDeleteTodo: (todoId: number) => Promise<void>;
   editingId: number | null;
   setEditingId: (id: number | null) => void;
-  onEditTodo: (id: number) => void;
+  onEditTodo: (todoId: number) => Promise<void>;
   editTitle: string;
   setEditTitle: (title: string) => void;
 }
@@ -35,13 +32,13 @@ export const TodoList: React.FC<Props> = ({
           key={todo.id}
           todo={todo}
           isLoading={loadingIds.includes(todo.id)}
-          onToggle={onToggleTodo}
-          onDelete={onDeleteTodo}
           isEditing={editingId === todo.id}
-          onSetEditingId={setEditingId}
-          onEdit={onEditTodo}
           editTitle={editTitle}
           setEditTitle={setEditTitle}
+          onToggle={() => onToggleTodo(todo.id)}
+          onDelete={() => onDeleteTodo(todo.id)}
+          onEdit={() => onEditTodo(todo.id)}
+          onSetEditingId={setEditingId}
         />
       ))}
     </section>

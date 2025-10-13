@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { Todo } from '../types/Todo';
 
 const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
@@ -20,6 +21,7 @@ export const getTodos = async (userId: number): Promise<Todo[]> => {
 export const createTodo = async (todo: Omit<Todo, 'id'>): Promise<Todo> => {
   await delay(300);
 
+  // For JSONPlaceholder, we need to send the data in the expected format
   const response = await fetch(BASE_URL, {
     method: 'POST',
     headers: {
@@ -38,6 +40,7 @@ export const createTodo = async (todo: Omit<Todo, 'id'>): Promise<Todo> => {
 
   const createdTodo = await response.json();
 
+  // JSONPlaceholder returns id as 201, but we need to ensure it's a number
   return {
     id: createdTodo.id || Date.now(),
     title: createdTodo.title,
