@@ -20,13 +20,15 @@ export const App: React.FC = () => {
   const [filterType, setFilterType] = useState<Filter>('all');
   const [errorMessage, setErrorMessage] = useState('');
   const [errorVisible, setErrorVisible] = useState(false);
-  const [activeTodoId, setActiveTodoId] = useState<number | null>(null);
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
   const [todosCount, setTodosCount] = useState<number>(0);
   const [shouldFocus, setShouldFocus] = useState<boolean>(false);
   const [allCompleted, setAllCompleted] = useState<boolean>(false);
   const [originalTitle, setOriginalTitle] = useState<string>('');
+
+  const [activeTodoId, setActiveTodoId] = useState<number | null>(null);
   const [activeTodoIds, setActiveTodoIds] = useState<number[]>([]);
+
   const [enumErrorMessage, setEnumErrorMessage] = useState<number>(0);
 
   const inputRef = useRef<HTMLInputElement>(null);
@@ -130,23 +132,20 @@ export const App: React.FC = () => {
       return;
     }
 
-    setActiveTodoId(todoId);
+    setActiveTodoIds(prev => Array.from(new Set([...prev, todoId])));
     setIsSubmitting(true);
 
     deleteTodo(todoId)
       .then(() => {
         setTodos(prev => prev.filter(t => t.id !== todoId));
         setEditingId(null);
-        setActiveTodoId(null);
       })
       .catch(() => {
         showError('Unable to delete a todo');
-
-        setActiveTodoId(null);
-
-        setEnumErrorMessage(enumErrorMessage + 1);
+        setEnumErrorMessage(prev => prev + 1);
       })
       .finally(() => {
+        setActiveTodoIds(prev => prev.filter(id => id !== todoId));
         setIsSubmitting(false);
         setShouldFocus(true);
       });
@@ -221,13 +220,13 @@ export const App: React.FC = () => {
       return;
     }
 
-    setActiveTodoId(todoId);
+    setActiveTodoIds(prev => Array.from(new Set([...prev, todoId])));
     setIsSubmitting(true);
 
     updateTodo(todoId, {
       id: todoId,
       userId: USER_ID,
-      title: title,
+      title,
       completed: newStatus,
     })
       .then(() => {
@@ -237,10 +236,10 @@ export const App: React.FC = () => {
       })
       .catch(() => {
         showError('Unable to update a todo');
-        setEnumErrorMessage(enumErrorMessage + 1);
+        setEnumErrorMessage(prev => prev + 1);
       })
       .finally(() => {
-        setActiveTodoId(null);
+        setActiveTodoIds(prev => prev.filter(id => id !== todoId));
         setIsSubmitting(false);
         setEditingId(null);
       });
@@ -306,6 +305,8 @@ export const App: React.FC = () => {
 
     const todosToUpdate = todos.filter(t => t.completed !== targetCompleted);
 
+    setActiveTodoIds(todosToUpdate.map(t => t.id));
+
     const togglePromises = todosToUpdate.map(todo =>
       updateTodo(todo.id, { ...todo, completed: targetCompleted })
         .then(() => {
@@ -316,12 +317,15 @@ export const App: React.FC = () => {
           );
         })
         .catch(() => {
-          showError(`Unable to update todo`);
+          showError('Unable to update todo');
           setEnumErrorMessage(enumErrorMessage + 1);
+        })
+        .finally(() => {
+          // remove todo ID from loader list when finished
+          setActiveTodoIds(prev => prev.filter(id => id !== todo.id));
         }),
     );
 
-    setActiveTodoId(null);
     await Promise.all(togglePromises);
     setIsSubmitting(false);
   }
