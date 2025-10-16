@@ -6,7 +6,6 @@ export enum ErrorMessages {
   EMPTY_TITLE = 'Title should not be empty',
 }
 
-
 export enum Filter {
   ALL = 'all',
   ACTIVE = 'active',
