@@ -1,3 +1,4 @@
+import { PayloadProps } from '../types/PayloadProps';
 import { Todo } from '../types/Todo';
 import { client } from '../utils/fetchClient';
 
@@ -21,4 +22,6 @@ export function addTodo(title: string) {
   return client.post<Todo>('/todos', payload);
 }
 
-// Add more methods here
+export function editTodo(todoId: number, payload: PayloadProps) {
+  return client.patch<Todo>(`/todos/${todoId}`, payload);
+}

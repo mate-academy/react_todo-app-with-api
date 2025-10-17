@@ -1,4 +1,5 @@
 import { FC } from 'react';
+import cn from 'classnames';
 
 interface Props {
   isToggleAllVisible: boolean;
@@ -7,6 +8,8 @@ interface Props {
   todoTitle: string;
   handleInputChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
   handleSubmit: (event: React.FormEvent) => void;
+  allCompleted: boolean;
+  handleToggleAll: () => void;
 }
 
 export const Header: FC<Props> = ({
@@ -16,6 +19,8 @@ export const Header: FC<Props> = ({
   todoTitle,
   handleInputChange,
   handleSubmit,
+  allCompleted,
+  handleToggleAll,
 }) => {
   return (
     <header className="todoapp__header">
@@ -23,8 +28,9 @@ export const Header: FC<Props> = ({
       {isToggleAllVisible && (
         <button
           type="button"
-          className="todoapp__toggle-all active"
+          className={cn('todoapp__toggle-all', { active: allCompleted })}
           data-cy="ToggleAllButton"
+          onClick={handleToggleAll}
         />
       )}
 
