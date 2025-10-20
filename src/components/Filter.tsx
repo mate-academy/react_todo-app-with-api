@@ -1,5 +1,5 @@
 import React from 'react';
-import { StatusFilter } from '../../App';
+import { StatusFilter } from '../App';
 
 interface FilterProps {
   statusFilter: StatusFilter;
