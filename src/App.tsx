@@ -11,9 +11,9 @@ import {
 import { Todo } from './types/Todo';
 
 import { UserWarning } from './UserWarning';
-import { Header } from './components/Header';
-import { TodoList } from './components/TodoList';
-import { Footer } from './components/Footer';
+import { Header } from './components/Header/Header';
+import { TodoList } from './components/TodoList/TodoList';
+import { Footer } from './components/Footer/Footer';
 import { ErrorNotification } from './components/ErrorNotification';
 import { ErrorType } from './types/tpError';
 
