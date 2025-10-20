@@ -71,22 +71,22 @@ export const App: React.FC = () => {
     setFilter(param);
   };
 
-  const removeTodo = (todoId: number) => {
+  const removeTodo = async (todoId: number) => {
     setErrorMessage('');
     setLoadingIds(current => [...current, todoId]);
-    deleteTodo(todoId)
-      .then(() => {
-        const newTodos = todos.filter(todo => todo.id !== todoId);
 
-        setTodos(newTodos);
-      })
-      .catch(() => {
-        setErrorMessage('Unable to delete a todo');
-        setShowError(true);
-      })
-      .finally(() => {
-        setLoadingIds([]);
-      });
+    try {
+      await deleteTodo(todoId);
+      const newTodos = todos.filter(todo => todo.id !== todoId);
+
+      setTodos(newTodos);
+    } catch (error) {
+      setErrorMessage('Unable to delete a todo');
+      setShowError(true);
+      throw error;
+    } finally {
+      setLoadingIds([]);
+    }
   };
 
   const clearCompleted = async () => {
@@ -167,6 +167,7 @@ export const App: React.FC = () => {
     } catch (error) {
       setErrorMessage('Unable to update a todo');
       setShowError(true);
+      throw error;
     } finally {
       setLoadingIds([]);
     }
