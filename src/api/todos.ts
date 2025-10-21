@@ -18,3 +18,10 @@ export const setTodo = (title: string) => {
 export const deleteTodo = (id: number) => {
   return client.delete(`/todos/${id}`);
 };
+
+export const updateTodo = (
+  id: number,
+  data: Partial<Pick<Todo, 'title' | 'completed'>>,
+) => {
+  return client.patch<Todo>(`/todos/${id}`, data);
+};
