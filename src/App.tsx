@@ -15,7 +15,7 @@ import { Header } from './components/Header';
 import { TodoList } from './components/TodoList';
 import { Footer } from './components/Footer';
 import { ErrorNotification } from './components/ErrorNotification';
-import { ErrorType } from './types/tpError';
+import { ErrorType } from './types/ErrorType';
 
 export enum StatusFilter {
   All = 'all',
