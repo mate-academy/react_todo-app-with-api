@@ -13,7 +13,7 @@ type Props = {
   setEditedTitle: React.Dispatch<React.SetStateAction<string>>;
   setIsEditing: React.Dispatch<React.SetStateAction<number | null>>;
   isEditing: number | null;
-  updateTodos: (todoId: number, updates: Partial<Todo>) => Promise<any>;
+  updateTodos: (todoId: number, updates: Partial<Todo>) => Promise<Todo>;
   setLoadingTodoId: React.Dispatch<React.SetStateAction<number[] | null>>;
   setNotificationError: React.Dispatch<React.SetStateAction<string | null>>;
 };
@@ -63,46 +63,48 @@ export const TodoList: React.FC<Props> = ({
                 value={editedTitle}
                 onChange={e => setEditedTitle(e.target.value)}
                 autoFocus
-                  onKeyDown={async e => {
-                    if (e.key === 'Enter') {
-                      if (editedTitle.trim() === '') {
-                        onDelete(todo.id);
-                      } else if (editedTitle.trim() === todo.title) {
-                        setIsEditing(null);
-                        setEditedTitle('');
-                      } else {
-                        setLoadingTodoId(prev => (prev ? [...prev, todo.id] : [todo.id]));
-                        try {
-                          const updatedTodo = await updateTodos(todo.id, {
-                            title: editedTitle.trim(),
-                          });
-
-                          setTodos(prev =>
-                            prev.map(t => (t.id === todo.id ? updatedTodo : t))
-                          );
-
-                          setIsEditing(null);
-                          setEditedTitle('');
-                        } catch {
-                          setNotificationError('Unable to update a todo');
-                          setTimeout(() => setNotificationError(null), 3000);
-
-                          setLoadingTodoId(prev =>
-                            prev ? prev.filter(id => id !== todo.id) : null
-                          );
-                        } finally {
-                          setLoadingTodoId(prev =>
-                            prev ? prev.filter(id => id !== todo.id) : null
-                          );
-                        }
-                      }
-                    }
-                    if (e.key === 'Escape') {
+                onKeyDown={async e => {
+                  if (e.key === 'Enter') {
+                    if (editedTitle.trim() === '') {
+                      onDelete(todo.id);
+                    } else if (editedTitle.trim() === todo.title) {
                       setIsEditing(null);
                       setEditedTitle('');
-                    }
-                  }}
+                    } else {
+                      setLoadingTodoId(prev =>
+                        prev ? [...prev, todo.id] : [todo.id],
+                      );
+                      try {
+                        const updatedTodo = await updateTodos(todo.id, {
+                          title: editedTitle.trim(),
+                        });
 
+                        setTodos(prev =>
+                          prev.map(t => (t.id === todo.id ? updatedTodo : t)),
+                        );
+
+                        setIsEditing(null);
+                        setEditedTitle('');
+                      } catch {
+                        setNotificationError('Unable to update a todo');
+                        setTimeout(() => setNotificationError(null), 3000);
+
+                        setLoadingTodoId(prev =>
+                          prev ? prev.filter(id => id !== todo.id) : null,
+                        );
+                      } finally {
+                        setLoadingTodoId(prev =>
+                          prev ? prev.filter(id => id !== todo.id) : null,
+                        );
+                      }
+                    }
+                  }
+
+                  if (e.key === 'Escape') {
+                    setIsEditing(null);
+                    setEditedTitle('');
+                  }
+                }}
                 onBlur={async () => {
                   if (editedTitle.trim() === '') {
                     onDelete(todo.id);
@@ -110,7 +112,9 @@ export const TodoList: React.FC<Props> = ({
                     setIsEditing(null);
                     setEditedTitle('');
                   } else {
-                    setLoadingTodoId(prev => (prev ? [...prev, todo.id] : [todo.id]));
+                    setLoadingTodoId(prev =>
+                      prev ? [...prev, todo.id] : [todo.id],
+                    );
 
                     try {
                       const updatedTodo = await updateTodos(todo.id, {
@@ -118,18 +122,18 @@ export const TodoList: React.FC<Props> = ({
                       });
 
                       setTodos(prev =>
-                        prev.map(t => (t.id === todo.id ? updatedTodo : t))
+                        prev.map(t => (t.id === todo.id ? updatedTodo : t)),
                       );
 
                       setLoadingTodoId(prev =>
-                        prev ? prev.filter(id => id !== todo.id) : null
+                        prev ? prev.filter(id => id !== todo.id) : null,
                       );
                     } catch {
                       setNotificationError('Unable to update a todo');
                       setTimeout(() => setNotificationError(null), 3000);
 
                       setLoadingTodoId(prev =>
-                        prev ? prev.filter(id => id !== todo.id) : null
+                        prev ? prev.filter(id => id !== todo.id) : null,
                       );
                     } finally {
                       setIsEditing(null);
@@ -137,7 +141,6 @@ export const TodoList: React.FC<Props> = ({
                     }
                   }
                 }}
-
               />
             ) : (
               <>

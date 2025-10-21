@@ -34,6 +34,7 @@ export const Header: React.FC<Props> = ({
     if (!title.trim()) {
       setNotificationError('Title should not be empty');
       setTimeout(() => setNotificationError(null), 3000);
+
       return;
     }
 
@@ -67,12 +68,15 @@ export const Header: React.FC<Props> = ({
   return (
     <header className="todoapp__header">
       {!isLoading && todos.length > 0 && (
-         <button
-        type="button"
-        className={classNames('todoapp__toggle-all', { active: allCompleted })}
-        data-cy="ToggleAllButton"
-        onClick={onToggleAll}
-      />)}
+        <button
+          type="button"
+          className={classNames('todoapp__toggle-all', {
+            active: allCompleted,
+          })}
+          data-cy="ToggleAllButton"
+          onClick={onToggleAll}
+        />
+      )}
 
       <form onSubmit={handleSubmit}>
         <input

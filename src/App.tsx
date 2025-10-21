@@ -14,7 +14,9 @@ import { client } from './utils/fetchClient';
 export const App: React.FC = () => {
   const [todos, setTodos] = useState<Todo[]>([]);
   const [filter, setFilter] = useState<Filter>(Filter.All);
-  const [notificationError, setNotificationError] = useState<string | null>(null);
+  const [notificationError, setNotificationError] = useState<string | null>(
+    null,
+  );
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
   const [loadingTodoId, setLoadingTodoId] = useState<number[] | null>(null);
   const [isEditing, setIsEditing] = useState<number | null>(null);
@@ -33,94 +35,102 @@ export const App: React.FC = () => {
 
   const inputRef = React.useRef<HTMLInputElement>(null);
 
-const visibleTodos = useMemo(() => {
-  const filtered = todos.filter(todo => {
-        if (loadingTodoId?.includes(todo.id)) {
-      return true;
-    }
-
-    switch (filter) {
-      case Filter.Active:
-        return !todo.completed;
-      case Filter.Completed:
-        return todo.completed;
-      default:
+  const visibleTodos = useMemo(() => {
+    const filtered = todos.filter(todo => {
+      if (loadingTodoId?.includes(todo.id)) {
         return true;
-    }
-  });
+      }
 
-  return tempTodo ? [...filtered, tempTodo] : filtered;
-}, [todos, filter, tempTodo, loadingTodoId]);
+      switch (filter) {
+        case Filter.Active:
+          return !todo.completed;
+        case Filter.Completed:
+          return todo.completed;
+        default:
+          return true;
+      }
+    });
 
+    return tempTodo ? [...filtered, tempTodo] : filtered;
+  }, [todos, filter, tempTodo, loadingTodoId]);
 
   if (!USER_ID) {
     return <UserWarning />;
   }
 
-  const updateTodos = (todoId: number, updates: Partial<Todo>) => {
+  const updateTodos = (
+    todoId: number,
+    updates: Partial<Todo>,
+  ): Promise<Todo> => {
     return client.patch(`/todos/${todoId}`, updates);
-}
+  };
 
-const onToggle = (todo: Todo) => {
-  const newStatus = !todo.completed;
+  const onToggle = (todo: Todo) => {
+    const newStatus = !todo.completed;
 
-  setLoadingTodoId(prev => (prev ? [...prev, todo.id] : [todo.id]));
-  updateTodos(todo.id, { completed: newStatus })
-    .then(() => {
-      setTodos(prev =>
-        prev.map(t => (t.id === todo.id ? { ...t, completed: newStatus } : t))
-      );
-      setLoadingTodoId(prev => prev?.filter(id => id !== todo.id) || null);
-    })
-    .catch(() => {
-      setNotificationError('Unable to update a todo');
-      setTimeout(() => setNotificationError(null), 3000);
-      setLoadingTodoId(prev => prev?.filter(id => id !== todo.id) || null);
-    });
-};
-
-
-
-const onToggleAll = () => {
-  const newStatus = !(todos.length > 0 && todos.every(todo => todo.completed));
-  const todosToUpdate = todos.filter(todo => todo.completed !== newStatus);
-  const loadingIds = todosToUpdate.map(todo => todo.id);
-  setLoadingTodoId(loadingIds);
-
-  setTodos(prev =>
-    prev.map(todo =>
-      todosToUpdate.some(t => t.id === todo.id)
-        ? { ...todo, completed: newStatus }
-        : todo
-    )
-  );
-
-  todosToUpdate.forEach(todo => {
+    setLoadingTodoId(prev => (prev ? [...prev, todo.id] : [todo.id]));
     updateTodos(todo.id, { completed: newStatus })
       .then(() => {
-              setTodos(prev =>
-        prev.map(todo =>
-          todosToUpdate.some(t => t.id === todo.id)
-            ? { ...todo, completed: newStatus }
-            : todo
-        )
-      );
-        setLoadingTodoId(prev => prev ? prev.filter(id => id !== todo.id) : null);
+        setTodos(prev =>
+          prev.map(t =>
+            t.id === todo.id ? { ...t, completed: newStatus } : t,
+          ),
+        );
+        setLoadingTodoId(prev => prev?.filter(id => id !== todo.id) || null);
       })
       .catch(() => {
         setNotificationError('Unable to update a todo');
-        setTodos(prev =>
-          prev.map(t =>
-            t.id === todo.id ? { ...t, completed: todo.completed } : t
-          )
-        );
-        setLoadingTodoId(prev => prev ? prev.filter(id => id !== todo.id) : null);
+        setTimeout(() => setNotificationError(null), 3000);
+        setLoadingTodoId(prev => prev?.filter(id => id !== todo.id) || null);
       });
-  });
-};
+  };
 
+  const onToggleAll = () => {
+    const newStatus = !(
+      todos.length > 0 && todos.every(todo => todo.completed)
+    );
+    const todosToUpdate = todos.filter(todo => todo.completed !== newStatus);
+    const loadingIds = todosToUpdate.map(todo => todo.id);
 
+    setLoadingTodoId(loadingIds);
 
+    setTodos(prev =>
+      prev.map(todo =>
+        todosToUpdate.some(t => t.id === todo.id)
+          ? { ...todo, completed: newStatus }
+          : todo,
+      ),
+    );
+
+    todosToUpdate.forEach(todoToUpdate => {
+      updateTodos(todoToUpdate.id, { completed: newStatus })
+        .then(() => {
+          setTodos(prev =>
+            prev.map(t =>
+              todosToUpdate.some(x => x.id === t.id)
+                ? { ...t, completed: newStatus }
+                : t,
+            ),
+          );
+          setLoadingTodoId(prev =>
+            prev ? prev.filter(id => id !== todoToUpdate.id) : null,
+          );
+        })
+        .catch(() => {
+          setNotificationError('Unable to update a todo');
+          setTodos(prev =>
+            prev.map(t =>
+              t.id === todoToUpdate.id
+                ? { ...t, completed: todoToUpdate.completed }
+                : t,
+            ),
+          );
+          setLoadingTodoId(prev =>
+            prev ? prev.filter(id => id !== todoToUpdate.id) : null,
+          );
+        });
+    });
+  };
 
   const onDelete = (todoId: number) => {
     setTodos(prevTodos =>
