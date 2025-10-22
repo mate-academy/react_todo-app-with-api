@@ -10,24 +10,22 @@ import { Footer } from './components/Footer';
 import { OurErrors } from './components/OurError';
 import { deleteTodos, getTodos, USER_ID } from './api/todos';
 import { client } from './utils/fetchClient';
+import { NotificationErrors } from './types/Errors';
 
 export const App: React.FC = () => {
   const [todos, setTodos] = useState<Todo[]>([]);
   const [filter, setFilter] = useState<Filter>(Filter.All);
-  const [notificationError, setNotificationError] = useState<string | null>(
-    null,
-  );
+  const [notificationError, setNotificationError] =
+    useState<NotificationErrors | null>(null);
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
   const [loadingTodoId, setLoadingTodoId] = useState<number[] | null>(null);
-  const [isEditing, setIsEditing] = useState<number | null>(null);
-  const [editedTitle, setEditedTitle] = useState<string>('');
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     getTodos()
       .then(save => setTodos(save))
       .catch(() => {
-        setNotificationError('Unable to load todos');
+        setNotificationError(NotificationErrors.UnableToLoad);
         setTimeout(() => setNotificationError(null), 3000);
       })
       .finally(() => setIsLoading(false));
@@ -79,7 +77,7 @@ export const App: React.FC = () => {
         setLoadingTodoId(prev => prev?.filter(id => id !== todo.id) || null);
       })
       .catch(() => {
-        setNotificationError('Unable to update a todo');
+        setNotificationError(NotificationErrors.UnableToUpdate);
         setTimeout(() => setNotificationError(null), 3000);
         setLoadingTodoId(prev => prev?.filter(id => id !== todo.id) || null);
       });
@@ -117,7 +115,7 @@ export const App: React.FC = () => {
           );
         })
         .catch(() => {
-          setNotificationError('Unable to update a todo');
+          setNotificationError(NotificationErrors.UnableToUpdate);
           setTodos(prev =>
             prev.map(t =>
               t.id === todoToUpdate.id
@@ -145,7 +143,7 @@ export const App: React.FC = () => {
         inputRef.current?.focus();
       })
       .catch(() => {
-        setNotificationError('Unable to delete a todo');
+        setNotificationError(NotificationErrors.UnableToDelete);
         setTimeout(() => setNotificationError(null), 3000);
         setTodos(prevTodos =>
           prevTodos.map(todo =>
@@ -177,13 +175,8 @@ export const App: React.FC = () => {
           setNotificationError={setNotificationError}
           setLoadingTodoId={setLoadingTodoId}
           updateTodos={updateTodos}
-          editedTitle={editedTitle}
-          setEditedTitle={setEditedTitle}
-          setIsEditing={setIsEditing}
-          isEditing={isEditing}
           onToggle={onToggle}
           onDelete={onDelete}
-          tempTodo={tempTodo}
           visibleTodos={visibleTodos}
           setTodos={setTodos}
           loadingTodoId={loadingTodoId}

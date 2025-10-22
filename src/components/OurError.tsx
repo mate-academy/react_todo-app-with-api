@@ -1,9 +1,12 @@
 import classNames from 'classnames';
 import React from 'react';
+import { NotificationErrors } from '../types/Errors';
 
 type Props = {
-  notificationError: string | null;
-  setNotificationError: React.Dispatch<React.SetStateAction<string | null>>;
+  notificationError: NotificationErrors | null;
+  setNotificationError: React.Dispatch<
+    React.SetStateAction<NotificationErrors | null>
+  >;
 };
 
 export const OurErrors: React.FC<Props> = ({

@@ -3,12 +3,15 @@ import { USER_ID } from '../api/todos';
 import classNames from 'classnames';
 import { Todo } from '../types/Todo';
 import { client } from '../utils/fetchClient';
+import { NotificationErrors } from '../types/Errors';
 
 type Props = {
   inputRef: React.RefObject<HTMLInputElement>;
   todos: Todo[];
   setTodos: React.Dispatch<React.SetStateAction<Todo[]>>;
-  setNotificationError: React.Dispatch<React.SetStateAction<string | null>>;
+  setNotificationError: React.Dispatch<
+    React.SetStateAction<NotificationErrors | null>
+  >;
   setTempTodo: React.Dispatch<React.SetStateAction<Todo | null>>;
   onToggleAll: () => void;
   isLoading: boolean;
@@ -32,7 +35,7 @@ export const Header: React.FC<Props> = ({
     e.preventDefault();
 
     if (!title.trim()) {
-      setNotificationError('Title should not be empty');
+      setNotificationError(NotificationErrors.TitleEmpty);
       setTimeout(() => setNotificationError(null), 3000);
 
       return;
@@ -55,7 +58,7 @@ export const Header: React.FC<Props> = ({
         setTitle('');
       })
       .catch(() => {
-        setNotificationError('Unable to add a todo');
+        setNotificationError(NotificationErrors.UnableToAdd);
         setTimeout(() => setNotificationError(null), 3000);
       })
       .finally(() => {
