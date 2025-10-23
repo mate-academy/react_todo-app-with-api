@@ -11,7 +11,7 @@ interface Props {
   onClearCompleted: () => void;
 }
 
-const Footer: React.FC<Props> = ({
+export const Footer: React.FC<Props> = ({
   todos,
   activeTodos,
   filter,
@@ -25,7 +25,6 @@ const Footer: React.FC<Props> = ({
       <span className="todo-count" data-cy="TodosCounter">
         {activeTodos} items left
       </span>
-
       <nav className="filter" data-cy="Filter">
         {Object.values(FilterTypes).map(filterType => (
           <a
@@ -44,7 +43,6 @@ const Footer: React.FC<Props> = ({
           </a>
         ))}
       </nav>
-
       <button
         type="button"
         className="todoapp__clear-completed"
@@ -57,5 +55,3 @@ const Footer: React.FC<Props> = ({
     </footer>
   );
 };
-
-export default Footer;

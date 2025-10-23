@@ -1,6 +1,6 @@
 /* eslint-disable jsx-a11y/label-has-associated-control */
 import classNames from 'classnames';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 interface Props {
   id: number;
@@ -8,11 +8,11 @@ interface Props {
   completed: boolean;
   loading: boolean;
   onToggle: (id: number) => void;
-  onDelete: (id: number) => void;
-  onUpdate: (id: number, newTitle: string) => void;
+  onDelete: (id: number) => Promise<boolean>;
+  onUpdate: (id: number, newTitle: string) => Promise<boolean>;
 }
 
-const TodoItem: React.FC<Props> = ({
+export const TodoItem: React.FC<Props> = ({
   id,
   title,
   completed,
@@ -24,20 +24,38 @@ const TodoItem: React.FC<Props> = ({
   const [isEditing, setIsEditing] = useState(false);
   const [newTitle, setNewTitle] = useState(title);
 
+  useEffect(() => {
+    setNewTitle(title);
+  }, [title]);
+
   const handleEdit = () => {
     setIsEditing(true);
   };
 
-  const handleSave = () => {
+  const handleSave = async () => {
     const trimmed = newTitle.trim();
 
     if (trimmed === '') {
-      onDelete(id);
-    } else if (trimmed !== title) {
-      onUpdate(id, trimmed);
+      const success = await onDelete(id);
+
+      if (success) {
+        setIsEditing(false);
+      }
+
+      return;
     }
 
-    setIsEditing(false);
+    if (trimmed === title) {
+      setIsEditing(false);
+
+      return;
+    }
+
+    const success = await onUpdate(id, trimmed);
+
+    if (success) {
+      setIsEditing(false);
+    }
   };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
@@ -60,7 +78,6 @@ const TodoItem: React.FC<Props> = ({
           onChange={() => onToggle(id)}
         />
       </label>
-
       {isEditing ? (
         <input
           autoFocus
@@ -82,7 +99,6 @@ const TodoItem: React.FC<Props> = ({
           {title}
         </span>
       )}
-
       {!isEditing && (
         <button
           type="button"
@@ -93,7 +109,6 @@ const TodoItem: React.FC<Props> = ({
           ×
         </button>
       )}
-
       <div
         data-cy="TodoLoader"
         className={classNames('modal', 'overlay', { 'is-active': loading })}
@@ -102,11 +117,8 @@ const TodoItem: React.FC<Props> = ({
           className="modal-background "
           style={{ backgroundColor: 'rgba(10, 10, 10, 0.1)' }}
         />
-
         <div className="loader" />
       </div>
     </div>
   );
 };
-
-export default TodoItem;

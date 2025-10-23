@@ -1,16 +1,15 @@
-import { CSSTransition, TransitionGroup } from 'react-transition-group';
 import { Todo } from '../../types/Todo';
-import TodoItem from '../TodoItem/TodoItem';
+import { TodoItem } from '../TodoItem/TodoItem';
 
 interface Props {
   todos: Todo[];
   loadingTodoIds: number[];
   onToggle: (id: number) => void;
-  onDelete: (id: number) => void;
-  onUpdate: (id: number, newTitle: string) => void;
+  onDelete: (id: number) => Promise<boolean>;
+  onUpdate: (id: number, newTitle: string) => Promise<boolean>;
 }
 
-const TodoList: React.FC<Props> = ({
+export const TodoList: React.FC<Props> = ({
   todos,
   loadingTodoIds,
   onToggle,
@@ -19,24 +18,18 @@ const TodoList: React.FC<Props> = ({
 }) => {
   return (
     <section className="todoapp__main" data-cy="TodoList">
-      <TransitionGroup>
-        {todos.map(todo => (
-          <CSSTransition key={todo.id} timeout={300} classNames="item">
-            <TodoItem
-              key={todo.id}
-              id={todo.id}
-              completed={todo.completed}
-              title={todo.title}
-              loading={loadingTodoIds.includes(todo.id)}
-              onToggle={onToggle}
-              onDelete={onDelete}
-              onUpdate={onUpdate}
-            />
-          </CSSTransition>
-        ))}
-      </TransitionGroup>
+      {todos.map(todo => (
+        <TodoItem
+          key={todo.id}
+          id={todo.id}
+          completed={todo.completed}
+          title={todo.title}
+          loading={loadingTodoIds.includes(todo.id)}
+          onToggle={onToggle}
+          onDelete={onDelete}
+          onUpdate={onUpdate}
+        />
+      ))}
     </section>
   );
 };
-
-export default TodoList;

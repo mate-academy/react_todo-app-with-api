@@ -12,7 +12,10 @@ export const addTodo = ({ title, completed }: Omit<Todo, 'id' | 'userId'>) => {
   return client.post<Todo>('/todos', { title, userId: USER_ID, completed });
 };
 
-export const updateTodo = (todoId: number, updatedTodo: Partial<Todo>) => {
+export const updateTodo = (
+  todoId: number,
+  updatedTodo: Partial<Pick<Todo, 'title' | 'completed'>>,
+) => {
   return client.patch<Todo>(`/todos/${todoId}`, updatedTodo);
 };
 

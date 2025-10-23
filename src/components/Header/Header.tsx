@@ -1,45 +1,43 @@
+/* eslint-disable jsx-a11y/label-has-associated-control */
 import classNames from 'classnames';
 import { useState } from 'react';
-import { Todo } from '../../types/Todo';
 
 interface Props {
   onAddTodo: (title: string) => Promise<boolean>;
   allCompleted: boolean;
-  onToggleAll: () => void;
+  onToggleAll: () => Promise<void>;
   isInputDisabled: boolean;
   inputRef: React.RefObject<HTMLInputElement>;
-  todos: Todo[];
+  hasTodos: boolean;
 }
 
-const Header: React.FC<Props> = ({
+export const Header: React.FC<Props> = ({
   onAddTodo,
   allCompleted,
   onToggleAll,
   isInputDisabled,
   inputRef,
-  todos,
+  hasTodos,
 }) => {
-  const [newTitle, setNewTitle] = useState('');
+  const [title, setTitle] = useState('');
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    const success = await onAddTodo(newTitle);
 
-    if (success) {
-      setNewTitle('');
+    if (await onAddTodo(title)) {
+      setTitle('');
     }
   };
 
   return (
     <header className="todoapp__header">
-      {todos.length > 0 && (
+      {hasTodos && (
         <button
+          data-cy="ToggleAllButton"
           type="button"
           className={classNames('todoapp__toggle-all', {
             active: allCompleted,
           })}
-          data-cy="ToggleAllButton"
-          aria-label="Toggle all todos"
           onClick={onToggleAll}
         />
       )}
@@ -48,17 +46,14 @@ const Header: React.FC<Props> = ({
         <input
           data-cy="NewTodoField"
           type="text"
+          ref={inputRef}
           className="todoapp__new-todo"
           placeholder="What needs to be done?"
-          value={newTitle}
-          onChange={e => setNewTitle(e.target.value)}
-          autoComplete="off"
+          value={title}
+          onChange={e => setTitle(e.target.value)}
           disabled={isInputDisabled}
-          ref={inputRef}
         />
       </form>
     </header>
   );
 };
-
-export default Header;
