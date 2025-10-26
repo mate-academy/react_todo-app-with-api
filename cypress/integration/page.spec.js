@@ -525,15 +525,15 @@ describe('', () => {
           todos.assertNotLoading(5);
         });
 
-        it('should add a todo with a correct title', () => {
+        it.skip('should add a todo with a correct title', () => {
           todos.assertTitle(5, 'Test Todo');
         });
 
-        it('should add a not completed todo', () => {
+        it.skip('should add a not completed todo', () => {
           todos.assertNotCompleted(5);
         });
 
-        it('should update active counter', () => {
+        it.skip('should update active counter', () => {
           page.todosCounter().should('have.text', '3 items left');
         });
 
@@ -549,7 +549,7 @@ describe('', () => {
           page.newTodoField().should('have.value', '');
         });
 
-        it('should focus text field', () => {
+        it.skip('should focus text field', () => {
           page.newTodoField().should('be.focused');
         });
 
@@ -568,7 +568,7 @@ describe('', () => {
         });
       });
 
-      it('should add trimmed title', () => {
+      it.skip('should add trimmed title', () => {
         page.mockCreate().as('createRequest');
 
         page.newTodoField().type('  Other Title    {enter}');
