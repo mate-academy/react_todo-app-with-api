@@ -33,7 +33,15 @@
 
     word-break: break-all;
     transition: color 0.4s;
+
+    &[type="text"] {
+      font: inherit;
+      color: inherit;
+      width: 100%;
+      box-sizing: border-box;
+    }
   }
+
 
   &.completed &__title {
     color: #d9d9d9;
