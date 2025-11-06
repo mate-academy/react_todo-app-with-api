@@ -7,7 +7,7 @@ import { Todo } from '../types/Todo';
 
 type Props = {
   todo: Todo;
-  loading: boolean;
+  isLoading: boolean;
   processingIds: number[];
   onDelete?: () => void;
   onToggle?: (id: Todo['id'], todoStatus: Todo['completed']) => void;
@@ -16,7 +16,7 @@ type Props = {
 
 export const TodoItem: React.FC<Props> = ({
   todo,
-  loading,
+  isLoading: isLoading,
   onDelete,
   onToggle,
   onEdit,
@@ -29,7 +29,7 @@ export const TodoItem: React.FC<Props> = ({
 
   const isProcessing = processingIds.includes(todo.id) || todo.id === 0;
   const shouldShowLoader =
-    isProcessing || loading || (isEditing && isSubmitting);
+    isProcessing || isLoading || (isEditing && isSubmitting);
 
   const handleDoubleClick = () => {
     setIsEditing(true);
