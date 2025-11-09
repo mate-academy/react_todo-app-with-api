@@ -16,7 +16,7 @@ type Props = {
 
 export const TodoItem: React.FC<Props> = ({
   todo,
-  isLoading: isLoading,
+  isLoading,
   onDelete,
   onToggle,
   onEdit,

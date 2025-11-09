@@ -16,12 +16,12 @@ type Props = {
 
 export const TodoList: React.FC<Props> = ({
   todos,
-  isLoading: isLoading,
+  isLoading,
   processingIds,
   onDeleteTodo,
   onToggleTodo,
   onEditTodo,
-  isCreating: isCreating,
+  isCreating,
   tempTodo,
 }) => {
   return (

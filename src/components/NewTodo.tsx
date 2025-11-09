@@ -9,7 +9,7 @@ type Props = {
 };
 
 export const NewTodo: React.FC<Props> = ({
-  isLoading: isLoading,
+  isLoading,
   focusedInput,
   onTitleChange = () => {},
   todoTitle,
