@@ -1,6 +1,12 @@
 /* eslint-disable jsx-a11y/label-has-associated-control */
 /* eslint-disable jsx-a11y/control-has-associated-label */
-import React, { useState, useMemo, useEffect, useRef, useCallback } from 'react';
+import React, {
+  useState,
+  useMemo,
+  useEffect,
+  useRef,
+  useCallback,
+} from 'react';
 import { UserWarning } from './UserWarning';
 import {
   addTodos,
@@ -19,19 +25,16 @@ import {
 import { useErrorMessage } from './components/hooks/useErrorMessage';
 import { TodoCreate } from './types/TodoCreate';
 import { CreateTodoForm } from './components/CreateTodoForm';
-import { TodoUpdate } from './components/ TodoUpdate';
 import { useLoadingTodos } from './components/hooks/useLoadingTodos';
 
 export const App: React.FC = () => {
   const [todos, setTodos] = useState<Todo[]>([]);
   // const [loadingTodoIds, setLoadingTodoIds] = useState<Todo['id'][]>([]);
   const [selectedStatus, setSelectedStatus] = useState(TodoStatusFilter.All);
+  const [isLoadingTodos, setIsLoadingTodos] = useState(true);
   const { errorMessage, handleRemoveError, handleSetError } = useErrorMessage();
-  const {
-loadingTodoIds,
-handleAddTodoToLoading,
-handleRemoveTodoToLoading
-} = useLoadingTodos();
+  const { loadingTodoIds, handleAddTodoToLoading, handleRemoveTodoToLoading } =
+    useLoadingTodos();
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
 
   const complitedTodos = todos.filter(todo => todo.completed);
@@ -117,57 +120,61 @@ handleRemoveTodoToLoading
     }
   }, []);
 
-  const handleUpdateTodos = (
-    todoId: Todo['id'], 
-    body: TodoUpdate,
-    onError: () => void = () => {},
-    onSuccess: (updatedTodos: Todo) => void = () => {},
+  const handleUpdateTodos = useCallback(
+    (
+      todoId: Todo['id'],
+      body: Omit<Todo, 'id'>,
+      onError: () => void = () => {},
+      onSuccess: (updatedTodo: Todo) => void = () => {},
     ) => {
-    handleAddTodoToLoading(todoId),
-    handleRemoveError(),
-    
-todosService
+      handleAddTodoToLoading(todoId);
+      handleRemoveError();
 
-    .updateTodos(todoId, body) 
-    .then(updatedTodosArray => {
-      const updatedTodo = updatedTodosArray[0]; 
-
-      setTodos(currentTodos => 
-        currentTodos.map(todo => {
-         return todoId === todo.id ? updatedTodo : todo; // Тепер тут Todo, а не Todo[]
-        }),
-      );
-      onSuccess?.(updatedTodo); // Також виправте, якщо onSuccess очікує Todo
-    })
-    
-     .catch(() => {
-        handleSetError(
-          todosErrorsServiceText[TodosErrorsService.UNABLE_TO_UPDATE_TODO],
-        );
-          onError?.()
-      })
-
-     .finally(() => {
-        handleRemoveTodoToLoading(todoId);
-        todoTitleInputRef.current?.focus();
-      });
-  }
-
+      todosService
+        .updateTodos(todoId, body)
+        .then(updatedTodo => {
+          setTodos(currentTodos =>
+            currentTodos.map(todo => (todoId === todo.id ? updatedTodo : todo)),
+          );
+          onSuccess?.(updatedTodo);
+        })
+        .catch(() => {
+          handleSetError(
+            todosErrorsServiceText[TodosErrorsService.UNABLE_TO_UPDATE_TODO],
+          );
+          onError?.();
+        })
+        .finally(() => {
+          handleRemoveTodoToLoading(todoId);
+          todoTitleInputRef.current?.focus();
+        });
+    },
+    [
+      handleAddTodoToLoading,
+      handleRemoveError,
+      handleSetError,
+      handleRemoveTodoToLoading,
+      todoTitleInputRef,
+      setTodos,
+    ],
+  );
 
   const handleBalkToggleCompleted = useCallback(() => {
     const activeTodos = todos.filter(todo => !todo.completed);
+
     if (activeTodos.length) {
-activeTodos.forEach(({id: todoId, ...todoBody}) => {
-  handleUpdateTodos(todoId, {...todoBody, completed: true})
-})
+      activeTodos.forEach(({ id: todoId, ...todoBody }) => {
+        handleUpdateTodos(todoId, { ...todoBody, completed: true });
+      });
     } else {
-  todos.forEach(({id: todoId, ...todoBody}) => {
-  handleUpdateTodos(todoId, {...todoBody, completed: false})
-})
+      todos.forEach(({ id: todoId, ...todoBody }) => {
+        handleUpdateTodos(todoId, { ...todoBody, completed: false });
+      });
     }
   }, [todos, handleUpdateTodos]);
 
   useEffect(() => {
+    setIsLoadingTodos(true);
     todosService
       .getTodos()
       .then(setTodos)
@@ -176,7 +183,9 @@ activeTodos.forEach(({id: todoId, ...todoBody}) => {
           todosErrorsServiceText[TodosErrorsService.UNABLE_TO_LOAD_TODOS],
         );
       })
-      .finally(() => {});
+      .finally(() => {
+        setIsLoadingTodos(false);
+      });
   }, [handleSetError]);
 
   const filteredTodos = getFilteredTodos(todos, { status: selectedStatus });
@@ -185,7 +194,6 @@ activeTodos.forEach(({id: todoId, ...todoBody}) => {
     () => todos.filter(t => !t.completed).length,
     [todos],
   );
-
 
   if (!USER_ID) {
     return <UserWarning />;
@@ -197,14 +205,16 @@ activeTodos.forEach(({id: todoId, ...todoBody}) => {
 
       <div className="todoapp__content">
         <header className="todoapp__header">
-          <button
-            type="button"
-            className={cn('todoapp__toggle-all', {
-              active: complitedTodos.length === todos.length,
-            })}
-            data-cy="ToggleAllButton"
-            onClick={handleBalkToggleCompleted}
-          />
+          {!isLoadingTodos && todos.length > 0 && (
+            <button
+              type="button"
+              className={cn('todoapp__toggle-all', {
+                active: complitedTodos.length === todos.length,
+              })}
+              data-cy="ToggleAllButton"
+              onClick={handleBalkToggleCompleted}
+            />
+          )}
 
           <CreateTodoForm
             ref={todoTitleInputRef}
@@ -220,16 +230,23 @@ activeTodos.forEach(({id: todoId, ...todoBody}) => {
                 key={todo.id}
                 todo={todo}
                 isLoading={getIsTodoLoading(todo.id)}
-                onDelete={() => {}}
-                onUpdate={() => {}}
+                onDelete={handleDeleteTodo}
+                onUpdate={(id, body, onSuccess) =>
+                  handleUpdateTodos(id, body, () => {}, onSuccess)
+                }
               />
             ))}
 
-            {tempTodo && <TodoItems 
-            todo={tempTodo}
-             onDelete={() => {}} 
-             isLoading 
-            onUpdate={() => {}}/>}
+            {tempTodo && (
+              <TodoItems
+                todo={tempTodo}
+                onDelete={handleDeleteTodo}
+                isLoading={true}
+                onUpdate={(id, body, onSuccess) =>
+                  handleUpdateTodos(id, body, () => {}, onSuccess)
+                }
+              />
+            )}
           </section>
         )}
 

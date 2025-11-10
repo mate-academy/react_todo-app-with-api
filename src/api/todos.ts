@@ -1,7 +1,6 @@
 import { Todo } from '../types/Todo';
 import { client } from '../utils/fetchClient';
 import { TodoCreate } from '../types/TodoCreate';
-import { TodoUpdate } from '../components/ TodoUpdate';
 
 export const USER_ID = 3658;
 
@@ -32,13 +31,14 @@ export const deleteTodods = (todoId: Todo['id']) => {
 export const addTodos = (todoCreate: TodoCreate) => {
   return client.post<Todo>('/todos', todoCreate);
 };
-export const updateTodos = (todoId: Todo['id'], body: TodoUpdate) => {
-  return client.patch<Todo[]>(`/todos?userId=${todoId}`, body)
-}
+
+export const updateTodos = (todoId: Todo['id'], body: Omit<Todo, 'id'>) => {
+  return client.patch<Todo>(`/todos/${todoId}`, body);
+};
 
 export const todosService = {
   getTodos,
   deleteTodods,
   addTodos,
-  updateTodos
+  updateTodos,
 };
