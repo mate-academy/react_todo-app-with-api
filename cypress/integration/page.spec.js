@@ -88,7 +88,7 @@ const errorMessage = {
   assertVisible: () => errorMessage.el().should('not.have.class', 'hidden'),
   assertHidden: () => errorMessage.el().should('have.class', 'hidden'),
   assertText: text => errorMessage.el().should('have.text', text),
-};
+};gi 
 
 const FilterLinkKeys = {
   all: 'FilterLinkAll',
