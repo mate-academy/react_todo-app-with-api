@@ -199,7 +199,7 @@ export const App: React.FC = () => {
         }, 3000);
       })
       .finally(() => {
-        setLoadingTodosId([]);
+        setLoadingTodosId(prev => prev.filter(t => t !== todo.id));
       });
   };
 
