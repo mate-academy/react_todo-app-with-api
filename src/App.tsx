@@ -249,11 +249,13 @@ export const App: React.FC = () => {
 
     if (changedTodo && todoTitleToChange === '') {
       handleDeleteTodo(changedTodo.id);
+
+      return;
     }
 
-    if (todo && todoTitleToChange !== todo.title) {
+    if (changedTodo && todoTitleToChange !== changedTodo.title) {
       const updatedTodo = {
-        ...todo,
+        ...changedTodo,
         title: todoTitleToChange.trim(),
       };
 
