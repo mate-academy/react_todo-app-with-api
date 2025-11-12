@@ -14,6 +14,8 @@ import { TodoList } from './components/TodoList';
 import { Todo } from './types/Todo';
 import cn from 'classnames';
 import { TodoStatus } from './types/TodoStatus';
+import { TodoErrors } from './types/TodoErrors';
+import { Footer } from './components/Footer';
 
 function getFilteredTodos(
   todos: Todo[],
@@ -21,10 +23,15 @@ function getFilteredTodos(
 ): Todo[] {
   let filteredTodos = [...todos];
 
-  if (status === TodoStatus.Active) {
-    filteredTodos = filteredTodos.filter(todo => todo.completed === false);
-  } else if (status === TodoStatus.Completed) {
-    filteredTodos = filteredTodos.filter(todo => todo.completed === true);
+  switch (status) {
+    case TodoStatus.Active:
+      filteredTodos = filteredTodos.filter(todo => todo.completed === false);
+      break;
+    case TodoStatus.Completed:
+      filteredTodos = filteredTodos.filter(todo => todo.completed === true);
+      break;
+    default:
+      break;
   }
 
   return filteredTodos;
@@ -37,6 +44,8 @@ export const App: React.FC = () => {
   const [todoTitle, setTodoTitle] = useState('');
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
   const [isDisabled, setIsDisabled] = useState(false);
+  const [changedTodo, setChangedTodo] = useState<Todo | null>(null);
+  const [todoTitleToChange, setTodoTitleToChange] = useState('');
   const [loadingTodos, setLoadingTodos] = useState<Todo['id'][]>([]);
 
   const completedTodos = todos.filter(todo => todo.completed);
@@ -56,21 +65,25 @@ export const App: React.FC = () => {
         setTodos(todosFromServer);
       })
       .catch(() => {
-        setErrorMessage('Unable to load todos');
+        setErrorMessage(TodoErrors.UnableLoadError);
         hideErrorMessage();
       });
   }, []);
 
-  const handleStatusAll = () => {
-    setStatus(TodoStatus.All);
-  };
-
-  const handleStatusActive = () => {
-    setStatus(TodoStatus.Active);
-  };
-
-  const handleStatusComplete = () => {
-    setStatus(TodoStatus.Completed);
+  const handleStatus = (status: TodoStatus) => {
+    switch (status) {
+      case TodoStatus.All:
+        setStatus(TodoStatus.All);
+        break;
+      case TodoStatus.Active:
+        setStatus(TodoStatus.Active);
+        break;
+      case TodoStatus.Completed:
+        setStatus(TodoStatus.Completed);
+        break;
+      default:
+        break;
+    }
   };
 
   const handleSetLoadingTodo = (todoId: Todo['id']) => {
@@ -82,17 +95,29 @@ export const App: React.FC = () => {
     setErrorMessage('');
   };
 
+  const handleSetTodoTitleToChange = (
+    event: React.ChangeEvent<HTMLInputElement>,
+  ) => {
+    setTodoTitleToChange(event.target.value.trimStart());
+    setErrorMessage('');
+  };
+
+  const handleSetChangedTodo = (todo: Todo) => {
+    setTodoTitleToChange(todo.title);
+    setChangedTodo(todo);
+  };
+
   useEffect(() => {
     if (!isDisabled) {
       inputRef.current?.focus();
     }
   }, [isDisabled]);
 
-  function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
+  function handleTodoSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
 
     if (todoTitle === '') {
-      setErrorMessage('Title should not be empty');
+      setErrorMessage(TodoErrors.TitleError);
       hideErrorMessage();
     }
 
@@ -117,7 +142,7 @@ export const App: React.FC = () => {
           setTodoTitle('');
         })
         .catch(() => {
-          setErrorMessage('Unable to add a todo');
+          setErrorMessage(TodoErrors.UnableAddError);
           hideErrorMessage();
         })
         .finally(() => {
@@ -139,7 +164,7 @@ export const App: React.FC = () => {
         );
       })
       .catch(() => {
-        setErrorMessage('Unable to delete a todo');
+        setErrorMessage(TodoErrors.UnableDeleteError);
         hideErrorMessage();
       })
       .finally(() => {
@@ -162,7 +187,7 @@ export const App: React.FC = () => {
             );
           })
           .catch(() => {
-            setErrorMessage('Unable to delete a todo');
+            setErrorMessage(TodoErrors.UnableDeleteError);
             hideErrorMessage();
           })
           .finally(() => {
@@ -172,10 +197,9 @@ export const App: React.FC = () => {
     );
   }
 
-  function handleToggleTodoStatus(changedtodo: Todo) {
-    handleSetLoadingTodo(changedtodo.id);
+  function handlePatchTodo(updatedTodo: Todo) {
+    handleSetLoadingTodo(updatedTodo.id);
     setIsDisabled(true);
-    const updatedTodo = { ...changedtodo, completed: !changedtodo.completed };
 
     patchTodo(updatedTodo)
       .then((updatedTodo: Todo) => {
@@ -184,17 +208,24 @@ export const App: React.FC = () => {
             todo.id === updatedTodo.id ? updatedTodo : todo,
           ),
         );
+        setChangedTodo(null);
       })
       .catch(() => {
-        setErrorMessage('Unable to update a todo');
+        setErrorMessage(TodoErrors.UnableUpdateError);
         hideErrorMessage();
       })
       .finally(() => {
         setLoadingTodos(currentIds =>
-          currentIds.filter(id => changedtodo.id !== id),
+          currentIds.filter(id => updatedTodo.id !== id),
         );
         setIsDisabled(false);
       });
+  }
+
+  function handleToggleTodoStatus(changedtodo: Todo) {
+    const updatedTodo = { ...changedtodo, completed: !changedtodo.completed };
+
+    handlePatchTodo(updatedTodo);
   }
 
   function handleToggleAllCompleted() {
@@ -211,6 +242,36 @@ export const App: React.FC = () => {
     }
   }
 
+  function handleTitleChange(todo: Todo | null) {
+    if (todo === null) {
+      setChangedTodo(null);
+    }
+
+    if (changedTodo && todoTitleToChange === '') {
+      handleDeleteTodo(changedTodo.id);
+    }
+
+    if (todo && todoTitleToChange !== todo.title) {
+      const updatedTodo = {
+        ...todo,
+        title: todoTitleToChange.trim(),
+      };
+
+      handlePatchTodo(updatedTodo);
+    } else {
+      setChangedTodo(null);
+    }
+  }
+
+  function handleSubmitTitleChange(
+    event: React.FormEvent<HTMLFormElement>,
+    todo: Todo,
+  ) {
+    event.preventDefault();
+
+    handleTitleChange(todo);
+  }
+
   if (!USER_ID) {
     return <UserWarning />;
   }
@@ -223,7 +284,6 @@ export const App: React.FC = () => {
 
       <div className="todoapp__content">
         <header className="todoapp__header">
-          {/* this button should have `active` class only if all todos are completed */}
           {todos.length > 0 && (
             <button
               type="button"
@@ -235,8 +295,7 @@ export const App: React.FC = () => {
             />
           )}
 
-          {/* Add a todo on form submit */}
-          <form onSubmit={handleSubmit}>
+          <form onSubmit={handleTodoSubmit}>
             <input
               data-cy="NewTodoField"
               type="text"
@@ -256,69 +315,28 @@ export const App: React.FC = () => {
               todos={preparedTodos}
               tempTodo={tempTodo}
               loadingTodos={loadingTodos}
-              OnLoadingTodos={setLoadingTodos}
-              OnHandleDeleteTodo={handleDeleteTodo}
-              OnToggleStatus={handleToggleTodoStatus}
+              changedTodo={changedTodo}
+              onChangedTodo={handleSetChangedTodo}
+              todoTitleToChange={todoTitleToChange}
+              onTodoTitleToChange={handleSetTodoTitleToChange}
+              onLoadingTodos={setLoadingTodos}
+              onHandleDeleteTodo={handleDeleteTodo}
+              onToggleStatus={handleToggleTodoStatus}
+              onSubmitTitle={handleSubmitTitleChange}
+              onHandleTitleChange={handleTitleChange}
             />
 
-            <footer className="todoapp__footer" data-cy="Footer">
-              <span className="todo-count" data-cy="TodosCounter">
-                {todos.length - completedTodos.length} items left
-              </span>
-
-              {/* Active link should have the 'selected' class */}
-              <nav className="filter" data-cy="Filter">
-                <a
-                  href="#/"
-                  className={cn('filter__link', {
-                    selected: status === TodoStatus.All,
-                  })}
-                  data-cy="FilterLinkAll"
-                  onClick={handleStatusAll}
-                >
-                  All
-                </a>
-
-                <a
-                  href="#/active"
-                  className={cn('filter__link', {
-                    selected: status === TodoStatus.Active,
-                  })}
-                  data-cy="FilterLinkActive"
-                  onClick={handleStatusActive}
-                >
-                  Active
-                </a>
-
-                <a
-                  href="#/completed"
-                  className={cn('filter__link', {
-                    selected: status === TodoStatus.Completed,
-                  })}
-                  data-cy="FilterLinkCompleted"
-                  onClick={handleStatusComplete}
-                >
-                  Completed
-                </a>
-              </nav>
-
-              {/* this button should be disabled if there are no completed todos */}
-              <button
-                type="button"
-                className="todoapp__clear-completed"
-                data-cy="ClearCompletedButton"
-                disabled={completedTodos.length <= 0}
-                onClick={handleDeleteCompletedTodo}
-              >
-                Clear completed
-              </button>
-            </footer>
+            <Footer
+              todos={todos}
+              completedTodos={completedTodos}
+              status={status}
+              onHandleStatus={handleStatus}
+              onHandleDeleteCompletedTodo={handleDeleteCompletedTodo}
+            />
           </>
         )}
       </div>
 
-      {/* DON'T use conditional rendering to hide the notification */}
-      {/* Add the 'hidden' class to hide the message smoothly */}
       <div
         data-cy="ErrorNotification"
         className={cn(
@@ -327,16 +345,7 @@ export const App: React.FC = () => {
         )}
       >
         <button data-cy="HideErrorButton" type="button" className="delete" />
-        {/* show only one message at a time */}
         {errorMessage}
-        {/* <br />
-        Title should not be empty
-        <br />
-        Unable to add a todo
-        <br />
-        Unable to delete a todo
-        <br />
-        Unable to update a todo */}
       </div>
     </div>
   );
