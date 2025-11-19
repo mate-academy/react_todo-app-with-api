@@ -14,7 +14,12 @@ interface ReturnType {
   addTodo: (title: string) => Promise<void>;
   removeTodo: (todoId: number) => Promise<void>;
   clearCompletedTodos: () => Promise<void>;
+  updateTodoStatus: (todo: Todo) => Promise<void>;
+  updateTodosStatus: () => Promise<void>;
   getTodos: () => void;
+  updatingTodoId: number | null;
+  changeTitle: (todo: Todo) => Promise<void>;
+  changeUpdatingId: (todoId: number | null) => void;
 }
 
 export const useTodos = (): ReturnType => {
@@ -24,6 +29,7 @@ export const useTodos = (): ReturnType => {
   const [tempItem, setTempItem] = useState<Todo | null>(null);
   const [modifyIds, setModifyIds] = useState<number[]>([]);
   const [isOperationEnd, setIsOperationEnd] = useState(true);
+  const [updatingTodoId, setUpdatingTodoId] = useState<number | null>(null);
 
   const clearError = () => {
     setError('');
@@ -75,8 +81,6 @@ export const useTodos = (): ReturnType => {
       setTodos(curTodos => curTodos.filter(todo => todo.id !== todoId));
     } catch (e) {
       setError(TodoError.DELETING);
-
-      throw e;
     } finally {
       setModifyIds(currentIds => currentIds.filter(item => item !== todoId));
       setIsOperationEnd(true);
@@ -123,6 +127,133 @@ export const useTodos = (): ReturnType => {
     }
   }, [todos]);
 
+  const updateTodoStatus = useCallback(async (todo: Todo) => {
+    const { id, completed } = todo;
+
+    clearError();
+    setModifyIds(curIds => [...curIds, id]);
+    setIsOperationEnd(false);
+
+    try {
+      const result = await todoService.updateTodo(id, {
+        completed: !completed,
+      });
+
+      setTodos(curTodos => {
+        const prevTodoIndex = curTodos.findIndex(curTodo => curTodo.id === id);
+
+        if (prevTodoIndex !== -1) {
+          const updatedTodos = [...curTodos];
+
+          updatedTodos.splice(prevTodoIndex, 1, result);
+
+          return updatedTodos;
+        }
+
+        return curTodos;
+      });
+    } catch (e) {
+      setError(TodoError.UPDATING);
+    } finally {
+      setModifyIds(curIds => curIds.filter(todoId => todoId !== id));
+      setIsOperationEnd(true);
+    }
+  }, []);
+
+  const updateTodosStatus = useCallback(async () => {
+    clearError();
+    setIsOperationEnd(false);
+
+    const uncompletedTodos = todos
+      .filter(todo => !todo.completed)
+      .map(todo => todo.id);
+
+    const idsToUpdate =
+      uncompletedTodos.length !== 0
+        ? uncompletedTodos
+        : todos.map(todo => todo.id);
+
+    setModifyIds(curIds => [...curIds, ...idsToUpdate]);
+
+    try {
+      const result = await Promise.allSettled(
+        idsToUpdate.map(todo =>
+          todoService.updateTodo(todo, {
+            completed:
+              uncompletedTodos.length !== 0
+                ? true
+                : !todos.find(t => t.id === todo)?.completed,
+          }),
+        ),
+      );
+
+      const success = idsToUpdate.filter(
+        (_, index) => result[index].status === 'fulfilled',
+      );
+      const withError = idsToUpdate.filter(
+        (_, index) => result[index].status === 'rejected',
+      );
+
+      setTodos(curTodos => {
+        const updatedTodos = curTodos.map(todo => {
+          const foundedTodo = success.find(todoId => todo.id === todoId);
+
+          if (foundedTodo) {
+            return {
+              ...todo,
+              completed: !todo.completed,
+            };
+          }
+
+          return todo;
+        });
+
+        return updatedTodos;
+      });
+
+      if (withError.length !== 0) {
+        throw new Error(TodoError.UPDATING);
+      }
+    } catch (e) {
+      setError(TodoError.UPDATING);
+    } finally {
+      setModifyIds(curIds =>
+        curIds.filter(todoId => !idsToUpdate.includes(todoId)),
+      );
+      setIsOperationEnd(true);
+    }
+  }, [todos]);
+
+  const changeTitle = useCallback(async (todo: Todo) => {
+    clearError();
+    setModifyIds(curIds => [...curIds, todo.id]);
+
+    try {
+      const result = await todoService.updateTodo(todo.id, {
+        title: todo.title,
+      });
+
+      setTodos(curTodos =>
+        curTodos.map(t => {
+          if (t.id === result.id) {
+            return { ...t, title: result.title };
+          }
+
+          return t;
+        }),
+      );
+    } catch (e) {
+      setError(TodoError.UPDATING);
+      throw e;
+    } finally {
+      setModifyIds(curIds => curIds.filter(id => id !== todo.id));
+    }
+  }, []);
+
+  const changeUpdatingId = useCallback((todoId: number | null) => {
+    setUpdatingTodoId(todoId);
+  }, []);
+
   return {
     todos,
     isCreating,
@@ -134,6 +265,11 @@ export const useTodos = (): ReturnType => {
     addTodo,
     removeTodo,
     clearCompletedTodos,
+    updateTodoStatus,
+    updateTodosStatus,
     getTodos,
+    updatingTodoId,
+    changeTitle,
+    changeUpdatingId,
   };
 };

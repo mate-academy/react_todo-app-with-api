@@ -31,6 +31,11 @@ export const App: React.FC = () => {
     clearCompletedTodos,
     isCreating,
     isOperationEnd,
+    updateTodoStatus,
+    updateTodosStatus,
+    updatingTodoId,
+    changeTitle,
+    changeUpdatingId,
   } = useTodos();
   const [filter, setFilter] = useState<TodoStatus>('All');
 
@@ -78,13 +83,16 @@ export const App: React.FC = () => {
 
       <div className="todoapp__content">
         <header className="todoapp__header">
-          <button
-            type="button"
-            className={classNames('todoapp__toggle-all', {
-              active: isAllTodosCompleted,
-            })}
-            data-cy="ToggleAllButton"
-          />
+          {todos.length !== 0 && (
+            <button
+              type="button"
+              className={classNames('todoapp__toggle-all', {
+                active: isAllTodosCompleted,
+              })}
+              data-cy="ToggleAllButton"
+              onClick={updateTodosStatus}
+            />
+          )}
 
           <TodoForm
             onSubmit={addTodo}
@@ -98,6 +106,10 @@ export const App: React.FC = () => {
           tempTodo={tempItem}
           modifyIds={modifyIds}
           onRemoveTodo={removeTodo}
+          onUpdateStatus={updateTodoStatus}
+          updatingTodoId={updatingTodoId}
+          onChangeTitle={changeTitle}
+          setUpdatingId={changeUpdatingId}
         />
 
         {todos.length !== 0 && (
