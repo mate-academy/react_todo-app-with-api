@@ -113,7 +113,7 @@ Cypress.on('fail', (e) => {
   throw e;
 });
 
-describe('', () => {
+describe('Todo App', () => {
   beforeEach(() => {
     if (failed) Cypress.runner.stop();
   });
