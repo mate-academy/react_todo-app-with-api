@@ -37,7 +37,7 @@
     justify-content: center;
     align-items: center;
 
-    font-size: 24px;
+    font-size: 0;
     color: #e6e6e6;
 
     border: 0;
@@ -50,6 +50,7 @@
 
     &::before {
       content: "❯";
+      font-size: 24px;
       transform: translateY(2px) rotate(90deg);
       line-height: 0;
     }
