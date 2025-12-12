@@ -18,5 +18,3 @@ export const updateTodo = ({ id, userId, title, completed }: Todo) => {
 export const deleteTodo = (postId: number) => {
   return client.delete(`/todos/${postId}`);
 };
-
-// Add more methods here
