@@ -49,6 +49,19 @@ export const TodoComponent: React.FC<Props> = React.memo(
       }
     };
 
+    function handleOnKeyDown(event: React.KeyboardEvent<HTMLInputElement>) {
+      if (event.key === 'Enter') {
+        event.preventDefault();
+        onSave();
+      }
+    }
+
+    function handleOnKeyUp(event: React.KeyboardEvent<HTMLInputElement>) {
+      if (event.key === 'Escape') {
+        setIsUpdatingTitle(false);
+      }
+    }
+
     return (
       <div
         data-cy="Todo"
@@ -66,17 +79,8 @@ export const TodoComponent: React.FC<Props> = React.memo(
               className="todo__title-field"
               onChange={event => setUpdateTitle(event.target.value)}
               onBlur={() => onSave()}
-              onKeyDown={event => {
-                if (event.key === 'Enter') {
-                  event.preventDefault();
-                  onSave();
-                }
-              }}
-              onKeyUp={event => {
-                if (event.key === 'Escape') {
-                  setIsUpdatingTitle(false);
-                }
-              }}
+              onKeyDown={handleOnKeyDown}
+              onKeyUp={handleOnKeyUp}
             />
           </form>
         )}

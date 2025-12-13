@@ -28,22 +28,29 @@ export const NewTodoField: React.FC<Props> = ({
     inputFocus.current?.focus();
   }, [checkResponceAdd]);
 
-  function handleAddTodo(event: React.FormEvent) {
+  const handleAddTodo = (event: React.KeyboardEvent) => {
     event.preventDefault();
+    const trimmedTitle = title.trim();
 
-    if (!title || title.trim() === '') {
+    if (!trimmedTitle) {
       onError('Title should not be empty');
 
       return;
     }
 
-    if (title) {
+    if (trimmedTitle) {
       onAdd({
         userId: USER_ID,
         title: title.trim(),
         completed: false,
         id: 0,
       });
+    }
+  };
+
+  function handleKeyDown(event: React.KeyboardEvent<HTMLInputElement>) {
+    if (event.key === 'Enter') {
+      handleAddTodo(event);
     }
   }
 
@@ -83,11 +90,7 @@ export const NewTodoField: React.FC<Props> = ({
           type="text"
           className="todoapp__new-todo"
           placeholder="What needs to be done?"
-          onKeyDown={event => {
-            if (event.key === 'Enter') {
-              handleAddTodo(event);
-            }
-          }}
+          onKeyDown={handleKeyDown}
           disabled={checkResponceAdd}
           onChange={event => onChange(event.target.value)}
           ref={inputFocus}

@@ -8,6 +8,12 @@ type Props = {
 };
 
 export const TodoStatus: React.FC<Props> = React.memo(({ todo, onUpdate }) => {
+  const handleOnChange = () => {
+    const { id, userId, title, completed } = todo;
+
+    onUpdate([{ id, userId, title, completed: !completed }]);
+  };
+
   return (
     <label htmlFor={`todo-${todo.id}`} className="todo__status-label">
       <input
@@ -16,11 +22,7 @@ export const TodoStatus: React.FC<Props> = React.memo(({ todo, onUpdate }) => {
         type="checkbox"
         className="todo__status"
         checked={todo.completed}
-        onChange={() => {
-          const { id, userId, title, completed } = todo;
-
-          onUpdate([{ id, userId, title, completed: !completed }]);
-        }}
+        onChange={handleOnChange}
       />
     </label>
   );
