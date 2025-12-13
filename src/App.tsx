@@ -1,26 +1,32 @@
-/* eslint-disable max-len */
-/* eslint-disable jsx-a11y/control-has-associated-label */
 import React from 'react';
-import { UserWarning } from './UserWarning';
+import { TodoForm } from './Components/TodoForm';
+import { TodoList } from './Components/TodoList';
+import { TodoFooter } from './Components/TodoFooter';
+import { ErrorNotification } from './Components/ErrorNotification';
 
-const USER_ID = 0;
+import { TodoProvider } from './Contexts/TodoProvider';
+import { useTodoData } from './hooks/useTodoData';
+import { useTodoUI } from './hooks/useTodoUI';
 
-export const App: React.FC = () => {
-  if (!USER_ID) {
-    return <UserWarning />;
-  }
+const AppContent: React.FC = () => {
+  const { isTodoListVisible, isTodoFooterVisible } = useTodoData();
+  const { inputRef } = useTodoUI();
 
   return (
-    <section className="section container">
-      <p className="title is-4">
-        Copy all you need from the prev task:
-        <br />
-        <a href="https://github.com/mate-academy/react_todo-app-add-and-delete#react-todo-app-add-and-delete">
-          React Todo App - Add and Delete
-        </a>
-      </p>
-
-      <p className="subtitle">Styles are already copied</p>
-    </section>
+    <div className="todoapp">
+      <h1 className="todoapp__title">todos</h1>
+      <div className="todoapp__content">
+        <TodoForm ref={inputRef} />
+        {isTodoListVisible && <TodoList />}
+        {isTodoFooterVisible && <TodoFooter />}
+      </div>
+      <ErrorNotification />
+    </div>
   );
 };
+
+export const App: React.FC = () => (
+  <TodoProvider>
+    <AppContent />
+  </TodoProvider>
+);
