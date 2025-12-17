@@ -1,3 +1,5 @@
+@use "sass:meta";
+
 iframe {
   display: none;
 }
@@ -9,17 +11,18 @@ body {
 }
 
 .notification {
-  transition-property: opacity, min-height;
-  transition-duration: 1s;
   min-height: 36px;
+  transition-duration: 1s;
+  transition-property: opacity, min-height;
 }
 
 .notification.hidden {
-  min-height: 0;
-  opacity: 0;
   pointer-events: none;
+  min-height: 0;
+  visibility: hidden;
+  opacity: 0;
 }
 
-@import "./todoapp";
-@import "./todo";
-@import "./filter";
+@include meta.load-css("todoapp");
+@include meta.load-css("todo");
+@include meta.load-css("filter");
