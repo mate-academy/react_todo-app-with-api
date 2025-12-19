@@ -18,3 +18,12 @@ export const createTodo = (title: string): Promise<Todo> => {
     completed: false,
   });
 };
+
+export const updateTodo = (
+  todoId: number,
+  data: Partial<Todo>,
+): Promise<Todo> => {
+  return client.patch(`/todos/${todoId}`, {
+    ...data,
+  });
+};

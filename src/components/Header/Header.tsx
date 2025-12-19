@@ -11,6 +11,7 @@ type Props = {
   setErrorMessage: (message: ErrorMessages) => void;
   tempTodo: Todo | null;
   setTempTodo: (todo: Todo | null) => void;
+  toogleTodoStatusAll: (completed: boolean) => void;
 };
 
 export const Header: React.FC<Props> = ({
@@ -19,6 +20,7 @@ export const Header: React.FC<Props> = ({
   setErrorMessage,
   setTempTodo,
   tempTodo,
+  toogleTodoStatusAll,
 }) => {
   const [title, setTitle] = useState('');
   const [isSubmiting, setIsSubmiting] = useState(false);
@@ -68,13 +70,16 @@ export const Header: React.FC<Props> = ({
 
   return (
     <header className="todoapp__header">
-      <button
-        type="button"
-        className={classNames('todoapp__toggle-all', {
-          active: isAllTodosComplited,
-        })}
-        data-cy="ToggleAllButton"
-      />
+      {!!todos.length && (
+        <button
+          type="button"
+          className={classNames('todoapp__toggle-all', {
+            active: isAllTodosComplited,
+          })}
+          data-cy="ToggleAllButton"
+          onClick={() => toogleTodoStatusAll(!isAllTodosComplited)}
+        />
+      )}
 
       <form onSubmit={handleSubmit}>
         <input

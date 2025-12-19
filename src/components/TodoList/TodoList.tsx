@@ -9,6 +9,8 @@ type Props = {
   todos: Todo[];
   statusFilter: StatusTypes;
   deleteTodo: (id: number) => void;
+  toogleTodoStatus: (todo: Todo) => void;
+  updateTodoTitle: (id: number, title: string) => void;
 };
 
 export const TodoList: React.FC<Props> = ({
@@ -17,6 +19,8 @@ export const TodoList: React.FC<Props> = ({
   statusFilter,
   tempTodo,
   deleteTodo,
+  toogleTodoStatus,
+  updateTodoTitle,
 }) => {
   const visibleTodos = useMemo(() => {
     return todos.filter(t =>
@@ -33,6 +37,8 @@ export const TodoList: React.FC<Props> = ({
       {visibleTodos.map((todo: Todo) => (
         <TodoItem
           onDelete={() => deleteTodo(todo.id)}
+          onToogleStatus={() => toogleTodoStatus(todo)}
+          updateTodoTitle={updateTodoTitle}
           todo={todo}
           loading={loadings.includes(todo.id)}
           key={todo.id}

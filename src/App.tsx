@@ -53,24 +53,74 @@ export const App: React.FC = () => {
   const deleteTodo = (todoId: number) => {
     setLoadings(currentLoadings => [...currentLoadings, todoId]);
 
-    todoService
+    return todoService
       .deleteTodo(todoId)
       .then(() => {
         setTodos(currentTodos =>
           currentTodos.filter(todo => todo.id !== todoId),
         );
+      })
+      .catch(err => {
+        setErrorMessage(ErrorMessages.DELETE_ERROR);
+        throw err;
+      })
+      .finally(() => {
         setLoadings(currentLoadings =>
           currentLoadings.filter(id => id !== todoId),
         );
-      })
-      .catch(() => {
-        setErrorMessage(ErrorMessages.DELETE_ERROR);
-      })
-      .finally(() => {});
+      });
   };
 
   const handleClearCompleted = () => {
     todos.filter(todo => todo.completed).map(todo => deleteTodo(todo.id));
+  };
+
+  const updateTodo = (todoId: number, data: Partial<Todo>) => {
+    setLoadings(currentLoadings => [...currentLoadings, todoId]);
+
+    return todoService
+      .updateTodo(todoId, data)
+      .then(newTodo => {
+        setTodos(currentTodos => {
+          const newTodos = [...currentTodos];
+          const index = newTodos.findIndex(todo => todo.id === todoId);
+
+          newTodos.splice(index, 1, newTodo);
+
+          return newTodos;
+        });
+      })
+      .catch(err => {
+        setErrorMessage(ErrorMessages.UPDATE_ERROR);
+        throw err;
+      })
+      .finally(() => {
+        setLoadings(currentLoadings =>
+          currentLoadings.filter(id => id !== todoId),
+        );
+      });
+  };
+
+  const toogleTodoStatus = (todo: Todo) => {
+    updateTodo(todo.id, {
+      completed: !todo.completed,
+    });
+  };
+
+  const updateTodoTitle = (todoId: number, title: string) => {
+    return updateTodo(todoId, {
+      title: title,
+    });
+  };
+
+  const toogleTodoStatusAll = (completed: boolean) => {
+    todos.map(todo => {
+      if (todo.completed !== completed) {
+        updateTodo(todo.id, {
+          completed: completed,
+        });
+      }
+    });
   };
 
   return (
@@ -79,6 +129,7 @@ export const App: React.FC = () => {
 
       <div className="todoapp__content">
         <Header
+          toogleTodoStatusAll={toogleTodoStatusAll}
           todos={todos}
           setTodos={setTodos}
           setErrorMessage={setErrorMessage}
@@ -89,6 +140,8 @@ export const App: React.FC = () => {
         {todos.length > 0 && (
           <>
             <TodoList
+              toogleTodoStatus={toogleTodoStatus}
+              updateTodoTitle={updateTodoTitle}
               loadings={loadings}
               deleteTodo={deleteTodo}
               tempTodo={tempTodo}
