@@ -1,10 +1,17 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 
 export const useErrorMessage = () => {
   const [errorMessage, setErrorMessage] = useState('');
+    const timerRef = useRef<NodeJS.Timeout | null>(null);
   const handleRemoveError = useCallback(() => setErrorMessage(''), []);
   const handleSetError = useCallback(
-    (errorText: string) => setErrorMessage(errorText),
+    (errorText: string) => {
+
+      if (timerRef.current) {
+        clearTimeout(timerRef.current);
+      }
+      setErrorMessage(errorText); 
+    },
     [],
   );
 
@@ -12,11 +19,15 @@ export const useErrorMessage = () => {
     if (!errorMessage) {
       return;
     }
-
-    const timer = setTimeout(handleRemoveError, 3000);
+if (timerRef.current) {
+  clearTimeout(timerRef.current);
+}
+    timerRef.current = setTimeout(handleRemoveError, 3000);
 
     return () => {
-      clearTimeout(timer);
+      if (timerRef.current) {
+        clearTimeout(timerRef.current);
+      }
     };
   }, [errorMessage, handleRemoveError]);
 

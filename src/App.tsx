@@ -17,7 +17,7 @@ import {
 } from './api/todos';
 import { getFilteredTodos, Todo } from './types/Todo';
 import cn from 'classnames';
-import { TodoItems } from './components/TodoItems';
+import { TodoItem } from './components/TodoItem';
 import {
   TodoStatusFilter,
   TODO_STATUS_FILTER_OPTIONS,
@@ -91,7 +91,6 @@ export const App: React.FC = () => {
 
     todoTitleInputRef.current.disabled = true;
 
-    // todosService;
     addTodos(todoCreate)
       .then(createdTodo => {
         setTodos(currentTodos => [...currentTodos, createdTodo]);
@@ -225,7 +224,7 @@ export const App: React.FC = () => {
         {filteredTodos.length !== 0 && (
           <section className="todoapp__main" data-cy="TodoList">
             {filteredTodos.map(todo => (
-              <TodoItems
+              <TodoItem
                 key={todo.id}
                 todo={todo}
                 isLoading={getIsTodoLoading(todo.id)}
@@ -237,7 +236,7 @@ export const App: React.FC = () => {
             ))}
 
             {tempTodo && (
-              <TodoItems
+              <TodoItem
                 todo={tempTodo}
                 onDelete={handleDeleteTodo}
                 isLoading={true}
