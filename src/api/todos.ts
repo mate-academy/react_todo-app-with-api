@@ -24,7 +24,7 @@ export const getTodos = () => {
   return client.get<Todo[]>(`/todos?userId=${USER_ID}`);
 };
 
-export const deleteTodods = (todoId: Todo['id']) => {
+export const deleteTodos = (todoId: Todo['id']) => {
   return client.delete(`/todos/${todoId}`);
 };
 
@@ -38,7 +38,7 @@ export const updateTodos = (todoId: Todo['id'], body: Omit<Todo, 'id'>) => {
 
 export const todosService = {
   getTodos,
-  deleteTodods,
+  deleteTodos,
   addTodos,
   updateTodos,
 };

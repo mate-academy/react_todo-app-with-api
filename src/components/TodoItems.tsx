@@ -72,13 +72,14 @@ export const TodoItems = ({
   }, []);
 
   return (
+    <div>
     <div
       data-cy="Todo"
       className={cn('todo', {
         completed: todo.completed,
       })}
     >
-      <label htmlFor="todo__status-label">
+      <label className='todo__status-label'>
         <input
           aria-label={`Mark todo "${todo.title}" as completed`}
           data-cy="TodoStatus"
@@ -127,6 +128,7 @@ export const TodoItems = ({
         <div className="modal-background has-background-white-ter" />
         <div className="loader" />
       </div>
+    </div>
     </div>
   );
 };

@@ -29,7 +29,6 @@ import { useLoadingTodos } from './components/hooks/useLoadingTodos';
 
 export const App: React.FC = () => {
   const [todos, setTodos] = useState<Todo[]>([]);
-  // const [loadingTodoIds, setLoadingTodoIds] = useState<Todo['id'][]>([]);
   const [selectedStatus, setSelectedStatus] = useState(TodoStatusFilter.All);
   const [isLoadingTodos, setIsLoadingTodos] = useState(true);
   const { errorMessage, handleRemoveError, handleSetError } = useErrorMessage();
@@ -37,14 +36,14 @@ export const App: React.FC = () => {
     useLoadingTodos();
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
 
-  const complitedTodos = todos.filter(todo => todo.completed);
+  const completedTodos = todos.filter(todo => todo.completed);
   const todoTitleInputRef = useRef<HTMLInputElement>(null);
 
   const handleDeleteTodo = (todoId: Todo['id']) => {
     handleAddTodoToLoading(todoId);
     handleRemoveError();
     todosService
-      .deleteTodods(todoId)
+      .deleteTodos(todoId)
       .then(() => {
         setTodos(currentTodos =>
           currentTodos.filter(todo => todo.id !== todoId),
@@ -65,14 +64,14 @@ export const App: React.FC = () => {
     todoId.forEach(id => handleDeleteTodo(id));
   };
 
-  const handleDeleteComplited = () => {
-    handleDeleteBulk(complitedTodos.map(({ id }) => id));
+  const handleDeleteCompleted = () => {
+    handleDeleteBulk(completedTodos.map(({ id }) => id));
   };
 
   const getIsTodoLoading = (todoId: Todo['id']) =>
     loadingTodoIds.includes(todoId);
 
-  const handleAddComplited = (newTodoTitle: string, resetTitle: () => void) => {
+  const handleAddCompleted = (newTodoTitle: string, resetTitle: () => void) => {
     handleRemoveError();
 
     if (!todoTitleInputRef.current) {
@@ -209,7 +208,7 @@ export const App: React.FC = () => {
             <button
               type="button"
               className={cn('todoapp__toggle-all', {
-                active: complitedTodos.length === todos.length,
+                active: completedTodos.length === todos.length,
               })}
               data-cy="ToggleAllButton"
               onClick={handleBalkToggleCompleted}
@@ -218,7 +217,7 @@ export const App: React.FC = () => {
 
           <CreateTodoForm
             ref={todoTitleInputRef}
-            onSubmit={handleAddComplited}
+            onSubmit={handleAddCompleted}
             onError={handleSetError}
           />
         </header>
@@ -280,8 +279,8 @@ export const App: React.FC = () => {
               type="button"
               className="todoapp__clear-completed"
               data-cy="ClearCompletedButton"
-              disabled={!complitedTodos.length}
-              onClick={handleDeleteComplited}
+              disabled={!completedTodos.length}
+              onClick={handleDeleteCompleted}
             >
               Clear completed
             </button>
