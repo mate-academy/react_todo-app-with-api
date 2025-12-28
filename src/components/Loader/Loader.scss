@@ -1,0 +1,33 @@
+.Loader {
+  width: 24px;
+  height: 24px;
+  flex-shrink: 0;
+
+  display: flex;               // ⬅️ ЗАВЖДИ в DOM
+  align-items: center;
+  justify-content: center;
+margin-right: 100px;
+  visibility: hidden;          // ⬅️ замість display:none
+}
+
+.Loader.is-active {
+  visibility: visible;
+}
+
+.Loader__content {
+  border-radius: 50%;
+  width: 1em;
+  height: 1em;
+  border: 0.15em solid #ddd;
+  border-left-color: #000;
+  animation: load8 1.2s infinite linear;
+}
+
+@keyframes load8 {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
