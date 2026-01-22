@@ -65,11 +65,6 @@ export const TodoItem: React.FC<Props> = ({
       .finally(() => {
         setIsHandleTodo(false);
       });
-
-    // return onUpdateTodo(currentID, currentTitle, completed).finally(() => {
-    //   setIsHandleTodo(false);
-    //   setIsRenameTodo(false);
-    // });
   }
 
   const isLoaderOn = isHandleTodo || todo.id === 0 || isAffectedTodo;

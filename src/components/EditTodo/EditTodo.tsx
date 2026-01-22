@@ -31,6 +31,15 @@ export const EditTodo: React.FC<Props> = ({
     setEditTitle(inputValue);
   };
 
+  const handleKeyUp = (
+    keyBoardEvent: React.KeyboardEvent<HTMLInputElement>,
+  ) => {
+    if (keyBoardEvent.key === 'Escape') {
+      setEditTitle(title);
+      onCancelRename();
+    }
+  };
+
   const handleRename = () => {
     if (isSubmitting.current) {
       return;
@@ -50,10 +59,6 @@ export const EditTodo: React.FC<Props> = ({
         onRenameDelete(id).then(() => {
           isSubmitting.current = false;
         });
-
-        // onRenameDelete(id).finally(() => {
-        //   isSubmitting.current = false;
-        // });
 
         break;
 
@@ -80,12 +85,7 @@ export const EditTodo: React.FC<Props> = ({
         ref={inputRef}
         value={editTitle}
         onChange={handleChange}
-        onKeyUp={(keyBoardEvent: React.KeyboardEvent<HTMLInputElement>) => {
-          if (keyBoardEvent.key === 'Escape') {
-            setEditTitle(title);
-            onCancelRename();
-          }
-        }}
+        onKeyUp={handleKeyUp}
         onBlur={handleRename}
       />
     </form>
