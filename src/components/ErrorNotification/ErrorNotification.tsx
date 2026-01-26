@@ -2,28 +2,28 @@ import classNames from 'classnames';
 import { ErrorType } from '../../types/ErrorType';
 
 type Props = {
-  error: ErrorType;
+  error: ErrorType | null;
   onClose: () => void;
 };
 
 export const ErrorNotification: React.FC<Props> = ({ error, onClose }) => {
   const isHidden = error === null;
 
-  const getErrorMassage = () => {
+  const getErrorMessage = () => {
     switch (error) {
-      case 'LOAD_TODOS':
+      case ErrorType.LoadTodos:
         return 'Unable to load todos';
 
-      case 'ADD_TODO':
+      case ErrorType.AddTodo:
         return 'Unable to add a todo';
 
-      case 'DELETE_TODO':
+      case ErrorType.DeleteTodo:
         return 'Unable to delete a todo';
 
-      case 'EMPTY_TITLE':
+      case ErrorType.EmptyTitle:
         return 'Title should not be empty';
 
-      case 'UPDATE_TODO':
+      case ErrorType.UpdateTodo:
         return 'Unable to update a todo';
 
       default:
@@ -46,7 +46,7 @@ export const ErrorNotification: React.FC<Props> = ({ error, onClose }) => {
         onClick={onClose}
       />
 
-      {getErrorMassage()}
+      {getErrorMessage()}
     </div>
   );
 };

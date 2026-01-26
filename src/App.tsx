@@ -17,7 +17,6 @@ import {
 import { Footer } from './components/Footer/Footer';
 import { Header } from './components/Header/Header';
 import { TodoList } from './components/TodoList/TodoList';
-import { client } from './utils/fetchClient';
 import { Todo } from './types/Todo';
 import { ErrorType } from './types/ErrorType';
 import { ErrorNotification } from './components/ErrorNotification/ErrorNotification';
@@ -60,7 +59,7 @@ export const App: React.FC = () => {
   const [todos, setTodos] = useState<Todo[]>([]);
   const [status, setStatus] = useState('all');
   const [query, setQuery] = useState('');
-  const [error, setError] = useState<ErrorType>(null);
+  const [error, setError] = useState<ErrorType>(ErrorType.null);
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
   const [isAdding, setIsAdding] = useState(false);
   const inputRef = React.useRef<HTMLInputElement>(null);
@@ -71,7 +70,7 @@ export const App: React.FC = () => {
   useEffect(() => {
     getTodos()
       .then(setTodos)
-      .catch(() => setError('LOAD_TODOS'));
+      .catch(() => setError(ErrorType.LoadTodos));
   }, []);
 
   useEffect(() => {
@@ -80,7 +79,7 @@ export const App: React.FC = () => {
     }
 
     const timerId = setTimeout(() => {
-      setError(null);
+      setError(ErrorType.null);
     }, 3000);
 
     return () => {
@@ -93,7 +92,7 @@ export const App: React.FC = () => {
   }
 
   function handleEmptyTitle() {
-    setError('EMPTY_TITLE');
+    setError(ErrorType.EmptyTitle);
   }
 
   function renameTodo(id: number, title: string) {
@@ -114,7 +113,7 @@ export const App: React.FC = () => {
 
     setTempTodo(newTempTodo);
     setIsAdding(true);
-    setError(null);
+    setError(ErrorType.null);
 
     return createTodo({ title, userId: USER_ID, completed: false })
       .then((newTodo: Todo) => {
@@ -123,7 +122,7 @@ export const App: React.FC = () => {
         setIsAdding(false);
       })
       .catch(() => {
-        setError('ADD_TODO');
+        setError(ErrorType.AddTodo);
         setTempTodo(null);
         setIsAdding(false);
         throw new Error();
@@ -145,7 +144,7 @@ export const App: React.FC = () => {
         setTimeout(() => inputRef.current?.focus(), 0);
       })
       .catch(() => {
-        setError('DELETE_TODO');
+        setError(ErrorType.DeleteTodo);
         setTodos(prev =>
           prev.map(todo =>
             todo.id === id ? { ...todo, isDeleting: false } : todo,
@@ -168,7 +167,7 @@ export const App: React.FC = () => {
         );
       })
       .catch(() => {
-        setError('UPDATE_TODO');
+        setError(ErrorType.UpdateTodo);
         setTodos(prev =>
           prev.map(todo =>
             todo.id === id ? { ...todo, isUpdating: false } : todo,
@@ -245,7 +244,10 @@ export const App: React.FC = () => {
         )}
       </div>
 
-      <ErrorNotification error={error} onClose={() => setError(null)} />
+      <ErrorNotification
+        error={error}
+        onClose={() => setError(ErrorType.null)}
+      />
     </div>
   );
 };
