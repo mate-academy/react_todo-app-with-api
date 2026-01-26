@@ -13,8 +13,8 @@ type Props = {
     event: React.FormEvent | React.FocusEvent,
     todo: Todo,
   ) => void;
-  query: string;
-  onQueryChange: (value: string) => void;
+  chengeQuery: string;
+  onChengeQuery: (value: string) => void;
   onEditingTodoId: (value: number | null) => void;
   loadingTodoIds: number[];
 };
@@ -26,8 +26,8 @@ export const TodoSection: React.FC<Props> = ({
   handleEditStart,
   deletTodo,
   handleRenameSubmit,
-  query,
-  onQueryChange,
+  chengeQuery,
+  onChengeQuery,
   onEditingTodoId,
   loadingTodoIds,
 }) => {
@@ -76,14 +76,14 @@ export const TodoSection: React.FC<Props> = ({
                 type="text"
                 className="todo__title-field"
                 placeholder="Empty todo will be deleted"
-                value={query}
+                value={chengeQuery}
                 autoFocus
-                onChange={e => onQueryChange(e.target.value)}
+                onChange={e => onChengeQuery(e.target.value)}
                 onBlur={e => handleRenameSubmit(e, todo)}
                 onKeyDown={e => {
                   if (e.key === 'Escape') {
                     onEditingTodoId(null);
-                    onQueryChange(todo.title);
+                    onChengeQuery(todo.title);
                   }
                 }}
               />
