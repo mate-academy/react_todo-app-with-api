@@ -2,7 +2,13 @@ import React, { useState, useEffect, useRef } from 'react';
 import { TodoappHeader } from './components/TodoappHeader';
 import { Todo } from './types/Todo';
 import { Filter } from './types/Filter';
-import { createTodo, deleteTodo, getTodos, USER_ID } from './api/todos';
+import {
+  createTodo,
+  deleteTodo,
+  getTodos,
+  updateTodo,
+  USER_ID,
+} from './api/todos';
 import { TodoList } from './components/TodoList';
 import { TodoappErrorsBlock } from './components/TodoappErrorsBlock';
 import { TodoappFooter } from './components/TodoappFooter';
@@ -18,6 +24,9 @@ export const App: React.FC = () => {
   const [loadingTodoIds, setLoadingTodoIds] = useState<number[]>([]);
 
   const todoInputRef = useRef<HTMLInputElement>(null);
+
+  const hasTodos = todos.length > 0;
+  const allCompleted = todos.every(todo => todo.completed) && hasTodos;
 
   const showError = (text: ErrorMessage | '') => {
     setErrorMessage(text);
@@ -90,12 +99,12 @@ export const App: React.FC = () => {
     );
 
     Promise.all(promises)
-      .then(result => {
+      .then(results => {
         setTodos(currentTodos =>
-          currentTodos.filter(todo => !result.includes(todo.id)),
+          currentTodos.filter(todo => !results.includes(todo.id)),
         );
 
-        if (result.includes(null)) {
+        if (results.includes(null)) {
           showError(ErrorMessage.DeleteTodo);
         }
 
@@ -104,6 +113,71 @@ export const App: React.FC = () => {
       .finally(() =>
         setLoadingTodoIds(prevIds =>
           prevIds.filter(id => !completedIds.includes(id)),
+        ),
+      );
+  };
+
+  const handleUpdateTodo = (
+    todoId: number,
+    data: Partial<Todo>,
+  ): Promise<void> => {
+    setLoadingTodoIds(prevIds => [...prevIds, todoId]);
+
+    return updateTodo(todoId, data)
+      .then(updatedTodo => {
+        setTodos(currentTodos =>
+          currentTodos.map(todo => (todo.id === todoId ? updatedTodo : todo)),
+        );
+      })
+      .catch(() => {
+        showError(ErrorMessage.UpdateTodo);
+
+        throw new Error();
+      })
+      .finally(() =>
+        setLoadingTodoIds(prevIds => prevIds.filter(id => id !== todoId)),
+      );
+  };
+
+  const handleToogleAll = () => {
+    const activeTodos = todos.filter(todo => !todo.completed);
+    const completedTodos = todos.filter(todo => todo.completed);
+
+    const shouldComplete = activeTodos.length > 0;
+
+    const todosToUpdate = shouldComplete ? activeTodos : completedTodos;
+
+    if (todosToUpdate.length === 0) {
+      return;
+    }
+
+    const idsToUpdate = todosToUpdate.map(todo => todo.id);
+
+    setLoadingTodoIds(prevIds => [...prevIds, ...idsToUpdate]);
+
+    const promises = todosToUpdate.map(todo =>
+      updateTodo(todo.id, { completed: shouldComplete })
+        .then(newTodo => newTodo)
+        .catch(() => null),
+    );
+
+    Promise.all(promises)
+      .then(results => {
+        setTodos(currentTodos =>
+          currentTodos.map(todo => {
+            const updatedTodo = results.find(res => res && res.id === todo.id);
+
+            return updatedTodo || todo;
+          }),
+        );
+
+        if (results.includes(null)) {
+          showError(ErrorMessage.UpdateTodo);
+        }
+      })
+      .finally(() =>
+        setLoadingTodoIds(prevIds =>
+          prevIds.filter(id => !idsToUpdate.includes(id)),
         ),
       );
   };
@@ -126,6 +200,9 @@ export const App: React.FC = () => {
 
       <div className="todoapp__content">
         <TodoappHeader
+          hasTodos={hasTodos}
+          onToogleAll={handleToogleAll}
+          activeToogle={allCompleted}
           todoInputRef={todoInputRef}
           inputValue={inputValue}
           onAddTodo={handleAddTodo}
@@ -138,10 +215,15 @@ export const App: React.FC = () => {
               todos={visibleTodos}
               onDeleteTodo={handleDeleteTodo}
               loadingTodoIds={loadingTodoIds}
+              onUpdateTodo={handleUpdateTodo}
             />
 
             {tempTodo && (
-              <TodoListItem todo={tempTodo} onDeleteTodo={handleDeleteTodo} />
+              <TodoListItem
+                todo={tempTodo}
+                onDeleteTodo={handleDeleteTodo}
+                changeTodo={handleUpdateTodo}
+              />
             )}
 
             <TodoappFooter
