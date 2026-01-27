@@ -4,5 +4,4 @@ export enum ErrorType {
   DeleteTodo = 'DELETE_TODO',
   EmptyTitle = 'EMPTY_TITLE',
   UpdateTodo = 'UPDATE_TODO',
-  null = 'NULL',
 }

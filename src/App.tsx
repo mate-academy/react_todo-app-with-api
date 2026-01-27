@@ -59,7 +59,7 @@ export const App: React.FC = () => {
   const [todos, setTodos] = useState<Todo[]>([]);
   const [status, setStatus] = useState('all');
   const [query, setQuery] = useState('');
-  const [error, setError] = useState<ErrorType>(ErrorType.null);
+  const [error, setError] = useState<ErrorType | null>(null);
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
   const [isAdding, setIsAdding] = useState(false);
   const inputRef = React.useRef<HTMLInputElement>(null);
@@ -79,7 +79,7 @@ export const App: React.FC = () => {
     }
 
     const timerId = setTimeout(() => {
-      setError(ErrorType.null);
+      setError(null);
     }, 3000);
 
     return () => {
@@ -113,7 +113,7 @@ export const App: React.FC = () => {
 
     setTempTodo(newTempTodo);
     setIsAdding(true);
-    setError(ErrorType.null);
+    setError(null);
 
     return createTodo({ title, userId: USER_ID, completed: false })
       .then((newTodo: Todo) => {
@@ -244,10 +244,7 @@ export const App: React.FC = () => {
         )}
       </div>
 
-      <ErrorNotification
-        error={error}
-        onClose={() => setError(ErrorType.null)}
-      />
+      <ErrorNotification error={error} onClose={() => setError(null)} />
     </div>
   );
 };
