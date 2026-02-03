@@ -1,12 +1,15 @@
 import React from 'react';
 import cn from 'classnames';
 
-type Props = {
-  message: string;
+interface ErrorNotificationProps {
+  message: string | null;
   onClose: () => void;
-};
+}
 
-export const ErrorNotification: React.FC<Props> = ({ message, onClose }) => {
+export const ErrorNotification: React.FC<ErrorNotificationProps> = ({
+  message,
+  onClose,
+}) => {
   return (
     <div
       data-cy="ErrorNotification"
@@ -20,7 +23,6 @@ export const ErrorNotification: React.FC<Props> = ({ message, onClose }) => {
         className="delete"
         onClick={onClose}
       />
-      {/* show only one message at a time */}
       {message}
     </div>
   );

@@ -2,7 +2,7 @@ import React from 'react';
 import { TodoItem } from './TodoItem';
 import { Todo } from '../types/Todo';
 
-interface Props {
+interface TodoListProps {
   todos: Todo[];
   tempTodo: Todo | null;
   onDelete: (id: number) => Promise<void>;
@@ -10,7 +10,7 @@ interface Props {
   loadingIds: number[];
 }
 
-export const TodoList: React.FC<Props> = ({
+export const TodoList: React.FC<TodoListProps> = ({
   todos,
   tempTodo,
   onDelete,
@@ -32,7 +32,7 @@ export const TodoList: React.FC<Props> = ({
         />
       ))}
 
-      {shouldShowTemp && <TodoItem todo={tempTodo} isLoaderActive={true} />}
+      {shouldShowTemp && <TodoItem todo={tempTodo} isLoaderActive />}
     </section>
   );
 };

@@ -1,16 +1,16 @@
 /* eslint-disable jsx-a11y/label-has-associated-control */
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import cn from 'classnames';
 import { Todo } from '../types/Todo';
 
-interface Props {
+interface TodoItemProps {
   todo: Todo;
   isLoaderActive?: boolean;
   onDelete?: (todoId: number) => Promise<void>;
   onUpdate?: (todo: Todo) => Promise<void>;
 }
 
-export const TodoItem: React.FC<Props> = ({
+export const TodoItem: React.FC<TodoItemProps> = ({
   todo,
   isLoaderActive,
   onDelete,
@@ -29,35 +29,32 @@ export const TodoItem: React.FC<Props> = ({
     }
   }, [isEditing]);
 
-  const handleSubmit = useCallback(
-    async (event?: React.FormEvent) => {
-      event?.preventDefault();
+  const handleSubmit = async (event?: React.FormEvent) => {
+    event?.preventDefault();
 
-      const trimmedTitle = editTitle.trim();
+    const trimmedTitle = editTitle.trim();
 
-      if (trimmedTitle === todo.title) {
-        setIsEditing(false);
+    if (trimmedTitle === todo.title) {
+      setIsEditing(false);
 
-        return;
+      return;
+    }
+
+    if (!trimmedTitle) {
+      onDelete?.(todo.id);
+
+      return;
+    }
+
+    try {
+      await onUpdate?.({ ...todo, title: trimmedTitle });
+      setIsEditing(false);
+    } catch {
+      if (editFieldRef.current) {
+        editFieldRef.current.focus();
       }
-
-      if (!trimmedTitle) {
-        onDelete?.(todo.id);
-
-        return;
-      }
-
-      try {
-        await onUpdate?.({ ...todo, title: trimmedTitle });
-        setIsEditing(false);
-      } catch {
-        if (editFieldRef.current) {
-          editFieldRef.current.focus();
-        }
-      }
-    },
-    [editTitle, todo, onUpdate, onDelete],
-  );
+    }
+  };
 
   const handleKeyUp = (event: React.KeyboardEvent) => {
     if (event.key === 'Escape') {

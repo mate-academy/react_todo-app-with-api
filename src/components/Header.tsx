@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import cn from 'classnames';
 import { ERRORS } from '../utils/errors';
 
-interface Props {
+interface HeaderProps {
   onAdd: (title: string) => Promise<boolean>;
   isSubmitting: boolean;
   onError?: (message: string) => void;
@@ -11,7 +11,8 @@ interface Props {
   onToggleAll: () => Promise<void>;
   todosLength: number;
 }
-export const Header: React.FC<Props> = ({
+
+export const Header: React.FC<HeaderProps> = ({
   onAdd,
   isSubmitting,
   onError,
@@ -32,7 +33,7 @@ export const Header: React.FC<Props> = ({
     const trimmedTitle = currentTitle.trim();
 
     if (!trimmedTitle) {
-      onError?.(ERRORS.title);
+      onError?.(ERRORS.Title);
 
       return;
     }
@@ -59,7 +60,6 @@ export const Header: React.FC<Props> = ({
         />
       )}
 
-      {/* Add a todo on form submit */}
       <form onSubmit={handleSubmit}>
         <input
           data-cy="NewTodoField"

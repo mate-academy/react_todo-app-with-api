@@ -1,11 +1,5 @@
 /* eslint-disable jsx-a11y/label-has-associated-control */
-import React, {
-  useCallback,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { ERRORS } from './utils/errors';
 import * as todoService from './api/todos';
 import { Todo } from './types/Todo';
@@ -17,7 +11,7 @@ import { FilterStatus } from './types/FilterStatus';
 
 export const App: React.FC = () => {
   const [todos, setTodos] = useState<Todo[]>([]);
-  const [errorMessage, setErrorMessage] = useState('');
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   const [filter, setFilter] = useState<FilterStatus>(FilterStatus.All);
 
@@ -31,77 +25,78 @@ export const App: React.FC = () => {
 
   const showError = useCallback((message: string) => {
     setErrorMessage(message);
-
-    setTimeout(() => setErrorMessage(''), 3000);
   }, []);
+
+  useEffect(() => {
+    if (!errorMessage) {
+      return;
+    }
+
+    const timeoutId = window.setTimeout(() => {
+      setErrorMessage(null);
+    }, 3000);
+
+    return () => window.clearTimeout(timeoutId);
+  }, [errorMessage]);
 
   useEffect(() => {
     todoService
       .getTodos()
       .then(setTodos)
-      .catch(() => showError(ERRORS.load));
+      .catch(() => showError(ERRORS.Load));
   }, [showError]);
 
-  // Compute visible todos based on the active filter
-  const visibleTodos = useMemo(() => {
-    return todos.filter(todo => {
-      switch (filter) {
-        case FilterStatus.Active:
-          return !todo.completed;
-        case FilterStatus.Completed:
-          return todo.completed;
-        default:
-          return true;
-      }
-    });
-  }, [todos, filter]);
+  function filterTodos(allTodos: Todo[], status: FilterStatus): Todo[] {
+    switch (status) {
+      case FilterStatus.Active:
+        return allTodos.filter(todo => !todo.completed);
+      case FilterStatus.Completed:
+        return allTodos.filter(todo => todo.completed);
+      default:
+        return allTodos;
+    }
+  }
 
-  const addTodo = useCallback(
-    async (title: string): Promise<boolean> => {
-      const normalizedTitle = title.trim();
+  const visibleTodos = filterTodos(todos, filter);
 
-      if (!normalizedTitle) {
-        showError(ERRORS.title);
+  const handleAddTodo = async (title: string): Promise<boolean> => {
+    const normalizedTitle = title.trim();
 
-        return false;
-      }
+    if (!normalizedTitle) {
+      showError(ERRORS.Title);
 
-      setErrorMessage('');
-      setIsSubmitting(true);
+      return false;
+    }
 
-      const placeholderTodo: Todo = {
-        id: 0,
-        userId: todoService.USER_ID,
-        title: normalizedTitle,
-        completed: false,
-      };
+    setErrorMessage('');
+    setIsSubmitting(true);
 
-      setTempTodo(placeholderTodo);
+    const newTodo: Omit<Todo, 'id'> = {
+      userId: todoService.USER_ID,
+      title: normalizedTitle,
+      completed: false,
+    };
 
-      try {
-        const newTodo = await todoService.createTodo({
-          userId: todoService.USER_ID,
-          title: normalizedTitle,
-          completed: false,
-        });
+    setTempTodo({ ...newTodo, id: 0 });
 
-        setTodos(prev => [...prev, newTodo]);
+    try {
+      const createdTodo = await todoService.createTodo(newTodo);
 
-        return true;
-      } catch {
-        showError(ERRORS.add);
+      setTodos(prev => [...prev, createdTodo]);
 
-        return false;
-      } finally {
-        setTempTodo(null);
-        setIsSubmitting(false);
-        todoInputRef.current?.focus();
-      }
-    },
-    [showError],
-  );
+      return true;
+    } catch {
+      showError(ERRORS.Add);
 
-  const onDeleteTodo = useCallback(
+      return false;
+    } finally {
+      setTempTodo(null);
+      setIsSubmitting(false);
+      todoInputRef.current?.focus();
+    }
+  };
+
+  const handleDeleteTodo = useCallback(
     async (todoId: number) => {
       setErrorMessage('');
 
@@ -111,7 +106,7 @@ export const App: React.FC = () => {
         await todoService.deleteTodo(todoId);
         setTodos(prev => prev.filter(todo => todo.id !== todoId));
       } catch {
-        showError(ERRORS.delete);
+        showError(ERRORS.Delete);
       } finally {
         setLoadingIds(prev => prev.filter(id => id !== todoId));
         todoInputRef.current?.focus();
@@ -120,7 +115,7 @@ export const App: React.FC = () => {
     [showError],
   );
 
-  const onUpdateTodo = useCallback(
+  const handleUpdateTodo = useCallback(
     async (updatedTodo: Todo): Promise<void> => {
       setLoadingIds(prev => [...prev, updatedTodo.id]);
       setErrorMessage('');
@@ -132,7 +127,7 @@ export const App: React.FC = () => {
           current.map(todo => (todo.id === newTodo.id ? newTodo : todo)),
         );
       } catch {
-        showError(ERRORS.update);
+        showError(ERRORS.Update);
         throw new Error();
       } finally {
         setLoadingIds(prev => prev.filter(id => id !== updatedTodo.id));
@@ -144,7 +139,7 @@ export const App: React.FC = () => {
   const clearCompleted = () => {
     const completedTodos = todos.filter(todo => todo.completed);
 
-    completedTodos.forEach(todo => onDeleteTodo(todo.id));
+    completedTodos.forEach(todo => handleDeleteTodo(todo.id));
   };
 
   const handleToggleAll = async () => {
@@ -154,7 +149,7 @@ export const App: React.FC = () => {
     try {
       await Promise.all(
         todosToUpdate.map(todo =>
-          onUpdateTodo({ ...todo, completed: targetStatus }),
+          handleUpdateTodo({ ...todo, completed: targetStatus }),
         ),
       );
     } catch {}
@@ -165,7 +160,7 @@ export const App: React.FC = () => {
       <h1 className="todoapp__title">todos</h1>
       <div className="todoapp__content">
         <Header
-          onAdd={addTodo}
+          onAdd={handleAddTodo}
           isSubmitting={isSubmitting}
           onError={showError}
           inputRef={todoInputRef}
@@ -173,14 +168,13 @@ export const App: React.FC = () => {
           onToggleAll={handleToggleAll}
           todosLength={todos.length}
         />
-        {/* Hide list and footer if there are no todos */}
         {(todos.length > 0 || tempTodo) && (
           <>
             <TodoList
               todos={visibleTodos}
               tempTodo={tempTodo}
-              onDelete={onDeleteTodo}
-              onUpdate={onUpdateTodo}
+              onDelete={handleDeleteTodo}
+              onUpdate={handleUpdateTodo}
               loadingIds={loadingIds}
             />
             <Footer

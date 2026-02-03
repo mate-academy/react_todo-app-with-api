@@ -3,14 +3,14 @@ import cn from 'classnames';
 import { FilterStatus } from '../types/FilterStatus';
 import { Todo } from '../types/Todo';
 
-type Props = {
+interface FooterProps {
   currentFilter: FilterStatus;
   onFilterChange: (filter: FilterStatus) => void;
   todos: Todo[];
   onClearCompleted: () => void;
-};
+}
 
-export const Footer: React.FC<Props> = ({
+export const Footer: React.FC<FooterProps> = ({
   currentFilter,
   onFilterChange,
   todos,
@@ -18,11 +18,7 @@ export const Footer: React.FC<Props> = ({
 }) => {
   const activeTodosCount = todos.filter(todo => !todo.completed).length;
   const hasCompletedTodos = todos.some(todo => todo.completed);
-  const filterOpions = [
-    FilterStatus.All,
-    FilterStatus.Active,
-    FilterStatus.Completed,
-  ];
+  const filterOpions = Object.values(FilterStatus);
 
   return (
     <footer className="todoapp__footer" data-cy="Footer">
