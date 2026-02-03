@@ -1,5 +1,6 @@
 import classNames from 'classnames';
 import { Todo } from '../../types/Todo';
+import { useEffect } from 'react';
 
 type Props = {
   isLoading: boolean;
@@ -8,9 +9,8 @@ type Props = {
   handleToggleAllButton: (todos: Todo[]) => void;
   handleSubmit: (event: React.FormEvent) => void;
   field: React.RefObject<HTMLInputElement>;
-  isAdding: boolean;
-  updatingIds: number[];
-  editingTodoId: number | null;
+  processingIds: number[];
+  editingTodo: Todo | null;
   title: string;
   setTitle: (value: string) => void;
 };
@@ -22,12 +22,17 @@ export const Header: React.FC<Props> = ({
   handleToggleAllButton,
   handleSubmit,
   field,
-  isAdding,
-  updatingIds,
-  editingTodoId,
+  processingIds,
+  editingTodo,
   title,
   setTitle,
 }) => {
+  useEffect(() => {
+    if (!isLoading) {
+      field.current?.focus();
+    }
+  }, [isLoading, field]);
+
   return (
     <header className="todoapp__header">
       {/* this button should have `active` class only if all todos are completed */}
@@ -49,10 +54,7 @@ export const Header: React.FC<Props> = ({
           data-cy="NewTodoField"
           ref={field}
           disabled={
-            isLoading ||
-            isAdding ||
-            updatingIds.length > 0 ||
-            editingTodoId !== null
+            isLoading || processingIds.length > 0 || editingTodo !== null
           }
           type="text"
           value={title}

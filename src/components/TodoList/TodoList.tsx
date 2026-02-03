@@ -1,19 +1,17 @@
 import classNames from 'classnames';
 import { Todo } from '../../types/Todo';
+import { useEffect } from 'react';
 
 type Props = {
   todos: Todo[];
   visibleTodos: Todo[];
   tempTodo: Todo | null;
-  deletingIds: number[];
-  updatingIds: number[];
+  processingIds: number[];
   handleChangeStatus: (todo: Todo) => void;
-  editingTodoId: number | null;
+  editingTodo: Todo | null;
   handleSubmitEdit: (event: React.FormEvent) => void;
-  editingTitle: string;
   editField: React.RefObject<HTMLInputElement>;
-  setEditingTodoId: (value: number | null) => void;
-  setEditingTitle: (value: string) => void;
+  setEditingTodo: React.Dispatch<React.SetStateAction<Todo | null>>;
   handleFinishingEditing: () => void;
   handleDelete: (value: number) => void;
 };
@@ -22,18 +20,21 @@ export const TodoList: React.FC<Props> = ({
   todos,
   visibleTodos,
   tempTodo,
-  deletingIds,
-  updatingIds,
+  processingIds,
   handleChangeStatus,
-  editingTodoId,
+  editingTodo,
   handleSubmitEdit,
-  editingTitle,
   editField,
-  setEditingTodoId,
-  setEditingTitle,
+  setEditingTodo,
   handleFinishingEditing,
   handleDelete,
 }) => {
+  useEffect(() => {
+    if (editingTodo !== null) {
+      editField.current?.focus();
+    }
+  }, [editingTodo, editField]);
+
   return (
     <section
       className={classNames('todoapp__main', {
@@ -44,9 +45,7 @@ export const TodoList: React.FC<Props> = ({
       {/* This is a completed todo */}
       {visibleTodos.map(todo => {
         const isLoadingTodo =
-          (tempTodo && todo === tempTodo) ||
-          deletingIds.includes(todo.id) ||
-          updatingIds.includes(todo.id);
+          (tempTodo && todo === tempTodo) || processingIds.includes(todo.id);
 
         return (
           <div
@@ -64,19 +63,26 @@ export const TodoList: React.FC<Props> = ({
                 onChange={() => handleChangeStatus(todo)}
               />
             </label>
-            {editingTodoId === todo.id ? (
+            {editingTodo?.id === todo.id ? (
               <form onSubmit={handleSubmitEdit}>
                 <input
                   data-cy="TodoTitleField"
                   type="text"
-                  value={editingTitle}
+                  value={editingTodo?.title ?? ''}
                   ref={editField}
                   className="todo__title-field"
-                  onChange={event => setEditingTitle(event.target.value)}
+                  onChange={event =>
+                    setEditingTodo((prev: Todo | null) => {
+                      if (!prev) {
+                        return null;
+                      }
+
+                      return { ...prev, title: event.target.value };
+                    })
+                  }
                   onKeyUp={event => {
                     if (event.key === 'Escape') {
-                      setEditingTodoId(null);
-                      setEditingTitle('');
+                      setEditingTodo(null);
                     }
                   }}
                   onBlur={handleFinishingEditing}
@@ -86,8 +92,7 @@ export const TodoList: React.FC<Props> = ({
               <>
                 <span
                   onDoubleClick={() => {
-                    setEditingTodoId(todo.id);
-                    setEditingTitle(todo.title);
+                    setEditingTodo(todo);
                   }}
                   data-cy="TodoTitle"
                   className="todo__title"

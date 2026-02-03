@@ -1,5 +1,6 @@
 import classNames from 'classnames';
 import { ErrorMessage } from '../../types/ErrorMessage';
+import { useEffect } from 'react';
 
 type Props = {
   error: ErrorMessage;
@@ -7,6 +8,18 @@ type Props = {
 };
 
 export const ErrorNotification: React.FC<Props> = ({ error, setError }) => {
+  useEffect(() => {
+    if (!error) {
+      return;
+    }
+
+    const timer = setTimeout(() => {
+      setError(ErrorMessage.None);
+    }, 3000);
+
+    return () => clearTimeout(timer);
+  }, [error, setError]);
+
   return (
     <div
       data-cy="ErrorNotification"
@@ -21,7 +34,6 @@ export const ErrorNotification: React.FC<Props> = ({ error, setError }) => {
         className="delete"
         onClick={() => setError(ErrorMessage.None)}
       />
-      {/* show only one message at a time */}
       {error}
     </div>
   );

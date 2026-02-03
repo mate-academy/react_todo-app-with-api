@@ -1,6 +1,12 @@
 /* eslint-disable jsx-a11y/label-has-associated-control */
 /* eslint-disable jsx-a11y/control-has-associated-label */
-import React, { useEffect, useRef, useState } from 'react';
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 import { UserWarning } from './UserWarning';
 import {
   addTodo,
@@ -14,7 +20,7 @@ import { Filter } from './types/Filter';
 import { ErrorMessage } from './types/ErrorMessage';
 import { Header, TodoList, Footer, ErrorNotification } from './components';
 
-function getFilteredTodos(todos: Todo[], filterBy: string) {
+const getFilteredTodos = (todos: Todo[], filterBy: string) => {
   switch (filterBy) {
     case Filter.Active:
       return todos.filter(todo => !todo.completed);
@@ -26,7 +32,7 @@ function getFilteredTodos(todos: Todo[], filterBy: string) {
     default:
       return todos;
   }
-}
+};
 
 export const App: React.FC = () => {
   const [todos, setTodos] = useState<Todo[]>([]);
@@ -34,13 +40,8 @@ export const App: React.FC = () => {
   const [error, setError] = useState<ErrorMessage>(ErrorMessage.None);
   const [filterBy, setFilterBy] = useState<Filter>(Filter.All);
   const [title, setTitle] = useState<string>('');
-  const [isAdding, setIsAdding] = useState<boolean>(false);
-  const [isDeleting, setIsDeleting] = useState<boolean>(false);
-  const [deletingIds, setDeletingIds] = useState<number[]>([]);
-  const [updatingIds, setUpdatingIds] = useState<number[]>([]);
-  const [isUpdating, setIsUpdating] = useState<boolean>(false);
-  const [editingTodoId, setEditingTodoId] = useState<number | null>(null);
-  const [editingTitle, setEditingTitle] = useState<string>('');
+  const [processingIds, setProcessingIds] = useState<number[]>([]);
+  const [editingTodo, setEditingTodo] = useState<Todo | null>(null);
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
 
   const todosWithTempTodo = tempTodo ? [...todos, tempTodo] : todos;
@@ -62,41 +63,27 @@ export const App: React.FC = () => {
       .finally(() => setIsLoading(false));
   }, []);
 
-  useEffect(() => {
-    if (!error) {
-      return;
-    }
+  const allTodosCompleted = useCallback(
+    (incomeTodos: Todo[]) =>
+      incomeTodos.length > 0 && incomeTodos.every(todo => todo.completed),
+    [],
+  );
 
-    const timer = setTimeout(() => {
-      setError(ErrorMessage.None);
-    }, 3000);
+  const activeCount = useMemo(
+    () => todos.filter(todo => !todo.completed).length,
+    [todos],
+  );
 
-    return () => clearTimeout(timer);
-  }, [error]);
-
-  useEffect(() => {
-    if (!isAdding && !isLoading && !isDeleting && !isUpdating) {
-      field.current?.focus();
-    }
-  }, [isAdding, isLoading, isDeleting, isUpdating]);
-
-  useEffect(() => {
-    if (editingTodoId !== null) {
-      editField.current?.focus();
-    }
-  }, [editingTodoId]);
+  const hasCompleted = useMemo(
+    () => todos.some(todo => todo.completed),
+    [todos],
+  );
 
   if (!USER_ID) {
     return <UserWarning />;
   }
 
-  const allTodosCompleted = (incomeTodos: Todo[]) =>
-    incomeTodos.length > 0 && incomeTodos.every(todo => todo.completed);
-
-  const activeCount = todos.filter(todo => !todo.completed).length;
-  const hasCompleted = todos.some(todo => todo.completed);
-
-  function handleSubmit(event: React.FormEvent) {
+  const handleSubmit = (event: React.FormEvent) => {
     event.preventDefault();
 
     const normalizedTitle = title.trim();
@@ -108,7 +95,7 @@ export const App: React.FC = () => {
     }
 
     setError(ErrorMessage.None);
-    setIsAdding(true);
+    setIsLoading(true);
 
     setTempTodo({
       id: 0,
@@ -130,13 +117,13 @@ export const App: React.FC = () => {
       })
       .finally(() => {
         setTempTodo(null);
-        setIsAdding(false);
+        setIsLoading(false);
       });
-  }
+  };
 
-  function handleDelete(todoId: number) {
-    setIsDeleting(true);
-    setDeletingIds(prev => [...prev, todoId]);
+  const handleDelete = (todoId: number) => {
+    setIsLoading(true);
+    setProcessingIds(prev => [...prev, todoId]);
 
     deleteTodo(todoId)
       .then(() => {
@@ -146,56 +133,54 @@ export const App: React.FC = () => {
         setError(ErrorMessage.Delete);
       })
       .finally(() => {
-        setDeletingIds(prev => prev.filter(id => id !== todoId));
-        setIsDeleting(false);
+        setProcessingIds(prev => prev.filter(id => id !== todoId));
+        setIsLoading(false);
       });
-  }
+  };
 
-  function handleClearCompleted() {
+  const handleClearCompleted = () => {
     const completedTodos = todos.filter(todo => todo.completed);
 
-    setIsDeleting(true);
+    setIsLoading(true);
+    setProcessingIds(prev => [...prev, ...completedTodos.map(todo => todo.id)]);
 
-    completedTodos.forEach(todo => {
-      setDeletingIds(prev => [...prev, todo.id]);
-
+    const deletePromises = completedTodos.map(todo =>
       deleteTodo(todo.id)
         .then(() => {
-          setTodos(prev =>
-            prev.filter(currentTodo => currentTodo.id !== todo.id),
-          );
+          setTodos(prev => prev.filter(t => t.id !== todo.id));
         })
-        .catch(() => {
-          setError(ErrorMessage.Delete);
-        })
-        .finally(() => {
-          setDeletingIds(prev => prev.filter(id => id !== todo.id));
-          setIsDeleting(false);
-        });
-    });
-  }
+        .catch(() => setError(ErrorMessage.Delete)),
+    );
 
-  function handleChangeStatus(todo: Todo) {
-    setIsUpdating(true);
-    setUpdatingIds(prev => [...prev, todo.id]);
+    Promise.allSettled(deletePromises).finally(() => {
+      setProcessingIds([]);
+      setIsLoading(false);
+    });
+  };
+
+  const handleChangeStatus = (todo: Todo) => {
+    setIsLoading(true);
+    setProcessingIds(prev => [...prev, todo.id]);
     const newCompleted = !todo.completed;
 
     updateTodo({ ...todo, completed: newCompleted })
       .then(() => {
         setTodos(prev =>
-          prev.map(t =>
-            t.id === todo.id ? { ...t, completed: newCompleted } : t,
+          prev.map(currentTodo =>
+            currentTodo.id === todo.id
+              ? { ...currentTodo, completed: newCompleted }
+              : currentTodo,
           ),
         );
       })
       .catch(() => setError(ErrorMessage.Update))
       .finally(() => {
-        setUpdatingIds(prev => prev.filter(id => id !== todo.id));
-        setIsUpdating(false);
+        setProcessingIds(prev => prev.filter(id => id !== todo.id));
+        setIsLoading(false);
       });
-  }
+  };
 
-  function handleToggleAllButton(incomeTodos: Todo[]) {
+  const handleToggleAllButton = (incomeTodos: Todo[]) => {
     const allCompleted = allTodosCompleted(incomeTodos);
     const newStatus = !allCompleted;
 
@@ -203,76 +188,77 @@ export const App: React.FC = () => {
       todo => todo.completed !== newStatus,
     );
 
-    setUpdatingIds(todoForUpdate.map(todo => todo.id));
-    setIsUpdating(true);
+    setProcessingIds(todoForUpdate.map(todo => todo.id));
+    setIsLoading(true);
 
     todoForUpdate.forEach(todo => {
       updateTodo({ ...todo, completed: newStatus })
         .then(() => {
           setTodos(prev =>
-            prev.map(t =>
-              t.id === todo.id ? { ...t, completed: newStatus } : t,
+            prev.map(currentTodo =>
+              currentTodo.id === todo.id
+                ? { ...currentTodo, completed: newStatus }
+                : currentTodo,
             ),
           );
         })
         .catch(() => setError(ErrorMessage.Update))
         .finally(() => {
-          setUpdatingIds(prev => prev.filter(id => id !== todo.id));
-          setIsUpdating(false);
+          setProcessingIds(prev => prev.filter(id => id !== todo.id));
+          setIsLoading(false);
         });
     });
-  }
+  };
 
-  function handleFinishingEditing() {
-    const newTitle = editingTitle.trim();
-    const originalTodo = todos.find(t => t.id === editingTodoId);
-
-    if (editingTodoId === null) {
+  const handleFinishingEditing = () => {
+    if (!editingTodo) {
       return;
     }
 
+    const newTitle = editingTodo.title.trim();
+    const originalTodo = todos.find(t => t.id === editingTodo.id);
+
     if (!originalTodo) {
-      setEditingTodoId(null);
-      setEditingTitle('');
+      setEditingTodo(null);
 
       return;
     }
 
     if (newTitle === originalTodo.title) {
-      setEditingTodoId(null);
-      setEditingTitle('');
+      setEditingTodo(null);
 
       return;
     }
 
     if (newTitle === '') {
-      setEditingTitle('');
-      handleDelete(editingTodoId);
+      handleDelete(editingTodo.id);
 
       return;
     }
 
-    setUpdatingIds(prev => [...prev, editingTodoId]);
+    setProcessingIds(prev => [...prev, editingTodo.id]);
 
     updateTodo({ ...originalTodo, title: newTitle })
       .then(() => {
         setTodos(prev =>
-          prev.map(t =>
-            t.id === editingTodoId ? { ...t, title: newTitle } : t,
+          prev.map(currentTodo =>
+            currentTodo.id === editingTodo.id
+              ? { ...currentTodo, title: newTitle }
+              : currentTodo,
           ),
         );
-        setEditingTodoId(null);
+        setEditingTodo(null);
       })
       .catch(() => setError(ErrorMessage.Update))
       .finally(() => {
-        setUpdatingIds(prev => prev.filter(id => id !== editingTodoId));
+        setProcessingIds(prev => prev.filter(id => id !== editingTodo.id));
       });
-  }
+  };
 
-  function handleSubmitEdit(event: React.FormEvent) {
+  const handleSubmitEdit = (event: React.FormEvent) => {
     event.preventDefault();
     handleFinishingEditing();
-  }
+  };
 
   return (
     <div className="todoapp">
@@ -286,9 +272,8 @@ export const App: React.FC = () => {
           handleToggleAllButton={handleToggleAllButton}
           handleSubmit={handleSubmit}
           field={field}
-          isAdding={isAdding}
-          updatingIds={updatingIds}
-          editingTodoId={editingTodoId}
+          processingIds={processingIds}
+          editingTodo={editingTodo}
           title={title}
           setTitle={setTitle}
         />
@@ -297,15 +282,12 @@ export const App: React.FC = () => {
           todos={todos}
           visibleTodos={visibleTodos}
           tempTodo={tempTodo}
-          deletingIds={deletingIds}
-          updatingIds={updatingIds}
+          processingIds={processingIds}
           handleChangeStatus={handleChangeStatus}
-          editingTodoId={editingTodoId}
+          editingTodo={editingTodo}
           handleSubmitEdit={handleSubmitEdit}
-          editingTitle={editingTitle}
           editField={editField}
-          setEditingTodoId={setEditingTodoId}
-          setEditingTitle={setEditingTitle}
+          setEditingTodo={setEditingTodo}
           handleFinishingEditing={handleFinishingEditing}
           handleDelete={handleDelete}
         />
