@@ -23,13 +23,13 @@ import { Header } from './components/header';
 import { TodoList } from './components/todoList';
 import { Footer } from './components/footer';
 import { ErrorNotification } from './components/errorNotification';
+import { FilterStatus } from './utils/filterStatus';
 
-type FilterType = 'all' | 'active' | 'completed';
 
 export const App: React.FC = () => {
   const [todos, setTodos] = useState<Todo[]>([]);
   const [errorMessage, setErrorMessage] = useState('');
-  const [filter, setFilter] = useState<FilterType>('all');
+  const [filter, setFilter] = useState<FilterStatus>(FilterStatus.All);
   const [query, setQuery] = React.useState('');
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -65,15 +65,17 @@ export const App: React.FC = () => {
   }, [errorMessage]);
 
   const visibleTodos = todos.filter(todo => {
-    if (filter === 'active') {
+   switch (filter) {
+    case FilterStatus.Active:
       return !todo.completed;
-    }
 
-    if (filter === 'completed') {
+    case FilterStatus.Completed:
       return todo.completed;
-    }
 
-    return true;
+    case FilterStatus.All:
+    default:
+      return true;
+  }
   });
 
   const handleSubmit = (event: React.FormEvent) => {

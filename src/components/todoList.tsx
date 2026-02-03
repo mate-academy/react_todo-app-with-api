@@ -40,16 +40,15 @@ export const TodoList: React.FC<Props> = ({
 
       {tempTodo && (
         <TodoItem
-        todo={tempTodo}
+          todo={tempTodo}
           isLoading={true}
           editingId={editingId}
           setEditingId={setEditingId}
           handleRename={handleRename}
           onDelete={() => {}}
           updateTodoItem={updateTodoItem}
-      />
+        />
       )}
     </section>
   );
 };
-

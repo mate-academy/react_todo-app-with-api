@@ -82,7 +82,7 @@ export const TodoItem: React.FC<Props> = ({
           className="todo__status"
           checked={todo.completed}
           onChange={() =>
-            updateTodoItem(todo.id, { completed: !todo.completed })
+          updateTodoItem(todo.id, { completed: !todo.completed })
           }
         />
         <span className="is-sr-only">Toggle status</span>
