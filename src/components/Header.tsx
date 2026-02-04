@@ -7,6 +7,9 @@ interface Props {
   onAddTodo: (title: string) => Promise<void>;
   isSubmitting: boolean;
   todoFieldRef?: React.RefObject<HTMLInputElement> | undefined;
+  isAllTodosCompleted?: boolean;
+  onToggleAll?: () => void;
+  activeTodosCount?: number;
 }
 
 export const Header: React.FC<Props> = ({
@@ -14,6 +17,8 @@ export const Header: React.FC<Props> = ({
   onAddTodo,
   isSubmitting,
   todoFieldRef,
+  onToggleAll,
+  isAllTodosCompleted = false,
 }) => {
   const [title, setTitle] = useState('');
 
@@ -44,15 +49,20 @@ export const Header: React.FC<Props> = ({
     setTitle(event.target.value);
   }
 
+
   return (
     <header className="todoapp__header">
-      <button
-        type="button"
-        className={classNames('todoapp__toggle-all', {
-          active: todos.every(todo => todo.completed),
-        })}
-        data-cy="ToggleAllButton"
-      />
+      {todos.length > 0 && (
+        <button
+          type="button"
+          className={classNames('todoapp__toggle-all', {
+          active: isAllTodosCompleted
+          })}
+          data-cy="ToggleAllButton"
+          onClick={onToggleAll}
+        />
+      )}
+      
 
       <form onSubmit={handleSubmit}>
         <input

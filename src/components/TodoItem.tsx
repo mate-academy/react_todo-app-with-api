@@ -6,13 +6,20 @@ interface Props {
   todo: Todo;
   onDeleteTodo: (id: number) => void;
   isLoading?: boolean;
+  onToggleTodo?: () => void;
 }
 
 export const TodoItem: React.FC<Props> = ({
   todo: { completed, title, id },
   onDeleteTodo,
+  onToggleTodo,
   isLoading = false,
 }) => {
+
+  function handleChangeStatus() {
+    onToggleTodo?.();
+  }
+
   return (
     <div
       data-cy="Todo"
@@ -24,6 +31,7 @@ export const TodoItem: React.FC<Props> = ({
           type="checkbox"
           className="todo__status"
           checked={completed}
+          onChange={() => handleChangeStatus()}
           readOnly
           aria-label="Toggle todo status"
         />
