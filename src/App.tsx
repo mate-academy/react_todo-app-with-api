@@ -43,28 +43,30 @@ export const App: React.FC = () => {
       .catch(() => showError(ErrorMessage.Load));
   }, []);
 
+  function handleUpdateTodo(todoToUpdate: Todo): Promise<void> {
+    setLoadingIds(prev => [...prev, todoToUpdate.id]);
+
+    return todoService
+      .updateTodo(todoToUpdate)
+      .then(updatedTodo => {
+        setTodos(currentTodos =>
+          currentTodos.map(todo =>
+            todo.id === updatedTodo.id ? updatedTodo : todo,
+          ),
+        );
+      })
+      .catch(error => {
+        showError(ErrorMessage.Update);
+        throw error;
+      })
+      .finally(() => {
+        setLoadingIds(ids => ids.filter(id => id !== todoToUpdate.id));
+      });
+  }
+
   const todoFieldRef = useRef<HTMLInputElement>(null);
 
   const isAllCompleted = todos.length > 0 && activeTodosCount === 0;
-
-  const handleToggleAll = async () => {
-    const areAllCompleted = todos
-      .every(todo => todo.completed);
-    const todosToUpdate = todos
-      .filter(todo => todo.completed === areAllCompleted);
-
-    const updatePromises = todosToUpdate
-      .map(todo => {
-        return handleToggleTodo(todo); 
-      });
-      
-    try {
-      await Promise.all(updatePromises);
-      todoFieldRef.current?.focus();
-    } catch (error) {
-      showError(ErrorMessage.Load);
-    }
-  };
 
   function handleAddTodo(title: string): Promise<void> {
     const trimmedTitle = title.trim();
@@ -144,27 +146,21 @@ export const App: React.FC = () => {
     });
   }
 
-  function handleToggleTodo(todoToUpdate: Todo) {
-    setLoadingIds(prev => [...prev, todoToUpdate.id]);
-    todoService
-      .updateTodo({
-        ...todoToUpdate,
-        completed: !todoToUpdate.completed,
-    })
-    .then(updatedTodo => {
-      setTodos(currentTodos =>
-        currentTodos.map(todo =>
-          todo.id === updatedTodo.id ? updatedTodo : todo,
-        ),
-      );
-    }).catch(error => {
-      showError(ErrorMessage.Update);
-      throw error;
-    })
-    .finally(() => {
-      setLoadingIds(ids => ids.filter(id => id !== todoToUpdate.id));
+  const handleToggleAll = async () => {
+    const areAllCompleted = todos.every(todo => todo.completed);
+    const todosToUpdate = todos.filter(
+      todo => todo.completed === areAllCompleted,
+    );
+
+    const updatePromises = todosToUpdate.map(todo => {
+      return handleUpdateTodo({ ...todo, completed: !areAllCompleted });
     });
- }
+
+    try {
+      await Promise.all(updatePromises);
+      todoFieldRef.current?.focus();
+    } catch (error) {}
+  };
 
   function handleHideError() {
     setErrorMessage('');
@@ -202,14 +198,16 @@ export const App: React.FC = () => {
             filteredTodos={filteredTodos}
             onDeleteTodo={handleDeleteTodo}
             loadingIds={loadingIds}
-            onToggleTodo={handleToggleTodo}
+            onToggleTodo={handleUpdateTodo}
+            onUpdateTodo={handleUpdateTodo}
           />
         )}
 
         {tempTodo && (
-          <TodoItem 
-            todo={tempTodo} 
+          <TodoItem
+            todo={tempTodo}
             onDeleteTodo={handleDeleteTodo}
+            onUpdateTodo={handleUpdateTodo}
           />
         )}
 

@@ -6,13 +6,14 @@ interface Props {
   onDeleteTodo: (id: number) => void;
   loadingIds: number[];
   onToggleTodo?: (todo: Todo) => void;
+  onUpdateTodo: (todo: Todo) => Promise<void>;
 }
 
 export const TodoList: React.FC<Props> = ({
   filteredTodos,
   onDeleteTodo,
   loadingIds,
-  onToggleTodo,
+  onUpdateTodo,
 }) => {
   return (
     <section className="todoapp__main" data-cy="TodoList">
@@ -22,7 +23,10 @@ export const TodoList: React.FC<Props> = ({
           todo={todo}
           onDeleteTodo={onDeleteTodo}
           isLoading={loadingIds.includes(todo.id)}
-          onToggleTodo={() => onToggleTodo?.(todo)}
+          onToggleTodo={() =>
+            onUpdateTodo({ ...todo, completed: !todo.completed })
+          }
+          onUpdateTodo={onUpdateTodo}
         />
       ))}
     </section>
