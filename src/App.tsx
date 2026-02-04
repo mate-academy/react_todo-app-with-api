@@ -1,5 +1,5 @@
 /* eslint-disable jsx-a11y/control-has-associated-label */
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useState, useRef, useMemo } from 'react';
 import { UserWarning } from './UserWarning';
 import {
   USER_ID,
@@ -15,7 +15,7 @@ import { getVisibleTodos, getActiveTodos } from './utils/todoHelpers';
 import { TodoItem } from './components/TodoItem';
 import { Header } from './components/Header';
 import { Footer } from './components/Footer';
-import classNames from 'classnames';
+import { ErrorNotification } from './components/ErrorNotification';
 
 export const App: React.FC = () => {
   const [todos, setTodos] = useState<Todo[]>([]);
@@ -25,43 +25,43 @@ export const App: React.FC = () => {
   const [filter, setFilter] = useState<FilterStatus>(FilterStatus.All);
   const [title, setTitle] = useState('');
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
-  const [isAdding, setIsAdding] = useState(false);
-  const [loadingIds, setLoadingIds] = useState<number[]>([]);
 
-  const timerRef = useRef<number>(0);
+  const [isLoading, setIsLoading] = useState(false);
+  const [processingIds, setProcessingIds] = useState<number[]>([]);
+
   const todoInputRef = useRef<HTMLInputElement>(null);
-
-  const focusInput = () => {
-    todoInputRef.current?.focus();
-  };
-
-  const showError = (message: ErrorMessage) => {
-    setErrorMessage(message);
-    window.clearTimeout(timerRef.current);
-    timerRef.current = window.setTimeout(() => {
-      setErrorMessage(ErrorMessage.Empty);
-    }, 3000);
-  };
 
   useEffect(() => {
     getTodos()
       .then(setTodos)
-      .catch(() => showError(ErrorMessage.Load));
-
-    return () => window.clearTimeout(timerRef.current);
+      .catch(() => setErrorMessage(ErrorMessage.Load));
   }, []);
+
+  const visibleTodos = useMemo(
+    () => getVisibleTodos(todos, filter),
+    [todos, filter],
+  );
+  const activeTodosCount = useMemo(() => getActiveTodos(todos).length, [todos]);
+  const isAllCompleted = useMemo(
+    () => todos.length > 0 && todos.every(todo => todo.completed),
+    [todos],
+  );
+  const hasCompleted = useMemo(
+    () => todos.some(todo => todo.completed),
+    [todos],
+  );
 
   const handleAddTodo = (event: React.FormEvent) => {
     event.preventDefault();
     const trimmedTitle = title.trim();
 
     if (!trimmedTitle) {
-      showError(ErrorMessage.Title);
+      setErrorMessage(ErrorMessage.Title);
 
       return;
     }
 
-    setIsAdding(true);
+    setIsLoading(true);
     setTempTodo({
       id: 0,
       userId: USER_ID,
@@ -73,70 +73,59 @@ export const App: React.FC = () => {
       .then(newTodo => {
         setTodos(current => [...current, newTodo]);
         setTitle('');
-        focusInput();
+        todoInputRef.current?.focus();
       })
-      .catch(() => showError(ErrorMessage.Add))
+      .catch(() => setErrorMessage(ErrorMessage.Add))
       .finally(() => {
-        setIsAdding(false);
+        setIsLoading(false);
         setTempTodo(null);
       });
   };
 
   const handleDeleteTodo = (todoId: number) => {
-    setLoadingIds(current => [...current, todoId]);
+    setProcessingIds(current => [...current, todoId]);
 
     return deleteTodo(todoId)
       .then(() => {
         setTodos(current => current.filter(todo => todo.id !== todoId));
-        focusInput();
+        todoInputRef.current?.focus();
       })
       .catch(error => {
-        showError(ErrorMessage.Delete);
+        setErrorMessage(ErrorMessage.Delete);
         throw error;
       })
       .finally(() => {
-        setLoadingIds(current => current.filter(id => id !== todoId));
+        setProcessingIds(current => current.filter(id => id !== todoId));
       });
   };
 
   const handleUpdateTodo = (updatedTodo: Todo) => {
-    setLoadingIds(current => [...current, updatedTodo.id]);
+    setProcessingIds(current => [...current, updatedTodo.id]);
 
     return updateTodo(updatedTodo)
       .then(res => {
         setTodos(current =>
-          current.map(todo => (todo.id === updatedTodo.id ? res : todo)),
+          current.map(t => (t.id === updatedTodo.id ? res : t)),
         );
       })
       .catch(error => {
-        showError(ErrorMessage.Update);
+        setErrorMessage(ErrorMessage.Update);
         throw error;
       })
       .finally(() => {
-        setLoadingIds(current => current.filter(id => id !== updatedTodo.id));
+        setProcessingIds(current =>
+          current.filter(id => id !== updatedTodo.id),
+        );
       });
-  };
-
-  const clearCompletedTodos = () => {
-    const completedTodos = todos.filter(todo => todo.completed);
-
-    completedTodos.forEach(todo => handleDeleteTodo(todo.id));
   };
 
   const handleToggleAll = () => {
     const allCompleted = todos.every(todo => todo.completed);
-    const todosToUpdate = todos.filter(todo => todo.completed === allCompleted);
 
-    todosToUpdate.forEach(todo =>
-      handleUpdateTodo({ ...todo, completed: !allCompleted }),
-    );
+    todos
+      .filter(todo => todo.completed === allCompleted)
+      .forEach(todo => handleUpdateTodo({ ...todo, completed: !allCompleted }));
   };
-
-  const visibleTodos = getVisibleTodos(todos, filter);
-  const activeTodosCount = getActiveTodos(todos).length;
-  const isAllCompleted =
-    todos.length > 0 && todos.every(todo => todo.completed);
-  const hasCompleted = todos.some(todo => todo.completed);
 
   if (!USER_ID) {
     return <UserWarning />;
@@ -145,7 +134,6 @@ export const App: React.FC = () => {
   return (
     <div className="todoapp">
       <h1 className="todoapp__title">todos</h1>
-
       <div className="todoapp__content">
         <Header
           todos={todos}
@@ -153,7 +141,7 @@ export const App: React.FC = () => {
           title={title}
           setTitle={setTitle}
           onAddTodo={handleAddTodo}
-          isAdding={isAdding}
+          isAdding={isLoading}
           todoInputRef={todoInputRef}
           onToggleAll={handleToggleAll}
         />
@@ -165,10 +153,9 @@ export const App: React.FC = () => {
               todo={todo}
               onDelete={handleDeleteTodo}
               onUpdate={handleUpdateTodo}
-              isLoading={loadingIds.includes(todo.id)}
+              isLoading={processingIds.includes(todo.id)}
             />
           ))}
-
           {tempTodo && <TodoItem todo={tempTodo} isLoading={true} />}
         </section>
 
@@ -178,26 +165,19 @@ export const App: React.FC = () => {
             filter={filter}
             setFilter={setFilter}
             hasCompleted={hasCompleted}
-            onClearCompleted={clearCompletedTodos}
+            onClearCompleted={() =>
+              todos
+                .filter(t => t.completed)
+                .forEach(t => handleDeleteTodo(t.id))
+            }
           />
         )}
       </div>
 
-      <div
-        data-cy="ErrorNotification"
-        className={classNames(
-          'notification is-danger is-light has-text-weight-normal',
-          { hidden: !errorMessage },
-        )}
-      >
-        <button
-          data-cy="HideErrorButton"
-          type="button"
-          className="delete"
-          onClick={() => setErrorMessage(ErrorMessage.Empty)}
-        />
-        {errorMessage}
-      </div>
+      <ErrorNotification
+        message={errorMessage}
+        onClose={() => setErrorMessage(ErrorMessage.Empty)}
+      />
     </div>
   );
 };

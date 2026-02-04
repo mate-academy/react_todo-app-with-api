@@ -10,6 +10,9 @@ interface FooterProps {
   onClearCompleted: () => void;
 }
 
+const formatStatus = (status: string) =>
+  status.charAt(0).toUpperCase() + status.slice(1);
+
 export const Footer: React.FC<FooterProps> = ({
   activeTodosCount,
   filter,
@@ -26,19 +29,23 @@ export const Footer: React.FC<FooterProps> = ({
       </span>
 
       <nav className="filter" data-cy="Filter">
-        {filterStatuses.map(status => (
-          <a
-            key={status}
-            href={`#/${status === FilterStatus.All ? '' : status}`}
-            className={classNames('filter__link', {
-              selected: filter === status,
-            })}
-            data-cy={`FilterLink${status.charAt(0).toUpperCase() + status.slice(1)}`}
-            onClick={() => setFilter(status)}
-          >
-            {status.charAt(0).toUpperCase() + status.slice(1)}
-          </a>
-        ))}
+        {filterStatuses.map(status => {
+          const label = formatStatus(status);
+
+          return (
+            <a
+              key={status}
+              href={`#/${status === FilterStatus.All ? '' : status}`}
+              className={classNames('filter__link', {
+                selected: filter === status,
+              })}
+              data-cy={`FilterLink${label}`}
+              onClick={() => setFilter(status)}
+            >
+              {label}
+            </a>
+          );
+        })}
       </nav>
 
       <button
