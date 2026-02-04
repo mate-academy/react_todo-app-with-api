@@ -1,3 +1,4 @@
+import * as React from 'react';
 import cn from 'classnames';
 import { Todo } from './../types/Todo';
 
@@ -12,7 +13,7 @@ interface Props {
   onToggleAll: () => void;
 }
 
-export const Header: React.FC<Props> = ({
+const HeaderComponent: React.FC<Props> = ({
   todos,
   query,
   setQuery,
@@ -50,3 +51,5 @@ export const Header: React.FC<Props> = ({
     </header>
   );
 };
+
+export const Header = React.memo(HeaderComponent);

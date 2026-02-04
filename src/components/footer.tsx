@@ -1,16 +1,17 @@
+import * as React from 'react';
 import cn from 'classnames';
+import { FilterStatus } from '../utils/filterStatus';
 
-type FilterType = 'all' | 'active' | 'completed';
 
 interface Props {
   uncompletedCount: number;
   completedCount: number;
   onClearCompleted: () => void;
-  setFilter: (filter: FilterType) => void;
-  filter: FilterType;
+  setFilter: (filter: FilterStatus) => void;
+  filter: FilterStatus;
 }
 
-export const Footer: React.FC<Props> = ({
+export const FooterComponent: React.FC<Props> = ({
   uncompletedCount,
   completedCount,
   onClearCompleted,
@@ -27,10 +28,10 @@ export const Footer: React.FC<Props> = ({
         <a
           href="#/"
           className={cn('filter__link', {
-            selected: filter === 'all',
+            selected: filter === FilterStatus.All,
           })}
           data-cy="FilterLinkAll"
-          onClick={() => setFilter('all')}
+          onClick={() => setFilter(FilterStatus.All)}
         >
           All
         </a>
@@ -38,10 +39,10 @@ export const Footer: React.FC<Props> = ({
         <a
           href="#/active"
           className={cn('filter__link', {
-            selected: filter === 'active',
+            selected: filter === FilterStatus.Active,
           })}
           data-cy="FilterLinkActive"
-          onClick={() => setFilter('active')}
+          onClick={() => setFilter(FilterStatus.Active)}
         >
           Active
         </a>
@@ -49,10 +50,10 @@ export const Footer: React.FC<Props> = ({
         <a
           href="#/completed"
           className={cn('filter__link', {
-            selected: filter === 'completed',
+            selected: filter === FilterStatus.Completed,
           })}
           data-cy="FilterLinkCompleted"
-          onClick={() => setFilter('completed')}
+          onClick={() => setFilter(FilterStatus.Completed)}
         >
           Completed
         </a>
@@ -73,3 +74,5 @@ export const Footer: React.FC<Props> = ({
     </footer>
   );
 };
+
+export const Footer = React.memo(FooterComponent);

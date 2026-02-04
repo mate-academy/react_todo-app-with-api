@@ -1,7 +1,7 @@
 /* eslint-disable max-len */
 /* eslint-disable jsx-a11y/control-has-associated-label */
 import * as React from 'react';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo, useCallback } from 'react';
 import { UserWarning } from './UserWarning';
 import {
   USER_ID,
@@ -24,7 +24,6 @@ import { TodoList } from './components/todoList';
 import { Footer } from './components/footer';
 import { ErrorNotification } from './components/errorNotification';
 import { FilterStatus } from './utils/filterStatus';
-
 
 export const App: React.FC = () => {
   const [todos, setTodos] = useState<Todo[]>([]);
@@ -64,21 +63,24 @@ export const App: React.FC = () => {
     return () => clearTimeout(timer);
   }, [errorMessage]);
 
-  const visibleTodos = todos.filter(todo => {
-   switch (filter) {
-    case FilterStatus.Active:
-      return !todo.completed;
+  const visibleTodos = useMemo(() => {
+   return todos.filter(todo => {
+    switch (filter) {
+      case FilterStatus.Active:
+        return !todo.completed;
 
-    case FilterStatus.Completed:
-      return todo.completed;
+      case FilterStatus.Completed:
+        return todo.completed;
 
-    case FilterStatus.All:
-    default:
-      return true;
-  }
-  });
+      case FilterStatus.All:
+      default:
+        return true;
+    }
+    });
+  }, [todos, filter]);
 
-  const handleSubmit = (event: React.FormEvent) => {
+  const handleSubmit = useCallback(
+    (event: React.FormEvent) => {
     event.preventDefault();
 
     setErrorMessage('');
@@ -117,9 +119,9 @@ export const App: React.FC = () => {
           inputRef.current?.focus();
         }, 0);
       });
-  };
+  }, [query]);
 
-  const handleDelete = (todoId: number) => {
+  const handleDelete = useCallback((todoId: number) => {
     setIsLoading(prev => [...prev, todoId]);
 
     deleteTodo(todoId)
@@ -133,17 +135,17 @@ export const App: React.FC = () => {
         setIsLoading(prev => prev.filter(id => id !== todoId));
         inputRef.current?.focus();
       });
-  };
+  }, []);
 
-  const onClearCompleted = () => {
+  const onClearCompleted = useCallback(() => {
     const completedTodos = todos.filter(todo => todo.completed);
 
     completedTodos.forEach(todo => {
       handleDelete(todo.id);
     });
-  };
+  }, []);
 
-  const updateTodoItem = (todoId: number, dataToUpdate: Partial<Todo>) => {
+  const updateTodoItem = useCallback((todoId: number, dataToUpdate: Partial<Todo>) => {
     setIsLoading(currentIds => [...currentIds, todoId]);
 
     return updateTodo(todoId, dataToUpdate)
@@ -161,9 +163,9 @@ export const App: React.FC = () => {
       .finally(() => {
         setIsLoading(currentIds => currentIds.filter(id => id !== todoId));
       });
-  };
+  }, []);
 
-  const handleRename = (todo: Todo, newTitle: string) => {
+  const handleRename = useCallback((todo: Todo, newTitle: string) => {
     const trimmedTitle = newTitle.trim();
 
     if (trimmedTitle === todo.title) {
@@ -181,12 +183,12 @@ export const App: React.FC = () => {
     updateTodoItem(todo.id, { title: trimmedTitle })
       .then(() => setEditingId(null))
       .catch(() => setErrorMessage(NO_UPDATE));
-  };
+  }, []);
 
   const completedCount = todos.filter(todo => todo.completed).length;
   const uncompletedCount = todos.filter(todo => !todo.completed).length;
 
-  const onToggleAll = () => {
+  const onToggleAll = useCallback(() => {
     const areAllCompleted = todos.length === completedCount;
     const targetStatus = !areAllCompleted;
 
@@ -195,7 +197,7 @@ export const App: React.FC = () => {
         updateTodoItem(todo.id, { completed: targetStatus });
       }
     });
-  };
+  }, []);
 
   if (!USER_ID) {
     return <UserWarning />;

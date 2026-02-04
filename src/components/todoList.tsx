@@ -13,7 +13,7 @@ interface Props {
   updateTodoItem: (id: number, data: Partial<Todo>) => Promise<void | Todo>;
 }
 
-export const TodoList: React.FC<Props> = ({
+const TodoListComponent: React.FC<Props> = ({
   visibleTodos,
   tempTodo,
   isLoading,
@@ -52,3 +52,5 @@ export const TodoList: React.FC<Props> = ({
     </section>
   );
 };
+
+export const TodoList = React.memo(TodoListComponent);
