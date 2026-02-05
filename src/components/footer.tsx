@@ -2,11 +2,10 @@ import * as React from 'react';
 import cn from 'classnames';
 import { FilterStatus } from '../utils/filterStatus';
 
-
 interface Props {
   uncompletedCount: number;
   completedCount: number;
-  onClearCompleted: () => void;
+  handleClearCompleted: () => void;
   setFilter: (filter: FilterStatus) => void;
   filter: FilterStatus;
 }
@@ -14,7 +13,7 @@ interface Props {
 export const FooterComponent: React.FC<Props> = ({
   uncompletedCount,
   completedCount,
-  onClearCompleted,
+  handleClearCompleted,
   setFilter,
   filter,
 }) => {
@@ -25,45 +24,27 @@ export const FooterComponent: React.FC<Props> = ({
       </span>
 
       <nav className="filter" data-cy="Filter">
-        <a
-          href="#/"
-          className={cn('filter__link', {
-            selected: filter === FilterStatus.All,
-          })}
-          data-cy="FilterLinkAll"
-          onClick={() => setFilter(FilterStatus.All)}
-        >
-          All
-        </a>
+        {Object.values(FilterStatus).map((status) => (
+      <a
+        key={status}
+        href={`#/${status === FilterStatus.All ? '' : status.toLowerCase()}`}
+        className={cn('filter__link', {
+          selected: filter === status,
+        })}
+        data-cy={`FilterLink${status}`}
+        onClick={() => setFilter(status)}
+      >
+        {status}
+      </a>
+    ))}
 
-        <a
-          href="#/active"
-          className={cn('filter__link', {
-            selected: filter === FilterStatus.Active,
-          })}
-          data-cy="FilterLinkActive"
-          onClick={() => setFilter(FilterStatus.Active)}
-        >
-          Active
-        </a>
-
-        <a
-          href="#/completed"
-          className={cn('filter__link', {
-            selected: filter === FilterStatus.Completed,
-          })}
-          data-cy="FilterLinkCompleted"
-          onClick={() => setFilter(FilterStatus.Completed)}
-        >
-          Completed
-        </a>
       </nav>
 
       <button
         type="button"
         className="todoapp__clear-completed"
         data-cy="ClearCompletedButton"
-        onClick={onClearCompleted}
+        onClick={handleClearCompleted}
         disabled={completedCount === 0}
         style={{
           visibility: completedCount > 0 ? 'visible' : 'hidden',
