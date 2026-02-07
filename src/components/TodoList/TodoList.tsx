@@ -1,5 +1,9 @@
+/* eslint-disable prettier/prettier */
 import React from 'react';
+
+import { TransitionGroup, CSSTransition } from 'react-transition-group';
 import './TodoList.scss';
+
 import { Todo } from '../../types/Todo';
 import { TodoItem } from '../TodoItem';
 
@@ -39,42 +43,56 @@ export const TodoList: React.FC<Props> = ({
 }) => {
   return (
     <section className="todoapp__main" data-cy="TodoList">
-      {todos.map(todo => (
-        <TodoItem
-          key={todo.id}
-          // Data
-          todo={todo}
-          // State
-          isEditing={editingTodoId === todo.id}
-          isLoading={processingIds.includes(todo.id)}
-          tempTitle={tempTitle}
-          // Handlers
-          onChange={e => setTempTitle(e.target.value)}
-          onEdit={onEdit}
-          onSubmit={e => onSubmit(e, todo.id)}
-          onCancel={onCancel}
-          onSave={() => onSave(todo.id)}
-          onToggle={() => onUpdate(todo.id, { completed: !todo.completed })}
-          onDelete={() => onDelete(todo.id)}
-        />
-      ))}
+      <TransitionGroup>
+        {todos.map(todo => (
+          <CSSTransition
+            key={todo.id}
+            timeout={300}
+            classNames="item"
+          >
+            <TodoItem
+              key={todo.id}
+              // Data
+              todo={todo}
+              // State
+              isEditing={editingTodoId === todo.id}
+              isLoading={processingIds.includes(todo.id)}
+              tempTitle={tempTitle}
+              // Handlers
+              onChange={e => setTempTitle(e.target.value)}
+              onEdit={onEdit}
+              onSubmit={e => onSubmit(e, todo.id)}
+              onCancel={onCancel}
+              onSave={() => onSave(todo.id)}
+              onToggle={() => onUpdate(todo.id, { completed: !todo.completed })}
+              onDelete={() => onDelete(todo.id)}
+            />
+          </CSSTransition>
+        ))}
 
-      {tempTodo && (
-        <TodoItem
-          key={0}
-          todo={tempTodo}
-          isEditing={false}
-          isLoading={true}
-          tempTitle=""
-          onChange={() => {}}
-          onEdit={() => {}}
-          onSubmit={() => {}}
-          onCancel={() => {}}
-          onSave={() => {}}
-          onToggle={() => {}}
-          onDelete={() => {}}
-        />
-      )}
+        {tempTodo && (
+          <CSSTransition
+            key={0}
+            timeout={300}
+            classNames="temp-item"
+          >
+            <TodoItem
+              key={0}
+              todo={tempTodo}
+              isEditing={false}
+              isLoading={true}
+              tempTitle=""
+              onChange={() => {}}
+              onEdit={() => {}}
+              onSubmit={() => {}}
+              onCancel={() => {}}
+              onSave={() => {}}
+              onToggle={() => {}}
+              onDelete={() => {}}
+            />
+          </CSSTransition>
+        )}
+      </TransitionGroup>
     </section>
   );
 };
