@@ -7,7 +7,7 @@ interface TodoListProps {
   tempTodo: Todo | null;
   onDelete: (id: number) => Promise<void>;
   onUpdate: (todo: Todo) => Promise<void>;
-  loadingIds: number[];
+  processingIds: number[];
 }
 
 export const TodoList: React.FC<TodoListProps> = ({
@@ -15,7 +15,7 @@ export const TodoList: React.FC<TodoListProps> = ({
   tempTodo,
   onDelete,
   onUpdate,
-  loadingIds,
+  processingIds,
 }) => {
   const shouldShowTemp =
     tempTodo && !todos.some(todo => todo.title === tempTodo.title);
@@ -28,7 +28,7 @@ export const TodoList: React.FC<TodoListProps> = ({
           todo={todo}
           onDelete={onDelete}
           onUpdate={onUpdate}
-          isLoaderActive={loadingIds.includes(todo.id) || todo.id === 0}
+          isLoaderActive={processingIds.includes(todo.id) || todo.id === 0}
         />
       ))}
 

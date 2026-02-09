@@ -4,8 +4,8 @@ import { ERRORS } from '../utils/errors';
 
 interface HeaderProps {
   onAdd: (title: string) => Promise<boolean>;
-  isSubmitting: boolean;
-  onError?: (message: string) => void;
+  isLoading: boolean;
+  onError?: (message: ERRORS) => void;
   inputRef: React.RefObject<HTMLInputElement>;
   isAllCompleted: boolean;
   onToggleAll: () => Promise<void>;
@@ -14,7 +14,7 @@ interface HeaderProps {
 
 export const Header: React.FC<HeaderProps> = ({
   onAdd,
-  isSubmitting,
+  isLoading,
   onError,
   inputRef,
   isAllCompleted,
@@ -25,7 +25,7 @@ export const Header: React.FC<HeaderProps> = ({
 
   useEffect(() => {
     inputRef.current?.focus();
-  }, [isSubmitting, inputRef]);
+  }, [isLoading, inputRef]);
 
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
@@ -38,7 +38,7 @@ export const Header: React.FC<HeaderProps> = ({
       return;
     }
 
-    if (isSubmitting) {
+    if (isLoading) {
       return;
     }
 
@@ -69,7 +69,7 @@ export const Header: React.FC<HeaderProps> = ({
           ref={inputRef}
           value={currentTitle}
           onChange={e => setCurrentTitle(e.target.value)}
-          disabled={isSubmitting}
+          disabled={isLoading}
         />
       </form>
     </header>

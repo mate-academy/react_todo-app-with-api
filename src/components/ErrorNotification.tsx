@@ -1,8 +1,9 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import cn from 'classnames';
+import { ERRORS } from '../utils/errors';
 
 interface ErrorNotificationProps {
-  message: string | null;
+  message: ERRORS;
   onClose: () => void;
 }
 
@@ -10,6 +11,18 @@ export const ErrorNotification: React.FC<ErrorNotificationProps> = ({
   message,
   onClose,
 }) => {
+  useEffect(() => {
+    if (!message) {
+      return;
+    }
+
+    const timeoutId = window.setTimeout(() => {
+      onClose();
+    }, 3000);
+
+    return () => window.clearTimeout(timeoutId);
+  }, [message, onClose]);
+
   return (
     <div
       data-cy="ErrorNotification"
