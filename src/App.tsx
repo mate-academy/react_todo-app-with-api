@@ -23,6 +23,7 @@ export const App: React.FC = () => {
   const [processingIds, setProcessingIds] = useState<number[]>([]);
 
   const inputRef = useRef<HTMLInputElement | null>(null);
+  const tempIdRef = useRef(0);
 
   useEffect(() => {
     todoService
@@ -47,6 +48,8 @@ export const App: React.FC = () => {
     [todos],
   );
 
+  const allCompleted = todos.length > 0 && todos.every(todo => todo.completed);
+
   const handleAddTodo = async () => {
     const trimmedTitle = todoTitle.trim();
 
@@ -56,11 +59,13 @@ export const App: React.FC = () => {
       return;
     }
 
+    const tempId = --tempIdRef.current;
+
     setTempTodo({
-      id: 0,
+      id: tempId,
       completed: false,
       title: trimmedTitle,
-      userId: 0,
+      userId: todoService.USER_ID,
     });
 
     try {
@@ -82,7 +87,6 @@ export const App: React.FC = () => {
     try {
       await todoService.deleteTodo(todoId);
       setTodos(current => current.filter(todo => todo.id !== todoId));
-
       inputRef.current?.focus();
     } catch {
       setErrorMessage(ErrorMessage.DeleteTodo);
@@ -92,14 +96,10 @@ export const App: React.FC = () => {
   };
 
   const handleClearCompleted = () => {
-    const completedTodos = todos.filter(todo => todo.completed);
-
-    completedTodos.forEach(todo => {
-      handleRemoveTodo(todo.id);
-    });
+    todos
+      .filter(todo => todo.completed)
+      .forEach(todo => handleRemoveTodo(todo.id));
   };
-
-  const allCompleted = todos.every(todo => todo.completed);
 
   const handleToggleTodo = (todoToUpdate: Todo) => {
     setProcessingIds(ids => [...ids, todoToUpdate.id]);
@@ -109,10 +109,10 @@ export const App: React.FC = () => {
         ...todoToUpdate,
         completed: !todoToUpdate.completed,
       })
-      .then(updateTodo => {
-        setTodos(currentTodos =>
-          currentTodos.map(todo =>
-            todo.id === updateTodo.id ? updateTodo : todo,
+      .then(updatedTodo => {
+        setTodos(current =>
+          current.map(todo =>
+            todo.id === updatedTodo.id ? updatedTodo : todo,
           ),
         );
       })
@@ -125,20 +125,16 @@ export const App: React.FC = () => {
   };
 
   const handleToggleAll = () => {
-    if (allCompleted) {
-      todos.forEach(todo => {
-        handleToggleTodo({ ...todo, completed: true });
-      });
-    } else {
-      todos.filter(todo => !todo.completed).forEach(handleToggleTodo);
-    }
+    const shouldCompleteAll = !allCompleted;
+
+    todos
+      .filter(todo => todo.completed !== shouldCompleteAll)
+      .forEach(todo => handleToggleTodo(todo));
   };
 
   async function handleUpdateTitle(todoToUpdate: Todo, newTitle: string) {
     if (newTitle === '') {
-      handleRemoveTodo(todoToUpdate.id);
-
-      return Promise.resolve();
+      return handleRemoveTodo(todoToUpdate.id);
     }
 
     if (newTitle === todoToUpdate.title) {
@@ -149,10 +145,10 @@ export const App: React.FC = () => {
 
     return todoService
       .updateTodo({ ...todoToUpdate, title: newTitle })
-      .then(updateTodo => {
-        setTodos(currentTodos =>
-          currentTodos.map(todo =>
-            todo.id === updateTodo.id ? updateTodo : todo,
+      .then(updatedTodo => {
+        setTodos(current =>
+          current.map(todo =>
+            todo.id === updatedTodo.id ? updatedTodo : todo,
           ),
         );
       })
@@ -192,11 +188,12 @@ export const App: React.FC = () => {
               onUpdateTitle={newTitle => handleUpdateTitle(todo, newTitle)}
             />
           ))}
+
           {tempTodo && (
             <TodoItem
-              key={0}
+              key={tempTodo.id}
               todo={tempTodo}
-              isProcessing={true}
+              isProcessing
               onDelete={() => {}}
               onToggle={() => {}}
             />

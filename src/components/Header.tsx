@@ -32,13 +32,14 @@ export const Header = forwardRef<HTMLInputElement, Props>(
     return (
       <header className="todoapp__header">
         {hasTodos && (
-          <button
-            type="button"
+          <input
+            type="checkbox"
             className={classNames('todoapp__toggle-all', {
               active: isAllTodosCompleted,
             })}
             data-cy="ToggleAllButton"
-            onClick={onToggleAll}
+            checked={isAllTodosCompleted}
+            onChange={onToggleAll}
           />
         )}
 
