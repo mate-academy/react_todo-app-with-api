@@ -11,6 +11,7 @@ type Props = {
   isLoading?: boolean;
   deletedId?: number[];
   id?: number;
+  nodeRef?: React.RefObject<HTMLDivElement>;
   handleDelete?: (id: number, el: HTMLInputElement | null) => Promise<number>;
   updateTodo?: (todoId: number, updatePart: string | boolean) => Promise<void>;
 };
@@ -24,6 +25,7 @@ export const TodoItem: React.FC<Props> = ({
   handleDelete,
   id,
   updateTodo,
+  nodeRef,
 }) => {
   const [isDoubleClick, setIsDoubleClick] = useState(false);
   const [newTitleTodo, setNewTitleTdo] = useState('');
@@ -78,6 +80,7 @@ export const TodoItem: React.FC<Props> = ({
 
   return (
     <div
+      ref={nodeRef}
       data-cy="Todo"
       className={classNames('todo', { completed: completed })}
     >
