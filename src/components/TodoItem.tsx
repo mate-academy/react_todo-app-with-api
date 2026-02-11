@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/indent */
 import classNames from 'classnames';
 import { Todo } from '../types/Todo';
 import { useState } from 'react';
@@ -40,7 +41,13 @@ export function TodoItem({
     }
   }
 
-  const handleFormSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+  const handleFormSubmit = (
+    event:
+      | React.FormEvent<HTMLFormElement>
+      | React.FocusEvent<HTMLInputElement, Element>,
+  ) => {
+    event.preventDefault();
+
     if (todo.title === newTitle) {
       setEditingTodo(null);
     } else if (newTitle.trim() === '') {
@@ -71,7 +78,7 @@ export function TodoItem({
             placeholder="Empty todo will be deleted"
             value={newTitle}
             onChange={event => setNewTitle(event.target.value)}
-            onBlur={event => onSave({ ...todo, title: newTitle.trim() }, event)}
+            onBlur={event => handleFormSubmit(event)}
             onKeyUp={handleCancel}
           />
         </form>
