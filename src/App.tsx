@@ -18,7 +18,7 @@ export const App: React.FC = () => {
   const [selectedFilter, setSelectedFilter] = useState<TodoFilters>(
     TodoFilters.All,
   );
-  const [todoTitle, setTodoTitle] = useState<string>('');
+  const [todoTitle, setTodoTitle] = useState('');
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
   const [processingIds, setProcessingIds] = useState<number[]>([]);
 
@@ -33,8 +33,8 @@ export const App: React.FC = () => {
   }, []);
 
   useEffect(() => {
-    if (!tempTodo && inputRef.current) {
-      inputRef.current.focus();
+    if (!tempTodo) {
+      inputRef.current?.focus();
     }
   }, [tempTodo]);
 
@@ -48,7 +48,7 @@ export const App: React.FC = () => {
     [todos],
   );
 
-  const allCompleted = todos.length > 0 && todos.every(todo => todo.completed);
+  const allCompleted = todos.length > 0 && todos.every(t => t.completed);
 
   const handleAddTodo = async () => {
     const trimmedTitle = todoTitle.trim();
@@ -63,8 +63,8 @@ export const App: React.FC = () => {
 
     setTempTodo({
       id: tempId,
-      completed: false,
       title: trimmedTitle,
+      completed: false,
       userId: todoService.USER_ID,
     });
 
@@ -81,84 +81,83 @@ export const App: React.FC = () => {
     }
   };
 
-  const handleRemoveTodo = async (todoId: number) => {
-    setProcessingIds(ids => [...ids, todoId]);
+  const handleRemoveTodo = async (id: number) => {
+    setProcessingIds(ids => [...ids, id]);
 
     try {
-      await todoService.deleteTodo(todoId);
-      setTodos(current => current.filter(todo => todo.id !== todoId));
+      await todoService.deleteTodo<void>(id);
+      setTodos(current => current.filter(t => t.id !== id));
       inputRef.current?.focus();
     } catch {
       setErrorMessage(ErrorMessage.DeleteTodo);
     } finally {
-      setProcessingIds(ids => ids.filter(id => id !== todoId));
+      setProcessingIds(ids => ids.filter(tid => tid !== id));
     }
   };
 
-  const handleClearCompleted = () => {
-    todos
-      .filter(todo => todo.completed)
-      .forEach(todo => handleRemoveTodo(todo.id));
-  };
+  const handleToggleTodo = async (id: number, completed: boolean) => {
+    const todoToUpdate = todos.find(t => t.id === id);
 
-  const handleToggleTodo = (todoToUpdate: Todo) => {
-    setProcessingIds(ids => [...ids, todoToUpdate.id]);
+    if (!todoToUpdate) {
+      return;
+    }
 
-    todoService
-      .updateTodo({
+    setProcessingIds(ids => [...ids, id]);
+
+    try {
+      const updated = await todoService.updateTodo({
         ...todoToUpdate,
-        completed: !todoToUpdate.completed,
-      })
-      .then(updatedTodo => {
-        setTodos(current =>
-          current.map(todo =>
-            todo.id === updatedTodo.id ? updatedTodo : todo,
-          ),
-        );
-      })
-      .catch(() => {
-        setErrorMessage(ErrorMessage.UpdateTodo);
-      })
-      .finally(() => {
-        setProcessingIds(ids => ids.filter(id => id !== todoToUpdate.id));
+        completed,
       });
+
+      setTodos(current =>
+        current.map(t => (t.id === updated.id ? updated : t)),
+      );
+    } catch {
+      setErrorMessage(ErrorMessage.UpdateTodo);
+    } finally {
+      setProcessingIds(ids => ids.filter(tid => tid !== id));
+    }
   };
 
   const handleToggleAll = () => {
     const shouldCompleteAll = !allCompleted;
 
     todos
-      .filter(todo => todo.completed !== shouldCompleteAll)
-      .forEach(todo => handleToggleTodo(todo));
+      .filter(t => t.completed !== shouldCompleteAll)
+      .forEach(t => handleToggleTodo(t.id, shouldCompleteAll));
   };
 
-  async function handleUpdateTitle(todoToUpdate: Todo, newTitle: string) {
-    if (newTitle === '') {
-      return handleRemoveTodo(todoToUpdate.id);
+  const handleClearCompleted = () => {
+    todos.filter(t => t.completed).forEach(t => handleRemoveTodo(t.id));
+  };
+
+  async function handleUpdateTitle(todo: Todo, newTitle: string) {
+    if (!newTitle.trim()) {
+      return handleRemoveTodo(todo.id);
     }
 
-    if (newTitle === todoToUpdate.title) {
-      return Promise.resolve();
+    if (newTitle === todo.title) {
+      return;
     }
 
-    setProcessingIds(ids => [...ids, todoToUpdate.id]);
+    setProcessingIds(ids => [...ids, todo.id]);
 
-    return todoService
-      .updateTodo({ ...todoToUpdate, title: newTitle })
-      .then(updatedTodo => {
-        setTodos(current =>
-          current.map(todo =>
-            todo.id === updatedTodo.id ? updatedTodo : todo,
-          ),
-        );
-      })
-      .catch(error => {
-        setErrorMessage(ErrorMessage.UpdateTodo);
-        throw error;
-      })
-      .finally(() => {
-        setProcessingIds(ids => ids.filter(id => id !== todoToUpdate.id));
+    try {
+      const updated = await todoService.updateTodo({
+        ...todo,
+        title: newTitle,
       });
+
+      setTodos(current =>
+        current.map(t => (t.id === updated.id ? updated : t)),
+      );
+    } catch (error) {
+      setErrorMessage(ErrorMessage.UpdateTodo);
+      throw error;
+    } finally {
+      setProcessingIds(ids => ids.filter(id => id !== todo.id));
+    }
   }
 
   return (
@@ -177,28 +176,30 @@ export const App: React.FC = () => {
           hasTodos={todos.length > 0}
         />
 
-        <section className="todoapp__main" data-cy="TodoList">
-          {filteredTodos.map(todo => (
-            <TodoItem
-              key={todo.id}
-              todo={todo}
-              onDelete={() => handleRemoveTodo(todo.id)}
-              isProcessing={processingIds.includes(todo.id)}
-              onToggle={() => handleToggleTodo(todo)}
-              onUpdateTitle={newTitle => handleUpdateTitle(todo, newTitle)}
-            />
-          ))}
+        {(todos.length > 0 || tempTodo) && (
+          <section className="todoapp__main" data-cy="TodoList">
+            {filteredTodos.map(todo => (
+              <TodoItem
+                key={todo.id}
+                todo={todo}
+                isProcessing={processingIds.includes(todo.id)}
+                onDelete={handleRemoveTodo}
+                onToggle={handleToggleTodo}
+                onUpdateTitle={newTitle => handleUpdateTitle(todo, newTitle)}
+              />
+            ))}
 
-          {tempTodo && (
-            <TodoItem
-              key={tempTodo.id}
-              todo={tempTodo}
-              isProcessing
-              onDelete={() => {}}
-              onToggle={() => {}}
-            />
-          )}
-        </section>
+            {tempTodo && (
+              <TodoItem
+                key={tempTodo.id}
+                todo={tempTodo}
+                isProcessing
+                onDelete={() => {}}
+                onToggle={() => {}}
+              />
+            )}
+          </section>
+        )}
 
         {todos.length > 0 && (
           <Footer
