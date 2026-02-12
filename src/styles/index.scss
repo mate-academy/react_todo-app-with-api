@@ -18,6 +18,9 @@ body {
   min-height: 0;
   opacity: 0;
   pointer-events: none;
+
+  margin: 0;
+  padding: 0;
 }
 
 @import "./todoapp";
