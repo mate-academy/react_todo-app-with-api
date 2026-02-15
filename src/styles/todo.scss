@@ -71,6 +71,7 @@
   }
 
   &__title-field {
+    display: none;
     width: 100%;
     padding: 11px 14px;
 
@@ -88,6 +89,23 @@
       font-weight: 300;
       color: #e6e6e6;
     }
+  }
+
+  &.editing &__title {
+    display: none;
+  }
+
+  &.editing &__remove {
+    display: none;
+  }
+
+  &.editing &__title-field {
+    display: block;
+  }
+
+  &.editing form {
+    display: flex;
+    align-items: center;
   }
 
   .overlay {
