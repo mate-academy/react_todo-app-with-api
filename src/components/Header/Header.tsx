@@ -22,6 +22,10 @@ export const Header: React.FC<Props> = ({
   onSubmit,
   onTitleChange,
 }) => {
+  const handleTitleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    onTitleChange(e.target.value);
+  };
+
   return (
     <>
       <header className="todoapp__header">
@@ -45,9 +49,7 @@ export const Header: React.FC<Props> = ({
             className="todoapp__new-todo"
             placeholder="What needs to be done?"
             value={newTitle}
-            onChange={e => {
-              onTitleChange(e.target.value);
-            }}
+            onChange={handleTitleChange}
           />
         </form>
       </header>
