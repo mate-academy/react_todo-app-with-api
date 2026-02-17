@@ -2,7 +2,7 @@
 /* eslint-disable jsx-a11y/control-has-associated-label */
 import React, { useEffect, useRef, useState } from 'react';
 import { UserWarning } from './UserWarning';
-import { deleteTodos, getTodos, USER_ID } from './api/todos';
+import { deleteTodo, getTodos, USER_ID } from './api/todos';
 import { Todo } from './types/Todo';
 import { TodoFilter } from './types/TodoFilter';
 import { ERROR_MESSAGES, ErrorMessage } from './types/ErrorMessages';
@@ -65,7 +65,7 @@ export const App: React.FC = () => {
 
     setProcessingIds(prevState => [...prevState, ...completedIds]);
 
-    Promise.allSettled(completedIds.map(id => deleteTodos(id)))
+    Promise.allSettled(completedIds.map(id => deleteTodo(id)))
       .then(results => {
         const successIds = completedIds.filter(
           (_, index) => results[index].status === 'fulfilled',

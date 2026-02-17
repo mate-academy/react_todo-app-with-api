@@ -1,6 +1,6 @@
 import { ErrorMessage, ERROR_MESSAGES } from '../../types/ErrorMessages';
 import React, { useState } from 'react';
-import { addTodos, USER_ID } from '../../api/todos';
+import { addTodo, USER_ID } from '../../api/todos';
 import { Todo } from '../../types/Todo';
 
 type HeaderProps = {
@@ -40,7 +40,7 @@ export const Header = ({
     });
     setProcessingIds(prevIds => [...prevIds, 0]);
     setIsSubmitting(true);
-    addTodos(normalizedTitle)
+    addTodo(normalizedTitle)
       .then(todo => {
         onSetTodo(todos => [...todos, todo]);
         setTitleValue('');

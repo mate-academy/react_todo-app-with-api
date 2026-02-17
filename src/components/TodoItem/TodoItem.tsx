@@ -1,6 +1,6 @@
 import classNames from 'classnames';
 import { Todo } from '../../types/Todo';
-import { deleteTodos } from '../../api/todos';
+import { deleteTodo } from '../../api/todos';
 import { ERROR_MESSAGES, ErrorMessage } from '../../types/ErrorMessages';
 
 type TodoItemProps = {
@@ -28,7 +28,7 @@ export const TodoItem = ({
     }
 
     setProcessingIds(prevIds => [...prevIds, id]);
-    deleteTodos(id)
+    deleteTodo(id)
       .then(() => {
         setTodos?.(prevTodos => prevTodos.filter(t => t.id !== id));
       })

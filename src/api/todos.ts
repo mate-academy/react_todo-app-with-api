@@ -8,7 +8,7 @@ export const getTodos = () => {
 };
 
 // Add more methods here
-export const addTodos = (title: string) => {
+export const addTodo = (title: string) => {
   return client.post<Todo>(`/todos`, {
     title,
     completed: false,
@@ -16,6 +16,6 @@ export const addTodos = (title: string) => {
   });
 };
 
-export const deleteTodos = (id: number) => {
+export const deleteTodo = (id: number) => {
   return client.delete(`/todos/${id}`);
 };
