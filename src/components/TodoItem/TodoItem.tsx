@@ -1,6 +1,6 @@
 import classNames from 'classnames';
 import { Todo } from '../../types/Todo';
-import { deleteTodo } from '../../api/todos';
+import { deleteTodo, updateTodo } from '../../api/todos';
 import { ERROR_MESSAGES, ErrorMessage } from '../../types/ErrorMessages';
 
 type TodoItemProps = {
@@ -43,6 +43,29 @@ export const TodoItem = ({
       });
   };
 
+  const handleCheckboxButton = (id: number, completed: boolean) => {
+    if (processingIds.includes(id)) {
+      return;
+    }
+
+    setProcessingIds(prevState => [...prevState, id]);
+
+    updateTodo(id, { completed: !completed })
+      .then(updatedTodo => {
+        setTodos?.(prevTodos =>
+          prevTodos.map(t => (t.id === updatedTodo.id ? updatedTodo : t)),
+        );
+      })
+      .catch(() => {
+        setErrorMessage?.(ERROR_MESSAGES.UPDATE_FAIL);
+      })
+      .finally(() => {
+        setProcessingIds(prevState =>
+          prevState.filter(todoId => todoId !== id),
+        );
+      });
+  };
+
   return (
     <div
       data-cy="Todo"
@@ -56,7 +79,9 @@ export const TodoItem = ({
           data-cy="TodoStatus"
           className="todo__status"
           checked={todo.completed}
-          onChange={() => {}}
+          onChange={() => {
+            handleCheckboxButton(todo.id, todo.completed);
+          }}
         />
       </label>
 
