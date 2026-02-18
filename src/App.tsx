@@ -22,6 +22,8 @@ export const App: React.FC = () => {
   const inputRef = useRef<HTMLInputElement>(null);
   const focusInput = () => inputRef.current?.focus();
   const hasCompletedTodos = todos.some(todo => todo.completed);
+  const hasTodos = todos.length > 0;
+  const isAllCompleted = hasTodos && todos.every(todo => todo.completed);
 
   const filteredTodos = todos.filter(todo => {
     if (filterBy === 'active') {
@@ -102,8 +104,12 @@ export const App: React.FC = () => {
           onErrorMessage={setErrorMessage}
           onSetTempTodo={setTempTodo}
           onSetTodo={setTodos}
-          setProcessingIds={setProcessingIds}
+          onProcessingIds={setProcessingIds}
           inputRef={inputRef}
+          todos={todos}
+          hasTodos={hasTodos}
+          isAllCompleted={isAllCompleted}
+          focusInput={focusInput}
         />
         <TodosList
           todos={todos}
