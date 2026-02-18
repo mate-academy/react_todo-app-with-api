@@ -1,6 +1,7 @@
 import { Todo } from '../../types/Todo';
 import { TodoItem } from '../TodoItem/TodoItem';
 import { ErrorMessage } from '../../types/ErrorMessages';
+import { useState } from 'react';
 
 type TodosListProps = {
   todos: Todo[];
@@ -23,6 +24,16 @@ export const TodosList = ({
   setErrorMessage,
   focusInput,
 }: TodosListProps) => {
+  const [editingTodoId, setEditingTodoId] = useState<number | null>(null);
+
+  const onStartEditing = (id: number) => {
+    setEditingTodoId(id);
+  };
+
+  const onCancelEditing = () => {
+    setEditingTodoId(null);
+  };
+
   return (
     <>
       {todos.length > 0 && (
@@ -36,6 +47,9 @@ export const TodosList = ({
               setTodos={setTodos}
               setErrorMessage={setErrorMessage}
               focusInput={focusInput}
+              isEditing={editingTodoId === todo.id}
+              onStartEditing={onStartEditing}
+              onCancelEditing={onCancelEditing}
             />
           ))}
           {tempTodo && (

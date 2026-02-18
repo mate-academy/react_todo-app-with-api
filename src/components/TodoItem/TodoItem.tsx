@@ -2,6 +2,7 @@ import classNames from 'classnames';
 import { Todo } from '../../types/Todo';
 import { deleteTodo, updateTodo } from '../../api/todos';
 import { ERROR_MESSAGES, ErrorMessage } from '../../types/ErrorMessages';
+import { useState } from 'react';
 
 type TodoItemProps = {
   todo: Todo;
@@ -10,6 +11,9 @@ type TodoItemProps = {
   setTodos?: React.Dispatch<React.SetStateAction<Todo[]>>;
   setErrorMessage?: (errorMessage: ErrorMessage) => void;
   focusInput?: () => void;
+  isEditing?: boolean;
+  onStartEditing?: (id: number) => void;
+  onCancelEditing?: () => void;
 };
 
 export const TodoItem = ({
@@ -19,7 +23,11 @@ export const TodoItem = ({
   setTodos,
   setErrorMessage,
   focusInput,
+  isEditing,
+  onStartEditing,
+  onCancelEditing,
 }: TodoItemProps) => {
+  const [editedTitle, setEditedTitle] = useState('');
   const isProcessing = processingIds.includes(todo.id);
 
   const handleDeleteButton = (id: number): void => {
@@ -66,6 +74,51 @@ export const TodoItem = ({
       });
   };
 
+  const onSaveEditing = (id: number, title: string) => {
+    if (isProcessing) {
+      return;
+    }
+
+    setProcessingIds(prevState => [...prevState, id]);
+    updateTodo(id, { title })
+      .then(() => {
+        setTodos?.(prevTodos =>
+          prevTodos.map(t => (t.id === id ? { ...t, title } : t)),
+        );
+        onCancelEditing?.();
+      })
+      .catch(() => {
+        setErrorMessage?.(ERROR_MESSAGES.UPDATE_FAIL);
+      })
+      .finally(() => {
+        setProcessingIds(prevState =>
+          prevState.filter(todoId => todoId !== id),
+        );
+      });
+  };
+
+  const commitEdit = () => {
+    if (isProcessing) {
+      return;
+    }
+
+    const normalizedTitle = editedTitle.trim();
+
+    if (normalizedTitle === todo.title) {
+      onCancelEditing?.();
+
+      return;
+    }
+
+    if (!normalizedTitle) {
+      handleDeleteButton(todo.id);
+
+      return;
+    }
+
+    onSaveEditing(todo.id, normalizedTitle);
+  };
+
   return (
     <div
       data-cy="Todo"
@@ -85,23 +138,59 @@ export const TodoItem = ({
         />
       </label>
 
-      <span data-cy="TodoTitle" className="todo__title">
-        {todo.title}
-      </span>
+      {!isEditing && (
+        <>
+          <span
+            data-cy="TodoTitle"
+            className="todo__title"
+            onDoubleClick={() => {
+              onStartEditing?.(todo.id);
+              setEditedTitle(todo.title);
+            }}
+          >
+            {todo.title}
+          </span>
 
-      {/* Remove button appears only on hover */}
-      <button
-        type="button"
-        className="todo__remove"
-        data-cy="TodoDelete"
-        onClick={() => {
-          handleDeleteButton(todo.id);
-        }}
-        disabled={isProcessing}
-      >
-        ×
-      </button>
+          {/* Remove button appears only on hover */}
+          <button
+            type="button"
+            className="todo__remove"
+            data-cy="TodoDelete"
+            onClick={() => {
+              handleDeleteButton(todo.id);
+            }}
+            disabled={isProcessing}
+          >
+            ×
+          </button>
+        </>
+      )}
 
+      {isEditing && (
+        <form
+          onSubmit={e => {
+            e.preventDefault();
+            commitEdit();
+          }}
+        >
+          <input
+            data-cy="TodoTitleField"
+            type="text"
+            className="todo__title-field"
+            value={editedTitle}
+            onChange={e => setEditedTitle(e.target.value)}
+            autoFocus
+            onKeyUp={e => {
+              if (e.key === 'Escape') {
+                onCancelEditing?.();
+
+                return;
+              }
+            }}
+            onBlur={commitEdit}
+          />
+        </form>
+      )}
       {/* overlay will cover the todo while it is being deleted or updated */}
       <div
         data-cy="TodoLoader"
