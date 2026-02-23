@@ -7,8 +7,8 @@ import { Todo } from '../types/Todo';
 type Props = {
   todo: Todo;
   isProcessing?: boolean;
-  onDelete: (todoId: number) => void;
-  onToggle: (updatedTodo: Todo) => void;
+  onDelete?: (todoId: number) => void;
+  onToggle?: (updatedTodo: Todo) => void;
   onUpdateTitle?: (newTitle: string) => Promise<void>;
 };
 
@@ -17,19 +17,23 @@ export const TodoItem: React.FC<Props> = ({
   onDelete,
   onToggle,
   onUpdateTitle,
-  isProcessing,
+  isProcessing = false,
 }) => {
   const { id, title, completed } = todo;
 
-  const [isEdited, setIsEdited] = useState<boolean>(false);
-  const [newTitle, setNewTitle] = useState<string>(title);
+  const [isEdited, setIsEdited] = useState(false);
+  const [newTitle, setNewTitle] = useState(title);
 
-  function handleDeletClick() {
-    onDelete(id);
+  const canDelete = !!onDelete && !isProcessing;
+  const canToggle = !!onToggle && !isProcessing;
+  const canEdit = !!onUpdateTitle && !isProcessing;
+
+  function handleDeleteClick() {
+    onDelete?.(id);
   }
 
   function handleChangeStatus() {
-    onToggle({ ...todo, completed: !completed });
+    onToggle?.({ ...todo, completed: !completed });
   }
 
   async function handleBlurInputTitle(event?: FormEvent<HTMLFormElement>) {
@@ -44,12 +48,20 @@ export const TodoItem: React.FC<Props> = ({
     }
 
     if (!trimmedTitle) {
-      onDelete(id);
+      onDelete?.(id);
+      setIsEdited(false);
 
       return;
     }
 
-    await onUpdateTitle?.(trimmedTitle);
+    if (!onUpdateTitle) {
+      setIsEdited(false);
+      setNewTitle(title);
+
+      return;
+    }
+
+    await onUpdateTitle(trimmedTitle);
 
     setIsEdited(false);
     setNewTitle(trimmedTitle);
@@ -65,8 +77,12 @@ export const TodoItem: React.FC<Props> = ({
   return (
     <div
       data-cy="Todo"
-      className={classNames('todo', { completed: completed })}
+      className={classNames('todo', { completed })}
       onDoubleClick={() => {
+        if (!canEdit) {
+          return;
+        }
+
         setIsEdited(true);
         setNewTitle(title);
       }}
@@ -77,7 +93,8 @@ export const TodoItem: React.FC<Props> = ({
           type="checkbox"
           className="todo__status"
           checked={completed}
-          onChange={() => handleChangeStatus()}
+          onChange={handleChangeStatus}
+          disabled={!canToggle}
         />
       </label>
 
@@ -90,7 +107,7 @@ export const TodoItem: React.FC<Props> = ({
             placeholder="Empty todo will be deleted"
             value={newTitle}
             onChange={event => setNewTitle(event.target.value)}
-            onBlur={() => handleBlurInputTitle()}
+            onBlur={() => void handleBlurInputTitle()}
             onKeyUp={handleKeyUp}
             autoFocus
           />
@@ -100,11 +117,13 @@ export const TodoItem: React.FC<Props> = ({
           <span data-cy="TodoTitle" className="todo__title">
             {title}
           </span>
+
           <button
             type="button"
             className="todo__remove"
             data-cy="TodoDelete"
-            onClick={handleDeletClick}
+            onClick={handleDeleteClick}
+            disabled={!canDelete}
           >
             ×
           </button>

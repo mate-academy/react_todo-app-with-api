@@ -43,7 +43,6 @@ export const App: React.FC = () => {
   const [todoTitle, setTodoTitle] = useState('');
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
   const [processingIds, setProcessingIds] = useState<number[]>([]);
-  const [isLoading, setIsLoading] = useState(false);
 
   const inputRef = useRef<HTMLInputElement | null>(null);
 
@@ -64,7 +63,6 @@ export const App: React.FC = () => {
     [todos, selectedFilter],
   );
 
-  // filter from hash
   useEffect(() => {
     const onHashChange = () => setSelectedFilter(getFilterFromHash());
 
@@ -74,7 +72,6 @@ export const App: React.FC = () => {
     return () => window.removeEventListener('hashchange', onHashChange);
   }, []);
 
-  // auto-hide error after 3s
   useEffect(() => {
     if (errorMessage === ErrorMessage.None) {
       return;
@@ -87,19 +84,18 @@ export const App: React.FC = () => {
     return () => window.clearTimeout(timerId);
   }, [errorMessage]);
 
-  // load todos
   useEffect(() => {
     setErrorMessage(ErrorMessage.None);
-    setIsLoading(true);
 
     todoService
       .getTodos()
       .then(setTodos)
       .catch(() => setErrorMessage(ErrorMessage.LoadTodos))
-      .finally(() => setIsLoading(false));
+      .finally(() => {
+        inputRef.current?.focus();
+      });
   }, []);
 
-  // focus input when add finished
   useEffect(() => {
     if (!tempTodo) {
       inputRef.current?.focus();
@@ -147,6 +143,7 @@ export const App: React.FC = () => {
       setErrorMessage(ErrorMessage.DeleteTodo);
     } finally {
       setProcessingIds(ids => ids.filter(id => id !== todoId));
+      inputRef.current?.focus();
     }
   };
 
@@ -154,12 +151,12 @@ export const App: React.FC = () => {
     const completedTodos = todos.filter(todo => todo.completed);
 
     completedTodos.forEach(todo => {
-      // independent deletions (tests expect parallel requests)
       void handleRemoveTodo(todo.id);
     });
   };
 
-  const isHeaderDisabled = isLoading || !!tempTodo;
+  const isHeaderDisabled = !!tempTodo;
+
   const isClearCompletedDisabled =
     completedTodosCount === 0 || !!tempTodo || processingIds.length > 0;
 
@@ -174,7 +171,6 @@ export const App: React.FC = () => {
           onTodoTitleChange={setTodoTitle}
           onAddTodo={handleAddTodo}
           isAllTodosCompleted={allCompleted}
-          // toggle-all is NOT implemented in part 2
           onToggleAll={() => {}}
           disabled={isHeaderDisabled}
           hasTodos={hasTodos}

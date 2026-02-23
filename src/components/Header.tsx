@@ -52,6 +52,7 @@ export const Header = forwardRef<HTMLInputElement, Props>(
             value={todoTitle}
             onChange={event => onTodoTitleChange(event.target.value)}
             disabled={disabled}
+            autoFocus
           />
         </form>
       </header>
