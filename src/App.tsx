@@ -21,10 +21,8 @@ function getFilterFromHash(): TodoFilters {
   switch (hash) {
     case TodoFilters.Active:
       return TodoFilters.Active;
-
     case TodoFilters.Completed:
       return TodoFilters.Completed;
-
     default:
       return TodoFilters.All;
   }
@@ -35,11 +33,9 @@ export const App: React.FC = () => {
   const [errorMessage, setErrorMessage] = useState<ErrorMessage>(
     ErrorMessage.None,
   );
-
   const [selectedFilter, setSelectedFilter] = useState<TodoFilters>(
     TodoFilters.All,
   );
-
   const [todoTitle, setTodoTitle] = useState('');
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
   const [processingIds, setProcessingIds] = useState<number[]>([]);
@@ -55,7 +51,6 @@ export const App: React.FC = () => {
   );
 
   const completedTodosCount = todos.length - activeTodosCount;
-
   const allCompleted = hasTodos && activeTodosCount === 0;
 
   const filteredTodos = useMemo(
@@ -77,16 +72,15 @@ export const App: React.FC = () => {
       return;
     }
 
-    const timerId = window.setTimeout(() => {
-      setErrorMessage(ErrorMessage.None);
-    }, 3000);
+    const timer = window.setTimeout(
+      () => setErrorMessage(ErrorMessage.None),
+      3000,
+    );
 
-    return () => window.clearTimeout(timerId);
+    return () => window.clearTimeout(timer);
   }, [errorMessage]);
 
   useEffect(() => {
-    setErrorMessage(ErrorMessage.None);
-
     todoService
       .getTodos()
       .then(setTodos)
@@ -111,8 +105,6 @@ export const App: React.FC = () => {
       return;
     }
 
-    setErrorMessage(ErrorMessage.None);
-
     setTempTodo({
       id: 0,
       title: trimmedTitle,
@@ -133,7 +125,6 @@ export const App: React.FC = () => {
   };
 
   const handleRemoveTodo = async (todoId: number) => {
-    setErrorMessage(ErrorMessage.None);
     setProcessingIds(ids => [...ids, todoId]);
 
     try {
@@ -147,16 +138,67 @@ export const App: React.FC = () => {
     }
   };
 
-  const handleClearCompleted = () => {
-    const completedTodos = todos.filter(todo => todo.completed);
+  const handleToggleTodo = async (todo: Todo) => {
+    setProcessingIds(ids => [...ids, todo.id]);
 
-    completedTodos.forEach(todo => {
-      void handleRemoveTodo(todo.id);
-    });
+    try {
+      const updated = await todoService.updateTodo({
+        ...todo,
+        completed: !todo.completed,
+      });
+
+      setTodos(current =>
+        current.map(t => (t.id === updated.id ? updated : t)),
+      );
+    } catch {
+      setErrorMessage(ErrorMessage.UpdateTodo);
+    } finally {
+      setProcessingIds(ids => ids.filter(id => id !== todo.id));
+    }
+  };
+
+  const handleUpdateTitle = async (
+    todo: Todo,
+    newTitle: string,
+  ): Promise<void> => {
+    const trimmed = newTitle.trim();
+
+    if (!trimmed) {
+      await handleRemoveTodo(todo.id);
+
+      return;
+    }
+
+    if (trimmed === todo.title) {
+      return;
+    }
+
+    setProcessingIds(ids => [...ids, todo.id]);
+
+    try {
+      const updated = await todoService.updateTodo({
+        ...todo,
+        title: trimmed,
+      });
+
+      setTodos(current =>
+        current.map(t => (t.id === updated.id ? updated : t)),
+      );
+    } catch {
+      setErrorMessage(ErrorMessage.UpdateTodo);
+      throw new Error();
+    } finally {
+      setProcessingIds(ids => ids.filter(id => id !== todo.id));
+    }
+  };
+
+  const handleClearCompleted = () => {
+    todos
+      .filter(todo => todo.completed)
+      .forEach(todo => void handleRemoveTodo(todo.id));
   };
 
   const isHeaderDisabled = !!tempTodo;
-
   const isClearCompletedDisabled =
     completedTodosCount === 0 || !!tempTodo || processingIds.length > 0;
 
@@ -183,7 +225,9 @@ export const App: React.FC = () => {
                 key={todo.id}
                 todo={todo}
                 isProcessing={processingIds.includes(todo.id)}
-                onDelete={() => handleRemoveTodo(todo.id)}
+                onDelete={handleRemoveTodo}
+                onToggle={() => handleToggleTodo(todo)}
+                onUpdateTitle={newTitle => handleUpdateTitle(todo, newTitle)}
               />
             ))}
 
