@@ -7,7 +7,7 @@ import { Todo } from '../types/Todo';
 type Props = {
   todo: Todo;
   isProcessing?: boolean;
-  onDelete?: (todoId: number) => void;
+  onDelete?: (todoId: number) => Promise<void>;
   onToggle?: (updatedTodo: Todo) => void;
   onUpdateTitle?: (newTitle: string) => Promise<void>;
 };
@@ -28,8 +28,8 @@ export const TodoItem: React.FC<Props> = ({
   const canToggle = !!onToggle && !isProcessing;
   const canEdit = !!onUpdateTitle && !isProcessing;
 
-  function handleDeleteClick() {
-    onDelete?.(id);
+  async function handleDeleteClick() {
+    await onDelete?.(id);
   }
 
   function handleChangeStatus() {
@@ -48,8 +48,12 @@ export const TodoItem: React.FC<Props> = ({
     }
 
     if (!trimmedTitle) {
-      onDelete?.(id);
-      setIsEdited(false);
+      try {
+        await onDelete?.(id);
+        setIsEdited(false);
+      } catch {
+        // keep edit form open
+      }
 
       return;
     }
@@ -122,7 +126,7 @@ export const TodoItem: React.FC<Props> = ({
             type="button"
             className="todo__remove"
             data-cy="TodoDelete"
-            onClick={handleDeleteClick}
+            onClick={() => void handleDeleteClick()}
             disabled={!canDelete}
           >
             ×

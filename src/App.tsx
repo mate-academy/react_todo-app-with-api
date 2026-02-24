@@ -21,8 +21,10 @@ function getFilterFromHash(): TodoFilters {
   switch (hash) {
     case TodoFilters.Active:
       return TodoFilters.Active;
+
     case TodoFilters.Completed:
       return TodoFilters.Completed;
+
     default:
       return TodoFilters.All;
   }
@@ -43,7 +45,6 @@ export const App: React.FC = () => {
   const inputRef = useRef<HTMLInputElement | null>(null);
 
   const hasTodos = todos.length > 0;
-  const showList = hasTodos || !!tempTodo;
 
   const activeTodosCount = useMemo(
     () => todos.filter(todo => !todo.completed).length,
@@ -54,12 +55,14 @@ export const App: React.FC = () => {
   const allCompleted = hasTodos && activeTodosCount === 0;
 
   const filteredTodos = useMemo(
-    () => filterTodos(selectedFilter, todos) || [],
+    () => filterTodos(selectedFilter, todos) ?? [],
     [todos, selectedFilter],
   );
 
   useEffect(() => {
-    const onHashChange = () => setSelectedFilter(getFilterFromHash());
+    const onHashChange = () => {
+      setSelectedFilter(getFilterFromHash());
+    };
 
     onHashChange();
     window.addEventListener('hashchange', onHashChange);
@@ -72,10 +75,9 @@ export const App: React.FC = () => {
       return;
     }
 
-    const timer = window.setTimeout(
-      () => setErrorMessage(ErrorMessage.None),
-      3000,
-    );
+    const timer = window.setTimeout(() => {
+      setErrorMessage(ErrorMessage.None);
+    }, 3000);
 
     return () => window.clearTimeout(timer);
   }, [errorMessage]);
@@ -115,7 +117,7 @@ export const App: React.FC = () => {
     try {
       const newTodo = await todoService.createTodo(trimmedTitle);
 
-      setTodos(current => [...current, newTodo]);
+      setTodos(prev => [...prev, newTodo]);
       setTodoTitle('');
     } catch {
       setErrorMessage(ErrorMessage.AddTodo);
@@ -125,36 +127,47 @@ export const App: React.FC = () => {
   };
 
   const handleRemoveTodo = async (todoId: number) => {
-    setProcessingIds(ids => [...ids, todoId]);
+    setProcessingIds(prev => [...prev, todoId]);
 
     try {
       await todoService.deleteTodo(todoId);
-      setTodos(current => current.filter(todo => todo.id !== todoId));
+      setTodos(prev => prev.filter(todo => todo.id !== todoId));
     } catch {
       setErrorMessage(ErrorMessage.DeleteTodo);
+      throw new Error();
     } finally {
-      setProcessingIds(ids => ids.filter(id => id !== todoId));
+      setProcessingIds(prev => prev.filter(id => id !== todoId));
       inputRef.current?.focus();
     }
   };
 
-  const handleToggleTodo = async (todo: Todo) => {
-    setProcessingIds(ids => [...ids, todo.id]);
+  const handleToggleTodo = async (updatedTodo: Todo) => {
+    setProcessingIds(prev => [...prev, updatedTodo.id]);
 
     try {
-      const updated = await todoService.updateTodo({
-        ...todo,
-        completed: !todo.completed,
-      });
+      const saved = await todoService.updateTodo(updatedTodo);
 
-      setTodos(current =>
-        current.map(t => (t.id === updated.id ? updated : t)),
-      );
+      setTodos(prev => prev.map(todo => (todo.id === saved.id ? saved : todo)));
     } catch {
       setErrorMessage(ErrorMessage.UpdateTodo);
     } finally {
-      setProcessingIds(ids => ids.filter(id => id !== todo.id));
+      setProcessingIds(prev => prev.filter(id => id !== updatedTodo.id));
     }
+  };
+
+  const handleToggleAll = () => {
+    const shouldComplete = !allCompleted;
+
+    const todosToUpdate = shouldComplete
+      ? todos.filter(todo => !todo.completed)
+      : todos;
+
+    todosToUpdate.forEach(todo => {
+      handleToggleTodo({
+        ...todo,
+        completed: shouldComplete,
+      });
+    });
   };
 
   const handleUpdateTitle = async (
@@ -173,7 +186,7 @@ export const App: React.FC = () => {
       return;
     }
 
-    setProcessingIds(ids => [...ids, todo.id]);
+    setProcessingIds(prev => [...prev, todo.id]);
 
     try {
       const updated = await todoService.updateTodo({
@@ -181,26 +194,26 @@ export const App: React.FC = () => {
         title: trimmed,
       });
 
-      setTodos(current =>
-        current.map(t => (t.id === updated.id ? updated : t)),
-      );
+      setTodos(prev => prev.map(t => (t.id === updated.id ? updated : t)));
     } catch {
       setErrorMessage(ErrorMessage.UpdateTodo);
       throw new Error();
     } finally {
-      setProcessingIds(ids => ids.filter(id => id !== todo.id));
+      setProcessingIds(prev => prev.filter(id => id !== todo.id));
     }
   };
 
   const handleClearCompleted = () => {
     todos
       .filter(todo => todo.completed)
-      .forEach(todo => void handleRemoveTodo(todo.id));
+      .forEach(todo => {
+        handleRemoveTodo(todo.id);
+      });
   };
 
-  const isHeaderDisabled = !!tempTodo;
+  const isHeaderDisabled = Boolean(tempTodo);
   const isClearCompletedDisabled =
-    completedTodosCount === 0 || !!tempTodo || processingIds.length > 0;
+    completedTodosCount === 0 || Boolean(tempTodo) || processingIds.length > 0;
 
   return (
     <div className="todoapp">
@@ -213,12 +226,12 @@ export const App: React.FC = () => {
           onTodoTitleChange={setTodoTitle}
           onAddTodo={handleAddTodo}
           isAllTodosCompleted={allCompleted}
-          onToggleAll={() => {}}
+          onToggleAll={handleToggleAll}
           disabled={isHeaderDisabled}
           hasTodos={hasTodos}
         />
 
-        {showList && (
+        {(hasTodos || tempTodo) && (
           <section className="todoapp__main" data-cy="TodoList">
             {filteredTodos.map(todo => (
               <TodoItem
@@ -226,7 +239,12 @@ export const App: React.FC = () => {
                 todo={todo}
                 isProcessing={processingIds.includes(todo.id)}
                 onDelete={handleRemoveTodo}
-                onToggle={() => handleToggleTodo(todo)}
+                onToggle={() =>
+                  handleToggleTodo({
+                    ...todo,
+                    completed: !todo.completed,
+                  })
+                }
                 onUpdateTitle={newTitle => handleUpdateTitle(todo, newTitle)}
               />
             ))}
@@ -235,7 +253,7 @@ export const App: React.FC = () => {
           </section>
         )}
 
-        {!!hasTodos && (
+        {hasTodos && (
           <Footer
             activeCount={activeTodosCount}
             filter={selectedFilter}
