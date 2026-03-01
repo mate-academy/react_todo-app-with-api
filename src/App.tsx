@@ -1,26 +1,35 @@
-/* eslint-disable max-len */
-/* eslint-disable jsx-a11y/control-has-associated-label */
 import React from 'react';
-import { UserWarning } from './UserWarning';
-
-const USER_ID = 0;
+import { Routes, Route, Navigate } from 'react-router-dom';
+import { MainHeader } from './components/MainHeader';
+import { RegistrationPage } from './Pages/RegistrationPage';
+import { LoginPage } from './Pages/LoginPage';
+import { RequireAuth } from './components/RequireAuth';
+import { TodoPage } from './Pages/TodoPage';
+import { HomePage } from './Pages/HomePage';
 
 export const App: React.FC = () => {
-  if (!USER_ID) {
-    return <UserWarning />;
-  }
+  const [error, setError] = React.useState<string | null>(null);
 
   return (
-    <section className="section container">
-      <p className="title is-4">
-        Copy all you need from the prev task:
-        <br />
-        <a href="https://github.com/mate-academy/react_todo-app-add-and-delete#react-todo-app-add-and-delete">
-          React Todo App - Add and Delete
-        </a>
-      </p>
+    <>
+      <MainHeader />
+      <main className="section">
+        <div className="container">
+          {error && <p className="notification is-danger is-light">{error}</p>}
 
-      <p className="subtitle">Styles are already copied</p>
-    </section>
+          <Routes>
+            <Route path="/" element={<HomePage />} />
+            <Route path="registration" element={<RegistrationPage />} />
+            <Route path="login" element={<LoginPage />} />
+
+            <Route element={<RequireAuth />}>
+              <Route path="todos" element={<TodoPage />} />
+            </Route>
+
+            <Route path="*" element={<Navigate to="/" replace />} />
+          </Routes>
+        </div>
+      </main>
+    </>
   );
 };
