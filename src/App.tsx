@@ -53,6 +53,7 @@ export const App: React.FC = () => {
     },
   ];
 
+  // Load todos on mount
   useEffect(() => {
     if (!USER_ID) {
       return;
@@ -68,12 +69,14 @@ export const App: React.FC = () => {
       });
   }, []);
 
+  // Keep input focused after any submit finishes
   useEffect(() => {
     if (!isSubmitting) {
       newTodoFieldRef.current?.focus();
     }
   }, [isSubmitting]);
 
+  // Auto-hide error after delay
   useEffect(() => {
     if (!error) {
       return;
@@ -88,6 +91,7 @@ export const App: React.FC = () => {
     };
   }, [error]);
 
+  // Calculate counters in one loop
   const { activeCount, completedCount, isAllCompleted } = useMemo(() => {
     let completed = 0;
 
@@ -227,6 +231,43 @@ export const App: React.FC = () => {
       });
   };
 
+  const handleToggleAll = async () => {
+    const nextStatus = !isAllCompleted;
+
+    const todosToUpdate = todos.filter(todo => todo.completed !== nextStatus);
+
+    const results = await Promise.allSettled(
+      todosToUpdate.map(todo => {
+        setUpdatingIds(current =>
+          current.includes(todo.id) ? current : [...current, todo.id],
+        );
+
+        return updateTodo(todo.id, { completed: nextStatus })
+          .then(updatedTodo => {
+            setTodos(current =>
+              current.map(currentTodo =>
+                currentTodo.id === todo.id ? updatedTodo : currentTodo,
+              ),
+            );
+          })
+          .catch(() => {
+            setError('Unable to update a todo');
+            throw new Error('update failed');
+          })
+          .finally(() => {
+            setUpdatingIds(current => current.filter(id => id !== todo.id));
+          });
+      }),
+    );
+
+    const hasError = results.some(result => result.status === 'rejected');
+
+    if (hasError) {
+      setError('Unable to update a todo');
+    }
+  };
+
+  // ✅ CHANGED: use Promise.allSettled to avoid error flickering & keep success deletions
   const handleClearCompleted = async () => {
     const completedTodos = todos.filter(t => t.completed);
 
@@ -259,6 +300,7 @@ export const App: React.FC = () => {
                 active: isAllCompleted,
               })}
               data-cy="ToggleAllButton"
+              onClick={handleToggleAll}
             />
           )}
 
@@ -316,6 +358,7 @@ export const App: React.FC = () => {
                 ×
               </button>
 
+              {/* 'is-active' class puts this modal on top of the todo */}
               <div data-cy="TodoLoader" className="modal overlay is-active">
                 <div className="modal-background has-background-white-ter" />
                 <div className="loader" />
@@ -324,12 +367,14 @@ export const App: React.FC = () => {
           )}
         </section>
 
+        {/* Hide the footer if there are no todos */}
         {todos.length > 0 && (
           <footer className="todoapp__footer" data-cy="Footer">
             <span className="todo-count" data-cy="TodosCounter">
               {`${activeCount} item${activeCount === 1 ? '' : 's'} left`}
             </span>
 
+            {/* Active link should have the 'selected' class */}
             <nav className="filter" data-cy="Filter">
               {filterLinks.map(link => (
                 <a
@@ -347,6 +392,7 @@ export const App: React.FC = () => {
               ))}
             </nav>
 
+            {/* this button should be disabled if there are no completed todos */}
             <button
               type="button"
               className="todoapp__clear-completed"
@@ -360,6 +406,8 @@ export const App: React.FC = () => {
         )}
       </div>
 
+      {/* DON'T use conditional rendering to hide the notification */}
+      {/* Add the 'hidden' class to hide the message smoothly */}
       <div
         data-cy="ErrorNotification"
         className={classNames(
