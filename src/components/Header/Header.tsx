@@ -7,11 +7,12 @@ import React, {
 } from 'react';
 import { USER_ID, postTodo } from '../../api/todos';
 import { Todo } from '../../types/Todo';
+import { ErrorMessage } from '../../types/ErrorMessage';
 
 interface Props {
   setTodosFromServer: React.Dispatch<React.SetStateAction<Todo[]>>;
   todosFromServer: Todo[];
-  setErrorMessage: (msg: string) => void;
+  setErrorMessage: (msg: ErrorMessage | null) => void;
   setTempTodo: React.Dispatch<React.SetStateAction<Todo | null>>;
   toggleAll: () => void;
   allCompleted: boolean;
@@ -61,8 +62,8 @@ export const Header = forwardRef<HeaderRef, Props>(
       };
 
       if (!trimmedTitle) {
-        setErrorMessage('Title should not be empty');
-        setTimeout(() => setErrorMessage(''), 3000);
+        setErrorMessage(ErrorMessage.TitleError);
+        setTimeout(() => setErrorMessage(null), 3000);
 
         return;
       }
@@ -81,8 +82,8 @@ export const Header = forwardRef<HeaderRef, Props>(
 
         setTempTitle('');
       } catch (error) {
-        setErrorMessage('Unable to add a todo');
-        setTimeout(() => setErrorMessage(''), 3000);
+        setErrorMessage(ErrorMessage.AddError);
+        setTimeout(() => setErrorMessage(null), 3000);
       } finally {
         setFormDisable(false);
         setTempTodo(null);

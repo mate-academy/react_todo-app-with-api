@@ -10,11 +10,12 @@ import { TodoList } from './components/TodoList/TodoList';
 import { Footer } from './components/Footer/Footer';
 import { ErrorNotification } from './components/ErrorNotification/ErrorNotification';
 import { UpdateTodoData } from './types/UpdateTodoData';
+import { ErrorMessage } from './types/ErrorMessage';
 
 export const App: React.FC = () => {
   const [todosFromServer, setTodosFromServer] = useState<Todo[]>([]);
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
-  const [errorMessage, setErrorMessage] = useState('');
+  const [errorMessage, setErrorMessage] = useState<ErrorMessage | null>(null);
   const [filteringMethod, setFilteringMethod] = useState<FilterMethods>('All');
   const [loadingIds, setLoadingIds] = useState<number[]>([]);
   const isAllTodosCompleted = todosFromServer.every(
@@ -26,8 +27,8 @@ export const App: React.FC = () => {
     return getTodos()
       .then(setTodosFromServer)
       .catch(() => {
-        setErrorMessage('Unable to load todos');
-        setTimeout(() => setErrorMessage(''), 3000);
+        setErrorMessage(ErrorMessage.LoadError);
+        setTimeout(() => setErrorMessage(null), 3000);
       });
   };
 
@@ -60,8 +61,8 @@ export const App: React.FC = () => {
         headerRef.current?.focusInput();
       })
       .catch(() => {
-        setErrorMessage('Unable to delete a todo');
-        setTimeout(() => setErrorMessage(''), 3000);
+        setErrorMessage(ErrorMessage.DeleteError);
+        setTimeout(() => setErrorMessage(null), 3000);
       })
       .finally(() => {
         setLoadingIds(prev => prev.filter(id => id !== currentId));
@@ -86,8 +87,8 @@ export const App: React.FC = () => {
         prev.map(todo => (todo.id === id ? { ...todo, ...data } : todo)),
       );
     } catch (error) {
-      setErrorMessage('Unable to update a todo');
-      setTimeout(() => setErrorMessage(''), 3000);
+      setErrorMessage(ErrorMessage.UpdateError);
+      setTimeout(() => setErrorMessage(null), 3000);
 
       throw error;
     } finally {

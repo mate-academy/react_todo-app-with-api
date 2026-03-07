@@ -1,7 +1,8 @@
 import React from 'react';
+import { ErrorMessage } from '../../types/ErrorMessage';
 
 interface Props {
-  errorMessage: string;
+  errorMessage: ErrorMessage | null;
 }
 
 export const ErrorNotification: React.FC<Props> = ({ errorMessage }) => {
