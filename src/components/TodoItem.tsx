@@ -45,6 +45,15 @@ export const TodoItem: React.FC<Props> = ({
     setEditedTitle(event.target.value);
   };
 
+  const handleTitleFieldKeyUp = (
+    event: React.KeyboardEvent<HTMLInputElement>,
+  ) => {
+    if (event.key === 'Escape') {
+      setEditedTitle(todo.title);
+      setIsEditing(false);
+    }
+  };
+
   return (
     <div
       data-cy="Todo"
@@ -71,6 +80,7 @@ export const TodoItem: React.FC<Props> = ({
             placeholder="Empty todo will be deleted"
             value={editedTitle}
             onChange={handleTitleChange}
+            onKeyUp={handleTitleFieldKeyUp}
           />
         </form>
       ) : (
