@@ -1,6 +1,6 @@
 /* eslint-disable jsx-a11y/label-has-associated-control */
 /* eslint-disable jsx-a11y/control-has-associated-label */
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { UserWarning } from './UserWarning';
 import {
   updateTodo,
@@ -41,9 +41,9 @@ export const App: React.FC = () => {
       });
   }, []);
 
-  const handleErrorClose = () => {
+  const handleErrorClose = useCallback(() => {
     setErrorMsg('');
-  };
+  }, []);
 
   const onAddTodo = (title: string) => {
     setIsSubmiting(true);
