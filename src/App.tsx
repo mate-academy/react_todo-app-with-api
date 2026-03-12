@@ -63,9 +63,9 @@ export const App: React.FC = () => {
         setTodos(prev => [...prev, created]);
         setTodoTitle('');
       })
-      .catch(error => {
-        setErrorMsg(Error.Add);
-        throw error;
+      .catch(err => {
+        setTimeout(() => setErrorMsg(Error.Add), 0);
+        throw err;
       })
       .finally(() => {
         setTempTodo(null);

@@ -1,5 +1,5 @@
-import classNames from 'classnames';
 import React, { useEffect } from 'react';
+import classNames from 'classnames';
 
 type Props = {
   errorMsg: string;
