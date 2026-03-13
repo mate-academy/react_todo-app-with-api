@@ -15,8 +15,12 @@ export const createTodo = (title: string) => {
   });
 };
 
-export const updateTodo = (id: number, title: string) => {
-  return client.patch(`/todos/${id}`, { title });
+export const updateTodo = (id: number, title: string, completed: boolean) => {
+  return client.patch<Todo>(`/todos/${id}`, {
+    userId: USER_ID,
+    title,
+    completed,
+  });
 };
 
 export const deleteTodo = (id: number) => {

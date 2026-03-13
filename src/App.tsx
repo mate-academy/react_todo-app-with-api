@@ -18,6 +18,12 @@ export const App: React.FC = () => {
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
   const [title, setTitle] = useState('');
   const [deletingTodoIds, setDeletingTodoIds] = useState<number[]>([]);
+  const [updatingTodoIds, setUpdatingTodoIds] = useState<number[]>([]);
+
+  const activeTodos = todos.filter(todo => !todo.completed);
+  const activeTodosCount = activeTodos.length;
+  const completedTodosCount = todos.length - activeTodosCount;
+  const allTodosCompleted = activeTodosCount === 0 && todos.length !== 0;
 
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -74,6 +80,7 @@ export const App: React.FC = () => {
       await deleteTodo(todoId);
     } catch {
       setErrorMessage(ErrorMessage.DeleteTodo);
+      throw new Error();
     }
   };
 
@@ -128,6 +135,50 @@ export const App: React.FC = () => {
     }
   };
 
+  const updateTodo = async (
+    todoId: number,
+    newTitle: string,
+    completed: boolean,
+  ) => {
+    setErrorMessage(null);
+    setUpdatingTodoIds(prev => [...prev, todoId]);
+    try {
+      const updatedTodo = await postService.updateTodo(
+        todoId,
+        newTitle,
+        completed,
+      );
+
+      setTodos(prev =>
+        prev.map(todo => (todo.id === todoId ? updatedTodo : todo)),
+      );
+    } catch {
+      setErrorMessage(ErrorMessage.UpdateTodo);
+      throw new Error();
+    } finally {
+      setUpdatingTodoIds(prev => prev.filter(id => id !== todoId));
+    }
+  };
+
+  const handleToggleAll = async () => {
+    setErrorMessage(null);
+    const newCompletedStatus = !allTodosCompleted;
+    const futureUpdatedTodos = todos.filter(
+      todo => todo.completed !== newCompletedStatus,
+    );
+
+    const results = await Promise.allSettled(
+      futureUpdatedTodos.map(todo =>
+        updateTodo(todo.id, todo.title, newCompletedStatus),
+      ),
+    );
+    const hasRejected = results.some(result => result.status === 'rejected');
+
+    if (hasRejected) {
+      setErrorMessage(ErrorMessage.UpdateTodo);
+    }
+  };
+
   useEffect(() => {
     if (!isSubmitting && deletingTodoIds.length === 0) {
       inputRef.current?.focus();
@@ -152,11 +203,6 @@ export const App: React.FC = () => {
     return <UserWarning />;
   }
 
-  const activeTodos = todos.filter(todo => !todo.completed);
-  const activeTodosCount = activeTodos.length;
-  const completedTodosCount = todos.length - activeTodosCount;
-  const allTodosCompleted = activeTodosCount === 0 && todos.length !== 0;
-
   return (
     <div className="todoapp">
       <h1 className="todoapp__title">todos</h1>
@@ -169,6 +215,8 @@ export const App: React.FC = () => {
           addTodo={addTodo}
           isSubmitting={isSubmitting}
           inputRef={inputRef}
+          handleToggleAll={handleToggleAll}
+          hasTodos={todos.length > 0}
         />
 
         <TodoList
@@ -176,6 +224,8 @@ export const App: React.FC = () => {
           tempTodo={tempTodo}
           handleDeleteTodo={handleDeleteOneTodo}
           deletingTodoIds={deletingTodoIds}
+          updatingTodoIds={updatingTodoIds}
+          updateTodo={updateTodo}
         />
 
         {todos.length !== 0 && (

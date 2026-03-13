@@ -8,6 +8,8 @@ type Props = {
   addTodo: (title: string) => Promise<void>;
   isSubmitting: boolean;
   inputRef: React.RefObject<HTMLInputElement>;
+  handleToggleAll: () => Promise<void>;
+  hasTodos: boolean;
 };
 
 export const Header: React.FC<Props> = ({
@@ -17,6 +19,8 @@ export const Header: React.FC<Props> = ({
   addTodo,
   isSubmitting,
   inputRef,
+  handleToggleAll,
+  hasTodos,
 }) => {
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -26,13 +30,16 @@ export const Header: React.FC<Props> = ({
   return (
     <header className="todoapp__header">
       {/* this button should have `active` class only if all todos are completed */}
-      <button
-        type="button"
-        className={cn('todoapp__toggle-all', {
-          active: allTodosCompleted,
-        })}
-        data-cy="ToggleAllButton"
-      />
+      {hasTodos && (
+        <button
+          type="button"
+          className={cn('todoapp__toggle-all', {
+            active: allTodosCompleted,
+          })}
+          data-cy="ToggleAllButton"
+          onClick={handleToggleAll}
+        />
+      )}
 
       {/* Add a todo on form submit */}
       <form onSubmit={handleSubmit}>
