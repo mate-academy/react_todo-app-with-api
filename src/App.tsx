@@ -231,6 +231,31 @@ export const App: React.FC = () => {
       });
   };
 
+  const handleRenameTodo = (todoId: number, title: string) => {
+    const trimmedTitle = title.trim();
+
+    setError(null);
+
+    setUpdatingIds(current =>
+      current.includes(todoId) ? current : [...current, todoId],
+    );
+
+    updateTodo(todoId, { title: trimmedTitle })
+      .then(updatedTodo => {
+        setTodos(current =>
+          current.map(currentTodo =>
+            currentTodo.id === todoId ? updatedTodo : currentTodo,
+          ),
+        );
+      })
+      .catch(() => {
+        setError('Unable to update a todo');
+      })
+      .finally(() => {
+        setUpdatingIds(current => current.filter(id => id !== todoId));
+      });
+  };
+
   const handleToggleAll = async () => {
     const nextStatus = !isAllCompleted;
 
@@ -331,6 +356,7 @@ export const App: React.FC = () => {
             updatingIds={updatingIds}
             onDelete={handleDeleteTodo}
             onToggle={handleToggleTodo}
+            onRename={handleRenameTodo}
           />
 
           {tempTodo && (

@@ -10,6 +10,7 @@ type Props = {
   isUpdating: boolean;
   onDelete: (id: number) => void;
   onToggle: (todo: Todo) => void;
+  onRename: (todoId: number, newTitle: string) => void;
 };
 
 export const TodoItem: React.FC<Props> = ({
@@ -18,6 +19,7 @@ export const TodoItem: React.FC<Props> = ({
   isUpdating,
   onDelete,
   onToggle,
+  onRename,
 }) => {
   const [isEditing, setIsEditing] = useState(false);
   const [editedTitle, setEditedTitle] = useState(todo.title);
@@ -35,6 +37,12 @@ export const TodoItem: React.FC<Props> = ({
       editFieldRef.current?.focus();
     }
   }, [isEditing]);
+
+  useEffect(() => {
+    if (isEditing && !isUpdating && todo.title === editedTitle.trim()) {
+      setIsEditing(false);
+    }
+  }, [todo.title, isUpdating, isEditing, editedTitle]);
 
   const handleStartEditing = () => {
     setEditedTitle(todo.title);
@@ -54,6 +62,11 @@ export const TodoItem: React.FC<Props> = ({
     }
   };
 
+  const handleRenameSubmit = (event: React.FormEvent) => {
+    event.preventDefault();
+    onRename(todo.id, editedTitle);
+  };
+
   return (
     <div
       data-cy="Todo"
@@ -71,7 +84,7 @@ export const TodoItem: React.FC<Props> = ({
       </label>
 
       {isEditing ? (
-        <form>
+        <form onSubmit={handleRenameSubmit}>
           <input
             ref={editFieldRef}
             data-cy="TodoTitleField"

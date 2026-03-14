@@ -8,6 +8,7 @@ type Props = {
   updatingIds: number[];
   onDelete: (id: number) => void;
   onToggle: (todo: Todo) => void;
+  onRename: (todoId: number, newTitle: string) => void;
 };
 
 export const TodoList: React.FC<Props> = ({
@@ -16,6 +17,7 @@ export const TodoList: React.FC<Props> = ({
   updatingIds,
   onDelete,
   onToggle,
+  onRename,
 }) => {
   return (
     <>
@@ -31,6 +33,7 @@ export const TodoList: React.FC<Props> = ({
             isUpdating={isUpdating}
             onDelete={onDelete}
             onToggle={onToggle}
+            onRename={onRename}
           />
         );
       })}
