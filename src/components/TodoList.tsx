@@ -18,25 +18,18 @@ export const TodoList: React.FC<Props> = ({
   onDelete,
   onToggle,
   onRename,
-}) => {
-  return (
-    <>
-      {todos.map(todo => {
-        const isDeleting = deletingIds.includes(todo.id);
-        const isUpdating = updatingIds.includes(todo.id);
-
-        return (
-          <TodoItem
-            key={todo.id}
-            todo={todo}
-            isDeleting={isDeleting}
-            isUpdating={isUpdating}
-            onDelete={onDelete}
-            onToggle={onToggle}
-            onRename={onRename}
-          />
-        );
-      })}
-    </>
-  );
-};
+}) => (
+  <>
+    {todos.map(todo => (
+      <TodoItem
+        key={todo.id}
+        todo={todo}
+        isDeleting={deletingIds.includes(todo.id)}
+        isUpdating={updatingIds.includes(todo.id)}
+        onDelete={onDelete}
+        onToggle={onToggle}
+        onRename={onRename}
+      />
+    ))}
+  </>
+);

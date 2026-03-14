@@ -16,7 +16,35 @@ import { TodoList } from './components/TodoList';
 
 type FilterStatus = 'all' | 'active' | 'completed';
 
+type FilterLink = {
+  key: FilterStatus;
+  href: string;
+  text: string;
+  dataCy: string;
+};
+
 const ERROR_HIDE_DELAY = 3000;
+
+const FILTER_LINKS: FilterLink[] = [
+  {
+    key: 'all',
+    href: '#/',
+    text: 'All',
+    dataCy: 'FilterLinkAll',
+  },
+  {
+    key: 'active',
+    href: '#/active',
+    text: 'Active',
+    dataCy: 'FilterLinkActive',
+  },
+  {
+    key: 'completed',
+    href: '#/completed',
+    text: 'Completed',
+    dataCy: 'FilterLinkCompleted',
+  },
+];
 
 export const App: React.FC = () => {
   const [todos, setTodos] = useState<Todo[]>([]);
@@ -31,27 +59,6 @@ export const App: React.FC = () => {
   const [updatingIds, setUpdatingIds] = useState<number[]>([]);
 
   const newTodoFieldRef = useRef<HTMLInputElement>(null);
-
-  const filterLinks = [
-    {
-      key: 'all' as const,
-      href: '#/',
-      text: 'All',
-      dataCy: 'FilterLinkAll',
-    },
-    {
-      key: 'active' as const,
-      href: '#/active',
-      text: 'Active',
-      dataCy: 'FilterLinkActive',
-    },
-    {
-      key: 'completed' as const,
-      href: '#/completed',
-      text: 'Completed',
-      dataCy: 'FilterLinkCompleted',
-    },
-  ];
 
   // Load todos on mount
   useEffect(() => {
@@ -114,12 +121,22 @@ export const App: React.FC = () => {
     switch (filter) {
       case 'active':
         return todos.filter(todo => !todo.completed);
+
       case 'completed':
         return todos.filter(todo => todo.completed);
+
       default:
         return todos;
     }
   }, [todos, filter]);
+
+  const replaceTodo = (updatedTodo: Todo) => {
+    setTodos(currentTodos =>
+      currentTodos.map(todo =>
+        todo.id === updatedTodo.id ? updatedTodo : todo,
+      ),
+    );
+  };
 
   const handleFilterClick = (event: React.MouseEvent<HTMLAnchorElement>) => {
     event.preventDefault();
@@ -171,7 +188,7 @@ export const App: React.FC = () => {
       completed: false,
     })
       .then(createdTodo => {
-        setTodos(current => [...current, createdTodo]);
+        setTodos(currentTodos => [...currentTodos, createdTodo]);
         setNewTitle('');
       })
       .catch(() => {
@@ -186,13 +203,15 @@ export const App: React.FC = () => {
   const deleteTodoById = (todoId: number): Promise<boolean> => {
     setError(null);
 
-    setDeletingIds(current =>
-      current.includes(todoId) ? current : [...current, todoId],
+    setDeletingIds(currentIds =>
+      currentIds.includes(todoId) ? currentIds : [...currentIds, todoId],
     );
 
     return deleteTodo(todoId)
       .then(() => {
-        setTodos(current => current.filter(t => t.id !== todoId));
+        setTodos(currentTodos =>
+          currentTodos.filter(todo => todo.id !== todoId),
+        );
 
         return true;
       })
@@ -202,8 +221,34 @@ export const App: React.FC = () => {
         return false;
       })
       .finally(() => {
-        setDeletingIds(current => current.filter(id => id !== todoId));
+        setDeletingIds(currentIds => currentIds.filter(id => id !== todoId));
         newTodoFieldRef.current?.focus();
+      });
+  };
+
+  const updateTodoById = (
+    todoId: number,
+    changes: Partial<Todo>,
+  ): Promise<boolean> => {
+    setError(null);
+
+    setUpdatingIds(currentIds =>
+      currentIds.includes(todoId) ? currentIds : [...currentIds, todoId],
+    );
+
+    return updateTodo(todoId, changes)
+      .then(updatedTodo => {
+        replaceTodo(updatedTodo);
+
+        return true;
+      })
+      .catch(() => {
+        setError('Unable to update a todo');
+
+        return false;
+      })
+      .finally(() => {
+        setUpdatingIds(currentIds => currentIds.filter(id => id !== todoId));
       });
   };
 
@@ -212,102 +257,28 @@ export const App: React.FC = () => {
   };
 
   const handleToggleTodo = (todo: Todo) => {
-    setError(null);
-
-    setUpdatingIds(current =>
-      current.includes(todo.id) ? current : [...current, todo.id],
-    );
-
-    updateTodo(todo.id, { completed: !todo.completed })
-      .then(updatedTodo => {
-        setTodos(current =>
-          current.map(currentTodo =>
-            currentTodo.id === todo.id ? updatedTodo : currentTodo,
-          ),
-        );
-      })
-      .catch(() => {
-        setError('Unable to update a todo');
-      })
-      .finally(() => {
-        setUpdatingIds(current => current.filter(id => id !== todo.id));
-      });
+    void updateTodoById(todo.id, { completed: !todo.completed });
   };
 
   const handleRenameTodo = (todoId: number, title: string) => {
-    const trimmedTitle = title.trim();
-
-    setError(null);
-
-    setUpdatingIds(current =>
-      current.includes(todoId) ? current : [...current, todoId],
-    );
-
-    updateTodo(todoId, { title: trimmedTitle })
-      .then(updatedTodo => {
-        setTodos(current =>
-          current.map(currentTodo =>
-            currentTodo.id === todoId ? updatedTodo : currentTodo,
-          ),
-        );
-      })
-      .catch(() => {
-        setError('Unable to update a todo');
-      })
-      .finally(() => {
-        setUpdatingIds(current => current.filter(id => id !== todoId));
-      });
+    void updateTodoById(todoId, { title: title.trim() });
   };
 
   const handleToggleAll = async () => {
     const nextStatus = !isAllCompleted;
-
     const todosToUpdate = todos.filter(todo => todo.completed !== nextStatus);
 
-    const results = await Promise.allSettled(
-      todosToUpdate.map(todo => {
-        setUpdatingIds(current =>
-          current.includes(todo.id) ? current : [...current, todo.id],
-        );
-
-        return updateTodo(todo.id, { completed: nextStatus })
-          .then(updatedTodo => {
-            setTodos(current =>
-              current.map(currentTodo =>
-                currentTodo.id === todo.id ? updatedTodo : currentTodo,
-              ),
-            );
-          })
-          .catch(() => {
-            setError('Unable to update a todo');
-            throw new Error('update failed');
-          })
-          .finally(() => {
-            setUpdatingIds(current => current.filter(id => id !== todo.id));
-          });
-      }),
+    await Promise.all(
+      todosToUpdate.map(todo =>
+        updateTodoById(todo.id, { completed: nextStatus }),
+      ),
     );
-
-    const hasError = results.some(result => result.status === 'rejected');
-
-    if (hasError) {
-      setError('Unable to update a todo');
-    }
   };
 
-  // ✅ CHANGED: use Promise.allSettled to avoid error flickering & keep success deletions
   const handleClearCompleted = async () => {
-    const completedTodos = todos.filter(t => t.completed);
+    const completedTodos = todos.filter(todo => todo.completed);
 
-    const results = await Promise.all(
-      completedTodos.map(todo => deleteTodoById(todo.id)),
-    );
-
-    const hasError = results.some(result => !result);
-
-    if (hasError) {
-      setError('Unable to delete a todo');
-    }
+    await Promise.all(completedTodos.map(todo => deleteTodoById(todo.id)));
   };
 
   if (!USER_ID) {
@@ -405,7 +376,7 @@ export const App: React.FC = () => {
 
             {/* Active link should have the 'selected' class */}
             <nav className="filter" data-cy="Filter">
-              {filterLinks.map(link => (
+              {FILTER_LINKS.map(link => (
                 <a
                   key={link.key}
                   href={link.href}
