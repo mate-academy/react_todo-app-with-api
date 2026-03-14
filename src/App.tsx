@@ -183,7 +183,7 @@ export const App: React.FC = () => {
       });
   };
 
-  const deleteTodoById = (todoId: number) => {
+  const deleteTodoById = (todoId: number): Promise<boolean> => {
     setError(null);
 
     setDeletingIds(current =>
@@ -193,10 +193,13 @@ export const App: React.FC = () => {
     return deleteTodo(todoId)
       .then(() => {
         setTodos(current => current.filter(t => t.id !== todoId));
+
+        return true;
       })
       .catch(() => {
         setError('Unable to delete a todo');
-        throw new Error('delete failed');
+
+        return false;
       })
       .finally(() => {
         setDeletingIds(current => current.filter(id => id !== todoId));
@@ -205,7 +208,7 @@ export const App: React.FC = () => {
   };
 
   const handleDeleteTodo = (todoId: number) => {
-    deleteTodoById(todoId);
+    void deleteTodoById(todoId);
   };
 
   const handleToggleTodo = (todo: Todo) => {
@@ -296,11 +299,11 @@ export const App: React.FC = () => {
   const handleClearCompleted = async () => {
     const completedTodos = todos.filter(t => t.completed);
 
-    const results = await Promise.allSettled(
+    const results = await Promise.all(
       completedTodos.map(todo => deleteTodoById(todo.id)),
     );
 
-    const hasError = results.some(result => result.status === 'rejected');
+    const hasError = results.some(result => !result);
 
     if (hasError) {
       setError('Unable to delete a todo');

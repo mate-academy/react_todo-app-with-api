@@ -25,6 +25,7 @@ export const TodoItem: React.FC<Props> = ({
   const [editedTitle, setEditedTitle] = useState(todo.title);
 
   const editFieldRef = useRef<HTMLInputElement>(null);
+  const wasLoadingRef = useRef(false);
 
   const isLoading = isDeleting || isUpdating;
 
@@ -39,10 +40,16 @@ export const TodoItem: React.FC<Props> = ({
   }, [isEditing]);
 
   useEffect(() => {
-    if (isEditing && !isUpdating && todo.title === editedTitle.trim()) {
+    if (
+      wasLoadingRef.current &&
+      !isLoading &&
+      todo.title === editedTitle.trim()
+    ) {
       setIsEditing(false);
     }
-  }, [todo.title, isUpdating, isEditing, editedTitle]);
+
+    wasLoadingRef.current = isLoading;
+  }, [isLoading, todo.title, editedTitle]);
 
   const handleStartEditing = () => {
     setEditedTitle(todo.title);
@@ -51,6 +58,33 @@ export const TodoItem: React.FC<Props> = ({
 
   const handleTitleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setEditedTitle(event.target.value);
+  };
+
+  const handleFinishEditing = (value: string) => {
+    const trimmedTitle = value.trim();
+
+    if (trimmedTitle === todo.title) {
+      setIsEditing(false);
+
+      return;
+    }
+
+    if (!trimmedTitle) {
+      onDelete(todo.id);
+
+      return;
+    }
+
+    onRename(todo.id, trimmedTitle);
+  };
+
+  const handleTitleFieldKeyDown = (
+    event: React.KeyboardEvent<HTMLInputElement>,
+  ) => {
+    if (event.key === 'Enter') {
+      event.preventDefault();
+      handleFinishEditing(event.currentTarget.value);
+    }
   };
 
   const handleTitleFieldKeyUp = (
@@ -62,9 +96,16 @@ export const TodoItem: React.FC<Props> = ({
     }
   };
 
-  const handleRenameSubmit = (event: React.FormEvent) => {
-    event.preventDefault();
-    onRename(todo.id, editedTitle);
+  const handleTitleFieldBlur = (event: React.FocusEvent<HTMLInputElement>) => {
+    handleFinishEditing(event.currentTarget.value);
+  };
+
+  const handleDeleteClick = () => {
+    onDelete(todo.id);
+  };
+
+  const handleToggleChange = () => {
+    onToggle(todo);
   };
 
   return (
@@ -78,13 +119,13 @@ export const TodoItem: React.FC<Props> = ({
           type="checkbox"
           className="todo__status"
           checked={todo.completed}
-          onChange={() => onToggle(todo)}
+          onChange={handleToggleChange}
           disabled={isLoading}
         />
       </label>
 
       {isEditing ? (
-        <form onSubmit={handleRenameSubmit}>
+        <form>
           <input
             ref={editFieldRef}
             data-cy="TodoTitleField"
@@ -93,6 +134,8 @@ export const TodoItem: React.FC<Props> = ({
             placeholder="Empty todo will be deleted"
             value={editedTitle}
             onChange={handleTitleChange}
+            onBlur={handleTitleFieldBlur}
+            onKeyDown={handleTitleFieldKeyDown}
             onKeyUp={handleTitleFieldKeyUp}
           />
         </form>
@@ -110,7 +153,7 @@ export const TodoItem: React.FC<Props> = ({
             type="button"
             className="todo__remove"
             data-cy="TodoDelete"
-            onClick={() => onDelete(todo.id)}
+            onClick={handleDeleteClick}
             disabled={isDeleting}
           >
             ×
