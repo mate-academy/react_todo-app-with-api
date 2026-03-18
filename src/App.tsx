@@ -62,6 +62,7 @@ export const App: React.FC = () => {
       handleDelete(todo.id);
     });
   };
+
   const handleToggleAll = async () => {
     const newStatus = !allCompleted;
 
@@ -76,13 +77,14 @@ export const App: React.FC = () => {
     setUpdatingIds(prev => [...prev, todo.id]);
 
     try {
-      const updatedTodo = await updateTodo(todo.id, {
+      const updated = await updateTodo(todo.id, {
         title: newTitle,
       });
 
-      setTodos(prev => prev.map(t => (t.id === todo.id ? updatedTodo : t)));
-    } catch (err) {
+      setTodos(prev => prev.map(t => (t.id === todo.id ? updated : t)));
+    } catch {
       setError('Unable to update a todo');
+      throw new Error(); // 🔥 ВАЖНО
     } finally {
       setUpdatingIds(prev => prev.filter(id => id !== todo.id));
     }

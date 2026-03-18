@@ -28,6 +28,7 @@ export const Todo: React.FC<Props> = ({
 }) => {
   const handleSubmit = async () => {
     if (editingId !== todo.id) return;
+
     const trimmedTitle = editedTitle.trim();
 
     if (trimmedTitle === todo.title) {
@@ -40,9 +41,14 @@ export const Todo: React.FC<Props> = ({
       return;
     }
 
-    await onRename(todo, trimmedTitle);
-    setEditingId(null);
+    try {
+      await onRename(todo, trimmedTitle);
+      setEditingId(null);
+    } catch {
+      throw new Error();
+    }
   };
+
   return (
     <div
       key={todo.id}
@@ -70,16 +76,16 @@ export const Todo: React.FC<Props> = ({
         //   }}
         // >
         <input
-          key="editing-input" // тоже тестик хз хуйня какая-то
+          // key="editing-input" // тоже тестик хз хуйня какая-то
           data-cy="TodoTitleField"
           className="todo__title-field"
           value={editedTitle}
           onChange={e => setEditedTitle(e.target.value)}
-          // onBlur={() => {
-          //   if (editingId === todo.id) {
-          //     handleSubmit();
-          //   }
-          // }}
+          onBlur={() => {
+            if (editingId === todo.id) {
+              handleSubmit();
+            }
+          }}
           autoFocus
           onKeyDown={e => {
             if (e.key === 'Escape') {
@@ -87,6 +93,7 @@ export const Todo: React.FC<Props> = ({
               setEditedTitle(todo.title);
               setEditingId(null);
             }
+
             if (e.key === 'Enter') {
               e.preventDefault();
               handleSubmit();
@@ -109,7 +116,6 @@ export const Todo: React.FC<Props> = ({
           data-cy="TodoTitle"
           className="todo__title"
           onDoubleClickCapture={() => {
-            console.log('DOUBLE CLICK WORKS', todo.id);
             setEditingId(todo.id);
             setEditedTitle(todo.title);
           }}

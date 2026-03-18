@@ -26,7 +26,7 @@ export const TodoList: React.FC<Props> = ({
   setEditingId,
   editingId,
   editedTitle,
-  onRename
+  onRename,
 }) => {
   return (
     <>
