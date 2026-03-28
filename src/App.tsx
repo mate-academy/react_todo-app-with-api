@@ -11,10 +11,10 @@ import { Todo } from './types/Todo';
 import classNames from 'classnames';
 import { TodoList } from './components/TodoList';
 import { TodoItem } from './components/TodoItem';
+import { ErrorNotification } from './components/ErrorNotification';
+import { useError } from './hooks/useError';
 
 type Status = 'all' | 'active' | 'completed';
-
-type ErrorType = '' | 'load' | 'title' | 'add' | 'delete' | 'update';
 
 export const App: React.FC = () => {
   const [todos, setTodos] = useState<Todo[]>([]);
@@ -29,7 +29,7 @@ export const App: React.FC = () => {
 
   const [title, setTitle] = useState('');
 
-  const [error, setError] = useState<ErrorType>('');
+  const { error, setError } = useError();
 
   const activeTodos = todos.filter(todo => !todo.completed);
   const hasCompleted = todos.some(todo => todo.completed);
@@ -126,19 +126,13 @@ export const App: React.FC = () => {
       .finally(() => {
         setIsLoading(false);
       });
-  }, []);
+  }, [setError]);
 
   useEffect(() => {
     if (!isAdding && !error) {
       inputRef.current?.focus();
     }
-
-    const timer = setTimeout(() => {
-      setError('');
-    }, 3000);
-
-    return () => clearTimeout(timer);
-  }, [error, isAdding]);
+  }, [isAdding, error]);
 
   if (!USER_ID) {
     return <UserWarning />;
@@ -289,32 +283,7 @@ export const App: React.FC = () => {
         )}
       </div>
 
-      <div
-        data-cy="ErrorNotification"
-        className={classNames(
-          'notification',
-          'is-danger',
-          'is-light',
-          'has-text-weight-normal',
-          {
-            hidden: !error,
-          },
-        )}
-      >
-        {error === 'load' && 'Unable to load todos'}
-        {error === 'title' && 'Title should not be empty'}
-        {error === 'add' && 'Unable to add a todo'}
-        {error === 'delete' && 'Unable to delete a todo'}
-        {error === 'update' && 'Unable to update a todo'}
-        <button
-          data-cy="HideErrorButton"
-          type="button"
-          className="delete"
-          onClick={() => {
-            setError('');
-          }}
-        />
-      </div>
+      <ErrorNotification error={error} onClose={() => setError('')} />
     </div>
   );
 };
