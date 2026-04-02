@@ -37,6 +37,9 @@ module.exports = {
     'prettier'
   ],
   rules: {
+    'jsx-a11y/label-has-associated-control': ['error', {
+      assert: 'either', // дозволяє або htmlFor, або вкладений input
+    }],
     // JS
     'semi': 'off',
     '@typescript-eslint/semi': ['error', 'always'],

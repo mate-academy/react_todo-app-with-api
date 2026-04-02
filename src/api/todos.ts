@@ -1,0 +1,26 @@
+import { Todo } from '../types/Todo';
+import { client } from '../utils/fetchClient';
+
+export const USER_ID = 3820;
+
+export const getTodos = () => {
+  return client.get<Todo[]>(`/todos?userId=${USER_ID}`);
+};
+
+export const deleteTodo = (todoId: number) => {
+  return client.delete(`/todos/${todoId}`);
+};
+
+export const addTodo = (todo: Omit<Todo, 'id' | 'loading'>) => {
+  return client.post<Todo, Omit<Todo, 'id' | 'loading'>>('/todos', todo);
+};
+
+export const updateTodo = (
+  todoId: number,
+  data: Partial<Omit<Todo, 'id' | 'loading'>>,
+) => {
+  return client.patch<Todo, Partial<Omit<Todo, 'id' | 'loading'>>>(
+    `/todos/${todoId}`,
+    data,
+  );
+};
