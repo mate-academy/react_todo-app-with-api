@@ -38,8 +38,7 @@ module.exports = {
   ],
   rules: {
     // JS
-    'semi': 'off',
-    '@typescript-eslint/semi': ['error', 'always'],
+    'semi': ['error', 'always'],
     'prefer-const': 2,
     curly: [2, 'all'],
     'max-len': ['error', {
@@ -53,6 +52,7 @@ module.exports = {
     'arrow-body-style': 0,
     'arrow-parens': 0,
     'no-param-reassign': [2, { props: true }],
+    'indent': ['error', 2, { SwitchCase: 1 }],
     'padding-line-between-statements': [
       2,
       { blankLine: 'always', prev: '*', next: 'return' },
@@ -90,14 +90,6 @@ module.exports = {
     '@typescript-eslint/explicit-function-return-type': 'off',
     '@typescript-eslint/explicit-module-boundary-types': 'off',
     '@typescript-eslint/no-unused-vars': ['error'],
-    '@typescript-eslint/indent': ['error', 2],
-    '@typescript-eslint/ban-types': ['error', {
-        extendDefaults: true,
-        types: {
-          '{}': false,
-        },
-      },
-    ],
   },
   ignorePatterns: ['dist', '.eslintrc.cjs', 'vite.config.ts', 'src/vite-env.d.ts', 'cypress'],
   settings: {
