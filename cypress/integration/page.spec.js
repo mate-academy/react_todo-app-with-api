@@ -561,7 +561,7 @@ describe('', () => {
           page.flushJSTimers();
 
           todos.assertCount(7);
-          // todos.assertNotLoading(6);
+          todos.assertNotLoading(6);
           todos.assertNotCompleted(6);
           todos.assertTitle(6, 'Hello world');
           page.todosCounter().should('have.text', '4 items left');
