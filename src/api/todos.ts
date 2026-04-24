@@ -1,4 +1,5 @@
 import { Todo } from '../types/Todo';
+import { RequireAtLeastOne } from '../types/utils/RequireAtLeastOne';
 import { client } from '../utils/fetchClient';
 
 export const USER_ID = 4142;
@@ -13,4 +14,13 @@ export const addTodo = (todo: Omit<Todo, 'id'>) => {
 
 export const deleteTodo = (id: number) => {
   return client.delete(`/todos/${id}`);
+};
+
+type UpdatableTodo = Pick<Todo, 'title' | 'completed'>;
+
+export const updateTodo = (
+  id: number,
+  body: RequireAtLeastOne<UpdatableTodo>,
+) => {
+  return client.patch<Todo>(`/todos/${id}`, body);
 };

@@ -1,6 +1,12 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { UserWarning } from './UserWarning';
-import { getTodos, addTodo, deleteTodo, USER_ID } from './api/todos';
+import {
+  getTodos,
+  addTodo,
+  deleteTodo,
+  USER_ID,
+  updateTodo,
+} from './api/todos';
 
 import { ErrorNotification } from './components/ErrorNotification';
 import { Footer, TodoStatus } from './components/Footer';
@@ -194,6 +200,41 @@ export const App: React.FC = () => {
     }
   }
 
+  async function handleTodoStatusChange(id: number) {
+    markAsLoading(id);
+
+    const targetIndex = todos.findIndex(todo => todo.id === id);
+
+    if (targetIndex === -1) {
+      return;
+    }
+
+    const targetStatus = !todos[targetIndex].completed;
+
+    try {
+      const result = await updateTodo(id, { completed: targetStatus });
+
+      // If the user gets no change, that means the problem is on the backend.
+      setTodos(current => {
+        // Previous targetIndex was not synched, so the new search is required.
+        //  This is instead of putting it into a ref,
+        //  which I did for "loading" state.
+        const syncedTargetIndex = current.findIndex(todo => todo.id === id);
+
+        if (syncedTargetIndex === -1) {
+          return [...current];
+        }
+
+        return current.toSpliced(syncedTargetIndex, 1, result);
+      });
+    } catch (error) {
+      displayError(DefaultErrorMessages.FAILED_UPDATE);
+    } finally {
+      unmarkAsLoading(id);
+      focusInput();
+    }
+  }
+
   // #endregion
 
   // #region preparation
@@ -261,6 +302,7 @@ export const App: React.FC = () => {
                   isSelected={false}
                   isLoading={loadingTodoIdsState.includes(todo.id)}
                   onDelete={handleDeleteTodo}
+                  onToggleCompleted={handleTodoStatusChange}
                 />
               );
             })}
@@ -272,6 +314,7 @@ export const App: React.FC = () => {
                 isSelected={false}
                 isLoading={true}
                 onDelete={() => null}
+                onToggleCompleted={() => null}
               />
             )}
           </section>
