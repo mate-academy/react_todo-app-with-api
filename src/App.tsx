@@ -14,7 +14,6 @@ import { Header, TodoAddOperationStatus } from './components/Header';
 import { Todo } from './types/Todo';
 import { Todo as TodoItem } from './components/Todo';
 import { DefaultErrorMessages, ErrorMessage } from './types/ErrorMessages';
-import { createUnexpectedErrorMessage } from './utils/errorMessages';
 
 export const App: React.FC = () => {
   // TODO? hide the notification BEFORE every next request.
@@ -178,9 +177,6 @@ export const App: React.FC = () => {
 
   // > Batch remove
   async function handleDeleteAllCompleted() {
-    // Optionally: Add an isLoading prop to the todos[] state.
-    //  Or have loadingTodos be an array of the same size as todos[],
-    //  and store the loading state there as boolean
     setProcessingDeleteCompleted(true);
 
     const idsToDeleteInThisOperation: number[] = [];
@@ -194,42 +190,34 @@ export const App: React.FC = () => {
       }
     }
 
-    try {
-      const deletions = await Promise.allSettled(
-        idsToDeleteInThisOperation.map(id => deleteTodo(id)),
-      );
+    const deletions = await Promise.allSettled(
+      idsToDeleteInThisOperation.map(deleteTodo),
+    );
 
-      deletions.forEach((result, index) => {
-        // TODO*: Could be aggregated too.
-        if (result.status === 'fulfilled') {
-          setTodos(current =>
-            [...current].filter(
-              todo => todo.id !== idsToDeleteInThisOperation[index],
-            ),
-          );
+    setTodos(current => {
+      const copy = [...current].filter(todo => {
+        const deletionIndex = idsToDeleteInThisOperation.indexOf(todo.id);
 
-          return;
+        if (
+          deletionIndex >= 0 &&
+          deletions[deletionIndex].status === 'fulfilled'
+        ) {
+          return false;
         }
 
-        if (result.status === 'rejected') {
-          displayError(DefaultErrorMessages.FAILED_DELETE);
-        }
+        return true;
       });
-    } catch (error) {
-      // ? Why doesn't it catch errors?
-      // ? What if I reject with an error? Is it serializable?
-      // ? What if I throw an error that will reject? First of all: how?
-      // ?  And then: would it be possible to catch it?
-      displayError(
-        createUnexpectedErrorMessage(
-          'The developer has little to no idea how you got here.',
-        ),
-      );
-    } finally {
-      idsToDeleteInThisOperation.forEach(unmarkAsLoading);
-      setProcessingDeleteCompleted(false);
-      focusInput();
+
+      return copy;
+    });
+
+    if (deletions.some(result => result.status === 'rejected')) {
+      displayError(DefaultErrorMessages.FAILED_DELETE);
     }
+
+    idsToDeleteInThisOperation.forEach(unmarkAsLoading);
+    setProcessingDeleteCompleted(false);
+    focusInput();
   }
 
   // > Single status toggle
@@ -288,6 +276,7 @@ export const App: React.FC = () => {
         }
 
         return null;
+        // BTW: All nulls here would result in a fully redundant objects.
       }),
     );
 
