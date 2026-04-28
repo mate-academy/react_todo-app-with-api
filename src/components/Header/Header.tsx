@@ -42,8 +42,9 @@ export const Header: React.FC<Props> = ({
   function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
 
-    // TODO!: do this the right way?
-    onSubmit((event.currentTarget.elements[0] as HTMLInputElement).value);
+    if (inputField.current) {
+      onSubmit(inputField.current.value);
+    }
   }
 
   return (
