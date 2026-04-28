@@ -124,16 +124,16 @@ export const App: React.FC = () => {
 
   // > Single add
   async function handleAddNewTodo(title: string) {
-    setTodoAddOperationStatus(TodoAddOperationStatus.LOADING);
-
     const trimmed = title.trim();
 
     if (!trimmed.length) {
       displayError(DefaultErrorMessages.EMPTY_TITLE);
-      setTodoAddOperationStatus(TodoAddOperationStatus.ERROR);
+      // setTodoAddOperationStatus(TodoAddOperationStatus.ERROR);
 
       return;
     }
+
+    setTodoAddOperationStatus(TodoAddOperationStatus.LOADING);
 
     const todoData = { title: trimmed, userId: USER_ID, completed: false };
 
@@ -190,6 +190,8 @@ export const App: React.FC = () => {
 
     commitLoadingState();
 
+    // early return if no incoming changes?
+
     const deletions = await Promise.allSettled(
       idsToDeleteInThisOperation.map(deleteTodo),
     );
@@ -223,14 +225,14 @@ export const App: React.FC = () => {
 
   // > Single status toggle
   async function handleToggleTodoStatus(id: number) {
-    scheduleForStartLoading(id);
-    commitLoadingState();
-
     const targetIndex = todos.findIndex(todo => todo.id === id);
 
     if (targetIndex === -1) {
       return;
     }
+
+    scheduleForStartLoading(id);
+    commitLoadingState();
 
     const targetStatus = !todos[targetIndex].completed;
 
@@ -316,7 +318,6 @@ export const App: React.FC = () => {
     });
 
     commitLoadingState();
-
     focusInput();
   }
 
