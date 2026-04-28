@@ -24,18 +24,18 @@ and implement the ability to toggle and rename todos.
 
 ## Renaming a todo
 
-[ ] Implement the ability to edit a todo title on double click:
+[x] Implement the ability to edit a todo title on double click:
 
-- [ ] show the edit form instead of the title and remove button;
-- [ ] saves changes on the form submit (just press `Enter`);
-- [ ] save changes when the field loses focus (`onBlur`);
-- [ ] if the new title is the same as the old one just cancel editing;
-- [ ] cancel editing on `Esс` key `keyup` event;
-- [ ] if the new title is empty delete the todo the same way the `x` button does it;
-- [ ] if the title was changed show the loader while waiting for the API response;
-- [ ] update the todo title on success;
-- [ ] show `Unable to update a todo` in case of API error;
-- [ ] or the deletion error message if we tried to delete the todo.
+- [x] show the edit form instead of the title and remove button;
+- [x] saves changes on the form submit (just press `Enter`);
+- [x] save changes when the field loses focus (`onBlur`);
+- [x] if the new title is the same as the old one just cancel editing;
+- [x] cancel editing on `Esс` key `keyup` event;
+- [x] if the new title is empty delete the todo the same way the `x` button does it;
+- [x] if the title was changed show the loader while waiting for the API response;
+- [x] update the todo title on success;
+- [x] show `Unable to update a todo` in case of API error;
+- [x] or the deletion error message if we tried to delete the todo.
 
 ## If you want to enable tests
 - open `cypress/integration/page.spec.js`

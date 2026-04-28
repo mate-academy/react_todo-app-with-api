@@ -1,22 +1,55 @@
 import classNames from 'classnames';
 import { Todo as TodoType } from '../../types/Todo';
+import { useState } from 'react';
+
+const FORM_KEYS = {
+  titleInput: 'titleInput',
+} as const;
 
 type Props = {
   todo: TodoType;
-  isSelected: boolean;
   isLoading: boolean;
   onDelete: (id: number) => void;
   onToggleCompleted: (id: number) => void;
+  onTitleChange: (id: number, newTitle: string) => void;
 };
 
 export const Todo: React.FC<Props> = ({
   todo,
-  isSelected,
   isLoading,
   onDelete,
   onToggleCompleted,
+  onTitleChange,
 }) => {
+  const [isBeingEdited, setIsBeingEdited] = useState(false);
+
   const { id, completed, title } = todo;
+
+  function handleTitleChange(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    setIsBeingEdited(false);
+
+    const formData = new FormData(event.currentTarget);
+
+    // ? Is pre-trimming ok?
+    const newTitle = (formData.get(FORM_KEYS.titleInput) as string).trim();
+
+    // * Currently we don't need any actions for this case, so it's
+    // *  cheaper to perform this check here.
+    if (newTitle === title) {
+      return;
+    }
+
+    onTitleChange(id, newTitle);
+  }
+
+  function handleTitleChangeCancel(
+    event: React.KeyboardEvent<HTMLFormElement>,
+  ) {
+    if (event.key === 'Escape') {
+      setIsBeingEdited(false);
+    }
+  }
 
   return (
     <div
@@ -36,19 +69,29 @@ export const Todo: React.FC<Props> = ({
         />
       </label>
 
-      {isSelected ? (
-        <form>
+      {isBeingEdited ? (
+        <form
+          onSubmit={handleTitleChange}
+          onBlur={handleTitleChange}
+          onKeyUp={handleTitleChangeCancel}
+        >
           <input
             data-cy="TodoTitleField"
             type="text"
+            name={FORM_KEYS.titleInput}
             className="todo__title-field"
             placeholder="Empty todo will be deleted"
-            value="Todo is being edited now"
+            defaultValue={title}
+            autoFocus
           />
         </form>
       ) : (
         <>
-          <span data-cy="TodoTitle" className="todo__title">
+          <span
+            data-cy="TodoTitle"
+            className="todo__title"
+            onDoubleClick={() => setIsBeingEdited(true)}
+          >
             {title}
           </span>
           <button

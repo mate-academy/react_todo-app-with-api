@@ -320,6 +320,36 @@ export const App: React.FC = () => {
     focusInput();
   }
 
+  // > Title change
+  async function handleTodoTitleChange(id: number, newTitleTrimmed: string) {
+    if (!newTitleTrimmed.length) {
+      handleDeleteTodo(id);
+
+      return;
+    }
+
+    scheduleForStartLoading(id);
+    commitLoadingState();
+
+    try {
+      const result = await updateTodo(id, { title: newTitleTrimmed });
+
+      setTodos(current =>
+        current.toSpliced(
+          current.findIndex(todo => todo.id === id),
+          1,
+          result,
+        ),
+      );
+    } catch (error) {
+      displayError(DefaultErrorMessages.FAILED_UPDATE);
+    } finally {
+      scheduleForEndLoading(id);
+      commitLoadingState();
+      focusInput();
+    }
+  }
+
   // #endregion
 
   // #region fetching
@@ -357,10 +387,10 @@ export const App: React.FC = () => {
                 <TodoItem
                   key={todo.id}
                   todo={todo}
-                  isSelected={false}
                   isLoading={loadingTodoIdsState.includes(todo.id)}
                   onDelete={handleDeleteTodo}
                   onToggleCompleted={handleToggleTodoStatus}
+                  onTitleChange={handleTodoTitleChange}
                 />
               );
             })}
@@ -369,10 +399,10 @@ export const App: React.FC = () => {
               <TodoItem
                 key="loading"
                 todo={tempTodo}
-                isSelected={false}
                 isLoading={true}
                 onDelete={() => null}
                 onToggleCompleted={() => null}
+                onTitleChange={() => null}
               />
             )}
           </section>
