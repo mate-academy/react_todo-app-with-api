@@ -91,20 +91,16 @@ export const App: React.FC = () => {
     [setErrorMessage, setErrorRenderIteration],
   );
 
-  function updateLoadingTodoIdsState() {
+  function commitLoadingState() {
     setLoadingTodoIdsState(Array.from(loadingTodoIdsRef.current));
   }
 
-  function markAsLoading(id: number) {
-    // TODO*: Could be split into separate actions to aggregate and not run
-    // TODO*:  updateLoadingTodoIdsState on every single id change.
+  function scheduleForStartLoading(id: number) {
     loadingTodoIdsRef.current.add(id);
-    updateLoadingTodoIdsState();
   }
 
-  function unmarkAsLoading(id: number) {
+  function scheduleForEndLoading(id: number) {
     loadingTodoIdsRef.current.delete(id);
-    updateLoadingTodoIdsState();
   }
 
   function focusInput() {
@@ -159,7 +155,8 @@ export const App: React.FC = () => {
 
   // > Signle remove
   async function handleDeleteTodo(id: number) {
-    markAsLoading(id);
+    scheduleForStartLoading(id);
+    commitLoadingState();
 
     try {
       await deleteTodo(id);
@@ -170,7 +167,8 @@ export const App: React.FC = () => {
     } catch (error) {
       displayError(DefaultErrorMessages.FAILED_DELETE);
     } finally {
-      unmarkAsLoading(id);
+      scheduleForEndLoading(id);
+      commitLoadingState();
       focusInput();
     }
   }
@@ -186,9 +184,11 @@ export const App: React.FC = () => {
 
       if (todo.completed && !loadingTodoIdsRef.current.has(id)) {
         idsToDeleteInThisOperation.push(id);
-        markAsLoading(id);
+        scheduleForStartLoading(id);
       }
     }
+
+    commitLoadingState();
 
     const deletions = await Promise.allSettled(
       idsToDeleteInThisOperation.map(deleteTodo),
@@ -215,14 +215,16 @@ export const App: React.FC = () => {
       displayError(DefaultErrorMessages.FAILED_DELETE);
     }
 
-    idsToDeleteInThisOperation.forEach(unmarkAsLoading);
+    idsToDeleteInThisOperation.forEach(scheduleForEndLoading);
+    commitLoadingState();
     setProcessingDeleteCompleted(false);
     focusInput();
   }
 
   // > Single status toggle
   async function handleToggleTodoStatus(id: number) {
-    markAsLoading(id);
+    scheduleForStartLoading(id);
+    commitLoadingState();
 
     const targetIndex = todos.findIndex(todo => todo.id === id);
 
@@ -251,7 +253,8 @@ export const App: React.FC = () => {
     } catch (error) {
       displayError(DefaultErrorMessages.FAILED_UPDATE);
     } finally {
-      unmarkAsLoading(id);
+      scheduleForEndLoading(id);
+      commitLoadingState();
       focusInput();
     }
   }
@@ -265,9 +268,11 @@ export const App: React.FC = () => {
     // The next two loops could be united.
     todos.forEach(todo => {
       if (todo.completed === initialStatus) {
-        markAsLoading(todo.id);
+        scheduleForStartLoading(todo.id);
       }
     });
+
+    commitLoadingState();
 
     const updates = await Promise.allSettled(
       todos.map(todo => {
@@ -306,9 +311,11 @@ export const App: React.FC = () => {
 
     todos.forEach(todo => {
       if (todo.completed === initialStatus) {
-        unmarkAsLoading(todo.id);
+        scheduleForEndLoading(todo.id);
       }
     });
+
+    commitLoadingState();
 
     focusInput();
   }
