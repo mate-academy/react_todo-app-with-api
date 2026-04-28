@@ -19,7 +19,7 @@ import { createUnexpectedErrorMessage } from './utils/errorMessages';
 export const App: React.FC = () => {
   // TODO? hide the notification BEFORE every next request.
 
-  // #region todo display state
+  // #region todo display state and preparation
 
   const [todos, setTodos] = useState<Todo[]>([]);
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
@@ -31,6 +31,34 @@ export const App: React.FC = () => {
   const [filteringByCompleted, setFilteringByCompleted] = useState(
     TodoStatus.All,
   );
+
+  const filteredTodos = todos.filter(todo => {
+    let satisfiesCompleted: boolean;
+
+    switch (filteringByCompleted) {
+      case TodoStatus.Active:
+        satisfiesCompleted = !todo.completed;
+        break;
+      case TodoStatus.Completed:
+        satisfiesCompleted = todo.completed;
+        break;
+      default:
+        satisfiesCompleted = true;
+        break;
+    }
+
+    return satisfiesCompleted;
+  });
+
+  let incompleteTodoQuantity = 0;
+
+  todos.forEach(todo => {
+    if (!todo.completed) {
+      incompleteTodoQuantity += 1;
+    }
+  });
+
+  const hasCompletedTodos = todos.length !== incompleteTodoQuantity;
 
   // #endregion
 
@@ -88,6 +116,7 @@ export const App: React.FC = () => {
 
   // #region todo manipulation functions
 
+  // > Fetch
   const handleFetchTodos = useCallback(async () => {
     try {
       const fetchedTodos = await getTodos();
@@ -98,6 +127,7 @@ export const App: React.FC = () => {
     }
   }, [setTodos, displayError]);
 
+  // > Single add
   async function handleAddNewTodo(title: string) {
     setTodoAddOperationStatus(TodoAddOperationStatus.LOADING);
 
@@ -128,6 +158,7 @@ export const App: React.FC = () => {
     }
   }
 
+  // > Signle remove
   async function handleDeleteTodo(id: number) {
     markAsLoading(id);
 
@@ -145,6 +176,7 @@ export const App: React.FC = () => {
     }
   }
 
+  // > Batch remove
   async function handleDeleteAllCompleted() {
     // Optionally: Add an isLoading prop to the todos[] state.
     //  Or have loadingTodos be an array of the same size as todos[],
@@ -200,7 +232,8 @@ export const App: React.FC = () => {
     }
   }
 
-  async function handleTodoStatusChange(id: number) {
+  // > Single status toggle
+  async function handleToggleTodoStatus(id: number) {
     markAsLoading(id);
 
     const targetIndex = todos.findIndex(todo => todo.id === id);
@@ -216,7 +249,7 @@ export const App: React.FC = () => {
 
       // If the user gets no change, that means the problem is on the backend.
       setTodos(current => {
-        // Previous targetIndex was not synched, so the new search is required.
+        // Previous targetIndex was not synced, so the new search is required.
         //  This is instead of putting it into a ref,
         //  which I did for "loading" state.
         const syncedTargetIndex = current.findIndex(todo => todo.id === id);
@@ -235,41 +268,69 @@ export const App: React.FC = () => {
     }
   }
 
+  // > Batch status toggle
+  async function handleToggleAllTodoStatus() {
+    const initialStatus = !incompleteTodoQuantity;
+
+    // A separate array could be created just for the target ids.
+
+    // The next two loops could be united.
+    todos.forEach(todo => {
+      if (todo.completed === initialStatus) {
+        markAsLoading(todo.id);
+      }
+    });
+
+    const updates = await Promise.allSettled(
+      todos.map(todo => {
+        if (todo.completed === initialStatus) {
+          return updateTodo(todo.id, { completed: !initialStatus });
+        }
+
+        return null;
+      }),
+    );
+
+    // A separate array could be created just for successful requests.
+
+    setTodos(current => {
+      const copy = [...current];
+
+      updates.forEach(result => {
+        if (result.status === 'fulfilled' && result.value) {
+          const todo = result.value;
+
+          copy.splice(
+            copy.findIndex(todoFromState => todoFromState.id === todo.id),
+            1,
+            todo,
+          );
+        }
+      });
+
+      return copy;
+    });
+
+    if (updates.some(result => result.status === 'rejected')) {
+      displayError(DefaultErrorMessages.FAILED_UPDATE);
+    }
+
+    todos.forEach(todo => {
+      if (todo.completed === initialStatus) {
+        unmarkAsLoading(todo.id);
+      }
+    });
+
+    focusInput();
+  }
+
   // #endregion
 
-  // #region preparation
+  // #region fetching
 
   useEffect(() => {
     handleFetchTodos();
   }, [handleFetchTodos]);
-
-  const filteredTodos = todos.filter(todo => {
-    let satisfiesCompleted: boolean;
-
-    switch (filteringByCompleted) {
-      case TodoStatus.Active:
-        satisfiesCompleted = !todo.completed;
-        break;
-      case TodoStatus.Completed:
-        satisfiesCompleted = todo.completed;
-        break;
-      default:
-        satisfiesCompleted = true;
-        break;
-    }
-
-    return satisfiesCompleted;
-  });
-
-  let incompleteTodoQuantity = 0;
-
-  todos.forEach(todo => {
-    if (!todo.completed) {
-      incompleteTodoQuantity += 1;
-    }
-  });
-
-  const hasCompletedTodos = todos.length !== incompleteTodoQuantity;
 
   // #endregion
 
@@ -285,11 +346,12 @@ export const App: React.FC = () => {
 
       <div className="todoapp__content">
         <Header
-          isRefreshCompletedVisible={todos.length !== 0}
-          isRefreshCompletedEnabled={incompleteTodoQuantity === 0}
+          isToggleAllVisible={todos.length !== 0}
+          isToggleAllActive={incompleteTodoQuantity === 0}
           onSubmit={handleAddNewTodo}
           todoAddStatus={todoAddOperationStatus}
           focusTrigger={taskInputFocusTrigger}
+          handleToggleAll={handleToggleAllTodoStatus}
         />
 
         {(!!todos.length || tempTodo) && (
@@ -302,7 +364,7 @@ export const App: React.FC = () => {
                   isSelected={false}
                   isLoading={loadingTodoIdsState.includes(todo.id)}
                   onDelete={handleDeleteTodo}
-                  onToggleCompleted={handleTodoStatusChange}
+                  onToggleCompleted={handleToggleTodoStatus}
                 />
               );
             })}

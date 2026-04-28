@@ -15,12 +15,12 @@ and implement the ability to toggle and rename todos.
 - [x] the status should be changed on success;
 - [x] show the `Unable to update a todo` notification in case of API error.
 
-[ ] Add the ability to toggle the completed status of all the todos with the `toggleAll` checkbox:
+[x] Add the ability to toggle the completed status of all the todos with the `toggleAll` checkbox:
 
-- [ ] `toggleAll` button should have `active` class only if all the todos are completed;
-- [ ] `toggleAll` click changes its status to the opposite one, and sets this new status to all the todos;
-- [ ] it should work the same as several individual updates of the todos which statuses were actually changed;
-- [ ] don't send requests for the todos that were not changed;
+- [x] `toggleAll` button should have `active` class only if all the todos are completed;
+- [x] `toggleAll` click changes its status to the opposite one, and sets this new status to all the todos;
+- [x] it should work the same as several individual updates of the todos which statuses were actually changed;
+- [x] don't send requests for the todos that were not changed;
 
 ## Renaming a todo
 

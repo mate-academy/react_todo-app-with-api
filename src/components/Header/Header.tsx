@@ -2,11 +2,12 @@ import classNames from 'classnames';
 import { useEffect, useRef } from 'react';
 
 type Props = {
-  isRefreshCompletedVisible: boolean;
-  isRefreshCompletedEnabled: boolean;
+  isToggleAllVisible: boolean;
+  isToggleAllActive: boolean;
   onSubmit: (title: string) => void;
   todoAddStatus?: TodoAddOperationStatus;
   focusTrigger: boolean;
+  handleToggleAll: () => void;
 };
 
 export enum TodoAddOperationStatus {
@@ -16,11 +17,12 @@ export enum TodoAddOperationStatus {
 }
 
 export const Header: React.FC<Props> = ({
-  isRefreshCompletedVisible,
-  isRefreshCompletedEnabled,
+  isToggleAllVisible,
+  isToggleAllActive,
   onSubmit,
   todoAddStatus = TodoAddOperationStatus.SUCCESS,
   focusTrigger,
+  handleToggleAll,
 }) => {
   const inputField = useRef<HTMLInputElement | null>(null);
 
@@ -46,13 +48,14 @@ export const Header: React.FC<Props> = ({
 
   return (
     <header className="todoapp__header">
-      {isRefreshCompletedVisible && (
+      {isToggleAllVisible && (
         <button
           type="button"
           className={classNames('todoapp__toggle-all', {
-            active: isRefreshCompletedEnabled,
+            active: isToggleAllActive,
           })}
           data-cy="ToggleAllButton"
+          onClick={handleToggleAll}
         />
       )}
 
