@@ -41,7 +41,7 @@ and implement the ability to toggle and rename todos.
 - open `cypress/integration/page.spec.js`
 - replace `describe.skip` with `describe` for the root `describe`
 
-> [ ] ❗❗All tests should pass, even if some behaviour is not well explained in the task❗❗
+> [x] ❗❗All tests should pass, even if some behaviour is not well explained in the task❗❗
 
 ## Instructions
 
