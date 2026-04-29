@@ -17,6 +17,7 @@ import { DefaultErrorMessages, ErrorMessage } from './types/ErrorMessages';
 
 export const App: React.FC = () => {
   // TODO? hide the notification BEFORE every next request.
+  // ! The project was accepted without this feature.
 
   // #region todo display state and preparation
 
@@ -27,7 +28,7 @@ export const App: React.FC = () => {
   // The ref is to conquer the Catch-22 in the handleDeleteAllCompleted method:
   //  requiring the freshest loadingTodoIds state synchronously
   //  after calling the updating function.
-  // Ref is for synchronicity, Set is for uniqueness.
+  // Ref is for synchronicity, Set is for deduplication.
   // TODO: Do this in those components themselves?
   const [filteringByCompleted, setFilteringByCompleted] = useState(
     TodoStatus.All,
@@ -224,7 +225,7 @@ export const App: React.FC = () => {
 
     commitLoadingState();
 
-    // early return if no incoming changes?
+    // Early return if no incoming changes?
 
     const deletions = await Promise.allSettled(
       idsToDeleteInThisOperation.map(deleteTodo),
@@ -281,7 +282,7 @@ export const App: React.FC = () => {
         const syncedTargetIndex = current.findIndex(todo => todo.id === id);
 
         if (syncedTargetIndex === -1) {
-          return [...current];
+          return current;
         }
 
         return current.toSpliced(syncedTargetIndex, 1, result);
