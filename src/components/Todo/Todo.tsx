@@ -84,8 +84,9 @@ export const Todo: React.FC<Props> = ({
           data-cy="TodoStatus"
           type="checkbox"
           className="todo__status"
-          defaultChecked={completed}
-          onClick={() => onToggleCompleted(id)}
+          checked={completed}
+          // Keyboard also triggers onClick. No selection highlight.
+          onChange={() => onToggleCompleted(id)}
         />
       </label>
 
