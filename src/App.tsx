@@ -27,9 +27,40 @@ export const App: React.FC = () => {
   // The ref is to conquer the Catch-22 in the handleDeleteAllCompleted method:
   //  requiring the freshest loadingTodoIds state synchronously
   //  after calling the updating function.
+  // Ref is for synchronicity, Set is for uniqueness.
+  // TODO: Do this in those components themselves?
   const [filteringByCompleted, setFilteringByCompleted] = useState(
     TodoStatus.All,
   );
+
+  // > CONTROLLING MORE OF THE TODO'S INTERNAL STATE FROM THE PARENT:
+  // >  AN INTERESTING EXPERIMENT.
+  // const [todoTitleChangeErrorIds, setTodoTitleChangeErrorIds] =
+  //   useState<number[]>([]);
+  // TODO: Try it out with this array or a set.
+  // ? Is it possible to do with a single id in state, and React.memo's
+  // ?  arePropsEqual? Like based on props.todo.title or isLoading etc.
+  // ?  Instead of an Array.
+  // const [todoTitleChangeErrorId, setTodoTitleChangeErrorId] =
+  //   useState(TodoAddOperationStatus.SUCCESS);
+  //   useState(-1);
+  // * Options:
+  // 1. Separate hasError array, add and remove.
+  // 2. Separate hasError array for all, true or false.
+  //      + Easier to match, by index.
+  //      - Too much state.
+  // ?    - Can mix up positions relatively to todos? Can it?
+  // 3. A map with both loading and error flags.
+  //      - A lot of objects, small amount of errors at a time.
+  // 4. Include flags in the todos array.
+  //      - Too much types.
+  // * Lifecycle of meta state:
+  //      1. Stuff loads -- mark loading, remove error.
+  //      2. Something proceeds -- remove loading.
+  //      3. Something doesn't proceed -- mark error, remove loading.
+  // * Three-value state:
+  //      1. Header input -- single element.
+  //      2. Todo -- multiple elements, rare errors...?
 
   const filteredTodos = todos.filter(todo => {
     let satisfiesCompleted: boolean;
@@ -153,7 +184,7 @@ export const App: React.FC = () => {
     }
   }
 
-  // > Signle remove
+  // > Single remove
   async function handleDeleteTodo(id: number) {
     scheduleForStartLoading(id);
     commitLoadingState();
@@ -164,8 +195,11 @@ export const App: React.FC = () => {
       setTodos(current => [...current].filter(todo => todo.id !== id));
       // ? Is putting the state in ref in Set
       // ? and .deleting it there more effective?
+
+      return;
     } catch (error) {
       displayError(DefaultErrorMessages.FAILED_DELETE);
+      throw error;
     } finally {
       scheduleForEndLoading(id);
       commitLoadingState();
@@ -324,9 +358,7 @@ export const App: React.FC = () => {
   // > Title change
   async function handleTodoTitleChange(id: number, newTitleTrimmed: string) {
     if (!newTitleTrimmed.length) {
-      handleDeleteTodo(id);
-
-      return;
+      return handleDeleteTodo(id);
     }
 
     scheduleForStartLoading(id);
@@ -342,12 +374,16 @@ export const App: React.FC = () => {
           result,
         ),
       );
+
+      focusInput();
+
+      return;
     } catch (error) {
       displayError(DefaultErrorMessages.FAILED_UPDATE);
+      throw error;
     } finally {
       scheduleForEndLoading(id);
       commitLoadingState();
-      focusInput();
     }
   }
 
@@ -403,7 +439,7 @@ export const App: React.FC = () => {
                 isLoading={true}
                 onDelete={() => null}
                 onToggleCompleted={() => null}
-                onTitleChange={() => null}
+                onTitleChange={() => Promise.resolve()}
               />
             )}
           </section>

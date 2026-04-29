@@ -1,6 +1,6 @@
 import classNames from 'classnames';
 import { Todo as TodoType } from '../../types/Todo';
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 const FORM_KEYS = {
   titleInput: 'titleInput',
@@ -11,7 +11,7 @@ type Props = {
   isLoading: boolean;
   onDelete: (id: number) => void;
   onToggleCompleted: (id: number) => void;
-  onTitleChange: (id: number, newTitle: string) => void;
+  onTitleChange: (id: number, newTitle: string) => Promise<void>;
 };
 
 export const Todo: React.FC<Props> = ({
@@ -21,13 +21,13 @@ export const Todo: React.FC<Props> = ({
   onToggleCompleted,
   onTitleChange,
 }) => {
-  const [isBeingEdited, setIsBeingEdited] = useState(false);
-
   const { id, completed, title } = todo;
 
-  function handleTitleChange(event: React.FormEvent<HTMLFormElement>) {
+  const [isBeingEdited, setIsBeingEdited] = useState(false);
+  const inputFieldRef = useRef<HTMLInputElement | null>(null);
+
+  async function handleTitleChange(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    setIsBeingEdited(false);
 
     const formData = new FormData(event.currentTarget);
 
@@ -35,12 +35,26 @@ export const Todo: React.FC<Props> = ({
     const newTitle = (formData.get(FORM_KEYS.titleInput) as string).trim();
 
     // * Currently we don't need any actions for this case, so it's
-    // *  cheaper to perform this check here.
+    // *  simpler to perform this check here.
     if (newTitle === title) {
+      setIsBeingEdited(false);
+
       return;
     }
 
-    onTitleChange(id, newTitle);
+    try {
+      await onTitleChange(id, newTitle);
+
+      setIsBeingEdited(false);
+    } catch (error) {
+      // This wouldn't focus if the element was disabled.
+      //  It would require e.g. a useEffect.
+      // ! When a next request is sent while the first one didn't yet receive
+      // !  a response -- it creates a loop of sending requests for each of the
+      // !  failed requests, until the user interrupts it by e.g. focusing in
+      // !  another window.
+      inputFieldRef.current?.focus();
+    }
   }
 
   function handleTitleChangeCancel(
@@ -50,6 +64,12 @@ export const Todo: React.FC<Props> = ({
       setIsBeingEdited(false);
     }
   }
+
+  useEffect(() => {
+    if (isBeingEdited) {
+      inputFieldRef.current?.focus();
+    }
+  }, [isBeingEdited]);
 
   return (
     <div
@@ -82,7 +102,7 @@ export const Todo: React.FC<Props> = ({
             className="todo__title-field"
             placeholder="Empty todo will be deleted"
             defaultValue={title}
-            autoFocus
+            ref={inputFieldRef}
           />
         </form>
       ) : (
