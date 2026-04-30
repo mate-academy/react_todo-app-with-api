@@ -49,5 +49,14 @@ and implement the ability to toggle and rename todos.
 - Use the [React TypeScript cheat sheet](https://mate-academy.github.io/fe-program/js/extra/react-typescript).
 - Replace `<your_account>` with your Github username in the [DEMO LINK](https://sanchez-primal.github.io/react_todo-app-with-api/) and add it to the PR description.
 
-# Interesting stuff:
+# Personal
+## Interesting stuff:
 - Compare batch functions
+
+## TODO
+- seaparate into more components: extract List from App, Form from Todo.
+- custom hooks
+- memoization
+
+## Other improvements
+- Every `focusInput` call launches to the top of the page, it's not convenient if you were doing something at another place.

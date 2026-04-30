@@ -1,4 +1,10 @@
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 import { UserWarning } from './UserWarning';
 import {
   getTodos,
@@ -15,13 +21,20 @@ import { Todo } from './types/Todo';
 import { Todo as TodoItem } from './components/Todo';
 import { DefaultErrorMessages, ErrorMessage } from './types/ErrorMessages';
 
+type TodoDict = {
+  [key: number]: Todo;
+};
+// Also matches an array but ok.
+
 export const App: React.FC = () => {
   // TODO? hide the notification BEFORE every next request.
   // ! The project was accepted without this feature.
 
   // #region todo display state and preparation
 
-  const [todos, setTodos] = useState<Todo[]>([]);
+  const [todosDict, setTodosDict] = useState<TodoDict>({});
+  // * The limitation is that todos could only be displayed
+  // *  in the ascending order of their ids.
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
   const [loadingTodoIdsState, setLoadingTodoIdsState] = useState<number[]>([]);
   const loadingTodoIdsRef = useRef<Set<number>>(new Set());
@@ -29,6 +42,7 @@ export const App: React.FC = () => {
   //  requiring the freshest loadingTodoIds state synchronously
   //  after calling the updating function.
   // Ref is for synchronicity, Set is for deduplication.
+  // ! Use object for deduplication too?
   // TODO: Do this in those components themselves?
   const [filteringByCompleted, setFilteringByCompleted] = useState(
     TodoStatus.All,
@@ -55,6 +69,7 @@ export const App: React.FC = () => {
   //      - A lot of objects, small amount of errors at a time.
   // 4. Include flags in the todos array.
   //      - Too much types.
+  //      - Also too much rerenders.
   // * Lifecycle of meta state:
   //      1. Stuff loads -- mark loading, remove error.
   //      2. Something proceeds -- remove loading.
@@ -62,6 +77,10 @@ export const App: React.FC = () => {
   // * Three-value state:
   //      1. Header input -- single element.
   //      2. Todo -- multiple elements, rare errors...?
+
+  const todos = useMemo(() => Object.values(todosDict), [todosDict]);
+  // One way or another there has to be an array:
+  //  for filtering, for JSX.
 
   const filteredTodos = todos.filter(todo => {
     let satisfiesCompleted: boolean;
@@ -148,11 +167,17 @@ export const App: React.FC = () => {
     try {
       const fetchedTodos = await getTodos();
 
-      setTodos(fetchedTodos);
+      const fetchedTodosDict: TodoDict = {};
+
+      fetchedTodos.forEach(todo => {
+        fetchedTodosDict[todo.id] = todo;
+      });
+
+      setTodosDict(fetchedTodosDict);
     } catch (error) {
       displayError(DefaultErrorMessages.FAILED_LOAD);
     }
-  }, [setTodos, displayError]);
+  }, [setTodosDict, displayError]);
 
   // > Single add
   async function handleAddNewTodo(title: string) {
@@ -174,7 +199,7 @@ export const App: React.FC = () => {
     try {
       const newTodo = await addTodo(todoData);
 
-      setTodos(current => [...current, newTodo]);
+      setTodosDict(current => ({ ...current, [newTodo.id]: newTodo }));
       setTodoAddOperationStatus(TodoAddOperationStatus.SUCCESS);
     } catch (error) {
       displayError(DefaultErrorMessages.FAILED_ADD);
@@ -193,9 +218,13 @@ export const App: React.FC = () => {
     try {
       await deleteTodo(id);
 
-      setTodos(current => [...current].filter(todo => todo.id !== id));
-      // ? Is putting the state in ref in Set
-      // ? and .deleting it there more effective?
+      setTodosDict(current => {
+        const copy = { ...current };
+
+        delete copy[id];
+
+        return copy;
+      });
 
       return;
     } catch (error) {
@@ -214,45 +243,50 @@ export const App: React.FC = () => {
 
     const idsToDeleteInThisOperation: number[] = [];
 
-    for (const todo of todos) {
-      const id = todo.id;
-
-      if (todo.completed && !loadingTodoIdsRef.current.has(id)) {
-        idsToDeleteInThisOperation.push(id);
-        scheduleForStartLoading(id);
+    todos.forEach(todo => {
+      if (todo.completed) {
+        // The check for loading is not required in a Set.
+        scheduleForStartLoading(todo.id);
+        idsToDeleteInThisOperation.push(todo.id);
       }
-    }
+    });
 
     commitLoadingState();
-
-    // Early return if no incoming changes?
 
     const deletions = await Promise.allSettled(
       idsToDeleteInThisOperation.map(deleteTodo),
     );
 
-    setTodos(current => {
-      const copy = [...current].filter(todo => {
-        const deletionIndex = idsToDeleteInThisOperation.indexOf(todo.id);
+    if (deletions.some(result => result.status === 'fulfilled')) {
+      setTodosDict(current => {
+        const copy = { ...current };
 
-        if (
-          deletionIndex >= 0 &&
-          deletions[deletionIndex].status === 'fulfilled'
-        ) {
-          return false;
-        }
+        deletions.forEach((result, index) => {
+          if (result.status === 'fulfilled') {
+            delete copy[idsToDeleteInThisOperation[index]];
+          }
+        });
 
-        return true;
+        return copy;
       });
-
-      return copy;
-    });
+    }
 
     if (deletions.some(result => result.status === 'rejected')) {
       displayError(DefaultErrorMessages.FAILED_DELETE);
     }
 
     idsToDeleteInThisOperation.forEach(scheduleForEndLoading);
+    // ! Would this approach mess up with a parallel request?
+    // *  I think yes, if e.g. in another asynchronous action, that takes less
+    // *  time than this one, this exact todo.id would be deleted from loading
+    // *  state.
+    // *  But the `todo.completed === true` todos would be the same as in the
+    // *  beginning of this function call, the same snapshot.
+    // todos.forEach(todo => {
+    //   if (todo.completed) {
+    //     scheduleForEndLoading(todo.id);
+    //   }
+    // });
     commitLoadingState();
     setProcessingDeleteCompleted(false);
     focusInput();
@@ -260,33 +294,18 @@ export const App: React.FC = () => {
 
   // > Single status toggle
   async function handleToggleTodoStatus(id: number) {
-    const targetIndex = todos.findIndex(todo => todo.id === id);
-
-    if (targetIndex === -1) {
-      return;
-    }
+    // That code was redundant anyways..?
 
     scheduleForStartLoading(id);
     commitLoadingState();
 
-    const targetStatus = !todos[targetIndex].completed;
-
     try {
-      const result = await updateTodo(id, { completed: targetStatus });
+      const result = await updateTodo(id, {
+        completed: !todosDict[id].completed,
+      });
 
       // If the user gets no change, that means the problem is on the backend.
-      setTodos(current => {
-        // Previous targetIndex was not synced, so the new search is required.
-        //  This is instead of putting it into a ref,
-        //  which I did for "loading" state.
-        const syncedTargetIndex = current.findIndex(todo => todo.id === id);
-
-        if (syncedTargetIndex === -1) {
-          return current;
-        }
-
-        return current.toSpliced(syncedTargetIndex, 1, result);
-      });
+      setTodosDict(current => ({ ...current, [result.id]: result }));
     } catch (error) {
       displayError(DefaultErrorMessages.FAILED_UPDATE);
     } finally {
@@ -299,48 +318,60 @@ export const App: React.FC = () => {
   // > Batch status toggle
   async function handleToggleAllTodoStatus() {
     const initialStatus = !incompleteTodoQuantity;
+    const requests: Promise<Todo>[] = [];
+    // ? Could it throw before the code reaches Promise.allSettled(),
+    // ?  if it was something that throws?
 
-    // A separate array could be created just for the target ids.
-
-    // The next two loops could be united.
     todos.forEach(todo => {
       if (todo.completed === initialStatus) {
         scheduleForStartLoading(todo.id);
+        /* eslint-disable */
+        requests.push(
+          updateTodo(todo.id, { completed: !initialStatus })
+          // ! This allows to desynchronize the state with other actions:
+          // .then(result => {
+          //   return new Promise(resolve => {
+          //     setTimeout(() => {
+          //       resolve(result);
+          //     }, 3000);
+          //   });
+          // }),
+        );
+        /* eslint-enable */
       }
     });
 
     commitLoadingState();
 
-    const updates = await Promise.allSettled(
-      todos.map(todo => {
-        if (todo.completed === initialStatus) {
-          return updateTodo(todo.id, { completed: !initialStatus });
-        }
+    const updates = await Promise.allSettled(requests);
+    /*
+     * During the await all the other calls can happen.
+     *  And initially you use asynchronous code to not stop the user from using
+     *  the webpage, but the freedom you give them depends on the restrictions
+     *  you explicitly provide. If you restrict any interaction with the
+     *  business-logic-related controls of your app, then the user would be
+     *  able to interact with just the application logic and native platform
+     *  capabilities. This itself takes some effort.
+     *  But letting them use some part of the buiness logic and make sure
+     *  nothing wrong will happen unexpectedly is a whole other quest for me
+     *  currently.
+     */
 
-        return null;
-        // BTW: All nulls here would result in a fully redundant objects.
-      }),
-    );
+    if (updates.some(result => result.status === 'fulfilled')) {
+      setTodosDict(current => {
+        const copy = { ...current };
 
-    // A separate array could be created just for successful requests.
+        updates.forEach(result => {
+          if (result.status === 'fulfilled') {
+            copy[result.value.id] = result.value;
+            // ? Or would it be better to change just the `completed` value?:
+            // ?  copy[result.value.id].completed = result.value.completed;
+          }
+        });
 
-    setTodos(current => {
-      const copy = [...current];
-
-      updates.forEach(result => {
-        if (result.status === 'fulfilled' && result.value) {
-          const todo = result.value;
-
-          copy.splice(
-            copy.findIndex(todoFromState => todoFromState.id === todo.id),
-            1,
-            todo,
-          );
-        }
+        return copy;
       });
-
-      return copy;
-    });
+    }
 
     if (updates.some(result => result.status === 'rejected')) {
       displayError(DefaultErrorMessages.FAILED_UPDATE);
@@ -368,13 +399,7 @@ export const App: React.FC = () => {
     try {
       const result = await updateTodo(id, { title: newTitleTrimmed });
 
-      setTodos(current =>
-        current.toSpliced(
-          current.findIndex(todo => todo.id === id),
-          1,
-          result,
-        ),
-      );
+      setTodosDict(current => ({ ...current, [result.id]: result }));
 
       focusInput();
 
