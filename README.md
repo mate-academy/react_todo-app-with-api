@@ -60,3 +60,6 @@ and implement the ability to toggle and rename todos.
 
 ## Other improvements
 - Every `focusInput` call launches to the top of the page, it's not convenient if you were doing something at another place.
+
+## Notes
+- Removing a single element from a dictionary can be done either with `delete[id]` or destructuring into a rest parameter.

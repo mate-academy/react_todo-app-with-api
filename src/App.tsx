@@ -1,10 +1,4 @@
-import React, {
-  useCallback,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { UserWarning } from './UserWarning';
 import {
   getTodos,
@@ -35,7 +29,7 @@ export const App: React.FC = () => {
   const [todosDict, setTodosDict] = useState<TodoDict>({});
   // * The limitation is that todos could only be displayed
   // *  in the ascending order of their ids.
-  const [tempTodo, setTempTodo] = useState<Todo | null>(null);
+  const [todosIdList, setTodosIdList] = useState<number[]>([]);
   const [loadingTodoIdsState, setLoadingTodoIdsState] = useState<number[]>([]);
   const loadingTodoIdsRef = useRef<Set<number>>(new Set());
   // The ref is to conquer the Catch-22 in the handleDeleteAllCompleted method:
@@ -44,9 +38,6 @@ export const App: React.FC = () => {
   // Ref is for synchronicity, Set is for deduplication.
   // ! Use object for deduplication too?
   // TODO: Do this in those components themselves?
-  const [filteringByCompleted, setFilteringByCompleted] = useState(
-    TodoStatus.All,
-  );
 
   // > CONTROLLING MORE OF THE TODO'S INTERNAL STATE FROM THE PARENT:
   // >  AN INTERESTING EXPERIMENT.
@@ -78,19 +69,28 @@ export const App: React.FC = () => {
   //      1. Header input -- single element.
   //      2. Todo -- multiple elements, rare errors...?
 
-  const todos = useMemo(() => Object.values(todosDict), [todosDict]);
-  // One way or another there has to be an array:
-  //  for filtering, for JSX.
+  // > Other application state logic
+  const [processingDeleteCompleted, setProcessingDeleteCompleted] =
+    useState(false);
+  const [todoAddOperationStatus, setTodoAddOperationStatus] = useState(
+    TodoAddOperationStatus.SUCCESS,
+  );
+  const [taskInputFocusTrigger, setTaskInputFocusTrigger] = useState(true);
+  const [tempTodo, setTempTodo] = useState<Todo | null>(null);
+  const [filteringByCompleted, setFilteringByCompleted] = useState(
+    TodoStatus.All,
+  );
 
-  const filteredTodos = todos.filter(todo => {
+  // > Preparation
+  const filteredTodoIds = todosIdList.filter(id => {
     let satisfiesCompleted: boolean;
 
     switch (filteringByCompleted) {
       case TodoStatus.Active:
-        satisfiesCompleted = !todo.completed;
+        satisfiesCompleted = !todosDict[id].completed;
         break;
       case TodoStatus.Completed:
-        satisfiesCompleted = todo.completed;
+        satisfiesCompleted = todosDict[id].completed;
         break;
       default:
         satisfiesCompleted = true;
@@ -102,13 +102,13 @@ export const App: React.FC = () => {
 
   let incompleteTodoQuantity = 0;
 
-  todos.forEach(todo => {
-    if (!todo.completed) {
+  todosIdList.forEach(id => {
+    if (!todosDict[id].completed) {
       incompleteTodoQuantity += 1;
     }
   });
 
-  const hasCompletedTodos = todos.length !== incompleteTodoQuantity;
+  const hasCompletedTodos = todosIdList.length !== incompleteTodoQuantity;
 
   // #endregion
 
@@ -118,17 +118,6 @@ export const App: React.FC = () => {
     DefaultErrorMessages.NONE,
   );
   const [errorRenderIteration, setErrorRenderIteration] = useState(1);
-
-  // #endregion
-
-  // #region todo manipulation meta state etc
-
-  const [processingDeleteCompleted, setProcessingDeleteCompleted] =
-    useState(false);
-  const [todoAddOperationStatus, setTodoAddOperationStatus] = useState(
-    TodoAddOperationStatus.SUCCESS,
-  );
-  const [taskInputFocusTrigger, setTaskInputFocusTrigger] = useState(true);
 
   // #endregion
 
@@ -168,12 +157,15 @@ export const App: React.FC = () => {
       const fetchedTodos = await getTodos();
 
       const fetchedTodosDict: TodoDict = {};
+      const fetchedTodosIds: number[] = [];
 
       fetchedTodos.forEach(todo => {
         fetchedTodosDict[todo.id] = todo;
+        fetchedTodosIds.push(todo.id);
       });
 
       setTodosDict(fetchedTodosDict);
+      setTodosIdList(fetchedTodosIds);
     } catch (error) {
       displayError(DefaultErrorMessages.FAILED_LOAD);
     }
@@ -200,6 +192,7 @@ export const App: React.FC = () => {
       const newTodo = await addTodo(todoData);
 
       setTodosDict(current => ({ ...current, [newTodo.id]: newTodo }));
+      setTodosIdList(current => [...current, newTodo.id]);
       setTodoAddOperationStatus(TodoAddOperationStatus.SUCCESS);
     } catch (error) {
       displayError(DefaultErrorMessages.FAILED_ADD);
@@ -226,6 +219,10 @@ export const App: React.FC = () => {
         return copy;
       });
 
+      setTodosIdList(current =>
+        [...current].filter(currentId => currentId !== id),
+      );
+
       return;
     } catch (error) {
       displayError(DefaultErrorMessages.FAILED_DELETE);
@@ -243,11 +240,11 @@ export const App: React.FC = () => {
 
     const idsToDeleteInThisOperation: number[] = [];
 
-    todos.forEach(todo => {
-      if (todo.completed) {
+    todosIdList.forEach(id => {
+      if (todosDict[id].completed) {
         // The check for loading is not required in a Set.
-        scheduleForStartLoading(todo.id);
-        idsToDeleteInThisOperation.push(todo.id);
+        scheduleForStartLoading(id);
+        idsToDeleteInThisOperation.push(id);
       }
     });
 
@@ -256,25 +253,37 @@ export const App: React.FC = () => {
     const deletions = await Promise.allSettled(
       idsToDeleteInThisOperation.map(deleteTodo),
     );
+    // ? Is there a way to attach ids to deletions though?
 
-    if (deletions.some(result => result.status === 'fulfilled')) {
+    const idsOfSuccessful: number[] = [];
+
+    deletions.forEach((result, index) => {
+      if (result.status === 'fulfilled') {
+        idsOfSuccessful.push(idsToDeleteInThisOperation[index]);
+      }
+    });
+
+    if (!!idsOfSuccessful.length) {
       setTodosDict(current => {
         const copy = { ...current };
 
-        deletions.forEach((result, index) => {
-          if (result.status === 'fulfilled') {
-            delete copy[idsToDeleteInThisOperation[index]];
-          }
+        idsOfSuccessful.forEach(id => {
+          delete copy[id];
         });
 
         return copy;
       });
+
+      setTodosIdList(current =>
+        [...current].filter(id => !idsOfSuccessful.includes(id)),
+      );
     }
 
-    if (deletions.some(result => result.status === 'rejected')) {
+    if (idsOfSuccessful.length < deletions.length) {
       displayError(DefaultErrorMessages.FAILED_DELETE);
     }
 
+    // Working with deleted ids too because they're still in this state.
     idsToDeleteInThisOperation.forEach(scheduleForEndLoading);
     // ! Would this approach mess up with a parallel request?
     // *  I think yes, if e.g. in another asynchronous action, that takes less
@@ -294,8 +303,6 @@ export const App: React.FC = () => {
 
   // > Single status toggle
   async function handleToggleTodoStatus(id: number) {
-    // That code was redundant anyways..?
-
     scheduleForStartLoading(id);
     commitLoadingState();
 
@@ -322,12 +329,12 @@ export const App: React.FC = () => {
     // ? Could it throw before the code reaches Promise.allSettled(),
     // ?  if it was something that throws?
 
-    todos.forEach(todo => {
-      if (todo.completed === initialStatus) {
-        scheduleForStartLoading(todo.id);
+    todosIdList.forEach(id => {
+      if (todosDict[id].completed === initialStatus) {
+        scheduleForStartLoading(id);
         /* eslint-disable */
         requests.push(
-          updateTodo(todo.id, { completed: !initialStatus })
+          updateTodo(id, { completed: !initialStatus })
           // ! This allows to desynchronize the state with other actions:
           // .then(result => {
           //   return new Promise(resolve => {
@@ -377,9 +384,9 @@ export const App: React.FC = () => {
       displayError(DefaultErrorMessages.FAILED_UPDATE);
     }
 
-    todos.forEach(todo => {
-      if (todo.completed === initialStatus) {
-        scheduleForEndLoading(todo.id);
+    todosIdList.forEach(id => {
+      if (todosDict[id].completed === initialStatus) {
+        scheduleForEndLoading(id);
       }
     });
 
@@ -435,7 +442,7 @@ export const App: React.FC = () => {
 
       <div className="todoapp__content">
         <Header
-          isToggleAllVisible={todos.length !== 0}
+          isToggleAllVisible={todosIdList.length !== 0}
           isToggleAllActive={incompleteTodoQuantity === 0}
           onSubmit={handleAddNewTodo}
           todoAddStatus={todoAddOperationStatus}
@@ -443,14 +450,16 @@ export const App: React.FC = () => {
           handleToggleAll={handleToggleAllTodoStatus}
         />
 
-        {(!!todos.length || tempTodo) && (
+        {(!!todosIdList.length || tempTodo) && (
           <section className="todoapp__main" data-cy="TodoList">
-            {filteredTodos.map(todo => {
+            {filteredTodoIds.map(id => {
+              const todo = todosDict[id];
+
               return (
                 <TodoItem
-                  key={todo.id}
+                  key={id}
                   todo={todo}
-                  isLoading={loadingTodoIdsState.includes(todo.id)}
+                  isLoading={loadingTodoIdsState.includes(id)}
                   onDelete={handleDeleteTodo}
                   onToggleCompleted={handleToggleTodoStatus}
                   onTitleChange={handleTodoTitleChange}
@@ -471,7 +480,7 @@ export const App: React.FC = () => {
           </section>
         )}
 
-        {!!todos.length && (
+        {!!todosIdList.length && (
           <Footer
             incompleteTodoQuantity={incompleteTodoQuantity}
             onFilterSelect={setFilteringByCompleted}
