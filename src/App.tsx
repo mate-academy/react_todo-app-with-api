@@ -27,8 +27,6 @@ export const App: React.FC = () => {
   // #region todo display state and preparation
 
   const [todosDict, setTodosDict] = useState<TodoDict>({});
-  // * The limitation is that todos could only be displayed
-  // *  in the ascending order of their ids.
   const [todosIdList, setTodosIdList] = useState<number[]>([]);
   const [loadingTodoIdsState, setLoadingTodoIdsState] = useState<number[]>([]);
   const loadingTodoIdsRef = useRef<Set<number>>(new Set());
@@ -36,8 +34,13 @@ export const App: React.FC = () => {
   //  requiring the freshest loadingTodoIds state synchronously
   //  after calling the updating function.
   // Ref is for synchronicity, Set is for deduplication.
-  // ! Use object for deduplication too?
   // TODO: Do this in those components themselves?
+  // const [todoTitleEditErrorIds, setTodoTitleEditErrorIds] = useState<{
+  //   [key: number]: boolean;
+  // }>({});
+  // eslint-disable-next-line max-len, prettier/prettier
+  const [todoTitleEditErrorIds, setTodoTitleEditErrorIds] = useState<Set<number>>(new Set());
+  // * Set is a data structure specifically for this use case.
 
   // > CONTROLLING MORE OF THE TODO'S INTERNAL STATE FROM THE PARENT:
   // >  AN INTERESTING EXPERIMENT.
@@ -222,11 +225,8 @@ export const App: React.FC = () => {
       setTodosIdList(current =>
         [...current].filter(currentId => currentId !== id),
       );
-
-      return;
     } catch (error) {
       displayError(DefaultErrorMessages.FAILED_DELETE);
-      throw error;
     } finally {
       scheduleForEndLoading(id);
       commitLoadingState();
@@ -397,23 +397,37 @@ export const App: React.FC = () => {
   // > Title change
   async function handleTodoTitleChange(id: number, newTitleTrimmed: string) {
     if (!newTitleTrimmed.length) {
-      return handleDeleteTodo(id);
+      handleDeleteTodo(id);
     }
 
     scheduleForStartLoading(id);
     commitLoadingState();
 
     try {
+      // setTodoTitleEditErrorIds(current => {
+      //   const { [id]: hasError, ...rest } = current;
+
+      //   return rest;
+      // });
+      setTodoTitleEditErrorIds(current => {
+        current.delete(id);
+
+        return new Set(current);
+      });
+
       const result = await updateTodo(id, { title: newTitleTrimmed });
 
       setTodosDict(current => ({ ...current, [result.id]: result }));
 
       focusInput();
-
-      return;
     } catch (error) {
       displayError(DefaultErrorMessages.FAILED_UPDATE);
-      throw error;
+      // setTodoTitleEditErrorIds(current => ({ ...current, [id]: true }));
+      setTodoTitleEditErrorIds(current => {
+        current.add(id);
+
+        return new Set(current);
+      });
     } finally {
       scheduleForEndLoading(id);
       commitLoadingState();
@@ -463,6 +477,8 @@ export const App: React.FC = () => {
                   onDelete={handleDeleteTodo}
                   onToggleCompleted={handleToggleTodoStatus}
                   onTitleChange={handleTodoTitleChange}
+                  // hasError={todoTitleEditErrorIds[id]}
+                  hasError={todoTitleEditErrorIds.has(id)}
                 />
               );
             })}
@@ -475,6 +491,7 @@ export const App: React.FC = () => {
                 onDelete={() => null}
                 onToggleCompleted={() => null}
                 onTitleChange={() => Promise.resolve()}
+                hasError={false}
               />
             )}
           </section>

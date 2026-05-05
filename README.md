@@ -51,7 +51,7 @@ and implement the ability to toggle and rename todos.
 
 # Personal
 ## Interesting stuff:
-- Compare batch functions
+- Compare batch functions in some old commit.
 
 ## TODO
 - seaparate into more components: extract List from App, Form from Todo.
@@ -63,3 +63,11 @@ and implement the ability to toggle and rename todos.
 
 ## Notes
 - Removing a single element from a dictionary can be done either with `delete[id]` or destructuring into a rest parameter.
+
+## Questions
+- Object.keys() instead of a separate array? The problem is recalculating on every launch.
+  Maybe I could useMemo with the [Object.keys()] dependency array.
+  Or I could simply use a ref.
+  Also recalculating would be done with the Object.keys() method every time, not the specific
+    logic I write, like filtering. That's just different, maybe better, maybe worse.
+
