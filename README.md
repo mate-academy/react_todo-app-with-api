@@ -9,42 +9,65 @@ and implement the ability to toggle and rename todos.
 
 ## Toggling a todo status
 
-Toggle the `completed` status on `TodoStatus` change:
+[x] Toggle the `completed` status on `TodoStatus` change:
 - Install Prettier Extention and use this [VSCode settings](https://mate-academy.github.io/fe-program/tools/vscode/settings.json) to enable format on save.
-- covered the todo with a loader overlay while waiting for API response;
-- the status should be changed on success;
-- show the `Unable to update a todo` notification in case of API error.
+- [x] covered the todo with a loader overlay while waiting for API response;
+- [x] the status should be changed on success;
+- [x] show the `Unable to update a todo` notification in case of API error.
 
-Add the ability to toggle the completed status of all the todos with the `toggleAll` checkbox:
+[x] Add the ability to toggle the completed status of all the todos with the `toggleAll` checkbox:
 
-- `toggleAll` button should have `active` class only if all the todos are completed;
-- `toggleAll` click changes its status to the opposite one, and sets this new status to all the todos;
-- it should work the same as several individual updates of the todos which statuses were actually changed;
-- don't send requests for the todos that were not changed;
+- [x] `toggleAll` button should have `active` class only if all the todos are completed;
+- [x] `toggleAll` click changes its status to the opposite one, and sets this new status to all the todos;
+- [x] it should work the same as several individual updates of the todos which statuses were actually changed;
+- [x] don't send requests for the todos that were not changed;
 
 ## Renaming a todo
 
-Implement the ability to edit a todo title on double click:
+[x] Implement the ability to edit a todo title on double click:
 
-- show the edit form instead of the title and remove button;
-- saves changes on the form submit (just press `Enter`);
-- save changes when the field loses focus (`onBlur`);
-- if the new title is the same as the old one just cancel editing;
-- cancel editing on `Esс` key `keyup` event;
-- if the new title is empty delete the todo the same way the `x` button does it;
-- if the title was changed show the loader while waiting for the API response;
-- update the todo title on success;
-- show `Unable to update a todo` in case of API error;
-- or the deletion error message if we tried to delete the todo.
+- [x] show the edit form instead of the title and remove button;
+- [x] saves changes on the form submit (just press `Enter`);
+- [x] save changes when the field loses focus (`onBlur`);
+- [x] if the new title is the same as the old one just cancel editing;
+- [x] cancel editing on `Esс` key `keyup` event;
+- [x] if the new title is empty delete the todo the same way the `x` button does it;
+- [x] if the title was changed show the loader while waiting for the API response;
+- [x] update the todo title on success;
+- [x] show `Unable to update a todo` in case of API error;
+- [x] or the deletion error message if we tried to delete the todo.
 
 ## If you want to enable tests
 - open `cypress/integration/page.spec.js`
 - replace `describe.skip` with `describe` for the root `describe`
 
-> ❗❗All tests should pass, even if some behaviour is not well explained in the task❗❗
+> [x] ❗❗All tests should pass, even if some behaviour is not well explained in the task❗❗
 
 ## Instructions
 
 - Implement a solution following the [React task guideline](https://github.com/mate-academy/react_task-guideline#react-tasks-guideline).
 - Use the [React TypeScript cheat sheet](https://mate-academy.github.io/fe-program/js/extra/react-typescript).
-- Replace `<your_account>` with your Github username in the [DEMO LINK](https://<your_account>.github.io/react_todo-app-with-api/) and add it to the PR description.
+- Replace `<your_account>` with your Github username in the [DEMO LINK](https://sanchez-primal.github.io/react_todo-app-with-api/) and add it to the PR description.
+
+# Personal
+## Interesting stuff:
+- Compare batch functions in some old commit.
+
+## TODO
+- seaparate into more components: extract List from App, Form from Todo.
+- custom hooks
+- memoization
+
+## Other improvements
+- Every `focusInput` call launches to the top of the page, it's not convenient if you were doing something at another place.
+
+## Notes
+- Removing a single element from a dictionary can be done either with `delete[id]` or destructuring into a rest parameter.
+
+## Questions
+- Object.keys() instead of a separate array? The problem is recalculating on every launch.
+  Maybe I could useMemo with the [Object.keys()] dependency array.
+  Or I could simply use a ref.
+  Also recalculating would be done with the Object.keys() method every time, not the specific
+    logic I write, like filtering. That's just different, maybe better, maybe worse.
+
