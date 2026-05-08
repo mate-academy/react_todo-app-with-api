@@ -26,6 +26,57 @@ export const TodoList: React.FC<Props> = ({
   const [editingId, setEditingId] = React.useState<number | null>(null);
   const [editedTitle, setEditedTitle] = React.useState('');
 
+  const handleEditStart = (todo: Todo) => {
+    setEditingId(todo.id);
+    setEditedTitle(todo.title);
+  };
+
+  const handleEditCancel = (todo: Todo) => {
+    setEditedTitle(todo.title);
+    setEditingId(null);
+  };
+
+  const handleEditSubmit = async (todo: Todo) => {
+    const trimmed = editedTitle.trim();
+
+    if (trimmed === todo.title) {
+      setEditingId(null);
+
+      return;
+    }
+
+    if (!trimmed) {
+      try {
+        await onDelete(todo.id);
+      } catch {
+        //
+      }
+
+      return;
+    }
+
+    try {
+      await onRename(todo, trimmed);
+
+      setEditingId(null);
+    } catch {
+      // keep opened
+    }
+  };
+
+  const handleEditKeyUp = (
+    e: React.KeyboardEvent<HTMLInputElement>,
+    todo: Todo,
+  ) => {
+    if (e.key === 'Escape') {
+      handleEditCancel(todo);
+    }
+
+    if (e.key === 'Enter') {
+      (e.target as HTMLInputElement).blur();
+    }
+  };
+
   return (
     <section className="todoapp__main" data-cy="TodoList">
       {todos.map(todo => (
@@ -47,56 +98,20 @@ export const TodoList: React.FC<Props> = ({
           {editingId === todo.id ? (
             <input
               data-cy="TodoTitleField"
+              type="text"
               className="todo__title-field"
+              placeholder="Empty todo will be deleted"
               value={editedTitle}
               onChange={e => setEditedTitle(e.target.value)}
-              onBlur={async () => {
-                const trimmed = editedTitle.trim();
-
-                if (trimmed === todo.title) {
-                  setEditingId(null);
-
-                  return;
-                }
-
-                if (!trimmed) {
-                  try {
-                    await onDelete(todo.id);
-                  } catch {
-                    //
-                  }
-
-                  return;
-                }
-
-                try {
-                  await onRename(todo, trimmed);
-
-                  setEditingId(null);
-                } catch {
-                  // keep opened
-                }
-              }}
-              onKeyUp={e => {
-                if (e.key === 'Escape') {
-                  setEditedTitle(todo.title);
-                  setEditingId(null);
-                }
-
-                if (e.key === 'Enter') {
-                  (e.target as HTMLInputElement).blur();
-                }
-              }}
+              onBlur={() => handleEditSubmit(todo)}
+              onKeyUp={e => handleEditKeyUp(e, todo)}
               autoFocus
             />
           ) : (
             <span
               data-cy="TodoTitle"
               className="todo__title"
-              onDoubleClick={() => {
-                setEditingId(todo.id);
-                setEditedTitle(todo.title);
-              }}
+              onDoubleClick={() => handleEditStart(todo)}
             >
               {todo.title}
             </span>
@@ -141,6 +156,7 @@ export const TodoList: React.FC<Props> = ({
           <span data-cy="TodoTitle" className="todo__title">
             {tempTodo.title}
           </span>
+
           <button
             type="button"
             className="todo__remove"
