@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { flushSync } from 'react-dom';
 import { UserWarning } from './UserWarning';
 import { ErrorNotification } from './components/ErrorNotification';
 import { Header } from './components/Header';
@@ -91,8 +92,6 @@ const TodoApp: React.FC<{ userId: number }> = ({ userId }) => {
       return;
     }
 
-    setIsInputDisabled(true);
-
     const temp: Todo = {
       id: 0,
       userId,
@@ -100,40 +99,58 @@ const TodoApp: React.FC<{ userId: number }> = ({ userId }) => {
       completed: false,
     };
 
-    setTempTodo(temp);
+    flushSync(() => {
+      setIsInputDisabled(true);
+      setTempTodo(temp);
+    });
+
+    let createdTodo: Todo | null = null;
 
     try {
-      const newTodo = await createTodo(userId, trimmed);
-
-      setTodos(prev => [...prev, newTodo]);
-      setNewTodoTitle('');
+      createdTodo = await createTodo(userId, trimmed);
     } catch {
       showError('Unable to add a todo');
     } finally {
-      setTempTodo(null);
-      setIsInputDisabled(false);
-      inputRef.current?.focus();
+      setTimeout(() => {
+        flushSync(() => {
+          setTempTodo(null);
+          setIsInputDisabled(false);
+          if (createdTodo) {
+            setTodos(prev => [...prev, createdTodo!]);
+            setNewTodoTitle('');
+          }
+        });
+        inputRef.current?.focus();
+      }, 0);
     }
   };
 
   const handleDeleteTodo = async (id: number): Promise<void> => {
-    addLoadingId(id);
+    flushSync(() => addLoadingId(id));
 
     let success = false;
 
     try {
       await deleteTodo(id);
-      setTodos(prev => prev.filter(todo => todo.id !== id));
       success = true;
     } catch {
       showError('Unable to delete a todo');
-      throw new Error('Unable to delete a todo');
     } finally {
-      removeLoadingId(id);
+      setTimeout(() => {
+        flushSync(() => {
+          removeLoadingId(id);
+          if (success) {
+            setTodos(prev => prev.filter(todo => todo.id !== id));
+          }
+        });
+        if (success) {
+          inputRef.current?.focus();
+        }
+      }, 0);
+    }
 
-      if (success) {
-        inputRef.current?.focus();
-      }
+    if (!success) {
+      throw new Error('Unable to delete a todo');
     }
   };
 
@@ -141,17 +158,27 @@ const TodoApp: React.FC<{ userId: number }> = ({ userId }) => {
     id: number,
     data: Partial<Todo>,
   ): Promise<void> => {
-    addLoadingId(id);
+    flushSync(() => addLoadingId(id));
+
+    let updated: Todo | null = null;
 
     try {
-      const updated = await updateTodo(id, data);
-
-      setTodos(prev => prev.map(todo => (todo.id === id ? updated : todo)));
+      updated = await updateTodo(id, data);
     } catch {
       showError('Unable to update a todo');
-      throw new Error('Unable to update a todo');
     } finally {
-      removeLoadingId(id);
+      setTimeout(() => {
+        flushSync(() => {
+          removeLoadingId(id);
+          if (updated) {
+            setTodos(prev => prev.map(todo => (todo.id === id ? updated! : todo)));
+          }
+        });
+      }, 0);
+    }
+
+    if (!updated) {
+      throw new Error('Unable to update a todo');
     }
   };
 
