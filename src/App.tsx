@@ -114,19 +114,17 @@ export const App: React.FC = () => {
   async function deleteItem(todoId: number) {
     setLoading(true);
     setIsProcessing(current => [...current, todoId]);
-   try{
-    await postService.deleteTodo(todoId)
+    try {
+      await postService.deleteTodo(todoId);
 
-        setTodos(currentItem => currentItem.filter(todo => todo.id !== todoId));
-    }
-    catch (error) {
+      setTodos(currentItem => currentItem.filter(todo => todo.id !== todoId));
+    } catch (error) {
       setErrorMessage(ErrorType.Delete);
       throw error;
+    } finally {
+      setIsProcessing(current => current.filter(id => id !== todoId));
+      setLoading(false);
     }
-    finally {
-        setIsProcessing(current => current.filter(id => id !== todoId)),
-        setLoading(false);
-      };
   }
 
   const clearCompleted = () => {
@@ -135,22 +133,22 @@ export const App: React.FC = () => {
     const deletePromises = completedIds.map(todo => {
       return deleteItem(todo.id);
     });
+
     Promise.all(deletePromises)
-    .then(() => {
-    setTodos(prev => prev.filter(t => !t.completed));
-  })
-    .catch(() =>
-      setErrorMessage(ErrorType.Delete)
-    );
+      .then(() => {
+        setTodos(prev => prev.filter(t => !t.completed));
+      })
+      .catch(() => setErrorMessage(ErrorType.Delete));
   };
 
   async function handleUpdate(todoId: number, data: Partial<Todo>) {
     setIsProcessing(current => [...current, todoId]);
     try {
       try {
-        const updatedTodo = await postService
-          .updateTodo(todoId, data);
-        setTodos(prev => prev.map(todo => (todo.id === todoId ? updatedTodo : todo))
+        const updatedTodo = await postService.updateTodo(todoId, data);
+
+        setTodos(prev =>
+          prev.map(todo => (todo.id === todoId ? updatedTodo : todo)),
         );
       } catch (error) {
         setErrorMessage(ErrorType.Update);
@@ -160,19 +158,21 @@ export const App: React.FC = () => {
       setIsProcessing(current_1 => current_1.filter(id => id !== todoId));
     }
   }
+
   const toggleAll = () => {
     const shouldCompleteAll = !isAllCompleted;
-    const todosToUpdate = todos.filter(todo => todo.completed !== shouldCompleteAll);
+    const todosToUpdate = todos.filter(
+      todo => todo.completed !== shouldCompleteAll,
+    );
 
     const updatedTodos = todosToUpdate.map(todo => {
       return handleUpdate(todo.id, { completed: shouldCompleteAll });
     });
-    Promise.all(updatedTodos)
-    .catch(() => {
+
+    Promise.all(updatedTodos).catch(() => {
       setErrorMessage(ErrorType.Update);
     });
   };
-
 
   if (!postService.USER_ID) {
     return <UserWarning />;

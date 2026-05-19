@@ -14,9 +14,8 @@ export const TodoItem: React.FC<Props> = ({
   todo,
   onDelete,
   isLoading = false,
-  updateTodo
+  updateTodo,
 }) => {
-
   const [isEditing, setIsEditing] = useState(false);
   const [newTitle, setNewTitle] = useState(todo.title);
 
@@ -34,16 +33,19 @@ export const TodoItem: React.FC<Props> = ({
 
     if (trimmedTitle === todo.title) {
       setIsEditing(false);
+
       return;
     }
 
     if (!trimmedTitle) {
       onDelete(todo.id);
+
       return;
     }
-      updateTodo(todo.id, { title: trimmedTitle })
-      .then(() => {setIsEditing(false);
 
+    updateTodo(todo.id, { title: trimmedTitle })
+      .then(() => {
+        setIsEditing(false);
       })
       .catch(() => {});
   };
@@ -54,7 +56,6 @@ export const TodoItem: React.FC<Props> = ({
       setIsEditing(false);
     }
   };
-
 
   return (
     <div data-cy="Todo" className={`todo ${todo.completed ? 'completed' : ''}`}>
@@ -78,17 +79,17 @@ export const TodoItem: React.FC<Props> = ({
             type="text"
             className="todo__title-field"
             value={newTitle}
-            onChange={(e) => setNewTitle(e.target.value)}
+            onChange={e => setNewTitle(e.target.value)}
             onBlur={handleSubmit}
             onKeyUp={handleKeyUp}
           />
         </form>
       ) : (
         <span
-        data-cy="TodoTitle"
-        className="todo__title"
-        onDoubleClick={() => setIsEditing(true)}
-      >
+          data-cy="TodoTitle"
+          className="todo__title"
+          onDoubleClick={() => setIsEditing(true)}
+        >
           {todo.title}
         </span>
       )}
@@ -100,9 +101,9 @@ export const TodoItem: React.FC<Props> = ({
           data-cy="TodoDelete"
           onClick={() => onDelete(todo.id)}
           disabled={isLoading}
-       >
-        ×
-      </button>
+        >
+          ×
+        </button>
       )}
       <Loader isLoading={isLoading} />
     </div>
