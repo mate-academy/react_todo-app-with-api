@@ -10,15 +10,7 @@ import { Todo } from './types/Todo';
 
 type FilterType = 'all' | 'active' | 'completed';
 
-function getUserId(): number {
-  try {
-    const userData = localStorage.getItem('user');
-
-    return userData ? JSON.parse(userData).id || 0 : 0;
-  } catch {
-    return 0;
-  }
-}
+const USER_ID = 4237;
 
 function getFilteredTodos(todos: Todo[], filter: FilterType): Todo[] {
   switch (filter) {
@@ -171,7 +163,9 @@ const TodoApp: React.FC<{ userId: number }> = ({ userId }) => {
         flushSync(() => {
           removeLoadingId(id);
           if (updated) {
-            setTodos(prev => prev.map(todo => (todo.id === id ? updated! : todo)));
+            setTodos(prev =>
+              prev.map(todo => (todo.id === id ? updated! : todo)),
+            );
           }
         });
       }, 0);
@@ -285,11 +279,9 @@ const TodoApp: React.FC<{ userId: number }> = ({ userId }) => {
 };
 
 export const App: React.FC = () => {
-  const userId = getUserId();
-
-  if (!userId) {
+  if (!USER_ID) {
     return <UserWarning />;
   }
 
-  return <TodoApp userId={userId} />;
+  return <TodoApp userId={USER_ID} />;
 };
