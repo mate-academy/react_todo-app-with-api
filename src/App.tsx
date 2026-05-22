@@ -55,11 +55,8 @@ export const App: React.FC = () => {
   }
 
   async function handleDeleteTodo(id: Todo['id']) {
-    clearError();
-
     deleteTodo(id)
       .catch(err => {
-        clearError();
         setError(err.message);
       })
       .finally(() => handleFocusAddForm());
@@ -75,7 +72,6 @@ export const App: React.FC = () => {
   }
 
   function handleAddTodo({ title }: TodoAddFormData, callback: () => void) {
-    clearError();
     handleDisabledAddForm();
 
     setTempTodo({
@@ -90,7 +86,6 @@ export const App: React.FC = () => {
         callback();
       })
       .catch(err => {
-        clearError();
         setError(err.message);
       })
       .finally(() => {
@@ -100,10 +95,8 @@ export const App: React.FC = () => {
   }
 
   function handleDeleteCompletedTodos() {
-    clearError();
     deleteCompletedTodos()
       .catch(err => {
-        clearError();
         setError(err.message);
       })
       .finally(() => handleFocusAddForm());
