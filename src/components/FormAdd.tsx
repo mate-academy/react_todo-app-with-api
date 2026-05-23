@@ -28,15 +28,6 @@ export const FormAdd = ({
     setQuery(event.target.value);
   };
 
-  // const handleSubmit = async (event: React.FormEvent) => {
-  //   event.preventDefault();
-
-  //   const isAdded = await handleAddTodo(query);
-
-  //   if (isAdded) {
-  //     setQuery('');
-  //   }
-  // };
   const handleSubmit = (event: React.FormEvent) => {
     event.preventDefault();
 

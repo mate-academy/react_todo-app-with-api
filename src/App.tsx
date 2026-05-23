@@ -15,15 +15,16 @@ import { FormAdd } from './components/FormAdd';
 import { FooterBottom } from './components/FooterBottom';
 import { ErrorMessages } from './types/ErrorMessages';
 import { FilterBy } from './types/ErrorMessages';
+import { ErrorMessage } from './types/ErrorMessages';
 
 export const App: React.FC = () => {
-  const [todos, setTodos] = useState<Todo[]>([]); // рендер тудушок
-  const [errorMessage, setErrorMessage] = useState('');
+  const [todos, setTodos] = useState<Todo[]>([]);
+  const [errorMessage, setErrorMessage] = useState<ErrorMessage | ''>('');
   const [loadingIds, setLoadingIds] = useState<number[]>([]);
-  const [filterBy, setFilterBy] = useState<FilterBy>('all'); //.. для фільтрації стан
-  const [tempTodo, setTempTodo] = useState<Todo | null>(null); //.. для тимчасового тодо
-  const [isAdding, setIsAdding] = useState(false); //.. стан для прапорця дізейбл
-  const [shouldFocusInput, setShouldFocusInput] = useState(false); // .. прапорець для фокусу на інпуті
+  const [filterBy, setFilterBy] = useState<FilterBy>('all');
+  const [tempTodo, setTempTodo] = useState<Todo | null>(null);
+  const [isAdding, setIsAdding] = useState(false);
+  const [shouldFocusInput, setShouldFocusInput] = useState(false);
 
   useEffect(() => {
     getTodos()
@@ -44,7 +45,7 @@ export const App: React.FC = () => {
 
   const allCompleted = todos.length > 0 && todos.every(todo => todo.completed);
 
-  const hasTodos = todos.length > 0;
+  const hasTodos = !!todos.length;
 
   let visibleTodos = todos;
 

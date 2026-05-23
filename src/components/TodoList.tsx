@@ -1,5 +1,4 @@
 // .. TodoList.tsx
-// .. TodoList.tsx
 import type { Todo } from '../types/Todo';
 import { useState } from 'react';
 import { TempTodoItem } from './TempTodoItem';
@@ -157,10 +156,7 @@ export const TodoList = ({
               className={`modal overlay ${
                 loadingIds.includes(todo.id) ? 'is-active' : ''
               }`}
-            >
-              {/* <div className="modal-background has-background-white-ter" />
-              <div className="loader" /> */}
-            </div>
+            ></div>
           </div>
         );
       })}
