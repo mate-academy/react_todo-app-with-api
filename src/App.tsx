@@ -1,26 +1,130 @@
-/* eslint-disable max-len */
-/* eslint-disable jsx-a11y/control-has-associated-label */
-import React from 'react';
-import { UserWarning } from './UserWarning';
+import { useEffect } from 'react';
+import { getTodosStats } from './utils/getTodosStats';
+import { useTodosState } from './hooks/useTodosState';
+import { usePendingTodos } from './hooks/usePendingTodos';
+import { useTempTodo } from './hooks/useTempTodo';
+import { useFilteredTodos } from './hooks/useFilteredTodos';
+import { useInputRef } from './hooks/useInputRef';
+import { useError } from './hooks/useError';
+import { TodoAppHeader } from './components/TodoAppHeader';
+import { TodoList } from './components/TodoList';
+import { TodoAppFooter } from './components/TodoAppFooter';
+import { ErrorNotification } from './components/ErrorNotification';
+import { Todo, UpdateTodoDto } from './types/Todo';
+import { StatusError } from './types/Error';
 
-const USER_ID = 0;
+export const App = () => {
+  const { todos, loadTodos, createTodo, removeTodo, updateTodo } =
+    useTodosState();
+  const { tempTodo, createTempTodo, removeTempTodo } = useTempTodo();
+  const { pendingTodoIds, addPendingTodo, removePendingTodo } =
+    usePendingTodos();
+  const { filter, setFilter, filteredTodos } = useFilteredTodos(todos);
+  const { inputRef, focusInput, disableInput, enableInput } = useInputRef();
+  const { errorMessage, setErrorMessage, clearErrorMessage } = useError();
 
-export const App: React.FC = () => {
-  if (!USER_ID) {
-    return <UserWarning />;
-  }
+  const { hasTodos, activeTodosCount, hasCompletedTodos, allTodosCompleted } =
+    getTodosStats(todos);
+
+  useEffect(() => {
+    loadTodos().catch(() => setErrorMessage(StatusError.GET));
+  }, [loadTodos, setErrorMessage]);
+
+  const handleCreateTodo = async (title: string) => {
+    clearErrorMessage();
+    createTempTodo(title);
+    disableInput();
+    try {
+      await createTodo(title);
+    } catch (error) {
+      setErrorMessage(StatusError.POST);
+      throw error;
+    } finally {
+      removeTempTodo();
+      enableInput();
+      focusInput();
+    }
+  };
+
+  const handleRemoveTodo = async (id: Todo['id']) => {
+    clearErrorMessage();
+    addPendingTodo(id);
+    try {
+      await removeTodo(id);
+    } catch {
+      setErrorMessage(StatusError.DELETE);
+    } finally {
+      removePendingTodo(id);
+      focusInput();
+    }
+  };
+
+  const handleUpdateTodo = async (id: Todo['id'], data: UpdateTodoDto) => {
+    clearErrorMessage();
+    addPendingTodo(id);
+    try {
+      await updateTodo(id, data);
+    } catch (error) {
+      setErrorMessage(StatusError.UPDATE);
+      throw error;
+    } finally {
+      removePendingTodo(id);
+    }
+  };
+
+  const handleRemoveCompleted = async () => {
+    const completedTodoIds = todos
+      .filter(todo => todo.completed)
+      .map(todo => todo.id);
+
+    await Promise.all(completedTodoIds.map(id => handleRemoveTodo(id)));
+  };
+
+  const handleToggleComplete = async () => {
+    await Promise.all(
+      todos
+        .filter(todo => todo.completed === allTodosCompleted)
+        .map(todo => handleUpdateTodo(todo.id, { completed: !todo.completed })),
+    );
+  };
 
   return (
-    <section className="section container">
-      <p className="title is-4">
-        Copy all you need from the prev task:
-        <br />
-        <a href="https://github.com/mate-academy/react_todo-app-add-and-delete#react-todo-app-add-and-delete">
-          React Todo App - Add and Delete
-        </a>
-      </p>
+    <div className="todoapp">
+      <h1 className="todoapp__title">todos</h1>
 
-      <p className="subtitle">Styles are already copied</p>
-    </section>
+      <div className="todoapp__content">
+        <TodoAppHeader
+          inputRef={inputRef}
+          hasTodos={hasTodos}
+          allCompleted={allTodosCompleted}
+          onToggle={handleToggleComplete}
+          onCreate={handleCreateTodo}
+          onError={setErrorMessage}
+        />
+
+        <TodoList
+          todos={filteredTodos}
+          tempTodo={tempTodo}
+          pendingTodoIds={pendingTodoIds}
+          onRemove={handleRemoveTodo}
+          onUpdate={handleUpdateTodo}
+        />
+
+        {hasTodos && (
+          <TodoAppFooter
+            hasCompletedTodos={hasCompletedTodos}
+            activeTodosCount={activeTodosCount}
+            filter={filter}
+            onSelectFilter={setFilter}
+            onRemoveCompleted={handleRemoveCompleted}
+          />
+        )}
+      </div>
+
+      <ErrorNotification
+        errorMessage={errorMessage}
+        onClose={clearErrorMessage}
+      />
+    </div>
   );
 };
