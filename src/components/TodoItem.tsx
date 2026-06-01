@@ -126,7 +126,10 @@ export const TodoItem: React.FC<Props> = ({
         className={classNames('modal overlay', {
           'is-active': loadingTodoId === todo.id,
         })}
-      />
+      >
+        <div className="modal-background has-background-white-ter" />
+        <div className="loader" />
+      </div>
     </div>
   );
 };

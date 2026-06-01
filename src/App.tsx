@@ -50,7 +50,7 @@ export const App: React.FC = () => {
         setErrorMessage(ErrorMessage.DeleteTodo);
       })
       .finally(() => {
-        setLoading(false);
+        setLoadingTodoId(null);
         inputRef.current?.focus();
       });
   }
