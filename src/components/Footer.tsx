@@ -1,15 +1,23 @@
 import React from 'react';
 import classNames from 'classnames';
 import { Todo } from '../types/Todo';
-
-type FilterType = 'all' | 'active' | 'completed';
+import { Filter } from '../types/Filter';
 
 type Props = {
   todos: Todo[];
-  filter: FilterType;
-  onFilterChange: (filter: FilterType) => void;
+  filter: Filter;
+  onFilterChange: (filter: Filter) => void;
   onClearCompleted: () => void;
 };
+
+const FILTER_OPTIONS: { value: Filter; href: string; label: string }[] = [
+  { value: Filter.All, href: '#/', label: 'All' },
+  { value: Filter.Active, href: '#/active', label: 'Active' },
+  { value: Filter.Completed, href: '#/completed', label: 'Completed' },
+];
+
+const capitalize = (value: string) =>
+  value.charAt(0).toUpperCase() + value.slice(1);
 
 export const Footer: React.FC<Props> = ({
   todos,
@@ -20,6 +28,12 @@ export const Footer: React.FC<Props> = ({
   const activeTodosCount = todos.filter(todo => !todo.completed).length;
   const hasCompleted = todos.some(todo => todo.completed);
 
+  const handleFilterClick =
+    (value: Filter) => (event: React.MouseEvent<HTMLAnchorElement>) => {
+      event.preventDefault();
+      onFilterChange(value);
+    };
+
   return (
     <footer className="todoapp__footer" data-cy="TodosFooter">
       <span className="todo-count" data-cy="TodosCounter">
@@ -27,43 +41,19 @@ export const Footer: React.FC<Props> = ({
       </span>
 
       <nav className="filter" data-cy="Filter">
-        <a
-          href="#/"
-          data-cy="FilterLinkAll"
-          className={classNames('filter__link', { selected: filter === 'all' })}
-          onClick={e => {
-            e.preventDefault();
-            onFilterChange('all');
-          }}
-        >
-          All
-        </a>
-        <a
-          href="#/active"
-          data-cy="FilterLinkActive"
-          className={classNames('filter__link', {
-            selected: filter === 'active',
-          })}
-          onClick={e => {
-            e.preventDefault();
-            onFilterChange('active');
-          }}
-        >
-          Active
-        </a>
-        <a
-          href="#/completed"
-          data-cy="FilterLinkCompleted"
-          className={classNames('filter__link', {
-            selected: filter === 'completed',
-          })}
-          onClick={e => {
-            e.preventDefault();
-            onFilterChange('completed');
-          }}
-        >
-          Completed
-        </a>
+        {FILTER_OPTIONS.map(({ value, href, label }) => (
+          <a
+            key={value}
+            href={href}
+            data-cy={`FilterLink${capitalize(value)}`}
+            className={classNames('filter__link', {
+              selected: filter === value,
+            })}
+            onClick={handleFilterClick(value)}
+          >
+            {label}
+          </a>
+        ))}
       </nav>
 
       <button

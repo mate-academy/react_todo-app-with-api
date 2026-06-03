@@ -7,16 +7,15 @@ import { TodoList } from './components/TodoList';
 import { Footer } from './components/Footer';
 import { getTodos, createTodo, deleteTodo, updateTodo } from './api/todos';
 import { Todo } from './types/Todo';
-
-type FilterType = 'all' | 'active' | 'completed';
+import { Filter } from './types/Filter';
 
 const USER_ID = 4237;
 
-function getFilteredTodos(todos: Todo[], filter: FilterType): Todo[] {
+function getFilteredTodos(todos: Todo[], filter: Filter): Todo[] {
   switch (filter) {
-    case 'active':
+    case Filter.Active:
       return todos.filter(todo => !todo.completed);
-    case 'completed':
+    case Filter.Completed:
       return todos.filter(todo => todo.completed);
     default:
       return todos;
@@ -26,7 +25,7 @@ function getFilteredTodos(todos: Todo[], filter: FilterType): Todo[] {
 const TodoApp: React.FC<{ userId: number }> = ({ userId }) => {
   const [todos, setTodos] = useState<Todo[]>([]);
   const [errorMessage, setErrorMessage] = useState('');
-  const [filter, setFilter] = useState<FilterType>('all');
+  const [filter, setFilter] = useState<Filter>(Filter.All);
   const [loadingIds, setLoadingIds] = useState<number[]>([]);
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
   const [newTodoTitle, setNewTodoTitle] = useState('');
