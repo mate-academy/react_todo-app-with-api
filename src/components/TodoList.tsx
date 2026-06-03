@@ -6,7 +6,7 @@ type Props = {
   todos: Todo[];
   tempTodo: Todo | null;
   loadingIds: number[];
-  onDelete: (id: number) => void;
+  onDelete: (id: number) => Promise<void>;
   onToggle: (todo: Todo) => void;
   onRename: (todo: Todo, newTitle: string) => Promise<void>;
 };

@@ -92,16 +92,16 @@ export const App: React.FC = () => {
       });
   };
 
-  const handleDelete = (id: number) => {
+  const handleDelete = (id: number): Promise<void> => {
     setLoadingIds(prev => [...prev, id]);
-    setErrorMessage('');
 
-    deleteTodo(id)
+    return deleteTodo(id)
       .then(() => {
         setTodos(prev => prev.filter(todo => todo.id !== id));
       })
       .catch(() => {
         showError(ErrorMessage.DeleteTodo);
+        throw new Error();
       })
       .finally(() => {
         setLoadingIds(prev => prev.filter(loadingId => loadingId !== id));

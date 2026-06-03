@@ -6,7 +6,7 @@ const BG_CLASS = 'modal-background has-background-white-ter';
 type Props = {
   todo: Todo;
   isLoading?: boolean;
-  onDelete: (id: number) => void;
+  onDelete: (id: number) => Promise<void>;
   onToggle: (todo: Todo) => void;
   onRename: (todo: Todo, newTitle: string) => Promise<void>;
 };
@@ -34,6 +34,26 @@ export const TodoItem: React.FC<Props> = ({
   };
 
   const handleSave = () => {
+    const trimmedTitle = editTitle.trim();
+
+    if (trimmedTitle === todo.title) {
+      setIsEditing(false);
+
+      return;
+    }
+
+    if (!trimmedTitle) {
+      onDelete(todo.id)
+        .then(() => {
+          setIsEditing(false);
+        })
+        .catch(() => {
+          editInputRef.current?.focus();
+        });
+
+      return;
+    }
+
     onRename(todo, editTitle)
       .then(() => {
         setIsEditing(false);
