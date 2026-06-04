@@ -32,8 +32,11 @@ export const App: React.FC = () => {
   const [processingIds, setProcessingIds] = useState<number[]>([]);
   const [editingTodoId, setEditingTodoId] = useState<number | null>(null);
   const [editTitle, setEditTitle] = useState('');
+  const isSavingRef = useRef<Record<number, boolean>>({});
+  const editInputRef = useRef<HTMLInputElement>(null);
 
   const startEditing = (todo: Todo) => {
+    isSavingRef.current[todo.id] = false;
     setEditingTodoId(todo.id);
     setEditTitle(todo.title);
   };
@@ -69,7 +72,13 @@ export const App: React.FC = () => {
     if (!isAdding && !tempTodo && editingTodoId === null) {
       inputRef.current?.focus();
     }
-  }, [todos, isAdding, tempTodo, editingTodoId]);
+  }, [isAdding, tempTodo, editingTodoId]);
+
+  useEffect(() => {
+    if (editingTodoId !== null) {
+      editInputRef.current?.focus();
+    }
+  }, [editingTodoId]);
 
   if (!USER_ID) {
     return <UserWarning />;
@@ -100,6 +109,7 @@ export const App: React.FC = () => {
     }
 
     setIsAdding(true);
+    setProcessingIds(current => [...current, 0]);
 
     setTempTodo({
       id: 0,
@@ -113,14 +123,16 @@ export const App: React.FC = () => {
       .then(newTodo => {
         setTodos(current => [...current, newTodo]);
         setInputValue('');
+        setTempTodo(null);
+        setIsAdding(false);
+        setProcessingIds(current => current.filter(pid => pid !== 0));
         inputRef.current?.focus();
       })
       .catch(() => {
         setErrorMessage(ErrorMessage.Add);
-      })
-      .finally(() => {
         setTempTodo(null);
         setIsAdding(false);
+        setProcessingIds(current => current.filter(pid => pid !== 0));
       });
   };
 
@@ -137,6 +149,7 @@ export const App: React.FC = () => {
       })
       .finally(() => {
         setProcessingIds(current => current.filter(pid => pid !== todoId));
+        inputRef.current?.focus();
       });
   }
 
@@ -159,13 +172,24 @@ export const App: React.FC = () => {
   };
 
   const saveEdit = (todo: Todo) => {
+    const trimmed = editTitle.trim();
+
+    if (editingTodoId !== todo.id) {
+      return;
+    }
+
     if (processingIds.includes(todo.id)) {
       return;
     }
 
-    const trimmed = editTitle.trim();
+    if (trimmed === todo.title) {
+      setEditingTodoId(null);
+
+      return;
+    }
 
     if (!trimmed) {
+      isSavingRef.current[todo.id] = true;
       setProcessingIds(current => [...current, todo.id]);
 
       postService
@@ -178,20 +202,14 @@ export const App: React.FC = () => {
           setErrorMessage(ErrorMessage.Delete);
         })
         .finally(() => {
+          isSavingRef.current[todo.id] = false;
           setProcessingIds(current => current.filter(pid => pid !== todo.id));
-
-          inputRef.current?.focus();
         });
 
       return;
     }
 
-    if (trimmed === todo.title) {
-      setEditingTodoId(null);
-
-      return;
-    }
-
+    isSavingRef.current[todo.id] = true;
     setProcessingIds(current => [...current, todo.id]);
     postService
       .updatePost(todo.id, { title: trimmed })
@@ -205,7 +223,9 @@ export const App: React.FC = () => {
         setErrorMessage(ErrorMessage.Update);
       })
       .finally(() => {
+        isSavingRef.current[todo.id] = false;
         setProcessingIds(current => current.filter(pid => pid !== todo.id));
+        inputRef.current?.focus();
       });
   };
 
@@ -263,6 +283,7 @@ export const App: React.FC = () => {
       setProcessingIds(current =>
         current.filter(pid => !completedIds.includes(pid)),
       );
+      inputRef.current?.focus();
     });
   };
 
@@ -349,6 +370,7 @@ export const App: React.FC = () => {
                               setEditingTodoId(null);
                             }
                           }}
+                          ref={editInputRef}
                           autoFocus
                         />
                       </form>
@@ -388,12 +410,17 @@ export const App: React.FC = () => {
               })}
 
               {tempTodo && (
-                <div data-cy="Todo" className="todo">
+                <div
+                  data-cy="Todo"
+                  className={classNames('todo', {
+                    'is-active': processingIds.includes(0),
+                  })}
+                >
                   <label className="todo__status-label">
                     <input
                       data-cy="TodoStatus"
                       type="checkbox"
-                      className="todo__status"
+                      className="todo__status is-active"
                       disabled
                     />
                   </label>
@@ -406,7 +433,12 @@ export const App: React.FC = () => {
                     ×
                   </button>
 
-                  <div data-cy="TodoLoader" className="modal overlay is-active">
+                  <div
+                    data-cy="TodoLoader"
+                    className={classNames('modal', 'overlay', {
+                      'is-active': processingIds.includes(0),
+                    })}
+                  >
                     <div className="modal-background has-background-white-ter" />
                     <div className="loader" />
                   </div>
