@@ -205,6 +205,15 @@ export const App: React.FC = () => {
     setTargetId([updatedItem.id]);
     setInProcess(true);
 
+    if (newTitle.trim() === '') {
+      handleErrorMessage('Title should not be empty');
+
+      setTargetId([0]);
+      setInProcess(false);
+
+      return Promise.reject(new Error('Title should not be empty'));
+    }
+
     return updateTodo(updatedItem.id, updatedItem)
       .then(() => {
         setTodos(currentTodos => {

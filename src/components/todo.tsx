@@ -29,6 +29,8 @@ export const TodoItem: React.FC<Props> = ({
   function handleSubmit(event: React.FormEvent) {
     event.preventDefault();
 
+    isInput(true);
+
     if (todo.title === newTitle) {
       setFormSwitch(false);
 
@@ -76,10 +78,7 @@ export const TodoItem: React.FC<Props> = ({
         <span
           data-cy="TodoTitle"
           className="todo__title"
-          onDoubleClick={() => {
-            setFormSwitch(true);
-            isInput(true);
-          }}
+          onDoubleClick={() => setFormSwitch(true)}
         >
           {todo.title}
         </span>
