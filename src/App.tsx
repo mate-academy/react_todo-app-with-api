@@ -4,7 +4,7 @@
 /* eslint-disable jsx-a11y/control-has-associated-label */
 import React, { useEffect, useRef, useState } from 'react';
 import { UserWarning } from './UserWarning';
-import { Todo } from './types/Types';
+import { ErrorMessage, FilterType, Todo } from './types/Types';
 import {
   createTodo,
   deleteTodo,
@@ -24,8 +24,8 @@ export const App: React.FC = () => {
 
   const [todos, setTodos] = useState<Todo[]>([]);
   const [, setIsLoading] = useState(true);
-  const [errorMessage, setErrorMessage] = useState('');
-  const [filter, setFilter] = useState('all');
+  const [errorMessage, setErrorMessage] = useState(ErrorMessage.None);
+  const [filter, setFilter] = useState(FilterType.All);
   const [inputText, setInputText] = useState('');
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
   const [processingIds, setProcessingIds] = useState<number[]>([]);
@@ -40,9 +40,9 @@ export const App: React.FC = () => {
 
         setTodos(data);
       } catch (error) {
-        setErrorMessage('Unable to load todos');
+        setErrorMessage(ErrorMessage.Load);
         setTimeout(() => {
-          setErrorMessage('');
+          setErrorMessage(ErrorMessage.None);
         }, 3000);
       } finally {
         setIsLoading(false);
@@ -58,9 +58,9 @@ export const App: React.FC = () => {
     const normalizedTitle = inputText.trim();
 
     if (normalizedTitle.length === 0) {
-      setErrorMessage('Title should not be empty');
+      setErrorMessage(ErrorMessage.Title);
       setTimeout(() => {
-        setErrorMessage('');
+        setErrorMessage(ErrorMessage.None);
       }, 3000);
 
       return;
@@ -83,9 +83,9 @@ export const App: React.FC = () => {
       setTodos([...todos, newTodoFromServer]);
       setInputText('');
     } catch (error) {
-      setErrorMessage('Unable to add a todo');
+      setErrorMessage(ErrorMessage.Add);
       setTimeout(() => {
-        setErrorMessage('');
+        setErrorMessage(ErrorMessage.None);
       }, 3000);
     } finally {
       setTempTodo(null);
@@ -103,9 +103,9 @@ export const App: React.FC = () => {
       await deleteTodo(todoID);
       setTodos(currentTodos => currentTodos.filter(todo => todo.id !== todoID));
     } catch {
-      setErrorMessage('Unable to delete a todo');
+      setErrorMessage(ErrorMessage.Delete);
       setTimeout(() => {
-        setErrorMessage('');
+        setErrorMessage(ErrorMessage.None);
       }, 3000);
     } finally {
       setProcessingIds(currentIds => currentIds.filter(id => id !== todoID));
@@ -116,20 +116,20 @@ export const App: React.FC = () => {
     }
   };
 
-  const handleClearCompleted = () => {
+  const handleClearCompleted = async () => {
     const completedTodos = todos.filter(todo => todo.completed);
 
-    completedTodos.forEach(todo => {
-      handleDelete(todo.id);
-    });
+    const promises = completedTodos.map(todo => handleDelete(todo.id));
+
+    await Promise.all(promises);
   };
 
   const visibleTodos = todos.filter(todo => {
-    if (filter === 'completed') {
+    if (filter === FilterType.Completed) {
       return todo.completed;
     }
 
-    if (filter === 'active') {
+    if (filter === FilterType.Active) {
       return !todo.completed;
     }
 
@@ -146,24 +146,26 @@ export const App: React.FC = () => {
         currentTodos.map(todo => (todo.id === todoId ? updatedTodo : todo)),
       );
     } catch {
-      setErrorMessage('Unable to update a todo');
+      setErrorMessage(ErrorMessage.Update);
       setTimeout(() => {
-        setErrorMessage('');
+        setErrorMessage(ErrorMessage.None);
       }, 3000);
     } finally {
       setProcessingIds(currentIds => currentIds.filter(id => id !== todoId));
     }
   };
 
-  const handleToggleAll = () => {
+  const handleToggleAll = async () => {
     const shouldBeCompleted = !todos.every(todo => todo.completed);
     const todosToUpdate = todos.filter(
       todo => todo.completed !== shouldBeCompleted,
     );
 
-    todosToUpdate.forEach(todo => {
-      handleToggle(todo.id, shouldBeCompleted);
-    });
+    const promises = todosToUpdate.map(todo =>
+      handleToggle(todo.id, shouldBeCompleted),
+    );
+
+    await Promise.all(promises);
   };
 
   const hasTodos = todos.length > 0;
@@ -179,9 +181,9 @@ export const App: React.FC = () => {
         currentTodos.map(todo => (todo.id === todoId ? updatedTodo : todo)),
       );
     } catch (error) {
-      setErrorMessage('Unable to update a todo');
+      setErrorMessage(ErrorMessage.Update);
       setTimeout(() => {
-        setErrorMessage('');
+        setErrorMessage(ErrorMessage.None);
       }, 3000);
       throw error;
     } finally {

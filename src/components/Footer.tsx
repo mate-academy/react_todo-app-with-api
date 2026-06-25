@@ -4,7 +4,7 @@ import { FilterType, Todo } from '../types/Types';
 interface Props {
   todos: Todo[];
   filter: string;
-  setFilter: (filter: string) => void;
+  setFilter: (filter: FilterType) => void;
   onClearCompleted: () => void;
 }
 
@@ -15,15 +15,15 @@ export const Footer: React.FC<Props> = ({
   onClearCompleted,
 }) => {
   const filterLinks = [
-    { type: FilterType.ALL, title: 'All', cy: 'FilterLinkAll', href: '#/' },
+    { type: FilterType.All, title: 'All', cy: 'FilterLinkAll', href: '#/' },
     {
-      type: FilterType.ACTIVE,
+      type: FilterType.Active,
       title: 'Active',
       cy: 'FilterLinkActive',
       href: '#/active',
     },
     {
-      type: FilterType.COMPLETED,
+      type: FilterType.Completed,
       title: 'Completed',
       cy: 'FilterLinkCompleted',
       href: '#/completed',

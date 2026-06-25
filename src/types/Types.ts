@@ -6,12 +6,16 @@ export interface Todo {
 }
 
 export enum FilterType {
-  ALL = 'all',
-  ACTIVE = 'active',
-  COMPLETED = 'completed',
+  All = 'all',
+  Active = 'active',
+  Completed = 'completed',
 }
 
 export enum ErrorMessage {
-  LOAD = 'Unable to load todos',
-  DELETE = 'Unable to delete a todo',
+  Load = 'Unable to load todos',
+  Add = 'Unable to add a todo',
+  Delete = 'Unable to delete a todo',
+  Update = 'Unable to update a todo',
+  Title = 'Title should not be empty',
+  None = '',
 }
