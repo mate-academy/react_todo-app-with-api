@@ -151,6 +151,8 @@ export const App: React.FC = () => {
       todo => todo.completed !== shouldCompleteAll,
     );
 
+    setLoadingIds(todosToUpdate.map(todo => todo.id));
+
     try {
       await Promise.all(
         todosToUpdate.map(todo =>
@@ -159,6 +161,8 @@ export const App: React.FC = () => {
       );
     } catch {
       showError(errorMessages.UPDATE_TODO);
+    } finally {
+      setLoadingIds([]);
     }
   };
 
