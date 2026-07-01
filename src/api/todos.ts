@@ -4,10 +4,10 @@ import { client } from '../utils/fetchClient';
 export const USER_ID = 4078;
 
 export const getTodos = () => {
-  return client.get<Todo[]>(`/todos&userId=${USER_ID}`);
+  return client.get<Todo[]>(`/todos?userId=${USER_ID}`);
 };
 
-export function addPost (post: Omit<Todo, 'id'>) {
+export function addPost(post: Omit<Todo, 'id'>) {
   return client.post<Todo>('/todos', post);
 }
 

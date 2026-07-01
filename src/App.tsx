@@ -15,7 +15,7 @@ import { ErrorNotification } from './components/Error/ErrorNotification';
 import { ErrorMessage } from './types/ErrorMessage';
 import { FilterOption } from './types/FilterOption';
 
-export { FilterOption, ErrorMessage};
+export { FilterOption, ErrorMessage };
 
 function FilteredTodos(todos: Todo[], filterOption: FilterOption) {
   switch (filterOption) {
