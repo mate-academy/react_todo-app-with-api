@@ -10,7 +10,10 @@ import {
   deleteTodo,
 } from './api/todos';
 import { useState } from 'react';
-import { TodosList } from './Todos_list';
+import { TodosList } from './components/TodosList';
+import { Header } from './components/Header';
+import { Footer } from './components/Footer';
+import { ErrorNotification } from './components/ErrorNotification';
 import { Todo } from './types/Todo';
 
 type FilterType = 'all' | 'active' | 'completed';
@@ -19,7 +22,8 @@ export const App: React.FC = () => {
   const [todos, setTodos] = useState<Todo[]>([]);
   const [inputValue, setInputValue] = useState('');
   const [allTodosCompleted, setAllTodosCompleted] = useState(false);
-  const [loadingTodoId, setLoadingTodoId] = useState<number | null>(null);
+  const [loadingTodoIds, setLoadingTodoIds] = useState<Set<number>>(new Set());
+  const [bulkOperationInProgress, setBulkOperationInProgress] = useState(false);
   const [isAdding, setIsAdding] = useState(false);
   const [filter, setFilter] = useState<FilterType>('all');
   const [error, setError] = useState<string | null>(null);
@@ -122,7 +126,7 @@ export const App: React.FC = () => {
 
     // Add temporary todo immediately
     setTodos(prevTodos => [...prevTodos, tempTodo]);
-    setLoadingTodoId(tempTodoId);
+    setLoadingTodoIds(prev => new Set(prev).add(tempTodoId));
 
     addTodo(inputValue.trim())
       .then(newTodo => {
@@ -132,7 +136,13 @@ export const App: React.FC = () => {
         );
         setInputValue('');
         setIsAdding(false);
-        setLoadingTodoId(null);
+        setLoadingTodoIds(prev => {
+          const newSet = new Set(prev);
+
+          newSet.delete(tempTodoId);
+
+          return newSet;
+        });
 
         // Focus the input field for adding the next todo
         // Use setTimeout to ensure React has finished updating the DOM
@@ -147,7 +157,13 @@ export const App: React.FC = () => {
         // Remove the temporary todo if the request fails
         setTodos(todosarr => todosarr.filter(todo => todo.id !== tempTodoId));
         setIsAdding(false);
-        setLoadingTodoId(null);
+        setLoadingTodoIds(prev => {
+          const newSet = new Set(prev);
+
+          newSet.delete(tempTodoId);
+
+          return newSet;
+        });
 
         // Focus the input field for adding the next todo
         // Use setTimeout to ensure React has finished updating the DOM
@@ -160,7 +176,7 @@ export const App: React.FC = () => {
   };
 
   const handleUpdateTodo = (id: number, updates: Partial<Todo>) => {
-    setLoadingTodoId(id);
+    setLoadingTodoIds(prev => new Set(prev).add(id));
 
     return updateTodo(id, updates)
       .then(updatedTodo => {
@@ -171,12 +187,18 @@ export const App: React.FC = () => {
         throw err;
       })
       .finally(() => {
-        setLoadingTodoId(null);
+        setLoadingTodoIds(prev => {
+          const newSet = new Set(prev);
+
+          newSet.delete(id);
+
+          return newSet;
+        });
       });
   };
 
   const handleDeleteTodo = (id: number) => {
-    setLoadingTodoId(id);
+    setLoadingTodoIds(prev => new Set(prev).add(id));
 
     return deleteTodo(id)
       .then(() => {
@@ -193,7 +215,13 @@ export const App: React.FC = () => {
         throw err;
       })
       .finally(() => {
-        setLoadingTodoId(null);
+        setLoadingTodoIds(prev => {
+          const newSet = new Set(prev);
+
+          newSet.delete(id);
+
+          return newSet;
+        });
       });
   };
 
@@ -203,6 +231,9 @@ export const App: React.FC = () => {
     const todosToUpdate = todos.filter(
       todo => todo.completed !== newCompletedStatus,
     );
+
+    setBulkOperationInProgress(true);
+    setLoadingTodoIds(new Set(todosToUpdate.map(todo => todo.id)));
 
     const updatePromises = todosToUpdate.map(todo =>
       updateTodo(todo.id, { completed: newCompletedStatus }),
@@ -228,11 +259,17 @@ export const App: React.FC = () => {
       if (hasErrors) {
         showError('Unable to update a todo');
       }
+
+      setBulkOperationInProgress(false);
+      setLoadingTodoIds(new Set());
     });
   };
 
   const handleClearCompleted = () => {
     const completedTodos = todos.filter(todo => todo.completed);
+
+    setBulkOperationInProgress(true);
+    setLoadingTodoIds(new Set(completedTodos.map(todo => todo.id)));
 
     // 1. Використовуємо Promise.allSettled замість Promise.all
     Promise.allSettled(completedTodos.map(todo => deleteTodo(todo.id))).then(
@@ -255,6 +292,9 @@ export const App: React.FC = () => {
           showError('Unable to delete a todo');
         }
 
+        setBulkOperationInProgress(false);
+        setLoadingTodoIds(new Set());
+
         // 5. Повертаємо фокус на інпут
         setTimeout(() => {
           if (newTodoInputRef.current) {
@@ -270,113 +310,36 @@ export const App: React.FC = () => {
       <h1 className="todoapp__title">todos</h1>
 
       <div className="todoapp__content">
-        <header className="todoapp__header">
-          {/* this button should have `active` class only if all todos are completed */}
-          {todos.length > 0 && (
-            <button
-              type="button"
-              className={`todoapp__toggle-all ${allTodosCompleted ? 'active' : ''}`}
-              data-cy="ToggleAllButton"
-              onClick={handleToggleAll}
-            />
-          )}
-
-          {/* Add a todo on form submit */}
-          <form onSubmit={handleSubmit}>
-            <input
-              ref={newTodoInputRef}
-              data-cy="NewTodoField"
-              type="text"
-              className="todoapp__new-todo"
-              placeholder="What needs to be done?"
-              value={inputValue}
-              onChange={e => setInputValue(e.target.value)}
-              disabled={isAdding}
-            />
-          </form>
-        </header>
+        <Header
+          allTodosCompleted={allTodosCompleted}
+          inputValue={inputValue}
+          isAdding={isAdding}
+          todosLength={todos.length}
+          onToggleAll={handleToggleAll}
+          onInputChange={setInputValue}
+          onSubmit={handleSubmit}
+          newTodoInputRef={newTodoInputRef}
+        />
 
         <TodosList
           todos={filteredTodos}
-          loadingTodoId={loadingTodoId}
+          loadingTodoIds={loadingTodoIds}
+          bulkOperationInProgress={bulkOperationInProgress}
           onUpdate={handleUpdateTodo}
           onDelete={handleDeleteTodo}
         />
 
-        {/* Hide the footer if there are no todos */}
-        {todos.length > 0 && (
-          <footer className="todoapp__footer" data-cy="Footer">
-            <span className="todo-count" data-cy="TodosCounter">
-              {taskCounter} {taskCounter === 1 ? 'item' : 'items'} left
-            </span>
-
-            {/* Active link should have the 'selected' class */}
-            <nav className="filter" data-cy="Filter">
-              <a
-                href="#/"
-                className={`filter__link ${filter === 'all' ? 'selected' : ''}`}
-                data-cy="FilterLinkAll"
-                onClick={e => {
-                  e.preventDefault();
-                  setFilter('all');
-                }}
-              >
-                All
-              </a>
-
-              <a
-                href="#/active"
-                className={`filter__link ${filter === 'active' ? 'selected' : ''}`}
-                data-cy="FilterLinkActive"
-                onClick={e => {
-                  e.preventDefault();
-                  setFilter('active');
-                }}
-              >
-                Active
-              </a>
-
-              <a
-                href="#/completed"
-                className={`filter__link ${filter === 'completed' ? 'selected' : ''}`}
-                data-cy="FilterLinkCompleted"
-                onClick={e => {
-                  e.preventDefault();
-                  setFilter('completed');
-                }}
-              >
-                Completed
-              </a>
-            </nav>
-
-            {/* this button should be disabled if there are no completed todos */}
-            <button
-              type="button"
-              className="todoapp__clear-completed"
-              data-cy="ClearCompletedButton"
-              onClick={handleClearCompleted}
-              disabled={!todos.some(todo => todo.completed)}
-            >
-              Clear completed
-            </button>
-          </footer>
-        )}
-      </div>
-
-      {/* DON'T use conditional rendering to hide the notification */}
-      {/* Add the 'hidden' class to hide the message smoothly */}
-      <div
-        data-cy="ErrorNotification"
-        className={`notification is-danger is-light has-text-weight-normal ${!error ? 'hidden' : ''}`}
-      >
-        <button
-          data-cy="HideErrorButton"
-          type="button"
-          className="delete"
-          onClick={handleCloseError}
+        <Footer
+          taskCounter={taskCounter}
+          filter={filter}
+          todosLength={todos.length}
+          hasCompletedTodos={todos.some(todo => todo.completed)}
+          onFilterChange={setFilter}
+          onClearCompleted={handleClearCompleted}
         />
-        {error}
       </div>
+
+      <ErrorNotification error={error} onClose={handleCloseError} />
     </div>
   );
 };

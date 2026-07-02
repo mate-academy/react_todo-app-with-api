@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Todo as TodoType } from './types/Todo';
+import { Todo as TodoType } from '../types/Todo';
 import cn from 'classnames';
 
 /* eslint-disable jsx-a11y/label-has-associated-control */
