@@ -188,9 +188,10 @@ export const App: React.FC = () => {
               return todo;
             }
           }),
-        ),
-          setEditingId(null);
+        );
+
         setUpdatingIds([]);
+        setEditingId(null);
       })
       .catch(() => {
         setErrorMessage(ErrorMessages.UnableToUploadTodo);

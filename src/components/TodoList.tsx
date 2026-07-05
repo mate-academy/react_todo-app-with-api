@@ -38,6 +38,7 @@ export const TodoList: React.FC<TodoListProps> = ({
       onRename(todo.id, editingTitle.trim());
     }
   };
+
   return (
     <div>
       {visibleTodos.map(todo => (
