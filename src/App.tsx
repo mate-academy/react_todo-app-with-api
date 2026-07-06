@@ -67,11 +67,11 @@ export const App: React.FC = () => {
   );
 
   const markTodoAsLoading = (todoId: number) => {
-    setLoadingTodoIds((currentIds) => [...currentIds, todoId]);
+    setLoadingTodoIds(currentIds => [...currentIds, todoId]);
   };
 
   const unmarkTodoAsLoading = (todoId: number) => {
-    setLoadingTodoIds((currentIds) => currentIds.filter((id) => id !== todoId));
+    setLoadingTodoIds(currentIds => currentIds.filter(id => id !== todoId));
   };
 
   useEffect(() => {
@@ -103,7 +103,7 @@ export const App: React.FC = () => {
   }, [todos.length, tempTodo, errorMessage]);
 
   const visibleTodos = useMemo(() => {
-    return todos.filter((todo) => {
+    return todos.filter(todo => {
       switch (filter) {
         case 'active':
           return !todo.completed;
@@ -117,7 +117,7 @@ export const App: React.FC = () => {
     });
   }, [todos, filter]);
 
-  const activeTodosCount = todos.filter((todo) => !todo.completed).length;
+  const activeTodosCount = todos.filter(todo => !todo.completed).length;
   const completedTodosCount = todos.length - activeTodosCount;
   const allTodosCompleted = todos.length > 0 && activeTodosCount === 0;
   const isAdding = Boolean(tempTodo);
@@ -142,8 +142,8 @@ export const App: React.FC = () => {
     });
 
     createTodo(trimmedTitle)
-      .then((todo) => {
-        setTodos((currentTodos) => [...currentTodos, todo]);
+      .then(todo => {
+        setTodos(currentTodos => [...currentTodos, todo]);
         setNewTodoTitle('');
       })
       .catch(() => showError('Unable to add a todo'))
@@ -156,11 +156,11 @@ export const App: React.FC = () => {
 
     return deleteTodo(todoId)
       .then(() => {
-        setTodos((currentTodos) =>
-          currentTodos.filter((todo) => todo.id !== todoId),
+        setTodos(currentTodos =>
+          currentTodos.filter(todo => todo.id !== todoId),
         );
       })
-      .catch((error) => {
+      .catch(error => {
         showError('Unable to delete a todo');
         throw error;
       })
@@ -172,12 +172,12 @@ export const App: React.FC = () => {
     markTodoAsLoading(todoId);
 
     return updateTodo(todoId, data)
-      .then((updatedTodo) => {
-        setTodos((currentTodos) =>
-          currentTodos.map((todo) => (todo.id === todoId ? updatedTodo : todo)),
+      .then(updatedTodo => {
+        setTodos(currentTodos =>
+          currentTodos.map(todo => (todo.id === todoId ? updatedTodo : todo)),
         );
       })
-      .catch((error) => {
+      .catch(error => {
         showError('Unable to update a todo');
         throw error;
       })
@@ -192,8 +192,8 @@ export const App: React.FC = () => {
     const newCompletedStatus = !allTodosCompleted;
 
     todos
-      .filter((todo) => todo.completed !== newCompletedStatus)
-      .forEach((todo) => {
+      .filter(todo => todo.completed !== newCompletedStatus)
+      .forEach(todo => {
         handleUpdateTodo(todo.id, { completed: newCompletedStatus }).catch(
           () => {},
         );
@@ -246,8 +246,8 @@ export const App: React.FC = () => {
 
   const handleClearCompleted = () => {
     todos
-      .filter((todo) => todo.completed)
-      .forEach((todo) => {
+      .filter(todo => todo.completed)
+      .forEach(todo => {
         handleDeleteTodo(todo.id).catch(() => {});
       });
   };
@@ -275,7 +275,7 @@ export const App: React.FC = () => {
 
         {editingTodoId === todo.id && !isTemp ? (
           <form
-            onSubmit={(event) => {
+            onSubmit={event => {
               event.preventDefault();
               submitTodoTitle(todo);
             }}
@@ -286,9 +286,9 @@ export const App: React.FC = () => {
               className="todo__title-field"
               value={editingTitle}
               autoFocus
-              onChange={(event) => setEditingTitle(event.target.value)}
+              onChange={event => setEditingTitle(event.target.value)}
               onBlur={() => submitTodoTitle(todo)}
-              onKeyUp={(event) => {
+              onKeyUp={event => {
                 if (event.key === 'Escape') {
                   cancelEditing();
                 }
@@ -310,7 +310,9 @@ export const App: React.FC = () => {
               className="todo__remove"
               data-cy="TodoDelete"
               disabled={isLoading || isTemp}
-              onClick={() => !isTemp && handleDeleteTodo(todo.id).catch(() => {})}
+              onClick={() =>
+                !isTemp && handleDeleteTodo(todo.id).catch(() => {})
+              }
             >
               ×
             </button>
@@ -358,7 +360,7 @@ export const App: React.FC = () => {
               placeholder="What needs to be done?"
               value={newTodoTitle}
               disabled={isAdding}
-              onChange={(event) => setNewTodoTitle(event.target.value)}
+              onChange={event => setNewTodoTitle(event.target.value)}
             />
           </form>
         </header>
