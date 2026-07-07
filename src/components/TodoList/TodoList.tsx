@@ -67,10 +67,9 @@ export const TodoList: React.FC<Props> = ({
                 className="todo__status-label"
                 htmlFor={`todo__status-temp`}
               >
-                <span className="visually-hidden">
-                  Toggle temporary todo status
-                </span>
+                <span className="is-sr-only">Toggle todo status</span>
                 <input
+                  id={`todo__status-temp`}
                   data-cy="TodoStatus"
                   type="checkbox"
                   className="todo__status"
