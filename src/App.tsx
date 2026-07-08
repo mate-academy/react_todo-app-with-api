@@ -1,7 +1,13 @@
 import React, { useEffect, useState, useRef } from 'react';
 import classNames from 'classnames';
 import { UserWarning } from './UserWarning';
-import { USER_ID, getTodos, createTodo, deleteTodo } from './api/todos';
+import {
+  USER_ID,
+  getTodos,
+  createTodo,
+  deleteTodo,
+  updateTodo,
+} from './api/todos';
 import { Todo } from './types/Todo';
 import { FilterType } from './types/FilterType';
 import { TodoList } from './components/TodoList';
@@ -111,9 +117,32 @@ export const App: React.FC = () => {
     return true;
   });
 
+  const handleUpdate = (id: number, updatedData: Partial<Todo>) => {
+    setDeletingIds(prev => [...prev, id]); // Використовуємо цей стейт для показу лоадера на конкретному todo[cite: 2]
+
+    return updateTodo(id, updatedData)
+      .then(updatedTodo => {
+        setTodos(prev => prev.map(t => (t.id === id ? updatedTodo : t))); // Оновлення стану при успіху[cite: 2]
+      })
+      .catch(() => {
+        showError(ErrorMessage.UpdateTodo); // Показ помилки при збої[cite: 2]
+        throw new Error('Update failed');
+      })
+      .finally(() => {
+        setDeletingIds(prev => prev.filter(loaderId => loaderId !== id)); // Зняття лоадера[cite: 2]
+      });
+  };
+
   const hasTodos = todos.length > 0 || tempTodo !== null;
   const activeTodosCount = todos.filter(t => !t.completed).length;
   const isAllCompleted = todos.length > 0 && activeTodosCount === 0;
+
+  const handleToggleAll = () => {
+    const newStatus = !isAllCompleted;
+    const todosToUpdate = todos.filter(t => t.completed !== newStatus); // Відправка запитів лише для змінених завдань[cite: 2]
+
+    todosToUpdate.forEach(t => handleUpdate(t.id, { completed: newStatus }));
+  };
 
   return (
     <div className="todoapp">
@@ -126,6 +155,7 @@ export const App: React.FC = () => {
               className={classNames('todoapp__toggle-all', {
                 active: isAllCompleted,
               })}
+              onClick={handleToggleAll}
               data-cy="ToggleAllButton"
             />
           )}
@@ -149,6 +179,7 @@ export const App: React.FC = () => {
               tempTodo={tempTodo}
               deletingIds={deletingIds}
               onDelete={handleDelete}
+              onUpdate={handleUpdate}
             />
             {todos.length > 0 && (
               <footer className="todoapp__footer" data-cy="Footer">

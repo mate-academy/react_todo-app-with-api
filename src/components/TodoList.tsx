@@ -7,6 +7,7 @@ type Props = {
   tempTodo: Todo | null;
   deletingIds: number[];
   onDelete: (id: number) => void;
+  onUpdate: (id: number, data: Partial<Todo>) => Promise<void>;
 };
 
 export const TodoList: React.FC<Props> = ({
@@ -14,6 +15,7 @@ export const TodoList: React.FC<Props> = ({
   tempTodo,
   deletingIds,
   onDelete,
+  onUpdate,
 }) => {
   return (
     <section className="todoapp__main" data-cy="TodoList">
@@ -23,6 +25,7 @@ export const TodoList: React.FC<Props> = ({
           todo={todo}
           isLoading={deletingIds.includes(todo.id)}
           onDelete={onDelete}
+          onUpdate={onUpdate}
         />
       ))}
       {tempTodo && <TodoItem todo={tempTodo} isLoading={true} />}
