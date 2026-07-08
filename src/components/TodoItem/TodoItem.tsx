@@ -24,6 +24,24 @@ export const TodoItem: React.FC<Props> = ({
   onDeleteTodo,
   onSubmit,
 }) => {
+  const isEditing = editingTodoId === todo.id;
+
+  const handleDoubleClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    onEditingTodoIdChange(todo.id);
+    onEditingTitleChange(todo.title);
+  };
+
+  const handleOnKeyUp = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter') {
+      onSubmit(todo);
+    }
+
+    if (e.key === 'Escape') {
+      onEditingTodoIdChange(null);
+    }
+  };
+
   return (
     <div data-cy="Todo" className={cn('todo', { completed: todo.completed })}>
       <label className="todo__status-label" htmlFor={`todo__status-${todo.id}`}>
@@ -38,15 +56,11 @@ export const TodoItem: React.FC<Props> = ({
         />
       </label>
 
-      {editingTodoId !== todo.id ? (
+      {!isEditing ? (
         <span
           data-cy="TodoTitle"
           className="todo__title"
-          onDoubleClick={e => {
-            e.preventDefault();
-            onEditingTodoIdChange(todo.id);
-            onEditingTitleChange(todo.title);
-          }}
+          onDoubleClick={handleDoubleClick}
         >
           {todo.title}
         </span>
@@ -60,19 +74,11 @@ export const TodoItem: React.FC<Props> = ({
           autoFocus
           placeholder={!editingTitle ? 'Empty todo will be delete' : ''}
           onBlur={() => onSubmit(todo)}
-          onKeyUp={e => {
-            if (e.key === 'Enter') {
-              onSubmit(todo);
-            }
-
-            if (e.key === 'Escape') {
-              onEditingTodoIdChange(null);
-            }
-          }}
+          onKeyUp={handleOnKeyUp}
         />
       )}
 
-      {editingTodoId !== todo.id && (
+      {!isEditing && (
         <button
           type="button"
           className="todo__remove"

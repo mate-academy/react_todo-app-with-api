@@ -19,6 +19,27 @@ export const Footer: React.FC<Props> = ({
   onClearCompleted,
   filterStatus,
 }) => {
+  const filterLinks = [
+    {
+      href: '#/',
+      status: filterStatus.ALL,
+      label: 'All',
+      dataCy: 'FilterLinkAll',
+    },
+    {
+      href: '#/active',
+      status: filterStatus.ACTIVE,
+      label: 'Active',
+      dataCy: 'FilterLinkActive',
+    },
+    {
+      href: '#/completed',
+      status: filterStatus.COMPLETED,
+      label: 'Completed',
+      dataCy: 'FilterLinkCompleted',
+    },
+  ];
+
   return (
     <footer className="todoapp__footer" data-cy="Footer">
       <span className="todo-count" data-cy="TodosCounter">
@@ -26,35 +47,18 @@ export const Footer: React.FC<Props> = ({
       </span>
 
       <nav className="filter" data-cy="Filter">
-        <a
-          href="#/"
-          className={cn('filter__link', {
-            selected: activeFilter === filterStatus.ALL,
-          })}
-          data-cy="FilterLinkAll"
-        >
-          All
-        </a>
-
-        <a
-          href="#/active"
-          className={cn('filter__link', {
-            selected: activeFilter === filterStatus.ACTIVE,
-          })}
-          data-cy="FilterLinkActive"
-        >
-          Active
-        </a>
-
-        <a
-          href="#/completed"
-          className={cn('filter__link', {
-            selected: activeFilter === filterStatus.COMPLETED,
-          })}
-          data-cy="FilterLinkCompleted"
-        >
-          Completed
-        </a>
+        {filterLinks.map(({ href, status, label, dataCy }) => (
+          <a
+            key={status}
+            href={href}
+            className={cn('filter__link', {
+              selected: activeFilter === status,
+            })}
+            data-cy={dataCy}
+          >
+            {label}
+          </a>
+        ))}
       </nav>
 
       {/* this button should be disabled if there are no completed todos */}
