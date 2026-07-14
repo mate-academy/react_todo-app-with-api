@@ -1,9 +1,5 @@
 import classNames from 'classnames';
-
-interface ErrorProps {
-  error: string;
-  setError: (cathcError: string) => void;
-}
+import { ErrorProps } from '../../types/ErrorProps';
 
 export const ErrorNotification = ({ error, setError }: ErrorProps) => {
   return (

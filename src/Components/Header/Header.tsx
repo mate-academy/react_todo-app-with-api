@@ -1,14 +1,6 @@
 import classNames from 'classnames';
 import { useState } from 'react';
-import { Todo } from '../../types/Todo';
-
-interface HeaderProps {
-  todos: Todo[];
-  active: number;
-  onChange: (value: string) => Promise<boolean>;
-  inputRef: React.RefObject<HTMLInputElement>;
-  changeAll: () => void;
-}
+import { HeaderProps } from '../../types/HeaderProps';
 
 export const Header = ({
   todos,

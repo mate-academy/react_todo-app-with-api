@@ -1,15 +1,7 @@
 import classNames from 'classnames';
 import { Todo } from '../../types/Todo';
 import React, { useRef, useState } from 'react';
-
-interface TodoListProps {
-  filteredTodos: Todo[];
-  tempTodo: Todo | null;
-  deleteId: number[];
-  deleteData: (id: number) => Promise<boolean>;
-  changeStatusData: (id: number) => void;
-  renameData: (id: number, newTitle: string) => Promise<boolean>;
-}
+import { TodoListProps } from '../../types/TodoListProps';
 
 export const TodoList = ({
   filteredTodos,

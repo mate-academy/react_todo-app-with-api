@@ -1,13 +1,6 @@
 import classNames from 'classnames';
 import { SortType } from '../../types/SortType';
-
-interface FooterProps {
-  activeTodosCount: number;
-  currentSortType: SortType;
-  hasCompletedTodos: boolean;
-  onSortChange: (value: SortType) => void;
-  deletedAllCompleted: () => void;
-}
+import { FooterProps } from '../../types/FooterProps';
 
 export const Footer = ({
   activeTodosCount,
