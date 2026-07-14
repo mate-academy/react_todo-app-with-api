@@ -113,10 +113,10 @@ export const App: React.FC = () => {
         setErrorMessage('');
       }, 3000);
 
-      return;
+      return Promise.reject(); // <--- ДОДАНО: повертаємо відхилений проміс
     }
 
-    deleteTodos(postId)
+    return deleteTodos(postId) // <--- ДОДАНО: return, щоб проміс пішов наверх
       .then(() => {
         setTodos(currentTodos =>
           currentTodos.filter(todo => todo.id !== postId),
@@ -128,6 +128,8 @@ export const App: React.FC = () => {
         setTimeout(() => {
           setErrorMessage('');
         }, 3000);
+
+        throw new Error(); // <--- ДОДАНО: прокидаємо помилку далі
       })
       .finally(() => {
         setChangePostsId(idOfPosts => idOfPosts.filter(id => id !== postId));
@@ -145,7 +147,7 @@ export const App: React.FC = () => {
     }
   }
 
-  function changeDataToServer(changeId: number) {
+  function changeStatusToServer(changeId: number) {
     setErrorMessage('');
     setChangePostsId(currentIds => [...currentIds, changeId]);
     const searcData = todos.find(todo => todo.id === changeId) || null;
@@ -187,7 +189,7 @@ export const App: React.FC = () => {
       });
   }
 
-  function changeAllToServer() {
+  function changeAllStatusToServer() {
     let targetTodos = todos.filter(todo => !todo.completed);
 
     if (targetTodos.length === 0) {
@@ -197,8 +199,50 @@ export const App: React.FC = () => {
     const changesId = targetTodos.map(todo => todo.id);
 
     for (const id of changesId) {
-      changeDataToServer(id);
+      changeStatusToServer(id);
     }
+  }
+
+  function renameTodoData(todoId: number, newTitle: string) {
+    setErrorMessage('');
+    setChangePostsId(currentIds => [...currentIds, todoId]);
+
+    const searchData = todos.find(todo => todo.id === todoId);
+
+    if (!searchData) {
+      setErrorMessage('Unable to update a todo');
+      setTimeout(() => setErrorMessage(''), 3000);
+
+      return Promise.reject();
+    }
+
+    const updatedPost = {
+      ...searchData,
+      title: newTitle,
+    };
+
+    return changeTodos(updatedPost)
+      .then(updatedTodo =>
+        setTodos(currentPosts => {
+          return currentPosts.map(post =>
+            post.id === updatedTodo.id ? updatedTodo : post,
+          );
+        }),
+      )
+      .catch(() => {
+        setErrorMessage('Unable to update a todo');
+
+        setTimeout(() => {
+          setErrorMessage('');
+        }, 3000);
+
+        throw new Error();
+      })
+      .finally(() => {
+        setChangePostsId(currentIds =>
+          currentIds.filter(currentId => currentId !== todoId),
+        );
+      });
   }
 
   const activeTodoCount = todos.filter(todo => !todo.completed).length;
@@ -219,7 +263,7 @@ export const App: React.FC = () => {
           active={activeTodoCount}
           onChange={addDataToServer}
           inputRef={inputRef}
-          changeAll={changeAllToServer}
+          changeAll={changeAllStatusToServer}
         />
 
         {todos.length > 0 && (
@@ -229,7 +273,8 @@ export const App: React.FC = () => {
               tempTodo={tempTodo}
               deleteId={changePostsId}
               deleteData={deleteDataFromServer}
-              changeData={changeDataToServer}
+              changeStatusData={changeStatusToServer}
+              renameData={renameTodoData}
             />
 
             <Footer

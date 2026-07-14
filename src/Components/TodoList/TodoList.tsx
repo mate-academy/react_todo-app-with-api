@@ -1,13 +1,14 @@
 import classNames from 'classnames';
 import { Todo } from '../../types/Todo';
-import React from 'react';
+import React, { useRef, useState } from 'react';
 
 interface TodoListProps {
   filteredTodos: Todo[];
   tempTodo: Todo | null;
   deleteId: number[];
-  deleteData: (id: number) => void;
-  changeData: (id: number) => void;
+  deleteData: (id: number) => Promise<boolean>;
+  changeStatusData: (id: number) => void;
+  renameData: (id: number, newTitle: string) => Promise<boolean>;
 }
 
 export const TodoList = ({
@@ -15,14 +16,89 @@ export const TodoList = ({
   tempTodo,
   deleteId,
   deleteData,
-  changeData,
+  changeStatusData,
+  renameData,
 }: TodoListProps) => {
+  const [newTitle, setNewTitle] = useState('');
+  const [editingId, setEditingId] = useState<number | null>(null);
+
+  const editInputRef = useRef<HTMLInputElement>(null);
+  const isSubmittingEdit = useRef(false);
+  const isCancelling = useRef(false);
+
   const handleDelete = (id: number) => {
     deleteData(id);
   };
 
   const statusSubmit = (id: number) => {
-    changeData(id);
+    changeStatusData(id);
+  };
+
+  const handleDoubleClick = (todo: Todo) => {
+    isCancelling.current = false;
+    setEditingId(todo.id);
+    setNewTitle(todo.title);
+  };
+
+  const cancelEditing = () => {
+    isCancelling.current = true;
+    setEditingId(null);
+    setNewTitle('');
+  };
+
+  const handleSubmit = (todo: Todo) => {
+    if (isCancelling.current || isSubmittingEdit.current) {
+      return;
+    }
+
+    const normalizedTitle = newTitle.trim();
+
+    if (normalizedTitle === todo.title) {
+      cancelEditing();
+
+      return;
+    }
+
+    if (normalizedTitle === '') {
+      isSubmittingEdit.current = true;
+
+      deleteData(todo.id)
+        .then(() => {
+          cancelEditing();
+        })
+        .catch(() => {
+          editInputRef.current?.focus();
+        })
+        .finally(() => {
+          isSubmittingEdit.current = false;
+        });
+
+      return;
+    }
+
+    isSubmittingEdit.current = true;
+
+    renameData(todo.id, normalizedTitle)
+      .then(() => {
+        cancelEditing();
+      })
+      .catch(() => {
+        editInputRef.current?.focus();
+      })
+      .finally(() => {
+        isSubmittingEdit.current = false;
+      });
+  };
+
+  const handleKeyUp = (
+    event: React.KeyboardEvent<HTMLInputElement>,
+    todo: Todo,
+  ) => {
+    if (event.key === 'Escape') {
+      cancelEditing();
+    } else if (event.key === 'Enter') {
+      handleSubmit(todo);
+    }
   };
 
   return (
@@ -48,20 +124,41 @@ export const TodoList = ({
               readOnly
             />
           </label>
+          {editingId === todo.id ? (
+            <input
+              ref={editInputRef}
+              data-cy="TodoTitleField"
+              type="text"
+              className="todo__title-field"
+              placeholder="Empty todo will be deleted"
+              value={newTitle}
+              onChange={inputEvent => setNewTitle(inputEvent.target.value)}
+              onBlur={() => handleSubmit(todo)}
+              onKeyUp={e => handleKeyUp(e, todo)}
+              autoFocus
+            />
+          ) : (
+            <>
+              <span
+                data-cy="TodoTitle"
+                className="todo__title"
+                onDoubleClick={() => handleDoubleClick(todo)}
+              >
+                {todo.title}
+              </span>
 
-          <span data-cy="TodoTitle" className="todo__title">
-            {todo.title}
-          </span>
-          <button
-            type="button"
-            className="todo__remove"
-            data-cy="TodoDelete"
-            onClick={() => {
-              handleDelete(todo.id);
-            }}
-          >
-            ×
-          </button>
+              <button
+                type="button"
+                className="todo__remove"
+                data-cy="TodoDelete"
+                onClick={() => {
+                  handleDelete(todo.id);
+                }}
+              >
+                ×
+              </button>
+            </>
+          )}
 
           <div
             data-cy="TodoLoader"
