@@ -2,7 +2,13 @@
 /* eslint-disable jsx-a11y/control-has-associated-label */
 import React, { useEffect, useRef, useState } from 'react';
 import { UserWarning } from './UserWarning';
-import { addTodos, deleteTodos, getTodos, USER_ID } from './api/todos';
+import {
+  addTodos,
+  changeTodos,
+  deleteTodos,
+  getTodos,
+  USER_ID,
+} from './api/todos';
 import { Todo } from './types/Todo';
 import { TodoList } from './Components/TodoList/TodoList';
 import { Footer } from './Components/Footer/Footer';
@@ -15,7 +21,7 @@ export const App: React.FC = () => {
   const [todos, setTodos] = useState<Todo[]>([]);
   const [sortType, setSortType] = useState<SortType>(SortType.all);
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
-  const [deletePostsId, setDeletePostsId] = useState<number[]>([]);
+  const [changePostsId, setChangePostsId] = useState<number[]>([]);
   const inputRef = useRef<HTMLInputElement>(null);
 
   const [errorMessage, setErrorMessage] = useState('');
@@ -98,7 +104,7 @@ export const App: React.FC = () => {
 
   function deleteDataFromServer(postId: number) {
     setErrorMessage('');
-    setDeletePostsId(currentIds => [...currentIds, postId]);
+    setChangePostsId(currentIds => [...currentIds, postId]);
 
     if (!postId) {
       setErrorMessage('Title should not be empty to delete');
@@ -124,7 +130,7 @@ export const App: React.FC = () => {
         }, 3000);
       })
       .finally(() => {
-        setDeletePostsId(idOfPosts => idOfPosts.filter(id => id !== postId));
+        setChangePostsId(idOfPosts => idOfPosts.filter(id => id !== postId));
         inputRef.current?.focus();
       });
   }
@@ -136,6 +142,62 @@ export const App: React.FC = () => {
 
     for (const id of completedId) {
       deleteDataFromServer(id);
+    }
+  }
+
+  function changeDataToServer(changeId: number) {
+    setErrorMessage('');
+    setChangePostsId(currentIds => [...currentIds, changeId]);
+    const searcData = todos.find(todo => todo.id === changeId) || null;
+
+    if (!searcData) {
+      setErrorMessage('Unable to update a todo');
+
+      setTimeout(() => {
+        setErrorMessage('');
+      }, 3000);
+
+      return;
+    }
+
+    const changePost = {
+      ...searcData,
+      completed: !searcData.completed,
+    };
+
+    changeTodos(changePost)
+      .then(updatedTodo =>
+        setTodos(currentPosts => {
+          return currentPosts.map(post =>
+            post.id === updatedTodo.id ? updatedTodo : post,
+          );
+        }),
+      )
+      .catch(() => {
+        setErrorMessage('Unable to update a todo');
+
+        setTimeout(() => {
+          setErrorMessage('');
+        }, 3000);
+      })
+      .finally(() => {
+        setChangePostsId(currentIds =>
+          currentIds.filter(currentId => currentId !== changeId),
+        );
+      });
+  }
+
+  function changeAllToServer() {
+    let targetTodos = todos.filter(todo => !todo.completed);
+
+    if (targetTodos.length === 0) {
+      targetTodos = todos;
+    }
+
+    const changesId = targetTodos.map(todo => todo.id);
+
+    for (const id of changesId) {
+      changeDataToServer(id);
     }
   }
 
@@ -153,9 +215,11 @@ export const App: React.FC = () => {
 
       <div className="todoapp__content">
         <Header
+          todos={todos}
           active={activeTodoCount}
           onChange={addDataToServer}
           inputRef={inputRef}
+          changeAll={changeAllToServer}
         />
 
         {todos.length > 0 && (
@@ -163,15 +227,16 @@ export const App: React.FC = () => {
             <TodoList
               filteredTodos={filteredTodos}
               tempTodo={tempTodo}
+              deleteId={changePostsId}
               deleteData={deleteDataFromServer}
-              deleteId={deletePostsId}
+              changeData={changeDataToServer}
             />
 
             <Footer
               activeTodosCount={activeTodoCount}
               currentSortType={sortType}
-              onSortChange={setSortType}
               hasCompletedTodos={hasCompletedTodos}
+              onSortChange={setSortType}
               deletedAllCompleted={deleteAllCompletedFromServer}
             />
           </>
@@ -182,8 +247,6 @@ export const App: React.FC = () => {
         error={errorMessage}
         setError={catchError => setErrorMessage(catchError)}
       />
-      {/*
-          Unable to update a todo */}
     </div>
   );
 };

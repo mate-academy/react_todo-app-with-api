@@ -5,18 +5,24 @@ import React from 'react';
 interface TodoListProps {
   filteredTodos: Todo[];
   tempTodo: Todo | null;
-  deleteData: (id: number) => void;
   deleteId: number[];
+  deleteData: (id: number) => void;
+  changeData: (id: number) => void;
 }
 
 export const TodoList = ({
   filteredTodos,
   tempTodo,
-  deleteData,
   deleteId,
+  deleteData,
+  changeData,
 }: TodoListProps) => {
   const handleDelete = (id: number) => {
     deleteData(id);
+  };
+
+  const statusSubmit = (id: number) => {
+    changeData(id);
   };
 
   return (
@@ -38,6 +44,7 @@ export const TodoList = ({
               type="checkbox"
               className="todo__status"
               checked={todo.completed}
+              onClick={() => statusSubmit(todo.id)}
               readOnly
             />
           </label>
