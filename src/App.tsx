@@ -1,4 +1,6 @@
+/* eslint-disable jsx-a11y/label-has-associated-control */
 import { FormEvent, useEffect, useRef, useState } from 'react';
+import classNames from 'classnames';
 
 import {
   addTodo,
@@ -286,6 +288,23 @@ export const App = () => {
       });
   };
 
+  const handleEditKeyDown = (
+    event: React.KeyboardEvent<HTMLInputElement>,
+    todo: Todo,
+  ) => {
+    if (event.key === 'Enter') {
+      event.preventDefault();
+      saveEditing(todo);
+    }
+
+    if (event.key === 'Escape') {
+      event.preventDefault();
+      setEditingId(null);
+      setEditedTitle(todo.title);
+      inputRef.current?.focus();
+    }
+  };
+
   return (
     <div className="todoapp">
       <h1 className="todoapp__title">todos</h1>
@@ -296,7 +315,9 @@ export const App = () => {
             <button
               type="button"
               data-cy="ToggleAllButton"
-              className={`todoapp__toggle-all ${allCompleted ? 'active' : ''}`}
+              className={classNames('todoapp__toggle-all', {
+                active: allCompleted,
+              })}
               onClick={handleToggleAll}
             />
           )}
@@ -315,7 +336,9 @@ export const App = () => {
 
       <div
         data-cy="ErrorNotification"
-        className={`notification is-danger is-light ${error ? '' : 'hidden'}`}
+        className={classNames('notification', 'is-danger', 'is-light', {
+          hidden: !error,
+        })}
       >
         <button
           type="button"
@@ -336,15 +359,19 @@ export const App = () => {
               <div
                 key={todo.id}
                 data-cy="Todo"
-                className={`
-                  todo
-                  ${todo.completed ? 'completed' : ''}
-                  ${editingId === todo.id ? 'editing' : ''}
-                `}
+                className={classNames('todo', {
+                  completed: todo.completed,
+                  editing: editingId === todo.id,
+                })}
               >
-                <label>
+                <label
+                  className="todo__status-label"
+                  htmlFor={`todo-${todo.id}`}
+                >
                   <input
+                    id={`todo-${todo.id}`}
                     data-cy="TodoStatus"
+                    className="todo__status"
                     type="checkbox"
                     checked={todo.completed}
                     disabled={
@@ -352,54 +379,33 @@ export const App = () => {
                     }
                     onChange={() => handleToggle(todo)}
                   />
-
-                  {editingId === todo.id ? (
-                    <input
-                      ref={editInputRef}
-                      data-cy="TodoTitleField"
-                      type="text"
-                      className="todo__title-field"
-                      value={editedTitle}
-                      onChange={event => setEditedTitle(event.target.value)}
-                      onBlur={() => saveEditing(todo)}
-                      onKeyDown={event => {
-                        if (event.key === 'Enter') {
-                          event.preventDefault();
-                          saveEditing(todo);
-                        }
-
-                        if (event.key === 'Escape') {
-                          event.preventDefault();
-                          setEditingId(null);
-                          setEditedTitle(todo.title);
-                          inputRef.current?.focus();
-                        }
-                      }}
-                    />
-                  ) : (
-                    <span
-                      data-cy="TodoTitle"
-                      className="todo__title"
-                      onDoubleClick={() => startEditing(todo)}
-                    >
-                      {todo.title}
-                    </span>
-                  )}
                 </label>
 
-                <div
-                  data-cy="TodoLoader"
-                  className={`todo__loader ${
-                    loadingIds.includes(todo.id) ? 'is-active' : 'hidden'
-                  }`}
-                >
-                  <div className="loader" />
-                </div>
+                {editingId === todo.id ? (
+                  <input
+                    ref={editInputRef}
+                    data-cy="TodoTitleField"
+                    type="text"
+                    className="todo__title-field"
+                    value={editedTitle}
+                    onChange={event => setEditedTitle(event.target.value)}
+                    onBlur={() => saveEditing(todo)}
+                    onKeyDown={event => handleEditKeyDown(event, todo)}
+                  />
+                ) : (
+                  <span
+                    data-cy="TodoTitle"
+                    className="todo__title"
+                    onDoubleClick={() => startEditing(todo)}
+                  >
+                    {todo.title}
+                  </span>
+                )}
 
                 {editingId !== todo.id && (
                   <button
                     type="button"
-                    className="todo__delete"
+                    className="todo__remove"
                     data-cy="TodoDelete"
                     onClick={() => handleDelete(todo.id)}
                     disabled={loadingIds.includes(todo.id)}
@@ -407,24 +413,41 @@ export const App = () => {
                     ×
                   </button>
                 )}
+
+                <div
+                  data-cy="TodoLoader"
+                  className={classNames('todo__loader', {
+                    'is-active': loadingIds.includes(todo.id),
+                    hidden: !loadingIds.includes(todo.id),
+                  })}
+                >
+                  <div className="loader" />
+                </div>
               </div>
             ))}
 
             {tempTodo && (
               <div data-cy="Todo" className="todo">
-                <label>
-                  <input type="checkbox" checked={false} readOnly />
-
-                  <span data-cy="TodoTitle">{tempTodo.title}</span>
+                <label className="todo__status-label">
+                  <input
+                    className="todo__status"
+                    type="checkbox"
+                    checked={false}
+                    readOnly
+                  />
                 </label>
+
+                <span data-cy="TodoTitle" className="todo__title">
+                  {tempTodo.title}
+                </span>
+
+                <button type="button" className="todo__remove" disabled>
+                  ×
+                </button>
 
                 <div data-cy="TodoLoader" className="todo__loader is-active">
                   <div className="loader" />
                 </div>
-
-                <button type="button" className="todo__delete" disabled>
-                  ×
-                </button>
               </div>
             )}
           </section>
@@ -438,7 +461,9 @@ export const App = () => {
               <a
                 data-cy="FilterLinkAll"
                 href="#/"
-                className={filter === Filter.All ? 'selected' : ''}
+                className={classNames('filter__link', {
+                  selected: filter === Filter.All,
+                })}
                 onClick={() => setFilter(Filter.All)}
               >
                 All
@@ -447,7 +472,9 @@ export const App = () => {
               <a
                 data-cy="FilterLinkActive"
                 href="#/active"
-                className={filter === Filter.Active ? 'selected' : ''}
+                className={classNames('filter__link', {
+                  selected: filter === Filter.Active,
+                })}
                 onClick={() => setFilter(Filter.Active)}
               >
                 Active
@@ -456,7 +483,9 @@ export const App = () => {
               <a
                 data-cy="FilterLinkCompleted"
                 href="#/completed"
-                className={filter === Filter.Completed ? 'selected' : ''}
+                className={classNames('filter__link', {
+                  selected: filter === Filter.Completed,
+                })}
                 onClick={() => setFilter(Filter.Completed)}
               >
                 Completed
