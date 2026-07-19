@@ -108,7 +108,10 @@ export const TodoItem: React.FC<Props> = ({
         className={`todo__remove ${isEditing ? 'is-hidden' : ''}`}
         data-cy="TodoDelete"
         onClick={() => onDelete(todo.id)}
-      />
+        disabled={isProcessed}
+      >
+        х
+      </button>
 
       <div
         data-cy="TodoLoader"
