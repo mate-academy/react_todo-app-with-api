@@ -9,6 +9,7 @@ interface Props {
   focusInput: React.RefObject<HTMLInputElement>;
   handleToggleAll: () => void;
   isAllCompleted: boolean;
+  hasTodos: boolean;
 }
 
 // Створюємо компонент і деструктуризуємо пропси в параметрах функції
@@ -20,15 +21,18 @@ export const TodoHeader: React.FC<Props> = ({
   focusInput,
   handleToggleAll,
   isAllCompleted,
+  hasTodos,
 }) => {
   return (
     <header className="todoapp__header">
-      <button
-        type="button"
-        className={`todoapp__toggle-all ${isAllCompleted ? 'active' : ''}`}
-        data-cy="ToggleAllButton"
-        onClick={handleToggleAll}
-      />
+      {hasTodos && (
+        <button
+          type="button"
+          className={`todoapp__toggle-all ${isAllCompleted ? 'active' : ''}`}
+          data-cy="ToggleAllButton"
+          onClick={handleToggleAll}
+        />
+      )}
 
       <form onSubmit={handleSubmit}>
         <input

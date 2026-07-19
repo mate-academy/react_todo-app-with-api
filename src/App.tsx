@@ -231,18 +231,20 @@ export const App: React.FC = () => {
       <h1 className="todoapp__title">todos</h1>
 
       <div className="todoapp__content">
+        <TodoHeader
+          handleSubmit={handleSubmit}
+          newTodoTitle={newTodoTitle}
+          setNewTodoTitle={setNewTodoTitle}
+          isSubmitting={isSubmitting}
+          focusInput={inputRef}
+          handleToggleAll={handleToggleAll}
+          isAllCompleted={isAllCompleted}
+          hasTodos={todos.length > 0}
+        />
+
+        {/* Показуємо Main та Footer лише коли є справи */}
         {todos.length > 0 && (
           <>
-            <TodoHeader
-              handleSubmit={handleSubmit}
-              newTodoTitle={newTodoTitle}
-              setNewTodoTitle={setNewTodoTitle}
-              isSubmitting={isSubmitting}
-              focusInput={inputRef}
-              handleToggleAll={handleToggleAll}
-              isAllCompleted={isAllCompleted}
-            />
-
             <TodoMain
               visibleTodos={todosForRender}
               processingIds={processingIds}
