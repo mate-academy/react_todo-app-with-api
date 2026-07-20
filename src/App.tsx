@@ -14,6 +14,7 @@ import { Header } from './components/Header';
 import { TodoList } from './components/TodoList';
 import { Footer } from './components/Footer';
 import classNames from 'classnames';
+import { ErrorMessage } from './types/ErrorMessage';
 
 type FilterType = 'all' | 'active' | 'completed';
 
@@ -35,7 +36,7 @@ export const App: React.FC = () => {
     getTodos()
       .then(setTodos)
       .catch(() => {
-        setErrorMessage('Unable to load todos');
+        setErrorMessage(ErrorMessage.LOAD);
       });
   }, []);
 
@@ -83,7 +84,7 @@ export const App: React.FC = () => {
     const trimmedTitle = newTodoTitle.trim();
 
     if (!trimmedTitle) {
-      setErrorMessage('Title should not be empty');
+      setErrorMessage(ErrorMessage.TITLE);
 
       return;
     }
@@ -107,7 +108,7 @@ export const App: React.FC = () => {
         setTodos(prevTodos => [...prevTodos, newTodo]);
         setNewTodoTitle('');
       })
-      .catch(() => setErrorMessage('Unable to add a todo'))
+      .catch(() => setErrorMessage(ErrorMessage.ADD))
       .finally(() => {
         setIsAdding(false);
         setTempTodo(null);
@@ -126,7 +127,7 @@ export const App: React.FC = () => {
         setTodos(prevTodos => prevTodos.filter(todo => todo.id !== todoId));
         setEditingTodoId(null);
       })
-      .catch(() => setErrorMessage('Unable to delete a todo'))
+      .catch(() => setErrorMessage(ErrorMessage.DELETE))
       .finally(() => {
         setDeletingTodoIds(prevIds => prevIds.filter(id => id !== todoId));
         setTimeout(() => {
@@ -144,7 +145,7 @@ export const App: React.FC = () => {
           prevTodos.map(t => (t.id === todo.id ? updatedTodo : t)),
         );
       })
-      .catch(() => setErrorMessage('Unable to update a todo'))
+      .catch(() => setErrorMessage(ErrorMessage.UPDATE))
       .finally(() => {
         setUpdatingTodoIds(prevIds => prevIds.filter(id => id !== todo.id));
       });
@@ -179,7 +180,7 @@ export const App: React.FC = () => {
         );
         setEditingTodoId(null);
       })
-      .catch(() => setErrorMessage('Unable to update a todo'))
+      .catch(() => setErrorMessage(ErrorMessage.UPDATE))
       .finally(() => {
         setUpdatingTodoIds(prevIds => prevIds.filter(id => id !== todo.id));
         newTodoFieldRef.current?.focus();

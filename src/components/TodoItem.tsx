@@ -33,6 +33,25 @@ export const TodoItem: React.FC<Props> = ({
 }) => {
   const isEditing = todo.id === editingTodoId;
 
+  const handleSubmit = (event: React.FormEvent) => {
+    event.preventDefault();
+    onRename(todo);
+  };
+
+  const handleKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
+    if (event.key === 'Escape') {
+      setEditingTodoId(null);
+      mainInputRef.current?.focus();
+    }
+  };
+
+  const handleDoubleClick = () => {
+    if (!isTemp) {
+      setEditingTodoId(todo.id);
+      setEditTitle(todo.title);
+    }
+  };
+
   return (
     <div
       data-cy="Todo"
@@ -53,27 +72,17 @@ export const TodoItem: React.FC<Props> = ({
       </label>
 
       {isEditing ? (
-        <form
-          onSubmit={e => {
-            e.preventDefault();
-            onRename(todo);
-          }}
-        >
+        <form onSubmit={handleSubmit}>
           <input
             type="text"
-            className="todo__edit"
+            className="todo__title-field"
             data-cy="TodoTitleField"
             value={editTitle}
             disabled={isDeleting || isUpdating}
             onChange={e => setEditTitle(e.target.value)}
             autoFocus
             onBlur={() => onRename(todo)}
-            onKeyDown={e => {
-              if (e.key === 'Escape') {
-                setEditingTodoId(null);
-                mainInputRef.current?.focus();
-              }
-            }}
+            onKeyDown={handleKeyDown}
           />
         </form>
       ) : (
@@ -81,12 +90,7 @@ export const TodoItem: React.FC<Props> = ({
           <span
             data-cy="TodoTitle"
             className="todo__title"
-            onDoubleClick={() => {
-              if (!isTemp) {
-                setEditingTodoId(todo.id);
-                setEditTitle(todo.title);
-              }
-            }}
+            onDoubleClick={handleDoubleClick}
           >
             {todo.title}
           </span>
