@@ -309,30 +309,174 @@ export const App = () => {
     <div className="todoapp">
       <h1 className="todoapp__title">todos</h1>
 
-      <form onSubmit={handleSubmit}>
-        <div className="todoapp__header">
-          {todos.length > 0 && (
-            <button
-              type="button"
-              data-cy="ToggleAllButton"
-              className={classNames('todoapp__toggle-all', {
-                active: allCompleted,
-              })}
-              onClick={handleToggleAll}
+      <div className="todoapp__content">
+        <form onSubmit={handleSubmit}>
+          <div className="todoapp__header">
+            {todos.length > 0 && (
+              <button
+                type="button"
+                data-cy="ToggleAllButton"
+                className={classNames('todoapp__toggle-all', {
+                  active: allCompleted,
+                })}
+                onClick={handleToggleAll}
+              />
+            )}
+            <input
+              ref={inputRef}
+              data-cy="NewTodoField"
+              type="text"
+              className="todoapp__new-todo"
+              placeholder="What needs to be done?"
+              value={query}
+              onChange={event => setQuery(event.target.value)}
+              disabled={tempTodo !== null}
             />
-          )}
-          <input
-            ref={inputRef}
-            data-cy="NewTodoField"
-            type="text"
-            className="todoapp__new-todo"
-            placeholder="What needs to be done?"
-            value={query}
-            onChange={event => setQuery(event.target.value)}
-            disabled={tempTodo !== null}
-          />
-        </div>
-      </form>
+          </div>
+        </form>
+
+        {isLoading && <div data-cy="TodoLoader">Loading...</div>}
+
+        {todos.length > 0 && (
+          <>
+            <section className="todoapp__main">
+              {visibleTodos.map(todo => (
+                <div
+                  key={todo.id}
+                  data-cy="Todo"
+                  className={classNames('todo', {
+                    completed: todo.completed,
+                    editing: editingId === todo.id,
+                  })}
+                >
+                  <label
+                    className="todo__status-label"
+                    htmlFor={`todo-${todo.id}`}
+                  >
+                    <input
+                      id={`todo-${todo.id}`}
+                      data-cy="TodoStatus"
+                      className="todo__status"
+                      type="checkbox"
+                      checked={todo.completed}
+                      disabled={
+                        loadingIds.includes(todo.id) || editingId === todo.id
+                      }
+                      onChange={() => handleToggle(todo)}
+                    />
+                  </label>
+                  {editingId === todo.id ? (
+                    <input
+                      ref={editInputRef}
+                      data-cy="TodoTitleField"
+                      type="text"
+                      className="todo__title-field"
+                      value={editedTitle}
+                      onChange={event => setEditedTitle(event.target.value)}
+                      onBlur={() => saveEditing(todo)}
+                      onKeyDown={event => handleEditKeyDown(event, todo)}
+                    />
+                  ) : (
+                    <span
+                      data-cy="TodoTitle"
+                      className="todo__title"
+                      onDoubleClick={() => startEditing(todo)}
+                    >
+                      {todo.title}
+                    </span>
+                  )}
+                  {editingId !== todo.id && (
+                    <button
+                      type="button"
+                      className="todo__remove"
+                      data-cy="TodoDelete"
+                      onClick={() => handleDelete(todo.id)}
+                      disabled={loadingIds.includes(todo.id)}
+                    >
+                      ×
+                    </button>
+                  )}
+                  <div
+                    data-cy="TodoLoader"
+                    className={classNames('todo__loader', {
+                      'is-active': loadingIds.includes(todo.id),
+                      hidden: !loadingIds.includes(todo.id),
+                    })}
+                  >
+                    <div className="loader" />
+                  </div>
+                </div>
+              ))}
+              {tempTodo && (
+                <div data-cy="Todo" className="todo">
+                  <label className="todo__status-label">
+                    <input
+                      className="todo__status"
+                      type="checkbox"
+                      checked={false}
+                      readOnly
+                    />
+                  </label>
+                  <span data-cy="TodoTitle" className="todo__title">
+                    {tempTodo.title}
+                  </span>
+                  <button type="button" className="todo__remove" disabled>
+                    ×
+                  </button>
+                  <div data-cy="TodoLoader" className="todo__loader is-active">
+                    <div className="loader" />
+                  </div>
+                </div>
+              )}
+            </section>
+            <footer className="todoapp__footer">
+              <span data-cy="TodosCounter">
+                {activeTodosCount} {itemsText} left
+              </span>
+              <nav className="filter" data-cy="Filter">
+                <a
+                  data-cy="FilterLinkAll"
+                  href="#/"
+                  className={classNames('filter__link', {
+                    selected: filter === Filter.All,
+                  })}
+                  onClick={() => setFilter(Filter.All)}
+                >
+                  All
+                </a>
+                <a
+                  data-cy="FilterLinkActive"
+                  href="#/active"
+                  className={classNames('filter__link', {
+                    selected: filter === Filter.Active,
+                  })}
+                  onClick={() => setFilter(Filter.Active)}
+                >
+                  Active
+                </a>
+                <a
+                  data-cy="FilterLinkCompleted"
+                  href="#/completed"
+                  className={classNames('filter__link', {
+                    selected: filter === Filter.Completed,
+                  })}
+                  onClick={() => setFilter(Filter.Completed)}
+                >
+                  Completed
+                </a>
+              </nav>
+              <button
+                data-cy="ClearCompletedButton"
+                type="button"
+                disabled={!completedTodos.length}
+                onClick={clearCompleted}
+              >
+                Clear completed
+              </button>
+            </footer>
+          </>
+        )}
+      </div>
 
       <div
         data-cy="ErrorNotification"
@@ -349,160 +493,6 @@ export const App = () => {
 
         {error}
       </div>
-
-      {isLoading && <div data-cy="TodoLoader">Loading...</div>}
-
-      {todos.length > 0 && (
-        <>
-          <section className="todoapp__main">
-            {visibleTodos.map(todo => (
-              <div
-                key={todo.id}
-                data-cy="Todo"
-                className={classNames('todo', {
-                  completed: todo.completed,
-                  editing: editingId === todo.id,
-                })}
-              >
-                <label
-                  className="todo__status-label"
-                  htmlFor={`todo-${todo.id}`}
-                >
-                  <input
-                    id={`todo-${todo.id}`}
-                    data-cy="TodoStatus"
-                    className="todo__status"
-                    type="checkbox"
-                    checked={todo.completed}
-                    disabled={
-                      loadingIds.includes(todo.id) || editingId === todo.id
-                    }
-                    onChange={() => handleToggle(todo)}
-                  />
-                </label>
-
-                {editingId === todo.id ? (
-                  <input
-                    ref={editInputRef}
-                    data-cy="TodoTitleField"
-                    type="text"
-                    className="todo__title-field"
-                    value={editedTitle}
-                    onChange={event => setEditedTitle(event.target.value)}
-                    onBlur={() => saveEditing(todo)}
-                    onKeyDown={event => handleEditKeyDown(event, todo)}
-                  />
-                ) : (
-                  <span
-                    data-cy="TodoTitle"
-                    className="todo__title"
-                    onDoubleClick={() => startEditing(todo)}
-                  >
-                    {todo.title}
-                  </span>
-                )}
-
-                {editingId !== todo.id && (
-                  <button
-                    type="button"
-                    className="todo__remove"
-                    data-cy="TodoDelete"
-                    onClick={() => handleDelete(todo.id)}
-                    disabled={loadingIds.includes(todo.id)}
-                  >
-                    ×
-                  </button>
-                )}
-
-                <div
-                  data-cy="TodoLoader"
-                  className={classNames('todo__loader', {
-                    'is-active': loadingIds.includes(todo.id),
-                    hidden: !loadingIds.includes(todo.id),
-                  })}
-                >
-                  <div className="loader" />
-                </div>
-              </div>
-            ))}
-
-            {tempTodo && (
-              <div data-cy="Todo" className="todo">
-                <label className="todo__status-label">
-                  <input
-                    className="todo__status"
-                    type="checkbox"
-                    checked={false}
-                    readOnly
-                  />
-                </label>
-
-                <span data-cy="TodoTitle" className="todo__title">
-                  {tempTodo.title}
-                </span>
-
-                <button type="button" className="todo__remove" disabled>
-                  ×
-                </button>
-
-                <div data-cy="TodoLoader" className="todo__loader is-active">
-                  <div className="loader" />
-                </div>
-              </div>
-            )}
-          </section>
-
-          <footer className="todoapp__footer">
-            <span data-cy="TodosCounter">
-              {activeTodosCount} {itemsText} left
-            </span>
-
-            <nav className="filter" data-cy="Filter">
-              <a
-                data-cy="FilterLinkAll"
-                href="#/"
-                className={classNames('filter__link', {
-                  selected: filter === Filter.All,
-                })}
-                onClick={() => setFilter(Filter.All)}
-              >
-                All
-              </a>
-
-              <a
-                data-cy="FilterLinkActive"
-                href="#/active"
-                className={classNames('filter__link', {
-                  selected: filter === Filter.Active,
-                })}
-                onClick={() => setFilter(Filter.Active)}
-              >
-                Active
-              </a>
-
-              <a
-                data-cy="FilterLinkCompleted"
-                href="#/completed"
-                className={classNames('filter__link', {
-                  selected: filter === Filter.Completed,
-                })}
-                onClick={() => setFilter(Filter.Completed)}
-              >
-                Completed
-              </a>
-            </nav>
-
-            <button
-              data-cy="ClearCompletedButton"
-              type="button"
-              disabled={!completedTodos.length}
-              onClick={clearCompleted}
-            >
-              Clear completed
-            </button>
-          </footer>
-        </>
-      )}
     </div>
   );
 };
