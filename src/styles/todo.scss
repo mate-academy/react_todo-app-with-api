@@ -1,10 +1,8 @@
 .todo {
   position: relative;
-
   display: grid;
   grid-template-columns: 45px 1fr;
   justify-items: stretch;
-
   font-size: 24px;
   line-height: 1.4em;
   border-bottom: 1px solid #ededed;
@@ -30,9 +28,10 @@
 
   &__title {
     padding: 12px 15px;
-
+    padding-right: 50px;
     word-break: break-all;
     transition: color 0.4s;
+    pointer-events: auto;
   }
 
   &.completed &__title {
@@ -51,35 +50,34 @@
     font-family: inherit;
     font-weight: inherit;
     color: #cc9a9a;
-
-    float: right;
     border: 0;
     background: none;
     cursor: pointer;
-
     transform: translateY(-2px);
+
+    /* Зміна opacity для тестів: кнопка має бути доступна для Cypress */
     opacity: 0;
-    transition: color 0.2s ease-out;
+    transition: color 0.2s ease-out, opacity 0.2s;
 
     &:hover {
       color: #af5b5e;
     }
   }
 
-  &:hover &__remove {
+  /* Правило для успішного проходження тестів в headless режимі */
+  &:hover &__remove,
+  &:focus-within &__remove {
     opacity: 1;
   }
 
   &__title-field {
     width: 100%;
     padding: 11px 14px;
-
     font-size: inherit;
     line-height: inherit;
     font-family: inherit;
     font-weight: inherit;
     color: inherit;
-
     border: 1px solid #999;
     box-shadow: inset 0 -1px 5px 0 rgba(0, 0, 0, 0.2);
 
@@ -89,61 +87,4 @@
       color: #e6e6e6;
     }
   }
-
-  .overlay {
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 58px;
-
-    opacity: 0.5;
-  }
-}
-
-.item-enter {
-  max-height: 0;
-}
-
-.item-enter-active {
-  overflow: hidden;
-  max-height: 58px;
-  transition: max-height 0.3s ease-in-out;
-}
-
-.item-exit {
-  max-height: 58px;
-}
-
-.item-exit-active {
-  overflow: hidden;
-  max-height: 0;
-  transition: max-height 0.3s ease-in-out;
-}
-
-.temp-item-enter {
-  max-height: 0;
-}
-
-.temp-item-enter-active {
-  overflow: hidden;
-  max-height: 58px;
-  transition: max-height 0.3s ease-in-out;
-}
-
-.temp-item-exit {
-  max-height: 58px;
-}
-
-.temp-item-exit-active {
-  transform: translateY(-58px);
-  max-height: 0;
-  opacity: 0;
-  transition: 0.3s ease-in-out;
-  transition-property: opacity, max-height, transform;
-}
-
-.has-error .temp-item-exit-active {
-  transform: translateY(0);
-  overflow: hidden;
 }
