@@ -2,35 +2,40 @@
 /* eslint-disable jsx-a11y/control-has-associated-label */
 import React, { useEffect, useRef, useState } from 'react';
 import { UserWarning } from './UserWarning';
-import {
-  createTodo,
-  deleteTodo,
-  getTodos,
-  updateTodo,
-  USER_ID,
-} from './api/todos';
+import { getTodos, updateTodo, USER_ID } from './api/todos';
 import { Todo } from './types/Todo';
 import { Header } from './components/Header';
 import { TodoList } from './components/TodoList';
 import { Footer } from './components/Footer';
 import classNames from 'classnames';
 import { ErrorMessage } from './types/ErrorMessage';
-
-type FilterType = 'all' | 'active' | 'completed';
+import { FilterType } from './types/FilterType';
+import { useAddTodo } from './hooks/useAddTodo';
+import { useDeleteTodo } from './hooks/useDeleteTodo';
 
 export const App: React.FC = () => {
   const [todos, setTodos] = useState<Todo[]>([]);
   const [errorMessage, setErrorMessage] = useState('');
   const [filter, setFilter] = useState<FilterType>('all');
-  const [newTodoTitle, setNewTodoTitle] = useState('');
-  const [isAdding, setIsAdding] = useState(false);
-  const [tempTodo, setTempTodo] = useState<Todo | null>(null);
-  const [deletingTodoIds, setDeletingTodoIds] = useState<number[]>([]);
   const [updatingTodoIds, setUpdatingTodoIds] = useState<number[]>([]);
   const [editingTodoId, setEditingTodoId] = useState<number | null>(null);
   const [editTitle, setEditTitle] = useState('');
 
   const newTodoFieldRef = useRef<HTMLInputElement>(null);
+
+  const { newTodoTitle, setNewTodoTitle, handleSubmit, isAdding, tempTodo } =
+    useAddTodo({
+      setTodos,
+      setErrorMessage,
+      mainInputRef: newTodoFieldRef,
+    });
+
+  const { handleDelete, deletingTodoIds, clearCompleted } = useDeleteTodo({
+    todos,
+    setTodos,
+    setErrorMessage,
+    mainInputRef: newTodoFieldRef,
+  });
 
   useEffect(() => {
     getTodos()
@@ -77,64 +82,6 @@ export const App: React.FC = () => {
 
   const activeTodosCount = todos.filter(todo => !todo.completed).length;
   const isAllCompleted = todos.length > 0 && todos.every(t => t.completed);
-
-  const handleSubmit = (event: React.FormEvent) => {
-    event.preventDefault();
-
-    const trimmedTitle = newTodoTitle.trim();
-
-    if (!trimmedTitle) {
-      setErrorMessage(ErrorMessage.TITLE);
-
-      return;
-    }
-
-    setErrorMessage('');
-    setIsAdding(true);
-
-    setTempTodo({
-      id: 0,
-      userId: USER_ID,
-      title: trimmedTitle,
-      completed: false,
-    });
-
-    createTodo({
-      userId: USER_ID,
-      title: trimmedTitle,
-      completed: false,
-    })
-      .then(newTodo => {
-        setTodos(prevTodos => [...prevTodos, newTodo]);
-        setNewTodoTitle('');
-      })
-      .catch(() => setErrorMessage(ErrorMessage.ADD))
-      .finally(() => {
-        setIsAdding(false);
-        setTempTodo(null);
-
-        setTimeout(() => {
-          newTodoFieldRef.current?.focus();
-        }, 0);
-      });
-  };
-
-  const handleDelete = (todoId: number) => {
-    setDeletingTodoIds(prevIds => [...prevIds, todoId]);
-
-    deleteTodo(todoId)
-      .then(() => {
-        setTodos(prevTodos => prevTodos.filter(todo => todo.id !== todoId));
-        setEditingTodoId(null);
-      })
-      .catch(() => setErrorMessage(ErrorMessage.DELETE))
-      .finally(() => {
-        setDeletingTodoIds(prevIds => prevIds.filter(id => id !== todoId));
-        setTimeout(() => {
-          newTodoFieldRef.current?.focus();
-        }, 0);
-      });
-  };
 
   const handleToggle = (todo: Todo) => {
     setUpdatingTodoIds(prevIds => [...prevIds, todo.id]);
@@ -192,10 +139,6 @@ export const App: React.FC = () => {
     const todosToUpdate = todos.filter(t => t.completed !== targetStatus);
 
     todosToUpdate.forEach(t => handleToggle(t));
-  };
-
-  const clearCompleted = () => {
-    todos.filter(todo => todo.completed).forEach(todo => handleDelete(todo.id));
   };
 
   return (

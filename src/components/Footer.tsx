@@ -1,8 +1,7 @@
 import classNames from 'classnames';
 import React from 'react';
 import { Todo } from '../types/Todo';
-
-type FilterType = 'all' | 'active' | 'completed';
+import { FilterType } from '../types/FilterType';
 
 interface Props {
   activeTodosCount: number;
