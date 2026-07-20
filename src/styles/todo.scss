@@ -9,6 +9,31 @@
   line-height: 1.4em;
   border-bottom: 1px solid #ededed;
 
+  &__loader {
+    position: absolute;
+    inset: 0;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    background: rgba(255, 255, 255, 0.6);
+
+    opacity: 0;
+    pointer-events: none;
+
+    transition: opacity 0.2s;
+  }
+
+  &__loader.is-active {
+    opacity: 1;
+    pointer-events: all;
+  }
+
+  &__loader.hidden {
+    display: none;
+  }
+
   &:last-child {
     border-bottom: 0;
   }
