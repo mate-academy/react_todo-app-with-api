@@ -26,7 +26,6 @@ export const Header: React.FC<Props> = ({
 
   const newTodoInputRef = useRef<HTMLInputElement>(null);
 
-  // Ставимо фокус при ініціалізації та після розблокування інпута
   useEffect(() => {
     if (!isSubmitting) {
       newTodoInputRef.current?.focus();

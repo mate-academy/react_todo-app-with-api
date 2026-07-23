@@ -58,7 +58,7 @@ export const TodoItem: React.FC<Props> = ({
       try {
         await onDelete(todo.id);
       } catch {
-        // Помилка видалення обробляється глобально
+        return;
       }
 
       return;
@@ -68,7 +68,7 @@ export const TodoItem: React.FC<Props> = ({
       await onUpdate({ ...todo, title: trimmedTitle });
       setIsEditing(false);
     } catch {
-      // Залишаємось у режимі редагування при помилці
+      return;
     }
   };
 
@@ -136,7 +136,6 @@ export const TodoItem: React.FC<Props> = ({
         </>
       )}
 
-      {/* Overlay з лоадером */}
       <div
         data-cy="TodoLoader"
         className={classNames('modal overlay', {

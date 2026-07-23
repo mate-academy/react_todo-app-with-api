@@ -21,8 +21,6 @@ export const Footer: React.FC<Props> = ({
 
   const handleClearCompleted = async () => {
     const completedTodos = todos.filter(todo => todo.completed);
-
-    // Видаляємо всі виконані туду паралельно
     const deletePromises = completedTodos.map(todo => onDelete(todo.id));
 
     await Promise.allSettled(deletePromises);
@@ -30,12 +28,10 @@ export const Footer: React.FC<Props> = ({
 
   return (
     <footer className="todoapp__footer" data-cy="Footer">
-      {/* Лічильник активних задач */}
       <span className="todo-count" data-cy="TodosCounter">
         {`${activeCount} ${activeCount === 1 ? 'item' : 'items'} left`}
       </span>
 
-      {/* Фільтри status */}
       <nav className="filter" data-cy="Filter">
         <a
           href="#/"
@@ -71,13 +67,13 @@ export const Footer: React.FC<Props> = ({
         </a>
       </nav>
 
-      {/* Кнопка Clear completed */}
       <button
         type="button"
-        className="todoapp__clear-completed"
+        className={classNames('todoapp__clear-completed', {
+          'is-invisible': completedCount === 0,
+        })}
         data-cy="ClearCompletedButton"
         disabled={completedCount === 0}
-        style={{ visibility: completedCount > 0 ? 'visible' : 'hidden' }}
         onClick={handleClearCompleted}
       >
         Clear completed
