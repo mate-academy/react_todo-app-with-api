@@ -1,26 +1,25 @@
-/* eslint-disable jsx-a11y/label-has-associated-control */
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import classNames from 'classnames';
 import { Todo } from '../types/Todo';
 
 type Props = {
   todo: Todo;
-  isProcessing: boolean;
-  onDelete: (id: number) => Promise<void>;
-  onToggle: (todo: Todo) => void;
-  onUpdate: (todo: Todo, newTitle: string) => Promise<void>;
+  loadingTodoIds: number[];
+  onDelete: (todoId: number) => Promise<void>;
+  onUpdate: (todo: Todo) => Promise<void>;
 };
 
 export const TodoItem: React.FC<Props> = ({
   todo,
-  isProcessing,
+  loadingTodoIds,
   onDelete,
-  onToggle,
   onUpdate,
 }) => {
   const [isEditing, setIsEditing] = useState(false);
-  const [editedTitle, setEditedTitle] = useState(todo.title);
+  const [newTitle, setNewTitle] = useState(todo.title);
+
   const editInputRef = useRef<HTMLInputElement>(null);
+  const isLoading = loadingTodoIds.includes(todo.id);
 
   useEffect(() => {
     if (isEditing) {
@@ -28,8 +27,26 @@ export const TodoItem: React.FC<Props> = ({
     }
   }, [isEditing]);
 
-  const handleEditSubmit = () => {
-    const trimmedTitle = editedTitle.trim();
+  const handleToggle = () => {
+    onUpdate({ ...todo, completed: !todo.completed });
+  };
+
+  const handleDoubleClick = () => {
+    setIsEditing(true);
+    setNewTitle(todo.title);
+  };
+
+  const handleCancelEdit = () => {
+    setIsEditing(false);
+    setNewTitle(todo.title);
+  };
+
+  const handleSaveTitle = async () => {
+    if (!isEditing) {
+      return;
+    }
+
+    const trimmedTitle = newTitle.trim();
 
     if (trimmedTitle === todo.title) {
       setIsEditing(false);
@@ -38,35 +55,31 @@ export const TodoItem: React.FC<Props> = ({
     }
 
     if (!trimmedTitle) {
-      onDelete(todo.id)
-        .then(() => {
-          setIsEditing(false);
-        })
-        .catch(() => {
-          setIsEditing(true);
-        });
+      try {
+        await onDelete(todo.id);
+      } catch {
+        // Помилка видалення обробляється глобально
+      }
 
       return;
     }
 
-    onUpdate(todo, trimmedTitle)
-      .then(() => {
-        setIsEditing(false);
-      })
-      .catch(() => {
-        setIsEditing(true);
-      });
+    try {
+      await onUpdate({ ...todo, title: trimmedTitle });
+      setIsEditing(false);
+    } catch {
+      // Залишаємось у режимі редагування при помилці
+    }
   };
 
-  const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter') {
-      e.preventDefault();
-      handleEditSubmit();
-    }
+  const handleSubmitForm = (event: React.FormEvent) => {
+    event.preventDefault();
+    handleSaveTitle();
+  };
 
-    if (e.key === 'Escape') {
-      setEditedTitle(todo.title);
-      setIsEditing(false);
+  const handleKeyUp = (event: React.KeyboardEvent<HTMLInputElement>) => {
+    if (event.key === 'Escape') {
+      handleCancelEdit();
     }
   };
 
@@ -83,22 +96,23 @@ export const TodoItem: React.FC<Props> = ({
           type="checkbox"
           className="todo__status"
           checked={todo.completed}
-          onChange={() => onToggle(todo)}
+          onChange={handleToggle}
         />
+        <span className="is-sr-only">Toggle todo status</span>
       </label>
 
       {isEditing ? (
-        <form onSubmit={e => e.preventDefault()}>
+        <form onSubmit={handleSubmitForm}>
           <input
-            ref={editInputRef}
             data-cy="TodoTitleField"
+            ref={editInputRef}
             type="text"
             className="todo__title-field"
             placeholder="Empty todo will be deleted"
-            value={editedTitle}
-            onChange={e => setEditedTitle(e.target.value)}
-            onBlur={handleEditSubmit}
-            onKeyDown={handleKeyDown}
+            value={newTitle}
+            onChange={e => setNewTitle(e.target.value)}
+            onBlur={handleSaveTitle}
+            onKeyUp={handleKeyUp}
           />
         </form>
       ) : (
@@ -106,10 +120,7 @@ export const TodoItem: React.FC<Props> = ({
           <span
             data-cy="TodoTitle"
             className="todo__title"
-            onDoubleClick={() => {
-              setEditedTitle(todo.title);
-              setIsEditing(true);
-            }}
+            onDoubleClick={handleDoubleClick}
           >
             {todo.title}
           </span>
@@ -125,10 +136,11 @@ export const TodoItem: React.FC<Props> = ({
         </>
       )}
 
+      {/* Overlay з лоадером */}
       <div
         data-cy="TodoLoader"
         className={classNames('modal overlay', {
-          'is-active': isProcessing,
+          'is-active': isLoading,
         })}
       >
         <div className="modal-background has-background-white-ter" />

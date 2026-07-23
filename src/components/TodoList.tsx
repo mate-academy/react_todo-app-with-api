@@ -5,18 +5,16 @@ import { TodoItem } from './TodoItem';
 type Props = {
   todos: Todo[];
   tempTodo: Todo | null;
-  loadingIds: number[];
-  onDelete: (id: number) => Promise<void>;
-  onToggle: (todo: Todo) => void;
-  onUpdate: (todo: Todo, newTitle: string) => Promise<void>;
+  loadingTodoIds: number[];
+  onDelete: (todoId: number) => Promise<void>;
+  onUpdate: (todo: Todo) => Promise<void>;
 };
 
 export const TodoList: React.FC<Props> = ({
   todos,
   tempTodo,
-  loadingIds,
+  loadingTodoIds,
   onDelete,
-  onToggle,
   onUpdate,
 }) => {
   return (
@@ -25,9 +23,8 @@ export const TodoList: React.FC<Props> = ({
         <TodoItem
           key={todo.id}
           todo={todo}
-          isProcessing={loadingIds.includes(todo.id)}
+          loadingTodoIds={loadingTodoIds}
           onDelete={onDelete}
-          onToggle={onToggle}
           onUpdate={onUpdate}
         />
       ))}
@@ -35,10 +32,9 @@ export const TodoList: React.FC<Props> = ({
       {tempTodo && (
         <TodoItem
           todo={tempTodo}
-          isProcessing
-          onDelete={async () => {}}
-          onToggle={() => {}}
-          onUpdate={async () => {}}
+          loadingTodoIds={[tempTodo.id]}
+          onDelete={() => Promise.resolve()}
+          onUpdate={() => Promise.resolve()}
         />
       )}
     </section>

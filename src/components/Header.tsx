@@ -1,56 +1,79 @@
-/* eslint-disable jsx-a11y/label-has-associated-control */
-/* eslint-disable jsx-a11y/control-has-associated-label */
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import classNames from 'classnames';
+import { Todo } from '../types/Todo';
+import { ErrorMessage } from '../types/ErrorMessage';
+import { createTodo } from '../api/todos';
 
 type Props = {
-  focusRef?: React.RefObject<HTMLInputElement>;
+  todos: Todo[];
+  setTodos: React.Dispatch<React.SetStateAction<Todo[]>>;
+  setErrorMessage: (msg: ErrorMessage | null) => void;
+  setTempTodo: (todo: Todo | null) => void;
+  onToggleAll: () => Promise<void>;
   isAllCompleted: boolean;
-  hasTodos: boolean;
-  onAddTodo: (title: string) => Promise<void>;
-  onToggleAll: () => void;
-  isSubmitting: boolean;
-  onError: (msg: string) => void;
 };
 
 export const Header: React.FC<Props> = ({
-  focusRef,
-  isAllCompleted,
-  hasTodos,
-  onAddTodo,
+  todos,
+  setTodos,
+  setErrorMessage,
+  setTempTodo,
   onToggleAll,
-  isSubmitting,
-  onError,
+  isAllCompleted,
 }) => {
   const [title, setTitle] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
+  const newTodoInputRef = useRef<HTMLInputElement>(null);
+
+  // Ставимо фокус при ініціалізації та після розблокування інпута
   useEffect(() => {
     if (!isSubmitting) {
-      focusRef?.current?.focus();
+      newTodoInputRef.current?.focus();
     }
-  }, [isSubmitting, focusRef]);
+  }, [isSubmitting, todos.length]);
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleSubmit = async (event: React.FormEvent) => {
+    event.preventDefault();
 
     const trimmedTitle = title.trim();
 
     if (!trimmedTitle) {
-      onError('Title should not be empty');
+      setErrorMessage(ErrorMessage.Title);
 
       return;
     }
 
-    onAddTodo(trimmedTitle)
-      .then(() => {
-        setTitle('');
-      })
-      .catch(() => {});
+    const temp: Todo = {
+      id: 0,
+      title: trimmedTitle,
+      completed: false,
+      userId: 634,
+    };
+
+    setTempTodo(temp);
+    setIsSubmitting(true);
+    setErrorMessage(null);
+
+    try {
+      const newTodo = await createTodo(trimmedTitle);
+
+      setTodos(prev => [...prev, newTodo]);
+      setTitle('');
+    } catch {
+      setErrorMessage(ErrorMessage.Add);
+    } finally {
+      setTempTodo(null);
+      setIsSubmitting(false);
+      setTimeout(() => {
+        newTodoInputRef.current?.focus();
+      }, 0);
+    }
   };
 
   return (
     <header className="todoapp__header">
-      {hasTodos && (
+      {todos.length > 0 && (
         <button
           type="button"
           className={classNames('todoapp__toggle-all', {
@@ -63,14 +86,15 @@ export const Header: React.FC<Props> = ({
 
       <form onSubmit={handleSubmit}>
         <input
-          ref={focusRef}
+          ref={newTodoInputRef}
           data-cy="NewTodoField"
           type="text"
           className="todoapp__new-todo"
           placeholder="What needs to be done?"
           value={title}
-          onChange={e => setTitle(e.target.value)}
           disabled={isSubmitting}
+          autoFocus
+          onChange={e => setTitle(e.target.value)}
         />
       </form>
     </header>
