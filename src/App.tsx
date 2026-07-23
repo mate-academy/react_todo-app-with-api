@@ -1,26 +1,77 @@
-/* eslint-disable max-len */
-/* eslint-disable jsx-a11y/control-has-associated-label */
 import React from 'react';
-import { UserWarning } from './UserWarning';
-
-const USER_ID = 0;
+import classNames from 'classnames';
+import { useTodos } from './hooks/useTodos';
+import { TodoList } from './components/TodoList';
+import { Header } from './components/Header';
+import { Footer } from './components/Footer';
 
 export const App: React.FC = () => {
-  if (!USER_ID) {
-    return <UserWarning />;
-  }
+  const {
+    todos,
+    setTodos,
+    filter,
+    setFilter,
+    errorMessage,
+    setErrorMessage,
+    loadingTodoIds,
+    tempTodo,
+    setTempTodo,
+    handleDeleteTodo,
+    handleUpdateTodo,
+    handleToggleAll,
+    filteredTodos,
+    isAllCompleted,
+  } = useTodos();
 
   return (
-    <section className="section container">
-      <p className="title is-4">
-        Copy all you need from the prev task:
-        <br />
-        <a href="https://github.com/mate-academy/react_todo-app-add-and-delete#react-todo-app-add-and-delete">
-          React Todo App - Add and Delete
-        </a>
-      </p>
+    <div className="todoapp">
+      <h1 className="todoapp__title">todos</h1>
 
-      <p className="subtitle">Styles are already copied</p>
-    </section>
+      <div className="todoapp__content">
+        <Header
+          todos={todos}
+          setTodos={setTodos}
+          setErrorMessage={setErrorMessage}
+          setTempTodo={setTempTodo}
+          onToggleAll={handleToggleAll}
+          isAllCompleted={isAllCompleted}
+        />
+
+        {(todos.length > 0 || tempTodo) && (
+          <TodoList
+            todos={filteredTodos}
+            tempTodo={tempTodo}
+            loadingTodoIds={loadingTodoIds}
+            onDelete={handleDeleteTodo}
+            onUpdate={handleUpdateTodo}
+          />
+        )}
+
+        {todos.length > 0 && (
+          <Footer
+            todos={todos}
+            filter={filter}
+            setFilter={setFilter}
+            onDelete={handleDeleteTodo}
+          />
+        )}
+      </div>
+
+      <div
+        data-cy="ErrorNotification"
+        className={classNames(
+          'notification is-danger is-light has-text-weight-normal',
+          { hidden: !errorMessage },
+        )}
+      >
+        <button
+          data-cy="HideErrorButton"
+          type="button"
+          className="delete"
+          onClick={() => setErrorMessage(null)}
+        />
+        {errorMessage}
+      </div>
+    </div>
   );
 };
