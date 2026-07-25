@@ -134,17 +134,20 @@ export const App: React.FC = () => {
 
     setActiveTodoIds(prevIds => [...prevIds, ...completedTodosIds]);
 
-    completedTodos.forEach(todo => {
+    const deletePromises = completedTodos.map(todo =>
       deleteTodo(todo.id)
         .then(() => {
           setTodos(prevTodos => prevTodos.filter(t => t.id !== todo.id));
         })
         .catch(() => {
           setErrorMessage(ErrorMessageEnum.Delete);
-        })
-        .finally(() => {
-          setActiveTodoIds(prevIds => prevIds.filter(id => id !== todo.id));
-        });
+        }),
+    );
+
+    Promise.all(deletePromises).finally(() => {
+      setActiveTodoIds(prevIds =>
+        prevIds.filter(id => !completedTodosIds.includes(id)),
+      );
     });
   };
 
@@ -155,12 +158,14 @@ export const App: React.FC = () => {
       ? todos
       : todos.filter(todo => !todo.completed);
 
-    todosToUpdate.forEach(todo => {
+    const updatePromises = todosToUpdate.map(todo => {
       handleUpdate({
         ...todo,
         completed: !allTodosCompleted,
       });
     });
+
+    Promise.all(updatePromises).catch(() => {});
   };
 
   const visibleTodos = todos.filter(todo => {
