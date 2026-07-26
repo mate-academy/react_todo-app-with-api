@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import './styles/todoapp.scss';
 import { UserWarning } from './UserWarning';
-import { deleteTodo, getTodos, USER_ID } from './api/todos';
+import { deleteTodo, getTodos, updateTodo, USER_ID } from './api/todos';
 import { TodoHeader } from './components/TodoHeader';
 import { TodoList } from './components/TodoList';
 import { TodoFooter } from './components/TodoFooter';
@@ -89,6 +89,16 @@ export const App: React.FC = () => {
     });
   };
 
+  const handleToggle = async (todoId: number, completed: boolean) => {
+    await updateTodo(todoId, completed);
+
+    setTodos(currentTodos => {
+      return currentTodos.map(currentTodo =>
+        currentTodo.id === todoId ? { ...currentTodo, completed } : currentTodo,
+      );
+    });
+  };
+
   const handleClearCompleted = async () => {
     const completedTodos = todos.filter(todo => todo.completed);
     const todosToRemoveIds = completedTodos.map(todo => todo.id);
@@ -153,6 +163,7 @@ export const App: React.FC = () => {
           todos={preparedTodos}
           tempTodo={tempTodo}
           onTodoDelete={handleDelete}
+          onTodoToggle={handleToggle}
           onError={setErrorState}
           todosToDelete={todosToDelete}
           newTodoField={newTodoField}

@@ -13,6 +13,7 @@ interface Props {
   tempTodo?: true;
   onTodoDelete: (todoId: number) => Promise<void>;
   onError: (error: ErrorState) => void;
+  onTodoToggle: (todoId: number, completed: boolean) => Promise<void>;
   todosToDelete: number[] | null;
 }
 
@@ -22,10 +23,27 @@ export const TodoItem = ({
   completed,
   tempTodo,
   onTodoDelete,
+  onTodoToggle,
   onError,
   todosToDelete,
 }: Props) => {
   const [isDeleting, setIsDeleting] = useState(false);
+  const [isUpdating, setIsUpdating] = useState(false);
+
+  const handleTodoToggle = async () => {
+    setIsUpdating(true);
+
+    try {
+      await onTodoToggle(todoId, !completed);
+    } catch {
+      onError({
+        message: 'Unable to update a todo',
+        isVisible: true,
+      });
+    } finally {
+      setIsUpdating(false);
+    }
+  };
 
   const handleTodoDelete = async () => {
     setIsDeleting(true);
@@ -56,6 +74,7 @@ export const TodoItem = ({
           data-cy="TodoStatus"
           type="checkbox"
           className="todo__status"
+          onChange={handleTodoToggle}
           checked={completed}
         />
       </label>
@@ -75,7 +94,7 @@ export const TodoItem = ({
       <div
         data-cy="TodoLoader"
         className={clsx('modal', 'overlay', {
-          'is-active': tempTodo || isDeleting || willBeDeleted,
+          'is-active': tempTodo || isDeleting || willBeDeleted || isUpdating,
         })}
       >
         <div className="modal-background has-background-white-ter" />

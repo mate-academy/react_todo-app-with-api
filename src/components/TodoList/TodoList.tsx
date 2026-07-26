@@ -11,6 +11,7 @@ interface Props {
   todos: Todo[];
   tempTodo: Todo | null;
   onTodoDelete: (todoId: number) => Promise<void>;
+  onTodoToggle: (todoId: number, completed: boolean) => Promise<void>;
   onError: (error: ErrorState) => void;
   todosToDelete: number[] | null;
   newTodoField: React.RefObject<HTMLInputElement>;
@@ -20,6 +21,7 @@ export const TodoList = ({
   todos,
   tempTodo,
   onTodoDelete,
+  onTodoToggle,
   onError,
   todosToDelete,
   newTodoField,
@@ -37,6 +39,7 @@ export const TodoList = ({
           title={todo.title}
           completed={todo.completed}
           onTodoDelete={onTodoDelete}
+          onTodoToggle={onTodoToggle}
           onError={onError}
           todosToDelete={todosToDelete}
         />
@@ -49,6 +52,7 @@ export const TodoList = ({
           title={tempTodo.title}
           completed={tempTodo.completed}
           onTodoDelete={onTodoDelete}
+          onTodoToggle={onTodoToggle}
           onError={onError}
           todosToDelete={todosToDelete}
           tempTodo
