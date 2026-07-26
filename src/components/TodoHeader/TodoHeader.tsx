@@ -4,6 +4,7 @@ import { ErrorState } from '../../types/ErrorState';
 import { createTodo, USER_ID } from '../../api/todos';
 import { NewTodo } from '../../types/NewTodo';
 import { Todo } from '../../types/Todo';
+import clsx from 'clsx';
 
 interface Props {
   todos: Todo[];
@@ -12,6 +13,7 @@ interface Props {
   onError: (error: ErrorState) => void;
   onCreateTodo: (todo: Todo | null) => void;
   onCreateTodoSuccess: (todos: Todo[]) => void;
+  onToggleAll: () => void;
   newTodoField: React.RefObject<HTMLInputElement>;
 }
 
@@ -22,6 +24,7 @@ export const TodoHeader = ({
   onError,
   onCreateTodo,
   onCreateTodoSuccess,
+  onToggleAll,
   newTodoField,
 }: Props) => {
   const [isLoading, setIsLoading] = useState(false);
@@ -82,8 +85,11 @@ export const TodoHeader = ({
       {/* this button should have `active` class only if all todos are completed */}
       <button
         type="button"
-        className="todoapp__toggle-all active"
+        className={clsx('todoapp__toggle-all', {
+          active: todos.every(todo => todo.completed),
+        })}
         data-cy="ToggleAllButton"
+        onClick={onToggleAll}
       />
 
       {/* Add a todo on form submit */}

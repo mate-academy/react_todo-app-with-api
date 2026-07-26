@@ -99,6 +99,16 @@ export const App: React.FC = () => {
     });
   };
 
+  const handleToggleAll = async () => {
+    const newCompleted = !todos.every(todo => todo.completed);
+
+    await Promise.allSettled(
+      todos
+        .filter(todo => todo.completed !== newCompleted)
+        .map(todo => handleToggle(todo.id, newCompleted)),
+    );
+  };
+
   const handleClearCompleted = async () => {
     const completedTodos = todos.filter(todo => todo.completed);
     const todosToRemoveIds = completedTodos.map(todo => todo.id);
@@ -156,6 +166,7 @@ export const App: React.FC = () => {
           onError={setErrorState}
           onCreateTodo={setTempTodo}
           onCreateTodoSuccess={setTodos}
+          onToggleAll={handleToggleAll}
           newTodoField={newTodoField}
         />
 
