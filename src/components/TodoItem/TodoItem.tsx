@@ -98,7 +98,7 @@ export const TodoItem = ({
     try {
       setIsUpdating(true);
 
-      await onTodoTitleUpdate(todoId, temptTitle);
+      await onTodoTitleUpdate(todoId, temptTitle.trim());
 
       setIsEditing(false);
     } catch {
@@ -176,14 +176,16 @@ export const TodoItem = ({
         </span>
       )}
 
-      <button
-        type="button"
-        className="todo__remove"
-        data-cy="TodoDelete"
-        onClick={handleTodoDelete}
-      >
-        ×
-      </button>
+      {!isEditing && (
+        <button
+          type="button"
+          className="todo__remove"
+          data-cy="TodoDelete"
+          onClick={handleTodoDelete}
+        >
+          ×
+        </button>
+      )}
 
       <div
         data-cy="TodoLoader"

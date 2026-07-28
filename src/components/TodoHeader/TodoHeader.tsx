@@ -70,6 +70,10 @@ export const TodoHeader = ({
         message: 'Unable to add a todo',
         isVisible: true,
       });
+
+      setTimeout(() => {
+        newTodoField.current?.focus();
+      }, 0);
     } finally {
       onCreateTodo(null);
       setIsLoading(false);
@@ -83,14 +87,16 @@ export const TodoHeader = ({
   return (
     <header className="todoapp__header">
       {/* this button should have `active` class only if all todos are completed */}
-      <button
-        type="button"
-        className={clsx('todoapp__toggle-all', {
-          active: todos.every(todo => todo.completed),
-        })}
-        data-cy="ToggleAllButton"
-        onClick={onToggleAll}
-      />
+      {todos.length !== 0 && (
+        <button
+          type="button"
+          className={clsx('todoapp__toggle-all', {
+            active: todos.every(todo => todo.completed),
+          })}
+          data-cy="ToggleAllButton"
+          onClick={onToggleAll}
+        />
+      )}
 
       {/* Add a todo on form submit */}
       <form onSubmit={handleSubmit}>
