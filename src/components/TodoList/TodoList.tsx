@@ -30,7 +30,7 @@ export const TodoList = ({
 }: Props) => {
   useEffect(() => {
     newTodoField.current?.focus();
-  }, [todos, newTodoField]);
+  }, [todos.length, newTodoField]);
 
   return (
     <section className="todoapp__main" data-cy="TodoList">
