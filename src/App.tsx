@@ -1,7 +1,13 @@
 import React, { useEffect, useRef, useState } from 'react';
 import './styles/todoapp.scss';
 import { UserWarning } from './UserWarning';
-import { deleteTodo, getTodos, updateTodo, USER_ID } from './api/todos';
+import {
+  deleteTodo,
+  getTodos,
+  updateTodoStatus,
+  updateTodoTitle,
+  USER_ID,
+} from './api/todos';
 import { TodoHeader } from './components/TodoHeader';
 import { TodoList } from './components/TodoList';
 import { TodoFooter } from './components/TodoFooter';
@@ -90,7 +96,7 @@ export const App: React.FC = () => {
   };
 
   const handleToggle = async (todoId: number, completed: boolean) => {
-    await updateTodo(todoId, completed);
+    await updateTodoStatus(todoId, completed);
 
     setTodos(currentTodos => {
       return currentTodos.map(currentTodo =>
@@ -150,6 +156,16 @@ export const App: React.FC = () => {
     }
   };
 
+  const handleTitleUpdate = async (todoId: number, title: string) => {
+    await updateTodoTitle(todoId, title);
+
+    setTodos(currentTodos => {
+      return currentTodos.map(currentTodo =>
+        currentTodo.id === todoId ? { ...currentTodo, title } : currentTodo,
+      );
+    });
+  };
+
   if (!USER_ID) {
     return <UserWarning />;
   }
@@ -175,6 +191,7 @@ export const App: React.FC = () => {
           tempTodo={tempTodo}
           onTodoDelete={handleDelete}
           onTodoToggle={handleToggle}
+          onTodoTitleUpdate={handleTitleUpdate}
           onError={setErrorState}
           todosToDelete={todosToDelete}
           newTodoField={newTodoField}
