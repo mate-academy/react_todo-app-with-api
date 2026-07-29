@@ -197,7 +197,6 @@ export const App: React.FC = () => {
           newTodoField={newTodoField}
         />
 
-        {/* Hide the footer if there are no todos */}
         {hasTodos && (
           <TodoFooter
             activeTodos={countActiveTodos()}
@@ -209,8 +208,6 @@ export const App: React.FC = () => {
         )}
       </div>
 
-      {/* DON'T use conditional rendering to hide the notification */}
-      {/* Add the 'hidden' class to hide the message smoothly */}
       <TodoErrorNotification errorState={errorState} onHide={setErrorState} />
     </div>
   );
