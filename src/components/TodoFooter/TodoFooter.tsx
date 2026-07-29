@@ -6,10 +6,26 @@ import { Filter } from '../../enums/Filter';
 interface Props {
   activeTodos: number;
   filterType: FilterTypes;
-  onFilterTypeChange: (type: Filter) => void;
+  onFilterTypeChange: (type: FilterTypes) => void;
   hasCompletedTodos: boolean;
   handleClearCompleted: () => void;
 }
+
+const filters = [
+  { label: 'All', value: Filter.All, href: '#/', dataCy: 'FilterLinkAll' },
+  {
+    label: 'Active',
+    value: Filter.Active,
+    href: '#/active',
+    dataCy: 'FilterLinkActive',
+  },
+  {
+    label: 'Completed',
+    value: Filter.Completed,
+    href: '#/completed',
+    dataCy: 'FilterLinkCompleted',
+  },
+];
 
 export const TodoFooter = ({
   activeTodos,
@@ -25,38 +41,19 @@ export const TodoFooter = ({
       </span>
 
       <nav className="filter" data-cy="Filter">
-        <a
-          href="#/"
-          className={clsx('filter__link', {
-            selected: filterType === Filter.All,
-          })}
-          data-cy="FilterLinkAll"
-          onClick={() => onFilterTypeChange(Filter.All)}
-        >
-          All
-        </a>
-
-        <a
-          href="#/active"
-          className={clsx('filter__link', {
-            selected: filterType === Filter.Active,
-          })}
-          data-cy="FilterLinkActive"
-          onClick={() => onFilterTypeChange(Filter.Active)}
-        >
-          Active
-        </a>
-
-        <a
-          href="#/completed"
-          className={clsx('filter__link', {
-            selected: filterType === Filter.Completed,
-          })}
-          data-cy="FilterLinkCompleted"
-          onClick={() => onFilterTypeChange(Filter.Completed)}
-        >
-          Completed
-        </a>
+        {filters.map(filter => (
+          <a
+            key={filter.value}
+            href={filter.href}
+            className={clsx('filter__link', {
+              selected: filterType === filter.value,
+            })}
+            data-cy={filter.dataCy}
+            onClick={() => onFilterTypeChange(filter.value)}
+          >
+            {filter.label}
+          </a>
+        ))}
       </nav>
 
       <button
