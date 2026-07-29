@@ -5,6 +5,7 @@ import './TodoItem.scss';
 import { clsx } from 'clsx';
 import React, { useEffect, useRef, useState } from 'react';
 import { ErrorState } from '../../types/ErrorState';
+import { ErrorMessages } from '../../enums/ErrorMessages';
 
 interface Props {
   todoId: number;
@@ -49,7 +50,7 @@ export const TodoItem = ({
       await onTodoToggle(todoId, !completed);
     } catch {
       onError({
-        message: 'Unable to update a todo',
+        message: ErrorMessages.UpdateTodo,
         isVisible: true,
       });
     } finally {
@@ -64,7 +65,7 @@ export const TodoItem = ({
       await onTodoDelete(todoId);
     } catch {
       onError({
-        message: 'Unable to delete a todo',
+        message: ErrorMessages.DeleteTodo,
         isVisible: true,
       });
 
@@ -103,7 +104,7 @@ export const TodoItem = ({
       setIsEditing(false);
     } catch {
       onError({
-        message: 'Unable to update a todo',
+        message: ErrorMessages.UpdateTodo,
         isVisible: true,
       });
 

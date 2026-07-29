@@ -1,4 +1,6 @@
+import { ErrorMessages } from '../enums/ErrorMessages';
+
 export interface ErrorState {
-  message: string;
+  message: ErrorMessages;
   isVisible: boolean;
 }

@@ -5,6 +5,7 @@ import { createTodo, USER_ID } from '../../api/todos';
 import { NewTodo } from '../../types/NewTodo';
 import { Todo } from '../../types/Todo';
 import clsx from 'clsx';
+import { ErrorMessages } from '../../enums/ErrorMessages';
 
 interface Props {
   todos: Todo[];
@@ -34,7 +35,7 @@ export const TodoHeader = ({
 
     if (userInput.length === 0 || userInput.trim().length === 0) {
       onError({
-        message: 'Title should not be empty',
+        message: ErrorMessages.TitleEmpty,
         isVisible: true,
       });
 
@@ -67,7 +68,7 @@ export const TodoHeader = ({
       onFieldChange('');
     } catch {
       onError({
-        message: 'Unable to add a todo',
+        message: ErrorMessages.AddTodo,
         isVisible: true,
       });
 

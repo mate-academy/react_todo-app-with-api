@@ -15,13 +15,14 @@ import { TodoErrorNotification } from './components/TodoErrorNotification';
 import { Todo } from './types/Todo';
 import { ErrorState } from './types/ErrorState';
 import { Filter } from './enums/Filter';
+import { ErrorMessages } from './enums/ErrorMessages';
 
 export const App: React.FC = () => {
   const [todos, setTodos] = useState<Todo[]>([]);
   const [userInput, setUserInput] = useState('');
   const [filterType, setFilterType] = useState<Filter>(Filter.All);
   const [errorState, setErrorState] = useState<ErrorState>({
-    message: '',
+    message: ErrorMessages.NoError,
     isVisible: false,
   });
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
@@ -50,7 +51,7 @@ export const App: React.FC = () => {
   useEffect(() => {
     const loadTodos = async () => {
       setErrorState({
-        message: '',
+        message: ErrorMessages.NoError,
         isVisible: false,
       });
 
@@ -60,7 +61,7 @@ export const App: React.FC = () => {
         setTodos(todosFromServer);
       } catch {
         setErrorState({
-          message: 'Unable to load todos',
+          message: ErrorMessages.LoadTodo,
           isVisible: true,
         });
       }
@@ -147,7 +148,7 @@ export const App: React.FC = () => {
 
       if (hasError) {
         setErrorState({
-          message: 'Unable to delete a todo',
+          message: ErrorMessages.DeleteTodo,
           isVisible: true,
         });
       }
