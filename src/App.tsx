@@ -40,11 +40,17 @@ export const App: React.FC = () => {
     setErrorMessage('');
   }, []);
 
-  const { todos, loadingTodoIds, loadTodos, addTodo, updateTodo, removeTodo } =
-    useTodos({
-      onError: handleError,
-      onClearError: handleClearError,
-    });
+  const {
+    todos,
+    loadingTodoIds,
+    loadTodos,
+    createTodo,
+    updateTodo,
+    removeTodo,
+  } = useTodos({
+    onError: handleError,
+    onClearError: handleClearError,
+  });
 
   const handleRemoveTodo = useCallback(
     (todoId: number) => {
@@ -133,7 +139,7 @@ export const App: React.FC = () => {
             isAllTodoCompleted={isAllTodoCompleted}
             newTodoInputRef={newTodoInputRef}
             onTempTodoChange={handleTempTodoChange}
-            onAddTodo={addTodo}
+            onCreateTodo={createTodo}
             onToggleAll={handleToggleAll}
             onError={handleError}
             onClearError={handleClearError}

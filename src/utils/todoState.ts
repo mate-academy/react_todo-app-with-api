@@ -44,6 +44,10 @@ export const optimisticDeleteTodo = (
   };
 };
 
+export const appendTodo = (todos: Todo[], todo: Todo): Todo[] => {
+  return [...todos, todo];
+};
+
 export const replaceTodo = (todos: Todo[], updatedTodo: Todo): Todo[] => {
   return todos.map(todo => (todo.id === updatedTodo.id ? updatedTodo : todo));
 };

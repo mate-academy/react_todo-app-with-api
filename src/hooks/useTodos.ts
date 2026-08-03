@@ -2,16 +2,18 @@ import { useCallback, useRef, useState } from 'react';
 
 import {
   getTodos as getTodosApi,
+  createTodo as createTodoApi,
   removeTodo as removeTodoApi,
   updateTodo as updateTodoApi,
 } from '../api/todos';
 import { Todo } from '../types/Todo';
 import { ErrorsEnum } from '../enums/ErrorMessage';
 import {
+  appendTodo,
+  replaceTodo,
+  removeTodoById,
   Rollback,
   optimisticDeleteTodo,
-  removeTodoById,
-  replaceTodo,
   restoreTodo,
 } from '../utils/todoState';
 
@@ -60,9 +62,23 @@ export const useTodos = ({ onError, onClearError }: UseTodosOptions) => {
       });
   }, [onError, onClearError]);
 
-  const addTodo = useCallback((todo: Todo) => {
-    setTodos(prev => [...prev, todo]);
-  }, []);
+  const createTodo = useCallback(
+    (todo: Omit<Todo, 'id'>) => {
+      onClearError();
+
+      return createTodoApi(todo)
+        .then(createdTodo => {
+          setTodos(prev => appendTodo(prev, createdTodo));
+
+          return createdTodo;
+        })
+        .catch(error => {
+          onError(ErrorsEnum.ADD);
+          throw error;
+        });
+    },
+    [onClearError, onError],
+  );
 
   const updateTodo = useCallback(
     (todoId: number, changes: Partial<Omit<Todo, 'id'>>) => {
@@ -137,7 +153,7 @@ export const useTodos = ({ onError, onClearError }: UseTodosOptions) => {
     todos,
     loadingTodoIds,
     loadTodos,
-    addTodo,
+    createTodo,
     removeTodo,
     updateTodo,
   };

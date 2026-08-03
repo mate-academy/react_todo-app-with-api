@@ -2,14 +2,14 @@ import React, { useState, useEffect } from 'react';
 import { ErrorsEnum } from '../../enums/ErrorMessage';
 import cn from 'classnames';
 import { Todo } from '../../types/Todo';
-import { USER_ID, createTodo } from '../../api/todos';
+import { USER_ID } from '../../api/todos';
 
 const createNewTodo = (title: string): Omit<Todo, 'id'> => {
   return { title, completed: false, userId: USER_ID };
 };
 
 type Props = {
-  onAddTodo: (todo: Todo) => void;
+  onCreateTodo: (todo: Omit<Todo, 'id'>) => Promise<Todo>;
   onTempTodoChange: (todo: Todo | null) => void;
   onToggleAll: () => void;
   onError: (message: string) => void;
@@ -20,7 +20,7 @@ type Props = {
 };
 
 const TodoFormComponent = ({
-  onAddTodo,
+  onCreateTodo,
   onTempTodoChange,
   onToggleAll,
   onError,
@@ -53,18 +53,14 @@ const TodoFormComponent = ({
     setIsSubmitting(true);
 
     const newTodo = createNewTodo(trimmedTitle);
+    const handleSuccess = () => {
+      setTitle('');
+    };
 
     onTempTodoChange({ ...newTodo, id: 0 });
 
-    createTodo(newTodo)
-      .then(todo => {
-        onAddTodo(todo);
-        setTitle('');
-      })
-
-      .catch(() => {
-        onError(ErrorsEnum.ADD);
-      })
+    onCreateTodo(newTodo)
+      .then(handleSuccess)
 
       .finally(() => {
         setIsSubmitting(false);
