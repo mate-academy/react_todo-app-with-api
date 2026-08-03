@@ -1,5 +1,4 @@
 import { useCallback, useRef, useState } from 'react';
-
 import {
   getTodos as getTodosApi,
   createTodo as createTodoApi,
