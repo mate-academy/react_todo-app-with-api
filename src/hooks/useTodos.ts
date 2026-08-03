@@ -95,9 +95,9 @@ export const useTodos = ({ onError, onClearError }: UseTodosOptions) => {
         return Promise.resolve();
       }
 
-      if (isOptimistic) {
-        let rollback: Rollback | null = null;
+      let rollback: Rollback | null = null;
 
+      if (isOptimistic) {
         setTodos(prev => {
           const result = optimisticDeleteTodo(prev, todoId);
 
@@ -109,35 +109,25 @@ export const useTodos = ({ onError, onClearError }: UseTodosOptions) => {
 
           return result.todos;
         });
-
-        return removeTodoApi(todoId)
-          .catch(error => {
-            onError(ErrorsEnum.DELETE);
-
-            if (!rollback) {
-              throw error;
-            }
-
-            const rollbackToApply = rollback;
-
-            setTodos(prev => restoreTodo(prev, rollbackToApply));
-          })
-
-          .finally(() => {
-            endProcessing(todoId);
-          });
       }
 
       return removeTodoApi(todoId)
         .then(() => {
-          setTodos(prev => prev.filter(todo => todo.id !== todoId));
+          if (!isOptimistic) {
+            setTodos(prev => prev.filter(todo => todo.id !== todoId));
+          }
         })
-
         .catch(error => {
           onError(ErrorsEnum.DELETE);
-          throw error;
-        })
 
+          if (!rollback) {
+            throw error;
+          }
+
+          const rollbackToApply = rollback;
+
+          setTodos(prev => restoreTodo(prev, rollbackToApply));
+        })
         .finally(() => {
           endProcessing(todoId);
         });
