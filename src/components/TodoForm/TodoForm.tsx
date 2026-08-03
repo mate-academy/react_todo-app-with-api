@@ -61,7 +61,9 @@ const TodoFormComponent = ({
 
     onCreateTodo(newTodo)
       .then(handleSuccess)
-
+      .catch(() => {
+        // error is already handled in useTodos
+      })
       .finally(() => {
         setIsSubmitting(false);
         onTempTodoChange(null);
