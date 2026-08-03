@@ -43,3 +43,11 @@ export const optimisticDeleteTodo = (
     },
   };
 };
+
+export const replaceTodo = (todos: Todo[], updatedTodo: Todo): Todo[] => {
+  return todos.map(todo => (todo.id === updatedTodo.id ? updatedTodo : todo));
+};
+
+export const removeTodoById = (todos: Todo[], todoId: number): Todo[] => {
+  return todos.filter(todo => todo.id !== todoId);
+};

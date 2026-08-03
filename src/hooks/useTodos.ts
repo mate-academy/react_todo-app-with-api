@@ -8,9 +8,11 @@ import {
 import { Todo } from '../types/Todo';
 import { ErrorsEnum } from '../enums/ErrorMessage';
 import {
-  optimisticDeleteTodo,
-  restoreTodo,
   Rollback,
+  optimisticDeleteTodo,
+  removeTodoById,
+  replaceTodo,
+  restoreTodo,
 } from '../utils/todoState';
 
 type UseTodosOptions = {
@@ -30,9 +32,7 @@ export const useTodos = ({ onError, onClearError }: UseTodosOptions) => {
       }
 
       processingIds.current.push(todoId);
-      setLoadingTodoIds(prev =>
-        prev.includes(todoId) ? prev : [...prev, todoId],
-      );
+      setLoadingTodoIds(prev => [...prev, todoId]);
       onClearError();
 
       return true;
@@ -41,10 +41,10 @@ export const useTodos = ({ onError, onClearError }: UseTodosOptions) => {
   );
 
   const endProcessing = useCallback((todoId: number) => {
-    const index = processingIds.current.indexOf(todoId);
+    const processingIndex = processingIds.current.indexOf(todoId);
 
-    if (index !== -1) {
-      processingIds.current.splice(index, 1);
+    if (processingIndex !== -1) {
+      processingIds.current.splice(processingIndex, 1);
     }
 
     setLoadingTodoIds(prev => prev.filter(id => id !== todoId));
@@ -72,9 +72,7 @@ export const useTodos = ({ onError, onClearError }: UseTodosOptions) => {
 
       return updateTodoApi(todoId, changes)
         .then(updatedTodo => {
-          setTodos(prev =>
-            prev.map(todo => (todo.id === todoId ? updatedTodo : todo)),
-          );
+          setTodos(prev => replaceTodo(prev, updatedTodo));
         })
 
         .catch(error => {
@@ -114,7 +112,7 @@ export const useTodos = ({ onError, onClearError }: UseTodosOptions) => {
       return removeTodoApi(todoId)
         .then(() => {
           if (!isOptimistic) {
-            setTodos(prev => prev.filter(todo => todo.id !== todoId));
+            setTodos(prev => removeTodoById(prev, todoId));
           }
         })
         .catch(error => {
