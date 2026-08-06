@@ -81,4 +81,3 @@ NewTodo.propTypes = {
   onAdd: PropTypes.func.isRequired,
   onEmptyTitle: PropTypes.func.isRequired,
 };
-

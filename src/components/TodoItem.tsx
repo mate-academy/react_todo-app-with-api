@@ -1,16 +1,7 @@
 import classNames from 'classnames';
 import PropTypes from 'prop-types';
-import {
-  useEffect,
-  useRef,
-  useState,
-} from 'react';
-import type {
-  ChangeEvent,
-  FC,
-  FormEvent,
-  KeyboardEvent,
-} from 'react';
+import { useEffect, useRef, useState } from 'react';
+import type { ChangeEvent, FC, FormEvent, KeyboardEvent } from 'react';
 import type { Todo } from '../types/Todo';
 
 type TodoChanges = Partial<Pick<Todo, 'title' | 'completed'>>;
@@ -114,6 +105,12 @@ export const TodoItem: FC<Props> = ({
     void onUpdate(todo.id, { completed: !todo.completed });
   };
 
+  const handleTitleKeyDown = (event: KeyboardEvent<HTMLSpanElement>) => {
+    if (event.key === 'Enter' || event.key === ' ') {
+      startEditing();
+    }
+  };
+
   return (
     <div
       data-cy="Todo"
@@ -155,11 +152,7 @@ export const TodoItem: FC<Props> = ({
             role="button"
             tabIndex={0}
             onDoubleClick={startEditing}
-            onKeyDown={event => {
-              if (event.key === 'Enter' || event.key === ' ') {
-                startEditing();
-              }
-            }}
+            onKeyDown={handleTitleKeyDown}
           >
             {todo.title}
           </span>
@@ -203,3 +196,4 @@ TodoItem.propTypes = {
   onDelete: PropTypes.func,
   onUpdate: PropTypes.func,
 };
+

@@ -1,11 +1,5 @@
 import classNames from 'classnames';
-import {
-  useCallback,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import type { FC } from 'react';
 import {
   createTodo,
@@ -173,9 +167,7 @@ export const App: FC = () => {
 
     try {
       await deleteTodo(todoId);
-      setTodos(currentTodos =>
-        currentTodos.filter(todo => todo.id !== todoId),
-      );
+      setTodos(currentTodos => currentTodos.filter(todo => todo.id !== todoId));
 
       return true;
     } catch {
@@ -200,9 +192,7 @@ export const App: FC = () => {
 
       setTodos(currentTodos =>
         currentTodos.map(todo =>
-          todo.id === todoId
-            ? { ...todo, ...updatedTodo }
-            : todo,
+          todo.id === todoId ? { ...todo, ...updatedTodo } : todo,
         ),
       );
 
@@ -268,9 +258,7 @@ export const App: FC = () => {
 
       return [];
     });
-    const hasUpdateError = results.some(
-      result => result.status === 'rejected',
-    );
+    const hasUpdateError = results.some(result => result.status === 'rejected');
 
     setTodos(currentTodos =>
       currentTodos.map(todo => {

@@ -41,29 +41,32 @@ const filterOptions: FilterOption[] = [
   },
 ];
 
-export const TodoFilter: FC<Props> = ({
-  selectedStatus,
-  onStatusChange,
-}) => (
-  <nav className="filter" data-cy="Filter">
-    {filterOptions.map(({ status, label, href, dataCy }) => (
-      <a
-        key={status}
-        href={href}
-        className={classNames('filter__link', {
-          selected: selectedStatus === status,
-        })}
-        data-cy={dataCy}
-        onClick={(event: MouseEvent<HTMLAnchorElement>) => {
-          event.preventDefault();
-          onStatusChange(status);
-        }}
-      >
-        {label}
-      </a>
-    ))}
-  </nav>
-);
+export const TodoFilter: FC<Props> = ({ selectedStatus, onStatusChange }) => {
+  const handleStatusChange = (status: FilterStatus) => (
+    event: MouseEvent<HTMLAnchorElement>
+  ) => {
+    event.preventDefault();
+    onStatusChange(status);
+  };
+
+  return (
+    <nav className="filter" data-cy="Filter">
+      {filterOptions.map(({ status, label, href, dataCy }) => (
+        <a
+          key={status}
+          href={href}
+          className={classNames('filter__link', {
+            selected: selectedStatus === status,
+          })}
+          data-cy={dataCy}
+          onClick={handleStatusChange(status)}
+        >
+          {label}
+        </a>
+      ))}
+    </nav>
+  );
+};
 
 TodoFilter.propTypes = {
   selectedStatus: PropTypes.oneOf(Object.values(FilterStatus)).isRequired,
