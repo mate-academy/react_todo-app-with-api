@@ -17,9 +17,8 @@ import { ErrorMessage } from './types/ErrorMessage';
 
 export const App: React.FC = () => {
   const [todos, setTodos] = useState<Todo[]>([]);
-  const [filteringByCompleted, setFilteringByCompleted] = useState<FilterStatus>(
-    FilterStatus.ALL,
-  );
+  const [filteringByCompleted, setFilteringByCompleted] =
+    useState<FilterStatus>(FilterStatus.ALL);
   const [errorMessage, setErrorMessage] = useState<ErrorMessage>(
     ErrorMessage.NONE,
   );
@@ -31,7 +30,9 @@ export const App: React.FC = () => {
   const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    if (errorMessage === ErrorMessage.NONE) return;
+    if (errorMessage === ErrorMessage.NONE) {
+      return;
+    }
 
     const timer = setTimeout(() => {
       setErrorMessage(ErrorMessage.NONE);
@@ -61,6 +62,7 @@ export const App: React.FC = () => {
 
     if (!trimmedTitle) {
       setErrorMessage(ErrorMessage.EMPTY_TITLE);
+
       return;
     }
 
@@ -111,6 +113,7 @@ export const App: React.FC = () => {
 
     try {
       const result = await updateTodo(updatedTodo);
+
       setTodos(prev =>
         prev.map(todo => (todo.id === result.id ? result : todo)),
       );
@@ -126,9 +129,7 @@ export const App: React.FC = () => {
     const areAllCompleted = todos.every(todo => todo.completed);
     const targetStatus = !areAllCompleted;
 
-    const todosToUpdate = todos.filter(
-      todo => todo.completed !== targetStatus,
-    );
+    const todosToUpdate = todos.filter(todo => todo.completed !== targetStatus);
 
     todosToUpdate.forEach(todo => {
       handleUpdateTodo({
@@ -189,12 +190,7 @@ export const App: React.FC = () => {
               />
             ))}
 
-            {tempTodo && (
-              <TodoItem
-                todo={tempTodo}
-                isLoading={true}
-              />
-            )}
+            {tempTodo && <TodoItem todo={tempTodo} isLoading={true} />}
           </section>
         )}
 

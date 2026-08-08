@@ -39,4 +39,3 @@ export const client = {
   patch: <T>(url: string, data: unknown) => request<T>(url, 'PATCH', data),
   delete: (url: string) => request(url, 'DELETE'),
 };
-

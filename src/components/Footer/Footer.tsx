@@ -8,8 +8,18 @@ export enum FilterStatus {
 
 const FILTER_OPTIONS = [
   { type: FilterStatus.ALL, href: '#/', label: 'All', cy: 'FilterLinkAll' },
-  { type: FilterStatus.ACTIVE, href: '#/active', label: 'Active', cy: 'FilterLinkActive' },
-  { type: FilterStatus.COMPLETED, href: '#/completed', label: 'Completed', cy: 'FilterLinkCompleted' },
+  {
+    type: FilterStatus.ACTIVE,
+    href: '#/active',
+    label: 'Active',
+    cy: 'FilterLinkActive',
+  },
+  {
+    type: FilterStatus.COMPLETED,
+    href: '#/completed',
+    label: 'Completed',
+    cy: 'FilterLinkCompleted',
+  },
 ] as const;
 
 interface Props {

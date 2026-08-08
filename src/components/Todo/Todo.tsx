@@ -19,7 +19,6 @@ export const Todo: React.FC<Props> = ({
   const [newTitle, setNewTitle] = useState(title);
 
   const editInputRef = useRef<HTMLInputElement>(null);
-  const inputId = `todo-status-${id}`;
 
   useEffect(() => {
     if (isEditing) {
@@ -44,6 +43,7 @@ export const Todo: React.FC<Props> = ({
 
     if (trimmedTitle === title) {
       setIsEditing(false);
+
       return;
     }
 
@@ -51,9 +51,9 @@ export const Todo: React.FC<Props> = ({
       try {
         await onDelete?.(id);
       } catch {
-        // При ошибке удаления оставляем форму открытой и возвращаем фокус
         editInputRef.current?.focus();
       }
+
       return;
     }
 
@@ -81,13 +81,10 @@ export const Todo: React.FC<Props> = ({
   };
 
   return (
-    <div
-      className={`todo ${completed ? 'completed' : ''}`}
-      data-cy="Todo"
-    >
-      <label className="todo__status-label" htmlFor={inputId}>
+    <div className={`todo ${completed ? 'completed' : ''}`} data-cy="Todo">
+      {/* eslint-disable-next-line jsx-a11y/label-has-associated-control */}
+      <label className="todo__status-label">
         <input
-          id={inputId}
           data-cy="TodoStatus"
           type="checkbox"
           className="todo__status"
