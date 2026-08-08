@@ -19,6 +19,7 @@ export const Todo: React.FC<Props> = ({
   const [newTitle, setNewTitle] = useState(title);
 
   const editInputRef = useRef<HTMLInputElement>(null);
+  const isSubmittingRef = useRef(false);
 
   useEffect(() => {
     if (isEditing) {
@@ -39,24 +40,30 @@ export const Todo: React.FC<Props> = ({
   };
 
   const handleSubmit = async () => {
+    if (isSubmittingRef.current) {
+      return;
+    }
+
     const trimmedTitle = newTitle.trim();
 
     if (trimmedTitle === title) {
       setIsEditing(false);
-
       return;
     }
 
     if (!trimmedTitle) {
+      isSubmittingRef.current = true;
       try {
         await onDelete?.(id);
       } catch {
         editInputRef.current?.focus();
+      } finally {
+        isSubmittingRef.current = false;
       }
-
       return;
     }
 
+    isSubmittingRef.current = true;
     try {
       await onUpdate?.({
         ...todo,
@@ -65,6 +72,8 @@ export const Todo: React.FC<Props> = ({
       setIsEditing(false);
     } catch {
       editInputRef.current?.focus();
+    } finally {
+      isSubmittingRef.current = false;
     }
   };
 
@@ -81,7 +90,10 @@ export const Todo: React.FC<Props> = ({
   };
 
   return (
-    <div className={`todo ${completed ? 'completed' : ''}`} data-cy="Todo">
+    <div
+      className={`todo ${completed ? 'completed' : ''}`}
+      data-cy="Todo"
+    >
       {/* eslint-disable-next-line jsx-a11y/label-has-associated-control */}
       <label className="todo__status-label">
         <input
