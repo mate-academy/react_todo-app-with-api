@@ -48,6 +48,7 @@ export const Todo: React.FC<Props> = ({
 
     if (trimmedTitle === title) {
       setIsEditing(false);
+
       return;
     }
 
@@ -60,6 +61,7 @@ export const Todo: React.FC<Props> = ({
       } finally {
         isSubmittingRef.current = false;
       }
+
       return;
     }
 
@@ -90,10 +92,7 @@ export const Todo: React.FC<Props> = ({
   };
 
   return (
-    <div
-      className={`todo ${completed ? 'completed' : ''}`}
-      data-cy="Todo"
-    >
+    <div className={`todo ${completed ? 'completed' : ''}`} data-cy="Todo">
       {/* eslint-disable-next-line jsx-a11y/label-has-associated-control */}
       <label className="todo__status-label">
         <input

@@ -15,9 +15,8 @@ import { ErrorMessage } from './types/ErrorMessage';
 
 export const App: React.FC = () => {
   const [todos, setTodos] = useState<Todo[]>([]);
-  const [filteringByCompleted, setFilteringByCompleted] = useState<FilterStatus>(
-    FilterStatus.ALL,
-  );
+  const [filteringByCompleted, setFilteringByCompleted] =
+    useState<FilterStatus>(FilterStatus.ALL);
   const [errorMessage, setErrorMessage] = useState<ErrorMessage>(
     ErrorMessage.NONE,
   );
@@ -29,7 +28,9 @@ export const App: React.FC = () => {
   const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    if (errorMessage === ErrorMessage.NONE) return;
+    if (errorMessage === ErrorMessage.NONE) {
+      return;
+    }
 
     const timer = setTimeout(() => {
       setErrorMessage(ErrorMessage.NONE);
@@ -39,7 +40,7 @@ export const App: React.FC = () => {
   }, [errorMessage]);
 
   useEffect(() => {
-    getTodos()
+    getTodos(USER_ID)
       .then(setTodos)
       .catch(() => {
         setErrorMessage(ErrorMessage.FAILED_LOAD);
@@ -59,6 +60,7 @@ export const App: React.FC = () => {
 
     if (!trimmedTitle) {
       setErrorMessage(ErrorMessage.EMPTY_TITLE);
+
       return;
     }
 
@@ -109,6 +111,7 @@ export const App: React.FC = () => {
 
     try {
       const result = await updateTodo(updatedTodo);
+
       setTodos(prev =>
         prev.map(todo => (todo.id === result.id ? result : todo)),
       );
@@ -132,7 +135,7 @@ export const App: React.FC = () => {
       handleUpdateTodo({
         ...todo,
         completed: targetStatus,
-      });
+      }).catch(() => {});
     });
   };
 
@@ -140,7 +143,7 @@ export const App: React.FC = () => {
     const completedTodos = todos.filter(todo => todo.completed);
 
     completedTodos.forEach(todo => {
-      handleDeleteTodo(todo.id);
+      handleDeleteTodo(todo.id).catch(() => {});
     });
   };
 
@@ -154,6 +157,9 @@ export const App: React.FC = () => {
         return true;
     }
   });
+
+  const isTempTodoVisible =
+    tempTodo && filteringByCompleted !== FilterStatus.COMPLETED;
 
   const incompleteTodoQuantity = todos.filter(todo => !todo.completed).length;
   const areAllTodosCompleted =
@@ -175,7 +181,7 @@ export const App: React.FC = () => {
           areAllCompleted={areAllTodosCompleted}
         />
 
-        {(!!todos.length || tempTodo) && (
+        {(!!todos.length || isTempTodoVisible) && (
           <section className="todoapp__main" data-cy="TodoList">
             {filteredTodos.map(todo => (
               <TodoItem
@@ -187,12 +193,8 @@ export const App: React.FC = () => {
               />
             ))}
 
-            {tempTodo && (
-              <TodoItem
-                key={0}
-                todo={tempTodo}
-                isLoading={true}
-              />
+            {isTempTodoVisible && (
+              <TodoItem key={0} todo={tempTodo} isLoading={true} />
             )}
           </section>
         )}
@@ -225,3 +227,4 @@ export const App: React.FC = () => {
     </div>
   );
 };
+
