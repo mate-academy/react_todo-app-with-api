@@ -123,7 +123,7 @@ export const App: React.FC = () => {
     }
   };
 
-  const handleToggleAll = () => {
+  const handleToggleAll = async () => {
     const areAllCompleted = todos.every(todo => todo.completed);
     const targetStatus = !areAllCompleted;
 
@@ -131,20 +131,30 @@ export const App: React.FC = () => {
       todo => todo.completed !== targetStatus,
     );
 
-    todosToUpdate.forEach(todo => {
-      handleUpdateTodo({
-        ...todo,
-        completed: targetStatus,
-      }).catch(() => {});
-    });
+    try {
+      await Promise.all(
+        todosToUpdate.map(todo =>
+          handleUpdateTodo({
+            ...todo,
+            completed: targetStatus,
+          }),
+        ),
+      );
+    } catch {
+      // Ошибка обрабатывается внутри handleUpdateTodo
+    }
   };
 
-  const handleClearCompleted = () => {
+  const handleClearCompleted = async () => {
     const completedTodos = todos.filter(todo => todo.completed);
 
-    completedTodos.forEach(todo => {
-      handleDeleteTodo(todo.id).catch(() => {});
-    });
+    try {
+      await Promise.all(
+        completedTodos.map(todo => handleDeleteTodo(todo.id)),
+      );
+    } catch {
+      // Ошибка обрабатывается внутри handleDeleteTodo
+    }
   };
 
   const filteredTodos = todos.filter(todo => {
@@ -227,4 +237,3 @@ export const App: React.FC = () => {
     </div>
   );
 };
-
