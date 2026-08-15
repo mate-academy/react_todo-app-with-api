@@ -160,8 +160,9 @@ export const App: React.FC = () => {
           return newTodos;
         });
       })
-      .catch(() => {
+      .catch(error => {
         setErrorMessage(ErrorMessage.Update);
+        throw error;
       })
       .finally(() => {
         setUpdatingIds(prev => prev.filter(todoId => todoId !== item.id));

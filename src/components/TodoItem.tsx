@@ -33,26 +33,33 @@ export const TodoItem: React.FC<Props> = ({
 
   useEffect(() => {
     if (pressedKey === 'Escape') {
+      setInputValue(todo.title);
       setUpdating(false);
       setPressedKey('');
     }
-  }, [pressedKey]);
+  }, [pressedKey, todo.title]);
 
   const handleUpdate = () => {
     const trimmedInput = inputValue.trim();
 
-    if (trimmedInput) {
-      onUpdate({
-        id: todo.id,
-        userId: todo.userId,
-        completed: todo.completed,
-        title: trimmedInput,
-      }).then(() => {
-        setUpdating(false);
-      });
-    } else {
+    if (!trimmedInput) {
       onDelete(todo.id);
+
+      return;
     }
+
+    if (trimmedInput === todo.title) {
+      setUpdating(false);
+
+      return;
+    }
+
+    onUpdate({
+      id: todo.id,
+      userId: todo.userId,
+      completed: todo.completed,
+      title: trimmedInput,
+    }).then(() => setUpdating(false));
   };
 
   return (
@@ -81,36 +88,32 @@ export const TodoItem: React.FC<Props> = ({
       </label>
 
       {updating ? (
-        <>
-          <form
-            onSubmit={event => {
-              event.preventDefault();
-              handleUpdate();
-            }}
-          >
-            <input
-              data-cy="TodoTitleField"
-              type="text"
-              className="todo__title-field"
-              placeholder="Empty todo will be deleted"
-              value={inputValue}
-              onChange={event => setInputValue(event.currentTarget.value)}
-              autoFocus
-              onBlur={handleUpdate}
-            />
-          </form>
-
-          <div data-cy="TodoLoader" className="modal overlay">
-            <div className="modal-background has-background-white-ter" />
-            <div className="loader" />
-          </div>
-        </>
+        <form
+          onSubmit={event => {
+            event.preventDefault();
+            handleUpdate();
+          }}
+        >
+          <input
+            data-cy="TodoTitleField"
+            type="text"
+            className="todo__title-field"
+            placeholder="Empty todo will be deleted"
+            value={inputValue}
+            onChange={event => setInputValue(event.currentTarget.value)}
+            autoFocus
+            onBlur={handleUpdate}
+          />
+        </form>
       ) : (
         <>
           <span
             data-cy="TodoTitle"
             className="todo__title"
-            onDoubleClick={() => setUpdating(true)}
+            onDoubleClick={() => {
+              setInputValue(todo.title);
+              setUpdating(true);
+            }}
           >
             {todo.title}
           </span>
@@ -130,7 +133,9 @@ export const TodoItem: React.FC<Props> = ({
 
       <div
         data-cy="TodoLoader"
-        className={classNames('modal', 'overlay', { 'is-active': isLoading })}
+        className={classNames('modal', 'overlay', {
+          'is-active': isLoading,
+        })}
       >
         <div className="modal-background has-background-white-ter" />
         <div className="loader" />
