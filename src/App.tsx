@@ -1,26 +1,282 @@
 /* eslint-disable max-len */
 /* eslint-disable jsx-a11y/control-has-associated-label */
-import React from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { UserWarning } from './UserWarning';
+import {
+  USER_ID,
+  getTodos,
+  addTodo,
+  deleteTodo,
+  updateTodo,
+} from './api/todos';
+import { Todo } from './types/Todo';
+import { TodoItem } from './components/TodoItem';
+import { ErrorMessage } from './types/ErrorMessage';
 
-const USER_ID = 0;
+export enum FilterStatus {
+  All = 'all',
+  Active = 'active',
+  Completed = 'completed',
+}
+
+const filterLinks = [
+  { status: FilterStatus.All, text: 'All', href: '#/' },
+  { status: FilterStatus.Active, text: 'Active', href: '#/active' },
+  { status: FilterStatus.Completed, text: 'Completed', href: '#/completed' },
+];
 
 export const App: React.FC = () => {
+  const [todos, setTodos] = useState<Todo[]>([]);
+  const [errorMessage, setErrorMessage] = useState<ErrorMessage>(
+    ErrorMessage.None,
+  );
+  const [filter, setFilter] = useState<FilterStatus>(FilterStatus.All);
+  const [tempQuery, setTempQuery] = useState('');
+
+  const [tempTodo, setTempTodo] = useState<Todo | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [processingIds, setProcessingIds] = useState<number[]>([]);
+
+  const newTodoField = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    getTodos()
+      .then(setTodos)
+      .catch(() => setErrorMessage(ErrorMessage.Load));
+  }, []);
+
+  useEffect(() => {
+    if (!errorMessage) {
+      return undefined;
+    }
+
+    const timer = setTimeout(() => {
+      setErrorMessage(ErrorMessage.None);
+    }, 3000);
+
+    return () => clearTimeout(timer);
+  }, [errorMessage]);
+
+  const visibleTodos = todos.filter(todo => {
+    if (filter === FilterStatus.Active) {
+      return !todo.completed;
+    }
+
+    if (filter === FilterStatus.Completed) {
+      return todo.completed;
+    }
+
+    return true;
+  });
+
+  const activeTodosCount = todos.filter(t => !t.completed).length;
+  const hasCompletedTodos = todos.some(t => t.completed);
+  const isAllCompleted = todos.length > 0 && todos.every(t => t.completed);
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+
+    const normalizedTitle = tempQuery.trim();
+
+    if (!normalizedTitle) {
+      setErrorMessage(ErrorMessage.EmptyTitle);
+
+      return;
+    }
+
+    setIsSubmitting(true);
+
+    const newTempTodo: Todo = {
+      id: 0,
+      title: normalizedTitle,
+      completed: false,
+      userId: USER_ID,
+    };
+
+    setTempTodo(newTempTodo);
+
+    addTodo(normalizedTitle)
+      .then(newTodo => {
+        setTodos(prev => [...prev, newTodo]);
+        setTempQuery('');
+      })
+      .catch(() => {
+        setErrorMessage(ErrorMessage.Add);
+      })
+      .finally(() => {
+        setTempTodo(null);
+        setIsSubmitting(false);
+
+        setTimeout(() => {
+          if (newTodoField.current) {
+            newTodoField.current.focus();
+          }
+        }, 0);
+      });
+  };
+
+  const handleDelete = (id: number): Promise<void> => {
+    setProcessingIds(prev => [...prev, id]);
+
+    return deleteTodo(id)
+      .then(() => {
+        setTodos(prev => prev.filter(t => t.id !== id));
+      })
+      .catch(error => {
+        setErrorMessage(ErrorMessage.Delete);
+        throw error;
+      })
+      .finally(() => {
+        setProcessingIds(prev => prev.filter(prevId => prevId !== id));
+
+        setTimeout(() => {
+          if (newTodoField.current) {
+            newTodoField.current.focus();
+          }
+        }, 0);
+      });
+  };
+
+  const handleUpdate = (updatedTodo: Todo): Promise<void> => {
+    setProcessingIds(prev => [...prev, updatedTodo.id]);
+
+    return updateTodo(updatedTodo)
+      .then(newTodo => {
+        setTodos(prev =>
+          prev.map(todo => (todo.id === newTodo.id ? newTodo : todo)),
+        );
+      })
+      .catch(error => {
+        setErrorMessage(ErrorMessage.Update);
+        throw error;
+      })
+      .finally(() => {
+        setProcessingIds(prev => prev.filter(id => id !== updatedTodo.id));
+      });
+  };
+
+  const handleToggleAll = () => {
+    const targetStatus = !isAllCompleted;
+    const todosToUpdate = todos.filter(t => t.completed !== targetStatus);
+
+    todosToUpdate.forEach(todo => {
+      handleUpdate({ ...todo, completed: targetStatus });
+    });
+  };
+
+  const handleClearCompleted = () => {
+    const completedTodos = todos.filter(t => t.completed);
+
+    completedTodos.forEach(todo => {
+      handleDelete(todo.id);
+    });
+  };
+
   if (!USER_ID) {
     return <UserWarning />;
   }
 
   return (
-    <section className="section container">
-      <p className="title is-4">
-        Copy all you need from the prev task:
-        <br />
-        <a href="https://github.com/mate-academy/react_todo-app-add-and-delete#react-todo-app-add-and-delete">
-          React Todo App - Add and Delete
-        </a>
-      </p>
+    <div className="todoapp">
+      <h1 className="todoapp__title">todos</h1>
 
-      <p className="subtitle">Styles are already copied</p>
-    </section>
+      <div className="todoapp__content">
+        <header className="todoapp__header">
+          {todos.length > 0 && (
+            <button
+              type="button"
+              className={`todoapp__toggle-all ${isAllCompleted ? 'active' : ''}`}
+              data-cy="ToggleAllButton"
+              onClick={handleToggleAll}
+            />
+          )}
+
+          <form onSubmit={handleSubmit}>
+            <input
+              data-cy="NewTodoField"
+              type="text"
+              className="todoapp__new-todo"
+              placeholder="What needs to be done?"
+              value={tempQuery}
+              onChange={e => setTempQuery(e.target.value)}
+              disabled={isSubmitting}
+              ref={newTodoField}
+              // eslint-disable-next-line jsx-a11y/no-autofocus
+              autoFocus
+            />
+          </form>
+        </header>
+
+        {todos.length > 0 && (
+          <section className="todoapp__main" data-cy="TodoList">
+            {visibleTodos.map(todo => (
+              <TodoItem
+                key={todo.id}
+                todo={todo}
+                isLoading={processingIds.includes(todo.id)}
+                onDelete={handleDelete}
+                onUpdate={handleUpdate}
+              />
+            ))}
+
+            {tempTodo && (
+              <TodoItem
+                todo={tempTodo}
+                isLoading={true}
+                onDelete={() => {}}
+                onUpdate={() => Promise.resolve()}
+              />
+            )}
+          </section>
+        )}
+
+        {todos.length > 0 && (
+          <footer className="todoapp__footer" data-cy="Footer">
+            <span className="todo-count" data-cy="TodosCounter">
+              {activeTodosCount} items left
+            </span>
+
+            <nav className="filter" data-cy="Filter">
+              {filterLinks.map(link => (
+                <a
+                  key={link.status}
+                  href={link.href}
+                  className={`filter__link ${filter === link.status ? 'selected' : ''}`}
+                  data-cy={`FilterLink${link.text}`}
+                  onClick={() => setFilter(link.status)}
+                >
+                  {link.text}
+                </a>
+              ))}
+            </nav>
+
+            <button
+              type="button"
+              className="todoapp__clear-completed"
+              data-cy="ClearCompletedButton"
+              disabled={!hasCompletedTodos}
+              onClick={handleClearCompleted}
+            >
+              Clear completed
+            </button>
+          </footer>
+        )}
+      </div>
+
+      <div
+        data-cy="ErrorNotification"
+        className={`notification is-danger is-light has-text-weight-normal ${
+          !errorMessage ? 'hidden' : ''
+        }`}
+      >
+        <button
+          data-cy="HideErrorButton"
+          type="button"
+          className="delete"
+          onClick={() => setErrorMessage(ErrorMessage.None)}
+        />
+        {errorMessage}
+      </div>
+    </div>
   );
 };
