@@ -39,7 +39,10 @@ module.exports = {
   rules: {
     // JS
     'semi': 'off',
-    '@typescript-eslint/semi': ['error', 'always'],
+    '@typescript-eslint/semi': ['error'],
+    'prettier/prettier': 'off',
+    '@typescript-eslint/indent': 'off',
+    'indent': 'off',
     'prefer-const': 2,
     curly: [2, 'all'],
     'max-len': ['error', {
@@ -92,11 +95,11 @@ module.exports = {
     '@typescript-eslint/no-unused-vars': ['error'],
     '@typescript-eslint/indent': ['error', 2],
     '@typescript-eslint/ban-types': ['error', {
-        extendDefaults: true,
-        types: {
-          '{}': false,
-        },
+      extendDefaults: true,
+      types: {
+        '{}': false,
       },
+    },
     ],
   },
   ignorePatterns: ['dist', '.eslintrc.cjs', 'vite.config.ts', 'src/vite-env.d.ts', 'cypress'],
