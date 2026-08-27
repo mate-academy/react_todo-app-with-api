@@ -212,7 +212,7 @@ export const App: React.FC = () => {
                 .post<Todo>(`/todos`, {
                 title: query.trim(),
                 completed: false,
-                  userId: USER_ID,
+                userId: USER_ID,
               })
                 .then(newTodo => {
                   setTodos(prevTodos => [...prevTodos, newTodo]);
