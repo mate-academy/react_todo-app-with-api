@@ -2,28 +2,24 @@
 /* eslint-disable jsx-a11y/control-has-associated-label */
 import React, { useEffect, useState, useRef } from 'react';
 import { UserWarning } from './UserWarning';
-import {
-  USER_ID,
-  getTodos,
-  addTodo,
-  removeTodo,
-  updateTodo,
-  updateTodoApi,
-} from './api/todos';
+import { USER_ID, getTodos, addTodo, removeTodo } from './api/todos';
 import { Todo } from './types/Todo';
+
+// components
+
+import TodoApp from './components/TodoApp';
 
 export const App: React.FC = () => {
   const [todos, setTodos] = useState<Todo[]>([]);
   const inputRef = useRef<HTMLInputElement>(null);
   const [err, setErr] = useState('');
   const [inputValue, setInputValue] = useState('');
-  const [editValue, setEditValue] = useState(inputValue);
   const [isCheck, setIsCheck] = useState(false);
   const [isEdit, setIsEdit] = useState<number | null>(null);
   const [filterActive, setFilterActive] = useState('all');
   const [allCompleted, setAllCompleted] = useState(false);
-  const [isLoader, setIsLoader] = useState(true);
   const clickOut = useRef<HTMLDivElement>(null);
+  const [isLoader, setIsLoader] = useState(true);
 
   useEffect(() => {
     const load = async () => {
@@ -122,73 +118,6 @@ export const App: React.FC = () => {
     }
   };
 
-  const handleDelete = async (id: number) => {
-    try {
-      setIsLoader(true);
-      const newTodos = todos.filter(todo => {
-        return todo.id !== id;
-      });
-
-      await removeTodo(id);
-
-      setTodos(newTodos);
-    } catch (error) {
-      /* eslint-disable-next-line no-console */
-      console.error(error);
-      setErr('Unable to delete a todo');
-    } finally {
-      setIsLoader(false);
-    }
-  };
-
-  const checkTodo = async (id: number) => {
-    const todo = todos.find(t => t.id === id);
-
-    if (!todo) {
-      return;
-    }
-
-    const completed = !todo?.completed;
-
-    try {
-      setIsLoader(true);
-      await updateTodo(id, { completed });
-
-      setTodos(prevTodos =>
-        prevTodos.map(t => (t.id === id ? { ...t, completed } : t)),
-      );
-    } catch (error) {
-      /* eslint-disable-next-line no-console */
-      console.error(error);
-      setErr('Unable to update todo');
-    } finally {
-      setIsLoader(false);
-    }
-  };
-
-  const handleUpdate = async (id: number) => {
-    const todo = todos.find(t => t.id === id);
-
-    if (!todo) {
-      return;
-    }
-
-    try {
-      setIsLoader(true);
-      await updateTodoApi(id, { title: editValue });
-
-      setTodos(prevTodos =>
-        prevTodos.map(t => (t.id === id ? { ...t, title: editValue } : t)),
-      );
-    } catch (error) {
-      /* eslint-disable-next-line no-console */
-      console.error(error);
-      setErr('Unable to update todo');
-    } finally {
-      setIsLoader(false);
-    }
-  };
-
   const getItemsLeft = () => {
     const itemsLeft = todos.filter(todo => {
       return todo.completed === false;
@@ -262,89 +191,19 @@ export const App: React.FC = () => {
           </form>
         </header>
 
+        {/* TodoApp */}
+
         {todos.length !== 0 && (
-          <section className="todoapp__main" data-cy="TodoList">
-            {/* This is a completed todo */}
-            {todos.map(todo => (
-              <div
-                key={todo.id}
-                data-cy="Todo"
-                className={`todo ${todo.completed ? 'completed' : ''}`}
-              >
-                <label
-                  className="todo__status-label"
-                  onClick={() => {
-                    checkTodo(todo.id);
-                  }}
-                >
-                  <input
-                    data-cy="TodoStatus"
-                    type="checkbox"
-                    className="todo__status"
-                    checked={todo.completed}
-                  />
-                </label>
-
-                {isEdit === todo.id && (
-                  <input
-                    data-cy="TodoTitleField"
-                    type="text"
-                    className="todo__title-field"
-                    placeholder="Empty todo will be deleted"
-                    autoFocus
-                    onKeyDown={e => {
-                      if (e.key === 'Enter') {
-                        setIsEdit(null);
-                        handleUpdate(todo.id);
-                      }
-                    }}
-                    onChange={e => {
-                      setEditValue(e.target.value);
-                    }}
-                    value={editValue}
-                  />
-                )}
-
-                {isEdit !== todo.id && (
-                  <span
-                    data-cy="TodoTitle"
-                    className="todo__title"
-                    onDoubleClick={() => {
-                      setIsEdit(todo.id);
-                      setEditValue(todo.title);
-                    }}
-                    ref={clickOut}
-                  >
-                    {todo.title}
-                  </span>
-                )}
-
-                {/* Remove button appears only on hover */}
-                <button
-                  type="button"
-                  className="todo__remove"
-                  data-cy="TodoDelete"
-                  onClick={() => {
-                    handleDelete(todo.id);
-                  }}
-                >
-                  ×
-                </button>
-
-                {/* overlay will cover the todo while it is being deleted or updated */}
-                {isLoader && (
-                  <div data-cy="TodoLoader" className="modal overlay">
-                    <div
-                      className="
-                      modal-background 
-                      has-background-white-ter"
-                    />
-                    <div className="loader" />
-                  </div>
-                )}
-              </div>
-            ))}
-          </section>
+          <TodoApp
+            isEdit={isEdit}
+            todos={todos}
+            isLoader={isLoader}
+            setIsLoader={setIsLoader}
+            setTodos={setTodos}
+            setErr={setErr}
+            setIsEdit={setIsEdit}
+            clickOut={clickOut}
+          />
         )}
 
         {/* Hide the footer if there are no todos */}
