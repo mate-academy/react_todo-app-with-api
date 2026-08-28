@@ -22,6 +22,20 @@ export const App: React.FC = () => {
   // #endregion
 
   const inputRef = useRef<HTMLInputElement>(null);
+  const errorTimerId = useRef<NodeJS.Timeout | null>(null);
+  
+  const showError = (message: string) => {
+    if (errorTimerId.current) {
+      clearTimeout(errorTimerId.current);
+    }
+
+    setErrorMessage(message);
+    setIsErrorHidden(false);
+
+    errorTimerId.current = setTimeout(() => {
+      setIsErrorHidden(true);
+    }, 3000);
+  };
 
   // #region effect
   useEffect(() => {
@@ -29,8 +43,7 @@ export const App: React.FC = () => {
       .get<Todo[]>(`/todos?userId=${USER_ID}`)
       .then(setTodos)
       .catch(() => {
-        setErrorMessage('Unable to load todos');
-        setIsErrorHidden(false);
+        showError('Unable to load todos');
       });
   }, []);
 
@@ -39,19 +52,6 @@ export const App: React.FC = () => {
       inputRef.current?.focus();
     }
   }, [isAdding]);
-
-  useEffect(() => {
-    if (!errorMessage) {
-      return;
-    }
-
-    // #endregion
-    const timer = setTimeout(() => {
-      setIsErrorHidden(true);
-    }, 3000);
-
-    return () => clearTimeout(timer);
-  }, [errorMessage]);
 
   const visibleTodos = todos.filter(todo => {
     if (filter === 'active') {
@@ -64,6 +64,7 @@ export const App: React.FC = () => {
 
     return true;
   });
+
   // #region handle
   const handleUpdate = (updatedTodo: Todo) => {
     setUpdatingTodoId(updatedTodo.id);
@@ -71,9 +72,9 @@ export const App: React.FC = () => {
 
     return client
       .patch<Todo>(`/todos/${updatedTodo.id}`, {
-      title: updatedTodo.title,
-      completed: updatedTodo.completed,
-    })
+        title: updatedTodo.title,
+        completed: updatedTodo.completed,
+      })
       .then(serverTodo => {
         setTodos(prevTodos =>
           prevTodos.map(todo =>
@@ -82,8 +83,7 @@ export const App: React.FC = () => {
         );
       })
       .catch(err => {
-        setErrorMessage('Unable to update a todo');
-        setIsErrorHidden(false);
+        showError('Unable to update a todo');
         throw err;
       })
       .finally(() => {
@@ -101,8 +101,7 @@ export const App: React.FC = () => {
         setTodos(todos.filter(todo => todo.id !== todoId));
       })
       .catch(() => {
-        setErrorMessage('Unable to delete a todo');
-        setIsErrorHidden(false);
+        showError('Unable to delete a todo');
       })
       .finally(() => {
         setDeletingTodoId(null);
@@ -131,8 +130,7 @@ export const App: React.FC = () => {
         );
 
         if (results.some(result => result.status === 'rejected')) {
-          setErrorMessage('Unable to delete a todo');
-          setIsErrorHidden(false);
+          showError('Unable to delete a todo');
         }
       })
 
@@ -164,8 +162,7 @@ export const App: React.FC = () => {
       })
 
       .catch(() => {
-        setErrorMessage('Unable to update a todo');
-        setIsErrorHidden(false);
+        showError('Unable to update a todo');
       });
   };
 
@@ -193,8 +190,7 @@ export const App: React.FC = () => {
             onSubmit={event => {
               event.preventDefault();
               if (!query.trim()) {
-                setErrorMessage('Title should not be empty');
-                setIsErrorHidden(false);
+                showError('Title should not be empty');
 
                 return;
               }
@@ -210,10 +206,10 @@ export const App: React.FC = () => {
 
               client
                 .post<Todo>(`/todos`, {
-                title: query.trim(),
-                completed: false,
-                userId: USER_ID,
-              })
+                  title: query.trim(),
+                  completed: false,
+                  userId: USER_ID,
+                })
                 .then(newTodo => {
                   setTodos(prevTodos => [...prevTodos, newTodo]);
                   setQuery('');
@@ -225,8 +221,7 @@ export const App: React.FC = () => {
                   }, 0);
                 })
                 .catch(() => {
-                  setErrorMessage('Unable to add a todo');
-                  setIsErrorHidden(false);
+                  showError('Unable to add a todo');
                   setTempTodo(null);
                   inputRef.current?.focus();
                   setIsAdding(false);
