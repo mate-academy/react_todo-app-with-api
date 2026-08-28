@@ -23,6 +23,7 @@ export const App: React.FC = () => {
   const [filterActive, setFilterActive] = useState('all');
   const [allCompleted, setAllCompleted] = useState(false);
   const [isLoader, setIsLoader] = useState(true);
+  const clickOut = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const load = async () => {
@@ -78,7 +79,21 @@ export const App: React.FC = () => {
     }, 3000);
   }, [err]);
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  useEffect(() => {
+    const handleClick = (e: MouseEvent) => {
+      if (!clickOut.current?.contains(e.target as Node)) {
+        setIsEdit(null);
+      }
+    };
+
+    document.addEventListener('click', handleClick);
+
+    return () => {
+      document.removeEventListener('click', handleClick);
+    };
+  }, []);
+
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (inputValue === '') {
       setErr('Title should not be empty');
@@ -92,11 +107,11 @@ export const App: React.FC = () => {
           completed: false,
         };
 
-        addTodo(newTodo);
+        await addTodo(newTodo);
 
-        setTodos(prevTodos => {
-          return [...prevTodos, newTodo];
-        });
+        const data = await getTodos();
+
+        setTodos(data);
 
         setInputValue('');
       } catch (error) {
@@ -107,14 +122,14 @@ export const App: React.FC = () => {
     }
   };
 
-  const handleDelete = (id: number) => {
+  const handleDelete = async (id: number) => {
     try {
       setIsLoader(true);
       const newTodos = todos.filter(todo => {
         return todo.id !== id;
       });
 
-      removeTodo(id);
+      await removeTodo(id);
 
       setTodos(newTodos);
     } catch (error) {
@@ -298,6 +313,7 @@ export const App: React.FC = () => {
                       setIsEdit(todo.id);
                       setEditValue(todo.title);
                     }}
+                    ref={clickOut}
                   >
                     {todo.title}
                   </span>
