@@ -1,8 +1,7 @@
 /* eslint-disable jsx-a11y/label-has-associated-control */
-/* eslint-disable jsx-a11y/control-has-associated-label */
 import React, { useState, useEffect, useRef } from 'react';
 import { UserWarning } from './UserWarning';
-import { USER_ID } from './api/todos';
+import { USER_ID } from './constants';
 import { getTodos } from './api/todos';
 import { postTodos } from './api/todos';
 import { deleteTodo } from './api/todos';
@@ -31,7 +30,7 @@ export const App: React.FC = () => {
 
   useEffect(() => {
     setErrorMessage('');
-    getTodos()
+    getTodos(USER_ID)
       .then(result => {
         setTodos(result);
         setLoading(false);
@@ -73,6 +72,35 @@ export const App: React.FC = () => {
 
   if (!USER_ID) {
     return <UserWarning />;
+  }
+
+  function handleClearCompleted() {
+    const completedTodos = todos.filter(todo => todo.completed === true);
+
+    Promise.allSettled(completedTodos.map(todo => deleteTodo(todo.id))).then(
+      results => {
+        const successfulTodoIds = results
+          .map((result, index) => {
+            if (result.status === 'fulfilled') {
+              return completedTodos[index].id;
+            }
+
+            return null;
+          })
+          .filter(id => id !== null);
+
+        setTodos(todos.filter(todo => !successfulTodoIds.includes(todo.id)));
+
+        const hasError = results.some(result => result.status === 'rejected');
+
+        if (hasError) {
+          setErrorMessage('Unable to delete a todo');
+          setTimeout(() => {
+            setErrorMessage('');
+          }, 3000);
+        }
+      },
+    );
   }
 
   return (
@@ -445,7 +473,6 @@ export const App: React.FC = () => {
                           : 'modal overlay'
                       }
                     >
-                      {/* eslint-disable-next-line max-len */}
                       <div className="modal-background has-background-white-ter" />
                       <div className="loader" />
                     </div>
@@ -460,7 +487,6 @@ export const App: React.FC = () => {
                   </span>
 
                   <div data-cy="TodoLoader" className="modal overlay is-active">
-                    {/* eslint-disable-next-line max-len */}
                     <div className="modal-background has-background-white-ter" />
                     <div className="loader" />
                   </div>
@@ -475,8 +501,11 @@ export const App: React.FC = () => {
 
                 <nav className="filter" data-cy="Filter">
                   <a
-                    href="#/"
-                    onClick={() => setFilter('all')}
+                    href="/"
+                    onClick={event => {
+                      event.preventDefault();
+                      setFilter('all');
+                    }}
                     className={
                       filter === 'all'
                         ? 'filter__link selected'
@@ -488,8 +517,11 @@ export const App: React.FC = () => {
                   </a>
 
                   <a
-                    href="#/active"
-                    onClick={() => setFilter('active')}
+                    href="/active"
+                    onClick={event => {
+                      event.preventDefault();
+                      setFilter('active');
+                    }}
                     className={
                       filter === 'active'
                         ? 'filter__link selected'
@@ -501,8 +533,11 @@ export const App: React.FC = () => {
                   </a>
 
                   <a
-                    href="#/completed"
-                    onClick={() => setFilter('completed')}
+                    href="/completed"
+                    onClick={event => {
+                      event.preventDefault();
+                      setFilter('completed');
+                    }}
                     className={
                       filter === 'completed'
                         ? 'filter__link selected'
@@ -519,42 +554,7 @@ export const App: React.FC = () => {
                   disabled={!todos.some(todo => todo.completed === true)}
                   className="todoapp__clear-completed"
                   data-cy="ClearCompletedButton"
-                  onClick={() => {
-                    const completedTodos = todos.filter(
-                      todo => todo.completed === true,
-                    );
-
-                    Promise.allSettled(
-                      completedTodos.map(todo => deleteTodo(todo.id)),
-                    ).then(results => {
-                      const successfulTodoIds = results
-                        .map((result, index) => {
-                          if (result.status === 'fulfilled') {
-                            return completedTodos[index].id;
-                          }
-
-                          return null;
-                        })
-                        .filter(id => id !== null);
-
-                      setTodos(
-                        todos.filter(
-                          todo => !successfulTodoIds.includes(todo.id),
-                        ),
-                      );
-
-                      const hasError = results.some(
-                        result => result.status === 'rejected',
-                      );
-
-                      if (hasError) {
-                        setErrorMessage('Unable to delete a todo');
-                        setTimeout(() => {
-                          setErrorMessage('');
-                        }, 3000);
-                      }
-                    });
-                  }}
+                  onClick={handleClearCompleted}
                 >
                   Clear completed
                 </button>
@@ -569,7 +569,7 @@ export const App: React.FC = () => {
         className={
           errorMessage
             ? 'notification is-danger is-light has-text-weight-normal'
-            : 'notification is-danger is-light has-text-weight-normal hidden' // eslint-disable-line max-len
+            : 'notification is-danger is-light has-text-weight-normal hidden'
         }
       >
         <button
