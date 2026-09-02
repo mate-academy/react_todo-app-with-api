@@ -127,27 +127,21 @@ export const App: React.FC = () => {
   };
 
   // filtros
-  const filterLink = async (filter: string) => {
+  const filterLink = (filter: string) => {
     setFilterActive(filter);
-    try {
-      setIsLoader(true);
-      const data = await getTodos();
-
-      if (filter === 'active') {
-        setTodos(data.filter(todo => !todo.completed));
-      } else if (filter === 'completed') {
-        setTodos(data.filter(todo => todo.completed));
-      } else {
-        setTodos(data);
-      }
-    } catch (error) {
-      /* eslint-disable-next-line no-console */
-      console.error(error);
-      setErr('Unable to load todos');
-    } finally {
-      setIsLoader(false);
-    }
   };
+
+  const filteredTodos = todos.filter(todo => {
+    if (filterActive === 'active') {
+      return !todo.completed;
+    }
+
+    if (filterActive === 'completed') {
+      return todo.completed;
+    }
+
+    return true;
+  });
 
   // limpeza
 
@@ -193,10 +187,10 @@ export const App: React.FC = () => {
 
         {/* TodoApp */}
 
-        {todos.length !== 0 && (
+        {filteredTodos.length !== 0 && (
           <TodoApp
             isEdit={isEdit}
-            todos={todos}
+            todos={filteredTodos}
             isLoader={isLoader}
             setIsLoader={setIsLoader}
             setTodos={setTodos}
@@ -207,7 +201,7 @@ export const App: React.FC = () => {
         )}
 
         {/* Hide the footer if there are no todos */}
-        {todos.length !== 0 && (
+        {filteredTodos.length !== 0 && (
           <footer className="todoapp__footer" data-cy="Footer">
             <span className="todo-count" data-cy="TodosCounter">
               {getItemsLeft()} items left
