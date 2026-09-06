@@ -155,9 +155,9 @@ export const App: React.FC = () => {
           ),
         );
       })
-      .catch(error => {
+      .catch(catchError => {
         setError('update');
-        throw error;
+        throw catchError;
       })
       .finally(() => {
         setProcessingIds(current =>

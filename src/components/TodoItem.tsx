@@ -1,5 +1,6 @@
+/* eslint-disable jsx-a11y/label-has-associated-control */
 import React, { useState } from 'react';
-import { Todo } from '../types';
+import { Todo } from '../types/Todo';
 
 type Props = {
   todo: Todo;
@@ -24,7 +25,7 @@ export const TodoItem: React.FC<Props> = ({
     setEditingTitle(todo.title);
   };
 
-  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = (event?: React.FormEvent<HTMLFormElement>) => {
     event?.preventDefault();
 
     const trimmedTitle = editingTitle.trim();

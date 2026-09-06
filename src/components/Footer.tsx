@@ -24,7 +24,7 @@ export const Footer: React.FC<Props> = ({
 
       <nav className="filter" data-cy="Filter">
         <a
-        <a href="#/"
+          href="#/"
           className={`filter__link ${filter === 'all' ? 'selected' : ''}`}
           data-cy="FilterLinkAll"
           onClick={() => onFilterChange('all')}
@@ -42,7 +42,7 @@ export const Footer: React.FC<Props> = ({
         </a>
 
         <a
-        <a href="#/completed"
+          href="#/completed"
           className={`filter__link ${filter === 'completed' ? 'selected' : ''}`}
           data-cy="FilterLinkCompleted"
           onClick={() => onFilterChange('completed')}
