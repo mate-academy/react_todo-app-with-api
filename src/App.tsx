@@ -10,19 +10,12 @@ import {
   USER_ID,
 } from './api/todos';
 import { Todo } from './types/Todo';
+import { ErrorMessage } from './types/ErrorMessage';
 import { FilterStatus } from './types/FilterStatus';
 import { Header } from './components/Header';
 import { TodoList } from './components/TodoList';
 import { Footer } from './components/Footer';
 import { ErrorNotification } from './components/ErrorNotification';
-
-const ERROR_MESSAGES = {
-  load: 'Unable to load todos',
-  add: 'Unable to add a todo',
-  delete: 'Unable to delete a todo',
-  update: 'Unable to update a todo',
-  emptyTitle: 'Title should not be empty',
-};
 
 export const App: React.FC = () => {
   const [todos, setTodos] = useState<Todo[]>([]);
@@ -41,7 +34,7 @@ export const App: React.FC = () => {
     getTodos()
       .then(setTodos)
       .catch(() => {
-        setErrorMessage(ERROR_MESSAGES.load);
+        setErrorMessage(ErrorMessage.Load);
       });
   }, []);
 
@@ -67,7 +60,7 @@ export const App: React.FC = () => {
     const trimmedTitle = title.trim();
 
     if (!trimmedTitle) {
-      setErrorMessage(ERROR_MESSAGES.emptyTitle);
+      setErrorMessage(ErrorMessage.EmptyTitle);
 
       return Promise.reject();
     }
@@ -91,7 +84,7 @@ export const App: React.FC = () => {
         setTodos(prev => [...prev, createdTodo]);
       })
       .catch(error => {
-        setErrorMessage(ERROR_MESSAGES.add);
+        setErrorMessage(ErrorMessage.Add);
 
         return Promise.reject(error);
       })
@@ -108,7 +101,7 @@ export const App: React.FC = () => {
         setTodos(prevTodos => prevTodos.filter(todo => todo.id !== todoId));
       })
       .catch(() => {
-        setErrorMessage(ERROR_MESSAGES.delete);
+        setErrorMessage(ErrorMessage.Delete);
       })
       .finally(() => {
         setLoadingTodoIds(prev => prev.filter(id => id !== todoId));
@@ -138,7 +131,7 @@ export const App: React.FC = () => {
         );
 
         if (successfullyDeletedIds.length < completedTodos.length) {
-          setErrorMessage(ERROR_MESSAGES.delete);
+          setErrorMessage(ErrorMessage.Delete);
         }
       })
       .finally(() => {
@@ -162,7 +155,7 @@ export const App: React.FC = () => {
         );
       })
       .catch(() => {
-        setErrorMessage(ERROR_MESSAGES.update);
+        setErrorMessage(ErrorMessage.Update);
         throw new Error();
       })
       .finally(() => {

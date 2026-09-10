@@ -9,6 +9,27 @@ type Props = {
   hasCompletedTodos: boolean;
 };
 
+const filterOptions = [
+  {
+    status: FilterStatus.All,
+    label: 'All',
+    href: '#/',
+    dataCy: 'FilterLinkAll',
+  },
+  {
+    status: FilterStatus.Active,
+    label: 'Active',
+    href: '#/active',
+    dataCy: 'FilterLinkActive',
+  },
+  {
+    status: FilterStatus.Completed,
+    label: 'Completed',
+    href: '#/completed',
+    dataCy: 'FilterLinkCompleted',
+  },
+];
+
 export const Footer: React.FC<Props> = ({
   activeCount,
   filter,
@@ -31,38 +52,17 @@ export const Footer: React.FC<Props> = ({
       </span>
 
       <nav className="filter" data-cy="Filter">
-        <a
-          href="#/"
-          className={`filter__link ${
-            filter === FilterStatus.All ? 'selected' : ''
-          }`}
-          data-cy="FilterLinkAll"
-          onClick={e => handleFilterClick(e, FilterStatus.All)}
-        >
-          All
-        </a>
-
-        <a
-          href="#/active"
-          className={`filter__link ${
-            filter === FilterStatus.Active ? 'selected' : ''
-          }`}
-          data-cy="FilterLinkActive"
-          onClick={e => handleFilterClick(e, FilterStatus.Active)}
-        >
-          Active
-        </a>
-
-        <a
-          href="#/completed"
-          className={`filter__link ${
-            filter === FilterStatus.Completed ? 'selected' : ''
-          }`}
-          data-cy="FilterLinkCompleted"
-          onClick={e => handleFilterClick(e, FilterStatus.Completed)}
-        >
-          Completed
-        </a>
+        {filterOptions.map(({ status, label, href, dataCy }) => (
+          <a
+            key={status}
+            href={href}
+            className={`filter__link ${filter === status ? 'selected' : ''}`}
+            data-cy={dataCy}
+            onClick={e => handleFilterClick(e, status)}
+          >
+            {label}
+          </a>
+        ))}
       </nav>
 
       <button
