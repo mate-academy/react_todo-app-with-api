@@ -241,7 +241,6 @@ export const App: React.FC<Props> = ({ userId }) => {
               onClick={handleToggleAll}
             />
           )}
-          {/* Add a todo on form submit */}
           <form onSubmit={handleSubmit}>
             <input
               data-cy="NewTodoField"

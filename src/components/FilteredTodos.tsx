@@ -33,11 +33,11 @@ export const FilteredTodos: React.FC<Props> = ({
   setEditingTodoId,
 }) => {
   const filteredTodos = todos.filter(item => {
-    if (filter === 'active') {
+    if (filter === Filter.Active) {
       return !item.completed;
     }
 
-    if (filter === 'completed') {
+    if (filter === Filter.Completed) {
       return item.completed;
     }
 
