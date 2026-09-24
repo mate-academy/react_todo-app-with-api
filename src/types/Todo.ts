@@ -8,3 +8,5 @@ export interface Todo {
 export type TodoServerData = Omit<Todo, 'id'>;
 
 export type TempTodo = Omit<Todo, 'userId' | 'completed'>;
+
+export type TodoUpdate = Partial<Pick<Todo, 'title' | 'completed'>>;

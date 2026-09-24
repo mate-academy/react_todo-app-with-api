@@ -25,7 +25,7 @@ export const NewTodoForm = ({
         className="todoapp__new-todo"
         placeholder="What needs to be done?"
         onChange={event => onQueryChange(event.target.value)}
-        disabled={isLoading ? true : false}
+        disabled={isLoading}
       />
     </form>
   );

@@ -27,27 +27,25 @@ export const Header = ({
   onToggleAll,
 }: Props) => {
   return (
-    <div>
-      <header className="todoapp__header">
-        {todos.length > 0 && (
-          <button
-            type="button"
-            className={cn('todoapp__toggle-all', {
-              active: todos.length === completedTodos.length,
-            })}
-            data-cy="ToggleAllButton"
-            onClick={onToggleAll}
-          />
-        )}
-
-        <NewTodoForm
-          onFormSubmit={onFormSubmit}
-          query={query}
-          onQueryChange={onQueryChange}
-          isLoading={isLoading}
-          inputRef={inputRef}
+    <header className="todoapp__header">
+      {todos.length > 0 && (
+        <button
+          type="button"
+          className={cn('todoapp__toggle-all', {
+            active: todos.length === completedTodos.length,
+          })}
+          data-cy="ToggleAllButton"
+          onClick={onToggleAll}
         />
-      </header>
-    </div>
+      )}
+
+      <NewTodoForm
+        onFormSubmit={onFormSubmit}
+        query={query}
+        onQueryChange={onQueryChange}
+        isLoading={isLoading}
+        inputRef={inputRef}
+      />
+    </header>
   );
 };

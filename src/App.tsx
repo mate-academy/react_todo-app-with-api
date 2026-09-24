@@ -1,10 +1,7 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 
 import * as todoService from './api/todos';
-import {
-  ERROR_MESSAGE_DISAPPEARS_AFTER,
-  ERROR_MESSAGES,
-} from './constants/errorMessages';
+import { ERROR_MESSAGES } from './constants/errorMessages';
 
 import { ErrorNotification } from './components/ErrorNotification';
 import { TodoList } from './components/TodoList';
@@ -52,9 +49,7 @@ export const App = () => {
   const inputRef = useRef<HTMLInputElement | null>(null);
 
   useEffect(() => {
-    if (inputRef.current) {
-      inputRef.current.focus();
-    }
+    inputRef.current?.focus();
 
     setErrorMessage('');
 
@@ -64,48 +59,30 @@ export const App = () => {
       .catch(() => setErrorMessage(ERROR_MESSAGES.LOAD_TODOS));
   }, []);
 
-  useEffect(() => {
-    if (!errorMessage) {
-      return;
-    }
+  useEffect(() => inputRef.current?.focus(), [isLoading]);
 
-    const timer = setTimeout(() => {
-      setErrorMessage('');
-    }, ERROR_MESSAGE_DISAPPEARS_AFTER);
+  const activeTodos = useMemo(
+    () => todos.filter(todo => !todo.completed),
+    [todos],
+  );
+  const completedTodos = useMemo(
+    () => todos.filter(todo => todo.completed),
+    [todos],
+  );
 
-    return () => {
-      clearTimeout(timer);
-    };
-  }, [errorMessage]);
-
-  useEffect(() => {
-    if (inputRef.current) {
-      inputRef.current.focus();
-    }
-  }, [isLoading]);
-
-  const activeTodos = todos.filter(todo => !todo.completed);
-  const completedTodos = todos.filter(todo => todo.completed);
-
-  const visibleTodos = getVisibleTodos(todos, filterBy);
+  const visibleTodos = useMemo(
+    () => getVisibleTodos(todos, filterBy),
+    [todos, filterBy],
+  );
 
   const handleTodoDelete = (todoId: number) => {
-    setPendingTodoIds(prev => {
-      const next = new Set(prev);
-
-      next.add(todoId);
-
-      return next;
-    });
+    setPendingTodoIds(prev => new Set(prev).add(todoId));
 
     return todoService
       .deleteTodo(todoId)
       .then(() => {
         setTodos(prev => prev.filter(todo => todo.id !== todoId));
-
-        if (inputRef.current) {
-          inputRef.current.focus();
-        }
+        inputRef.current?.focus();
 
         return true;
       })
@@ -125,7 +102,7 @@ export const App = () => {
       });
   };
 
-  const handleDeleteCompleted = () => {
+  const handleClearCompleted = () => {
     const completedIds = completedTodos.map(todo => todo.id);
 
     setPendingTodoIds(prev => {
@@ -141,10 +118,7 @@ export const App = () => {
         .deleteTodo(id)
         .then(() => {
           setTodos(prev => prev.filter(todo => todo.id !== id));
-
-          if (inputRef.current) {
-            inputRef.current.focus();
-          }
+          inputRef.current?.focus();
         })
         .catch(() => setErrorMessage(ERROR_MESSAGES.DELETE_TODO))
         .finally(() => {
@@ -169,7 +143,7 @@ export const App = () => {
     });
 
     todoService
-      .updateTodo(todoId, 'completed', completed)
+      .updateTodo(todoId, { completed })
       .then(() => {
         setTodos(prev =>
           prev.map(todo =>
@@ -192,38 +166,42 @@ export const App = () => {
   };
 
   const handleToggleAll = () => {
-    const currentCompleted = completedTodos.length !== todos.length;
+    const nextCompleted = completedTodos.length !== todos.length;
 
     const todosToUpdate = todos.filter(
-      todo => todo.completed !== currentCompleted,
+      todo => todo.completed !== nextCompleted,
     );
 
     setPendingTodoIds(prev => {
       const next = new Set(prev);
 
-      todosToUpdate.forEach(todo => next.add(todo.id));
+      todosToUpdate.forEach(todo => {
+        next.add(todo.id);
+      });
 
       return next;
     });
 
-    todosToUpdate.forEach(({ id }) => {
+    todosToUpdate.forEach(todo => {
       todoService
-        .updateTodo(id, 'completed', currentCompleted)
+        .updateTodo(todo.id, { completed: nextCompleted })
         .then(() => {
           setTodos(prev =>
-            prev.map(todo => {
-              return todo.id === id
-                ? { ...todo, completed: currentCompleted }
-                : todo;
-            }),
+            prev.map(prevTodo =>
+              prevTodo.id === todo.id
+                ? { ...prevTodo, completed: nextCompleted }
+                : prevTodo,
+            ),
           );
         })
-        .catch(() => setErrorMessage(ERROR_MESSAGES.UPDATE_TODO))
+        .catch(() => {
+          setErrorMessage(ERROR_MESSAGES.UPDATE_TODO);
+        })
         .finally(() => {
           setPendingTodoIds(prev => {
             const next = new Set(prev);
 
-            next.delete(id);
+            next.delete(todo.id);
 
             return next;
           });
@@ -245,12 +223,10 @@ export const App = () => {
     });
 
     return todoService
-      .updateTodo(todoId, 'title', title)
+      .updateTodo(todoId, { title })
       .then(() => {
         setTodos(prev =>
-          prev.map(todo =>
-            todo.id === todoId ? { ...todo, title: title.trim() } : todo,
-          ),
+          prev.map(todo => (todo.id === todoId ? { ...todo, title } : todo)),
         );
 
         return true;
@@ -338,7 +314,7 @@ export const App = () => {
               onFilterSelect={setFilterBy}
               activeTodos={activeTodos}
               completedTodos={completedTodos}
-              onDeleteCompleted={handleDeleteCompleted}
+              onClearCompleted={handleClearCompleted}
             />
           </>
         )}

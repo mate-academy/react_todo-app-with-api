@@ -8,7 +8,7 @@ type Props = {
   onFilterSelect: (filterBy: FilterBy) => void;
   activeTodos: Todo[];
   completedTodos: Todo[];
-  onDeleteCompleted: () => void;
+  onClearCompleted: () => void;
 };
 
 export const Footer = ({
@@ -16,7 +16,7 @@ export const Footer = ({
   onFilterSelect,
   activeTodos,
   completedTodos,
-  onDeleteCompleted,
+  onClearCompleted,
 }: Props) => {
   return (
     <footer className="todoapp__footer hidden" data-cy="Footer">
@@ -30,8 +30,8 @@ export const Footer = ({
         type="button"
         className="todoapp__clear-completed"
         data-cy="ClearCompletedButton"
-        disabled={completedTodos.length <= 0 ? true : false}
-        onClick={onDeleteCompleted}
+        disabled={completedTodos.length <= 0}
+        onClick={onClearCompleted}
       >
         Clear completed
       </button>

@@ -1,10 +1,10 @@
-import { FormEvent, useEffect, useState } from 'react';
+import { FormEvent, useState } from 'react';
 import cn from 'classnames';
 
 import type { TempTodo, Todo } from '../../types/Todo';
 
 type Props = {
-  todo: Todo | TempTodo | null;
+  todo: Todo | TempTodo;
   isPending: boolean;
   onTodoDelete: (todoId: number) => void;
   onTodoToggle: (todoId: number, completed: boolean) => void;
@@ -19,34 +19,23 @@ export const TodoItem = ({
   onTodoUpdate,
 }: Props) => {
   const [isEditing, setIsEditing] = useState(false);
-  const [newTodoTitle, setNewTodoTitle] = useState(todo?.title || '');
+  const [newTodoTitle, setNewTodoTitle] = useState(todo.title);
 
-  useEffect(() => {
-    const closeEditing = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') {
-        setIsEditing(false);
-      }
-    };
-
-    window.addEventListener('keyup', closeEditing);
-
-    return () => window.removeEventListener('keyup', closeEditing);
-  }, []);
-
-  if (!todo) {
-    return null;
-  }
-
-  const isCompleted = 'completed' in todo ? todo.completed : false;
+  const isTempTodo = !('completed' in todo);
+  const isCompleted = !isTempTodo && todo.completed;
 
   const handleTodoUpdate = async () => {
-    if (todo.title !== newTodoTitle) {
-      const wasUpdated = await onTodoUpdate(todo.id, newTodoTitle);
+    const processedTitle = newTodoTitle.trim();
 
-      if (wasUpdated) {
-        setIsEditing(false);
-      }
-    } else {
+    if (todo.title === processedTitle) {
+      setIsEditing(false);
+
+      return;
+    }
+
+    const wasUpdated = await onTodoUpdate(todo.id, processedTitle);
+
+    if (wasUpdated) {
       setIsEditing(false);
     }
   };
@@ -59,7 +48,7 @@ export const TodoItem = ({
 
   return (
     <div data-cy="Todo" className={cn('todo', { completed: isCompleted })}>
-      {/*eslint-disable-next-line jsx-a11y/label-has-associated-control*/}
+      {/* eslint-disable-next-line jsx-a11y/label-has-associated-control */}
       <label className="todo__status-label">
         <input
           name="todoStatus"
@@ -77,10 +66,16 @@ export const TodoItem = ({
             type="text"
             className="todo__title-field"
             placeholder="Empty todo will be deleted"
-            autoFocus={isEditing}
+            autoFocus
             value={newTodoTitle}
             onChange={event => setNewTodoTitle(event.target.value)}
             onBlur={handleTodoUpdate}
+            onKeyUp={event => {
+              if (event.key === 'Escape') {
+                setNewTodoTitle(todo.title);
+                setIsEditing(false);
+              }
+            }}
           />
         </form>
       ) : (
@@ -92,16 +87,19 @@ export const TodoItem = ({
               setIsEditing(true);
             }}
           >
-            {todo?.title}
+            {todo.title}
           </span>
-          <button
-            type="button"
-            className="todo__remove"
-            data-cy="TodoDelete"
-            onClick={() => onTodoDelete(todo.id)}
-          >
-            ×
-          </button>
+
+          {!isTempTodo && (
+            <button
+              type="button"
+              className="todo__remove"
+              data-cy="TodoDelete"
+              onClick={() => onTodoDelete(todo.id)}
+            >
+              ×
+            </button>
+          )}
         </>
       )}
       <div
@@ -111,6 +109,7 @@ export const TodoItem = ({
         })}
       >
         <div className="modal-background has-background-white-ter" />
+
         <div className="loader" />
       </div>
     </div>
