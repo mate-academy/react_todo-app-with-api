@@ -12,10 +12,10 @@ import { Todo } from '../types/Todo';
 type Props = {
   todo: Todo;
   isProcessing: boolean;
-  // Updated to Promise<void> so we can await the deletion
+  // Updated to pass only necessary primitives (Checklist Item 10)
   onDelete: (id: number) => Promise<void>;
-  onToggle: (todo: Todo) => void;
-  onRename: (todo: Todo, newTitle: string) => Promise<void>;
+  onToggle: (id: number, completed: boolean) => Promise<void>;
+  onRename: (id: number, newTitle: string) => Promise<void>;
 };
 
 export const TodoItem: React.FC<Props> = ({
@@ -57,6 +57,7 @@ export const TodoItem: React.FC<Props> = ({
     // Same title → just cancel.
     if (trimmed === todo.title) {
       cancelEditing();
+
       return;
     }
 
@@ -64,19 +65,41 @@ export const TodoItem: React.FC<Props> = ({
       try {
         await onDelete(todo.id);
         setIsEditing(false);
-      } catch (error) {}
+      } catch (error) {
+        throw error;
+      }
+
       return;
     }
 
+    // Rename the todo
     try {
-      await onRename(todo, trimmed);
+      await onRename(todo.id, trimmed);
       setIsEditing(false);
-    } catch (error) {}
+    } catch (error) {
+      throw error;
+    }
   };
 
-  const handleSubmit = (event: FormEvent<HTMLFormElement>): void => {
+  const handleSubmit = async (
+    event: FormEvent<HTMLFormElement>,
+  ): Promise<void> => {
     event.preventDefault();
-    commitRename();
+
+    try {
+      await commitRename();
+    } catch (error) {
+      // Error is already handled in App.tsx (notification shown).
+      // We keep isEditing true so the user can retry.
+    }
+  };
+
+  const handleBlur = async (): Promise<void> => {
+    try {
+      await commitRename();
+    } catch (error) {
+      // Error handled by parent
+    }
   };
 
   const handleKeyUp = (event: KeyboardEvent<HTMLInputElement>): void => {
@@ -96,7 +119,7 @@ export const TodoItem: React.FC<Props> = ({
           type="checkbox"
           className="todo__status"
           checked={todo.completed}
-          onChange={() => onToggle(todo)}
+          onChange={() => onToggle(todo.id, !todo.completed)}
           aria-label={`Mark "${todo.title}" as completed`}
         />
       </label>
@@ -110,7 +133,7 @@ export const TodoItem: React.FC<Props> = ({
             className="todo__title-field"
             value={draftTitle}
             onChange={event => setDraftTitle(event.target.value)}
-            onBlur={commitRename}
+            onBlur={handleBlur}
             onKeyUp={handleKeyUp}
           />
         </form>

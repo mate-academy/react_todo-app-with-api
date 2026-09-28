@@ -40,7 +40,6 @@ export const App: React.FC = () => {
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
   const [isAdding, setIsAdding] = useState(false);
 
-  // Any todo with an in-flight request (add/delete/toggle/rename).
   const [processingIds, setProcessingIds] = useState<number[]>([]);
 
   const [errorMessage, setErrorMessage] = useState('');
@@ -49,9 +48,6 @@ export const App: React.FC = () => {
   const errorTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const newTodoField = useRef<HTMLInputElement>(null);
 
-  /*
-   * Show error notification.
-   */
   const showError = useCallback((message: string): void => {
     if (errorTimerRef.current) {
       clearTimeout(errorTimerRef.current);
@@ -66,9 +62,6 @@ export const App: React.FC = () => {
     }, 3000);
   }, []);
 
-  /*
-   * Hide error notification.
-   */
   const hideError = useCallback((): void => {
     if (errorTimerRef.current) {
       clearTimeout(errorTimerRef.current);
@@ -90,18 +83,12 @@ export const App: React.FC = () => {
     setProcessingIds(current => current.filter(id => !ids.includes(id)));
   };
 
-  /*
-   * Focus the input after adding is finished.
-   */
   useEffect(() => {
     if (!isAdding) {
       newTodoField.current?.focus();
     }
   }, [isAdding]);
 
-  /*
-   * Load todos when the application starts.
-   */
   useEffect(() => {
     const loadTodos = async (): Promise<void> => {
       hideError();
@@ -124,9 +111,6 @@ export const App: React.FC = () => {
     };
   }, [hideError, showError]);
 
-  /*
-   * Keep the filter in sync with the URL hash.
-   */
   useEffect(() => {
     const applyFilterFromHash = (): void => {
       const hash = window.location.hash.replace(/^#\/?/, '');
@@ -146,9 +130,6 @@ export const App: React.FC = () => {
     };
   }, []);
 
-  /*
-   * Re-focus the input once the last pending operation has finished.
-   */
   const previousProcessingCount = useRef(0);
 
   useEffect(() => {
@@ -161,9 +142,6 @@ export const App: React.FC = () => {
     previousProcessingCount.current = currentCount;
   }, [processingIds.length]);
 
-  /*
-   * Add a new todo.
-   */
   const handleAddTodo = async (
     event: FormEvent<HTMLFormElement>,
   ): Promise<void> => {
@@ -178,7 +156,6 @@ export const App: React.FC = () => {
     }
 
     hideError();
-
     setIsAdding(true);
 
     const newTempTodo: Todo = {
@@ -194,7 +171,6 @@ export const App: React.FC = () => {
       const createdTodo = await addTodo(trimmedTitle);
 
       setTodos(currentTodos => [...currentTodos, createdTodo]);
-
       setTitle('');
     } catch {
       showError('Unable to add a todo');
@@ -204,9 +180,6 @@ export const App: React.FC = () => {
     }
   };
 
-  /*
-   * Delete one todo.
-   */
   const handleDeleteTodo = async (todoId: number): Promise<void> => {
     hideError();
     markProcessing([todoId]);
@@ -222,18 +195,16 @@ export const App: React.FC = () => {
     }
   };
 
-  /*
-   * Toggle a single todo.
-   */
-  const handleToggleTodo = async (todo: Todo): Promise<void> => {
+  // UPDATED: Accepts id and completed status (Checklist Item 10)
+  const handleToggleTodo = async (
+    todoId: number,
+    completed: boolean,
+  ): Promise<void> => {
     hideError();
-
-    markProcessing([todo.id]);
+    markProcessing([todoId]);
 
     try {
-      const updated = await updateTodo(todo.id, {
-        completed: !todo.completed,
-      });
+      const updated = await updateTodo(todoId, { completed });
 
       setTodos(currentTodos =>
         currentTodos.map(t => (t.id === updated.id ? updated : t)),
@@ -241,13 +212,10 @@ export const App: React.FC = () => {
     } catch {
       showError('Unable to update a todo');
     } finally {
-      unmarkProcessing([todo.id]);
+      unmarkProcessing([todoId]);
     }
   };
 
-  /*
-   * Toggle every todo. Only changed todos get a PATCH request.
-   */
   const handleToggleAll = async (): Promise<void> => {
     const allCompleted = todos.length > 0 && todos.every(t => t.completed);
     const targetStatus = !allCompleted;
@@ -301,18 +269,17 @@ export const App: React.FC = () => {
     }
   };
 
-  /*
-   * Rename a todo.
-   */
+  // UPDATED: Accepts id and newTitle (Checklist Item 10)
   const handleRenameTodo = async (
-    todo: Todo,
+    todoId: number,
     newTitle: string,
   ): Promise<void> => {
     hideError();
-    markProcessing([todo.id]);
+    markProcessing([todoId]);
 
     try {
-      const updated = await updateTodo(todo.id, { title: newTitle });
+      const updated = await updateTodo(todoId, { title: newTitle });
+
       setTodos(currentTodos =>
         currentTodos.map(t => (t.id === updated.id ? updated : t)),
       );
@@ -320,7 +287,7 @@ export const App: React.FC = () => {
       showError('Unable to update a todo');
       throw error;
     } finally {
-      unmarkProcessing([todo.id]);
+      unmarkProcessing([todoId]);
     }
   };
 
@@ -335,7 +302,6 @@ export const App: React.FC = () => {
     }
 
     hideError();
-
     markProcessing(completedIds);
 
     const results: DeleteResult[] = await Promise.all(
@@ -369,9 +335,6 @@ export const App: React.FC = () => {
     }
   };
 
-  /*
-   * Filter todos.
-   */
   const visibleTodos = todos.filter(todo => {
     if (filter === FILTERS.active) {
       return !todo.completed;
@@ -385,7 +348,6 @@ export const App: React.FC = () => {
   });
 
   const activeTodosCount = todos.filter(todo => !todo.completed).length;
-
   const completedTodosCount = todos.filter(todo => todo.completed).length;
 
   const todosCounterText = `${activeTodosCount} ${

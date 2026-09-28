@@ -1,6 +1,4 @@
 import React from 'react';
-import classNames from 'classnames';
-
 import { Todo } from '../types/Todo';
 import { TodoItem } from './TodoItem';
 
@@ -8,9 +6,10 @@ type Props = {
   todos: Todo[];
   tempTodo: Todo | null;
   processingIds: number[];
-  onDelete: (id: number) => void;
-  onToggle: (todo: Todo) => void;
-  onRename: (todo: Todo, newTitle: string) => void;
+  // Updated signatures to match App.tsx (Checklist Item 10)
+  onDelete: (id: number) => Promise<void>;
+  onToggle: (id: number, completed: boolean) => Promise<void>;
+  onRename: (id: number, newTitle: string) => Promise<void>;
 };
 
 export const TodoList: React.FC<Props> = ({
@@ -20,53 +19,32 @@ export const TodoList: React.FC<Props> = ({
   onDelete,
   onToggle,
   onRename,
-}) => (
-  <section className="todoapp__main" data-cy="TodoList">
-    {todos.map(todo => (
-      <TodoItem
-        key={todo.id}
-        todo={todo}
-        isProcessing={processingIds.includes(todo.id)}
-        onDelete={onDelete}
-        onToggle={onToggle}
-        onRename={onRename}
-      />
-    ))}
-
-    {tempTodo && (
-      <div data-cy="Todo" className={classNames('todo')}>
-        <label className="todo__status-label">
-          <input
-            data-cy="TodoStatus"
-            type="checkbox"
-            className="todo__status"
-            checked={false}
-            aria-label="Todo status"
-            readOnly
+}) => {
+  return (
+    <ul className="todo-list" data-cy="TodoList">
+      {todos.map(todo => (
+        <li key={todo.id}>
+          <TodoItem
+            todo={todo}
+            isProcessing={processingIds.includes(todo.id)}
+            onDelete={onDelete}
+            onToggle={onToggle}
+            onRename={onRename}
           />
-        </label>
+        </li>
+      ))}
 
-        <span data-cy="TodoTitle" className="todo__title">
-          {tempTodo.title}
-        </span>
-
-        <button
-          type="button"
-          className="todo__remove"
-          data-cy="TodoDelete"
-          disabled
-        >
-          ×
-        </button>
-
-        <div
-          data-cy="TodoLoader"
-          className={classNames('modal', 'overlay', 'is-active')}
-        >
-          <div className="modal-background has-background-white-ter" />
-          <div className="loader" />
-        </div>
-      </div>
-    )}
-  </section>
-);
+      {tempTodo && (
+        <li>
+          <TodoItem
+            todo={tempTodo}
+            isProcessing={true}
+            onDelete={onDelete}
+            onToggle={onToggle}
+            onRename={onRename}
+          />
+        </li>
+      )}
+    </ul>
+  );
+};
