@@ -1,26 +1,207 @@
-/* eslint-disable max-len */
-/* eslint-disable jsx-a11y/control-has-associated-label */
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { UserWarning } from './UserWarning';
-
-const USER_ID = 0;
+import { USER_ID, addTodo, getTodos, deleteTodo } from './api/todos';
+import { updateTodo } from './api/todos';
+import { Todo } from './types/Todo';
+import { Filter } from './types/Filter';
+import { Header } from './components/Header/Header';
+import { TodoList } from './components/TodoList/TodoList';
+import { Footer } from './components/Footer/Footer';
+import { ErrorNotification } from './components/ErrorNotification';
+import { ErrorMessage } from './types/ErrorMessage';
 
 export const App: React.FC = () => {
+  const [todos, setTodos] = useState<Todo[]>([]);
+  const [error, setError] = useState('');
+  const [filter, setFilter] = useState(Filter.All);
+  const [isAdding, setIsAdding] = useState(false);
+  const [tempTodo, setTempTodo] = useState<Todo | null>(null);
+  const [isAddSuccessful, setIsAddSuccessful] = useState(false);
+  const [deletingTodoIds, setDeletingTodoIds] = useState<number[]>([]);
+  const [updatingTodoIds, setUpdatingTodoIds] = useState<number[]>([]);
+
+  const handleError = (message: ErrorMessage) => {
+    setError(message);
+
+    setTimeout(() => {
+      setError('');
+    }, 3000);
+  };
+
+  const handleAddTodo = (trimmedTitle: string) => {
+    setIsAdding(true);
+    setIsAddSuccessful(false);
+
+    setTempTodo({
+      id: 0,
+      userId: USER_ID,
+      title: trimmedTitle,
+      completed: false,
+    });
+
+    addTodo(trimmedTitle)
+      .then(createdTodo => {
+        setTodos(currentTodos => [...currentTodos, createdTodo]);
+        setIsAddSuccessful(true);
+      })
+      .catch(() => {
+        handleError(ErrorMessage.Add);
+      })
+      .finally(() => {
+        setIsAdding(false);
+        setTempTodo(null);
+      });
+  };
+
+  const isDeleting = deletingTodoIds.length > 0;
+
+  const handleDeleteTodo = (todoId: number) => {
+    setDeletingTodoIds(currentIds => [...currentIds, todoId]);
+
+    return deleteTodo(todoId)
+      .then(() => {
+        setTodos(currentTodos =>
+          currentTodos.filter(todo => todo.id !== todoId),
+        );
+      })
+      .catch(() => {
+        handleError(ErrorMessage.Delete);
+      })
+      .finally(() => {
+        setDeletingTodoIds(currentIds =>
+          currentIds.filter(id => id !== todoId),
+        );
+      });
+  };
+
+  const handleClearCompleted = () => {
+    const completedTodos = todos.filter(todo => todo.completed);
+
+    const deletePromises = completedTodos.map(todo => {
+      return handleDeleteTodo(todo.id);
+    });
+
+    return Promise.all(deletePromises);
+  };
+
+  const handleUpdateTodo = (todoId: number, data: Partial<Todo>) => {
+    setUpdatingTodoIds(currentIds => [...currentIds, todoId]);
+
+    return updateTodo(todoId, data)
+      .then(updatedTodo => {
+        setTodos(currentTodos =>
+          currentTodos.map(currentTodo => {
+            if (currentTodo.id === updatedTodo.id) {
+              return updatedTodo;
+            }
+
+            return currentTodo;
+          }),
+        );
+      })
+      .catch(() => {
+        handleError(ErrorMessage.Update);
+        throw new Error(ErrorMessage.Update);
+      })
+      .finally(() => {
+        setUpdatingTodoIds(currentIds =>
+          currentIds.filter(id => id !== todoId),
+        );
+      });
+  };
+
+  const handleToggleTodo = (todo: Todo) => {
+    return handleUpdateTodo(todo.id, { completed: !todo.completed });
+  };
+
+  const areAllTodosCompleted =
+    todos.length > 0 && todos.every(todo => todo.completed);
+
+  const handleToggleAll = () => {
+    const newCompletedStatus = !areAllTodosCompleted;
+
+    const todosToUpdate = todos.filter(todo => {
+      return todo.completed !== newCompletedStatus;
+    });
+
+    const updatePromises = todosToUpdate.map(todo => {
+      return handleToggleTodo(todo);
+    });
+
+    return Promise.all(updatePromises);
+  };
+
+  const handleRenameTodo = (todoId: number, newTitle: string) => {
+    return handleUpdateTodo(todoId, { title: newTitle });
+  };
+
+  let visibleTodos = [...todos];
+
+  if (filter === Filter.Active) {
+    visibleTodos = visibleTodos.filter(todo => !todo.completed);
+  }
+
+  if (filter === Filter.Completed) {
+    visibleTodos = visibleTodos.filter(todo => todo.completed);
+  }
+
+  function loadTodos() {
+    setError('');
+
+    getTodos()
+      .then(loadedTodos => {
+        setTodos(loadedTodos);
+      })
+      .catch(() => {
+        handleError(ErrorMessage.Load);
+      });
+  }
+
+  useEffect(loadTodos, []);
+
   if (!USER_ID) {
     return <UserWarning />;
   }
 
   return (
-    <section className="section container">
-      <p className="title is-4">
-        Copy all you need from the prev task:
-        <br />
-        <a href="https://github.com/mate-academy/react_todo-app-add-and-delete#react-todo-app-add-and-delete">
-          React Todo App - Add and Delete
-        </a>
-      </p>
+    <div className="todoapp">
+      <h1 className="todoapp__title">todos</h1>
 
-      <p className="subtitle">Styles are already copied</p>
-    </section>
+      <div className="todoapp__content">
+        <Header
+          onError={handleError}
+          onAddTodo={handleAddTodo}
+          isAdding={isAdding}
+          isAddSuccessful={isAddSuccessful}
+          isDeleting={isDeleting}
+          areAllTodosCompleted={areAllTodosCompleted}
+          onToggleAll={handleToggleAll}
+          hasTodos={todos.length > 0}
+        />
+
+        {(todos.length > 0 || tempTodo !== null) && (
+          <TodoList
+            visibleTodos={visibleTodos}
+            tempTodo={tempTodo}
+            handleDeleteTodo={handleDeleteTodo}
+            deletingTodoIds={deletingTodoIds}
+            updateTodoStatus={handleToggleTodo}
+            updatingTodoIds={updatingTodoIds}
+            onRename={handleRenameTodo}
+          />
+        )}
+
+        {todos.length > 0 && (
+          <Footer
+            todos={todos}
+            filter={filter}
+            onFilterChange={setFilter}
+            onClearCompleted={handleClearCompleted}
+          />
+        )}
+      </div>
+
+      <ErrorNotification error={error} onClose={() => setError('')} />
+    </div>
   );
 };
