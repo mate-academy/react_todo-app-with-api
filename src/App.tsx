@@ -27,9 +27,7 @@ export const App: React.FC = () => {
   const [title, setTitle] = useState('');
   const [isLoading, setIsLoading] = useState(true);
   const [isAddingTodo, setIsAddingTodo] = useState(false);
-  const [deletingTodoId, setDeletingTodoId] = useState<number | null>(null);
-  const [togglingTodoIds, setTogglingTodoIds] = useState<number[]>([]);
-  const [renamingTodoId, setRenamingTodoId] = useState<number | null>(null);
+  const [processingTodoIds, setProcessingTodoIds] = useState<number[]>([]);
 
   const visibleTodos = useMemo(
     () => getVisibleTodos(todos, selectedFilter),
@@ -103,19 +101,17 @@ export const App: React.FC = () => {
       });
   };
 
-  const handleDelete = (todoToDelete: Todo) => {
-    setDeletingTodoId(todoToDelete.id);
+  const handleDelete = (todo: Todo) => {
+    setProcessingTodoIds(prevIds => [...prevIds, todo.id]);
 
     todoService
-      .deleteTodo(todoToDelete.id)
+      .deleteTodo(todo.id)
       .then(() =>
-        setTodos(prevTodos =>
-          prevTodos.filter(({ id }) => id !== todoToDelete.id),
-        ),
+        setTodos(prevTodos => prevTodos.filter(({ id }) => id !== todo.id)),
       )
       .catch(() => showError('Unable to delete a todo'))
       .finally(() => {
-        setDeletingTodoId(null);
+        setProcessingTodoIds(prevIds => prevIds.filter(id => id !== todo.id));
 
         editInput.current?.focus();
       });
@@ -123,6 +119,10 @@ export const App: React.FC = () => {
 
   const handleClearCompleted = () => {
     const completedTodos = todos.filter(({ completed }) => completed);
+    const completedTodoIds = completedTodos.map(({ id }) => id);
+
+    setProcessingTodoIds(prevIds => [...prevIds, ...completedTodoIds]);
+
     const deletedRequests = completedTodos.map(({ id }) =>
       todoService.deleteTodo(id),
     );
@@ -136,13 +136,16 @@ export const App: React.FC = () => {
         }
       });
 
+      const successfullyDeletedIds = successfullyDeletedTodos.map(
+        ({ id }) => id,
+      );
+
       setTodos(prevTodos =>
-        prevTodos.filter(
-          todo =>
-            !successfullyDeletedTodos.some(
-              deletedTodo => deletedTodo.id === todo.id,
-            ),
-        ),
+        prevTodos.filter(todo => !successfullyDeletedIds.includes(todo.id)),
+      );
+
+      setProcessingTodoIds(prevIds =>
+        prevIds.filter(id => !completedTodoIds.includes(id)),
       );
 
       if (results.some(result => result.status === 'rejected')) {
@@ -154,7 +157,7 @@ export const App: React.FC = () => {
   };
 
   const handleToggleTodo = (todoToUpdate: Todo) => {
-    setTogglingTodoIds(prevTodoIds => [...prevTodoIds, todoToUpdate.id]);
+    setProcessingTodoIds(prevIds => [...prevIds, todoToUpdate.id]);
 
     return todoService
       .updateTodo({
@@ -170,14 +173,14 @@ export const App: React.FC = () => {
       })
       .catch(() => showError('Unable to update a todo'))
       .finally(() =>
-        setTogglingTodoIds(prevTodoIds =>
+        setProcessingTodoIds(prevTodoIds =>
           prevTodoIds.filter(id => id !== todoToUpdate.id),
         ),
       );
   };
 
   const handleRenameTodo = (todoToUpdate: Todo, newTitle: string) => {
-    setRenamingTodoId(todoToUpdate.id);
+    setProcessingTodoIds(prevIds => [...prevIds, todoToUpdate.id]);
 
     return todoService
       .updateTodo({
@@ -196,7 +199,9 @@ export const App: React.FC = () => {
         throw new Error();
       })
       .finally(() => {
-        setRenamingTodoId(null);
+        setProcessingTodoIds(prevIds =>
+          prevIds.filter(id => id !== todoToUpdate.id),
+        );
       });
   };
 
@@ -243,9 +248,7 @@ export const App: React.FC = () => {
           <>
             <TodoList
               todos={visibleTodos}
-              deletingTodoId={deletingTodoId}
-              togglingTodoIds={togglingTodoIds}
-              renamingTodoId={renamingTodoId}
+              processingTodoIds={processingTodoIds}
               onDelete={handleDelete}
               onToggle={handleToggleTodo}
               onRename={handleRenameTodo}

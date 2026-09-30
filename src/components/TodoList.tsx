@@ -4,9 +4,7 @@ import { TodoItem } from './TodoItem';
 
 type Props = {
   todos: Todo[];
-  deletingTodoId: number | null;
-  togglingTodoIds: number[];
-  renamingTodoId: number | null;
+  processingTodoIds: number[];
   onDelete: (todo: Todo) => void;
   onToggle: (todo: Todo) => void;
   onRename: (todo: Todo, newTitle: string) => Promise<void>;
@@ -14,24 +12,20 @@ type Props = {
 
 export const TodoList: React.FC<Props> = ({
   todos,
-  deletingTodoId,
-  togglingTodoIds,
-  renamingTodoId,
+  processingTodoIds,
   onDelete,
   onToggle,
   onRename,
 }) => (
   <section className="todoapp__main" data-cy="TodoList">
     {todos.map(todo => {
-      const isToggling = togglingTodoIds.includes(todo.id);
-      const isDeleting = deletingTodoId === todo.id;
-      const isRenaming = renamingTodoId === todo.id;
+      const isProcessing = processingTodoIds.includes(todo.id);
 
       return (
         <TodoItem
           todo={todo}
           key={todo.id}
-          isLoading={isDeleting || isToggling || isRenaming}
+          isLoading={isProcessing}
           onDelete={onDelete}
           onToggle={onToggle}
           onRename={onRename}
