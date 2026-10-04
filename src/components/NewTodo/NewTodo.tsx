@@ -5,6 +5,7 @@ type Props = {
   setTitle: (value: string) => void;
   handleSubmit: (event: React.FormEvent) => void;
   loadingAdd: boolean;
+  inputRef: React.RefObject<HTMLInputElement>;
 };
 
 export const NewTodo: React.FC<Props> = ({
@@ -12,10 +13,12 @@ export const NewTodo: React.FC<Props> = ({
   setTitle,
   handleSubmit,
   loadingAdd,
+  inputRef,
 }) => {
   return (
     <form onSubmit={handleSubmit}>
       <input
+        ref={inputRef}
         data-cy="NewTodoField"
         type="text"
         className="todoapp__new-todo"

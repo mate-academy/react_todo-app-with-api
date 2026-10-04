@@ -1,7 +1,7 @@
 /* eslint-disable jsx-a11y/label-has-associated-control */
 /* eslint-disable jsx-a11y/control-has-associated-label */
 
-import React, { useEffect, useState } from 'react';
+import React, { useRef, useEffect, useState } from 'react';
 import cn from 'classnames';
 
 import { UserWarning } from './UserWarning';
@@ -30,10 +30,10 @@ export const App: React.FC = () => {
   const [editTitle, setEditTitle] = useState('');
   const [filter, setFilter] = useState<FilterType>('all');
 
-  const [loadingTodoId, setLoadingTodoId] = useState<number | null>(null);
+  const [loadingTodoIds, setLoadingTodoIds] = useState<number[]>([]);
   const [loadingAdd, setLoadingAdd] = useState(false);
-  const [loadingClear, setLoadingClear] = useState(false);
-  const [loadingToggleAll, setLoadingToggleAll] = useState(false);
+
+  const newTodoFieldRef = useRef<HTMLInputElement>(null);
 
   const showError = (message: string) => {
     setError(message);
@@ -55,6 +55,12 @@ export const App: React.FC = () => {
       });
   }, []);
 
+  useEffect(() => {
+    if (!loadingAdd) {
+      newTodoFieldRef.current?.focus();
+    }
+  }, [loadingAdd]);
+
   if (!USER_ID) {
     return <UserWarning />;
   }
@@ -75,17 +81,12 @@ export const App: React.FC = () => {
   const activeTodosCount = todos.filter(todo => !todo.completed).length;
 
   const toggleTodo = (todo: Todo) => {
-    if (
-      loadingTodoId !== null ||
-      loadingAdd ||
-      loadingClear ||
-      loadingToggleAll
-    ) {
+    if (loadingTodoIds.length > 0 || loadingAdd) {
       return;
     }
 
     hideError();
-    setLoadingTodoId(todo.id);
+    setLoadingTodoIds(currentIds => [...currentIds, todo.id]);
 
     changeTodos(todo)
       .then(updatedTodo => {
@@ -99,18 +100,14 @@ export const App: React.FC = () => {
         showError('Unable to update a todo');
       })
       .finally(() => {
-        setLoadingTodoId(null);
+        setLoadingTodoIds(currentIds =>
+          currentIds.filter(id => id !== todo.id),
+        );
       });
   };
 
   const handleToggleAll = () => {
-    if (
-      loadingTodoId !== null ||
-      loadingAdd ||
-      loadingClear ||
-      loadingToggleAll ||
-      todos.length === 0
-    ) {
+    if (loadingTodoIds.length > 0 || loadingAdd) {
       return;
     }
 
@@ -120,8 +117,10 @@ export const App: React.FC = () => {
       todo => todo.completed !== shouldCompleteAll,
     );
 
+    const loadingIds = todosToChange.map(todo => todo.id);
+
     hideError();
-    setLoadingToggleAll(true);
+    setLoadingTodoIds(loadingIds);
 
     Promise.all(todosToChange.map(todo => changeTodos(todo)))
       .then(updatedTodos => {
@@ -139,7 +138,7 @@ export const App: React.FC = () => {
         showError('Unable to update todos');
       })
       .finally(() => {
-        setLoadingToggleAll(false);
+        setLoadingTodoIds([]);
       });
   };
 
@@ -154,12 +153,7 @@ export const App: React.FC = () => {
       return;
     }
 
-    if (
-      loadingTodoId !== null ||
-      loadingAdd ||
-      loadingClear ||
-      loadingToggleAll
-    ) {
+    if (loadingTodoIds.length > 0 || loadingAdd) {
       return;
     }
 
@@ -185,22 +179,11 @@ export const App: React.FC = () => {
       .finally(() => {
         setTempTodo(null);
         setLoadingAdd(false);
-
-        setTimeout(() => {
-          document
-            .querySelector<HTMLInputElement>('[data-cy="NewTodoField"]')
-            ?.focus();
-        }, 0);
       });
   };
 
   const handleEditClick = (todo: Todo) => {
-    if (
-      loadingTodoId !== null ||
-      loadingAdd ||
-      loadingClear ||
-      loadingToggleAll
-    ) {
+    if (loadingTodoIds.length > 0 || loadingAdd) {
       return;
     }
 
@@ -210,12 +193,7 @@ export const App: React.FC = () => {
   };
 
   const handleEdit = (todo: Todo) => {
-    if (
-      loadingTodoId !== null ||
-      loadingAdd ||
-      loadingClear ||
-      loadingToggleAll
-    ) {
+    if (loadingTodoIds.length > 0 || loadingAdd) {
       return;
     }
 
@@ -229,7 +207,7 @@ export const App: React.FC = () => {
     }
 
     hideError();
-    setLoadingTodoId(todo.id);
+    setLoadingTodoIds(currentIds => [...currentIds, todo.id]);
 
     if (!trimmedTitle) {
       deleteTodos(todo)
@@ -244,7 +222,9 @@ export const App: React.FC = () => {
           showError('Unable to delete a todo');
         })
         .finally(() => {
-          setLoadingTodoId(null);
+          setLoadingTodoIds(currentIds =>
+            currentIds.filter(id => id !== todo.id),
+          );
         });
 
       return;
@@ -264,22 +244,19 @@ export const App: React.FC = () => {
         showError('Unable to update a todo');
       })
       .finally(() => {
-        setLoadingTodoId(null);
+        setLoadingTodoIds(currentIds =>
+          currentIds.filter(id => id !== todo.id),
+        );
       });
   };
 
   const handleDelete = (todo: Todo) => {
-    if (
-      loadingTodoId !== null ||
-      loadingClear ||
-      loadingAdd ||
-      loadingToggleAll
-    ) {
+    if (loadingTodoIds.length > 0 || loadingAdd) {
       return;
     }
 
     hideError();
-    setLoadingTodoId(todo.id);
+    setLoadingTodoIds(currentIds => [...currentIds, todo.id]);
 
     deleteTodos(todo)
       .then(() => {
@@ -291,23 +268,16 @@ export const App: React.FC = () => {
         showError('Unable to delete a todo');
       })
       .finally(() => {
-        setLoadingTodoId(null);
+        setLoadingTodoIds(currentIds =>
+          currentIds.filter(id => id !== todo.id),
+        );
 
-        setTimeout(() => {
-          document
-            .querySelector<HTMLInputElement>('[data-cy="NewTodoField"]')
-            ?.focus();
-        }, 0);
+        newTodoFieldRef.current?.focus();
       });
   };
 
   const handleClearCompleted = () => {
-    if (
-      loadingClear ||
-      loadingTodoId !== null ||
-      loadingAdd ||
-      loadingToggleAll
-    ) {
+    if (loadingTodoIds.length > 0 || loadingAdd) {
       return;
     }
 
@@ -317,8 +287,10 @@ export const App: React.FC = () => {
       return;
     }
 
+    const completedIds = completedTodos.map(todo => todo.id);
+
     hideError();
-    setLoadingClear(true);
+    setLoadingTodoIds(completedIds);
 
     Promise.allSettled(completedTodos.map(todo => deleteTodos(todo)))
       .then(results => {
@@ -335,13 +307,9 @@ export const App: React.FC = () => {
         }
       })
       .finally(() => {
-        setLoadingClear(false);
+        setLoadingTodoIds([]);
 
-        setTimeout(() => {
-          document
-            .querySelector<HTMLInputElement>('[data-cy="NewTodoField"]')
-            ?.focus();
-        }, 0);
+        newTodoFieldRef.current?.focus();
       });
   };
 
@@ -370,10 +338,8 @@ export const App: React.FC = () => {
               data-cy="ToggleAllButton"
               onClick={handleToggleAll}
               disabled={
-                loadingTodoId !== null ||
-                loadingAdd ||
-                loadingClear ||
-                loadingToggleAll
+                loadingTodoIds.length > 0 ||
+                loadingAdd
               }
             />
           )}
@@ -383,6 +349,7 @@ export const App: React.FC = () => {
             setTitle={setTitle}
             handleSubmit={handleSubmit}
             loadingAdd={loadingAdd}
+            inputRef={newTodoFieldRef}
           />
         </header>
 
@@ -392,8 +359,7 @@ export const App: React.FC = () => {
             editTitle={editTitle}
             visibleTodos={visibleTodos}
             toggleTodo={toggleTodo}
-            loadingTodoId={loadingTodoId}
-            loadingClear={loadingClear}
+            loadingTodoIds={loadingTodoIds}
             handleEdit={handleEdit}
             setEditTitle={setEditTitle}
             handleEditClick={handleEditClick}
@@ -408,8 +374,7 @@ export const App: React.FC = () => {
             edit={edit}
             editTitle={editTitle}
             toggleTodo={toggleTodo}
-            loadingTodoId={loadingAdd ? tempTodo.id : null}
-            loadingClear={loadingClear}
+            loadingTodoIds={loadingAdd ? [tempTodo.id] : []}
             handleEdit={handleEdit}
             setEditTitle={setEditTitle}
             handleEditClick={handleEditClick}
@@ -432,8 +397,8 @@ export const App: React.FC = () => {
               data-cy="ClearCompletedButton"
               disabled={
                 !todos.some(todo => todo.completed) ||
-                loadingClear ||
-                loadingToggleAll
+                loadingTodoIds.length > 0 ||
+                loadingAdd
               }
               onClick={handleClearCompleted}
             >

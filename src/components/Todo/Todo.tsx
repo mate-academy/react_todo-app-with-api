@@ -10,8 +10,7 @@ type Props = {
   edit: number | null;
   editTitle: string;
   toggleTodo: (todo: TodoType) => void;
-  loadingTodoId: number | null;
-  loadingClear: boolean;
+  loadingTodoIds: number[];
   handleEdit: (todo: TodoType) => void;
   setEditTitle: (value: string) => void;
   handleEditClick: (todo: TodoType) => void;
@@ -24,8 +23,7 @@ export const Todo: React.FC<Props> = ({
   edit,
   editTitle,
   toggleTodo,
-  loadingTodoId,
-  loadingClear,
+  loadingTodoIds,
   handleEdit,
   setEditTitle,
   handleEditClick,
@@ -47,7 +45,7 @@ export const Todo: React.FC<Props> = ({
           className="todo__status"
           checked={todo.completed}
           onChange={() => toggleTodo(todo)}
-          disabled={loadingTodoId === todo.id || loadingClear}
+          disabled={loadingTodoIds.includes(todo.id)}
         />
       </label>
 
@@ -65,7 +63,7 @@ export const Todo: React.FC<Props> = ({
             placeholder="Empty todo will be deleted"
             value={editTitle}
             onChange={event => setEditTitle(event.target.value)}
-            disabled={loadingTodoId === todo.id}
+            disabled={loadingTodoIds.includes(todo.id)}
             autoFocus
             onBlur={() => handleEdit(todo)}
             onKeyUp={event => {
@@ -91,7 +89,7 @@ export const Todo: React.FC<Props> = ({
             className="todo__remove"
             data-cy="TodoDelete"
             onClick={() => handleDelete(todo)}
-            disabled={loadingTodoId !== null || loadingClear}
+            disabled={loadingTodoIds.length > 0}
           >
             ×
           </button>
@@ -101,7 +99,7 @@ export const Todo: React.FC<Props> = ({
       <div
         data-cy="TodoLoader"
         className={cn('modal overlay', {
-          'is-active': loadingTodoId === todo.id,
+          'is-active': loadingTodoIds.includes(todo.id),
         })}
       >
         <div className="modal-background has-background-white-ter" />

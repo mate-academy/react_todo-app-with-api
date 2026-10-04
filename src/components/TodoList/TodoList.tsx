@@ -7,8 +7,7 @@ type Props = {
   editTitle: string;
   visibleTodos: TodoType[];
   toggleTodo: (todo: TodoType) => void;
-  loadingTodoId: number | null;
-  loadingClear: boolean;
+  loadingTodoIds: number[];
   handleEdit: (todo: TodoType) => void;
   setEditTitle: (value: string) => void;
   handleEditClick: (todo: TodoType) => void;
@@ -21,8 +20,7 @@ export const TodoList: React.FC<Props> = ({
   editTitle,
   visibleTodos,
   toggleTodo,
-  loadingTodoId,
-  loadingClear,
+  loadingTodoIds,
   handleEdit,
   setEditTitle,
   handleEditClick,
@@ -37,8 +35,7 @@ export const TodoList: React.FC<Props> = ({
           edit={edit}
           editTitle={editTitle}
           toggleTodo={toggleTodo}
-          loadingTodoId={loadingTodoId}
-          loadingClear={loadingClear}
+          loadingTodoIds={loadingTodoIds}
           handleEdit={handleEdit}
           setEditTitle={setEditTitle}
           handleEditClick={handleEditClick}
