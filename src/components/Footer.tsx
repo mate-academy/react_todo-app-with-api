@@ -20,6 +20,12 @@ export const Footer: React.FC<Props> = ({
   const activeCount = todos.filter(todo => !todo.completed).length;
   const completedCount = todos.length - activeCount;
 
+  const handleFilterClick =
+    (filter: FilterType) => (event: React.MouseEvent<HTMLAnchorElement>) => {
+      event.preventDefault();
+      onFilterChange(filter);
+    };
+
   return (
     <footer className="todoapp__footer" data-cy="Footer">
       <span className="todo-count" data-cy="TodosCounter">
@@ -33,10 +39,7 @@ export const Footer: React.FC<Props> = ({
             selected: selectedFilter === FILTERS.all,
           })}
           data-cy="FilterLinkAll"
-          onClick={event => {
-            event.preventDefault();
-            onFilterChange(FILTERS.all);
-          }}
+          onClick={handleFilterClick(FILTERS.all)}
         >
           All
         </a>
@@ -47,10 +50,7 @@ export const Footer: React.FC<Props> = ({
             selected: selectedFilter === FILTERS.active,
           })}
           data-cy="FilterLinkActive"
-          onClick={event => {
-            event.preventDefault();
-            onFilterChange(FILTERS.active);
-          }}
+          onClick={handleFilterClick(FILTERS.active)}
         >
           Active
         </a>
@@ -61,10 +61,7 @@ export const Footer: React.FC<Props> = ({
             selected: selectedFilter === FILTERS.completed,
           })}
           data-cy="FilterLinkCompleted"
-          onClick={event => {
-            event.preventDefault();
-            onFilterChange(FILTERS.completed);
-          }}
+          onClick={handleFilterClick(FILTERS.completed)}
         >
           Completed
         </a>

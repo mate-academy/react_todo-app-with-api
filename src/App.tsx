@@ -91,10 +91,7 @@ export const App: React.FC = () => {
     }
   };
 
-  const handleUpdateTodo = async (
-    todoId: number,
-    data: Partial<Todo>,
-  ): Promise<boolean> => {
+  const handleUpdateTodo = async (todoId: number, data: Partial<Todo>) => {
     setErrorMessage(null);
     setLoadingTodoIds(currentIds => [...currentIds, todoId]);
 
@@ -125,6 +122,7 @@ export const App: React.FC = () => {
     return handleUpdateTodo(todoId, { completed: !toggledTodo.completed });
   };
 
+  // header
   const handleToggleAll = () => {
     const newCompletedStatus = !isAllCompleted;
 
@@ -135,6 +133,7 @@ export const App: React.FC = () => {
       });
   };
 
+  // footer
   const handleClearCompleted = async () => {
     const completedTodos = todos.filter(todo => todo.completed);
     const completedIds = completedTodos.map(todo => todo.id);
@@ -142,19 +141,23 @@ export const App: React.FC = () => {
     setErrorMessage(null);
     setLoadingTodoIds(currentIds => [...currentIds, ...completedIds]);
 
-    const deletedIds: number[] = [];
     let hasError = false;
 
-    await Promise.all(
+    const results = await Promise.all(
       completedIds.map(async id => {
         try {
           await deleteTodo(id);
-          deletedIds.push(id);
+
+          return id;
         } catch {
           hasError = true;
+
+          return null;
         }
       }),
     );
+
+    const deletedIds = results.filter((id): id is number => id !== null);
 
     if (hasError) {
       setErrorMessage(ERROR_MESSAGES.DELETE);
@@ -163,6 +166,8 @@ export const App: React.FC = () => {
     setTodos(currentTodos =>
       currentTodos.filter(todo => !deletedIds.includes(todo.id)),
     );
+
+    // spiner off
     setLoadingTodoIds(currentIds =>
       currentIds.filter(id => !completedIds.includes(id)),
     );
