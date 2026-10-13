@@ -70,8 +70,11 @@
     opacity: 1;
   }
 
-  &__title-field {
+   &__title-field {
+    box-sizing: border-box;
+    display: block;
     width: 100%;
+    min-width: 0;
     padding: 11px 14px;
 
     font-size: inherit;
@@ -91,13 +94,17 @@
   }
 
   .overlay {
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 58px;
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 58px;
 
-    opacity: 0.5;
+  opacity: 0.5;
+  pointer-events: none;
+
+  &.is-active {
+    pointer-events: auto;
   }
 }
 
@@ -146,4 +153,5 @@
 .has-error .temp-item-exit-active {
   transform: translateY(0);
   overflow: hidden;
+}
 }
