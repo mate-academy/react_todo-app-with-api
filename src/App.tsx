@@ -11,6 +11,7 @@ import {
   updateTodo,
 } from './api/todos';
 import { Todo } from './types/Todo';
+import { TodoList } from './components/TodoList';
 
 type Filter = 'all' | 'active' | 'completed';
 
@@ -28,7 +29,6 @@ export const App: React.FC = () => {
 
   const inputRef = useRef<HTMLInputElement>(null);
   const errorTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const skipNextBlur = useRef(false);
 
   const activeCount = todos.filter(todo => !todo.completed).length;
   const completedCount = todos.length - activeCount;
@@ -131,6 +131,7 @@ export const App: React.FC = () => {
     }
 
     addProcessing(id);
+
     try {
       await deleteTodo(id);
 
@@ -188,8 +189,6 @@ export const App: React.FC = () => {
           setTodos(current =>
             current.map(item => (item.id === todo.id ? updatedTodo : item)),
           );
-
-
         } catch {
           showError('Unable to update a todo');
         } finally {
@@ -209,8 +208,7 @@ export const App: React.FC = () => {
     setEditingTitle(todo.title);
   };
 
-  // SAVE RENAMED TODO
-
+  // SAVE EDIT
   const handleSaveEdit = async (todo: Todo) => {
     const title = editingTitle.trim();
 
@@ -236,25 +234,16 @@ export const App: React.FC = () => {
       setTodos(current =>
         current.map(item => (item.id === todo.id ? updatedTodo : item)),
       );
+    } catch {
+      setEditingTodoId(todo.id);
+      setEditingTitle(title);
 
-
-} catch {
-  setEditingTodoId(todo.id);
-  setEditingTitle(title);
-
-  showError(title ? 'Unable to update a todo' : 'Unable to delete a todo');
-}
-
-
-
-
-    finally {
+      showError(title ? 'Unable to update a todo' : 'Unable to delete a todo');
+    } finally {
       removeProcessing(todo.id);
     }
   };
 
-  // CLEAR COMPLETED
-  // CLEAR COMPLETED
   // CLEAR COMPLETED
   const handleClearCompleted = async () => {
     const completedTodos = todos.filter(
@@ -288,6 +277,12 @@ export const App: React.FC = () => {
 
       inputRef.current?.focus();
     }
+  };
+
+  // CANCEL EDIT
+  const handleCancelEdit = () => {
+    setEditingTodoId(null);
+    setEditingTitle('');
   };
 
   // HIDE ERROR
@@ -334,118 +329,27 @@ export const App: React.FC = () => {
           </form>
         </header>
 
-        <section className="todoapp__main" data-cy="TodoList">
-          {visibleTodos.map(todo => (
-            <div
-              key={todo.id}
-              data-cy="Todo"
-              className={`todo ${todo.completed ? 'completed' : ''}`}
-            >
-              <label className="todo__status-label" htmlFor={`todo-${todo.id}`}>
-                <input
-                  id={`todo-${todo.id}`}
-                  type="checkbox"
-                  className="todo__status"
-                  checked={todo.completed}
-                  onChange={() => handleToggleTodo(todo)}
-                  data-cy="TodoStatus"
-                  disabled={processingTodos.includes(todo.id)}
-                />
-              </label>
+        {!isLoading && (
+          <TodoList
+            todos={visibleTodos}
+            tempTodo={tempTodo}
+            processingTodos={processingTodos}
+            editingTodoId={editingTodoId}
+            editingTitle={editingTitle}
+            onToggle={handleToggleTodo}
+            onDelete={handleDeleteTodo}
+            onStartEditing={handleStartEditing}
+            onEditTitleChange={setEditingTitle}
+            onSaveEdit={handleSaveEdit}
+            onCancelEdit={handleCancelEdit}
+          />
+        )}
 
-              {editingTodoId === todo.id ? (
-                <form
-                  onSubmit={event => {
-                    event.preventDefault();
-                  }}
-                >
-                  <input
-                    type="text"
-                    className="todo__title-field"
-                    value={editingTitle}
-                    onChange={event => setEditingTitle(event.target.value)}
-                    onBlur={() => {
-                      if (skipNextBlur.current) {
-                        skipNextBlur.current = false;
-
-                        return;
-                      }
-
-                      handleSaveEdit(todo);
-                    }}
-                    onKeyDown={event => {
-                      if (event.key === 'Enter') {
-                        event.preventDefault();
-                        event.currentTarget.blur();
-                      }
-
-                      if (event.key === 'Escape') {
-                        event.preventDefault();
-                        skipNextBlur.current = true;
-                        event.currentTarget.blur();
-                        setEditingTodoId(null);
-                      }
-                    }}
-                    autoFocus
-                    data-cy="TodoTitleField"
-                  />
-                </form>
-              ) : (
-                <span
-                  data-cy="TodoTitle"
-                  className="todo__title"
-                  onDoubleClick={() => handleStartEditing(todo)}
-                >
-                  {todo.title}
-                </span>
-              )}
-
-              {editingTodoId !== todo.id && (
-                <button
-                  type="button"
-                  className="todo__remove"
-                  data-cy="TodoDelete"
-                  onClick={() => handleDeleteTodo(todo.id)}
-                  disabled={processingTodos.includes(todo.id)}
-                >
-                  ×
-                </button>
-              )}
-
-              <div
-                data-cy="TodoLoader"
-                className={`modal overlay ${
-                  processingTodos.includes(todo.id) ? 'is-active' : ''
-                }`}
-              >
-                <div className="modal-background" />
-                <div className="loader" />
-              </div>
-            </div>
-          ))}
-
-          {tempTodo && (
-            <div data-cy="Todo" className="todo">
-              <label className="todo__status-label" htmlFor="todo-temp">
-                <input
-                  id="todo-temp"
-                  type="checkbox"
-                  className="todo__status"
-                  disabled
-                />
-              </label>
-
-              <span data-cy="TodoTitle" className="todo__title">
-                {tempTodo.title}
-              </span>
-
-              <div data-cy="TodoLoader" className="modal overlay is-active">
-                <div className="modal-background" />
-                <div className="loader" />
-              </div>
-            </div>
-          )}
-        </section>
+        {isLoading && (
+          <section className="todoapp__main">
+            <div className="loader" />
+          </section>
+        )}
 
         {todos.length > 0 && (
           <footer className="todoapp__footer" data-cy="Footer">
