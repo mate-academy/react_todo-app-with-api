@@ -172,6 +172,7 @@ export const App: React.FC = () => {
       );
     } catch (error) {
       setErrorMessage(ErrorTypes.errorUpdateTodo);
+      throw error;
     }
   };
 
