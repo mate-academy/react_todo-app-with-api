@@ -57,6 +57,28 @@ export const TodoItem: React.FC<Props> = ({
     }
   };
 
+  const handleStatusChange = async () => {
+    try {
+      setIsUpdating(true);
+      await updateTodo(todo.id, { completed: !todo.completed });
+    } finally {
+      setIsUpdating(false);
+    }
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      handleSave();
+    }
+
+    if (e.key === 'Escape') {
+      isCancelledRef.current = true;
+      setIsEditing(false);
+      setNewTitle(todo.title);
+    }
+  };
+
   return (
     <div
       data-cy="Todo"
@@ -74,14 +96,7 @@ export const TodoItem: React.FC<Props> = ({
           className="todo__status"
           checked={todo.completed}
           aria-label="Toggle todo status"
-          onChange={async () => {
-            try {
-              setIsUpdating(true);
-              await updateTodo(todo.id, { completed: !todo.completed });
-            } finally {
-              setIsUpdating(false);
-            }
-          }}
+          onChange={handleStatusChange}
         />
       </label>
 
@@ -95,18 +110,7 @@ export const TodoItem: React.FC<Props> = ({
           onChange={e => setNewTitle(e.target.value)}
           disabled={isSaving}
           onBlur={handleSave}
-          onKeyDown={e => {
-            if (e.key === 'Enter') {
-              e.preventDefault();
-              handleSave();
-            }
-
-            if (e.key === 'Escape') {
-              isCancelledRef.current = true;
-              setIsEditing(false);
-              setNewTitle(todo.title);
-            }
-          }}
+          onKeyDown={handleKeyDown}
           autoFocus
         />
       ) : (

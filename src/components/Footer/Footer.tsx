@@ -31,7 +31,7 @@ export const Footer: React.FC<Props> = ({
           key={value}
           href={href}
           data-cy={cy}
-          className={`filtered__link ${filter === value ? 'selected' : ''}`}
+          className={`filter__link ${filter === value ? 'selected' : ''}`}
           onClick={() => setFilter(value)}
         >
           {label}
