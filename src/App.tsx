@@ -273,11 +273,12 @@ export const App: React.FC = () => {
             deleteCompletedTodo={deleteCompletedTodo}
           />
         )}
-
-        <ErrorNotification
-          errorMessage={errorMessage}
-          setErrorMessage={setErrorMessage}
-        />
+        {errorMessage && (
+          <ErrorNotification
+            errorMessage={errorMessage}
+            setErrorMessage={setErrorMessage}
+          />
+        )}
       </div>
     </div>
   );
