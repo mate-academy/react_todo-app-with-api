@@ -1,14 +1,11 @@
 import React from 'react';
 import { Todo } from '../types/Todo';
-import { TodoItem } from './TodoItem';
+import { TodoItem, TodoItemActions } from './TodoItem';
 
-type Props = {
+type Props = TodoItemActions & {
   todos: Todo[];
   tempTodo: Todo | null;
   processingIds: number[];
-  onDelete: (todoId: number) => void;
-  onToggle: (todoId: number, completed: boolean) => void;
-  onRename: (todoId: number, title: string) => Promise<boolean>;
 };
 
 export const TodoList: React.FC<Props> = ({
@@ -32,7 +29,7 @@ export const TodoList: React.FC<Props> = ({
         />
       ))}
 
-      {tempTodo !== null && <TodoItem todo={tempTodo} isProcessed />}
+      {tempTodo !== null && <TodoItem todo={tempTodo} isTemp />}
     </section>
   );
 };

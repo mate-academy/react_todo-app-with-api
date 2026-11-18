@@ -4,35 +4,26 @@ import classNames from 'classnames';
 import { Todo } from '../types/Todo';
 import { TodoEditForm } from './TodoEditForm';
 
+export type TodoItemActions = {
+  onDelete: (todoId: number, shouldFocusNewTodo?: boolean) => Promise<boolean>;
+  onToggle: (todoId: number, completed: boolean) => void;
+  onRename: (todoId: number, title: string) => Promise<boolean>;
+};
+
 type Props = {
   todo: Todo;
   isProcessed?: boolean;
-  onDelete?: (todoId: number, shouldFocusNewTodo?: boolean) => Promise<boolean>;
-  onToggle?: (todoId: number, completed: boolean) => void;
-  onRename?: (todoId: number, title: string) => Promise<boolean>;
-};
+} & (({ isTemp?: false } & TodoItemActions) | { isTemp: true });
 
-export const TodoItem: React.FC<Props> = ({
-  todo,
-  isProcessed = false,
-  onDelete,
-  onToggle,
-  onRename,
-}) => {
+export const TodoItem: React.FC<Props> = props => {
+  const { todo, isProcessed = false } = props;
   const [isEditing, setIsEditing] = useState(false);
+  const isBusy = props.isTemp === true || isProcessed;
 
   const handleStartEditing = () => {
-    if (onRename && !isProcessed) {
+    if (!isBusy) {
       setIsEditing(true);
     }
-  };
-
-  const handleSaveTitle = (title: string): Promise<boolean> => {
-    if (!title) {
-      return onDelete?.(todo.id, false) ?? Promise.resolve(false);
-    }
-
-    return onRename?.(todo.id, title) ?? Promise.resolve(false);
   };
 
   return (
@@ -48,16 +39,24 @@ export const TodoItem: React.FC<Props> = ({
           type="checkbox"
           className="todo__status"
           checked={todo.completed}
-          disabled={isProcessed || !onToggle}
-          onChange={event => onToggle?.(todo.id, event.currentTarget.checked)}
+          disabled={isBusy}
+          onChange={
+            props.isTemp
+              ? undefined
+              : event => props.onToggle(todo.id, event.currentTarget.checked)
+          }
         />
       </label>
 
-      {isEditing ? (
+      {!props.isTemp && isEditing ? (
         <TodoEditForm
           initialTitle={todo.title}
-          isProcessed={isProcessed}
-          onSave={handleSaveTitle}
+          isProcessed={isBusy}
+          onSave={title =>
+            title
+              ? props.onRename(todo.id, title)
+              : props.onDelete(todo.id, false)
+          }
           onCancel={() => setIsEditing(false)}
         />
       ) : (
@@ -74,17 +73,18 @@ export const TodoItem: React.FC<Props> = ({
             type="button"
             className="todo__remove"
             data-cy="TodoDelete"
-            disabled={isProcessed || !onDelete}
-            onClick={() => onDelete?.(todo.id)}
+            disabled={isBusy}
+            onClick={props.isTemp ? undefined : () => props.onDelete(todo.id)}
           >
             ×
           </button>
         </>
       )}
+
       <div
         data-cy="TodoLoader"
         className={classNames('modal', 'overlay', {
-          'is-active': isProcessed,
+          'is-active': isBusy,
         })}
       >
         <div className="modal-background has-background-white-ter" />

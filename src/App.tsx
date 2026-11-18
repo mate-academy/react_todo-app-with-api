@@ -1,5 +1,3 @@
-/* eslint-disable jsx-a11y/label-has-associated-control */
-/* eslint-disable jsx-a11y/control-has-associated-label */
 import React, { useState, useEffect, useMemo } from 'react';
 import classNames from 'classnames';
 import { UserWarning } from './UserWarning';
@@ -220,7 +218,6 @@ export const App: React.FC = () => {
 
       <div className="todoapp__content">
         <header className="todoapp__header">
-          {/* this button should have `active` class only if all todos are completed */}
           {todos.length > 0 && (
             <button
               type="button"
@@ -234,7 +231,6 @@ export const App: React.FC = () => {
             />
           )}
 
-          {/* Add a todo on form submit */}
           <NewTodo
             isAdding={tempTodo !== null}
             focusRequest={focusRequest}
@@ -254,7 +250,6 @@ export const App: React.FC = () => {
           />
         )}
 
-        {/* Hide the footer if there are no todos */}
         {todos.length > 0 && (
           <TodoFooter
             activeTodosCount={activeTodosCount}
@@ -266,8 +261,6 @@ export const App: React.FC = () => {
         )}
       </div>
 
-      {/* DON'T use conditional rendering to hide the notification */}
-      {/* Add the 'hidden' class to hide the message smoothly */}
       <ErrorNotification
         errorMessage={errorMessage}
         onClose={() => setErrorMessage(ErrorMessage.None)}
