@@ -204,8 +204,9 @@ export const App: React.FC = () => {
       setTodos(currentTodos =>
         currentTodos.map(todo => (todo.id === todoWait.id ? todoWait : todo)),
       );
-    } catch {
+    } catch (err) {
       setError(ErrorMessage.Update);
+      throw err;
     } finally {
       setToggleIds(prev => prev.filter(id => id !== todoId));
     }

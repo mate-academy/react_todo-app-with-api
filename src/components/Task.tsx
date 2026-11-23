@@ -74,6 +74,8 @@ export default function Task({
     try {
       await onRename(todo.id, trimmedTitle);
       setShowForm(false);
+    } catch {
+      focusRef.current?.focus();
     } finally {
       isSavingRef.current = false;
     }
