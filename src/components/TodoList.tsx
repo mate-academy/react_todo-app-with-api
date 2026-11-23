@@ -4,7 +4,7 @@ import Task from './Task';
 
 type Props = {
   todos: Todo[];
-  onDelete: (id: number) => void;
+  onDelete: (id: number) => Promise<boolean>;
   deletingTodoIds: number[];
   onToggle: (todoId: number) => Promise<void>;
   toggleIds: number[];

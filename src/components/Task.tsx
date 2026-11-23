@@ -8,7 +8,7 @@ import cn from 'classnames';
 type Props = {
   todo: Todo;
   isLoading?: boolean;
-  onDelete?: () => void;
+  onDelete?: () => Promise<boolean>;
   onToggle: (todoId: number) => Promise<void>;
   toggleIds: number[];
   onRename?: (todoId: number, newTitle: string) => Promise<void>;
@@ -51,8 +51,16 @@ export default function Task({
 
     if (trimmedTitle === '') {
       isSavingRef.current = true;
-      onDelete?.();
-      setShowForm(false);
+
+      try {
+        const deleted = await onDelete?.();
+
+        if (deleted) {
+          setShowForm(false);
+        }
+      } finally {
+        isSavingRef.current = false;
+      }
 
       return;
     }

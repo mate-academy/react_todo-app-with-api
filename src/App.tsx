@@ -114,19 +114,22 @@ export const App: React.FC = () => {
   };
   // delete
 
-  const deleteTodoById = (todoId: number) => {
+  const deleteTodoById = (todoId: number): Promise<boolean> => {
     setError(null);
-
     setDeletingTodoIds(currentIds => [...currentIds, todoId]);
 
-    deleteTodo(todoId)
+    return deleteTodo(todoId)
       .then(() => {
         setTodos(currentTodos =>
           currentTodos.filter(todo => todo.id !== todoId),
         );
+
+        return true;
       })
       .catch(() => {
         setError(ErrorMessage.Delete);
+
+        return false;
       })
       .finally(() => {
         setDeletingTodoIds(currentIds =>
@@ -237,10 +240,10 @@ export const App: React.FC = () => {
         currentTodos.map(todo => (todo.id === todoWait.id ? todoWait : todo)),
       );
     } catch (err) {
-        setError(ErrorMessage.Update);
-        throw err;
+      setError(ErrorMessage.Update);
+      throw err;
     } finally {
-        setToggleIds(prev => prev.filter(id => id !== todoId));
+      setToggleIds(prev => prev.filter(id => id !== todoId));
     }
   };
   /////////////////// return elements ///////////////////////////////
