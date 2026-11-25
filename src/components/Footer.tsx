@@ -3,6 +3,27 @@ import { Todo } from '../types/Todo';
 
 type Filter = 'all' | 'active' | 'completed';
 
+const filters: {
+  value: Filter;
+  href: string;
+  label: string;
+  dataCy: string;
+}[] = [
+  { value: 'all', href: '#/', label: 'All', dataCy: 'FilterLinkAll' },
+  {
+    value: 'active',
+    href: '#/active',
+    label: 'Active',
+    dataCy: 'FilterLinkActive',
+  },
+  {
+    value: 'completed',
+    href: '#/completed',
+    label: 'Completed',
+    dataCy: 'FilterLinkCompleted',
+  },
+];
+
 interface Props {
   todos: Todo[];
   filter: Filter;
@@ -29,32 +50,17 @@ export const Footer: React.FC<Props> = ({
       </span>
 
       <nav className="filter" data-cy="Filter">
-        <a
-          href="#/"
-          className={`filter__link ${filter === 'all' ? 'selected' : ''}`}
-          data-cy="FilterLinkAll"
-          onClick={() => onFilterChange('all')}
-        >
-          All
-        </a>
-
-        <a
-          href="#/active"
-          className={`filter__link ${filter === 'active' ? 'selected' : ''}`}
-          data-cy="FilterLinkActive"
-          onClick={() => onFilterChange('active')}
-        >
-          Active
-        </a>
-
-        <a
-          href="#/completed"
-          className={`filter__link ${filter === 'completed' ? 'selected' : ''}`}
-          data-cy="FilterLinkCompleted"
-          onClick={() => onFilterChange('completed')}
-        >
-          Completed
-        </a>
+        {filters.map(({ value, href, label, dataCy }) => (
+          <a
+            key={value}
+            href={href}
+            className={`filter__link ${filter === value ? 'selected' : ''}`}
+            data-cy={dataCy}
+            onClick={() => onFilterChange(value)}
+          >
+            {label}
+          </a>
+        ))}
       </nav>
 
       <button

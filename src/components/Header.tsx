@@ -19,33 +19,39 @@ export const Header: React.FC<Props> = ({
   onNewTodoChange,
   onAddTodo,
   onToggleAll,
-}) => (
-  <header className="todoapp__header">
-    {todos.length > 0 && (
-      <button
-        type="button"
-        className={`todoapp__toggle-all ${todos.every(todo => todo.completed) ? 'active' : ''}`}
-        data-cy="ToggleAllButton"
-        onClick={onToggleAll}
-      />
-    )}
+}) => {
+  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    onAddTodo(newTodo);
+  };
 
-    <form
-      onSubmit={event => {
-        event.preventDefault();
-        onAddTodo(newTodo);
-      }}
-    >
-      <input
-        ref={inputRef}
-        data-cy="NewTodoField"
-        type="text"
-        className="todoapp__new-todo"
-        placeholder="What needs to be done?"
-        value={newTodo}
-        onChange={event => onNewTodoChange(event.target.value)}
-        disabled={addingTodo}
-      />
-    </form>
-  </header>
-);
+  const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    onNewTodoChange(event.target.value);
+  };
+
+  return (
+    <header className="todoapp__header">
+      {todos.length > 0 && (
+        <button
+          type="button"
+          className={`todoapp__toggle-all ${todos.every(todo => todo.completed) ? 'active' : ''}`}
+          data-cy="ToggleAllButton"
+          onClick={onToggleAll}
+        />
+      )}
+
+      <form onSubmit={handleSubmit}>
+        <input
+          ref={inputRef as React.RefObject<HTMLInputElement>}
+          data-cy="NewTodoField"
+          type="text"
+          className="todoapp__new-todo"
+          placeholder="What needs to be done?"
+          value={newTodo}
+          onChange={handleInputChange}
+          disabled={addingTodo}
+        />
+      </form>
+    </header>
+  );
+};

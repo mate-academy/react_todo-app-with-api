@@ -55,6 +55,22 @@ export const TodoItem: React.FC<Props> = ({
     });
   };
 
+  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    saveTitle();
+  };
+
+  const handleKeyUp = (event: React.KeyboardEvent<HTMLInputElement>) => {
+    if (event.key === 'Escape') {
+      setIsEditing(false);
+    }
+  };
+
+  const handleDoubleClick = () => {
+    setEditedTitle(todo.title);
+    setIsEditing(true);
+  };
+
   return (
     <div data-cy="Todo" className={`todo ${todo.completed ? 'completed' : ''}`}>
       <label className="todo__status-label">
@@ -68,12 +84,7 @@ export const TodoItem: React.FC<Props> = ({
       </label>
 
       {isEditing ? (
-        <form
-          onSubmit={event => {
-            event.preventDefault();
-            saveTitle();
-          }}
-        >
+        <form onSubmit={handleSubmit}>
           <input
             ref={editInputRef}
             data-cy="TodoTitleField"
@@ -82,11 +93,7 @@ export const TodoItem: React.FC<Props> = ({
             value={editedTitle}
             onChange={event => setEditedTitle(event.target.value)}
             onBlur={saveTitle}
-            onKeyUp={event => {
-              if (event.key === 'Escape') {
-                setIsEditing(false);
-              }
-            }}
+            onKeyUp={handleKeyUp}
           />
         </form>
       ) : (
@@ -94,10 +101,7 @@ export const TodoItem: React.FC<Props> = ({
           <span
             data-cy="TodoTitle"
             className="todo__title"
-            onDoubleClick={() => {
-              setEditedTitle(todo.title);
-              setIsEditing(true);
-            }}
+            onDoubleClick={handleDoubleClick}
           >
             {todo.title}
           </span>
