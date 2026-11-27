@@ -1,5 +1,7 @@
 .idea
-.vscode
+.vscode/*
+!.vscode/settings.json
+!.vscode/extensions.json
 build
 dist
 node_modules
